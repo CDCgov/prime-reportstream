@@ -79,13 +79,6 @@ class BlobAccess() : Logging {
         companion object {
 
             /**
-             * Regex used to extract the URL for blob storage
-             */
-            private val blobEndpointRegex = Regex(";BlobEndpoint=(?<blobEndpoint>[^;]+);?")
-            private val blobAccountNameRegex = Regex(";AccountName=(?<accountName>[^;]+);?")
-            private val blobEndpointSuffixRegex = Regex(";EndpointSuffix=(?<endpointSuffix>[^;]+);?")
-
-            /**
              * Builds a [BlobContainerMetadata] object. [envVar] will be resolved to the blobstore connection string.
              */
             fun build(containerName: String, envVar: String): BlobContainerMetadata {
@@ -107,16 +100,18 @@ class BlobAccess() : Logging {
          * @return the URL for the storage and container that this object represents
          */
         fun getBlobEndpoint(): String {
-            val blobEndpointMatch = blobEndpointRegex.find(connectionString)
-            val blobAccountNameMatch = blobAccountNameRegex.find(connectionString)
-            val blobEndpointSuffixMatch = blobEndpointSuffixRegex.find(connectionString)
-            val blobStorageUrl = blobEndpointMatch?.groups?.get("blobEndpoint")?.value
-            val blobAccountName = blobAccountNameMatch?.groups?.get("accountName")?.value
-            val blobEndpointSuffix = blobEndpointSuffixMatch?.groups?.get("endpointSuffix")?.value
-            if (blobStorageUrl != null) {
-                return "$blobStorageUrl/$containerName"
-            } else if (blobAccountName != null && blobEndpointSuffix != null) {
-                return "https://$blobAccountName.blob.$blobEndpointSuffix/$containerName"
+            val parameters = connectionString
+                .split(";")
+                .map { it.split("=") }
+                .associate { it.first() to it.last() }
+
+            val blobEndpoint = parameters["BlobEndpoint"]
+            val endpointSuffix = parameters["EndpointSuffix"]
+            val accountName = parameters["AccountName"]
+            if (blobEndpoint != null) {
+                return "$blobEndpoint/$containerName"
+            } else if (accountName != null && endpointSuffix != null) {
+                return "https://$accountName.blob.$endpointSuffix/$containerName"
             }
             throw RuntimeException("Connection string is misconfigured and does not contain a blob endpoint URL")
         }

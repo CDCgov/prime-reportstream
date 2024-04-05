@@ -439,31 +439,31 @@ class BlobAccessTests {
 
     @Test
     fun `test get blob endpoint URL from BlobContainerMetadata`() {
-        val endpoint =
+        val localEndpoint =
             """
                 DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://localhost:54321/devstoreaccount1;QueueEndpoint=http://localhost:12345/devstoreaccount1;
                 """.trimIndent()
 
-        val metadata = BlobAccess.BlobContainerMetadata("test", endpoint)
+        val metadata = BlobAccess.BlobContainerMetadata("test", localEndpoint)
         assertThat(metadata.getBlobEndpoint()).isEqualTo("http://localhost:54321/devstoreaccount1/test")
     }
 
     @Test
     fun `test get blob endpoint when accountname and suffix are used`() {
-        val endpoint =
+        val deployedEndpoint =
             """
                 DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;EndpointSuffix=core.windows.net
                 """.trimIndent()
 
-        val metadata = BlobAccess.BlobContainerMetadata("test", endpoint)
+        val metadata = BlobAccess.BlobContainerMetadata("test", deployedEndpoint)
         assertThat(metadata.getBlobEndpoint()).isEqualTo("https://devstoreaccount1.blob.core.windows.net/test")
 
-        val endpoint2 =
+        val deployedEndpoint2 =
             """
                 DefaultEndpointsProtocol=http;AccountKey=keydevstoreaccount1;EndpointSuffix=core.windows.net;AccountName=devstoreaccount1;
                 """.trimIndent()
 
-        val metadata2 = BlobAccess.BlobContainerMetadata("test", endpoint2)
+        val metadata2 = BlobAccess.BlobContainerMetadata("test", deployedEndpoint2)
         assertThat(metadata2.getBlobEndpoint()).isEqualTo("https://devstoreaccount1.blob.core.windows.net/test")
     }
 
