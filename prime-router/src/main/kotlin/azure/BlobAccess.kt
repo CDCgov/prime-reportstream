@@ -81,8 +81,8 @@ class BlobAccess() : Logging {
             /**
              * Regex used to extract the URL for blob storage
              */
-            private val blobEndpointRegex = Regex(";BlobEndpoint=(?<blobEndpoint>[^;]+);")
-            private val blobAccountNameRegex = Regex(";AccountName=(?<accountName>[^;]+);")
+            private val blobEndpointRegex = Regex(";BlobEndpoint=(?<blobEndpoint>[^;]+);?")
+            private val blobAccountNameRegex = Regex(";AccountName=(?<accountName>[^;]+);?")
             private val blobEndpointSuffixRegex = Regex(";EndpointSuffix=(?<endpointSuffix>[^;]+);?")
 
             /**

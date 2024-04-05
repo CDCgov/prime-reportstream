@@ -457,6 +457,14 @@ class BlobAccessTests {
 
         val metadata = BlobAccess.BlobContainerMetadata("test", endpoint)
         assertThat(metadata.getBlobEndpoint()).isEqualTo("https://devstoreaccount1.blob.core.windows.net/test")
+
+        val endpoint2 =
+            """
+                DefaultEndpointsProtocol=http;AccountKey=keydevstoreaccount1;EndpointSuffix=core.windows.net;AccountName=devstoreaccount1;
+                """.trimIndent()
+
+        val metadata2 = BlobAccess.BlobContainerMetadata("test", endpoint2)
+        assertThat(metadata2.getBlobEndpoint()).isEqualTo("https://devstoreaccount1.blob.core.windows.net/test")
     }
 
     @Test
