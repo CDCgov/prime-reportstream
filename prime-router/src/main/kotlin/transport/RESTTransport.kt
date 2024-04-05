@@ -25,10 +25,8 @@ import io.ktor.client.engine.apache.Apache
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.ServerResponseException
-import io.ktor.client.plugins.auth.Auth
-import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
@@ -37,6 +35,7 @@ import io.ktor.client.request.accept
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
@@ -110,7 +109,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 launch {
                     try {
                         // parse headers for any dynamic values, OK needs the report ID
-                        var (httpHeaders, bearerTokens: BearerTokens?) = getOAuthToken(
+                        var (httpHeaders, accessToken: String?) = getOAuthToken(
                             restTransportInfo,
                             reportId,
                             jksCredential,
@@ -120,7 +119,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         logger.info("Token successfully added!")
 
                         // post the report
-                        val reportClient = httpClient ?: createDefaultHttpClient(jksCredential, bearerTokens)
+                        val reportClient = httpClient ?: createDefaultHttpClient(jksCredential, accessToken)
                         val response = postReport(
                             reportContent,
                             fileName,
@@ -283,7 +282,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         jksCredential: UserJksCredential?,
         credential: RestCredential,
         logger: Logger,
-    ): Pair<Map<String, String>, BearerTokens?> {
+    ): Pair<Map<String, String>, String?> {
         var httpHeaders = restTransportInfo.headers.mapValues {
             if (it.value == "header.reportFile.reportId") {
                 reportId
@@ -296,7 +295,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         // Usually credential is a UserApiKey, with an apiKey field (NY)
         // if not, try as UserPass with pass field (OK)
         val tokenInfo: TokenInfo
-        var bearerTokens: BearerTokens? = null
         when (credential) {
             is UserApiKeyCredential -> {
                 tokenInfo = getAuthTokenWithUserApiKey(
@@ -306,7 +304,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     tokenClient
                 )
                 // if successful, add the token returned to the token storage
-                bearerTokens = BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
             }
             is UserPassCredential -> {
                 tokenInfo = getAuthTokenWithUserPass(
@@ -326,11 +323,10 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     tokenClient
                 )
                 // if successful, add token as "Authorization:" header
-                bearerTokens = BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
             }
             else -> error("UserApiKey or UserPass credential required")
         }
-        return Pair(httpHeaders, bearerTokens)
+        return Pair(httpHeaders, tokenInfo.accessToken)
     }
 
     /**
@@ -570,21 +566,17 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         private const val TIMEOUT = 120_000
 
         /** Our default Http Client, with an optional SSL context, and optional auth token */
-        private fun createDefaultHttpClient(jks: UserJksCredential?, bearerTokens: BearerTokens?): HttpClient {
+        private fun createDefaultHttpClient(jks: UserJksCredential?, accessToken: String?): HttpClient {
             return HttpClient(Apache) {
                 // installs logging into the call to post to the server
                 install(Logging) {
                     logger = io.ktor.client.plugins.logging.Logger.Companion.SIMPLE
                     level = LogLevel.INFO // LogLevel.INFO for prod, LogLevel.ALL to view full request
                 }
-                // if we have a token, install it
-                bearerTokens?.let {
-                    install(Auth) {
-                        bearer {
-                            loadTokens {
-                                bearerTokens
-                            }
-                        }
+                // not using Bearer Auth handler due to refresh token behavior
+                accessToken?.let {
+                    defaultRequest {
+                        header("Authorization", "Bearer $it")
                     }
                 }
                 // install contentNegotiation to handle json response
