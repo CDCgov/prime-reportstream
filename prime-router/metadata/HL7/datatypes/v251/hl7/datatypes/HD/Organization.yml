@@ -59,7 +59,7 @@ identifier_2:
 
 address:
   condition: $organizationCountry NOT_NULL
-  valueOf: datatype/Address
+  valueOf: datatypes/XAD/Address
   expressionType: resource
   generateList: true
   vars:

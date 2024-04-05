@@ -4,7 +4,7 @@ constants:
 elements:
   - name: ordering-facility-name
     resource: '%resource.generalPractitioner.resolve().ofType(Organization)'
-    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/Organization/XON.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/Organization/XON.yml
     resourceIndex: xonIndex
     constants:
       hl7XONField: '%{hl7PD1Field}-3(%{xonIndex})'

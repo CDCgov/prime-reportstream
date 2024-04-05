@@ -36,7 +36,7 @@ elements:
     resource: '%resource.identifier.extension(%`rsext-assigning-facility`).value.resolve()'
     constants:
       hl7HDField: '%{hl7XCNField}-14'
-    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/Location/HD.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/Location/HD.yml
 
   - name: xcn-name-assembly-order
     value: [ '%resource.name.extension(%`ext-humanname-assembly-order`).value' ]
@@ -44,4 +44,4 @@ elements:
 
   - name: xcn-extension-value
     resource: '%resource.extension(%`rsext-xcn-practitioner`)'
-    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/Practitioner/XCNExtension.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/Practitioner/XCNExtension.yml

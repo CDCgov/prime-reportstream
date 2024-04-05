@@ -304,7 +304,7 @@ class TranslationTests {
                         // Compare the output of an HL7 to FHIR to HL7 conversion
                         config.expectedFormat == Report.Format.HL7 && config.inputFormat == Report.Format.HL7 -> {
                             check(!config.outputSchema.isNullOrBlank())
-                            val bundle = translateToFhir(inputStream.bufferedReader().readText())
+                            val bundle = translateToFhir(inputStream.bufferedReader().readText(), config.profile)
                             val afterEnrichment = if (config.enrichmentSchemas != null) {
                                 runSenderTransformOrEnrichment(bundle, config.enrichmentSchemas)
                             } else {

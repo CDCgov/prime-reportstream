@@ -45,14 +45,14 @@ elements:
     resourceIndex: xonIndex
     constants:
       hl7XONField: '%{hl7PD1Field}-14(%{xonIndex})'
-    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/Organization/XON.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/Organization/XON.yml
 
   - name: advance-directive-code
     resource: '%resource.extension.where(url = "PD1.15").value'
     resourceIndex: cweIndex
     constants:
       cweField: '%{hl7PD1Field}-15(%{cweIndex})'
-    schema: classpath:/metadata/hl7_mapping/v251-elr/datatypes/codeableConcept/CWE.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CE.yml
 
   - name: immunization-registry-status
     hl7Spec: [ '%{hl7PD1Field}-16' ]

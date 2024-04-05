@@ -83,7 +83,8 @@ fun verifyHL7ToFHIRToHL7Mapping(
             true,
             null,
             null,
-            null
+            null,
+            profile = profile
         )
         return TranslationTests().FileConversionTest(hl7toFhirToHl7Config).runTest()
     }

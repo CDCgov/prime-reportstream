@@ -1,13 +1,11 @@
 elements:
 
   - name: message-date-time
-    value:
-      - '%resource.extension("MSH.7").value'
+    value: [ '%resource.extension("MSH.7").value' ]
     hl7Spec: [ MSH-7 ]
 
-  - name: message-control-id
-    value:
-      - '%resource.extension("MSH.10").value'
+  - name: msh-10-message-control-id
+    value: [ '%resource.extension("MSH.10").value' ]
     hl7Spec: [ MSH-10 ]
 
   - name: msh-13-continuation-pointer

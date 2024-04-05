@@ -6,7 +6,7 @@ elements:
   - name: organization-xon-name-type
     condition: >
       %context.extension(%`rsext-organization-name-type`).exists()
-    resource: '%resource.extension(%`rsext-organization-name-type`).value'
+    value: [ '%resource.extension(%`rsext-organization-name-type`).value' ]
     hl7Spec: [ '%{hl7XONField}-2' ]
 
   - name: identifier-check-digit

@@ -5,7 +5,7 @@ elements:
     hl7Spec: [ '%{hl7PV1Field}-1' ]
 
   - name: pv1-patient-class
-    resource: '%resource.class.extension(%`rsext-pv1-2-patient-class`).value'
+    value: [ '%resource.class.extension(%`rsext-pv1-2-patient-class`).value' ]
     hl7Spec: [ '%{hl7PV1Field}-2' ]
 
   - name: pv1-assigned-patient-location
@@ -15,7 +15,7 @@ elements:
       hl7PLField: '%{hl7PV1Field}-3'
 
   - name: pv1-admission-type
-    resource: '%resource.type'
+    value: [ '%resource.type' ]
     hl7Spec: [ '%{hl7PV1Field}-4' ]
 
   - name: pv1-preadmit-number
@@ -52,7 +52,7 @@ elements:
       hl7XCNField: '%{hl7PV1Field}-9(%{xcnIndex})'
 
   - name: pv1-assigned-patient-location
-    resource: '%resource.serviceType'
+    value: [ '%resource.serviceType' ]
     hl7Spec: [ '%{hl7PV1Field}-10' ]
 
   - name: pv1-assigned-patient-location
@@ -62,7 +62,7 @@ elements:
       hl7PLField: '%{hl7PV1Field}-11'
 
   - name: pv1-admit-source
-    resource: '%resource.hospitalization.admitSource'
+    value: [ '%resource.hospitalization.admitSource' ]
     hl7Spec: [ '%{hl7PV1Field}-14' ]
 
   - name: pv1-consulting-doctor
@@ -80,7 +80,7 @@ elements:
       cxField: '%{hl7PV1Field}-19(%{cxIndex})'
 
   - name: pv1-discharge-disposition
-    resource: '%resource.hospitalization.dischargeDisposition'
+    value: [ '%resource.hospitalization.dischargeDisposition' ]
     hl7Spec: [ '%{hl7PV1Field}-36' ]
 
   - name: pv1-discharged-to-location

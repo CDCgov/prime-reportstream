@@ -3,7 +3,7 @@ elements:
     resource: '%resource.extension(%`rsext-software-vendor-org`).value.resolve()'
     constants:
       hl7XONField: 'SFT-1'
-    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/Organization/XON.yml
+    schema: classpath:/metadata/hl7_mapping/v251/resources/Organization/XON.yml
 
   - name: software-version
     value: [ '%resource.version.value' ]
