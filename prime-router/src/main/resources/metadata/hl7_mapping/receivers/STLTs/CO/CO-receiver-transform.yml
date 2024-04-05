@@ -27,6 +27,11 @@ elements:
     value: [ '"11D2030855"' ]
     hl7Spec: [ MSH-4-2 ]
 
+  # MSH 4-3
+  - name: co-reporting-facility-id-type
+    value: [ '"CLIA"' ]
+    hl7Spec: [ MSH-4-3 ]
+
   # MSH 5
   - name: co-receiving-application
     value: [ '"CO-ELR"' ]
