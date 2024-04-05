@@ -196,6 +196,9 @@ e2eCmd.action(async (_, cmd: Command) => {
                 env,
             }),
         );
+
+        // TODO: figure out why this action prevents program from exiting naturally
+        exit(0);
     } catch (e: any) {
         exit(1);
     }
