@@ -7,6 +7,8 @@ import {
     getFrontendAbsolutePath,
     createPromiseResolvers,
     frontendSpawn,
+    onExit,
+    checkProcsError,
 } from "./utils";
 import { getRegexes } from "./generateBrowserslistRegex";
 import { writeFileSync, existsSync } from "node:fs";
@@ -47,7 +49,7 @@ devCmd.action((_, cmd: Command) => {
     // set any VITE vars returned
     process.env = env;
 
-    frontendSpawnSync(
+    const proc = frontendSpawnSync(
         "vite",
         [
             "dev",
@@ -59,6 +61,10 @@ devCmd.action((_, cmd: Command) => {
             env,
         },
     );
+
+    if (checkProcsError([proc])) {
+        exit(1);
+    }
 });
 
 const previewCmd = program
@@ -71,7 +77,6 @@ previewCmd.option("-s, --staging-api", "use the staging api", false);
 previewCmd.action(async (_, cmd: Command) => {
     const opts = cmd.optsWithGlobals();
     const env = loadRedirectedEnv(opts);
-    const { promise } = createPromiseResolvers<void>();
 
     // set any VITE vars returned
     process.env = env;
@@ -80,7 +85,7 @@ previewCmd.action(async (_, cmd: Command) => {
         await build({ mode: env.VITE_MODE });
     }
 
-    const proc = frontendSpawn(
+    const proc = frontendSpawnSync(
         "vite",
         [
             "preview",
@@ -93,13 +98,9 @@ previewCmd.action(async (_, cmd: Command) => {
         },
     );
 
-    proc.on("exit", (code) => exit(code ?? 0));
-    proc.on("error", (err) => {
-        console.error(err.message);
+    if (checkProcsError([proc])) {
         exit(1);
-    });
-
-    return promise;
+    }
 });
 
 const buildCmd = program
@@ -113,7 +114,7 @@ buildCmd.action((_, cmd: Command) => {
     // set any VITE vars returned
     process.env = env;
 
-    frontendSpawnSync(
+    const proc = frontendSpawnSync(
         "vite",
         [
             "build",
@@ -125,6 +126,10 @@ buildCmd.action((_, cmd: Command) => {
             env,
         },
     );
+
+    if (checkProcsError([proc])) {
+        exit(1);
+    }
 });
 
 const testCmd = program
@@ -145,9 +150,13 @@ testCmd.action((_, cmd: Command) => {
     // set any VITE vars returned
     process.env = env;
 
-    frontendSpawnSync("vitest", args, {
+    const proc = frontendSpawnSync("vitest", args, {
         env,
     });
+
+    if (checkProcsError([proc])) {
+        exit(1);
+    }
 });
 
 const e2eCmd = program
@@ -163,7 +172,6 @@ e2eCmd.action(async (_, cmd: Command) => {
     const opts = cmd.optsWithGlobals();
     const env = loadRedirectedEnv(opts);
     const childArgs = getChildArgs(process.argv, opts.passthroughOptions);
-    const { promise } = createPromiseResolvers<void>();
     let _server;
 
     // set any VITE vars returned
@@ -175,20 +183,13 @@ e2eCmd.action(async (_, cmd: Command) => {
         _server = await preview({ preview: { open: opts.open } });
     }
 
-    const proc = frontendSpawn("playwright", ["test", ...childArgs], {
+    const proc = frontendSpawnSync("playwright", ["test", ...childArgs], {
         env,
     });
 
-    proc.on("exit", (code) => {
-        exit(code ?? 0);
-    });
-
-    proc.on("error", (err) => {
-        console.error(err.message);
+    if (checkProcsError([proc])) {
         exit(1);
-    });
-
-    return promise;
+    }
 });
 
 const lintCmd = program
@@ -196,7 +197,7 @@ const lintCmd = program
     .description("run eslint, prettier, and tsc on code");
 lintCmd.option("-E, --errors-only", "show errors only");
 lintCmd.option("-f, --fix", "attempt to automatically fix");
-lintCmd.action((_, cmd: Command) => {
+lintCmd.action(async (_, cmd: Command) => {
     const opts = cmd.optsWithGlobals();
     const eslintArgs = [
         "**/*.{js,ts,jsx,tsx}",
@@ -211,12 +212,18 @@ lintCmd.action((_, cmd: Command) => {
     ];
     const tscArgs: string[] = [];
 
+    const procs = [];
+
     for (const [cmd, args] of [
         ["eslint", eslintArgs],
         ["prettier", prettierArgs],
         ["tsc", tscArgs],
     ] as [cmd: string, args: string[]][]) {
-        frontendSpawnSync(cmd, args);
+        procs.push(frontendSpawnSync(cmd, args));
+    }
+
+    if (checkProcsError(procs)) {
+        exit(1);
     }
 });
 
@@ -227,7 +234,7 @@ const browserslistUpdateCmd = browserslistCmd
     .command("update")
     .description("update browser db");
 browserslistUpdateCmd.action((_, cmd: Command) => {
-    frontendSpawnSync("yarn", [
+    const proc = frontendSpawnSync("yarn", [
         "dlx",
         "-p",
         "browserslist",
@@ -235,6 +242,9 @@ browserslistUpdateCmd.action((_, cmd: Command) => {
         "update-browserslist-db",
         "update-browserslist-db",
     ]);
+    if (checkProcsError([proc])) {
+        exit(1);
+    }
 });
 const browserslistGenerateCmd = browserslistCmd
     .command("generate")
@@ -249,7 +259,7 @@ browserslistGenerateCmd.action((_, cmd: Command) => {
 
     // update browser db first
     if (!opts.skipUpdate) {
-        frontendSpawnSync("yarn", [
+        const proc = frontendSpawnSync("yarn", [
             "dlx",
             "-p",
             "browserslist",
@@ -257,6 +267,8 @@ browserslistGenerateCmd.action((_, cmd: Command) => {
             "update-browserslist-db",
             "update-browserslist-db",
         ]);
+
+        if (checkProcsError([proc])) exit(1);
     }
 
     const defaultOptions = {
@@ -298,13 +310,20 @@ const gitHooksCmd = gitCmd
     .description("performs tasks for particular git lifecycle steps");
 const gitPrecommitHookCmd = gitHooksCmd.command("pre-commit");
 gitPrecommitHookCmd.action(() => {
-    frontendSpawnSync("./scripts/approuter-check.sh");
+    const procs = [];
 
-    frontendSpawnSync("lint-staged");
+    procs.push(
+        frontendSpawnSync("./scripts/approuter-check.sh"),
 
-    browserslistGenerateCmd.parse();
+        frontendSpawnSync("lint-staged"),
+        frontendSpawnSync("cli", ["browserslist", "generate"]),
 
-    frontendSpawnSync("git", ["add", "yarn.lock", "./src/browsers.json"]);
+        frontendSpawnSync("git", ["add", "yarn.lock", "./src/browsers.json"]),
+    );
+
+    if (checkProcsError(procs)) {
+        exit(1);
+    }
 });
 
 const prepareCmd = program
@@ -315,11 +334,15 @@ prepareCmd.action((_, cmd: Command) => {
 
     // Don't install husky on github runners
     if (!process.env.CI && !opts.ci) {
+        const procs = [];
+
         // run husky at repo root (needs .git folder)
         console.log("Installing husky...");
-        frontendSpawnSync("husky", ["frontend-react/.husky"], {
-            cwd: REPO_ABS_PATH,
-        });
+        procs.push(
+            frontendSpawnSync("husky", ["frontend-react/.husky"], {
+                cwd: REPO_ABS_PATH,
+            }),
+        );
         if (!existsSync(join(FRONTEND_ABS_PATH, ".husky/_"))) {
             // husky error output possibly doesn't have newline
             console.error("\nHusky install failed");
@@ -327,9 +350,19 @@ prepareCmd.action((_, cmd: Command) => {
         }
 
         console.log("Fixing git hooks...");
-        frontendSpawnSync("git", ["config", "core.hooksPath", ".git/hooks"], {
-            cwd: REPO_ABS_PATH,
-        });
+        procs.push(
+            frontendSpawnSync(
+                "git",
+                ["config", "core.hooksPath", ".git/hooks"],
+                {
+                    cwd: REPO_ABS_PATH,
+                },
+            ),
+        );
+
+        if (checkProcsError(procs)) {
+            exit(1);
+        }
     } else {
         console.log("CI mode detected. Skipping husky install...");
     }
@@ -337,4 +370,4 @@ prepareCmd.action((_, cmd: Command) => {
     console.log("Frontend prepare complete");
 });
 
-program.parse();
+await program.parseAsync();

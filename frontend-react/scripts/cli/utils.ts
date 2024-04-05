@@ -17,7 +17,8 @@ import {
 import { loadEnv } from "vite";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { Writable, Readable } from "node:stream";
+import { Writable, Readable, EventEmitter } from "node:stream";
+import { exit } from "node:process";
 
 const DEMO_MODES = /^demo\d+$/;
 const TRIALFRONTEND_MODES = /^trialfrontend\d+$/;
@@ -321,11 +322,44 @@ export function frontendSpawn(
     return spawn(command, args as any, opts as any) as any;
 }
 
+export async function onExit(proc: EventEmitter) {
+    const { promise, resolve, reject } = createPromiseResolvers();
+    proc.once("exit", (exitCode, signalCode) => {
+        if (exitCode === 0) {
+            resolve({ exitCode, signalCode });
+        } else {
+            reject(
+                new Error(
+                    `Non-zero exit: code ${exitCode}, signal ${signalCode}`,
+                ),
+            );
+        }
+    });
+    proc.once("error", (err) => {
+        reject(err);
+    });
+
+    try {
+        await promise;
+    } catch (e: any) {
+        exit(1);
+    }
+}
+
 export function createPromiseResolvers<T = unknown>() {
     let resolve, reject;
     const promise = new Promise<T>((res, rej) => {
         resolve = res;
         reject = rej;
     });
-    return { promise, resolve, reject };
+
+    return { promise, resolve, reject } as unknown as {
+        promise: Promise<T>;
+        resolve: (value: T | PromiseLike<T>) => void;
+        reject: (reason?: any) => void;
+    };
+}
+
+export function checkProcsError(procs: SpawnSyncReturns<unknown>[]) {
+    return procs.some((p) => !!p.status || !!p.error);
 }
