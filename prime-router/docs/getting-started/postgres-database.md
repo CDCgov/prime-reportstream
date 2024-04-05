@@ -132,7 +132,7 @@ but you get complete coverage of queries that run.
 ```shell
 docker compose -f docker-compose.build.yml stop postgresql
 docker compose -f docker-compose.build.yml rm postgresql
-docker-compose -f docker-compose.build.yml up -d postgresql
+docker compose -f docker-compose.build.yml up -d postgresql
 ```
 
 ## Logging In

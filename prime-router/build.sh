@@ -139,7 +139,7 @@ if [[ ${PERFORM_CLEAN?} != 0 || ${REFRESH_BUILDER?} != 0 ]]; then
 fi
 
 # Run (which will build if cleaned earlier)
-echo -e "${WHITE?}INFO:${PLAIN?} Running ${ACTION?} $(get_gradle_command $*) through docker-compose"
+echo -e "${WHITE?}INFO:${PLAIN?} Running ${ACTION?} $(get_gradle_command $*) through docker compose"
 docker compose \
   --file "${DOCKER_COMPOSE?}" \
   run "${ACTION?}" $(get_gradle_command $*)

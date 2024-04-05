@@ -91,7 +91,7 @@ Couldn't find env file: /Users/username/Projects/prime-reportstream/prime-router
 usually means that local vault files have been deleted.
 Running `.cleanslate.sh` again will populate these files.
 
-### Docker-compose warnings
+### Docker compose warnings
 
 A warning that is common is an orphan container warning.
 
