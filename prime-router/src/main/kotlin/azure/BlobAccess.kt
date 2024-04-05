@@ -82,6 +82,8 @@ class BlobAccess() : Logging {
              * Regex used to extract the URL for blob storage
              */
             private val blobEndpointRegex = Regex(";BlobEndpoint=(?<blobEndpoint>[^;]+);")
+            private val blobAccountNameRegex = Regex(";AccountName=(?<accountName>[^;]+);")
+            private val blobEndpointSuffixRegex = Regex(";EndpointSuffix=(?<endpointSuffix>[^;]+);?")
 
             /**
              * Builds a [BlobContainerMetadata] object. [envVar] will be resolved to the blobstore connection string.
@@ -105,10 +107,18 @@ class BlobAccess() : Logging {
          * @return the URL for the storage and container that this object represents
          */
         fun getBlobEndpoint(): String {
-            val match = blobEndpointRegex.find(connectionString)
-            val blobStorageUrl = match?.groups?.get("blobEndpoint")?.value
-                ?: throw RuntimeException("Connection string is misconfigured and does not contain a blob endpoint URL")
-            return "$blobStorageUrl/$containerName"
+            val blobEndpointMatch = blobEndpointRegex.find(connectionString)
+            val blobAccountNameMatch = blobAccountNameRegex.find(connectionString)
+            val blobEndpointSuffixMatch = blobEndpointSuffixRegex.find(connectionString)
+            val blobStorageUrl = blobEndpointMatch?.groups?.get("blobEndpoint")?.value
+            val blobAccountName = blobAccountNameMatch?.groups?.get("accountName")?.value
+            val blobEndpointSuffix = blobEndpointSuffixMatch?.groups?.get("endpointSuffix")?.value
+            if (blobStorageUrl != null) {
+                return "$blobStorageUrl/$containerName"
+            } else if (blobAccountName != null && blobEndpointSuffix != null) {
+                return "https://$blobAccountName.blob.$blobEndpointSuffix/$containerName"
+            }
+            throw RuntimeException("Connection string is misconfigured and does not contain a blob endpoint URL")
         }
     }
 

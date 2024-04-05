@@ -449,6 +449,17 @@ class BlobAccessTests {
     }
 
     @Test
+    fun `test get blob endpoint when accountname and suffix are used`() {
+        val endpoint =
+            """
+                DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;EndpointSuffix=core.windows.net
+                """.trimIndent()
+
+        val metadata = BlobAccess.BlobContainerMetadata("test", endpoint)
+        assertThat(metadata.getBlobEndpoint()).isEqualTo("https://devstoreaccount1.blob.core.windows.net/test")
+    }
+
+    @Test
     fun `test blob endpoint URL missing from connection string for BlobContainerMetadata`() {
         val endpoint =
             """
