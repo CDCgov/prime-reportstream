@@ -22,7 +22,7 @@
 You will need to have at least the following pieces of software installed _locally_ in order to be able to build and/or debug this project:
 
 * [git](./install-git.md) including git-bash if you're on Windows
-* [Docker or Docker Desktop](../docs-deprecated/getting-started/install-docker.md)
+* [Docker or Docker Desktop](https://docs.docker.com/get-docker/)
 * [OpenJDK](../docs-deprecated/getting-started/install-openjdk.md) (currently targetting 17)
     * See the linked docs for important instructions on setting `JAVA_HOME`
 * [Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer)
@@ -89,17 +89,17 @@ start is run on a non-Apple processor:
 - soap-webservice - SOAP web service emulator
 
 ```bash
-docker-compose -f docker-compose.build.yml up --detach
+docker compose -f docker-compose.build.yml up --detach
 ```
 
 Additionally, to ensure that Vault is running and the credentials are stored correctly, run the following (which is
 normally covered by `cleanslate.sh` on non-Apple processors):
 
 ```bash
-docker-compose up --detach vault 1>/dev/null 2>/dev/null
+docker compose up --detach vault 1>/dev/null 2>/dev/null
 ```
 
-You can take down these services by running `./gradlew composeDown` or `docker-compose down` command.
+You can take down these services by running `./gradlew composeDown` or `docker compose down` command.
 For now, leave these services running and open up a new terminal session.
 </details>
 
@@ -123,7 +123,7 @@ Building and running ReportStream requires a locally accessible PostgreSQL datab
 
 ```bash
 cd ./prime-router
-docker-compose --file "docker-compose.build.yml" up --detach
+docker compose --file "docker-compose.build.yml" up --detach
 ```
 
 <details>
