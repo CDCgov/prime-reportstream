@@ -1,11 +1,10 @@
-import { Command } from "commander";
+import { Command, Option } from "commander";
 import { preview, build } from "vite";
 import {
     getChildArgs,
     loadRedirectedEnv,
     frontendSpawnSync,
     getFrontendAbsolutePath,
-    createPromiseResolvers,
     frontendSpawn,
     onExit,
     checkProcsError,
@@ -30,7 +29,7 @@ program.option(
     "which special environment to configure for (ex: demo, trialfrontend, etc.)",
 );
 program.option("-d, --debug", "debug mode");
-program.option("--ci", "run in CI mode");
+program.addOption(new Option("--ci", "run in CI mode").env("CI"));
 program.option(
     "-p, --passthrough-options [OPTIONS]",
     "use if aliasing a command so as not to prevent users from passing internal options (will be passed on first before user-supplied ones)",
