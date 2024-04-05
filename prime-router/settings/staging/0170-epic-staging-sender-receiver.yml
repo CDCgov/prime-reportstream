@@ -81,7 +81,7 @@
           customLengthHl7Fields: {}
       jurisdictionalFilter:
         - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01')"
-        - "(%performerState.exists() and %performerState = 'LA') or (%patientState.exists() and %patientState = 'LA')"
+        - "(Bundle.entry.resource.ofType(MessageHeader).destination.name = 'Epic' and Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value.contains('Centracare')).exists())"
         - "(Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR')"
       qualityFilter:
         - "true"
@@ -105,7 +105,6 @@
         type: REST
         authTokenUrl: ""
         reportUrl: "https://hd1314496.epic.com/Interconnect-collabNov/api/epic/2015/EDI/HTTP/HL7v2/334301"
-        tlsKeystore: NY-PHD--ELR--JKS
         headers:
           Content-Length: "<calculated when request is sent>"
           Content-Type: "application/hl7-v2"
