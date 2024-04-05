@@ -24,6 +24,13 @@ const DEMO_MODES = /^demo\d+$/;
 const TRIALFRONTEND_MODES = /^trialfrontend\d+$/;
 const __dirname = getUrlDirname(import.meta.url);
 
+export const FRONTEND_ABS_PATH = getFrontendAbsolutePath();
+export const REPO_ABS_PATH = join(FRONTEND_ABS_PATH, "../");
+export const BROWSERS_OUTPUT_PATH = join(
+    FRONTEND_ABS_PATH,
+    "./src/browsers.json",
+);
+
 export function getApiProxyUrl(
     NODE_ENV: string,
     RS_ENV?: string,
