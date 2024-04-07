@@ -6265,12 +6265,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns-tz@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "date-fns-tz@npm:2.0.0"
+"date-fns-tz@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "date-fns-tz@npm:3.0.0"
+  dependencies:
+    lodash.clonedeep: ^4.5.0
   peerDependencies:
-    date-fns: ">=2.0.0"
-  checksum: a6553603a9d26dd9669326c99a58a2335ac550bc060c74b86a5ad9e1de73c9d4e3e5236f0f552f990e616e4e8dcc2b6a637913a04d2e04396e6a9f8ae83c73da
+    date-fns: ^3.0.0
+  checksum: f6c963bc63c3db50f86d0cc9b68bf7209fbf73b5bf2927eed41f7509d4ad9dabf69cfb125e78ca0e0660e7d4594acfb5bd297740ae47a96cd601b222264d857f
   languageName: node
   linkType: hard
 
@@ -9990,6 +9992,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash.clonedeep@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "lodash.clonedeep@npm:4.5.0"
+  checksum: 92c46f094b064e876a23c97f57f81fbffd5d760bf2d8a1c61d85db6d1e488c66b0384c943abee4f6af7debf5ad4e4282e74ff83177c9e63d8ff081a4837c3489
+  languageName: node
+  linkType: hard
+
 "lodash.debounce@npm:^4.0.8":
   version: 4.0.8
   resolution: "lodash.debounce@npm:4.0.8"
@@ -12436,7 +12445,7 @@ __metadata:
     classnames: ^2.5.1
     cross-env: ^7.0.3
     date-fns: ^3.6.0
-    date-fns-tz: ^2.0.0
+    date-fns-tz: ^3.0.0
     dompurify: ^3.0.11
     dotenv-flow: ^4.1.0
     downloadjs: ^1.4.7
