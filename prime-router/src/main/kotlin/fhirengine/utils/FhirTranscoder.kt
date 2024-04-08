@@ -66,7 +66,6 @@ object FhirTranscoder : Logging {
      */
     fun getBundles(rawMessage: String, actionLogger: ActionLogger): List<Bundle> {
         val timeSource = TimeSource.Monotonic
-        val start = timeSource.markNow()
         val bundles: MutableList<Bundle> = mutableListOf()
         if (rawMessage.isBlank()) {
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
@@ -93,7 +92,7 @@ object FhirTranscoder : Logging {
             val end = timeSource.markNow()
             withLoggingContext(
                 mapOf(
-                    "timeInMs" to (end - start).inWholeMilliseconds.toString(),
+                    "timeInMs" to end.elapsedNow().inWholeMilliseconds.toString(),
                     "numberOfLines" to index.toString()
                 )
             ) {
