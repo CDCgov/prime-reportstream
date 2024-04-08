@@ -26,6 +26,7 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.TestcontainersUtils
 import io.mockk.CapturingSlot
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -39,10 +40,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.testcontainers.containers.GenericContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import org.testcontainers.utility.DockerImageName
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -62,16 +61,20 @@ class BlobAccessTests {
     @Nested
     inner class BlobAccessIntegrationTests {
         @Container
-        val azuriteContainer1 =
-            GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
-                .withEnv("AZURITE_ACCOUNTS", "devstoreaccount1:keydevstoreaccount1")
-                .withExposedPorts(10000, 10001, 10002)
+        val azuriteContainer1 = TestcontainersUtils.createAzuriteContainer(
+            customImageName = "azurite_blobaccess1",
+            customEnv = mapOf(
+                "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
+            )
+        )
 
         @Container
-        val azuriteContainer2 =
-            GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
-                .withEnv("AZURITE_ACCOUNTS", "devstoreaccount2:keydevstoreaccount2")
-                .withExposedPorts(10000, 10001, 10002)
+        val azuriteContainer2 = TestcontainersUtils.createAzuriteContainer(
+            customImageName = "azurite_blobaccess2",
+            customEnv = mapOf(
+                "AZURITE_ACCOUNTS" to "devstoreaccount2:keydevstoreaccount2"
+            )
+        )
 
         @AfterEach
         fun afterEach() {
