@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test";
-import fs from "fs";
-import { selectTestOrg } from "../helpers/utils";
+import { selectTestOrg, tableData } from "../helpers/utils";
+import { tableHeaders, title } from "../pages/daily-data";
 import * as reportDetails from "../pages/report-details";
 
 const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
-
+const fileName = `hhsprotect-covid-19-73e3cbc8-9920-4ab7-871f-843a1db4c074.csv`;
 test.describe("Daily Data Details page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
@@ -24,91 +24,40 @@ test.describe("Daily Data Details page", () => {
             });
 
             test("has correct title", async ({ page }) => {
-                await expect(page).toHaveTitle(
-                    /ReportStream - CDC's free, interoperable data transfer platform/,
-                );
+                await title(page);
             });
 
             test.describe("table", () => {
                 test("has correct headers", async ({ page }) => {
-                    await expect(
-                        page.locator(".usa-table th").nth(0),
-                    ).toHaveText(/Facility/);
-                    await expect(
-                        page.locator(".usa-table th").nth(1),
-                    ).toHaveText(/Location/);
-                    await expect(
-                        page.locator(".usa-table th").nth(2),
-                    ).toHaveText(/CLIA/);
-                    await expect(
-                        page.locator(".usa-table th").nth(3),
-                    ).toHaveText(/Total tests/);
-                    await expect(
-                        page.locator(".usa-table th").nth(4),
-                    ).toHaveText(/Total positive/);
+                    await tableHeaders(page);
                 });
 
                 test("'Facility' column has expected data", async ({
                     page,
                 }) => {
-                    await expect(
-                        page
-                            .locator(".usa-table tbody")
-                            .locator("tr")
-                            .nth(0)
-                            .locator("td")
-                            .nth(0),
-                    ).toHaveText("Any lab USA 1");
+                    await tableData(page, 0, 0, "Any lab USA 1");
                 });
 
                 test("'Location' column has expected data", async ({
                     page,
                 }) => {
-                    await expect(
-                        page
-                            .locator(".usa-table tbody")
-                            .locator("tr")
-                            .nth(0)
-                            .locator("td")
-                            .nth(1),
-                    ).toHaveText("Juneau, AK");
+                    await tableData(page, 0, 1, "Juneau, AK");
                 });
 
                 test("'CLIA' column has expected data", async ({ page }) => {
-                    await expect(
-                        page
-                            .locator(".usa-table tbody")
-                            .locator("tr")
-                            .nth(0)
-                            .locator("td")
-                            .nth(2),
-                    ).toHaveText("34D8574402");
+                    await tableData(page, 0, 2, "34D8574402");
                 });
 
                 test("'Total tests' column has expected data", async ({
                     page,
                 }) => {
-                    await expect(
-                        page
-                            .locator(".usa-table tbody")
-                            .locator("tr")
-                            .nth(0)
-                            .locator("td")
-                            .nth(3),
-                    ).toHaveText("10");
+                    await tableData(page, 0, 3, "10");
                 });
 
                 test("'Total positive' column has expected data", async ({
                     page,
                 }) => {
-                    await expect(
-                        page
-                            .locator(".usa-table tbody")
-                            .locator("tr")
-                            .nth(0)
-                            .locator("td")
-                            .nth(4),
-                    ).toHaveText("1");
+                    await tableData(page, 0, 4, "1");
                 });
             });
 
@@ -126,111 +75,45 @@ test.describe("Daily Data Details page", () => {
             });
 
             test("has correct title", async ({ page }) => {
-                await expect(page).toHaveTitle(
-                    /ReportStream - CDC's free, interoperable data transfer platform/,
-                );
+                await title(page);
             });
 
             test.describe("table", () => {
                 test("has correct headers", async ({ page }) => {
-                    await expect(
-                        page.locator(".usa-table th").nth(0),
-                    ).toHaveText(/Facility/);
-                    await expect(
-                        page.locator(".usa-table th").nth(1),
-                    ).toHaveText(/Location/);
-                    await expect(
-                        page.locator(".usa-table th").nth(2),
-                    ).toHaveText(/CLIA/);
-                    await expect(
-                        page.locator(".usa-table th").nth(3),
-                    ).toHaveText(/Total tests/);
-                    await expect(
-                        page.locator(".usa-table th").nth(4),
-                    ).toHaveText(/Total positive/);
+                    await tableHeaders(page);
                 });
 
                 test("'Facility' column has expected data", async ({
                     page,
                 }) => {
-                    await expect(
-                        page
-                            .locator(".usa-table tbody")
-                            .locator("tr")
-                            .nth(0)
-                            .locator("td")
-                            .nth(0),
-                    ).toHaveText("Any lab USA 1");
+                    await tableData(page, 0, 0, "Any lab USA 1");
                 });
 
                 test("'Location' column has expected data", async ({
                     page,
                 }) => {
-                    await expect(
-                        page
-                            .locator(".usa-table tbody")
-                            .locator("tr")
-                            .nth(0)
-                            .locator("td")
-                            .nth(1),
-                    ).toHaveText("Juneau, AK");
+                    await tableData(page, 0, 1, "Juneau, AK");
                 });
 
                 test("'CLIA' column has expected data", async ({ page }) => {
-                    await expect(
-                        page
-                            .locator(".usa-table tbody")
-                            .locator("tr")
-                            .nth(0)
-                            .locator("td")
-                            .nth(2),
-                    ).toHaveText("34D8574402");
+                    await tableData(page, 0, 2, "34D8574402");
                 });
 
                 test("'Total tests' column has expected data", async ({
                     page,
                 }) => {
-                    await expect(
-                        page
-                            .locator(".usa-table tbody")
-                            .locator("tr")
-                            .nth(0)
-                            .locator("td")
-                            .nth(3),
-                    ).toHaveText("10");
+                    await tableData(page, 0, 3, "10");
                 });
 
                 test("'Total positive' column has expected data", async ({
                     page,
                 }) => {
-                    await expect(
-                        page
-                            .locator(".usa-table tbody")
-                            .locator("tr")
-                            .nth(0)
-                            .locator("td")
-                            .nth(4),
-                    ).toHaveText("1");
+                    await tableData(page, 0, 4, "1");
                 });
             });
 
             test("should download file", async ({ page }) => {
-                await reportDetails.mockGetHistoryReportResponse(page, id);
-                const [download] = await Promise.all([
-                    // Start waiting for the download
-                    page.waitForEvent("download"),
-                    // Perform the action that initiates download
-                    await page.getByRole("button", { name: "CSV" }).click(),
-                ]);
-
-                // assert filename
-                expect(download.suggestedFilename()).toBe(
-                    `hhsprotect-covid-19-${id}.csv`,
-                );
-                // get and assert stats
-                expect(
-                    (await fs.promises.stat(await download.path())).size,
-                ).toBeGreaterThan(200);
+                await reportDetails.downloadFile(page, id, fileName);
             });
 
             test("has footer", async ({ page }) => {
@@ -271,105 +154,39 @@ test.describe("Daily Data Details page", () => {
         });
 
         test("has correct title", async ({ page }) => {
-            await expect(page).toHaveTitle(
-                /ReportStream - CDC's free, interoperable data transfer platform/,
-            );
+            await title(page);
         });
 
         test.describe("table", () => {
             test("has correct headers", async ({ page }) => {
-                await expect(page.locator(".usa-table th").nth(0)).toHaveText(
-                    /Facility/,
-                );
-                await expect(page.locator(".usa-table th").nth(1)).toHaveText(
-                    /Location/,
-                );
-                await expect(page.locator(".usa-table th").nth(2)).toHaveText(
-                    /CLIA/,
-                );
-                await expect(page.locator(".usa-table th").nth(3)).toHaveText(
-                    /Total tests/,
-                );
-                await expect(page.locator(".usa-table th").nth(4)).toHaveText(
-                    /Total positive/,
-                );
+                await tableHeaders(page);
             });
 
             test("'Facility' column has expected data", async ({ page }) => {
-                await expect(
-                    page
-                        .locator(".usa-table tbody")
-                        .locator("tr")
-                        .nth(0)
-                        .locator("td")
-                        .nth(0),
-                ).toHaveText("Any lab USA 1");
+                await tableData(page, 0, 0, "Any lab USA 1");
             });
 
             test("'Location' column has expected data", async ({ page }) => {
-                await expect(
-                    page
-                        .locator(".usa-table tbody")
-                        .locator("tr")
-                        .nth(0)
-                        .locator("td")
-                        .nth(1),
-                ).toHaveText("Juneau, AK");
+                await tableData(page, 0, 1, "Juneau, AK");
             });
 
             test("'CLIA' column has expected data", async ({ page }) => {
-                await expect(
-                    page
-                        .locator(".usa-table tbody")
-                        .locator("tr")
-                        .nth(0)
-                        .locator("td")
-                        .nth(2),
-                ).toHaveText("34D8574402");
+                await tableData(page, 0, 2, "34D8574402");
             });
 
             test("'Total tests' column has expected data", async ({ page }) => {
-                await expect(
-                    page
-                        .locator(".usa-table tbody")
-                        .locator("tr")
-                        .nth(0)
-                        .locator("td")
-                        .nth(3),
-                ).toHaveText("10");
+                await tableData(page, 0, 3, "10");
             });
 
             test("'Total positive' column has expected data", async ({
                 page,
             }) => {
-                await expect(
-                    page
-                        .locator(".usa-table tbody")
-                        .locator("tr")
-                        .nth(0)
-                        .locator("td")
-                        .nth(4),
-                ).toHaveText("1");
+                await tableData(page, 0, 4, "1");
             });
         });
 
         test("should download file", async ({ page }) => {
-            await reportDetails.mockGetHistoryReportResponse(page, id);
-            const [download] = await Promise.all([
-                // Start waiting for the download
-                page.waitForEvent("download"),
-                // Perform the action that initiates download
-                await page.getByRole("button", { name: "CSV" }).click(),
-            ]);
-
-            // assert filename
-            expect(download.suggestedFilename()).toBe(
-                `hhsprotect-covid-19-${id}.csv`,
-            );
-            // get and assert stats
-            expect(
-                (await fs.promises.stat(await download.path())).size,
-            ).toBeGreaterThan(200);
+            await reportDetails.downloadFile(page, id, fileName);
         });
 
         test("has footer", async ({ page }) => {

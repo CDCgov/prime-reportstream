@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import fs from "node:fs";
 import { MOCK_GET_DELIVERY } from "../mocks/delivery";
 import { MOCK_GET_FACILITIES } from "../mocks/facilities";
 import { MOCK_GET_HISTORY_REPORT } from "../mocks/historyReport";
@@ -50,4 +51,21 @@ export async function mockGetHistoryReportResponse(
         const json = MOCK_GET_HISTORY_REPORT;
         await route.fulfill({ json, status: responseStatus });
     });
+}
+
+export async function downloadFile(page: Page, id: string, fileName: string) {
+    await mockGetHistoryReportResponse(page, id);
+    const [download] = await Promise.all([
+        // Start waiting for the download
+        page.waitForEvent("download"),
+        // Perform the action that initiates download
+        await page.getByRole("button", { name: "CSV" }).click(),
+    ]);
+
+    // assert filename
+    expect(download.suggestedFilename()).toBe(fileName);
+    // get and assert stats
+    expect(
+        (await fs.promises.stat(await download.path())).size,
+    ).toBeGreaterThan(200);
 }

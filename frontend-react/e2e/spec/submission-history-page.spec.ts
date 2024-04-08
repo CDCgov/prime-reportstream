@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { selectTestOrg, TEST_ORG_IGNORE } from "../helpers/utils";
+import { selectTestOrg, tableData, TEST_ORG_IGNORE } from "../helpers/utils";
 import { reportIdDetailPage } from "../pages/report-details";
 import * as submissionHistory from "../pages/submission-history";
 
@@ -62,21 +62,7 @@ test.describe("Submission history page", () => {
 
             test.describe("table", () => {
                 test("table has correct headers", async ({ page }) => {
-                    await expect(
-                        page.locator(".usa-table th").nth(0),
-                    ).toHaveText(/Report ID/);
-                    await expect(
-                        page.locator(".usa-table th").nth(1),
-                    ).toHaveText("Date/time submitted");
-                    await expect(
-                        page.locator(".usa-table th").nth(2),
-                    ).toHaveText(/File/);
-                    await expect(
-                        page.locator(".usa-table th").nth(3),
-                    ).toHaveText(/Records/);
-                    await expect(
-                        page.locator(".usa-table th").nth(4),
-                    ).toHaveText(/Status/);
+                    await submissionHistory.tableHeaders(page);
                 });
 
                 test("table column 'ReportId' will open the report details", async ({
@@ -103,40 +89,19 @@ test.describe("Submission history page", () => {
                 test("table column 'Date/time submitted' has expected data", async ({
                     page,
                 }) => {
-                    await expect(
-                        page
-                            .locator(".usa-table tbody")
-                            .locator("tr")
-                            .nth(0)
-                            .locator("td")
-                            .nth(1),
-                    ).toHaveText("3/7/2024, 6:00:22 PM");
+                    await tableData(page, 0, 1, "3/7/2024, 6:00:22 PM");
                 });
 
                 test("table column 'Records' has expected data", async ({
                     page,
                 }) => {
-                    await expect(
-                        page
-                            .locator(".usa-table tbody")
-                            .locator("tr")
-                            .nth(0)
-                            .locator("td")
-                            .nth(3),
-                    ).toHaveText("1");
+                    await tableData(page, 0, 3, "1");
                 });
 
                 test("table column 'Status' has expected data", async ({
                     page,
                 }) => {
-                    await expect(
-                        page
-                            .locator(".usa-table tbody")
-                            .locator("tr")
-                            .nth(0)
-                            .locator("td")
-                            .nth(4),
-                    ).toHaveText("Success");
+                    await tableData(page, 0, 4, "Success");
                 });
 
                 test("table has pagination", async ({ page }) => {
@@ -206,21 +171,7 @@ test.describe("Submission history page", () => {
 
         test.describe("table", () => {
             test("table has correct headers", async ({ page }) => {
-                await expect(page.locator(".usa-table th").nth(0)).toHaveText(
-                    /Report ID/,
-                );
-                await expect(page.locator(".usa-table th").nth(1)).toHaveText(
-                    "Date/time submitted",
-                );
-                await expect(page.locator(".usa-table th").nth(2)).toHaveText(
-                    /File/,
-                );
-                await expect(page.locator(".usa-table th").nth(3)).toHaveText(
-                    /Records/,
-                );
-                await expect(page.locator(".usa-table th").nth(4)).toHaveText(
-                    /Status/,
-                );
+                await submissionHistory.tableHeaders(page);
             });
 
             test("table column 'ReportId' will open the report details", async ({
@@ -245,40 +196,19 @@ test.describe("Submission history page", () => {
             test("table column 'Date/time submitted' has expected data", async ({
                 page,
             }) => {
-                await expect(
-                    page
-                        .locator(".usa-table tbody")
-                        .locator("tr")
-                        .nth(0)
-                        .locator("td")
-                        .nth(1),
-                ).toHaveText("3/7/2024, 6:00:22 PM");
+                await tableData(page, 0, 1, "3/7/2024, 6:00:22 PM");
             });
 
             test("table column 'Records' has expected data", async ({
                 page,
             }) => {
-                await expect(
-                    page
-                        .locator(".usa-table tbody")
-                        .locator("tr")
-                        .nth(0)
-                        .locator("td")
-                        .nth(3),
-                ).toHaveText("1");
+                await tableData(page, 0, 3, "1");
             });
 
             test("table column 'Status' has expected data", async ({
                 page,
             }) => {
-                await expect(
-                    page
-                        .locator(".usa-table tbody")
-                        .locator("tr")
-                        .nth(0)
-                        .locator("td")
-                        .nth(4),
-                ).toHaveText("Success");
+                await tableData(page, 0, 4, "Success");
             });
 
             test("table has pagination", async ({ page }) => {
