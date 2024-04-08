@@ -7,6 +7,6 @@ class DLDToLocationTests {
 
     @Test
     fun `verify HL7 to FHIR to HL7 all leaves populated`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("dld/DLD-to-Location").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/dld/DLD-to-Location").passed)
     }
 }

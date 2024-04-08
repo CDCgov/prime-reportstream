@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 class NTEToAnnotationTests {
     @Test
     fun `can accurately map from HL7 to FHIR to HL7`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("nte/NTE-to-annotation").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/nte/NTE-to-annotation").passed)
     }
 
     /**

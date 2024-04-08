@@ -7,6 +7,6 @@ class EIToDeviceUDICarrierTests {
 
     @Test
     fun `EI to Device UDI Carrier`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("ei/EI-to-Device-UDI-Carrier").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/ei/EI-to-Device-UDI-Carrier").passed)
     }
 }

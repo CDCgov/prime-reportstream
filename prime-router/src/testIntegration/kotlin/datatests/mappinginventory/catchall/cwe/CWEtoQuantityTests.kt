@@ -8,6 +8,6 @@ class CWEtoQuantityTests {
     @Ignore
     @Test
     fun `test values in OBX-6`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("cwe/quantity/cwe-quantity").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/cwe/quantity/cwe-quantity").passed)
     }
 }

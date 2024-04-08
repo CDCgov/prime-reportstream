@@ -11,21 +11,21 @@ class HDToLocationTests {
 
     @Test
     fun `test correctly handles ISO universal id type`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("hd/HD-to-Location-iso").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/hd/HD-to-Location-iso").passed)
     }
 
     @Test
     fun `test correctly handles UUID universal id type`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("hd/HD-to-Location-uuid").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/hd/HD-to-Location-uuid").passed)
     }
 
     @Test
     fun `test correctly handles unknown universal id type`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("hd/HD-to-Location-dns").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/hd/HD-to-Location-dns").passed)
     }
 
     @Test
     fun `test correctly handles HD3 being empty`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("hd/HD-to-Location-empty-hd3").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/hd/HD-to-Location-empty-hd3").passed)
     }
 }

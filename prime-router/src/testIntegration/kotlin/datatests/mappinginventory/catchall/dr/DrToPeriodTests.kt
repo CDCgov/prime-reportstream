@@ -6,6 +6,6 @@ import org.junit.jupiter.api.Test
 class DrToPeriodTests {
     @Test
     fun `test correctly handles DR datatype`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("dr/dr-to-period").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/dr/dr-to-period").passed)
     }
 }

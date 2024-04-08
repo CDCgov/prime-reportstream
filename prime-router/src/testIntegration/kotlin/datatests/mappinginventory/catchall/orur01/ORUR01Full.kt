@@ -6,6 +6,6 @@ import org.junit.jupiter.api.Test
 class ORUR01Full {
     @Test
     fun `test ORU_R01 all segments`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("orur01/oru_r01-full").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/orur01/oru_r01-full").passed)
     }
 }

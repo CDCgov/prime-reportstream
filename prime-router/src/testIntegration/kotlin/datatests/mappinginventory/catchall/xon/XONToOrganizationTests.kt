@@ -11,16 +11,16 @@ class XONToOrganizationTests {
 
     @Test
     fun `test translate to HL7 to FHIR to HL7`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("xon/xon-to-organization").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/xon/xon-to-organization").passed)
     }
 
     @Test
     fun `test translate to HL7 to FHIR to HL7 when XON-10 is populated`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("xon/xon-to-organization-xon10-populated").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/xon/xon-to-organization-xon10-populated").passed)
     }
 
     @Test
     fun `test translate to HL7 to FHIR to HL7 when XON-10 is populated and XON-3 is empty`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("xon/xon-to-organization-xon10-populated-xon3-empty").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/xon/xon-to-organization-xon10-populated-xon3-empty").passed)
     }
 }

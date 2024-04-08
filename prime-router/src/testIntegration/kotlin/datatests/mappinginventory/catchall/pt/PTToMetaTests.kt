@@ -7,6 +7,6 @@ class PTToMetaTests {
 
     @Test
     fun `test translate to PT to Meta to PT`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("pt/PT-to-Meta").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/pt/PT-to-Meta").passed)
     }
 }

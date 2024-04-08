@@ -25,9 +25,9 @@ class ORCOBRToServiceRequestDiagnosticReportTests {
 
     @Test
     fun `test handles different specimen action codes`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("orcobr/orc_obr-to-servicerequest_diagnosticreport-obr11-g").passed)
-        assert(verifyHL7ToFHIRToHL7Mapping("orcobr/orc_obr-to-servicerequest_diagnosticreport-obr11-a").passed)
-        assert(verifyHL7ToFHIRToHL7Mapping("orcobr/orc_obr-to-servicerequest_diagnosticreport-obr11-l").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/orcobr/orc_obr-to-servicerequest_diagnosticreport-obr11-g").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/orcobr/orc_obr-to-servicerequest_diagnosticreport-obr11-a").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/orcobr/orc_obr-to-servicerequest_diagnosticreport-obr11-l").passed)
     }
 
     @Test
@@ -38,7 +38,11 @@ class ORCOBRToServiceRequestDiagnosticReportTests {
 
     @Test
     fun `test will correctly set authoredOn`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("orcobr/orc_obr-to-servicerequest_diagnosticreport-sets-authored-on").passed)
+        assert(
+            verifyHL7ToFHIRToHL7Mapping(
+                "catchall/orcobr/orc_obr-to-servicerequest_diagnosticreport-sets-authored-on"
+            ).passed
+        )
     }
 
     @Test

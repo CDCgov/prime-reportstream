@@ -8,16 +8,16 @@ import org.junit.jupiter.api.Test
 class NK1ToRelatedPersonTests {
     @Test
     fun `can accurately map from HL7 to FHIR to HL7`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("nk1/NK1-to-RelatedPerson").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/nk1/NK1-to-RelatedPerson").passed)
     }
 
     @Test
     fun `can accurately map from mosty empty HL7 to FHIR to HL7`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("nk1/NK1-to-RelatedPerson-mostly-empty").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/nk1/NK1-to-RelatedPerson-mostly-empty").passed)
     }
 
     @Test
     fun `can accurately map from HL7 with repeats to FHIR to HL7`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("nk1/NK1-to-RelatedPerson-with-repeats").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/nk1/NK1-to-RelatedPerson-with-repeats").passed)
     }
 }

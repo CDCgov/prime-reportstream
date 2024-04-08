@@ -7,6 +7,6 @@ class EIToIdentifierExtensionTests {
 
     @Test
     fun `EI to Identifier Extension`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("ei/EI-to-Identifier-Extension").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/ei/EI-to-Identifier-Extension").passed)
     }
 }

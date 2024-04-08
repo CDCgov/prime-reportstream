@@ -7,11 +7,11 @@ class EIToIdentifierTests {
 
     @Test
     fun `verify HL7 to FHIR to HL7 default assigner`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("ei/EI-to-Identifier-default-assigner").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/ei/EI-to-Identifier-default-assigner").passed)
     }
 
     @Test
     fun `verify HL7 to FHIR to HL7 organization assigner`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("ei/EI-to-Identifier-organization-assigner").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/ei/EI-to-Identifier-organization-assigner").passed)
     }
 }
