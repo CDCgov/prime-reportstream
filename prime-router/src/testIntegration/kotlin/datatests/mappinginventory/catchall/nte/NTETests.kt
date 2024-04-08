@@ -20,7 +20,7 @@ class NTEToAnnotationTests {
     fun `can acccurately map an authorString fhir attribute to an NTE segment`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
-                "nte/annotation_author_string_resource_test_file",
+                "catchall/nte/annotation_author_string_resource_test_file",
                 skipHl7ToFhir = true,
                 skipHl7ToHl7 = true
             ).passed

@@ -15,7 +15,7 @@ class XTNToContactPointTests {
     fun `XTN test value in XTN-3, XTN-7 and no value in XTN-12`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
-                "xtn/contact-point/xtn_3_test_value_in_xtn3_xtn7_no_value_in_xtn12"
+                "catchall/xtn/contact-point/xtn_3_test_value_in_xtn3_xtn7_no_value_in_xtn12"
             ).passed
         )
     }
@@ -24,7 +24,7 @@ class XTNToContactPointTests {
     fun `XTN test value in XTN-3, XTN-12 and no value in XTN-7`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
-                "xtn/contact-point/xtn_3_test_value_in_xtn3_xtn12_no_value_in_xtn7"
+                "catchall/xtn/contact-point/xtn_3_test_value_in_xtn3_xtn12_no_value_in_xtn7"
             ).passed
         )
     }
@@ -33,7 +33,7 @@ class XTNToContactPointTests {
     fun `XTN test value in XTN-3 and no value in XTN-7, XTN-12`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
-                "xtn/contact-point/xtn_3_5_test_value_in_xtn3_no_value_in_xtn7_xtn12"
+                "catchall/xtn/contact-point/xtn_3_5_test_value_in_xtn3_no_value_in_xtn7_xtn12"
             ).passed
         )
     }

@@ -24,7 +24,7 @@ class OBXToObservationTests {
     fun `test converts with VR for obx2`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
-                "obx/OBX-to-Observation-vr-value",
+                "catchall/obx/OBX-to-Observation-vr-value",
             ).passed
         )
     }
@@ -127,7 +127,7 @@ class OBXToObservationTests {
     fun `test correctly handles OBX-18 device identifier missing values`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
-                "obx/OBX-to-Observation-obx-18-extra-device-identifier",
+                "catchall/obx/OBX-to-Observation-obx-18-extra-device-identifier",
                 skipHl7ToFhir = true
             ).passed
         )

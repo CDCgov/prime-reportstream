@@ -9,7 +9,7 @@ class HDToOrganizationTests {
     fun `test that an ISO HD HL7 datatype can be mapped to a FHIR Organization`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
-                "hd/HD-to-Organization-iso"
+                "catchall/hd/HD-to-Organization-iso"
             ).passed
         )
     }
@@ -18,7 +18,7 @@ class HDToOrganizationTests {
     fun `test that an UUID HD HL7 datatype can be mapped to a FHIR Organization`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
-                "hd/HD-to-Organization-uuid"
+                "catchall/hd/HD-to-Organization-uuid"
             ).passed
         )
     }
@@ -27,7 +27,7 @@ class HDToOrganizationTests {
     fun `test that identifier2 system is not set for unknown system type`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
-                "hd/HD-to-Organization-clia"
+                "catchall/hd/HD-to-Organization-clia"
             ).passed
         )
     }
@@ -36,7 +36,7 @@ class HDToOrganizationTests {
     fun `test that the mapping handles a missing HD3 value`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
-                "hd/HD-to-Organization-empty-hd3"
+                "catchall/hd/HD-to-Organization-empty-hd3"
             ).passed
         )
     }

@@ -206,7 +206,7 @@ extension:
       vars:
         obr26: STRING_ALL, OBR.26
       condition: $obr26 NOT_NULL
-      valueOf: ../../datatypes/v251/hl7/datatypes/PRL/Extension
+      valueOf: datatypes/PRL_ELR/Extension
       specs: OBR.26
       constants:
         prlExtensionName: OBR.26
