@@ -94,7 +94,7 @@ collection:
           valueOf: datatypes/CWE_ELR/CodeableConcept
           expressionType: resource
     quantity:
-      valueOf: ../../datatypes/v251/hl7/datatypes/CQ/Quantity
+      valueOf: datatypes/CQ_ELR/Quantity
       expressionType: resource
       specs: SPM.12
     collectedPeriod:

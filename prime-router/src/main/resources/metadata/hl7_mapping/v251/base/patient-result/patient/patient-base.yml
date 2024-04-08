@@ -1,9 +1,0 @@
-elements:
-
-  - name: patient
-    schema: classpath:/metadata/hl7_mapping/v251/base/patient-result/patient/patient.yml
-
-  - name: visit
-    resource: 'Bundle.entry.resource.ofType(Encounter)'
-    condition: '%resource.count() = 1'
-    schema: classpath:/metadata/hl7_mapping/v251/base/patient-result/patient/visit.yml
