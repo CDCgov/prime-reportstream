@@ -71,7 +71,7 @@ jobs:
       - name: Spin up build containers
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         working-directory: prime-router
-        run: docker-compose -f docker-compose.postgres.yml up -d
+        run: docker compose -f docker-compose.postgres.yml up -d
 
       - name: Initialize CodeQL
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
@@ -108,7 +108,7 @@ jobs:
 
       - name: Frontend Coverage
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        run: yarn run test:ci
+        run: yarn run test
         working-directory: frontend-react
 
       - name: Run SonarCloud Scan master or full

@@ -332,7 +332,7 @@ class TranslationTests {
                             val afterSenderTransform = if (config.senderTransform != null) {
                                 runSenderTransformOrEnrichment(afterEnrichment, config.senderTransform)
                             } else {
-                                inputStream
+                                afterEnrichment
                             }
                             check(!config.outputSchema.isNullOrBlank())
                             val actualStream =
