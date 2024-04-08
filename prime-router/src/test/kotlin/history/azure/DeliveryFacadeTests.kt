@@ -13,8 +13,10 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import io.mockk.every
@@ -218,8 +220,9 @@ class DeliveryFacadeTests {
     @Test
     fun `test findDetailedDeliveryHistory`() {
         val mockDeliveryAccess = mockk<DatabaseDeliveryAccess>()
+        val mockReportService = mockk<ReportService>()
         val mockDbAccess = mockk<DatabaseAccess>()
-        val facade = DeliveryFacade(mockDeliveryAccess, mockDbAccess)
+        val facade = DeliveryFacade(mockDeliveryAccess, mockDbAccess, mockReportService)
 
         val delivery = DeliveryHistory(
             284,
@@ -235,6 +238,8 @@ class DeliveryFacadeTests {
             "HL7_BATCH",
             "active"
         )
+        val reportFile = ReportFile()
+        reportFile.createdAt = OffsetDateTime.parse("2022-04-13T17:06:10.534Z")
 
         every {
             mockDeliveryAccess.fetchAction(
@@ -243,12 +248,18 @@ class DeliveryFacadeTests {
                 DeliveryHistory::class.java
             )
         } returns delivery
+        every {
+            mockReportService.getRootReport(
+                any(),
+            )
+        } returns reportFile
 
         val result = facade.findDetailedDeliveryHistory(
             delivery.actionId,
         )
 
         assertThat(delivery.reportId).isEqualTo(result?.reportId)
+        assertThat(delivery.ingestionTime).isEqualTo(reportFile.createdAt)
     }
 
     @Test

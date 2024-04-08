@@ -8,6 +8,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import java.time.OffsetDateTime
 import java.util.*
@@ -19,6 +20,7 @@ import java.util.*
 class DeliveryFacade(
     private val dbDeliveryAccess: DatabaseDeliveryAccess = DatabaseDeliveryAccess(),
     dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
+    val reportService: ReportService = ReportService(),
 ) : ReportFileFacade(
     dbAccess
 ) {
@@ -95,11 +97,17 @@ class DeliveryFacade(
     fun findDetailedDeliveryHistory(
         deliveryId: Long,
     ): DeliveryHistory? {
-        return dbDeliveryAccess.fetchAction(
+        val deliveryHistory = dbDeliveryAccess.fetchAction(
             deliveryId,
             orgName = null,
             DeliveryHistory::class.java
         )
+        val reportId = deliveryHistory?.reportId
+        if (reportId != null) {
+            val ingestionTime = reportService.getRootReport(UUID.fromString(reportId)).createdAt
+            deliveryHistory.ingestionTime = ingestionTime
+        }
+        return deliveryHistory
     }
 
     /**
