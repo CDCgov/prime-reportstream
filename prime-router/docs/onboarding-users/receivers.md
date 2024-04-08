@@ -157,7 +157,7 @@ transport:
 
 * Then start the docker container:
 
-`docker-compose up`
+`docker compose up`
 
 * Next, load the new organization and schema into the local DB using the below command:
 
