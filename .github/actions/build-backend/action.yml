@@ -175,7 +175,7 @@ runs:
       if: inputs.run-integration-tests == 'true'
       uses: ./.github/actions/retry
       with:
-        timeout_minutes: 30
+        timeout_minutes: 20
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
@@ -183,6 +183,10 @@ runs:
           export $(xargs < .vault/env/.env.local)
           ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
           ./gradlew testSmoke
+        on_retry_command: |
+          cd prime-router
+          ./gradlew reloadTables
+          ./gradlew reloadSettings
         shell: bash
 
     - name: Dump docker logs
