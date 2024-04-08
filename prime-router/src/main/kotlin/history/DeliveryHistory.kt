@@ -57,6 +57,7 @@ class DeliveryHistory(
     @JsonProperty("fileType")
     val bodyFormat: String,
     val receivingOrgSvcStatus: String? = null,
+    val ingestionTime: OffsetDateTime? = null,
 ) : ReportHistory(
     actionId,
     createdAt,
