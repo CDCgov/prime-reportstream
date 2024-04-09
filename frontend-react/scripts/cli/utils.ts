@@ -26,10 +26,6 @@ const __dirname = getUrlDirname(import.meta.url);
 
 export const FRONTEND_ABS_PATH = getFrontendAbsolutePath();
 export const REPO_ABS_PATH = join(FRONTEND_ABS_PATH, "../");
-export const CLI_ABS_PATH = join(
-    FRONTEND_ABS_PATH,
-    "scripts/cli-entrypoint.js",
-);
 export const BROWSERS_OUTPUT_PATH = join(
     FRONTEND_ABS_PATH,
     "./src/browsers.json",
@@ -89,8 +85,16 @@ export function loadRedirectedEnv(
         CI: ci ? "true" : "",
         DEBUG_PRINT_LIMIT: debug ? "100000" : "",
         VITE_MODE: redirectedEnv,
-        VITE_BACKEND_URL: getBackendUrl(loadedEnv.NODE_ENV, env, stagingApi),
-        VITE_PROXY_URL: getApiProxyUrl(loadedEnv.NODE_ENV, env, stagingApi),
+        VITE_BACKEND_URL: getBackendUrl(
+            loadedEnv.NODE_ENV,
+            env,
+            stagingApi || ci,
+        ),
+        VITE_PROXY_URL: getApiProxyUrl(
+            loadedEnv.NODE_ENV,
+            env,
+            stagingApi || ci,
+        ),
         VITE_CSP: csp ? createContentSecurityPolicy() : "",
         TZ: loadedEnv.NODE_ENV === "test" ? "UTC" : "",
         ...process.env,
