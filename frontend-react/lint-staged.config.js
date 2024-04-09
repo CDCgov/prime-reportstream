@@ -27,9 +27,9 @@ export default {
     ) => {
         // if dependencies changed, test the whole project
         if (filenames.some((f) => /(package.json)|(yarn.lock)$/.exec(f))) {
-            return "cli test -- --run --silent";
+            return "cross-env TZ=UTC vitest --run --silent";
         }
         // otherwise test only related
-        return `cli test -- related --run --silent ${filenames.filter((f) => /\.tsx?/.exec(f).join(" "))}`;
+        return `cross-env TZ=UTC vitest related --run --silent ${filenames.filter((f) => /\.tsx?/.exec(f).join(" "))}`;
     },
 };
