@@ -97,6 +97,9 @@ class SubmissionFunctionTests : Logging {
             sendingOrg = organizationName,
             sendingOrgClient = organizationClient,
             httpStatus = 201,
+            bodyUrl = "http://anyblob.com",
+            schemaName = "None",
+            bodyFormat = "",
         ),
         SubmissionHistory(
             actionId = 7,
@@ -108,6 +111,9 @@ class SubmissionFunctionTests : Logging {
             sendingOrg = organizationName,
             sendingOrgClient = organizationClient,
             httpStatus = 400,
+            bodyUrl = "",
+            schemaName = "",
+            bodyFormat = "",
         )
     )
 
@@ -143,7 +149,9 @@ class SubmissionFunctionTests : Logging {
                             externalName = "test-name.csv",
                             id = ReportId.fromString("a2cf1c46-7689-4819-98de-520b5007e45f"),
                             topic = "covid-19",
-                            reportItemCount = 3
+                            reportItemCount = 3,
+                            fileName = "",
+                            fileType = ""
                         ),
                         ExpectedSubmissionList(
                             submissionId = 7,
@@ -153,7 +161,9 @@ class SubmissionFunctionTests : Logging {
                             externalName = "test-name.csv",
                             id = null,
                             topic = null,
-                            reportItemCount = null
+                            reportItemCount = null,
+                            fileName = "",
+                            fileType = ""
                         )
                     )
                 ),
@@ -259,6 +269,7 @@ class SubmissionFunctionTests : Logging {
                 any(),
                 any(),
                 any(),
+                any(),
             )
         } returns testData
         every {
@@ -325,13 +336,13 @@ class SubmissionFunctionTests : Logging {
         return httpRequestMessage
     }
 
-    @Test
-    fun `test access user can view their organization's submission history`() {
-        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
-        val httpRequestMessage = setupHttpRequestMessageForTesting()
-        val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, organizationName)
-        assertThat(response.status).isEqualTo(HttpStatus.OK)
-    }
+     @Test
+     fun `test access user can view their organization's submission history`() {
+         val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+         val httpRequestMessage = setupHttpRequestMessageForTesting()
+         val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, organizationName)
+         assertThat(response.status).isEqualTo(HttpStatus.OK)
+     }
 
     @Test
     fun `test access user cannot view another organization's submission history`() {
@@ -460,4 +471,4 @@ class SubmissionFunctionTests : Logging {
         response = function.getReportDetailedHistory(mockRequest, emptyActionId)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
     }
-}
+ }
