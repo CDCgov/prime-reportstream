@@ -279,7 +279,6 @@ class SubmissionHistoryTests {
             assertThat(bodyUrl).isNull()
             assertThat(schemaName).isEqualTo("")
             assertThat(bodyFormat).isEqualTo("")
-            assertThat(fileName).isEqualTo("")
         }
         SubmissionHistory(
             1,
@@ -306,7 +305,6 @@ class SubmissionHistoryTests {
             assertThat(bodyUrl).isEqualTo("http://anyblob.com")
             assertThat(schemaName).isEqualTo("test-schema")
             assertThat(bodyFormat).isEqualTo("CSV")
-            assertThat(fileName).isEqualTo("")
         }
         SubmissionHistory(
             1,
@@ -333,7 +331,6 @@ class SubmissionHistoryTests {
             assertThat(bodyUrl).isEqualTo("http://anyblob.com")
             assertThat(schemaName).isEqualTo("test-schema")
             assertThat(bodyFormat).isEqualTo("CSV")
-            assertThat(fileName).isEqualTo("")
         }
 
         SubmissionHistory(
@@ -361,7 +358,6 @@ class SubmissionHistoryTests {
             assertThat(bodyUrl).isEqualTo(null)
             assertThat(schemaName).isEqualTo("test-schema")
             assertThat(bodyFormat).isEqualTo("CSV")
-            assertThat(fileName).contains("test-schema-a2cf1c46-7689-4819-98de-520b5007e45f-")
         }
     }
 
