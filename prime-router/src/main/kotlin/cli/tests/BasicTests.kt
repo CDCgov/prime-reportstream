@@ -81,8 +81,8 @@ class Ping : CoolTest() {
  * Updated end2end test for the universal pipeline. This test posts a report and verifies that the file was sent to
  * the expected receiver and that the contents of the file match the expected contents.
  * This test runs through three scenarios:
- * - A report that comes in as HL7 and is sent as HL7.
- * - A report that comes in as HL7 and is sent as FHIR.
+ * - A report that comes in as HL7 and is sent as HL7 (FULL-ELR).
+ * - A report that comes in as HL7 and is sent as FHIR (FULL-ELR).
  * - A report that comes in as HL7 and is sent as HL7 but has the send original flag (ELIMS).
  */
 class End2EndUniversalPipeline : CoolTest() {
@@ -104,7 +104,7 @@ class End2EndUniversalPipeline : CoolTest() {
         val elimsReportId = postPreTestReports(file, environment, options, elrElimsSender)
 
         if (elimsReportId == null || fullELRReportId == null) {
-            return bad("***$name FAILED***: Did not find report id")
+            return bad("***$name FAILED***: Did not find report ID in report submission (post) response)")
         }
 
         // Need just a little wait for the batch step to process the reports
