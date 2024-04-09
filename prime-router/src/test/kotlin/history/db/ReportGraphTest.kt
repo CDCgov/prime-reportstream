@@ -75,6 +75,30 @@ class ReportGraphTest {
             .setExternalName("translate-name")
             .setBodyUrl("translate-url")
 
+        val batchAction = Action().setActionId(5)
+        val batchReportId = UUID.randomUUID()
+        val batchReportFile = ReportFile()
+            .setSchemaTopic(Topic.ELR_ELIMS)
+            .setReportId(batchReportId)
+            .setActionId(batchAction.actionId)
+            .setSchemaName("")
+            .setBodyFormat("HL7")
+            .setItemCount(1)
+            .setExternalName("batch-name")
+            .setBodyUrl("batch-url")
+
+        val sendAction = Action().setActionId(6)
+        val sendReportId = UUID.randomUUID()
+        val sendReportFile = ReportFile()
+            .setSchemaTopic(Topic.ELR_ELIMS)
+            .setReportId(sendReportId)
+            .setActionId(sendAction.actionId)
+            .setSchemaName("")
+            .setBodyFormat("HL7")
+            .setItemCount(1)
+            .setExternalName("send-name")
+            .setBodyUrl("send-url")
+
         val reportGraph = ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess)
 
         init {
@@ -87,6 +111,10 @@ class ReportGraphTest {
                     .insertAction(txn, routeAction)
                 ReportStreamTestDatabaseContainer.testDatabaseAccess
                     .insertAction(txn, translateAction)
+                ReportStreamTestDatabaseContainer.testDatabaseAccess
+                    .insertAction(txn, batchAction)
+                ReportStreamTestDatabaseContainer.testDatabaseAccess
+                    .insertAction(txn, sendAction)
 
                 ReportStreamTestDatabaseContainer.testDatabaseAccess
                     .insertReportFile(receivedReportFile, txn, receiveAction)
@@ -96,6 +124,10 @@ class ReportGraphTest {
                     .insertReportFile(routeReportFile, txn, routeAction)
                 ReportStreamTestDatabaseContainer.testDatabaseAccess
                     .insertReportFile(translateReportFile, txn, translateAction)
+                ReportStreamTestDatabaseContainer.testDatabaseAccess
+                    .insertReportFile(batchReportFile, txn, batchAction)
+                ReportStreamTestDatabaseContainer.testDatabaseAccess
+                    .insertReportFile(sendReportFile, txn, sendAction)
 
                 ReportStreamTestDatabaseContainer.testDatabaseAccess
                     .insertReportLineage(
@@ -130,6 +162,30 @@ class ReportGraphTest {
                         ),
                         txn
                     )
+
+                ReportStreamTestDatabaseContainer.testDatabaseAccess
+                    .insertReportLineage(
+                        ReportLineage(
+                            3,
+                            translateAction.actionId,
+                            translateReportFile.reportId,
+                            batchReportFile.reportId,
+                            OffsetDateTime.now()
+                        ),
+                        txn
+                    )
+
+                ReportStreamTestDatabaseContainer.testDatabaseAccess
+                    .insertReportLineage(
+                        ReportLineage(
+                            4,
+                            batchAction.actionId,
+                            batchReportFile.reportId,
+                            sendReportFile.reportId,
+                            OffsetDateTime.now()
+                        ),
+                        txn
+                    )
             }
         }
 
@@ -156,6 +212,15 @@ class ReportGraphTest {
             val root = reportGraph.getRootReport(receivedReportId)
             assertThat(root)
                 .isNull()
+        }
+
+        @Test
+        fun `find root reports from send child report`() {
+            val root = reportGraph.getRootReports(sendReportId)
+            assertThat(root)
+                .isNotNull()
+                .transform { it.first().reportId }
+                .isEqualTo(receivedReportFile.reportId)
         }
     }
 }
