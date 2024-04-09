@@ -828,7 +828,6 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    // pin com.nimbusds:nimbus-jose-jwt to mitigate CVE-2023-52428
     implementation("com.nimbusds:nimbus-jose-jwt:9.37.3")
     implementation("org.apache.logging.log4j:log4j-api:2.23.1")
     implementation("org.apache.logging.log4j:log4j-core:2.23.1")
@@ -901,7 +900,6 @@ dependencies {
     implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.2")
     implementation("org.apache.poi:poi:5.2.5")
     implementation("org.apache.poi:poi-ooxml:5.2.5")
-    // pin commons-compress to mitigate CVE-2024-25710 and CVE-2024-26308
     implementation("org.apache.commons:commons-compress:1.26.1")
     implementation("commons-io:commons-io:2.16.0")
     implementation("com.anyascii:anyascii:0.3.2")
@@ -923,7 +921,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
-    // pin com.squareup.okio:okio@3.4.0
     runtimeOnly("com.squareup.okio:okio:3.9.0")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
