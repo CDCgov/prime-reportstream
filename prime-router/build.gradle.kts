@@ -594,7 +594,7 @@ dockerCompose {
     waitForTcpPorts.set(false)
     // Starting in version 0.17 the plugin changed the default to true, meaning our docker compose yaml files
     // get run with `docker compose` rather than `docker-compose`
-    useDockerComposeV2.set(false)
+    useDockerComposeV2.set(true)
 }
 
 tasks.azureFunctionsRun {
