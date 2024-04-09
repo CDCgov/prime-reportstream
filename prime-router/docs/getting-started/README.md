@@ -23,7 +23,7 @@ You will need to have at least the following pieces of software installed _local
 
 * [git](./install-git.md) including git-bash if you're on Windows
 * [Docker or Docker Desktop](https://docs.docker.com/get-docker/)
-* [OpenJDK](../docs-deprecated/getting-started/install-openjdk.md) (currently targetting 17)
+* [OpenJDK](./install-openjdk.md) (currently targetting 17)
     * See the linked docs for important instructions on setting `JAVA_HOME`
 * [Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer)
 * An IDE. IntelliJ is recommended for Kotlin/debugging support. 
