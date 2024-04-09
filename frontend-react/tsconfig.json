@@ -17,8 +17,9 @@
         "jsx": "react-jsx",
         "types": ["vitest/globals", "mdx", "vite/client"],
         "noImplicitAny": true,
-        "inlineSourceMap": true
+        "inlineSourceMap": true,
+        "allowImportingTsExtensions": true
     },
-    "include": ["./src", "./e2e", "./__mocks__"],
+    "include": ["./src", "./e2e", "./__mocks__", "./scripts"],
     "references": [{ "path": "./tsconfig.node.json" }]
 }
