@@ -86,38 +86,38 @@ class Ping : CoolTest() {
  * - A report that comes in as HL7 and is sent as HL7 but has the send original flag (ELIMS).
  */
 class End2EndUniversalPipeline : CoolTest() {
-     override val name = "end2end_up"
-     override val description = "e2e tests that verify reports are correctly received and uploaded"
-     override val status = TestStatus.SMOKE
+    override val name = "end2end_up"
+    override val description = "e2e tests that verify reports are correctly received and uploaded"
+    override val status = TestStatus.SMOKE
 
-     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-         initListOfGoodReceiversAndCountiesForUniversalPipeline()
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
+        initListOfGoodReceiversAndCountiesForUniversalPipeline()
 
-         val file = File("src/test/resources/fhirengine/smoketest/valid_hl7.hl7")
-         echo("Loaded datafile $file")
+        val file = File("src/test/resources/fhirengine/smoketest/valid_hl7.hl7")
+        echo("Loaded datafile $file")
 
-         // First: Post the reports
-         ugly("Starting $name Test: send ${fullELRSender.fullName} data to $allGoodCounties")
-         val fullELRReportId = postPreTestReports(file, environment, options, fullELRSender)
+        // First: Post the reports
+        ugly("Starting $name Test: send ${fullELRSender.fullName} data to $allGoodCounties")
+        val fullELRReportId = postPreTestReports(file, environment, options, fullELRSender)
 
-         ugly("Starting $name Test: send ${elrElimsSender.fullName} data to $allGoodCounties")
-         val elimsReportId = postPreTestReports(file, environment, options, elrElimsSender)
+        ugly("Starting $name Test: send ${elrElimsSender.fullName} data to $allGoodCounties")
+        val elimsReportId = postPreTestReports(file, environment, options, elrElimsSender)
 
-         if (elimsReportId == null || fullELRReportId == null) {
-             return bad("***$name FAILED***: Did not find report id")
-         }
+        if (elimsReportId == null || fullELRReportId == null) {
+            return bad("***$name FAILED***: Did not find report id")
+        }
 
-         // Need just a little wait for the batch step to process the reports
-         delay(75000)
+        // Need just a little wait for the batch step to process the reports
+        delay(75000)
 
-         // Last: Run steps to compare actual and expected file contents
-         var passed = end2EndUP(
-             file, environment, fullELRSender, listOf(fhirFullELRReceiver, hl7FullELRReceiver), fullELRReportId
-         )
-         passed = passed and end2EndUP(file, environment, elrElimsSender, listOf(elimsReceiver), elimsReportId)
+        // Last: Run steps to compare actual and expected file contents
+        var passed = end2EndUP(
+            file, environment, fullELRSender, listOf(fhirFullELRReceiver, hl7FullELRReceiver), fullELRReportId
+        )
+        passed = passed and end2EndUP(file, environment, elrElimsSender, listOf(elimsReceiver), elimsReportId)
 
-         return passed
-     }
+        return passed
+    }
 
     /**
      * Posts a file to the UP. Verifies the response from the server and returns the extracted report ID from it.
@@ -152,75 +152,75 @@ class End2EndUniversalPipeline : CoolTest() {
         return getReportIdFromResponse(json)
     }
 
-     private suspend fun end2EndUP(
-         file: File,
-         environment: Environment,
-         sender: Sender,
-         expectedReceivers: List<Receiver>,
-         reportId: ReportId,
-     ): Boolean {
-         var passed = true
-         val connectionInfo = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;" +
-             "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;" +
-             "BlobEndpoint=http://localhost:10000/devstoreaccount1;" +
-             "QueueEndpoint=http://localhost:10001/devstoreaccount1;"
-         val blobContainerMetadata = BlobAccess.BlobContainerMetadata("reports", connectionInfo)
+    private suspend fun end2EndUP(
+        file: File,
+        environment: Environment,
+        sender: Sender,
+        expectedReceivers: List<Receiver>,
+        reportId: ReportId,
+    ): Boolean {
+        var passed = true
+        val connectionInfo = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;" +
+            "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;" +
+            "BlobEndpoint=http://localhost:10000/devstoreaccount1;" +
+            "QueueEndpoint=http://localhost:10001/devstoreaccount1;"
+        val blobContainerMetadata = BlobAccess.BlobContainerMetadata("reports", connectionInfo)
 
         // Call history endpoint to get results
-         val getUrl = "${environment.url}/api/waters/report/$reportId/history"
-         val (_: Int, response: String) = HttpUtilities.getHttp(getUrl)
+        val getUrl = "${environment.url}/api/waters/report/$reportId/history"
+        val (_: Int, response: String) = HttpUtilities.getHttp(getUrl)
 
-         expectedReceivers.forEach { expectedReceiver ->
-             // Retrieve external filenames from the history endpoint
-             val actualFilename = findReportExternalNames(response, expectedReceiver)
-             if (actualFilename.isNotEmpty()) {
-                 good("The report was received by ${expectedReceiver.name}")
-             } else {
-                 bad("***$name FAILED***: Did not find the sent report name for receiver ${expectedReceiver.name}")
-                 passed = false
-                 return@forEach
-             }
+        expectedReceivers.forEach { expectedReceiver ->
+            // Retrieve external filenames from the history endpoint
+            val actualFilename = findReportExternalNames(response, expectedReceiver)
+            if (actualFilename.isNotEmpty()) {
+                good("The report was received by ${expectedReceiver.name}")
+            } else {
+                bad("***$name FAILED***: Did not find the sent report name for receiver ${expectedReceiver.name}")
+                passed = false
+                return@forEach
+            }
 
-             // Grab the uploaded files out of Blob storage
-             val blobEndpoint = "http://localhost:10000/devstoreaccount1/reports/none/${expectedReceiver.fullName}"
-             val actualName = actualFilename.removeSurrounding("\"")
-             val actualURL = "$blobEndpoint/$actualName"
-             var actualByteArray: ByteArray
+            // Grab the uploaded files out of Blob storage
+            val blobEndpoint = "http://localhost:10000/devstoreaccount1/reports/none/${expectedReceiver.fullName}"
+            val actualName = actualFilename.removeSurrounding("\"")
+            val actualURL = "$blobEndpoint/$actualName"
+            var actualByteArray: ByteArray
 
-             try {
-                 actualByteArray = BlobAccess.downloadBlobAsByteArray(actualURL, blobContainerMetadata)
-             } catch (e: BlobStorageException) {
-                 bad("***$name FAILED***: Failed to find $actualURL in blob storage")
-                 return@forEach
-             }
+            try {
+                actualByteArray = BlobAccess.downloadBlobAsByteArray(actualURL, blobContainerMetadata)
+            } catch (e: BlobStorageException) {
+                bad("***$name FAILED***: Failed to find $actualURL in blob storage")
+                return@forEach
+            }
 
-             good("File successfully uploaded to blob store as $actualFilename")
+            good("File successfully uploaded to blob store as $actualFilename")
 
-             // Mimic the UP transformations to get what expected file contents
-             val expectedByteArray = performFileTransforms(
-                 file.inputStream(),
-                 expectedReceiver,
-                 sender,
-                 blobContainerMetadata
-             )
+            // Mimic the UP transformations to get what expected file contents
+            val expectedByteArray = performFileTransforms(
+                file.inputStream(),
+                expectedReceiver,
+                sender,
+                blobContainerMetadata
+            )
 
             // Compare actual file taken from blob store with what we expected to happen to it
-             val expectedFormat = Report.Format.valueOfFromExt(expectedReceiver.translation.type)
-             passed = passed and CompareData().compare(
-                 expectedByteArray.inputStream(),
-                 actualByteArray.inputStream(),
-                 expectedFormat,
-                 null
-             ).passed
+            val expectedFormat = Report.Format.valueOfFromExt(expectedReceiver.translation.type)
+            passed = passed and CompareData().compare(
+                expectedByteArray.inputStream(),
+                actualByteArray.inputStream(),
+                expectedFormat,
+                null
+            ).passed
 
-             if (passed) {
-                 good("The contents of $actualFilename matches the expected data")
-             } else {
-                 bad("***$name FAILED***: The contents of $actualFilename did not match the expected contents")
-             }
-         }
+            if (passed) {
+                good("The contents of $actualFilename matches the expected data")
+            } else {
+                bad("***$name FAILED***: The contents of $actualFilename did not match the expected contents")
+            }
+        }
 
-         return passed
+        return passed
     }
 
     /**
