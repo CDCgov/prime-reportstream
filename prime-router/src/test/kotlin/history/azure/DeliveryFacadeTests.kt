@@ -22,6 +22,7 @@ import gov.cdc.prime.router.tokens.AuthenticationType
 import io.mockk.every
 import io.mockk.mockk
 import java.time.OffsetDateTime
+import java.util.UUID
 import kotlin.test.Test
 
 class DeliveryFacadeTests {
@@ -240,6 +241,7 @@ class DeliveryFacadeTests {
         )
         val reportFile = ReportFile()
         reportFile.createdAt = OffsetDateTime.parse("2022-04-13T17:06:10.534Z")
+        reportFile.reportId = UUID.fromString("b3c8e304-8eff-4882-9000-3645054a30b7")
 
         every {
             mockDeliveryAccess.fetchAction(
@@ -249,17 +251,18 @@ class DeliveryFacadeTests {
             )
         } returns delivery
         every {
-            mockReportService.getRootReport(
+            mockReportService.getRootReports(
                 any(),
             )
-        } returns reportFile
+        } returns listOf(reportFile)
 
         val result = facade.findDetailedDeliveryHistory(
             delivery.actionId,
         )
 
         assertThat(delivery.reportId).isEqualTo(result?.reportId)
-        assertThat(delivery.ingestionTime).isEqualTo(reportFile.createdAt)
+        assertThat(delivery.originalIngestion?.first()?.get("ingestionTime")).isEqualTo(reportFile.createdAt)
+        assertThat(delivery.originalIngestion?.first()?.get("reportId")).isEqualTo(reportFile.reportId)
     }
 
     @Test

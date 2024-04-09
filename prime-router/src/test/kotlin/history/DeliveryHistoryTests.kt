@@ -23,7 +23,12 @@ class DeliveryHistoryTests {
             "test-schema",
             "CSV",
             "active",
-            OffsetDateTime.parse("2024-04-08T00:00:00.000Z"),
+            listOf(
+                mapOf(
+                    "reportId" to "1234",
+                    "ingestionTime" to OffsetDateTime.parse("2024-04-08T00:00:00.000Z"),
+                )
+            ),
         ).run {
             assertThat(actionId).isEqualTo(922)
             assertThat(createdAt).isEqualTo(OffsetDateTime.parse("2022-04-19T18:04:26.534Z"))
@@ -40,7 +45,12 @@ class DeliveryHistoryTests {
 
             assertThat(expires).isEqualTo(OffsetDateTime.parse("2022-05-19T18:04:26.534Z"))
 
-            assertThat(ingestionTime).isEqualTo(OffsetDateTime.parse("2024-04-08T00:00:00.000Z"))
+            assertThat(
+                originalIngestion?.first()?.get("ingestionTime")
+            ).isEqualTo(OffsetDateTime.parse("2024-04-08T00:00:00.000Z"))
+            assertThat(
+                originalIngestion?.first()?.get("reportId")
+            ).isEqualTo("1234")
 
             // val compareFilename = Report.formExternalFilename(
             //     bodyUrl,
@@ -81,7 +91,7 @@ class DeliveryHistoryTests {
             assertThat(receivingOrgSvcStatus).isEqualTo("active")
 
             assertThat(expires).isEqualTo(OffsetDateTime.parse("2022-05-19T18:04:26.534Z"))
-            assertThat(ingestionTime).isNull()
+            assertThat(originalIngestion).isNull()
         }
     }
 }

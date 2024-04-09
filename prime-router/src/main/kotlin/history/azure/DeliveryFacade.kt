@@ -104,8 +104,13 @@ class DeliveryFacade(
         )
         val reportId = deliveryHistory?.reportId
         if (reportId != null) {
-            val ingestionTime = reportService.getRootReport(UUID.fromString(reportId)).createdAt
-            deliveryHistory.ingestionTime = ingestionTime
+            val roots = reportService.getRootReports(UUID.fromString(reportId))
+            deliveryHistory.originalIngestion = roots.map {
+                mapOf(
+                    "reportId" to it.reportId,
+                    "ingestionTime" to it.createdAt,
+                )
+            }
         }
         return deliveryHistory
     }
