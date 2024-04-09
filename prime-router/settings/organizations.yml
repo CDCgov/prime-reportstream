@@ -243,6 +243,39 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: FULL_ELR_E2E
+      externalName: Ignore FULL_ELR_E2E
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      qualityFilter:
+        - "%messageId.exists()"
+        - "%patient.name.family.exists()"
+        - "%patient.name.given.count() > 0"
+        - "%patient.birthDate.exists()"
+        - "%specimen.type.exists()"
+        - "(%patient.address.line.exists() or %patient.address.postalCode.exists() or %patient.telecom.exists())"
+        - "((%specimen.collection.collectedPeriod.exists() or %specimen.collection.collected.exists()) or %serviceRequest.occurrence.exists() or %observation.effective.exists())"
+      processingModeFilter:
+        - "%processingId.exists() and %processingId = 'P'"
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CO/CO.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+        type: "HL7"
+        receivingApplicationName: "CO-ELR"
+        receivingFacilityName: "CO"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
     - name: ETOR_TI
       externalName: Ignore ETOR_TI
       organizationName: ignore

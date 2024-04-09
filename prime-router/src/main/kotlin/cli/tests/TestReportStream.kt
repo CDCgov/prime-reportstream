@@ -919,12 +919,11 @@ abstract class CoolTest {
         }
 
         val hl7FullELRReceiver = settings.receivers.filter {
-            it.organizationName == org1Name && it.name == "FULL_ELR"
+            it.organizationName == org1Name && it.name == "FULL_ELR_E2E"
         }[0]
         val fhirFullELRReceiver = settings.receivers.filter {
             it.organizationName == org1Name && it.name == "FULL_ELR_FHIR"
         }[0]
-        val etorReceiver = settings.receivers.first { it.topic == Topic.ETOR_TI }
         val elimsReceiver = settings.receivers.first { it.topic == Topic.ELR_ELIMS }
         val csvReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "CSV" }[0]
         val hl7Receiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7" }[0]
