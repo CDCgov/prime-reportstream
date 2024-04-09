@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
@@ -26,7 +27,10 @@ class FhirTransformer(
      */
     constructor(
         schema: String,
-        blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
+        blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.BlobContainerMetadata.build(
+            "metadata",
+            Environment.get().blobEnvVar
+        ),
     ) : this(
         schemaRef = fhirTransformSchemaFromFile(schema, blobConnectionInfo),
     )
