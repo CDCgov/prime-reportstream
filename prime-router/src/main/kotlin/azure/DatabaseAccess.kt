@@ -1445,7 +1445,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             // imposed connection time limit". Not sure what value is but have observed that
             // connection are closed
             // after about 10 minutes
-            config.maxLifetime = 180000
+            config.maxLifetime = 360000
             val dataSource = HikariDataSource(config)
 
             val flywayConfig = Flyway.configure()

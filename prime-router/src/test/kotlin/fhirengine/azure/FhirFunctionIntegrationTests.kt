@@ -29,6 +29,7 @@ import gov.cdc.prime.router.azure.db.tables.Task
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
+import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.azure.FHIRFunctions
@@ -54,10 +55,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.testcontainers.containers.GenericContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import org.testcontainers.utility.DockerImageName
 import java.io.File
 import java.time.OffsetDateTime
 
@@ -116,10 +115,12 @@ private const val codelessFhirRecord =
 class FhirFunctionIntegrationTests() {
 
     @Container
-    val azuriteContainer =
-        GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
-            .withEnv("AZURITE_ACCOUNTS", "devstoreaccount1:keydevstoreaccount1")
-            .withExposedPorts(10000, 10001, 10002)
+    val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
+        customImageName = "azurite_fhirfunctionintegration1",
+        customEnv = mapOf(
+        "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
+        )
+    )
 
     val oneOrganization = DeepOrganization(
         "phd", "test", Organization.Jurisdiction.FEDERAL,
