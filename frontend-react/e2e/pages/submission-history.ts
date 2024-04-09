@@ -42,3 +42,13 @@ export async function openReportIdDetailPage(page: Page, id: string) {
     await expect(reportDetailsPage).toHaveURL(`/submissions/${id}`);
     expect(reportDetailsPage.getByText(`Report ID:${id}`)).toBeTruthy();
 }
+
+export async function tableHeaders(page: Page) {
+    await expect(page.locator(".usa-table th").nth(0)).toHaveText(/Report ID/);
+    await expect(page.locator(".usa-table th").nth(1)).toHaveText(
+        "Date/time submitted",
+    );
+    await expect(page.locator(".usa-table th").nth(2)).toHaveText(/File/);
+    await expect(page.locator(".usa-table th").nth(3)).toHaveText(/Records/);
+    await expect(page.locator(".usa-table th").nth(4)).toHaveText(/Status/);
+}

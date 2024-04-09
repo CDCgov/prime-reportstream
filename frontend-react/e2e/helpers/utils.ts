@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import fs from "node:fs";
 
 export const TEST_ORG_IGNORE = "ignore";
@@ -29,6 +29,22 @@ export async function selectTestOrg(page: Page) {
     await page.getByTestId("gridContainer").waitFor({ state: "visible" });
     await page.getByTestId("textInput").fill(TEST_ORG_IGNORE);
     await page.getByTestId("ignore_set").click();
+}
+
+export async function tableData(
+    page: Page,
+    row: number,
+    column: number,
+    expectedData: string,
+) {
+    await expect(
+        page
+            .locator(".usa-table tbody")
+            .locator("tr")
+            .nth(row)
+            .locator("td")
+            .nth(column),
+    ).toHaveText(expectedData);
 }
 
 /**
