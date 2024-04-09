@@ -1,4 +1,4 @@
-import { Command } from "commander";
+import { Command, Option } from "commander";
 import { exit } from "process";
 import { build, preview } from "vite";
 import {
@@ -12,7 +12,11 @@ export const e2eCmd = new Command("e2e")
     .description("run e2e tests (pass playwright-specific commands after '--')")
     .option("-q, --skip-build", "skip building app", false)
     .option("-o, --open", "open preview in browser", false)
-    .option("-s, --staging-api", "use the staging api", false)
+    .addOption(
+        new Option("-s, --staging-api", "use the staging api")
+            .env("CI")
+            .default(false),
+    )
     .action(async (_, cmd: Command) => {
         process.env.NODE_ENV = "test";
         const opts = cmd.optsWithGlobals();
