@@ -880,9 +880,9 @@ dependencies {
     implementation("org.commonmark:commonmark:0.21.0")
     implementation("com.google.guava:guava:33.0.0-jre")
     implementation("com.helger.as2:as2-lib:5.1.2")
-    implementation("org.bouncycastle:bcprov-jdk15to18:1.77")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.77")
-    implementation("org.bouncycastle:bcmail-jdk15to18:1.77")
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.78")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.78")
+    implementation("org.bouncycastle:bcmail-jdk15to18:1.78")
 
     implementation("commons-net:commons-net:3.10.0")
     implementation("com.cronutils:cron-utils:9.2.1")
