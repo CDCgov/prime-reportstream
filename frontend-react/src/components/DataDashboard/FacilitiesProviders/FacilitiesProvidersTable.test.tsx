@@ -7,7 +7,7 @@ import {
     receiversGenerator,
 } from "../../../__mocks__/OrganizationMockServer";
 import { FacilityResource } from "../../../config/endpoints/dataDashboard";
-import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
+import { filterManagerFixture } from "../../../hooks/filters/filters.fixtures";
 import { mockUseReceiverSubmitter } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverSubmitter";
 import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
@@ -43,6 +43,7 @@ const mockData: FacilityResource[] = [
 
 const mockReceivers = receiversGenerator(5);
 const mockActiveReceiver = mockReceivers[0];
+const mockFilterManager = { ...filterManagerFixture };
 
 vi.mock("rest-hooks", async (importActual) => ({
     ...(await importActual<typeof import("rest-hooks")>()),

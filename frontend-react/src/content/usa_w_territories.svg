@@ -55,7 +55,7 @@
     .pa, /* Pennsylvania */
     .pr, /* Puerto Rico */
     .ri, /* Rhode Island */
-    /* .sc, South Carolina */
+    .sc, /* South Carolina */
     .sd, /* South Dakota */
     .tn, /* Tennessee */
     /* .tt, Trust Territories */

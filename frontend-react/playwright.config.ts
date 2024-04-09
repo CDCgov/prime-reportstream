@@ -1,14 +1,7 @@
 import { defineConfig } from "@playwright/test";
-import dotenvflow from "dotenv-flow";
 import process from "process";
 
 import type { TestOptions } from "./e2e/helpers/rs-test.ts";
-
-dotenvflow.config({
-    purge_dotenv: true,
-    silent: true,
-    default_node_env: "test",
-});
 
 const isCi = Boolean(process.env.CI);
 
@@ -62,6 +55,7 @@ export default defineConfig<TestOptions>({
     reporter: [["html", { outputFolder: "e2e-data/report" }]],
     outputDir: "e2e-data/results",
     use: {
+        timezoneId: "UTC",
         baseURL: "http://localhost:4173",
         trace: "on-first-retry",
         screenshot: "only-on-failure",
@@ -110,11 +104,4 @@ export default defineConfig<TestOptions>({
         //   use: { ...devices['iPhone 12'] },
         // },
     ],
-    webServer: {
-        command: `yarn cross-env VITE_IDLE_TIMEOUT=25000 yarn run preview:build:${isCi ? "ci" : "test"}`,
-        url: "http://localhost:4173",
-        timeout: 1000 * 180,
-        stdout: "pipe",
-        // reuseExistingServer: !process.env.CI,
-    },
 });

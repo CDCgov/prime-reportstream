@@ -7,7 +7,8 @@ import {
     orgServer,
     receiversGenerator,
 } from "../../../__mocks__/OrganizationMockServer";
-import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
+import { filterManagerFixture } from "../../../hooks/filters/filters.fixtures";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import useAppInsightsContext from "../../../hooks/UseAppInsightsContext";
@@ -30,6 +31,11 @@ const mockUsePagination = {
 
 const mockReceivers = receiversGenerator(5);
 const mockActiveReceiver = mockReceivers[0];
+
+const mockFilterManager: FilterManager = {
+    ...filterManagerFixture,
+    rangeSettings: { from: "2024-03-01", to: "2024-03-30" },
+};
 
 vi.mock("../../../hooks/UsePagination", async (importActual) => ({
     ...(await importActual<typeof import("../../../hooks/UsePagination")>()),

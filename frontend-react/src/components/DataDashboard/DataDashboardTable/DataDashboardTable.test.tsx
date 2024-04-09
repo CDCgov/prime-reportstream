@@ -7,7 +7,7 @@ import {
     makeRSReceiverDeliveryResponseFixture,
     receiverServicesGenerator,
 } from "../../../__mocks__/DataDashboardMockServer";
-import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
+import { filterManagerFixture } from "../../../hooks/filters/filters.fixtures";
 import { mockUseReceiverDeliveries } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverDeliveries";
 import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import useAppInsightsContext from "../../../hooks/UseAppInsightsContext";
@@ -22,6 +22,7 @@ const mockReceiverServices = receiverServicesGenerator(5);
 const mockActiveReceiver = mockReceiverServices[0];
 const mockUseAppInsightsContext = vi.mocked(useAppInsightsContext);
 const mockAppInsights = mockUseAppInsightsContext();
+const mockFilterManager = { ...filterManagerFixture };
 
 beforeEach(() => {
     // Mock our SessionProvider's data
