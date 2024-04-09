@@ -375,6 +375,13 @@ tasks.jar {
 tasks.shadowJar {
     // our fat jar is getting fat! Or over 65K files in this case
     isZip64 = true
+    // this package is tied to log4j1. it's coming in not as a dependency but somehow as source from one of the
+    // dependencies in the project. it's (for now) harmless but flotsam so removing it. The call to transform(...)
+    // addresses the bug.
+    // for all the gory details see:
+    // https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/13269
+    exclude("org/apache/log4j/**")
+    transform(com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer())
 }
 
 // Just a nicer name to create the fat jar
@@ -836,10 +843,10 @@ dependencies {
     }
     // pin com.nimbusds:nimbus-jose-jwt to mitigate CVE-2023-52428
     implementation("com.nimbusds:nimbus-jose-jwt:9.37.2")
-    implementation("org.apache.logging.log4j:log4j-api:2.23.0")
-    implementation("org.apache.logging.log4j:log4j-core:2.23.0")
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.0")
-    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.23.0")
+    implementation("org.apache.logging.log4j:log4j-api:2.23.1")//:2.23.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.23.1")//:2.23.0")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")//:2.23.0")
+    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.23.1")//:2.23.0")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.4.0")
     implementation("io.github.oshai:kotlin-logging-jvm:6.0.3")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.3")
