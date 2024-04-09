@@ -2,6 +2,7 @@ package gov.cdc.prime.router.db
 
 import com.zaxxer.hikari.HikariDataSource
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.common.TestcontainersUtils
 import org.flywaydb.core.Flyway
 import org.testcontainers.containers.PostgreSQLContainer
 
@@ -9,7 +10,9 @@ import org.testcontainers.containers.PostgreSQLContainer
  * Test container for the report stream database
  *
  */
-class ReportStreamTestDatabaseContainer : PostgreSQLContainer<ReportStreamTestDatabaseContainer>("postgres:11-alpine") {
+class ReportStreamTestDatabaseContainer : PostgreSQLContainer<ReportStreamTestDatabaseContainer>(
+    TestcontainersUtils.createPostgresContainer()
+) {
 
     companion object {
         val containerInstance: ReportStreamTestDatabaseContainer = ReportStreamTestDatabaseContainer()
