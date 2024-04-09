@@ -263,7 +263,7 @@ Production data should only be accepted by production receivers.
 </table>
 
 ```kotlin
-   /**
+/**
  * Default Rule:
  *  Must have a processing mode id of 'P'
  */
@@ -364,7 +364,7 @@ the [filtering design](https://github.com/CDCgov/prime-reportstream/blob/master/
 
 ### Frontend User Interface
 
-The admin user interface at[ https://reportstream.cdc.gov/](https://reportstream.cdc.gov/) allows a PRIME admin to
+The admin user interface at https://reportstream.cdc.gov/ allows a PRIME admin to
 manage the settings of an organization, sender and/or receiver. Filters are configured as free text and the input text
 must conform to the expected syntax.
 
