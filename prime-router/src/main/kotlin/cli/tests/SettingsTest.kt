@@ -5,6 +5,7 @@ import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
+import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.http.HttpStatusCode
 
 /**
@@ -94,14 +95,14 @@ class SettingsTest : CoolTest() {
 
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = path,
-            accessToken = dummyAccessToken,
+            tokens = BearerTokens(dummyAccessToken, refreshToken = ""),
             timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong(),
         )
 
         if (response.status != HttpStatusCode.NotFound) {
             val (delResp, delRespStr) = HttpClientUtils.deleteWithStringResponse(
                 url = path,
-                accessToken = dummyAccessToken,
+                tokens = BearerTokens(dummyAccessToken, refreshToken = ""),
                 timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong(),
             )
             when (delResp.status) {
@@ -120,7 +121,7 @@ class SettingsTest : CoolTest() {
         echo("CREATE the new dummy organization...")
         val (putResponse, putRespStr) = HttpClientUtils.putWithStringResponse(
             url = path,
-            accessToken = dummyAccessToken,
+            tokens = BearerTokens(dummyAccessToken, refreshToken = ""),
             jsonPayload = newDummyOrganization,
         )
         when (putResponse.status) {
@@ -140,7 +141,7 @@ class SettingsTest : CoolTest() {
         echo("VERITY the new dummy organization was created...")
         val (getResponse, getRespStr) = HttpClientUtils.getWithStringResponse(
             url = path,
-            accessToken = dummyAccessToken,
+            tokens = BearerTokens(dummyAccessToken, refreshToken = ""),
         )
 
         if (getResponse.status == HttpStatusCode.NotFound) {
@@ -163,7 +164,7 @@ class SettingsTest : CoolTest() {
          */
         val (updResponse, updRespStr) = HttpClientUtils.putWithStringResponse(
             url = path,
-            accessToken = dummyAccessToken,
+            tokens = BearerTokens(dummyAccessToken, refreshToken = ""),
             jsonPayload = updateDummyOrganization
         )
 
@@ -182,7 +183,7 @@ class SettingsTest : CoolTest() {
         echo("VERIFY it is the new dummy organization is updated...")
         val (newDummyResponse, newDummyRespStr) = HttpClientUtils.getWithStringResponse(
             url = path,
-            accessToken = dummyAccessToken,
+            tokens = BearerTokens(dummyAccessToken, refreshToken = ""),
         )
         if (newDummyResponse.status == HttpStatusCode.NotFound) {
             return bad(
@@ -208,7 +209,7 @@ class SettingsTest : CoolTest() {
         echo("DELETE the updated dummy organization...")
         val (delNewDummyResponse, delNewDummyRespStr) = HttpClientUtils.deleteWithStringResponse(
             url = path,
-            accessToken = dummyAccessToken,
+            tokens = BearerTokens(dummyAccessToken, refreshToken = ""),
             timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong(),
         )
 
@@ -226,7 +227,7 @@ class SettingsTest : CoolTest() {
         echo("VERIFY it is the new dummy organization is deleted...")
         val (getNewDummyDelResp, getNewDummyDelRespStr) = HttpClientUtils.getWithStringResponse(
             url = path,
-            accessToken = dummyAccessToken,
+            tokens = BearerTokens(dummyAccessToken, refreshToken = ""),
             timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong(),
         )
         if (getNewDummyDelResp.status != HttpStatusCode.NotFound) {

@@ -9,6 +9,7 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
+import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.http.HttpStatusCode
 import java.net.HttpURLConnection
 import java.time.OffsetDateTime
@@ -123,7 +124,7 @@ class HistoryApiTest : CoolTest() {
     private fun historyApiQuery(testCase: HistoryApiTestCase): Pair<Boolean, String?> {
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = testCase.path,
-            accessToken = testCase.bearer,
+            tokens = BearerTokens(testCase.bearer, refreshToken = ""),
             timeout = 45000,
             queryParameters = testCase.parameters?.associate {
                 Pair(it.first, it.second.toString())

@@ -30,6 +30,7 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.async
@@ -75,7 +76,7 @@ class LookupTableEndpointUtilities(
     fun fetchList(listInactive: Boolean = false): List<LookupTableVersion> {
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = environment.formUrl("$endpointRoot/list").toString(),
-            accessToken = accessToken,
+            tokens = BearerTokens(accessToken, refreshToken = ""),
             timeout = requestTimeoutMillis.toLong(),
             queryParameters = mapOf(
                 Pair(LookupTableFunctions.showInactiveParamName, listInactive.toString())
@@ -111,7 +112,7 @@ class LookupTableEndpointUtilities(
         // seems need to destruct a pair by assignment
         val (response, respStr) = HttpClientUtils.putWithStringResponse(
             url = url,
-            accessToken = accessToken,
+            tokens = BearerTokens(accessToken, refreshToken = ""),
             timeout = requestTimeoutMillis.toLong(),
             httpClient = httpClient
         )
@@ -149,7 +150,7 @@ class LookupTableEndpointUtilities(
         val url = environment.formUrl("$endpointRoot/$tableName/$version/content").toString()
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = url,
-            accessToken = accessToken,
+            tokens = BearerTokens(accessToken, refreshToken = ""),
             timeout = requestTimeoutMillis.toLong(),
             httpClient = httpClient
         )
@@ -179,7 +180,7 @@ class LookupTableEndpointUtilities(
         val url = environment.formUrl("$endpointRoot/$tableName/$version/info").toString()
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = url,
-            accessToken = accessToken,
+            tokens = BearerTokens(accessToken, refreshToken = ""),
             timeout = requestTimeoutMillis.toLong(),
             httpClient = httpClient
         )
@@ -201,7 +202,7 @@ class LookupTableEndpointUtilities(
         val (response, respStr) =
             HttpClientUtils.postWithStringResponse(
                 url = url,
-                accessToken = accessToken,
+                tokens = BearerTokens(accessToken, refreshToken = ""),
                 timeout = requestTimeoutMillis.toLong(),
                 jsonPayload = mapper.writeValueAsString(tableData),
                 httpClient = httpClient

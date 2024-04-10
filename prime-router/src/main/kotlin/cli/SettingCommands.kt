@@ -33,6 +33,7 @@ import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.lastModified
 import org.json.JSONArray
@@ -151,8 +152,8 @@ abstract class SettingCommand(
         val path = formPath(environment, Operation.PUT, settingType, settingName)
         verbose("PUT $path :: $payload")
         val (response, respStr) = HttpClientUtils.putWithStringResponse(
-            url = path.toString(),
-            accessToken = accessToken,
+            url = path,
+            tokens = BearerTokens(accessToken, refreshToken = ""),
             jsonPayload = payload
         )
 
@@ -181,8 +182,8 @@ abstract class SettingCommand(
         val path = formPath(environment, Operation.DELETE, settingType, settingName)
         verbose("DELETE $path")
         val (response, respStr) = HttpClientUtils.deleteWithStringResponse(
-            url = path.toString(),
-            accessToken = accessToken,
+            url = path,
+            tokens = BearerTokens(accessToken, refreshToken = ""),
         )
 
         return when (response.status) {
@@ -207,7 +208,7 @@ abstract class SettingCommand(
         verbose("GET $path")
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = path,
-            accessToken = accessToken,
+            tokens = BearerTokens(accessToken, refreshToken = ""),
         )
 
         return if (response.status == HttpStatusCode.OK) {
@@ -231,8 +232,8 @@ abstract class SettingCommand(
         val path = formPath(environment, Operation.LIST, settingType, settingName)
         verbose("GET $path")
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
-            url = path.toString(),
-            accessToken = accessToken,
+            url = path,
+            tokens = BearerTokens(accessToken, refreshToken = ""),
         )
 
         if (response.status == HttpStatusCode.OK) {
@@ -254,8 +255,8 @@ abstract class SettingCommand(
         val path = formPath(environment, Operation.LIST, settingType, settingName)
         verbose("GET $path")
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
-            url = path.toString(),
-            accessToken = accessToken,
+            url = path,
+            tokens = BearerTokens(accessToken, refreshToken = ""),
             timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
         )
         if (response.status == HttpStatusCode.OK) {
@@ -915,7 +916,7 @@ class PutMultipleSettings : SettingCommand(
     private fun isFileUpdated(): Boolean {
         val (response, respStr) = HttpClientUtils.headWithStringResponse(
             url = formPath(environment, Operation.LIST, SettingType.ORGANIZATION, "").toString(),
-            accessToken = oktaAccessToken,
+            tokens = BearerTokens(oktaAccessToken, refreshToken = ""),
             timeout = HttpClientUtils.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
         )
 

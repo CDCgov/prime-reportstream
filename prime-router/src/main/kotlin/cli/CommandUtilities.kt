@@ -6,6 +6,7 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -69,7 +70,7 @@ class CommandUtilities {
             return runBlocking {
                 val response = HttpClientUtils.head(
                     url.toString(),
-                    accessToken = accessToken,
+                    tokens = BearerTokens(accessToken, refreshToken = ""),
                     httpClient = httpClient
                 )
                 response.status == HttpStatusCode.OK

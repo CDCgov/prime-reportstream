@@ -4,12 +4,13 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.accept
 import io.ktor.client.request.forms.submitForm
-import io.ktor.client.request.header
 import io.ktor.client.request.headers
 import io.ktor.client.request.parameter
 import io.ktor.client.request.request
@@ -46,7 +47,7 @@ class HttpClientUtils {
          */
         fun getWithStringResponse(
             url: String,
-            accessToken: String? = null,
+            tokens: BearerTokens? = null,
             headers: Map<String, String>? = null,
             acceptedContent: ContentType = ContentType.Application.Json,
             timeout: Long = REQUEST_TIMEOUT_MILLIS,
@@ -55,7 +56,7 @@ class HttpClientUtils {
         ): Pair<HttpResponse, String> {
             val response = get(
                 url = url,
-                accessToken = accessToken,
+                tokens = tokens,
                 headers = headers,
                 acceptedContent = acceptedContent,
                 timeout = timeout,
@@ -84,7 +85,7 @@ class HttpClientUtils {
          */
         fun get(
             url: String,
-            accessToken: String? = null,
+            tokens: BearerTokens? = null,
             headers: Map<String, String>? = null,
             acceptedContent: ContentType = ContentType.Application.Json,
             timeout: Long = REQUEST_TIMEOUT_MILLIS,
@@ -94,7 +95,7 @@ class HttpClientUtils {
             return invoke(
                 HttpMethod.Get,
                 url = url,
-                accessToken = accessToken,
+                tokens = tokens,
                 headers = headers,
                 acceptedContent = acceptedContent,
                 timeout = timeout,
@@ -118,7 +119,7 @@ class HttpClientUtils {
          */
         fun putWithStringResponse(
             url: String,
-            accessToken: String? = null,
+            tokens: BearerTokens? = null,
             headers: Map<String, String>? = null,
             acceptedContent: ContentType = ContentType.Application.Json,
             timeout: Long = REQUEST_TIMEOUT_MILLIS,
@@ -128,7 +129,7 @@ class HttpClientUtils {
         ): Pair<HttpResponse, String> {
             val response = put(
                 url = url,
-                accessToken = accessToken,
+                tokens = tokens,
                 headers = headers,
                 acceptedContent = acceptedContent,
                 timeout = timeout,
@@ -159,7 +160,7 @@ class HttpClientUtils {
          */
         fun put(
             url: String,
-            accessToken: String? = null,
+            tokens: BearerTokens? = null,
             headers: Map<String, String>? = null,
             acceptedContent: ContentType = ContentType.Application.Json,
             timeout: Long = REQUEST_TIMEOUT_MILLIS,
@@ -170,7 +171,7 @@ class HttpClientUtils {
             return invoke(
                 method = HttpMethod.Put,
                 url = url,
-                accessToken = accessToken,
+                tokens = tokens,
                 headers = headers,
                 acceptedContent = acceptedContent,
                 timeout = timeout,
@@ -195,7 +196,7 @@ class HttpClientUtils {
          */
         fun postWithStringResponse(
             url: String,
-            accessToken: String? = null,
+            tokens: BearerTokens? = null,
             headers: Map<String, String>? = null,
             acceptedContent: ContentType = ContentType.Application.Json,
             timeout: Long = REQUEST_TIMEOUT_MILLIS,
@@ -205,7 +206,7 @@ class HttpClientUtils {
         ): Pair<HttpResponse, String> {
             val response = post(
                 url = url,
-                accessToken = accessToken,
+                tokens = tokens,
                 headers = headers,
                 acceptedContent = acceptedContent,
                 timeout = timeout,
@@ -235,7 +236,7 @@ class HttpClientUtils {
          */
         fun post(
             url: String,
-            accessToken: String? = null,
+            tokens: BearerTokens? = null,
             headers: Map<String, String>? = null,
             acceptedContent: ContentType = ContentType.Application.Json,
             timeout: Long? = REQUEST_TIMEOUT_MILLIS,
@@ -246,7 +247,7 @@ class HttpClientUtils {
             return invoke(
                 method = HttpMethod.Post,
                 url = url,
-                accessToken = accessToken,
+                tokens = tokens,
                 headers = headers,
                 acceptedContent = acceptedContent,
                 timeout = timeout,
@@ -270,7 +271,7 @@ class HttpClientUtils {
          */
         inline fun <reified T> submitFormT(
             url: String,
-            accessToken: String? = null,
+            tokens: BearerTokens? = null,
             headers: Map<String, String>? = null,
             acceptedContent: ContentType = ContentType.Application.Json,
             timeout: Long = REQUEST_TIMEOUT_MILLIS,
@@ -280,7 +281,7 @@ class HttpClientUtils {
             return runBlocking {
                 submitForm(
                     url = url,
-                    accessToken = accessToken,
+                    tokens = tokens,
                     headers = headers,
                     acceptedContent = acceptedContent,
                     timeout = timeout,
@@ -304,7 +305,7 @@ class HttpClientUtils {
          */
         fun submitForm(
             url: String,
-            accessToken: String? = null,
+            tokens: BearerTokens? = null,
             headers: Map<String, String>? = null,
             acceptedContent: ContentType = ContentType.Application.Json,
             timeout: Long = REQUEST_TIMEOUT_MILLIS,
@@ -312,7 +313,7 @@ class HttpClientUtils {
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                (httpClient ?: createDefaultHttpClient(accessToken)).submitForm(
+                (httpClient ?: createDefaultHttpClient(tokens)).submitForm(
                     url,
                     formParameters = Parameters.build {
                         formParams?.forEach { param ->
@@ -351,7 +352,7 @@ class HttpClientUtils {
          */
         fun headWithStringResponse(
             url: String,
-            accessToken: String? = null,
+            tokens: BearerTokens? = null,
             headers: Map<String, String>? = null,
             acceptedContent: ContentType? = ContentType.Application.Json,
             timeout: Long = REQUEST_TIMEOUT_MILLIS,
@@ -360,7 +361,7 @@ class HttpClientUtils {
         ): Pair<HttpResponse, String> {
             val response = head(
                 url = url,
-                accessToken = accessToken,
+                tokens = tokens,
                 headers = headers,
                 acceptedContent = acceptedContent,
                 timeout = timeout,
@@ -387,7 +388,7 @@ class HttpClientUtils {
          */
         fun head(
             url: String,
-            accessToken: String? = null,
+            tokens: BearerTokens? = null,
             headers: Map<String, String>? = null,
             acceptedContent: ContentType? = ContentType.Application.Json,
             timeout: Long? = REQUEST_TIMEOUT_MILLIS,
@@ -397,7 +398,7 @@ class HttpClientUtils {
             return invoke(
                 method = HttpMethod.Head,
                 url = url,
-                accessToken = accessToken,
+                tokens = tokens,
                 headers = headers,
                 acceptedContent = acceptedContent,
                 timeout = timeout,
@@ -423,7 +424,7 @@ class HttpClientUtils {
          */
         fun deleteWithStringResponse(
             url: String,
-            accessToken: String? = null,
+            tokens: BearerTokens? = null,
             headers: Map<String, String>? = null,
             acceptedContent: ContentType = ContentType.Application.Json,
             timeout: Long = REQUEST_TIMEOUT_MILLIS,
@@ -432,7 +433,7 @@ class HttpClientUtils {
         ): Pair<HttpResponse, String> {
             val response = delete(
                 url = url,
-                accessToken = accessToken,
+                tokens = tokens,
                 headers = headers,
                 acceptedContent = acceptedContent,
                 timeout = timeout,
@@ -462,7 +463,7 @@ class HttpClientUtils {
          */
         fun delete(
             url: String,
-            accessToken: String? = null,
+            tokens: BearerTokens? = null,
             headers: Map<String, String>? = null,
             acceptedContent: ContentType = ContentType.Application.Json,
             timeout: Long = REQUEST_TIMEOUT_MILLIS,
@@ -472,7 +473,7 @@ class HttpClientUtils {
             return invoke(
                 method = HttpMethod.Delete,
                 url = url,
-                accessToken = accessToken,
+                tokens = tokens,
                 headers = headers,
                 acceptedContent = acceptedContent,
                 timeout = timeout,
@@ -487,7 +488,7 @@ class HttpClientUtils {
         private fun invoke(
             method: HttpMethod,
             url: String,
-            accessToken: String? = null,
+            tokens: BearerTokens? = null,
             headers: Map<String, String>? = null,
             acceptedContent: ContentType? = ContentType.Application.Json,
             timeout: Long? = REQUEST_TIMEOUT_MILLIS,
@@ -496,7 +497,7 @@ class HttpClientUtils {
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                (httpClient ?: createDefaultHttpClient(accessToken)).request(url) {
+                (httpClient ?: createDefaultHttpClient(tokens)).request(url) {
                     this.method = method
                     timeout {
                         requestTimeoutMillis = timeout
@@ -533,7 +534,7 @@ class HttpClientUtils {
          * @param bearerTokens null default, the access token needed to call the endpoint
          * @return a HttpClient with all sensible defaults
          */
-        fun createDefaultHttpClient(accessToken: String?): HttpClient {
+        fun createDefaultHttpClient(tokens: BearerTokens?): HttpClient {
             return HttpClient(Apache) {
                 // installs logging into the call to post to the server
                 // commented out - not to override underlying default logger settings
@@ -542,10 +543,16 @@ class HttpClientUtils {
                 //     logger = Logger.SIMPLE
                 //     level = LogLevel.INFO
                 // }
-                // not using Bearer Auth handler due to refresh token behavior
-                accessToken?.let {
-                    defaultRequest {
-                        header("Authorization", "Bearer $it")
+                tokens?.let {
+                    install(Auth) {
+                        bearer {
+                            loadTokens {
+                                tokens
+                            }
+                            refreshTokens {
+                                tokens
+                            }
+                        }
                     }
                 }
                 install(ContentNegotiation) {

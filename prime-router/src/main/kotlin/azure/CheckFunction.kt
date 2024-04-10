@@ -20,6 +20,7 @@ import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.transport.RESTTransport
 import gov.cdc.prime.router.transport.SftpTransport
+import io.ktor.client.plugins.auth.providers.BearerTokens
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.schmizz.sshj.sftp.RemoteResourceFilter
@@ -353,7 +354,7 @@ class CheckFunction : Logging {
             val aLogger: Logger = Logger.getLogger(this.toString())
             runBlocking {
                 launch {
-                    var (httpHeaders, accessToken: String?) =
+                    var (httpHeaders, tokens: BearerTokens?) =
                         theRESTTransport.getOAuthToken(
                             restTransportType,
                             reportId,
@@ -363,7 +364,7 @@ class CheckFunction : Logging {
                         )
 
                     val msg = when {
-                        accessToken != null -> "${receiver.fullName}: Success: received OAuth token"
+                        tokens != null -> "${receiver.fullName}: Success: received OAuth token"
                         httpHeaders.isNotEmpty() -> "${receiver.fullName}: Success: received Authentication header"
                         else -> error("${receiver.fullName}: Failure: no valid response from RESTTransport")
                     }

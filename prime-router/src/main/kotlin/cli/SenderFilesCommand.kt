@@ -12,6 +12,7 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.messages.ReportFileMessage
+import io.ktor.client.plugins.auth.providers.BearerTokens
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDateTime
@@ -112,7 +113,7 @@ class SenderFilesCommand : CliktCommand(
         verbose("GET $path with $params")
         val (response, respStr) = HttpClientUtils.getWithStringResponse(
             url = path.toString(),
-            accessToken = accessToken.value,
+            tokens = BearerTokens(accessToken.value, refreshToken = ""),
             queryParameters = params.associate {
                 Pair(it.first, it.second.toString())
             },
