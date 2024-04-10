@@ -1,11 +1,17 @@
 import { expect, Page } from "@playwright/test";
-import { MOCK_GET_REPORT_HISTORY } from "../mocks/history";
+import { MOCK_GET_SUBMISSION_HISTORY } from "../mocks/submissionHistory";
 import { MOCK_GET_SUBMISSIONS } from "../mocks/submissions";
 
 export const URL_SUBMISSION_HISTORY = "/submissions";
 export const API_GET_REPORT_HISTORY = `**/api/waters/report/**`;
 export async function goto(page: Page) {
     await page.goto(URL_SUBMISSION_HISTORY, {
+        waitUntil: "domcontentloaded",
+    });
+}
+
+export async function gotoDetails(page: Page, id: string) {
+    await page.goto(`${URL_SUBMISSION_HISTORY}/${id}`, {
         waitUntil: "domcontentloaded",
     });
 }
@@ -31,7 +37,7 @@ export async function mockGetReportHistoryResponse(
     responseStatus = 200,
 ) {
     await page.route(API_GET_REPORT_HISTORY, async (route) => {
-        const json = MOCK_GET_REPORT_HISTORY;
+        const json = MOCK_GET_SUBMISSION_HISTORY;
         await route.fulfill({ json, status: responseStatus });
     });
 }
@@ -41,6 +47,12 @@ export async function openReportIdDetailPage(page: Page, id: string) {
     await expect(reportDetailsPage.locator("h1")).toBeAttached();
     await expect(reportDetailsPage).toHaveURL(`/submissions/${id}`);
     expect(reportDetailsPage.getByText(`Report ID:${id}`)).toBeTruthy();
+}
+
+export async function title(page: Page) {
+    await expect(page).toHaveTitle(
+        /ReportStream - CDC's free, interoperable data transfer platform/,
+    );
 }
 
 export async function tableHeaders(page: Page) {

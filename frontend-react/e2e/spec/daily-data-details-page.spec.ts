@@ -18,8 +18,8 @@ test.describe("Daily Data Details page", () => {
 
         test.describe("without org selected", () => {
             test.beforeEach(async ({ page }) => {
-                await reportDetails.mockGetDeliveryResponse(page, id);
-                await reportDetails.mockGetFacilitiesResponse(page, id);
+                await reportDetails.mockGetReportDeliveryResponse(page, id);
+                await reportDetails.mockGetReportFacilitiesResponse(page, id);
                 await reportDetails.goto(page, id);
             });
 
@@ -69,8 +69,8 @@ test.describe("Daily Data Details page", () => {
         test.describe("with org selected", () => {
             test.beforeEach(async ({ page }) => {
                 await selectTestOrg(page);
-                await reportDetails.mockGetDeliveryResponse(page, id);
-                await reportDetails.mockGetFacilitiesResponse(page, id);
+                await reportDetails.mockGetReportDeliveryResponse(page, id);
+                await reportDetails.mockGetReportFacilitiesResponse(page, id);
                 await reportDetails.goto(page, id);
             });
 
@@ -126,7 +126,7 @@ test.describe("Daily Data Details page", () => {
         test.use({ storageState: "e2e/.auth/admin.json" });
 
         test.beforeEach(async ({ page }) => {
-            await reportDetails.mockGetDeliveryResponse(page, id, 500);
+            await reportDetails.mockGetReportDeliveryResponse(page, id, 500);
             await reportDetails.goto(page, id);
         });
 
@@ -148,8 +148,8 @@ test.describe("Daily Data Details page", () => {
         test.use({ storageState: "e2e/.auth/receiver.json" });
 
         test.beforeEach(async ({ page }) => {
-            await reportDetails.mockGetDeliveryResponse(page, id);
-            await reportDetails.mockGetFacilitiesResponse(page, id);
+            await reportDetails.mockGetReportDeliveryResponse(page, id);
+            await reportDetails.mockGetReportFacilitiesResponse(page, id);
             await reportDetails.goto(page, id);
         });
 
@@ -198,7 +198,7 @@ test.describe("Daily Data Details page", () => {
         test.use({ storageState: "e2e/.auth/receiver.json" });
 
         test.beforeEach(async ({ page }) => {
-            await reportDetails.mockGetDeliveryResponse(page, id, 500);
+            await reportDetails.mockGetReportDeliveryResponse(page, id, 500);
             await reportDetails.goto(page, id);
         });
 
