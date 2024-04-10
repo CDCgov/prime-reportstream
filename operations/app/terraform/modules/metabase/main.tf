@@ -90,7 +90,9 @@ resource "azurerm_linux_web_app" "metabase" {
       # The AzureRM Terraform provider provides regional virtual network integration via the standalone resource app_service_virtual_network_swift_connection and in-line within this resource using the virtual_network_subnet_id property. You cannot use both methods simultaneously. If the virtual network is set via the resource app_service_virtual_network_swift_connection then ignore_changes should be used in the web app configuration.
       virtual_network_subnet_id,
       public_network_access_enabled,
-      sticky_settings
+      sticky_settings,
+      logs,
+      site_config[0].application_stack[0].docker_registry_url
     ]
   }
 }
