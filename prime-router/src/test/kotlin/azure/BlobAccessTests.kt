@@ -26,6 +26,7 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.TestcontainersUtils
 import io.mockk.CapturingSlot
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -39,10 +40,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.testcontainers.containers.GenericContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import org.testcontainers.utility.DockerImageName
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -62,16 +61,20 @@ class BlobAccessTests {
     @Nested
     inner class BlobAccessIntegrationTests {
         @Container
-        val azuriteContainer1 =
-            GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
-                .withEnv("AZURITE_ACCOUNTS", "devstoreaccount1:keydevstoreaccount1")
-                .withExposedPorts(10000, 10001, 10002)
+        val azuriteContainer1 = TestcontainersUtils.createAzuriteContainer(
+            customImageName = "azurite_blobaccess1",
+            customEnv = mapOf(
+                "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
+            )
+        )
 
         @Container
-        val azuriteContainer2 =
-            GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
-                .withEnv("AZURITE_ACCOUNTS", "devstoreaccount2:keydevstoreaccount2")
-                .withExposedPorts(10000, 10001, 10002)
+        val azuriteContainer2 = TestcontainersUtils.createAzuriteContainer(
+            customImageName = "azurite_blobaccess2",
+            customEnv = mapOf(
+                "AZURITE_ACCOUNTS" to "devstoreaccount2:keydevstoreaccount2"
+            )
+        )
 
         @AfterEach
         fun afterEach() {
@@ -439,13 +442,32 @@ class BlobAccessTests {
 
     @Test
     fun `test get blob endpoint URL from BlobContainerMetadata`() {
-        val endpoint =
+        val localEndpoint =
             """
                 DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://localhost:54321/devstoreaccount1;QueueEndpoint=http://localhost:12345/devstoreaccount1;
                 """.trimIndent()
 
-        val metadata = BlobAccess.BlobContainerMetadata("test", endpoint)
+        val metadata = BlobAccess.BlobContainerMetadata("test", localEndpoint)
         assertThat(metadata.getBlobEndpoint()).isEqualTo("http://localhost:54321/devstoreaccount1/test")
+    }
+
+    @Test
+    fun `test get blob endpoint when accountname and suffix are used`() {
+        val deployedEndpoint =
+            """
+                DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;EndpointSuffix=core.windows.net
+                """.trimIndent()
+
+        val metadata = BlobAccess.BlobContainerMetadata("test", deployedEndpoint)
+        assertThat(metadata.getBlobEndpoint()).isEqualTo("https://devstoreaccount1.blob.core.windows.net/test")
+
+        val deployedEndpoint2 =
+            """
+                DefaultEndpointsProtocol=http;AccountKey=keydevstoreaccount1;EndpointSuffix=core.windows.net;AccountName=devstoreaccount1;
+                """.trimIndent()
+
+        val metadata2 = BlobAccess.BlobContainerMetadata("test", deployedEndpoint2)
+        assertThat(metadata2.getBlobEndpoint()).isEqualTo("https://devstoreaccount1.blob.core.windows.net/test")
     }
 
     @Test

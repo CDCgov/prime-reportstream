@@ -40,8 +40,31 @@ describe("SubmissionTable", () => {
                 ],
                 error: false,
                 response: [
-                    { submissionId: 0 },
-                    { submissionId: 1 },
+                    {
+                        submissionId: 0,
+                        timestamp: "2024-04-01T16:55:28.012Z",
+                        sender: "ignore.ignore-elr-elims",
+                        httpStatus: 201,
+                        id: "3fc6bc2b-91e0-44f0-a73e-5bead6291061",
+                        topic: "elr-elims",
+                        reportItemCount: 1,
+                        fileName:
+                            "None-3fc6bc2b-91e0-44f0-a73e-5bead6291061-20240401165526.hl7",
+                        fileType: "HL7",
+                        externalName: "myfile.hl7",
+                    },
+                    {
+                        submissionId: 1,
+                        timestamp: "2024-03-14T17:40:50.641Z",
+                        sender: "ignore.ignore-elr-elims",
+                        httpStatus: 201,
+                        id: "03c3b7ab-7c65-4174-bea7-9195cbb7ed01",
+                        topic: "elr-elims",
+                        reportItemCount: 1,
+                        fileName:
+                            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+                        fileType: "HL7",
+                    },
                 ] as SubmissionsResource[],
             },
         ];
@@ -60,6 +83,13 @@ describe("SubmissionTable", () => {
         const tBody = rowGroups[1];
         const rows = within(tBody).getAllByRole("row");
         expect(rows).toHaveLength(2);
+
+        const externalFileName = screen.getByText(/myfile.hl7/i);
+        expect(externalFileName).toBeInTheDocument();
+        const fileName = screen.getByText(
+            /None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7/i,
+        );
+        expect(fileName).toBeInTheDocument();
     });
 
     describe("when rendering as an admin", () => {
