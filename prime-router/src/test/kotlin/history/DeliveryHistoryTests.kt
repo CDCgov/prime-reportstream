@@ -27,6 +27,7 @@ class DeliveryHistoryTests {
                 mapOf(
                     "reportId" to "1234",
                     "ingestionTime" to OffsetDateTime.parse("2024-04-08T00:00:00.000Z"),
+                    "sendingOrg" to "DogCow Associates",
                 )
             ),
         ).run {
@@ -51,6 +52,7 @@ class DeliveryHistoryTests {
             assertThat(
                 originalIngestion?.first()?.get("reportId")
             ).isEqualTo("1234")
+            assertThat(originalIngestion?.first()?.get("sendingOrg")).isEqualTo("DogCow Associates")
 
             // val compareFilename = Report.formExternalFilename(
             //     bodyUrl,

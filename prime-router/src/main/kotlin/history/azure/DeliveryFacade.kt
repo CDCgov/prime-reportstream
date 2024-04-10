@@ -109,6 +109,7 @@ class DeliveryFacade(
                 mapOf(
                     "reportId" to it.reportId,
                     "ingestionTime" to it.createdAt,
+                    "sendingOrg" to it.sendingOrg,
                 )
             }
         }
