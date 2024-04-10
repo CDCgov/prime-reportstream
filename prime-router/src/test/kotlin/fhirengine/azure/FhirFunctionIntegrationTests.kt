@@ -197,7 +197,7 @@ class FhirFunctionIntegrationTests() {
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
         customImageName = "azurite_fhirfunctionintegration1",
         customEnv = mapOf(
-        "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
+            "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
         )
     )
 
@@ -548,27 +548,27 @@ class FhirFunctionIntegrationTests() {
             BlobAccess.uploadBody(
                 Report.Format.FHIR,
                 match { bytes ->
-                val result = CompareData().compare(
-                    bytes.inputStream(),
-                    cleanHL7RecordConverted.byteInputStream(),
-                    Report.Format.FHIR,
-                    null
-                )
-                result.passed
-            },
+                    val result = CompareData().compare(
+                        bytes.inputStream(),
+                        cleanHL7RecordConverted.byteInputStream(),
+                        Report.Format.FHIR,
+                        null
+                    )
+                    result.passed
+                },
                 any(), any(), any()
             )
             BlobAccess.uploadBody(
                 Report.Format.FHIR,
                 match { bytes ->
-                val result = CompareData().compare(
-                    bytes.inputStream(),
-                    invalidHL7RecordConverted.byteInputStream(),
-                    Report.Format.FHIR,
-                    null
-                )
-                result.passed
-            },
+                    val result = CompareData().compare(
+                        bytes.inputStream(),
+                        invalidHL7RecordConverted.byteInputStream(),
+                        Report.Format.FHIR,
+                        null
+                    )
+                    result.passed
+                },
                 any(), any(), any()
             )
         }
@@ -651,7 +651,7 @@ class FhirFunctionIntegrationTests() {
                     .where(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.NEXT_ACTION.eq(TaskAction.route))
                     .fetchInto(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
             assertThat(convertReportFile).hasSize(0)
-            assertThat(actionLogger.errors).hasSize(2)
+            assertThat(actionLogger.errors).hasSize(3)
         }
         verify(exactly = 0) {
             QueueAccess.sendMessage(elrRoutingQueueName, any())
