@@ -88,10 +88,10 @@ resource "azurerm_monitor_action_group" "action_group_dummy" {
 locals {
   action_group_id = try(azurerm_monitor_action_group.action_group[0].id, "")
   action_group_slack_id = (local.alerting_enabled == 1 ?
-    try(azurerm_monitor_action_group.action_group_slack.id, "") :
+    try(replace(azurerm_monitor_action_group.action_group_slack.id, "Microsoft.Insights", "microsoft.insights"), "") :
   azurerm_monitor_action_group.action_group_slack.id)
   app_insights_id = azurerm_application_insights.app_insights.id
   action_group_metabase_id = (local.alerting_enabled == 1 ?
-    try(azurerm_monitor_action_group.action_group_metabase.id, "") :
+    try(replace(azurerm_monitor_action_group.action_group_metabase.id, "Microsoft.Insights", "microsoft.insights"), "") :
   azurerm_monitor_action_group.action_group_metabase.id)
 }

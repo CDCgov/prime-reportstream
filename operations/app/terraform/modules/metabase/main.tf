@@ -41,7 +41,7 @@ resource "azurerm_linux_web_app" "metabase" {
     ftps_state                    = "Disabled"
     scm_use_main_ip_restriction   = true
     always_on                     = true
-    vnet_route_all_enabled        = true
+    vnet_route_all_enabled        = false
     ip_restriction_default_action = "Deny"
     scm_minimum_tls_version       = "1.0"
     use_32_bit_worker             = false
