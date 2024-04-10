@@ -1,7 +1,7 @@
 import { GridContainer } from "@trussworks/react-uswds";
 import { Helmet } from "react-helmet-async";
 
-import DailyData from "./daily-data/DailyData";
+import { DailyData } from "./daily-data/DailyData";
 import HipaaNotice from "../../components/HipaaNotice";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import Title from "../../components/Title";

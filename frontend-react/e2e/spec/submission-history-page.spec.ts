@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 import { selectTestOrg, tableData, TEST_ORG_IGNORE } from "../helpers/utils";
-import { reportIdDetailPage } from "../pages/report-details";
 import * as submissionHistory from "../pages/submission-history";
+import { openReportIdDetailPage } from "../pages/submission-history";
 
 const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
 test.describe("Submission history page", () => {
@@ -75,21 +75,27 @@ test.describe("Submission history page", () => {
                         .locator("td")
                         .nth(0);
                     await expect(reportId).toContainText(id);
-                    await reportId.click();
+                    await reportId.getByRole("link", { name: id }).click();
 
-                    const submissionsDetail = await reportIdDetailPage(page);
-                    await expect(submissionsDetail).toHaveURL(
-                        `/submissions/${id}`,
-                    );
-                    expect(
-                        submissionsDetail.getByText(`Report ID:${id}`),
-                    ).toBeTruthy();
+                    await openReportIdDetailPage(page, id);
                 });
 
                 test("table column 'Date/time submitted' has expected data", async ({
                     page,
                 }) => {
                     await tableData(page, 0, 1, "3/7/2024, 6:00:22 PM");
+                });
+
+                test("table column 'File' has expected data", async ({
+                    page,
+                }) => {
+                    await tableData(page, 0, 2, "myfile.hl7");
+                    await tableData(
+                        page,
+                        1,
+                        2,
+                        "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+                    );
                 });
 
                 test("table column 'Records' has expected data", async ({
@@ -184,13 +190,9 @@ test.describe("Submission history page", () => {
                     .locator("td")
                     .nth(0);
                 await expect(reportId).toContainText(id);
-                await reportId.click();
+                await reportId.getByRole("link", { name: id }).click();
 
-                const submissionsDetail = await reportIdDetailPage(page);
-                await expect(submissionsDetail).toHaveURL(`/submissions/${id}`);
-                expect(
-                    submissionsDetail.getByText(`Report ID:${id}`),
-                ).toBeTruthy();
+                await openReportIdDetailPage(page, id);
             });
 
             test("table column 'Date/time submitted' has expected data", async ({
