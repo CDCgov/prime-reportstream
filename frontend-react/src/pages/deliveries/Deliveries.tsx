@@ -5,7 +5,6 @@ import { DailyData } from "./daily-data/DailyData";
 import HipaaNotice from "../../components/HipaaNotice";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import Title from "../../components/Title";
-import { USSmartLink } from "../../components/USLink";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import { FeatureName } from "../../utils/FeatureName";
 
@@ -42,13 +41,6 @@ function DeliveriesPage() {
                     postTitle="View information about all data sent to your organization"
                     removeBottomMargin
                 />
-
-                <p className="margin-top-0">
-                    You can find additional detail for COVID data on the{" "}
-                    <USSmartLink href="/data-dashboard">
-                        Data Dashboard.
-                    </USSmartLink>
-                </p>
                 {withCatchAndSuspense(<DailyData />)}
                 <HipaaNotice />
             </article>
