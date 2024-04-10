@@ -31,6 +31,11 @@ class HL7toFhirTranslator(
             emptyMap<String, MutableMap<String, HL7MessageModel>>().toMutableMap()
     }
 
+    // attempt to load message templates immediately on object creation
+    init {
+        getHL7MessageTemplates(configFolderPath)
+    }
+
     /**
      * Get the HL7 Message Model used to translate an [hl7Message] between HL7 and FHIR.
      * @return the message model
@@ -50,6 +55,16 @@ class HL7toFhirTranslator(
 
         return messageTemplate[messageTemplateType]
             ?: throw UnsupportedOperationException("Message type not yet supported $messageTemplateType")
+    }
+
+    /**
+     * Calls the HL7 to FHIR Translator resource reader to deserialize all message templates for the [configPath]
+     * and stores the templates in the companion object.
+     */
+    private fun getHL7MessageTemplates(configPath: String) {
+        if (messageTemplates[configPath] == null) {
+            messageTemplates[configPath] = ResourceReader(ConverterConfiguration(configFolderPath)).messageTemplates
+        }
     }
 
     /**
