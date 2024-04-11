@@ -77,7 +77,7 @@ resource "azurerm_monitor_metric_alert" "exception_alert_warn" {
   }
 
   action {
-    action_group_id = local.action_group_id
+    action_group_id = azurerm_monitor_action_group.action_group[0].id
   }
 
   tags = {
