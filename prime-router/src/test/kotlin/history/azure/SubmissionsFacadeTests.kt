@@ -175,6 +175,7 @@ class SubmissionsFacadeTests {
         )
         claims = AuthenticatedClaims(mismatchedClaims, AuthenticationType.Okta)
         assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isFalse()
+
         // This is a submissions query.  So, we sure better not be looking up the receivingOrg.
         val mismatchedClaims2: Map<String, Any> = mapOf(
             "organization" to listOf("DHmyReceivingOrg"),
