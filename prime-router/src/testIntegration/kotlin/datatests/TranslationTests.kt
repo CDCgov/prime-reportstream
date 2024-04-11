@@ -154,7 +154,7 @@ class TranslationTests {
         val receiver: String? = null,
         val conditionFiler: String? = null,
         val enrichmentSchemas: String? = null,
-        val additionalProfiles: List<String> = emptyList(),
+        val profile: String? = null,
     )
 
     /**
@@ -298,16 +298,13 @@ class TranslationTests {
                         config.expectedFormat == Report.Format.FHIR -> {
                             val rawHL7 = inputStream.bufferedReader().readText()
                             val expectedRawFhir = expectedStream.bufferedReader().readText()
-                            verifyHL7toFhir(rawHL7, result, expectedRawFhir)
-                            config.additionalProfiles.forEach { profile ->
-                                verifyHL7toFhir(rawHL7, result, expectedRawFhir, profile)
-                            }
+                            verifyHL7toFhir(rawHL7, result, expectedRawFhir, config.profile)
                         }
 
                         // Compare the output of an HL7 to FHIR to HL7 conversion
                         config.expectedFormat == Report.Format.HL7 && config.inputFormat == Report.Format.HL7 -> {
                             check(!config.outputSchema.isNullOrBlank())
-                            val bundle = translateToFhir(inputStream.bufferedReader().readText())
+                            val bundle = translateToFhir(inputStream.bufferedReader().readText(), config.profile)
                             val afterEnrichment = if (config.enrichmentSchemas != null) {
                                 runSenderTransformOrEnrichment(bundle, config.enrichmentSchemas)
                             } else {
@@ -335,7 +332,7 @@ class TranslationTests {
                             val afterSenderTransform = if (config.senderTransform != null) {
                                 runSenderTransformOrEnrichment(afterEnrichment, config.senderTransform)
                             } else {
-                                inputStream
+                                afterEnrichment
                             }
                             check(!config.outputSchema.isNullOrBlank())
                             val actualStream =
@@ -431,7 +428,7 @@ class TranslationTests {
             rawHL7: String,
             result: CompareData.Result,
             expectedRawFhir: String,
-            profile: String? = null,
+            profile: String?,
         ) {
             // Currently only supporting one HL7 message
             check(config.inputFormat == Report.Format.HL7)

@@ -1,7 +1,7 @@
 import { chunk, range } from "lodash";
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useEffect, useReducer, useState } from "react";
 import useDeepCompareEffect from "use-deep-compare-effect";
-
+import { validate as uuidValidate } from "uuid";
 import {
     OVERFLOW_INDICATOR,
     PaginationProps,
@@ -18,6 +18,7 @@ export type CursorExtractor<T> = (arg: T) => string;
 export type ResultsFetcher<T> = (
     cursor: string,
     numResults: number,
+    additionalParams?: object,
 ) => Promise<T[]>;
 
 // Returns a list of slots based on the USWDS pagination behavior rules.
@@ -322,6 +323,8 @@ interface UsePaginationState<T> {
     currentPageResults: T[];
     isLoading: boolean;
     paginationProps?: PaginationProps;
+    setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+    searchTerm: string;
 }
 
 // Arguments need to initialize the hook's internal state.
@@ -375,6 +378,7 @@ function usePagination<T>({
             extractCursor,
         }),
     );
+    const [searchTerm, setSearchTerm] = useState("");
 
     // Reset the state if any of the hook props change.
     useEffect(() => {
@@ -387,7 +391,14 @@ function usePagination<T>({
                 extractCursor,
             },
         });
-    }, [fetchResults, pageSize, startCursor, extractCursor, isCursorInclusive]);
+    }, [
+        searchTerm,
+        fetchResults,
+        pageSize,
+        startCursor,
+        extractCursor,
+        isCursorInclusive,
+    ]);
 
     // Fetch a new batch of results when the fetch parameters change.
     const { requestConfig } = state;
@@ -400,9 +411,20 @@ function usePagination<T>({
             if (!requestConfig) {
                 return;
             }
+            // Search terms can either be fileName string or a UUID,
+            // and we need to know since we have to query the API by
+            // that specific query param. All reportId(s) are UUIDs, so
+            // if the searchTerm is a UUID, assume reportId, otherwise
+            // assume fileName
+            const searchParam = searchTerm
+                ? uuidValidate(searchTerm)
+                    ? { reportId: searchTerm }
+                    : { fileName: searchTerm }
+                : {};
             const results = await fetchResults(
                 requestConfig.cursor,
                 requestConfig.numResults,
+                searchParam,
             );
             dispatch({
                 type: PaginationActionType.PROCESS_RESULTS,
@@ -413,7 +435,7 @@ function usePagination<T>({
             });
         }
         void doEffect();
-    }, [fetchResults, requestConfig]);
+    }, [fetchResults, requestConfig, searchTerm]);
 
     // Create a callback for changing the current page to pass down to the
     // pagination UI component.
@@ -464,6 +486,8 @@ function usePagination<T>({
         currentPageResults,
         isLoading: state.isLoading,
         paginationProps,
+        setSearchTerm,
+        searchTerm,
     };
 }
 

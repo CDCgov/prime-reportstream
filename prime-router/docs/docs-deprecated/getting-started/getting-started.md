@@ -57,7 +57,7 @@ You must re-package the build and restart the prime_dev container to see any mod
 ```bash
 cd ./prime-router
 ./gradlew package
-docker-compose restart prime_dev
+docker compose restart prime_dev
 ```
 
 ### Inspecting the Logs
@@ -151,12 +151,12 @@ mkdir -p .vault/env
 cat /dev/null > .vault/env/.env.local
 ```
 
-When starting up our containers with `docker-compose up` on first-run, the container will create a new Vault database and once initialized (which may take a couple of seconds) store the following files in `.vault/env`:
+When starting up our containers with `docker compose up` on first-run, the container will create a new Vault database and once initialized (which may take a couple of seconds) store the following files in `.vault/env`:
 
 * `key`: unseal key for decrypting the database
 * `.env.local`: the root token in envfile format for using the Vault api/command line
 
-The database is stored in a docker-compose container `vault` which is persisted across up and down events. All files are excluded in `.gitignore` and should never be persisted to source control.
+The database is stored in a docker compose container `vault` which is persisted across up and down events. All files are excluded in `.gitignore` and should never be persisted to source control.
 
 ## Re-initializing the vault
 
@@ -174,7 +174,7 @@ Manually:
 ```bash
 cd prime-router
 # -v removes ALL volumes associated with the environment
-docker-compose down -v
+docker compose down -v
 rm -rf .vault/env/{key,.env.local}
 cat /dev/null > .vault/env/.env.local
 ```
@@ -227,11 +227,11 @@ When invoked with `--prune-volumes`, this script will also reset your PostgreSQL
 ## Resetting the Database
 1. Stop your ReportStream container if it is running.
     ```bash
-    docker-compose down
+    docker compose down
     ```
 1. Run the following command to delete all ReportStream related tables from the database and recreate them.  This
 is very useful to reset your database to a clean state.  Note that the database will be re-populated the
-next time you run ReportStream using docker-compose up.
+next time you run ReportStream using docker compose up.
     ```bash
     ./gradlew resetDB
     ```
@@ -302,7 +302,7 @@ export PRIME_ENVIRONMENT=foo
 When building the ReportStream container, you can set this value to `true` to enable insecure SSL:
 
 ```bash
-PRIME_DATA_HUB_INSECURE_SSL=true docker-compose build
+PRIME_DATA_HUB_INSECURE_SSL=true docker compose build
 ```
 
 # Troubleshooting
