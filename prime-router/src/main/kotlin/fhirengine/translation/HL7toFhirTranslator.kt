@@ -13,6 +13,7 @@ import io.github.linuxforhealth.hl7.message.HL7MessageModel
 import io.github.linuxforhealth.hl7.resource.ResourceReader
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
+import java.lang.IllegalArgumentException
 
 /**
  * Creates a HL7toFhirTranslator object to perform HL7v2 to FHIR translations.
@@ -25,15 +26,48 @@ class HL7toFhirTranslator(
 ) : Logging {
     companion object {
         /**
+         * List of all available mapping directory locations
+         */
+        internal val configPaths: List<String> = listOf(
+            "./metadata/HL7/catchall",
+            "./metadata/HL7/v251-elr"
+        )
+
+        /**
          * Stored message templates for HL7 -> FHIR translation. Loaded on demand, then stored for performance reasons
          */
-        internal val messageTemplates: MutableMap<String, MutableMap<String, HL7MessageModel>> =
-            emptyMap<String, MutableMap<String, HL7MessageModel>>().toMutableMap()
-    }
+        private var messageTemplates: Map<String, Map<String, HL7MessageModel>>
 
-    // attempt to load message templates immediately on object creation
-    init {
-        getHL7MessageTemplates(configFolderPath)
+        /**
+         * Function to retrieve stored message templates
+         */
+        internal fun getMessageTemplates(): Map<String, Map<String, HL7MessageModel>> {
+            return messageTemplates
+        }
+
+        /**
+         * Calls the HL7 to FHIR Translator resource reader to deserialize all message templates for all available
+         * configuration paths and stores the templates in the companion object
+         */
+        init {
+            messageTemplates = loadTemplates(configPaths)
+        }
+
+        /**
+         * Load templates from the list of [configPaths] sequentially and return a map of messageTemplates
+         */
+        internal fun loadTemplates(configPaths: List<String>): MutableMap<String, MutableMap<String, HL7MessageModel>> {
+            val loadedTemplates: MutableMap<String, MutableMap<String, HL7MessageModel>> = mutableMapOf()
+
+            // templates must be loaded sequentially due to ResourceReader being a singleton instance
+            for (configPath in configPaths) {
+                if (loadedTemplates[configPath] == null) {
+                    loadedTemplates[configPath] = ResourceReader(ConverterConfiguration(configPath)).messageTemplates
+                }
+            }
+
+            return loadedTemplates
+        }
     }
 
     /**
@@ -45,26 +79,11 @@ class HL7toFhirTranslator(
     ): HL7MessageModel {
         val messageTemplateType = getMessageTemplateType(hl7Message)
 
-        // if the requested message templates have been previously loaded, return the stored templates.
-        // otherwise, load the templates
-        val messageTemplate = messageTemplates.getOrElse(configFolderPath) {
-            val newMessageTemplate = ResourceReader(ConverterConfiguration(configFolderPath)).messageTemplates
-            messageTemplates[configFolderPath] = newMessageTemplate
-            newMessageTemplate
-        }
+        val messageTemplate = getMessageTemplates()[configFolderPath]
+            ?: throw IllegalArgumentException("Invalid FHIR translator configuration path: $configFolderPath")
 
         return messageTemplate[messageTemplateType]
-            ?: throw UnsupportedOperationException("Message type not yet supported $messageTemplateType")
-    }
-
-    /**
-     * Calls the HL7 to FHIR Translator resource reader to deserialize all message templates for the [configPath]
-     * and stores the templates in the companion object.
-     */
-    private fun getHL7MessageTemplates(configPath: String) {
-        if (messageTemplates[configPath] == null) {
-            messageTemplates[configPath] = ResourceReader(ConverterConfiguration(configFolderPath)).messageTemplates
-        }
+            ?: throw UnsupportedOperationException("Message type not yet supported: $messageTemplateType")
     }
 
     /**

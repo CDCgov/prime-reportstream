@@ -25,6 +25,7 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.cli.tests.CompareData
+import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.CompareFhirData
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -297,13 +298,18 @@ class FhirConverterTests {
                 topic = Topic.FULL_ELR
             )
         )
+        val testConfigPaths = HL7toFhirTranslator.Companion.configPaths.toMutableList()
+        testConfigPaths.add("./metadata/test_fhir_mapping")
+        val testTemplates = HL7toFhirTranslator.Companion.loadTemplates(testConfigPaths.toList())
 
         every { message.downloadContent() }
             .returns(validHl7)
-        mockkClass(HL7Reader::class)
         mockkObject(HL7Reader.Companion)
         every { HL7Reader.Companion.getMessageProfile(any()) } returns testProfile
         every { HL7Reader.Companion.profileDirectoryMap[testProfile] } returns "./metadata/test_fhir_mapping"
+
+        mockkObject(HL7toFhirTranslator.Companion)
+        every { HL7toFhirTranslator.Companion.getMessageTemplates() } returns testTemplates
 
         val bundles = engine.getContentFromHL7(message, actionLogger)
 

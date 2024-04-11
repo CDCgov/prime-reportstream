@@ -126,7 +126,8 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                 when (messageProfile.typeID) {
                     "ORU" -> {
                         return when (messageProfile.profileID) {
-                            "NIST_ELR" -> listOf(
+                            // TODO: NIST ELR conformance profile to be enabled in a future PR
+                            "NIST_ELR_TEST" -> listOf(
                                 NIST_ELR_ORU_R01::class.java
                             )
                             else -> listOf(
@@ -217,7 +218,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
 
         // map of HL7 OIDs to supported conformance profiles
         // list of OIDs for NIST ELR retrieved from https://oidref.com/2.16.840.1.113883.9
-        val oidProfileMap: Map<String, String> = mapOf(
+        private val oidProfileMap: Map<String, String> = mapOf(
             Pair("2.16.840.1.113883.9.10", "NIST_ELR"),
             Pair("2.16.840.1.113883.9.11", "NIST_ELR")
         )
