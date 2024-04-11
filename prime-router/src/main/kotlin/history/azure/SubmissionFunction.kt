@@ -161,7 +161,7 @@ class SubmissionFunction(
         }
 
         var response: HttpResponse?
-
+        // TODO: Figure out if we should leave the below or extract it into an env var
         val receiver = workflowEngine.settings.findReceiver("flexion.etor-service-receiver-orders")
         val client = HttpClient()
         val restTransport = RESTTransport()
