@@ -42,13 +42,13 @@ help: ## This help
 # TERRAFORM
 
 build-tf-cli: ## Build the Terraform docker container
-	@docker-compose build
+	@docker compose build
 
 pull-tf-cli: ## Pull the Terraform docker container
-	@docker-compose pull || ${MAKE} build-tf-cli
+	@docker compose pull || ${MAKE} build-tf-cli
 
 tf-cli: pull-tf-cli ## Drops into a Docker container configured with the Terraform CLI and Azure
-	@docker-compose run -e ENVIRONMENT=$(TF_ENV) -w /app/src/environments/$(TF_STAGE) tf-cli
+	@docker compose run -e ENVIRONMENT=$(TF_ENV) -w /app/src/environments/$(TF_STAGE) tf-cli
 
 tf-cmd: pull-tf-cli .az-configure-service-principal ## Run a command in the Docker container configured with the Terraform CLI and Azure
 	@echo -e ""
@@ -58,7 +58,7 @@ tf-cmd: pull-tf-cli .az-configure-service-principal ## Run a command in the Dock
 	@echo -e "$(COLOR_AZURE)---$(COLOR_NONE)"
 	@echo -e ""
 ifdef AZ_SERVICE_PRINCIPAL
-	@docker-compose run \
+	@docker compose run \
 		-e ARM_CLIENT_ID='$(ARM_CLIENT_ID)' \
 		-e ARM_CLIENT_SECRET='$(ARM_CLIENT_SECRET)' \
 		-e ARM_SUBSCRIPTION_ID='$(ARM_SUBSCRIPTION_ID)' \
@@ -67,7 +67,7 @@ ifdef AZ_SERVICE_PRINCIPAL
 		-w /app/src/environments/$(TF_STAGE) \
 		--entrypoint '${TF_CMD}' tf-cli
 else
-	@docker-compose run \
+	@docker compose run \
 		-e ENVIRONMENT=$(TF_ENV) \
 		-w /app/src/environments/$(TF_STAGE) \
 		--entrypoint "${TF_CMD}" tf-cli

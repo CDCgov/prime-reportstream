@@ -353,7 +353,7 @@ class CheckFunction : Logging {
             val aLogger: Logger = Logger.getLogger(this.toString())
             runBlocking {
                 launch {
-                    var (httpHeaders, bearerTokens: io.ktor.client.plugins.auth.providers.BearerTokens?) =
+                    var (httpHeaders, accessToken: String?) =
                         theRESTTransport.getOAuthToken(
                             restTransportType,
                             reportId,
@@ -363,7 +363,7 @@ class CheckFunction : Logging {
                         )
 
                     val msg = when {
-                        bearerTokens != null -> "${receiver.fullName}: Success: received OAuth token"
+                        accessToken != null -> "${receiver.fullName}: Success: received OAuth token"
                         httpHeaders.isNotEmpty() -> "${receiver.fullName}: Success: received Authentication header"
                         else -> error("${receiver.fullName}: Failure: no valid response from RESTTransport")
                     }
