@@ -1,0 +1,101 @@
+# To submit this to staging, run:
+# ./prime multiple-settings set --env staging --input ./settings/staging/0170-ucsd-onboarding-receiver-settings.yml
+#
+# To submit this in localhost, run:
+# ./prime multiple-settings set --input ./settings/staging/0170-ucsd-onboarding-receiver-settings.yml
+#
+# Description:
+#   These following settings are for UCSD
+#   Result Receiver (ucsd.etor-nbs-results)
+#
+---
+- name: "ucsd"
+  description: "University of California San Diego"
+  jurisdiction: "STATE"
+  stateCode: CA
+  countyName: null
+  filters: []
+  featureFlags: []
+  keys: null
+  senders: []
+  receivers:
+    - name: "etor-nbs-results"
+      organizationName: "ucsd"
+      topic: "etor-ti"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+        receivingApplicationName: "EPIC-INNERCONNECT"
+        receivingApplicationOID: null
+        receivingFacilityName: "CA"
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB: {}
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "standard"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: false
+          truncateHl7Fields: []
+          customLengthHl7Fields: {}
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01')"
+        - "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() and %patientState = 'CA')"
+        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = 'ucsd-receiver-id').exists()"
+        - "(Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR')"
+      qualityFilter:
+        - "true"
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      conditionFilter: []
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<SFTP>
+        host: 172.17.6.20
+        port: 22
+        filePath: ./upload
+        credentialName: null
+        type: "SFTP"
+      externalName: "UCSD"
+      timeZone: null
+      dateTimeFormat: "OFFSET"
