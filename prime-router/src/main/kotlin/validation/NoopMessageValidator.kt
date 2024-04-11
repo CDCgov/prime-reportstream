@@ -4,6 +4,10 @@ class NoopMessageValidationResult : IMessageValidationResult {
     override fun isValid(): Boolean {
         return true
     }
+
+    override fun getErrorsMessage(): String {
+        return ""
+    }
 }
 
 class NoopMessageValidator : AbstractMessageValidator() {

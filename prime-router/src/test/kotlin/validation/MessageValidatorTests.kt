@@ -96,10 +96,12 @@ class MessageValidatorTests {
 
     @Test
     fun `test only validates an HL7 message or FHIR bundle`() {
-        val noopMessageValidator = NoopMessageValidator()
+        class TestValidator : AbstractMessageValidator()
+
+        val validator = TestValidator()
 
         assertThrows<RuntimeException> {
-            noopMessageValidator.validate("")
+            validator.validate("")
         }
     }
 

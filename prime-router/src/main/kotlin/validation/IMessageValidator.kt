@@ -1,9 +1,11 @@
 package gov.cdc.prime.router.validation
 
 import ca.uhn.fhir.context.FhirContext
+import ca.uhn.fhir.validation.ResultSeverityEnum
 import ca.uhn.fhir.validation.ValidationResult
 import ca.uhn.hl7v2.model.Message
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
+import gov.nist.validation.report.Entry
 import gov.nist.validation.report.Report
 import hl7.v2.validation.SyncHL7Validator
 import hl7.v2.validation.ValidationContextBuilder
@@ -16,20 +18,38 @@ interface IMessageValidator {
 
 interface IMessageValidationResult {
     fun isValid(): Boolean
+
+    fun getErrorsMessage(): String
 }
 
 data class HL7ValidationResult(val rawReport: Report) : IMessageValidationResult {
     override fun isValid(): Boolean {
+        val errors = getErrors()
+        return errors.isEmpty()
+    }
+
+    private fun getErrors(): List<Entry> {
         val errors = rawReport.entries.values.flatten().filter { entry ->
             entry.classification == AbstractMessageValidator.ERROR_CLASSIFICATION
         }
-        return errors.isEmpty()
+        return errors
+    }
+
+    override fun getErrorsMessage(): String {
+        return getErrors().joinToString { it.toText() }
     }
 }
 
 data class FHIRValidationResult(val rawValidationResult: ValidationResult) : IMessageValidationResult {
     override fun isValid(): Boolean {
         return rawValidationResult.isSuccessful
+    }
+
+    override fun getErrorsMessage(): String {
+        return rawValidationResult
+            .messages
+            .filter { it.severity == ResultSeverityEnum.ERROR || it.severity == ResultSeverityEnum.FATAL }
+            .joinToString { it.message }
     }
 }
 
@@ -43,9 +63,9 @@ abstract class AbstractMessageValidator : IMessageValidator {
         fun getHL7Validator(profileLocation: String): SyncHL7Validator {
             return hl7Validators.getOrElse(profileLocation) {
                 (
-                        classLoader.getResourceAsStream("$profileLocation/profile.xml")
-                            ?: throw RuntimeException("profile.xml does not exist")
-                        ).use { profile ->
+                    classLoader.getResourceAsStream("$profileLocation/profile.xml")
+                        ?: throw RuntimeException("profile.xml does not exist")
+                    ).use { profile ->
 
                         val contextBuilder = ValidationContextBuilder(profile)
                         classLoader.getResourceAsStream("$profileLocation/constraints.xml").use { constraints ->
