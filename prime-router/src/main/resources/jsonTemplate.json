@@ -9,7 +9,7 @@
   "stackTrace": {
     "$resolver": "exception",
     "field": "stackTrace",
-    "stringified": true
+    "stackTrace.stringified": true
   },
   "message": {
     "$resolver": "message",

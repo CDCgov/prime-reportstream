@@ -24,6 +24,16 @@ class ReportService(
     }
 
     /**
+     * Gets all root reports up the report_linage table
+     *
+     * @param childReportId child report ID
+     * @return List of ReportFile objects of the root reports
+     */
+    fun getRootReports(childReportId: ReportId): List<ReportFile> {
+        return reportGraph.getRootReports(childReportId)
+    }
+
+    /**
      * Gets the root report and concatenates sender fields
      *
      * @param childReportId child report ID

@@ -45,12 +45,12 @@ runs:
       run: ./gradlew ktlintCheck
       shell: bash
 
-    - uses: gradle/wrapper-validation-action@b231772637bb498f11fdbc86052b6e8a8dc9fc92
+    - uses: gradle/wrapper-validation-action@b5418f5a58f5fd2eb486dd7efb368fe7be7eae45
 
     - name: Spin up build containers
       working-directory: prime-router
       shell: bash
-      run: docker-compose -f docker-compose.postgres.yml up -d
+      run: docker compose -f docker-compose.postgres.yml up -d
 
     - name: Build Prime Router Package
       uses: ./.github/actions/retry
@@ -117,7 +117,7 @@ runs:
       run: |
         mkdir .vault/env
         touch .vault/env/.env.local
-        docker-compose -f docker-compose.yml up -d vault
+        docker compose -f docker-compose.yml up -d vault
         while [ ! -s .vault/env/.env.local ]; do sleep 1; done
         echo "loaded env vars"
       shell: bash
@@ -126,7 +126,7 @@ runs:
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
       id: spin_containers
-      run: docker-compose -f docker-compose.yml up -d prime_dev sftp azurite azurite-stage
+      run: docker compose -f docker-compose.yml up -d prime_dev sftp azurite azurite-stage
       shell: bash
 
     - name: Give some time for the container to start
@@ -168,7 +168,7 @@ runs:
     - name: Correct sftp perms
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
-      run: docker-compose exec -T sftp chmod 777 /home/foo/upload
+      run: docker compose exec -T sftp chmod 777 /home/foo/upload
       shell: bash
 
     - name: Smoke tests
