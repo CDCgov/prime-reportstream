@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { selectTestOrg, tableData } from "../helpers/utils";
-import { tableHeaders, title } from "../pages/daily-data";
+import { tableHeaders, title } from "../pages/daily-data-details";
 import * as reportDetails from "../pages/report-details";
 
 const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";

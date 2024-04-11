@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { selectTestOrg } from "../helpers/utils";
 import * as reportDetails from "../pages/report-details";
 import * as submissionDetails from "../pages/submission-history";
+import { URL_SUBMISSION_HISTORY } from "../pages/submission-history";
 
 const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
 test.describe("Submissions Details page", () => {
@@ -47,6 +48,17 @@ test.describe("Submissions Details page", () => {
                 await submissionDetails.title(page);
             });
 
+            test("breadcrumb navigates to Submission History page", async ({
+                page,
+            }) => {
+                await submissionDetails.breadcrumbLink(
+                    page,
+                    0,
+                    "Submissions",
+                    URL_SUBMISSION_HISTORY,
+                );
+            });
+
             test("has footer", async ({ page }) => {
                 await expect(page.locator("footer")).toBeAttached();
             });
@@ -88,6 +100,17 @@ test.describe("Submissions Details page", () => {
             await expect(
                 page.locator(".usa-breadcrumb ol li").nth(1),
             ).toHaveText(`Details: ${id}`);
+        });
+
+        test("breadcrumb navigates to Submission History page", async ({
+            page,
+        }) => {
+            await submissionDetails.breadcrumbLink(
+                page,
+                0,
+                "Submissions",
+                URL_SUBMISSION_HISTORY,
+            );
         });
 
         test("has footer", async ({ page }) => {

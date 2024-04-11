@@ -64,3 +64,19 @@ export async function tableHeaders(page: Page) {
     await expect(page.locator(".usa-table th").nth(3)).toHaveText(/Records/);
     await expect(page.locator(".usa-table th").nth(4)).toHaveText(/Status/);
 }
+
+export async function breadcrumbLink(
+    page: Page,
+    index: number,
+    linkName: string,
+    expectedUrl: string,
+) {
+    const breadcrumbLinks = page.locator(".usa-breadcrumb ol li");
+    await expect(breadcrumbLinks.nth(index)).toHaveText(linkName);
+    await breadcrumbLinks
+        .nth(index)
+        .getByRole("link", { name: linkName })
+        .click();
+    await expect(page.locator("h1")).toBeAttached();
+    await expect(page).toHaveURL(expectedUrl);
+}

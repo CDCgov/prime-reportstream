@@ -14,13 +14,14 @@ export async function title(page: Page) {
 }
 
 export async function tableHeaders(page: Page) {
-    await expect(page.locator(".usa-table th").nth(0)).toHaveText(/Facility/);
-    await expect(page.locator(".usa-table th").nth(1)).toHaveText(/Location/);
-    await expect(page.locator(".usa-table th").nth(2)).toHaveText(/CLIA/);
-    await expect(page.locator(".usa-table th").nth(3)).toHaveText(
-        /Total tests/,
+    await expect(page.locator(".usa-table th").nth(0)).toHaveText(/Report ID/);
+    await expect(page.locator(".usa-table th").nth(1)).toHaveText(
+        /Time received/,
     );
-    await expect(page.locator(".usa-table th").nth(4)).toHaveText(
-        /Total positive/,
+    await expect(page.locator(".usa-table th").nth(2)).toHaveText(
+        /File available until/,
     );
+    await expect(page.locator(".usa-table th").nth(3)).toHaveText(/Items/);
+    await expect(page.locator(".usa-table th").nth(4)).toHaveText(/Filename/);
+    await expect(page.locator(".usa-table th").nth(5)).toHaveText(/Receiver/);
 }
