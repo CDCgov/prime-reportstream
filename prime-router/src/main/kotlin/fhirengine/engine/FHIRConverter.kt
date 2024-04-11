@@ -1,6 +1,17 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import ca.uhn.fhir.parser.DataFormatException
+import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.model.v27.message.ORU_R01
+import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator.ParseFailureError
+import com.google.common.collect.Streams
+import gov.cdc.prime.router.ActionLogDetail
+import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
@@ -22,9 +33,12 @@ import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.addMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getObservations
+import gov.cdc.prime.router.validation.IMessageValidator
 import org.hl7.fhir.r4.model.Bundle
 import org.jooq.Field
 import java.time.OffsetDateTime
+import java.util.stream.Collectors
+import java.util.stream.Stream
 
 /**
  * Process a message off of the raw-elr azure queue, convert it into FHIR, and store for next step.
@@ -40,6 +54,7 @@ class FHIRConverter(
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
+    private val useUpdatedDebatch: Boolean = true,
 ) : FHIREngine(metadata, settings, db, blob, azureEventService) {
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
@@ -79,11 +94,15 @@ class FHIRConverter(
     ): List<FHIREngineRunResult> {
         val format = Report.getFormatFromBlobURL(queueMessage.blobURL)
         logger.trace("Processing $format data for FHIR conversion.")
-        val fhirBundles = when (format) {
-            Report.Format.HL7, Report.Format.HL7_BATCH -> getContentFromHL7(queueMessage, actionLogger)
-            Report.Format.FHIR -> getContentFromFHIR(queueMessage, actionLogger)
-            else -> throw NotImplementedError("Invalid format $format ")
-        }
+
+        // Parse batch
+        // Per message
+        // validation
+        // pass to route if success
+        // log to action $index: bad message
+        // pass validation
+
+        val fhirBundles = debatchFHIRBundles(format, queueMessage, actionLogger)
         if (fhirBundles.isNotEmpty()) {
             logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
             actionHistory.trackExistingInputReport(queueMessage.reportId)
@@ -173,6 +192,199 @@ class FHIRConverter(
             }
         }
         return emptyList()
+    }
+
+    // TODO subclass for kind of item
+    data class DebatchItemResult<ParsedType>(
+        val rawItem: String,
+        val index: Int,
+        val parsedItem: ParsedType? = null,
+        val parseError: ActionLogDetail? = null,
+        val validationError: ActionLogDetail? = null,
+        val bundle: Bundle? = null,
+    ) {
+        fun updateParsed(error: ActionLogDetail?): DebatchItemResult<ParsedType> {
+            return this.copy(parseError = error)
+        }
+
+        fun updateParsed(parsed: ParsedType): DebatchItemResult<ParsedType> {
+            return this.copy(parsedItem = parsed)
+        }
+
+        fun updateValidation(error: ActionLogDetail): DebatchItemResult<ParsedType> {
+            if (parseError == null && parsedItem != null) {
+                return this.copy(validationError = error)
+            }
+            throw RuntimeException("Validation should not be set since item was not parseable")
+        }
+
+        fun setBundle(bundle: Bundle): DebatchItemResult<ParsedType> {
+            if (parseError == null && validationError == null) {
+                return this.copy(bundle = bundle)
+            }
+            throw RuntimeException("Bundle should not be set if the item was not parseable or valid")
+        }
+
+        fun getError(): ActionLogDetail? {
+            return parseError ?: validationError
+        }
+    }
+
+    private fun debatchFHIRBundles(
+        format: Report.Format,
+        queueMessage: ReportPipelineMessage,
+        actionLogger: ActionLogger,
+        routeMessageWithInvalidItems: Boolean = true,
+    ): List<Bundle> {
+        val validator = queueMessage.topic.validator
+        val fhirBundles = if (useUpdatedDebatch) {
+            val rawMessage = queueMessage.downloadContent()
+            if (rawMessage.isBlank()) {
+                actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
+                emptyList()
+            } else {
+                // TODO timing
+                // TODO test limit
+                val debatchItemResults = when (format) {
+                    Report.Format.HL7, Report.Format.HL7_BATCH -> {
+                        getBundlesFromRawHL7(rawMessage, validator)
+                    }
+                    Report.Format.FHIR -> {
+                        getBundlesFromRawFHIR(rawMessage, validator)
+                    }
+                    else -> {
+                        logger.error("Received unsupported report format: $format")
+                        actionLogger.error(InvalidReportMessage("Received unsupported report format: $format"))
+                        emptyList()
+                    }
+                }
+
+                val allItemsParsedAndValid = debatchItemResults.all { it.getError() == null }
+                val bundles = debatchItemResults.mapNotNull { item ->
+                    val error = item.getError()
+                    if (error != null) {
+                        actionLogger.error(error)
+                    }
+                    item.bundle
+                }
+                if (!allItemsParsedAndValid && !routeMessageWithInvalidItems) {
+                    emptyList()
+                } else {
+                    bundles
+                }
+            }
+        } else {
+            when (format) {
+                Report.Format.HL7, Report.Format.HL7_BATCH -> getContentFromHL7(queueMessage, actionLogger)
+                Report.Format.FHIR -> getContentFromFHIR(queueMessage, actionLogger)
+                else -> throw NotImplementedError("Invalid format $format ")
+            }
+        }
+        return fhirBundles
+    }
+
+    private fun getBundlesFromRawHL7(
+        rawMessage: String,
+        validator: IMessageValidator,
+    ): MutableList<DebatchItemResult<Message>> {
+        // TODO: this will be sourced from the profile
+        val hl7profile = HL7Reader.getMessageProfile(rawMessage)
+        val modelClass = ORU_R01::class.java
+        context.modelClassFactory = CanonicalModelClassFactory(modelClass)
+        context.validationContext = validationContext
+        context.parserConfiguration.isValidating = false
+        val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream(), context)
+
+        // Ugly! But we want to keep around the raw HL7 string and this is how we get it
+        // TODO consider just splitting with a look ahead regex on MSH
+        val myWrappedField = Hl7InputStreamMessageIterator::class.java.getDeclaredField("myWrapped")
+        myWrappedField.isAccessible = true
+        val wrappedIterator = myWrappedField.get(iterator) as Hl7InputStreamMessageStringIterator
+        val myNextField = Hl7InputStreamMessageStringIterator::class.java.getDeclaredField("myNext")
+        myNextField.isAccessible = true
+
+        var index = 1
+        val debatchItems = mutableListOf<DebatchItemResult<Message>>()
+        while (iterator.hasNext()) {
+            val rawItem = myNextField.get(wrappedIterator) as String
+            val item = DebatchItemResult<Message>(rawItem, index)
+            try {
+                val message = iterator.next()
+                debatchItems.add(item.updateParsed(message))
+            } catch (e: ParseFailureError) {
+                debatchItems.add(
+                    item.updateParsed(InvalidReportMessage("${item.index} was not parseable ${e.message}"))
+                )
+            }
+            index++
+        }
+
+        return maybeParallelize(debatchItems.size, debatchItems.stream()).map { item ->
+            if (item.parsedItem != null) {
+                val validationResult = validator.validate(item.parsedItem)
+                if (validationResult.isValid()) {
+                    val bundle = // use fhir transcoder to turn hl7 into FHIR
+                    // search hl7 profile map and create translator with config path if found
+                        // TODO update converter library to optionally throw the exception
+                        when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
+                            null -> HL7toFhirTranslator().translate(item.parsedItem)
+                            else -> HL7toFhirTranslator(configPath).translate(item.parsedItem)
+                        }
+                    item.setBundle(bundle)
+                } else {
+                    item.updateValidation(InvalidReportMessage("${item.index} was not valid"))
+                }
+            } else {
+                item
+            }
+        }.collect(Collectors.toList())
+    }
+
+    private fun getBundlesFromRawFHIR(
+        rawMessage: String,
+        validator: IMessageValidator,
+    ): MutableList<DebatchItemResult<Bundle>> {
+        val lines = rawMessage.split("\n")
+        return maybeParallelize(
+            lines.size,
+            Streams.mapWithIndex(lines.stream()) { rawItem, index ->
+                DebatchItemResult<Bundle>(rawItem, index.toInt())
+            }
+        ).map { debatchItem ->
+            try {
+                val bundle = FhirTranscoder.decode(debatchItem.rawItem)
+                debatchItem.updateParsed(bundle)
+            } catch (ex: DataFormatException) {
+                val error = InvalidReportMessage("${debatchItem.index} was invalid")
+                debatchItem.updateParsed(error)
+            }
+        }.map { debatchItem ->
+            if (debatchItem.parsedItem != null) {
+                val validationResult = validator.validate(debatchItem.parsedItem)
+                if (validationResult.isValid()) {
+                    debatchItem.setBundle(debatchItem.parsedItem)
+                } else {
+                    debatchItem.updateValidation(InvalidReportMessage("${debatchItem.index} was invalid"))
+                }
+            } else {
+                debatchItem
+            }
+        }.collect(Collectors.toList())
+    }
+
+    private fun <ParseType> maybeParallelize(
+        streamSize: Int,
+        it: Stream<DebatchItemResult<ParseType>>,
+    ): Stream<DebatchItemResult<ParseType>> =
+        if (streamSize > sequentialLimit) {
+            it.parallel()
+        } else {
+            it
+        }
+
+    // TODO generated message from the error
+    class InvalidReportMessage(override val message: String, override val errorCode: ErrorCode) : ActionLogDetail {
+        override val scope: ActionLogScope = ActionLogScope.item
     }
 
     /**
