@@ -935,17 +935,17 @@ class Server2ServerAuthTests : CoolTest() {
             }
 
             // Setup is done!   Ready to run some tests.
-//            passed = passed and server2ServerSubmissionListAuthTests(environment, org1.name, org2.name, token1, token2)
+            passed = passed and server2ServerSubmissionListAuthTests(environment, org1.name, org2.name, token1, token2)
             passed = passed and server2ServerReportDetailsAuthTests(
                 environment, org1.name, org2.name, reportId1, reportId2, token1, token2
             )
-//            if (environment.envName == Environment.STAGING.envName) {
-//                // PrimeAdmin tests cannot be run locally as they need Okta credentials, even in Server2Server
-//                passed = passed and server2ServerSettingsAuthTests(environment, token1, org1, org2)
-//                passed = passed and server2ServerSettingsAuthTests(environment, token2, org2, org1)
-//            }
-//            passed = passed and server2ServerLookupTableSmokeTests(environment, token1)
-//            passed = passed and server2ServerLookupTableSmokeTests(environment, token2)
+            if (environment.envName == Environment.STAGING.envName) {
+                // PrimeAdmin tests cannot be run locally as they need Okta credentials, even in Server2Server
+                passed = passed and server2ServerSettingsAuthTests(environment, token1, org1, org2)
+                passed = passed and server2ServerSettingsAuthTests(environment, token2, org2, org1)
+            }
+            passed = passed and server2ServerLookupTableSmokeTests(environment, token1)
+            passed = passed and server2ServerLookupTableSmokeTests(environment, token2)
         } finally {
             deleteSender(sender1)
             deleteSender(sender2)
@@ -1072,28 +1072,28 @@ class Server2ServerAuthTests : CoolTest() {
         val testCases = mutableListOf(
             // Example
             // curl -H "Authorization: Bearer $TOK" "http://localhost:7071/api/waters/report/<UUID>/history"
-//            HistoryApiTestCase(
-//                "Get report-details-history for an $orgName1 report using an $orgName1 token: Happy path",
-//                "${environment.url}/api/waters/report/$reportId1/history",
-//                emptyMap(),
-//                emptyList(),
-//                token1,
-//                HttpStatus.OK,
-//                expectedReports = setOf(reportId1),
-//                ReportDetailsChecker(this),
-//                doMinimalChecking = false,
-//            ),
-//            HistoryApiTestCase(
-//                "Get report-details-history for an $orgName2 report using an $orgName2 token: Happy path",
-//                "${environment.url}/api/waters/report/$reportId2/history",
-//                emptyMap(),
-//                emptyList(),
-//                token2,
-//                HttpStatus.OK,
-//                expectedReports = setOf(reportId2),
-//                ReportDetailsChecker(this),
-//                doMinimalChecking = false,
-//            ),
+            HistoryApiTestCase(
+                "Get report-details-history for an $orgName1 report using an $orgName1 token: Happy path",
+                "${environment.url}/api/waters/report/$reportId1/history",
+                emptyMap(),
+                emptyList(),
+                token1,
+                HttpStatus.OK,
+                expectedReports = setOf(reportId1),
+                ReportDetailsChecker(this),
+                doMinimalChecking = false,
+            ),
+            HistoryApiTestCase(
+                "Get report-details-history for an $orgName2 report using an $orgName2 token: Happy path",
+                "${environment.url}/api/waters/report/$reportId2/history",
+                emptyMap(),
+                emptyList(),
+                token2,
+                HttpStatus.OK,
+                expectedReports = setOf(reportId2),
+                ReportDetailsChecker(this),
+                doMinimalChecking = false,
+            ),
             HistoryApiTestCase(
                 "Get report-details-history for an $orgName1 report using an $orgName2 token: Should fail",
                 "${environment.url}/api/waters/report/$reportId1/history",
@@ -1116,28 +1116,28 @@ class Server2ServerAuthTests : CoolTest() {
                 ReportDetailsChecker(this),
                 doMinimalChecking = false,
             ),
-//            HistoryApiTestCase(
-//                "Get report-details-history for a nonexistent report:",
-//                "${environment.url}/api/waters/report/87a02e0c-5b77-4595-a039-e143fbaadda2/history",
-//                emptyMap(),
-//                emptyList(),
-//                token1,
-//                HttpStatus.NOT_FOUND,
-//                expectedReports = setOf(UUID.fromString("87a02e0c-5b77-4595-a039-e143fbaadda2")),
-//                ReportDetailsChecker(this),
-//                doMinimalChecking = false,
-//            ),
-//            HistoryApiTestCase(
-//                "Get report-details-history for a bogus report:",
-//                "${environment.url}/api/waters/report/BOGOSITY/history",
-//                emptyMap(),
-//                emptyList(),
-//                token1,
-//                HttpStatus.NOT_FOUND,
-//                expectedReports = setOf(reportId1),
-//                ReportDetailsChecker(this),
-//                doMinimalChecking = false,
-//            ),
+            HistoryApiTestCase(
+                "Get report-details-history for a nonexistent report:",
+                "${environment.url}/api/waters/report/87a02e0c-5b77-4595-a039-e143fbaadda2/history",
+                emptyMap(),
+                emptyList(),
+                token1,
+                HttpStatus.NOT_FOUND,
+                expectedReports = setOf(UUID.fromString("87a02e0c-5b77-4595-a039-e143fbaadda2")),
+                ReportDetailsChecker(this),
+                doMinimalChecking = false,
+            ),
+            HistoryApiTestCase(
+                "Get report-details-history for a bogus report:",
+                "${environment.url}/api/waters/report/BOGOSITY/history",
+                emptyMap(),
+                emptyList(),
+                token1,
+                HttpStatus.NOT_FOUND,
+                expectedReports = setOf(reportId1),
+                ReportDetailsChecker(this),
+                doMinimalChecking = false,
+            ),
         )
         val historyApiTest = HistoryApiTest()
         historyApiTest.outputToConsole = this.outputToConsole

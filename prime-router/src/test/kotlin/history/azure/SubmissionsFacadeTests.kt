@@ -11,8 +11,6 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
-import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
-import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
@@ -140,7 +138,7 @@ class SubmissionsFacadeTests {
     }
 
     @Test
-    fun `authorization happy path`() {
+    fun `test checkAccessAuthorizationForAction`() {
         val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
         val mockDbAccess = mockk<DatabaseAccess>()
         val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
@@ -150,204 +148,40 @@ class SubmissionsFacadeTests {
         action.actionId = 123
         action.sendingOrg = "mySendingOrg"
         action.sendingOrgClient = "mySendingOrgClient"
+        action.receivingOrg = "myReceivingOrg"
+        action.receivingOrgSvc = "myReceivingOrgSvc"
 
         // Regular user Happy path test.
         val userClaims: Map<String, Any> = mapOf(
             "organization" to listOf("DHSender_mySendingOrg"),
             "sub" to "bob@bob.com"
         )
-        val claims = AuthenticatedClaims(userClaims, AuthenticationType.Okta)
+        var claims = AuthenticatedClaims(userClaims, AuthenticationType.Okta)
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
         assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isTrue()
-    }
-
-    @Test
-    fun `authorization prime admin OK in a different org`() {
-        val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
-        val mockDbAccess = mockk<DatabaseAccess>()
-        val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
-        val mockRequest = MockHttpRequestMessage()
-
-        val action = Action()
-        action.actionId = 123
-        action.sendingOrg = "mySendingOrg"
-        action.sendingOrgClient = "mySendingOrgClient"
 
         // PrimeAdmin happy path:   PrimeAdmin user ok to be in a different org.
         val adminClaims: Map<String, Any> = mapOf(
             "organization" to listOf("DHfoobar", "DHPrimeAdmins"),
             "sub" to "bob@bob.com"
         )
-        val claims = AuthenticatedClaims(adminClaims, AuthenticationType.Okta)
+        claims = AuthenticatedClaims(adminClaims, AuthenticationType.Okta)
         assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isTrue()
-    }
-
-    @Test
-    fun `authorization regular user and orgs don't match`() {
-        val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
-        val mockDbAccess = mockk<DatabaseAccess>()
-        val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
-        val mockRequest = MockHttpRequestMessage()
-
-        val action = Action()
-        action.actionId = 123
-        action.sendingOrg = "mySendingOrg"
-        action.sendingOrgClient = "mySendingOrgClient"
-
-        val mockReportFile = ReportFile()
-        mockReportFile.reportId = UUID.randomUUID()
-
-        every {
-            mockDbAccess.fetchReportForActionId(any())
-        } returns mockReportFile
-
-        val relatedAction1 = DetailedSubmissionHistory(1L, TaskAction.translate, OffsetDateTime.now())
-        val relatedAction2 = DetailedSubmissionHistory(2L, TaskAction.route, OffsetDateTime.now())
-        val relatedAction3 = DetailedSubmissionHistory(3L, TaskAction.batch, OffsetDateTime.now())
-        val relatedActionSend1 = DetailedSubmissionHistory(4L, TaskAction.send, OffsetDateTime.now())
-        val relatedActionSend2 = DetailedSubmissionHistory(5L, TaskAction.send, OffsetDateTime.now())
-        val relatedActionSend3 = DetailedSubmissionHistory(6L, TaskAction.send, OffsetDateTime.now())
-
-        val detailedReportOtherOrg = DetailedReport(
-            reportId = UUID.randomUUID(),
-            receivingOrg = "some other organization",
-            receivingOrgSvc = null,
-            sendingOrg = null,
-            sendingOrgClient = null,
-            schemaTopic = null,
-            externalName = null,
-            createdAt = null,
-            nextActionAt = null,
-            itemCount = 1,
-            itemCountBeforeQualFilter = null,
-            receiverHasTransport = true
-        )
-
-        relatedActionSend1.reports!!.add(detailedReportOtherOrg)
-        relatedActionSend3.reports!!.add(detailedReportOtherOrg)
-
-        val relatedActions = listOf(
-            relatedAction1,
-            relatedAction2,
-            relatedAction3,
-            relatedActionSend1,
-            relatedActionSend2,
-            relatedActionSend3
-        )
-
-        every {
-            mockSubmissionAccess.fetchRelatedActions(
-                mockReportFile.reportId,
-                DetailedSubmissionHistory::class.java
-            )
-        } returns relatedActions
 
         // Error: Regular user and Orgs don't match
         val mismatchedClaims: Map<String, Any> = mapOf(
             "organization" to listOf("DHSender_foobar"),
             "sub" to "bob@bob.com"
         )
-        val claims = AuthenticatedClaims(mismatchedClaims, AuthenticationType.Okta)
+        claims = AuthenticatedClaims(mismatchedClaims, AuthenticationType.Okta)
         assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isFalse()
-    }
-
-    @Test
-    fun `authorization works when org in claim is a related action receiving organization`() {
-        val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
-        val mockDbAccess = mockk<DatabaseAccess>()
-        val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
-        val mockRequest = MockHttpRequestMessage()
-
-        val validReceivingOrg = "DogCowOrganization"
-
-        val receiveAction = Action()
-        receiveAction.actionId = 123
-        receiveAction.sendingOrg = "mySendingOrg"
-        receiveAction.sendingOrgClient = "mySendingOrgClient"
-
-        val mockReportFile = ReportFile()
-        mockReportFile.reportId = UUID.randomUUID()
-
-        every {
-            mockDbAccess.fetchReportForActionId(any())
-        } returns mockReportFile
-
-        val relatedAction1 = DetailedSubmissionHistory(1L, TaskAction.translate, OffsetDateTime.now())
-        val relatedAction2 = DetailedSubmissionHistory(2L, TaskAction.route, OffsetDateTime.now())
-        val relatedAction3 = DetailedSubmissionHistory(3L, TaskAction.batch, OffsetDateTime.now())
-        val relatedActionSend1 = DetailedSubmissionHistory(4L, TaskAction.send, OffsetDateTime.now())
-        val relatedActionSend2 = DetailedSubmissionHistory(5L, TaskAction.send, OffsetDateTime.now())
-        val relatedActionSend3 = DetailedSubmissionHistory(6L, TaskAction.send, OffsetDateTime.now())
-
-        val detailedReportOtherOrg = DetailedReport(
-            reportId = UUID.randomUUID(),
-            receivingOrg = "some other organization",
-            receivingOrgSvc = null,
-            sendingOrg = null,
-            sendingOrgClient = null,
-            schemaTopic = null,
-            externalName = null,
-            createdAt = null,
-            nextActionAt = null,
-            itemCount = 1,
-            itemCountBeforeQualFilter = null,
-            receiverHasTransport = true
+        // This is a submissions query.  So, we sure better not be looking up the receivingOrg.
+        val mismatchedClaims2: Map<String, Any> = mapOf(
+            "organization" to listOf("DHmyReceivingOrg"),
+            "sub" to "bob@bob.com"
         )
-        val detailedReportForOurOrg = DetailedReport(
-            reportId = UUID.randomUUID(),
-            receivingOrg = validReceivingOrg,
-            receivingOrgSvc = null,
-            sendingOrg = null,
-            sendingOrgClient = null,
-            schemaTopic = null,
-            externalName = null,
-            createdAt = null,
-            nextActionAt = null,
-            itemCount = 1,
-            itemCountBeforeQualFilter = null,
-            receiverHasTransport = true
-        )
-
-        relatedActionSend1.reports!!.add(detailedReportOtherOrg)
-        relatedActionSend2.reports!!.add(detailedReportForOurOrg)
-        relatedActionSend3.reports!!.add(detailedReportOtherOrg)
-
-        val relatedActions = listOf(
-            relatedAction1,
-            relatedAction2,
-            relatedAction3,
-            relatedActionSend1,
-            relatedActionSend2,
-            relatedActionSend3
-        )
-
-        every {
-            mockSubmissionAccess.fetchRelatedActions(
-                mockReportFile.reportId,
-                DetailedSubmissionHistory::class.java
-            )
-        } returns relatedActions
-
-        val mismatchedClaims: Map<String, Any> = mapOf(
-            "organization" to listOf(validReceivingOrg),
-            "sub" to "bob@bob.com",
-            "scope" to "$validReceivingOrg.*.report",
-        )
-        val claims = AuthenticatedClaims(mismatchedClaims, AuthenticationType.Server2Server)
-        assertThat(facade.checkAccessAuthorizationForAction(claims, receiveAction, mockRequest)).isTrue()
-    }
-
-    @Test
-    fun `authorization without Sender_`() {
-        val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
-        val mockDbAccess = mockk<DatabaseAccess>()
-        val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
-        val mockRequest = MockHttpRequestMessage()
-
-        val action = Action()
-        action.actionId = 123
-        action.sendingOrg = "mySendingOrg"
-        action.sendingOrgClient = "mySendingOrgClient"
+        claims = AuthenticatedClaims(mismatchedClaims2, AuthenticationType.Okta)
+        assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isFalse()
 
         // The auth should work, even without the
         // annoying "Sender_" string in the claims, which is actually not needed any more.
@@ -355,7 +189,7 @@ class SubmissionsFacadeTests {
             "organization" to listOf("DHmySendingOrg"),
             "sub" to "bob@bob.com"
         )
-        val claims = AuthenticatedClaims(mismatchedClaims3, AuthenticationType.Okta)
+        claims = AuthenticatedClaims(mismatchedClaims3, AuthenticationType.Okta)
         assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isTrue()
     }
 }
