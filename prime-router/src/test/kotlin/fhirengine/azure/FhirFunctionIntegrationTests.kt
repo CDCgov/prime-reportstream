@@ -547,27 +547,27 @@ class FhirFunctionIntegrationTests() {
             BlobAccess.uploadBody(
                 Report.Format.FHIR,
                 match { bytes ->
-                val result = CompareData().compare(
-                    bytes.inputStream(),
-                    cleanHL7RecordConverted.byteInputStream(),
-                    Report.Format.FHIR,
-                    null
-                )
-                result.passed
-            },
+                    val result = CompareData().compare(
+                        bytes.inputStream(),
+                        cleanHL7RecordConverted.byteInputStream(),
+                        Report.Format.FHIR,
+                        null
+                    )
+                    result.passed
+                },
                 any(), any(), any()
             )
             BlobAccess.uploadBody(
                 Report.Format.FHIR,
                 match { bytes ->
-                val result = CompareData().compare(
-                    bytes.inputStream(),
-                    invalidHL7RecordConverted.byteInputStream(),
-                    Report.Format.FHIR,
-                    null
-                )
-                result.passed
-            },
+                    val result = CompareData().compare(
+                        bytes.inputStream(),
+                        invalidHL7RecordConverted.byteInputStream(),
+                        Report.Format.FHIR,
+                        null
+                    )
+                    result.passed
+                },
                 any(), any(), any()
             )
         }
@@ -643,18 +643,46 @@ class FhirFunctionIntegrationTests() {
             val routeTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
                 .where(Task.TASK.NEXT_ACTION.eq(TaskAction.route))
                 .fetchInto(Task.TASK)
-            assertThat(routeTask).hasSize(0)
+            assertThat(routeTask).hasSize(2)
             val convertReportFile =
                 DSL.using(txn).select(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.asterisk())
                     .from(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
                     .where(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.NEXT_ACTION.eq(TaskAction.route))
                     .fetchInto(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
-            assertThat(convertReportFile).hasSize(0)
+            assertThat(convertReportFile).hasSize(2)
             assertThat(actionLogger.errors).hasSize(2)
         }
-        verify(exactly = 0) {
+        verify(exactly = 2) {
             QueueAccess.sendMessage(elrRoutingQueueName, any())
-            BlobAccess.uploadBody(Report.Format.FHIR, any(), any(), any(), any())
+        }
+
+        verify(exactly = 1) {
+            BlobAccess.uploadBody(
+                Report.Format.FHIR,
+                match { bytes ->
+                    val result = CompareData().compare(
+                        bytes.inputStream(),
+                        cleanHL7RecordConverted.byteInputStream(),
+                        Report.Format.FHIR,
+                        null
+                    )
+                    result.passed
+                },
+                any(), any(), any()
+            )
+            BlobAccess.uploadBody(
+                Report.Format.FHIR,
+                match { bytes ->
+                    val result = CompareData().compare(
+                        bytes.inputStream(),
+                        invalidHL7RecordConverted.byteInputStream(),
+                        Report.Format.FHIR,
+                        null
+                    )
+                    result.passed
+                },
+                any(), any(), any()
+            )
         }
     }
 
@@ -720,6 +748,7 @@ class FhirFunctionIntegrationTests() {
             databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess,
             actionLogger = actionLogger
         )
+
         fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
 
         val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
