@@ -64,9 +64,9 @@ resource "azurerm_monitor_metric_alert" "exception_alert_warn" {
   description         = "One or More Exceptions Raised in the Last Hour"
   resource_group_name = var.resource_group
   scopes              = [azurerm_application_insights.app_insights.id]
-  window_size         = "PT1H"
-  frequency           = "PT1M"
-  severity            = 2
+  window_size         = "PT30M"
+  frequency           = "PT5M"
+  severity            = 3
 
   criteria {
     metric_namespace = "microsoft.insights/components"
@@ -77,7 +77,7 @@ resource "azurerm_monitor_metric_alert" "exception_alert_warn" {
   }
 
   action {
-    action_group_id = azurerm_monitor_action_group.action_group[0].id
+    action_group_id = local.action_group_id
   }
 
   tags = {
