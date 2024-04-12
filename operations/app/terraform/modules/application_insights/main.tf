@@ -39,7 +39,7 @@ resource "azurerm_monitor_action_group" "action_group" {
   }
   lifecycle {
     ignore_changes = [
-        webhook_receiver[0].service_uri
+      webhook_receiver[0].service_uri
     ]
   }
 }
