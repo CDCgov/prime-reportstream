@@ -38,6 +38,28 @@ function transformDate(s: string) {
     return new Date(s).toLocaleString();
 }
 
+function transformSubmissions(
+    submissionsResource: SubmissionsResource[],
+): SubmissionsResource[] {
+    const items = submissionsResource.map(
+        (eachSubmission): SubmissionsResource => ({
+            ...eachSubmission,
+            fileDisplayName:
+                eachSubmission.externalName &&
+                eachSubmission.externalName !== ""
+                    ? eachSubmission.externalName
+                    : eachSubmission.fileName,
+            pk: function (): string {
+                throw new Error("Function not implemented.");
+            },
+            isSuccessSubmitted: function (): boolean {
+                throw new Error("Function not implemented.");
+            },
+        }),
+    );
+    return items;
+}
+
 const SubmissionTableContent: FC<SubmissionTableContentProps> = ({
     filterManager,
     paginationProps,
@@ -60,7 +82,7 @@ const SubmissionTableContent: FC<SubmissionTableContentProps> = ({
             sortable: true,
             transform: transformDate,
         },
-        { dataAttr: "externalName", columnHeader: "File" },
+        { dataAttr: "fileDisplayName", columnHeader: "File" },
         { dataAttr: "reportItemCount", columnHeader: "Records" },
         {
             dataAttr: "httpStatus",
@@ -71,7 +93,7 @@ const SubmissionTableContent: FC<SubmissionTableContentProps> = ({
 
     const submissionsConfig: TableConfig = {
         columns: columns,
-        rows: submissions,
+        rows: transformSubmissions(submissions),
     };
 
     return (
