@@ -48,7 +48,7 @@ jobs:
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
-        uses: tj-actions/changed-files@2d756ea4c53f7f6b397767d8723b3a10a9f35bf2
+        uses: tj-actions/changed-files@635f118699dd888d737c15018cd30aff2e0274f8
         with:
           files_yaml: |
             frontend:
@@ -66,7 +66,7 @@ jobs:
 
       - name: Gradle Validation
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: gradle/wrapper-validation-action@b231772637bb498f11fdbc86052b6e8a8dc9fc92
+        uses: gradle/wrapper-validation-action@b5418f5a58f5fd2eb486dd7efb368fe7be7eae45
 
       - name: Spin up build containers
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
@@ -108,8 +108,15 @@ jobs:
 
       - name: Frontend Coverage
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        run: yarn run test:ci
-        working-directory: frontend-react
+        uses: ./.github/actions/retry
+        with:
+          timeout_minutes: 30
+          max_attempts: 2
+          retry_wait_seconds: 30
+          command: |
+            cd frontend-react
+            yarn run test:ci
+          shell: bash
 
       - name: Run SonarCloud Scan master or full
         if: ( steps.changed-files-yaml.outputs.frontend_any_changed == 'true' && steps.changed-files-yaml.outputs.backend_any_changed == 'true' ) || steps.branch-name.outputs.is_default == 'true'
