@@ -43,6 +43,9 @@ RUN rm Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip
 FROM debian:bookworm AS builder
 ARG JAVA_VERSION=17
 
+# Latest patches
+RUN apt-get update && apt-get upgrade -y
+
 # Get the unpacked gradle binaries from the downloader stage
 RUN mkdir -p /opt/gradle
 COPY --from=downloader /var/downloads/gradle/ /opt/gradle/
