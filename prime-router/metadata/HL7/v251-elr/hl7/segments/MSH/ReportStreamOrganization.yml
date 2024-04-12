@@ -21,7 +21,7 @@ identifier_2:
       type: STRING
       valueOf: "2.16.840.1.114222.4.1.237821"
     type:
-      valueOf: datatypes/ID/CodeableConceptUniversalid
+      valueOf: ../../datatypes/v251/hl7/datatypes/ID/CodeableConceptUniversalid
       generateList: true
       expressionType: resource
       specs: "ISO"

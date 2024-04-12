@@ -132,7 +132,7 @@
         "@types/html-to-text": "^9.0.4",
         "@types/lodash": "^4.17.0",
         "@types/mdx": "^2.0.12",
-        "@types/node": "^20.11.30",
+        "@types/node": "^20.12.5",
         "@types/react": "18.2.72",
         "@types/react-dom": "^18.2.22",
         "@types/react-router-dom": "^5.3.3",
@@ -194,7 +194,7 @@
         "tocbot": "^4.25.0"
     },
     "engines": {
-        "node": "^20.11"
+        "node": "^20.12"
     },
     "packageManager": "yarn@3.6.3"
 }
