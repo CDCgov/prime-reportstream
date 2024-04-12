@@ -64,7 +64,7 @@ val javaVersion = when (appJvmTarget) {
 val ktorVersion = "2.3.8"
 val kotlinVersion by System.getProperties()
 val jacksonVersion = "2.17.0"
-jacoco.toolVersion = "0.8.10"
+jacoco.toolVersion = "0.8.12"
 
 // Local database information, first one wins:
 // 1. Project properties (-P<VAR>=<VALUE> flag)
@@ -601,7 +601,7 @@ dockerCompose {
     waitForTcpPorts.set(false)
     // Starting in version 0.17 the plugin changed the default to true, meaning our docker compose yaml files
     // get run with `docker compose` rather than `docker-compose`
-    useDockerComposeV2.set(false)
+    useDockerComposeV2.set(true)
 }
 
 tasks.azureFunctionsRun {
