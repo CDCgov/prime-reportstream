@@ -1,9 +1,5 @@
 elements:
 
-  - name: xtn-1-telephone-number
-    value: [ '%resource.extension("XTN.1").value' ]
-    hl7Spec: [ '%{hl7TelecomPath}-1' ]
-
   - name: xtn-2-telecom-use-code
     value: [ '%resource.extension("XTN.2").value' ]
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
