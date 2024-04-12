@@ -12,10 +12,6 @@ elements:
     value: [ '%resource.extension("XPN.4").value' ]
     hl7Spec: [ '%{xpnField}-4' ]
 
-  - name: xpn-6-degree
-    value: [ '%resource.extension("XPN.6").value' ]
-    hl7Spec: [ '%{xpnField}-6' ]
-
   - name: xpn-7-name-type-code
     condition: '%resource.extension("XPN.7").exists()'
     value: [ '%resource.extension("XPN.7").value' ]
