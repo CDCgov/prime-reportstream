@@ -160,15 +160,9 @@ class End2EndUniversalPipeline : CoolTest() {
         reportId: ReportId,
     ): Boolean {
         var passed = true
-        val connectionInfo = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;" +
-            "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;" +
-            "BlobEndpoint=http://localhost:10000/devstoreaccount1;" +
-            "QueueEndpoint=http://localhost:10001/devstoreaccount1;"
-        val blobContainerMetadata = BlobAccess.BlobContainerMetadata("reports", connectionInfo)
-
-        // Call history endpoint to get information on posted report
-        val getUrl = "${environment.url}/api/waters/report/$reportId/history"
-        val (_: Int, response: String) = HttpUtilities.getHttp(getUrl)
+        val blobconnectionstring = Environment.get().blobEnvVar
+        val blobContainerMetadata: BlobAccess.BlobContainerMetadata =
+            BlobAccess.BlobContainerMetadata.build("reports", blobconnectionstring)
 
         expectedReceivers.forEach { expectedReceiver ->
             // Retrieve external filenames associated with the receiver from the history endpoint response
@@ -182,9 +176,8 @@ class End2EndUniversalPipeline : CoolTest() {
             }
 
             // Grab the uploaded files out of Blob storage
-            val blobEndpoint = "http://localhost:10000/devstoreaccount1/reports/none/${expectedReceiver.fullName}"
             val actualName = actualFilename.removeSurrounding("\"")
-            val actualURL = "$blobEndpoint/$actualName"
+            val actualURL = "${blobContainerMetadata.getBlobEndpoint()}/none/${expectedReceiver.fullName}/$actualName"
             var actualByteArray: ByteArray
 
             try {
