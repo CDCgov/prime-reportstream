@@ -1,4 +1,5 @@
 import { minimum } from "./browsers.json";
+// gratuitous
 
 const minUseragent = new RegExp(minimum.useragent);
 
