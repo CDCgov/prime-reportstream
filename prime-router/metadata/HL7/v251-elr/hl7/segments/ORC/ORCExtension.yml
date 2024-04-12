@@ -39,7 +39,7 @@ extension:
           type: STRING
           value: ORC.8
         valueIdentifier:
-          valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
+          valueOf: ../../datatypes/v251/hl7/datatypes/EIP/Identifier-PlacerAssignedIdentifier
           expressionType: resource
           specs: ORC.8
           constants:
@@ -56,7 +56,7 @@ extension:
           value: ORC.10
         valueReference:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
     - expressionType: nested
       vars:
         orc11: STRING_ALL, ORC.11
@@ -69,7 +69,7 @@ extension:
           value: ORC.11
         valueReference:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
     - expressionType: nested
       vars:
         orc12: STRING_ALL, ORC.12
@@ -82,7 +82,7 @@ extension:
           value: orc-12-ordering-provider
         valueReference:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
     - expressionType: nested
       vars:
         orc13: STRING_ALL, ORC.13
@@ -93,7 +93,7 @@ extension:
           value: ORC.13
         valueReference:
           expressionType: reference
-          valueOf: datatypes/PL/Location
+          valueOf: ../../datatypes/v251/hl7/datatypes/PL/Location
           specs: ORC.13
     - expressionType: nested
       condition: $orc15 NOT_NULL
@@ -117,7 +117,7 @@ extension:
           value: ORC.17
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           specs: ORC.17
     - expressionType: nested
       vars:
@@ -129,7 +129,7 @@ extension:
           value: ORC.18
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           specs: ORC.18
     - expressionType: nested
       vars:
@@ -143,7 +143,7 @@ extension:
           value: ORC.19
         valueReference:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
     - expressionType: nested
       vars:
         orc21: STRING_ALL, ORC.21
@@ -156,7 +156,7 @@ extension:
           value: orc-21-ordering-facility-name
         valueReference:
           expressionType: reference
-          valueOf: datatypes/XON/Organization
+          valueOf: ../../datatypes/v251/hl7/datatypes/XON/Organization
     - expressionType: nested
       vars:
         orc22: STRING_ALL, ORC.22
@@ -169,7 +169,7 @@ extension:
           value: orc-22-ordering-facility-address
         valueAddress:
           expressionType: resource
-          valueOf: datatypes/XAD/Address
+          valueOf: ../../datatypes/v251/hl7/datatypes/XAD/Address
     - expressionType: nested
       vars:
         orc24: STRING_ALL, ORC.24
@@ -182,7 +182,7 @@ extension:
           value: orc-24-ordering-provider-address
         valueAddress:
           expressionType: resource
-          valueOf: datatypes/XAD/Address
+          valueOf: ../../datatypes/v251/hl7/datatypes/XAD/Address
     - expressionType: nested
       vars:
         orc27: ORC.27
@@ -205,7 +205,7 @@ extension:
           value: ORC.28
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           specs: ORC.28
     - expressionType: nested
       vars:
@@ -217,7 +217,7 @@ extension:
           value: ORC.30
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CNE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CNE/CodeableConcept
           specs: ORC.30
     - expressionType: nested
       vars:
@@ -228,6 +228,6 @@ extension:
           type: STRING
           value: ORC.31
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: ORC.31
