@@ -38,7 +38,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "metabase_webapp_alertrul
   }
   data_source_id = local.log_analytics_workspace_id
   description    = "Critical Alert found in Metabase WebApp logs: Service unavailable"
-  enabled        = true
+  enabled        = false
   query          = <<-EOT
             AzureDiagnostics
             | where requestUri_s contains "metabase/api/health" and httpStatusCode_d != 200
