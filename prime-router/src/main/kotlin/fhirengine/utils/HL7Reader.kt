@@ -213,7 +213,8 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
     companion object {
         // map of HL7 message profiles: maps profile to configuration directory path
         val profileDirectoryMap: Map<MessageProfile, String> = mapOf(
-            Pair(MessageProfile("ORU", "NIST_ELR"), "./metadata/HL7/v251-elr"),
+            // TODO: NIST ELR mappings to be enabled in a future PR
+            // Pair(MessageProfile("ORU", "NIST_ELR"), "./metadata/HL7/v251-elr"),
         )
 
         // map of HL7 OIDs to supported conformance profiles
