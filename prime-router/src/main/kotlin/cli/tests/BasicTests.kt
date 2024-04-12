@@ -164,6 +164,10 @@ class End2EndUniversalPipeline : CoolTest() {
         val blobContainerMetadata: BlobAccess.BlobContainerMetadata =
             BlobAccess.BlobContainerMetadata.build("reports", blobconnectionstring)
 
+        // Call history endpoint to get information on posted report
+        val getUrl = "${environment.url}/api/waters/report/$reportId/history"
+        val (_: Int, response: String) = HttpUtilities.getHttp(getUrl)
+
         expectedReceivers.forEach { expectedReceiver ->
             // Retrieve external filenames associated with the receiver from the history endpoint response
             val actualFilename = findReportExternalNames(response, expectedReceiver)
