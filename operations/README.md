@@ -12,7 +12,7 @@ versions all remain identical.
 ---
 ## Prerequisites
 ### Needed software
-> Terraform >= [1.0.5](https://www.terraform.io/downloads)
+> Terraform >= [1.7.4](https://www.terraform.io/downloads)
 
 > [Azure cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 
