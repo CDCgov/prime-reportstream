@@ -158,5 +158,5 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
 }
 
 locals {
-    app_service_plan = replace(var.app_service_plan, "serverFarms", "serverfarms")
+  app_service_plan = replace(var.app_service_plan, "serverFarms", "serverfarms")
 }
