@@ -43,6 +43,7 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
   lifecycle {
     ignore_changes = [
       # Case does not apply correctly
+      target_resource_id,
       log_analytics_workspace_id,
       log_analytics_destination_type,
       metric,
