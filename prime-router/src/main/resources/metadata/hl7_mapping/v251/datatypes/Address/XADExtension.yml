@@ -10,7 +10,11 @@ elements:
     value: [ '%deidentifiedValue', '%resource.extension.where(url = "XAD.2").value' ]
     hl7Spec: [ '%{xadField}-2' ]
 
-  - name: xad-8-address-type
+  - name: xad-6-country
+    value: [ '%resource.extension.where(url = "XAD.6").value' ]
+    hl7Spec: [ '%{xadField}-6' ]
+
+  - name: xad-7-address-type
     value: [ '%resource.extension.where(url = "XAD.7").value' ]
     hl7Spec: [ '%{xadField}-7' ]
 
