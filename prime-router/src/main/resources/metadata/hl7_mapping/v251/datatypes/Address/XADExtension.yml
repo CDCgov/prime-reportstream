@@ -33,7 +33,3 @@ elements:
   - name: xad-14-expiration-date
     value: [ '%resource.extension.where(url = "XAD.14").value' ]
     hl7Spec: [ '%{xadField}-14' ]
-
-  - name: xad-19-addressee
-    value: [ '%resource.extension.where(url = "XAD.19").value' ]
-    hl7Spec: [ '%{xadField}-19' ]

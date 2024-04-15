@@ -112,15 +112,3 @@ extension:
           type: STRING
           valueOf: XAD.14
           expressionType: HL7Spec
-    - expressionType: nested
-      vars:
-        xad19: STRING_ALL, XAD.19
-      condition: $xad19 NOT_NULL
-      expressionsMap:
-        url:
-          type: STRING
-          value: XAD.19
-        valueCode:
-          type: STRING
-          valueOf: XAD.19
-          expressionType: HL7Spec
