@@ -115,7 +115,7 @@ resource "azurerm_application_insights_web_test" "sftp_test" {
   name                    = "${var.resource_prefix}-sftp-health-check"
   location                = var.location
   resource_group_name     = var.resource_group
-  application_insights_id = local.app_insights_id
+  application_insights_id = azurerm_application_insights.app_insights.id
   kind                    = "ping"
   frequency               = 900
   timeout                 = 60
