@@ -2,11 +2,11 @@ resource "azurerm_data_factory_pipeline" "sftp_share_to_archive" {
   name            = "SFTP-share-to-archive"
   data_factory_id = azurerm_data_factory.primary.id
 
-  annotations         = []
-  concurrency         = 1
-  folder              = "SFTP-share-to-archive"
-  parameters          = {}
-  resource_group_name = var.resource_group
+  annotations = []
+  concurrency = 1
+  folder      = "SFTP-share-to-archive"
+  parameters  = {}
+
   variables = {
     "SFTPShareNames" = ""
   }
