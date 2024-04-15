@@ -7,7 +7,8 @@ test.describe.skip("Support page", () => {
     });
 
     test("should have correct title", async ({ page }) => {
-        await support.onLoad(page);
+        await expect(page).toHaveURL(/support/);
+        await expect(page).toHaveTitle(/ReportStream support/);
     });
 
     test("Card navigation", () => {

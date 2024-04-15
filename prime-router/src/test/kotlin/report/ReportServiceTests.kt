@@ -2,6 +2,7 @@ package gov.cdc.prime.router.report
 
 import assertk.assertFailure
 import assertk.assertThat
+import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -43,6 +44,26 @@ class ReportServiceTests {
         assertFailure {
             f.reportService.getRootReport(f.childReportId)
         }.isInstanceOf(IllegalStateException::class)
+    }
+
+    @Test
+    fun `getRootReports success with filled-in list`() {
+        val f = Fixture()
+
+        every { f.reportGraphMock.getRootReports(f.childReportId) } returns listOf(f.rootReport)
+
+        val actual = f.reportService.getRootReports(f.childReportId)
+        assertThat(actual).isEqualTo(listOf(f.rootReport))
+    }
+
+    @Test
+    fun `getRootReports success with empty list`() {
+        val f = Fixture()
+
+        every { f.reportGraphMock.getRootReports(f.childReportId) } returns listOf()
+
+        val actual = f.reportService.getRootReports(f.childReportId)
+        assertThat(actual).hasSize(0)
     }
 
     @Test

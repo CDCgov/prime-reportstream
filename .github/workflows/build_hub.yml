@@ -60,6 +60,7 @@ jobs:
           version: ${{ github.run_id }}
           upload-build: false
           run-integration-tests: true
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Generate New Schema Docs
         run: |

@@ -48,12 +48,12 @@
     # Orders Receivers
     # RS => TI: translates ORM_O01 from HL7 to FHIR and sends the message to the TI service orders API
     - name: "etor-service-receiver-orders"
-      externalName: "ETOR Service Receiver Channel from ReportStream - Receiving ORM_O01 FHIR orders"
+      externalName: "ETOR Service Receiver Channel from ReportStream - Receiving ORM_O01 and OML_O21 FHIR orders"
       organizationName: "flexion"
       topic: "etor-ti"
       customerStatus: "active"
       jurisdictionalFilter:
-        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01'" # ORM_O01
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01') or (Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21')" # ORM_O01 or OML_O21
         - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.exists(system = 'http://localcodes.org/ETOR').not()"
       qualityFilter:
         - true

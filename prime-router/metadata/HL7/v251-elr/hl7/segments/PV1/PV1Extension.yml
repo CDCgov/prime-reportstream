@@ -14,10 +14,10 @@ extension:
         url:
           type: STRING
           value: PV1.12
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          specs: PV1.12
-          expressionType: resource
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.12
     - vars:
         pv118: STRING_ALL, PV1.18
       condition: $pv118 NOT_NULL
@@ -26,10 +26,10 @@ extension:
         url:
           type: STRING
           value: PV1.18
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          specs: PV1.18
-          expressionType: resource
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.18
     - vars:
         pv130: STRING_ALL, PV1.30
       condition: $pv130 NOT_NULL
@@ -50,10 +50,10 @@ extension:
         url:
           type: STRING
           value: PV1.31
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
-          specs: PV1.31
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.31
     - vars:
         pv132: STRING_ALL, PV1.32
       condition: $pv132 NOT_NULL
@@ -86,10 +86,10 @@ extension:
         url:
           type: STRING
           value: PV1.34
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
-          specs: PV1.34
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.34
     - vars:
         pv135: STRING, PV1.35
       condition: $pv135 NOT_NULL
@@ -110,10 +110,10 @@ extension:
         url:
           type: STRING
           value: PV1.39
-        valueCodeableConcept:
-          expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
-          specs: PV1.39
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.39
     - vars:
         pv141: STRING_ALL, PV1.41
       condition: $pv141 NOT_NULL
@@ -122,10 +122,10 @@ extension:
         url:
           type: STRING
           value: PV1.41
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          specs: PV1.41
-          expressionType: resource
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.41
     - vars:
         pv146: STRING_ALL, PV1.46
       condition: $pv146 NOT_NULL
@@ -182,7 +182,7 @@ extension:
         url:
           type: STRING
           value: PV1.51
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          specs: PV1.51
-          expressionType: resource
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.51

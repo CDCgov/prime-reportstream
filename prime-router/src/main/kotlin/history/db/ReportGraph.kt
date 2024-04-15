@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.history.db
 
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
@@ -16,6 +17,7 @@ import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.CommonTableExpression
 import org.jooq.DSLContext
+import org.jooq.Record2
 import org.jooq.impl.CustomRecord
 import org.jooq.impl.CustomTable
 import org.jooq.impl.DSL
@@ -122,16 +124,23 @@ class ReportGraph(
     fun getRootReport(childReportId: UUID): ReportFile? {
         return db.transactReturning { txn ->
             val cte = reportAncestorGraphCommonTableExpression(listOf(childReportId))
-            DSL.using(txn)
-                .withRecursive(cte)
-                .select(REPORT_FILE.asterisk())
-                .from(cte)
-                .join(REPORT_FILE)
-                .on(REPORT_FILE.REPORT_ID.eq(cte.field(0, UUID::class.java)))
-                .join(ACTION)
-                .on(ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
-                .where(ACTION.ACTION_NAME.eq(TaskAction.receive))
-                .fetchOneInto(ReportFile::class.java)
+            rootReportRecords(txn, cte).fetchOneInto(ReportFile::class.java)
+        }
+    }
+
+    /**
+     * Recursively goes up the report_linage table from any report until it reaches
+     * all reports with an action type of "receive" (the root report)
+     *
+     * This will return null if no report with action type "receive" is present or if
+     * the root is passed in
+     *
+     * If the passed in report ID has multiple root reports, they will all be returned
+     */
+    fun getRootReports(childReportId: UUID): List<ReportFile> {
+        return db.transactReturning { txn ->
+            val cte = reportAncestorGraphCommonTableExpression(listOf(childReportId))
+            rootReportRecords(txn, cte).fetchInto(ReportFile::class.java)
         }
     }
 
@@ -322,6 +331,26 @@ class ReportGraph(
 
                 )
         )
+
+    /**
+     * Fetches all root report records in a recursive manner.
+     *
+     * @param txn the data access transaction
+     * @param cte the common table expression for report lineage
+     * @return the root report records
+     */
+    private fun rootReportRecords(
+        txn: DataAccessTransaction,
+        cte: CommonTableExpression<Record2<UUID, String>>,
+    ) = DSL.using(txn)
+        .withRecursive(cte)
+        .select(REPORT_FILE.asterisk())
+        .from(cte)
+        .join(REPORT_FILE)
+        .on(REPORT_FILE.REPORT_ID.eq(cte.field(0, UUID::class.java)))
+        .join(ACTION)
+        .on(ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
+        .where(ACTION.ACTION_NAME.eq(TaskAction.receive))
 
     /**
      * Accepts a list of ids and walks down the report lineage graph

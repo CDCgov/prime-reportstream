@@ -116,7 +116,7 @@ To get started you will need to create three separate OKTA users. An admin, send
 
 1. Assign the users to the Test Users Group
 2. Assign the sender user to the DHSender_ignore Group.
-3. Assign the receiver user to the DHfl-phd Group and make sure that you have data locally to support that organization.
+3. Assign the receiver user to the DHak-phd Group and make sure that you have data locally to support that organization.
 4. Create a `.env.test.local` file within frontend-react and add the following properties along with the values created from step #1:
 
 ```
@@ -136,6 +136,10 @@ TEST_RECEIVER_TOTP_CODE=""
 _Check with an Okta administrator on the usage of the TOTP code_
 
 ```bash
+npx playwright install # Installs supported default browsers
+
+npx playwright install-deps # Installs system dependencies
+
 yarn run test:e2e-ui # Runs a local instance of Playwright UI where you can view and run the e2e tests
 
 CI=true yarn run test:e2e-ui # Runs a local instance of Playwright UI that mimics Github integration

@@ -2,7 +2,7 @@ import { screen, waitFor } from "@testing-library/react";
 
 import ReportStreamHeader from "./ReportStreamHeader";
 import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
-import { RSSessionContext } from "../../contexts/Session";
+import type { RSSessionContext } from "../../contexts/Session";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("SignInOrUser", () => {
@@ -26,7 +26,6 @@ describe("SignInOrUser", () => {
         await waitFor(() =>
             expect(screen.getByText("Submissions")).toBeVisible(),
         );
-        expect(screen.queryByText("Dashboard")).not.toBeInTheDocument();
         expect(screen.queryByText("Admin")).not.toBeInTheDocument();
         testNav();
     });
@@ -40,7 +39,7 @@ describe("SignInOrUser", () => {
         } as RSSessionContext);
         renderApp(<ReportStreamHeader />);
         await waitFor(() =>
-            expect(screen.getByText("Dashboard")).toBeVisible(),
+            expect(screen.getByText("Daily Data")).toBeVisible(),
         );
         expect(screen.queryByText("Submissions")).not.toBeInTheDocument();
         expect(screen.queryByText("Admin")).not.toBeInTheDocument();
@@ -56,7 +55,7 @@ describe("SignInOrUser", () => {
         } as RSSessionContext);
         renderApp(<ReportStreamHeader />);
         await waitFor(() =>
-            expect(screen.getByText("Dashboard")).toBeVisible(),
+            expect(screen.getByText("Daily Data")).toBeVisible(),
         );
         expect(screen.getByText("Submissions")).toBeVisible();
         expect(screen.queryByText("Admin")).not.toBeInTheDocument();
@@ -74,7 +73,7 @@ describe("SignInOrUser", () => {
         await waitFor(() =>
             expect(screen.getByText("Submissions")).toBeVisible(),
         );
-        expect(screen.getByText("Dashboard")).toBeVisible();
+        expect(screen.getByText("Daily Data")).toBeVisible();
         expect(screen.getByText("Admin")).toBeVisible();
         testNav();
     });

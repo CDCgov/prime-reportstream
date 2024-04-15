@@ -1,0 +1,6 @@
+elements:
+  - name: organization-cwe
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
+    resource: '%resource.extension(%`rsext-cwe-organization`).value'
+    constants:
+      cweField: '%{organizationCWEFieldPath}'
