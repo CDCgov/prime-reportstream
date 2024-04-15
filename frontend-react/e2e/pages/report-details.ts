@@ -1,5 +1,6 @@
 import { expect, Page } from "@playwright/test";
 import fs from "node:fs";
+import * as deliveries from "../mocks/deliveries";
 import { MOCK_GET_DELIVERY } from "../mocks/delivery";
 import { MOCK_GET_FACILITIES } from "../mocks/facilities";
 import { MOCK_GET_HISTORY_REPORT } from "../mocks/historyReport";
@@ -7,6 +8,7 @@ import { MOCK_GET_HISTORY_REPORT } from "../mocks/historyReport";
 export const URL_REPORT_DETAILS = "/report-details";
 export const API_WATERS_REPORT = "/api/waters/report";
 export const API_HISTORY_REPORT = "/api/history/report";
+export const API_WATERS_ORG = "/api/waters/org";
 export async function goto(page: Page, id: string) {
     await page.goto(`${URL_REPORT_DETAILS}/${id}`, {
         waitUntil: "domcontentloaded",
@@ -27,6 +29,18 @@ export async function mockGetDeliveryResponse(
 ) {
     await page.route(`${API_WATERS_REPORT}/${id}/delivery`, async (route) => {
         const json = MOCK_GET_DELIVERY;
+        await route.fulfill({ json, status: responseStatus });
+    });
+}
+
+export async function mockGetDeliveriesForOrgResponse(
+    page: Page,
+    org: string,
+    state: string,
+    responseStatus = 200,
+) {
+    await page.route(`${API_WATERS_ORG}/${org}/deliveries`, async (route) => {
+        const json = state === "AK" ?? deliveries.MOCK_GET_DELIVERIES_AK;
         await route.fulfill({ json, status: responseStatus });
     });
 }
