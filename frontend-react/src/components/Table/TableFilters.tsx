@@ -21,7 +21,6 @@ import {
 import styles from "./TableFilters.module.scss";
 import TableFilterSearch from "./TableFilterSearch";
 import TableFilterStatus, { TableFilterData } from "./TableFilterStatus";
-import { RSReceiver } from "../../config/endpoints/settings";
 import {
     CursorActionType,
     CursorManager,
@@ -53,10 +52,9 @@ interface TableFilterProps {
     searchTerm: string;
     onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
     receivers: { value: string; label: string }[];
-    setService?: Dispatch<SetStateAction<string | undefined>>;
+    setService?: Dispatch<SetStateAction<string>>;
     showDateHints?: boolean;
     startDateLabel: string;
-    initialService: RSReceiver;
     resultLength?: number;
     isPaginationLoading?: boolean;
 }
@@ -91,7 +89,6 @@ function TableFilters({
     setService,
     showDateHints,
     startDateLabel,
-    initialService,
     resultLength,
     isPaginationLoading,
 }: TableFilterProps) {
@@ -112,9 +109,8 @@ function TableFilters({
     const formRef = useRef<HTMLFormElement>(null);
     const [startTime, setStartTime] = useState(DEFAULT_FROM_TIME_STRING);
     const [endTime, setEndTime] = useState(DEFAULT_TO_TIME_STRING);
-    const [currentServiceSelect, setCurrentServiceSelect] = useState<string>(
-        initialService?.name,
-    );
+    const [currentServiceSelect, setCurrentServiceSelect] =
+        useState<string>("");
     const [filterStatus, setFilterStatus] = useState<TableFilterData>({
         resultLength: resultLength,
         activeFilters: [currentServiceSelect],
@@ -177,21 +173,35 @@ function TableFilters({
 
         return { isFilterDisabled, rangeFromWithTime, rangeToWithTime };
     }, [currentServiceSelect, endTime, rangeFrom, rangeTo, startTime]);
+    // These variable and the logic below are for a specific use case:
+    // We do NOT want to show the time range portion of the FilterStatus
+    // when a user didn't manipulate both the Start time and End time.
+    // However, to our controlled components, our input is always applied,
+    // so we have to access the inputs via an uncontrolled method to see if
+    // a user manipulated them or now.
+    const startTimeElm = formRef?.current?.querySelector(
+        "#start-time",
+    ) as HTMLInputElement | null;
+    const endTimeElm = formRef?.current?.querySelector(
+        "#end-time",
+    ) as HTMLInputElement | null;
+    const showDefaultStatus = useMemo(() => {
+        return (
+            !currentServiceSelect &&
+            !rangeFrom &&
+            !rangeTo &&
+            !startTimeElm?.value &&
+            !endTimeElm?.value
+        );
+    }, [
+        currentServiceSelect,
+        endTimeElm?.value,
+        rangeFrom,
+        rangeTo,
+        startTimeElm?.value,
+    ]);
 
     useEffect(() => {
-        // These variable and the logic below are for a specific use case:
-        // We do NOT want to show the time range portion of the FilterStatus
-        // when a user didn't manipulate both the Start time and End time.
-        // However, to our controlled components, our input is always applied,
-        // so we have to access the inputs via an uncontrolled method to see if
-        // a user manipulated them or now.
-        const startTimeElm = formRef?.current?.querySelector(
-            "#start-time",
-        ) as HTMLInputElement | null;
-        const endTimeElm = formRef?.current?.querySelector(
-            "#end-time",
-        ) as HTMLInputElement | null;
-
         if (isPaginationLoading === false)
             // This piece of code outputs into activeFilters a human readable
             // filter array for us to display on the FE, with protections against
@@ -269,19 +279,12 @@ function TableFilters({
             setRangeTo(undefined);
             setStartTime(DEFAULT_FROM_TIME_STRING);
             setEndTime(DEFAULT_TO_TIME_STRING);
-            setCurrentServiceSelect(initialService.name);
+            setCurrentServiceSelect("");
             setSearchTerm("");
-            setService?.(initialService.name);
+            setService?.("");
             filterManager.resetAll();
         },
-        [
-            filterManager,
-            filterReset,
-            initialService?.name,
-            searchReset,
-            setSearchTerm,
-            setService,
-        ],
+        [filterManager, filterReset, searchReset, setSearchTerm, setService],
     );
 
     const submitHandler = useCallback(
@@ -486,7 +489,10 @@ function TableFilters({
                 </form>
             </section>
             {isPaginationLoading === false && (
-                <TableFilterStatus filterStatus={filterStatus} />
+                <TableFilterStatus
+                    filterStatus={filterStatus}
+                    showDefaultStatus={showDefaultStatus}
+                />
             )}
         </div>
     );
