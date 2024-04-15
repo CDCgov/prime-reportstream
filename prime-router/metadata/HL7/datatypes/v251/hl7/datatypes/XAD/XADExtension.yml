@@ -88,42 +88,6 @@ extension:
           type: STRING
           valueOf: XAD.11
           expressionType: HL7Spec
-    # XAD.12 is deprecated in the HAPI HL7 2.7 structures
-    # so there is no spec we can pass, instead we reference the
-    # sub fields directly here
-    - expressionType: nested
-      vars:
-        start: XAD.12.1
-        end: XAD.12.2
-      condition: $start NOT_NULL || $end NOT_NULL
-      expressionsMap:
-        url:
-          type: STRING
-          value: XAD.12
-        extension:
-          expressionType: nested
-          condition: $start NOT_NULL
-          generateList: true
-          expressions:
-            - expressionType: nested
-              expressionsMap:
-                url:
-                  type: STRING
-                  value: XAD.12.1
-                valueString:
-                  type: STRING
-                  valueOf: $start
-                  expressionType: HL7Spec
-            - expressionType: nested
-              condition: $end NOT_NULL
-              expressionsMap:
-                url:
-                  type: STRING
-                  value: XAD.12.2
-                valueString:
-                  type: STRING
-                  valueOf: $end
-                  expressionType: HL7Spec
     - expressionType: nested
       vars:
         xad13: STRING, XAD.13
