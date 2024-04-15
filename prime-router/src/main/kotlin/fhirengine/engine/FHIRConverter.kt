@@ -3,7 +3,7 @@ package gov.cdc.prime.router.fhirengine.engine
 import ca.uhn.fhir.parser.DataFormatException
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.model.v27.message.ORU_R01
+import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator.ParseFailureError
