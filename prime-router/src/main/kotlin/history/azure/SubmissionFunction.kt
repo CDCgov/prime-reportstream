@@ -143,25 +143,26 @@ class SubmissionFunction(
      * API endpoint to return history of a single report from the CDC Intermediary.
      * The [id] can be a valid UUID or a valid actionId (aka submissionId, to our users)
      */
-    @FunctionName("getTiMetadata")
+    @FunctionName("getTiMetadataForHistory")
     fun getTiMetadata(
         @HttpTrigger(
             name = "getTiMetadata",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "waters/report/{id}/tiMetadata"
+            route = "waters/report/{id}/history/tiMetadata"
         ) request: HttpRequestMessage<String?>,
         @BindingName("id") id: String,
         context: ExecutionContext,
     ): HttpResponseMessage {
         val authResult = this.authSingleBlocks(request, id)
 
-         if (authResult != null) {
-             return authResult
+        if (authResult != null) {
+            return authResult
         }
 
         var response: HttpResponse?
-        // TODO: Figure out if we should leave the below or extract it into an env var
+        // TODO: Figure out if we should leave the receiver name below or extract it into an env var
+        // TODO: Decide whether to refactor shared bits for calling TI Metadata in Submission and Delivery
         val receiver = workflowEngine.settings.findReceiver("flexion.etor-service-receiver-orders")
         val client = HttpClient()
         val restTransport = RESTTransport()
@@ -186,9 +187,8 @@ class SubmissionFunction(
         }
         runBlocking {
             launch {
-                 response = client.get("http://host.docker.internal:8080/v1/etor/metadata/" + id) {
-                    authPair.first?.forEach {
-                        entry ->
+                response = client.get("${System.getenv("ETOR_TI_baseurl")}/v1/etor/metadata/" + id) {
+                    authPair.first?.forEach { entry ->
                         headers.append(entry.key, entry.value)
                     }
 

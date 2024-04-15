@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.history.azure
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -8,6 +9,7 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.ApiResponse
 import gov.cdc.prime.router.azure.HttpUtilities
@@ -24,7 +26,16 @@ import gov.cdc.prime.router.history.db.SubmitterApiSearch
 import gov.cdc.prime.router.history.db.SubmitterDatabaseAccess
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
+import gov.cdc.prime.router.transport.RESTTransport
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.UUID
+import java.util.logging.Logger
 
 /**
  * Deliveries API
@@ -185,6 +196,68 @@ class DeliveryFunction(
         @BindingName("id") id: String,
     ): HttpResponseMessage {
         return this.getDetailedView(request, id)
+    }
+
+    /**
+     * API endpoint to return history of a single report from the CDC Intermediary.
+     * The [id] is a valid report UUID
+     */
+    @FunctionName("getTiMetadataForDelivery")
+    fun getTiMetadata(
+        @HttpTrigger(
+            name = "getTiMetadata",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "waters/report/{id}/delivery/tiMetadata"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("id") id: String,
+        context: ExecutionContext,
+    ): HttpResponseMessage {
+        val authResult = this.authSingleBlocks(request, id)
+
+        if (authResult != null) {
+            return authResult
+        }
+
+        var response: HttpResponse?
+        // TODO: Figure out if we should leave the receiver name below or extract it into an env var
+        // TODO: Decide whether to refactor shared bits for calling TI Metadata in Submission and Delivery
+        val receiver = workflowEngine.settings.findReceiver("flexion.etor-service-receiver-orders")
+        val client = HttpClient()
+        val restTransport = RESTTransport()
+        val restTransportInfo = receiver?.transport as RESTTransportType
+        val (credential, jksCredential) = restTransport.getCredential(restTransportInfo, receiver)
+        val logger: Logger = context.logger
+        var authPair: Pair<Map<String, String>?, io.ktor.client.plugins.auth.providers.BearerTokens?> =
+            Pair(null, null)
+
+        var responseBody = ""
+
+        runBlocking {
+            launch {
+                authPair = restTransport.getOAuthToken(
+                    restTransportInfo,
+                    id,
+                    jksCredential,
+                    credential,
+                    logger
+                )
+            }
+        }
+        runBlocking {
+            launch {
+                response = client.get("${System.getenv("ETOR_TI_baseurl")}/v1/etor/metadata/" + id) {
+                    authPair.first?.forEach { entry ->
+                        headers.append(entry.key, entry.value)
+                    }
+
+                    headers.append(HttpHeaders.Authorization, "Bearer " + authPair.second!!.accessToken)
+                }
+                responseBody = response!!.body()
+            }
+        }
+
+        return HttpUtilities.createdResponse(request, responseBody)
     }
 
     /**
