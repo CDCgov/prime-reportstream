@@ -19,7 +19,8 @@ import java.util.UUID
  */
 class DatabaseDeliveryAccess(
     db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
-) : HistoryDatabaseAccess(db) {
+    workflowEngine: WorkflowEngine = WorkflowEngine(),
+) : HistoryDatabaseAccess(db, workflowEngine) {
 
     /**
      * Values that facilities can be sorted by
@@ -44,7 +45,7 @@ class DatabaseDeliveryAccess(
         orgService: String?,
     ): Condition {
 //      This is a temporary fix to make the daily data page show data for reports routed through the ELR ELIMS topic since reports routed through the ELR-ELIMS topic skip the batch step. There are plans to have a dashboard for receivers that works for all messages routed through RS.
-        val org = WorkflowEngine().settings.findOrganization(organization)
+        val org = workflowEngine.settings.findOrganization(organization)
 
         var filter = if (org?.featureFlags?.contains("ELIMS_DATA") == true) {
                 ACTION.ACTION_NAME.eq(TaskAction.batch)

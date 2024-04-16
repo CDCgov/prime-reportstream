@@ -2,6 +2,7 @@ package gov.cdc.prime.router.history.azure
 
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.Tables.SETTING
@@ -14,6 +15,7 @@ import java.util.UUID
 
 abstract class HistoryDatabaseAccess(
     internal val db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
+    internal val workflowEngine: WorkflowEngine,
 ) {
     /**
      * Values that results can be sorted by.
