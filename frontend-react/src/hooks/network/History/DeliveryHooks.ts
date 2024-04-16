@@ -91,16 +91,10 @@ const useOrgDeliveries = (initialService?: string) => {
                 receivingOrgSvcStatus: "ACTIVE,TESTING",
                 ...additionalParams,
             };
-            // Basically, if there are search parameters present, ignore the
-            // specifically chosen Receiver, so that the search can be across
-            // ALL Receivers
-            const segmentParam = Object.keys(additionalParams).length
-                ? adminSafeOrgName
-                : orgAndService;
 
             return authorizedFetch(getOrgDeliveries, {
                 segments: {
-                    orgAndService: segmentParam,
+                    orgAndService: orgAndService,
                 },
                 params,
             }) as unknown as Promise<RSDelivery[]>;
@@ -110,7 +104,6 @@ const useOrgDeliveries = (initialService?: string) => {
             sortOrder,
             rangeFrom,
             rangeTo,
-            adminSafeOrgName,
             orgAndService,
             authorizedFetch,
         ],

@@ -191,13 +191,15 @@ function TableFilters({
             !rangeFrom &&
             !rangeTo &&
             !startTimeElm?.value &&
-            !endTimeElm?.value
+            !endTimeElm?.value &&
+            !searchTerm
         );
     }, [
         currentServiceSelect,
         endTimeElm?.value,
         rangeFrom,
         rangeTo,
+        searchTerm,
         startTimeElm?.value,
     ]);
 
@@ -269,22 +271,30 @@ function TableFilters({
         [onFilterClick, updateRange],
     );
 
-    /* Clears manager and local state values */
-    const resetHandler = useCallback(
+    const resetFilterFields = useCallback(
         (e: FormEvent) => {
             e.preventDefault();
             setFilterReset(filterReset + 1);
-            setSearchReset(searchReset + 1);
             setRangeFrom(undefined);
             setRangeTo(undefined);
             setStartTime(DEFAULT_FROM_TIME_STRING);
             setEndTime(DEFAULT_TO_TIME_STRING);
             setCurrentServiceSelect("");
-            setSearchTerm("");
             setService?.("");
             filterManager.resetAll();
         },
-        [filterManager, filterReset, searchReset, setSearchTerm, setService],
+        [filterManager, filterReset, setService],
+    );
+
+    /* Clears manager and local state values */
+    const resetHandler = useCallback(
+        (e: FormEvent) => {
+            e.preventDefault();
+            resetFilterFields(e);
+            setSearchReset(searchReset + 1);
+            setSearchTerm("");
+        },
+        [resetFilterFields, searchReset, setSearchTerm],
     );
 
     const submitHandler = useCallback(
@@ -318,12 +328,10 @@ function TableFilters({
     return (
         <div className={styles.TableFilters}>
             <TableFilterSearch
-                filterReset={filterReset}
                 resetHandler={resetHandler}
                 searchReset={searchReset}
-                setFilterReset={setFilterReset}
                 setSearchTerm={setSearchTerm}
-                setCurrentServiceSelect={setCurrentServiceSelect}
+                resetFilterFields={resetFilterFields}
             />
 
             <section
