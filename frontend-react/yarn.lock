@@ -4086,10 +4086,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mdx@npm:^2.0.0, @types/mdx@npm:^2.0.12":
+"@types/mdx@npm:^2.0.0":
   version: 2.0.12
   resolution: "@types/mdx@npm:2.0.12"
   checksum: 4626ba6886e33942d2380c3c5044945d94e41a8ff0893663bcf383ce3f29be381c4a72c6bc3088aa58ca3f99afa792700bf568be63111b05587f6e4c70f8a4b8
+  languageName: node
+  linkType: hard
+
+"@types/mdx@npm:^2.0.13":
+  version: 2.0.13
+  resolution: "@types/mdx@npm:2.0.13"
+  checksum: 195137b548e75a85f0558bb1ca5088aff1c01ae0fc64454da06085b7513a043356d0bb51ed559d3cbc7ad724ccd8cef2a7d07d014b89a47a74dff8875ceb3b15
   languageName: node
   linkType: hard
 
@@ -12478,7 +12485,7 @@ __metadata:
     "@types/github-slugger": ^1.3.0
     "@types/html-to-text": ^9.0.4
     "@types/lodash": ^4.17.0
-    "@types/mdx": ^2.0.12
+    "@types/mdx": ^2.0.13
     "@types/node": ^20.12.5
     "@types/react": 18.2.72
     "@types/react-dom": ^18.2.22
@@ -14209,8 +14216,8 @@ __metadata:
   linkType: hard
 
 "tar@npm:^6.1.11, tar@npm:^6.1.13, tar@npm:^6.1.2":
-  version: 6.1.15
-  resolution: "tar@npm:6.1.15"
+  version: 6.2.1
+  resolution: "tar@npm:6.2.1"
   dependencies:
     chownr: ^2.0.0
     fs-minipass: ^2.0.0
@@ -14218,7 +14225,7 @@ __metadata:
     minizlib: ^2.1.1
     mkdirp: ^1.0.3
     yallist: ^4.0.0
-  checksum: f23832fceeba7578bf31907aac744ae21e74a66f4a17a9e94507acf460e48f6db598c7023882db33bab75b80e027c21f276d405e4a0322d58f51c7088d428268
+  checksum: f1322768c9741a25356c11373bce918483f40fa9a25c69c59410c8a1247632487edef5fe76c5f12ac51a6356d2f1829e96d2bc34098668a2fc34d76050ac2b6c
   languageName: node
   linkType: hard
 
