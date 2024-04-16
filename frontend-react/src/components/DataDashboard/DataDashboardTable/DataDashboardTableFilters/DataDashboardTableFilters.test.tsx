@@ -1,12 +1,14 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 
 import DataDashboardTableFilters, {
     isValidDateString,
     TableFilterDateLabel,
 } from "./DataDashboardTableFilters";
-import { mockCursorManager } from "../../../../hooks/filters/mocks/MockCursorManager";
-import { mockFilterManager } from "../../../../hooks/filters/mocks/MockFilterManager";
+import {
+    cursorManagerFixture,
+    filterManagerFixture,
+} from "../../../../hooks/filters/filters.fixtures";
 import { renderApp } from "../../../../utils/CustomRenderUtils";
 
 describe("Rendering", () => {
@@ -15,8 +17,8 @@ describe("Rendering", () => {
             <DataDashboardTableFilters
                 startDateLabel={TableFilterDateLabel.START_DATE}
                 endDateLabel={TableFilterDateLabel.END_DATE}
-                filterManager={mockFilterManager}
-                cursorManager={mockCursorManager}
+                filterManager={filterManagerFixture}
+                cursorManager={cursorManagerFixture}
             />,
         );
     }
@@ -54,8 +56,8 @@ describe("when validating values", () => {
             <DataDashboardTableFilters
                 startDateLabel={TableFilterDateLabel.START_DATE}
                 endDateLabel={TableFilterDateLabel.END_DATE}
-                filterManager={mockFilterManager}
-                cursorManager={mockCursorManager}
+                filterManager={filterManagerFixture}
+                cursorManager={cursorManagerFixture}
             />,
         );
 

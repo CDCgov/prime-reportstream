@@ -67,10 +67,10 @@
         "build:production": "yarn run build-base",
         "build:csp": "yarn run build-base --mode csp",
         "build-base": "vite build",
-        "test": "cross-env TZ=UTC vitest",
-        "test:debug": "cross-env DEBUG_PRINT_LIMIT=100000 TZ=UTC vitest --run --no-file-parallelism",
-        "test:ci": "cross-env TZ=UTC VITE_BACKEND_URL=http://localhost vitest --coverage",
-        "test:ui": "cross-env TZ=UTC vitest --ui",
+        "test": "cross-env vitest",
+        "test:debug": "cross-env DEBUG_PRINT_LIMIT=100000 vitest --run --no-file-parallelism",
+        "test:ci": "cross-env VITE_BACKEND_URL=http://localhost vitest --coverage",
+        "test:ui": "cross-env vitest --ui",
         "test:e2e": "playwright test",
         "test:e2e-ui": "playwright test --ui",
         "lint": "eslint \"**/*.{js,ts,jsx,tsx}\" && prettier \"*\" --check --ignore-unknown && tsc",
@@ -132,7 +132,7 @@
         "@types/html-to-text": "^9.0.4",
         "@types/lodash": "^4.17.0",
         "@types/mdx": "^2.0.12",
-        "@types/node": "^20.11.30",
+        "@types/node": "^20.12.5",
         "@types/react": "18.2.72",
         "@types/react-dom": "^18.2.22",
         "@types/react-router-dom": "^5.3.3",
@@ -161,7 +161,7 @@
         "eslint-plugin-react-refresh": "^0.4.6",
         "eslint-plugin-storybook": "^0.8.0",
         "eslint-plugin-testing-library": "^6.2.0",
-        "eslint-plugin-vitest": "^0.4.0",
+        "eslint-plugin-vitest": "^0.4.1",
         "husky": "^9.0.11",
         "jsdom": "^24.0.0",
         "lint-staged": "^15.2.2",
@@ -184,7 +184,7 @@
         "tslib": "^2.6.2",
         "typescript": "^5.4.3",
         "undici": "^6.10.1",
-        "vite": "^5.2.6",
+        "vite": "^5.2.8",
         "vite-plugin-checker": "^0.6.4",
         "vite-plugin-svgr": "^4.2.0",
         "vitest": "^1.4.0"
@@ -194,7 +194,7 @@
         "tocbot": "^4.25.0"
     },
     "engines": {
-        "node": "^20.11"
+        "node": "^20.12"
     },
     "packageManager": "yarn@3.6.3"
 }
