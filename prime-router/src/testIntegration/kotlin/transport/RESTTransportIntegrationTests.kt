@@ -701,34 +701,25 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         assertThat(retryItems).isNull()
     }
 
+    // at some point "Authorization: " was being prepended so this test makes sure that doesn't happen again
     @Test
-    fun `test getOAuthToken returns valid token for UserPassCredential`() {
+    fun `test getting auth token with UserPassCredential returns valid token`() {
         val key = Keys.secretKeyFor(SignatureAlgorithm.HS256)
         val token = Jwts.builder()
             .setSubject("subject")
-            .signWith(key, SignatureAlgorithm.HS256).compact()
+            .signWith(key, SignatureAlgorithm.HS256)
+            .compact()
         val mockClient = mockJsonResponseWithSuccess(token)
-        val mockRestTransport = spyk(RESTTransport(mockClient))
+        val mockRestTransport = RESTTransport(mockClient)
         val credential = UserPassCredential("user", "pass")
         val logger = Logger.getLogger(this.toString())
 
         runBlocking {
-            val token = mockRestTransport.getOAuthToken(
-                transportType,
-                "some-id",
-                null,
-                credential,
-                logger
-            )
-            val parser = Jwts.parserBuilder().setSigningKey(key).build()
-            assertDoesNotThrow {
-                parser.parse(token.second)
-            }
-        }
-
-        verify(exactly = 1) {
-            runBlocking {
-                mockRestTransport.getAuthTokenWithUserPass(transportType, credential, logger, mockClient)
+            mockRestTransport.getAuthTokenWithUserPass(transportType, credential, logger, mockClient).also {
+                val parser = Jwts.parserBuilder().setSigningKey(key).build()
+                assertDoesNotThrow {
+                    parser.parse(it.accessToken) // will throw errors if not a valid signed jwt
+                }
             }
         }
     }
