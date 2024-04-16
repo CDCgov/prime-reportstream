@@ -169,7 +169,7 @@ class SubmissionFunction(
         val restTransportInfo = receiver?.transport as RESTTransportType
         val (credential, jksCredential) = restTransport.getCredential(restTransportInfo, receiver)
         val logger: Logger = context.logger
-        var authPair: Pair<Map<String, String>?, io.ktor.client.plugins.auth.providers.BearerTokens?> =
+        var authPair: Pair<Map<String, String>?, String?> =
             Pair(null, null)
 
         var responseBody = ""
@@ -192,7 +192,7 @@ class SubmissionFunction(
                         headers.append(entry.key, entry.value)
                     }
 
-                    headers.append(HttpHeaders.Authorization, "Bearer " + authPair.second!!.accessToken)
+                    headers.append(HttpHeaders.Authorization, "Bearer " + authPair.second!!)
                 }
                 responseBody = response!!.body()
             }

@@ -34,6 +34,7 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -229,7 +230,7 @@ class DeliveryFunction(
         val restTransportInfo = receiver?.transport as RESTTransportType
         val (credential, jksCredential) = restTransport.getCredential(restTransportInfo, receiver)
         val logger: Logger = context.logger
-        var authPair: Pair<Map<String, String>?, io.ktor.client.plugins.auth.providers.BearerTokens?> =
+        var authPair: Pair<Map<String, String>?, String?> =
             Pair(null, null)
 
         var responseBody = ""
@@ -245,14 +246,33 @@ class DeliveryFunction(
                 )
             }
         }
+
+        val actionId = this.actionFromId(id).actionId
+        val deliveryHistory = deliveryFacade.findDetailedDeliveryHistory(actionId)
+        var lookupId = ""
+        var currentDate: OffsetDateTime = OffsetDateTime.now()
+
+        if (deliveryHistory != null) {
+            deliveryHistory.originalIngestion?.stream()?.forEach {
+                if (currentDate.isAfter(it["ingestionTime"] as OffsetDateTime?)) {
+                    lookupId = it["reportId"] as String
+                    currentDate = it["ingestionTime"] as OffsetDateTime
+                }
+            }
+        }
+
+        if (lookupId.isEmpty()) {
+            return HttpUtilities.notFoundResponse(request, "lookup Id not found")
+        }
+
         runBlocking {
             launch {
-                response = client.get("${System.getenv("ETOR_TI_baseurl")}/v1/etor/metadata/" + id) {
+                response = client.get("${System.getenv("ETOR_TI_baseurl")}/v1/etor/metadata/" + lookupId) {
                     authPair.first?.forEach { entry ->
                         headers.append(entry.key, entry.value)
                     }
 
-                    headers.append(HttpHeaders.Authorization, "Bearer " + authPair.second!!.accessToken)
+                    headers.append(HttpHeaders.Authorization, "Bearer " + authPair.second!!)
                 }
                 responseBody = response!!.body()
             }

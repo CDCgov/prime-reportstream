@@ -8,6 +8,7 @@ import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.SubmissionHistory
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -19,6 +20,7 @@ import java.util.UUID
 class SubmissionsFacade(
     private val dbSubmissionAccess: HistoryDatabaseAccess = DatabaseSubmissionsAccess(),
     dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
+    val reportService: ReportService = ReportService(),
 ) : ReportFileFacade(
     dbAccess,
 ) {
@@ -141,6 +143,10 @@ class SubmissionsFacade(
 
         return submission
     }
+
+//    fun findRootReportFromReportId(reportId: String): String {
+//        val reportList = reportService.getRootReports(UUID.fromString(reportId))
+//    }
 
     /**
      * Check whether these [claims] from this [request]

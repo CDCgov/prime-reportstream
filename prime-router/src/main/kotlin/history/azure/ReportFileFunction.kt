@@ -198,7 +198,7 @@ abstract class ReportFileFunction(
      * @param id Either a reportId or actionId to look for matches on.
      * @return The action related to the given id.
      */
-    private fun actionFromId(id: String): Action {
+    fun actionFromId(id: String): Action {
         // Figure out whether we're dealing with an action_id or a report_id.
         val actionId = id.toLongOrNull()
         return if (currentAction != null && currentAction!!.actionId == actionId) {
