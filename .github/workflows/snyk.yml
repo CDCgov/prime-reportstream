@@ -37,7 +37,7 @@ jobs:
           java-version: "17"
           distribution: "temurin"
           cache: "gradle"
-      - uses: gradle/actions/wrapper-validation@460a3ca55fc5d559238a0efc7fa9f7465df8585d
+      - uses: gradle/actions/wrapper-validation@6cec5d49d4d6d4bb982fbed7047db31ea6d38f11
       - name: Snyk Monitor
         run: snyk monitor --org=prime-reportstream
         env:
