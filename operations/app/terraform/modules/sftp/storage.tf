@@ -1,11 +1,12 @@
 # Storage account to host file shares
 resource "azurerm_storage_account" "sftp" {
-  name                     = "${var.resource_prefix}sftp"
-  resource_group_name      = var.resource_group
-  location                 = var.location
-  account_tier             = "Standard"
-  account_replication_type = "GRS"
-  min_tls_version          = "TLS1_2"
+  name                            = "${var.resource_prefix}sftp"
+  resource_group_name             = var.resource_group
+  location                        = var.location
+  account_tier                    = "Standard"
+  account_replication_type        = "GRS"
+  min_tls_version                 = "TLS1_2"
+  allow_nested_items_to_be_public = false
 
   network_rules {
     default_action = "Allow"

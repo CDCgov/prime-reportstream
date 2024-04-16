@@ -213,7 +213,7 @@ const DeliveriesFilterAndTable = ({
     );
 };
 
-export const DailyData = () => {
+export function DailyData() {
     const { isLoading, isDisabled, activeReceivers } =
         useOrganizationReceivers();
     const initialService = activeReceivers?.[0];
@@ -235,6 +235,6 @@ export const DailyData = () => {
             initialService={initialService}
         />
     );
-};
+}
 
 export default DailyData;

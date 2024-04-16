@@ -97,6 +97,7 @@ resource "azurerm_function_app" "admin" {
   }
   lifecycle {
     ignore_changes = [
+      client_cert_mode,
       tags,
       site_config[0].ip_restriction
     ]
