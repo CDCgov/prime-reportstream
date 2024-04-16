@@ -50,11 +50,11 @@ private fun lookupConditionCodings(code: Coding, metadata: Metadata): List<Codin
     return mappingTable.caseSensitiveDataRowsMap.filter { // find codes
         it[ObservationMappingConstants.TEST_CODE_KEY] == code.code
     }.map { condition ->
-       Coding(
-           condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
-           condition[ObservationMappingConstants.CONDITION_CODE_KEY],
-           condition[ObservationMappingConstants.CONDITION_NAME_KEY]
-       )
+        Coding(
+            condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
+            condition[ObservationMappingConstants.CONDITION_CODE_KEY],
+            condition[ObservationMappingConstants.CONDITION_NAME_KEY]
+        )
     }.toList()
 }
 
@@ -439,6 +439,7 @@ fun Bundle.enhanceBundleMetadata(hl7Message: Message) {
 
     // The HL7 message ID
     val identifierValue = when (val mshSegment = hl7Message["MSH"]) {
+        is fhirengine.translation.hl7.structures.nistelr251.segment.MSH -> mshSegment.messageControlID.value
         is ca.uhn.hl7v2.model.v27.segment.MSH -> mshSegment.messageControlID.value
         is ca.uhn.hl7v2.model.v251.segment.MSH -> mshSegment.messageControlID.value
         else -> ""
