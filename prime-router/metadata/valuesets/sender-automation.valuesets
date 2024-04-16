@@ -618,14 +618,6 @@
       display: 258607008
     - code: 39607008
       display: 39607008
-    - code: 1293160008
-      display: Swab from middle region of inferior nasal meatus
-    - code: 1293160008
-      display: 1293160008
-    - code: 119342007
-      display: Saliva specimen
-    - code: 119342007
-      display: 119342007
 
 - name: sender-automation/specimen_type
   system: SNOMED_CT
