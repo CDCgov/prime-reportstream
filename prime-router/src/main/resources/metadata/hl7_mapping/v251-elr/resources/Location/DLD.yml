@@ -1,10 +1,8 @@
 elements:
 
   - name: dld-discharge-location
-    resource: '%resource.type'
-    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
-    constants:
-      cweField: '%{hl7DLDField}-1'
+    value: [ '%resource.type' ]
+    hl7Spec: [ '%{hl7DLDField}-1' ]
 
   - name: dld-effective-date
     value: [ '%resource.extension(%`rsext-dld2-effective-date`).value' ]

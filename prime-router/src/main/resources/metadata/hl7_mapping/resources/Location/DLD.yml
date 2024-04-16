@@ -2,7 +2,7 @@ elements:
 
   - name: dld-discharge-location
     resource: '%resource.type'
-    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7DLDField}-1'
 
