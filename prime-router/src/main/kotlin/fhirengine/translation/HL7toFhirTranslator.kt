@@ -34,7 +34,7 @@ class HL7toFhirTranslator(
         )
 
         /**
-         * Stored message templates for HL7 -> FHIR translation. Loaded on demand, then stored for performance reasons
+         * Stored message templates for HL7 -> FHIR translation
          */
         private var messageTemplates: Map<String, Map<String, HL7MessageModel>>
 

@@ -126,7 +126,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                 when (messageProfile.typeID) {
                     "ORU" -> {
                         return when (messageProfile.profileID) {
-                            // TODO: NIST ELR conformance profile to be enabled in a future PR
+                            // TODO: NIST ELR conformance profile to be enabled in a future PR (rename to "NIST_ELR")
                             "NIST_ELR_TEST" -> listOf(
                                 NIST_ELR_ORU_R01::class.java
                             )
@@ -213,7 +213,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
     companion object {
         // map of HL7 message profiles: maps profile to configuration directory path
         val profileDirectoryMap: Map<MessageProfile, String> = mapOf(
-            // TODO: NIST ELR mappings to be enabled in a future PR
+            // TODO: NIST ELR mappings to be enabled in a future PR (uncomment the following line)
             // Pair(MessageProfile("ORU", "NIST_ELR"), "./metadata/HL7/v251-elr"),
         )
 
