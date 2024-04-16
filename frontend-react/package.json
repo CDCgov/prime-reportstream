@@ -161,7 +161,7 @@
         "eslint-plugin-react-refresh": "^0.4.6",
         "eslint-plugin-storybook": "^0.8.0",
         "eslint-plugin-testing-library": "^6.2.0",
-        "eslint-plugin-vitest": "^0.4.0",
+        "eslint-plugin-vitest": "^0.4.1",
         "husky": "^9.0.11",
         "jsdom": "^24.0.0",
         "lint-staged": "^15.2.2",
@@ -184,7 +184,7 @@
         "tslib": "^2.6.2",
         "typescript": "^5.4.3",
         "undici": "^6.10.1",
-        "vite": "^5.2.6",
+        "vite": "^5.2.8",
         "vite-plugin-checker": "^0.6.4",
         "vite-plugin-svgr": "^4.2.0",
         "vitest": "^1.4.0"

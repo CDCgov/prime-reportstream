@@ -1,14 +1,14 @@
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_storage_account" "storage_account" {
-  resource_group_name       = var.resource_group
-  name                      = "${var.resource_prefix}storageaccount"
-  location                  = var.location
-  account_tier              = "Standard"
-  account_replication_type  = "GRS"
-  min_tls_version           = "TLS1_2"
-  allow_blob_public_access  = false
-  enable_https_traffic_only = true
+  resource_group_name             = var.resource_group
+  name                            = "${var.resource_prefix}storageaccount"
+  location                        = var.location
+  account_tier                    = "Standard"
+  account_replication_type        = "GRS"
+  min_tls_version                 = "TLS1_2"
+  allow_nested_items_to_be_public = false
+  enable_https_traffic_only       = true
 
   network_rules {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
@@ -28,6 +28,7 @@ resource "azurerm_storage_account" "storage_account" {
       # Temp ignore ip_rules during tf development
       secondary_blob_connection_string,
       network_rules[0].ip_rules,
+      customer_managed_key,
       network_rules[0].private_link_access
     ]
   }
@@ -153,7 +154,11 @@ resource "azurerm_key_vault_access_policy" "storage_policy" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = azurerm_storage_account.storage_account.identity.0.principal_id
 
-  key_permissions = ["get", "unwrapkey", "wrapkey"]
+  key_permissions = [
+    "Get",
+    "UnwrapKey",
+    "WrapKey"
+  ]
 }
 
 resource "azurerm_storage_account_customer_managed_key" "storage_key" {
@@ -170,15 +175,15 @@ resource "azurerm_storage_account_customer_managed_key" "storage_key" {
 # # Static website
 
 resource "azurerm_storage_account" "storage_public" {
-  resource_group_name       = var.resource_group
-  name                      = "${var.resource_prefix}public"
-  location                  = var.location
-  account_tier              = "Standard"
-  account_kind              = "StorageV2"
-  account_replication_type  = "GRS"
-  min_tls_version           = "TLS1_2"
-  allow_blob_public_access  = false
-  enable_https_traffic_only = true
+  resource_group_name             = var.resource_group
+  name                            = "${var.resource_prefix}public"
+  location                        = var.location
+  account_tier                    = "Standard"
+  account_kind                    = "StorageV2"
+  account_replication_type        = "GRS"
+  min_tls_version                 = "TLS1_2"
+  allow_nested_items_to_be_public = false
+  enable_https_traffic_only       = true
 
   static_website {
     index_document     = "index.html"
@@ -211,16 +216,16 @@ resource "azurerm_storage_share" "gh_locks" {
 # # Partner
 
 resource "azurerm_storage_account" "storage_partner" {
-  resource_group_name       = var.resource_group
-  name                      = "${var.resource_prefix}partner"
-  location                  = var.location
-  account_tier              = "Standard"
-  account_kind              = "StorageV2"
-  is_hns_enabled            = true # Enable Data Lake v2 for HHS Protect
-  account_replication_type  = "GRS"
-  min_tls_version           = "TLS1_2"
-  allow_blob_public_access  = false
-  enable_https_traffic_only = true
+  resource_group_name             = var.resource_group
+  name                            = "${var.resource_prefix}partner"
+  location                        = var.location
+  account_tier                    = "Standard"
+  account_kind                    = "StorageV2"
+  is_hns_enabled                  = true # Enable Data Lake v2 for HHS Protect
+  account_replication_type        = "GRS"
+  min_tls_version                 = "TLS1_2"
+  allow_nested_items_to_be_public = false
+  enable_https_traffic_only       = true
 
   network_rules {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
@@ -246,6 +251,7 @@ resource "azurerm_storage_account" "storage_partner" {
     ignore_changes = [
       # Temp ignore ip_rules during tf development
       secondary_blob_connection_string,
+      customer_managed_key,
       network_rules[0].ip_rules,
       network_rules[0].private_link_access
     ]
@@ -262,7 +268,11 @@ resource "azurerm_key_vault_access_policy" "storage_partner_policy" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = azurerm_storage_account.storage_partner.identity.0.principal_id
 
-  key_permissions = ["get", "unwrapkey", "wrapkey"]
+  key_permissions = [
+    "Get",
+    "UnwrapKey",
+    "WrapKey"
+  ]
 }
 
 resource "azurerm_storage_account_customer_managed_key" "storage_partner_key" {

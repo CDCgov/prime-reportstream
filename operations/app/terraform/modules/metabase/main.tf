@@ -1,15 +1,22 @@
-resource "azurerm_app_service" "metabase" {
-  name                = "${var.resource_prefix}-metabase"
-  location            = var.location
-  resource_group_name = var.resource_group
-  app_service_plan_id = var.service_plan_id
-  https_only          = true
+resource "azurerm_linux_web_app" "metabase" {
+  name                          = "${var.resource_prefix}-metabase"
+  location                      = var.location
+  resource_group_name           = var.resource_group
+  service_plan_id               = var.service_plan_id
+  https_only                    = true
+  public_network_access_enabled = false
 
   identity {
     type = "SystemAssigned"
   }
 
   site_config {
+
+    application_stack {
+      docker_image_name   = "metabase/metabase"
+      docker_registry_url = "https://registry.hub.docker.com/v2/"
+    }
+
     ip_restriction {
       action                    = "Allow"
       name                      = "AllowVNetTraffic"
@@ -31,20 +38,19 @@ resource "azurerm_app_service" "metabase" {
       service_tag = "AzureFrontDoor.Backend"
     }
 
-    ftps_state = "Disabled"
+    ftps_state                    = "Disabled"
+    scm_use_main_ip_restriction   = true
+    always_on                     = true
+    vnet_route_all_enabled        = false
+    ip_restriction_default_action = "Deny"
+    scm_minimum_tls_version       = "1.0"
+    use_32_bit_worker             = false
 
-    scm_use_main_ip_restriction = true
-
-    always_on        = true
-    linux_fx_version = "DOCKER|metabase/metabase"
   }
 
   app_settings = {
     "MB_DB_CONNECTION_URI" = "postgresql://${var.postgres_server_name}.postgres.database.azure.com:5432/metabase?user=${var.postgres_user}@${var.postgres_server_name}&password=${var.postgres_pass}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
     "MB_PASSWORD_LENGTH"   = "10"
-
-    # Route outbound traffic through the VNET
-    "WEBSITE_VNET_ROUTE_ALL" = 1
 
     # Use the VNET DNS server (so we receive private endpoint URLs)
     "WEBSITE_DNS_SERVER" = "168.63.129.16"
@@ -81,11 +87,17 @@ resource "azurerm_app_service" "metabase" {
       app_settings["APPINSIGHTS_INSTRUMENTATIONKEY"],
       app_settings["APPLICATIONINSIGHTS_CONNECTION_STRING"],
       app_settings["MB_DB_CONNECTION_URI"],
+      # The AzureRM Terraform provider provides regional virtual network integration via the standalone resource app_service_virtual_network_swift_connection and in-line within this resource using the virtual_network_subnet_id property. You cannot use both methods simultaneously. If the virtual network is set via the resource app_service_virtual_network_swift_connection then ignore_changes should be used in the web app configuration.
+      virtual_network_subnet_id,
+      public_network_access_enabled,
+      sticky_settings,
+      logs,
+      site_config[0].application_stack[0].docker_registry_url
     ]
   }
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "metabase_vnet_integration" {
-  app_service_id = azurerm_app_service.metabase.id
+  app_service_id = azurerm_linux_web_app.metabase.id
   subnet_id      = var.use_cdc_managed_vnet ? var.subnets.public_subnets[0] : var.subnets.public_subnets[2]
 }
