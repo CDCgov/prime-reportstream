@@ -1,9 +1,14 @@
 import { expect, test } from "@playwright/test";
 
-import { selectTestOrg, waitForAPIResponse } from "../helpers/utils";
+import {
+    expectTableColumnValues,
+    selectTestOrg,
+    waitForAPIResponse,
+} from "../helpers/utils";
 import * as dailyData from "../pages/daily-data";
 import { mockGetDeliveriesForOrgResponse } from "../pages/report-details";
 
+const selectedReceiver = "elr";
 test.describe("Daily Data page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
@@ -94,7 +99,11 @@ test.describe("Daily Data page", () => {
 
         test.beforeEach(async ({ page }) => {
             // Will need to use mock data until staging can support live data for receiver
-            await mockGetDeliveriesForOrgResponse(page, "ak-phd.elr", "AK");
+            await mockGetDeliveriesForOrgResponse(
+                page,
+                `ak-phd.${selectedReceiver}`,
+                "AK",
+            );
             await dailyData.goto(page);
         });
 
@@ -114,7 +123,7 @@ test.describe("Daily Data page", () => {
                 //     }) => {
                 //         const receivers = page.locator("#receiver-dropdown");
                 //         await expect(receivers).toBeAttached();
-                //         await expect(receivers).toHaveText(" ");
+                //         await expect(receivers).toHaveText("");
                 //     });
                 // });
 
@@ -144,75 +153,176 @@ test.describe("Daily Data page", () => {
             });
 
             test.describe("with receiver", () => {
-                test("table loads with selected receiver", async ({ page }) => {
+                test.beforeEach(async ({ page }) => {
                     await page
                         .locator("#receiver-dropdown")
-                        .selectOption("elr");
+                        .selectOption(selectedReceiver);
+                });
+
+                test("table loads with selected receiver data", async ({
+                    page,
+                }) => {
                     await page
                         .getByRole("button", {
                             name: "Apply",
                         })
                         .click();
-                    // Check that table data contains the receiver selected ???
 
-                    //Check filter status lists receiver value
+                    // Check that table data contains the receiver selected
+                    await expectTableColumnValues(
+                        page,
+                        5,
+                        `ak-phd.${selectedReceiver}`,
+                    );
+
+                    // Check filter status lists receiver value
                     await expect(
                         page.getByTestId("filter-status"),
-                    ).toContainText("elr");
+                    ).toContainText(selectedReceiver);
+
+                    // Receiver dropdown persists
+                    await expect(
+                        page.locator("#receiver-dropdown"),
+                    ).toHaveValue(selectedReceiver);
                 });
 
                 test("with 'From' date", async ({ page }) => {
-                    await expect(page.locator("#start-date")).toHaveValue("");
+                    await dailyData.setFromDate(page, 7);
 
                     // Apply button is disabled
-                    await page.locator("#start-date").fill("4/12/2024");
-                    await page.keyboard.press("Tab");
-                    await expect(page.locator("#start-date")).toHaveValue(
-                        "4/12/2024",
-                    );
                     const applyButton = page.getByRole("button", {
                         name: "Apply",
                     });
                     await expect(applyButton).toHaveAttribute("disabled");
 
                     // click on reset clears date
+                    // await page
+                    //     .getByTestId("filter-form")
+                    //     .getByRole("button", { name: "Reset" })
+                    //     .click();
+                    // await expect(page.locator("#start-date")).toHaveValue("");
+                });
+
+                test("with 'To' date", async ({ page }) => {
+                    await expect(page.locator("#end-date")).toHaveValue("");
+
+                    await dailyData.setToDate(page, 7);
+
+                    // Apply button is disabled
+                    const applyButton = page.getByRole("button", {
+                        name: "Apply",
+                    });
+                    await expect(applyButton).toHaveAttribute("disabled");
+                });
+
+                test("with 'From' date and 'Start' time", async ({ page }) => {
+                    await dailyData.setFromDate(page, 7);
+                    await dailyData.setStartTime(page, "06:00");
+
+                    // Apply button is disabled
+                    const applyButton = page.getByRole("button", {
+                        name: "Apply",
+                    });
+                    await expect(applyButton).toHaveAttribute("disabled");
+                });
+
+                test("with 'From' date and 'End' time", async ({ page }) => {
+                    await dailyData.setFromDate(page, 7);
+                    await dailyData.setEndTime(page, "20:00");
+
+                    // Apply button is disabled
+                    const applyButton = page.getByRole("button", {
+                        name: "Apply",
+                    });
+                    await expect(applyButton).toHaveAttribute("disabled");
+                });
+
+                test("with 'To' date and 'End' time", async ({ page }) => {
+                    await dailyData.setToDate(page, 7);
+                    await dailyData.setEndTime(page, "20:00");
+
+                    // Apply button is disabled
+                    const applyButton = page.getByRole("button", {
+                        name: "Apply",
+                    });
+                    await expect(applyButton).toHaveAttribute("disabled");
+                });
+
+                test("with 'To' date and 'Start' time", async ({ page }) => {
+                    await dailyData.setToDate(page, 7);
+                    await dailyData.setStartTime(page, "06:00");
+
+                    // Apply button is disabled
+                    const applyButton = page.getByRole("button", {
+                        name: "Apply",
+                    });
+                    await expect(applyButton).toHaveAttribute("disabled");
+                });
+
+                test("with 'Start' time and 'End' time", async ({ page }) => {
+                    await dailyData.setStartTime(page, "06:00");
+                    await dailyData.setEndTime(page, "20:00");
+
+                    // Apply button is disabled
+                    const applyButton = page.getByRole("button", {
+                        name: "Apply",
+                    });
+                    await expect(applyButton).toHaveAttribute("disabled");
+                });
+
+                test("with 'From' date and 'To' date", async ({ page }) => {
+                    const fromDate = await dailyData.setFromDate(page, 7);
+                    const toDate = await dailyData.setToDate(page, 0);
+
+                    // Apply button is enabled
                     await page
-                        .getByTestId("filter-form")
-                        .getByRole("button", { name: "Reset" })
+                        .getByRole("button", {
+                            name: "Apply",
+                        })
                         .click();
-                    await expect(page.locator("#start-date")).toHaveValue("");
+
+                    // Check that table data contains the 'From' date that was selected
+                    await expectTableColumnValues(page, 1, `01/12/2000`);
+
+                    // Check filter status lists receiver value
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText(
+                        `${selectedReceiver}, ${fromDate}-${toDate}`,
+                    );
                 });
 
-                test("with 'From' date and 'Start' time", () => {
-                    // Apply button is disabled
-                    // click on X clears time
-                    // click on reset clears date and time
-                });
+                test("with 'From' date, 'To' date, 'Start' time, 'End' time", async ({
+                    page,
+                }) => {
+                    await dailyData.setFromDate(page, 7);
+                    await dailyData.setToDate(page, 0);
+                    await dailyData.setStartTime(page, "06:00");
+                    await dailyData.setEndTime(page, "20:00");
 
-                test("with 'To' date", () => {});
-
-                test("with 'To' date and 'End' time", () => {});
-
-                test("with 'From' date and 'To' date", () => {
                     // Apply button is enabled
-                    // click on reset clears dates
-                    // Check table
-                });
+                    await page
+                        .getByRole("button", {
+                            name: "Apply",
+                        })
+                        .click();
 
-                test("with 'Start' time and 'End' time", () => {
-                    // Apply button is disabled
-                });
+                    // Check that table data is between the 'From' date and 'To date that was selected
+                    // await expectTableColumnValues(page, 1, `01/12/2000`);
 
-                test("with 'From' date and 'To' date and 'Start' time and 'End' time", () => {
-                    // Apply button is enabled
-                    // click on reset clears dates
+                    // Check filter status lists receiver value
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText("01/12/2000");
                     // Check table
                 });
             });
 
-            test.describe("with date", () => {});
+            test.describe("no receiver", () => {
+                test.describe("with date", () => {});
 
-            test.describe("with date and time", () => {});
+                test.describe("with date and time", () => {});
+            });
         });
 
         test.describe("table", () => {

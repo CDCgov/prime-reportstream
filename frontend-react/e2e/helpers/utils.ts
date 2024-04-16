@@ -71,3 +71,25 @@ export async function restoreSessionStorage(userType: string, page: Page) {
             window.sessionStorage.setItem(key, value);
     }, session);
 }
+
+export async function expectTableColumnValues(
+    page: Page,
+    columnNumber: number,
+    expectedValue: string,
+) {
+    const rowCount = await page
+        .locator(".usa-table tbody")
+        .locator("tr")
+        .count();
+
+    for (let i = 0; i < rowCount; i++) {
+        const columnValue = await page
+            .locator(".usa-table tbody")
+            .locator("tr")
+            .nth(i)
+            .locator("td")
+            .nth(columnNumber)
+            .innerText();
+        expect(columnValue).toContain(expectedValue);
+    }
+}
