@@ -45,7 +45,7 @@ runs:
       run: ./gradlew ktlintCheck
       shell: bash
 
-    - uses: gradle/actions/wrapper-validation@460a3ca55fc5d559238a0efc7fa9f7465df8585d
+    - uses: gradle/actions/wrapper-validation@v3
 
     - name: Spin up build containers
       working-directory: prime-router
