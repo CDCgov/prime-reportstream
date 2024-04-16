@@ -1,7 +1,6 @@
 resource "azurerm_data_factory_dataset_binary" "sftp_share" {
-  name                = "SFTPShare"
-  resource_group_name = var.resource_group
-  data_factory_id     = azurerm_data_factory.primary.id
+  name            = "SFTPShare"
+  data_factory_id = azurerm_data_factory.primary.id
 
   sftp_server_location {
     path                     = "/"
@@ -28,9 +27,8 @@ resource "azurerm_data_factory_dataset_binary" "sftp_share" {
 }
 
 resource "azurerm_data_factory_dataset_binary" "sftp_archive" {
-  name                = "SFTPArchive"
-  resource_group_name = var.resource_group
-  data_factory_id     = azurerm_data_factory.primary.id
+  name            = "SFTPArchive"
+  data_factory_id = azurerm_data_factory.primary.id
 
   linked_service_name = azurerm_data_factory_linked_service_azure_blob_storage.sftp_archive.name
   folder              = "SFTP-share-to-archive"
