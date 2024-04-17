@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
+private const val radxmarxProfileLocation = "metadata/hl7_validation/v251/radxmars"
+
 class MessageValidatorTests {
 
     @Nested
@@ -70,14 +72,14 @@ class MessageValidatorTests {
 
     @Test
     fun `test get HL7 validator`() {
-        val validator = AbstractMessageValidator.getHL7Validator("metadata/hl7_validation/v251/radxmars")
+        val validator = AbstractMessageValidator.getHL7Validator(radxmarxProfileLocation)
         assertThat(validator).isNotNull()
     }
 
     @Test
     fun `test get HL7 validator reuses existing one if loaded`() {
-        val validator1 = AbstractMessageValidator.getHL7Validator("metadata/hl7_validation/v251/radxmars")
-        val validator2 = AbstractMessageValidator.getHL7Validator("metadata/hl7_validation/v251/radxmars")
+        val validator1 = AbstractMessageValidator.getHL7Validator(radxmarxProfileLocation)
+        val validator2 = AbstractMessageValidator.getHL7Validator(radxmarxProfileLocation)
         assertThat(validator1).isEqualTo(validator2)
     }
 
