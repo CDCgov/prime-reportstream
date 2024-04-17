@@ -255,7 +255,7 @@ class DeliveryFunction(
         if (deliveryHistory != null) {
             deliveryHistory.originalIngestion?.stream()?.forEach {
                 if (currentDate.isAfter(it["ingestionTime"] as OffsetDateTime?)) {
-                    lookupId = it["reportId"] as String
+                    lookupId = (it["reportId"] as UUID).toString()
                     currentDate = it["ingestionTime"] as OffsetDateTime
                 }
             }
@@ -278,7 +278,7 @@ class DeliveryFunction(
             }
         }
 
-        return HttpUtilities.createdResponse(request, responseBody)
+        return HttpUtilities.okResponse(request, responseBody)
     }
 
     /**
