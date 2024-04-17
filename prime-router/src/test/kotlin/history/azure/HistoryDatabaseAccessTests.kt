@@ -1,14 +1,9 @@
 package gov.cdc.prime.router.history.azure
 
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.common.BaseEngine
 import io.mockk.every
-import io.mockk.mockkClass
-import io.mockk.spyk
-import org.jooq.tools.jdbc.MockConnection
-import org.jooq.tools.jdbc.MockDataProvider
-import org.jooq.tools.jdbc.MockResult
+import io.mockk.mockkObject
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -41,12 +36,9 @@ class HistoryDatabaseAccessTests {
               and "public"."report_file"."receiving_org_svc" = 'test'
             )
         """.trimIndent()
-        val dataProvider = MockDataProvider { emptyArray<MockResult>() }
-        val connection = MockConnection(dataProvider)
-        val accessSpy = spyk(DatabaseAccess(connection))
-        val engine = mockkClass(WorkflowEngine::class)
-        every { engine.settings.findOrganization(any()) } returns mockTestOrg
-        var conditionActual = DatabaseDeliveryAccess(accessSpy, engine).organizationFilter("test", "test")
+        mockkObject(BaseEngine)
+        every { BaseEngine.settingsProviderSingleton.findOrganization(any()) } returns mockTestOrg
+        var conditionActual = DatabaseDeliveryAccess().organizationFilter("test", "test")
 
         assertEquals(conditionExpected, conditionActual.toString())
     }
@@ -66,12 +58,9 @@ class HistoryDatabaseAccessTests {
               and "public"."report_file"."receiving_org_svc" = 'test'
             )
         """.trimIndent()
-        val dataProvider = MockDataProvider { emptyArray<MockResult>() }
-        val connection = MockConnection(dataProvider)
-        val accessSpy = spyk(DatabaseAccess(connection))
-        val engine = mockkClass(WorkflowEngine::class)
-        every { engine.settings.findOrganization(any()) } returns mockElimsTestOrg
-        var conditionActual = DatabaseDeliveryAccess(accessSpy, engine).organizationFilter("test", "test")
+        mockkObject(BaseEngine)
+        every { BaseEngine.settingsProviderSingleton.findOrganization(any()) } returns mockElimsTestOrg
+        var conditionActual = DatabaseDeliveryAccess().organizationFilter("test", "test")
 
         assertEquals(conditionExpected, conditionActual.toString())
     }

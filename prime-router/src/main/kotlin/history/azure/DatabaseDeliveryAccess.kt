@@ -3,7 +3,6 @@ package gov.cdc.prime.router.history.azure
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FACILITIES
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
@@ -19,8 +18,7 @@ import java.util.UUID
  */
 class DatabaseDeliveryAccess(
     db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
-    workflowEngine: WorkflowEngine = WorkflowEngine(),
-) : HistoryDatabaseAccess(db, workflowEngine) {
+) : HistoryDatabaseAccess(db) {
 
     /**
      * Values that facilities can be sorted by
@@ -45,7 +43,7 @@ class DatabaseDeliveryAccess(
         orgService: String?,
     ): Condition {
 //      This is a temporary fix to make the daily data page show data for reports routed through the ELR ELIMS topic since reports routed through the ELR-ELIMS topic skip the batch step. There are plans to have a dashboard for receivers that works for all messages routed through RS.
-        val org = workflowEngine.settings.findOrganization(organization)
+        val org = BaseEngine.settingsProviderSingleton.findOrganization(organization)
 
         var filter = if (org?.featureFlags?.contains("ELIMS_DATA") == true) {
                 ACTION.ACTION_NAME.eq(TaskAction.batch)

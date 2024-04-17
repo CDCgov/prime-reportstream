@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.history.azure
 
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
@@ -24,8 +23,7 @@ import java.util.UUID
  */
 class DatabaseSubmissionsAccess(
     db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
-    workflowEngine: WorkflowEngine = WorkflowEngine(),
-) : HistoryDatabaseAccess(db, workflowEngine), Logging {
+) : HistoryDatabaseAccess(db), Logging {
 
     /**
      * Creates a condition filter based on the given organization parameters.
