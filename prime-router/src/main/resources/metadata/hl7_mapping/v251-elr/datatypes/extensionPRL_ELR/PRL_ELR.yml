@@ -4,7 +4,7 @@ elements:
     constants:
       cweField: '%{hl7PRLField}-1'
     resource: '%resource.extension.where(url = "prl-1-parent-observation-identifier").value'
-    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/codeableConcept/CWE.yml
 
   - name: parent-observation-sub-identifier
     hl7Spec: [ '%{hl7PRLField}-2' ]

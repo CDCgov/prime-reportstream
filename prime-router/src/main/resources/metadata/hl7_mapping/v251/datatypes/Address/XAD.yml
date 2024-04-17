@@ -22,4 +22,4 @@ elements:
 
   - name: xad-extension-value
     resource: '%resource.extension(%`rsext-xad-address`)'
-    schema: classpath:/metadata/hl7_mapping/datatypes/Address/XADExtension.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/Address/XADExtension.yml
