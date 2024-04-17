@@ -1,12 +1,18 @@
 package gov.cdc.prime.router.fhirengine.engine
 
 import assertk.assertThat
+import assertk.assertions.contains
+import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import ca.uhn.fhir.context.FhirContext
+import ca.uhn.fhir.validation.ResultSeverityEnum
+import ca.uhn.fhir.validation.SingleValidationMessage
+import ca.uhn.fhir.validation.ValidationResult
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -31,11 +37,17 @@ import gov.cdc.prime.router.fhirengine.utils.CompareFhirData
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.validation.AbstractMessageValidator
+import gov.cdc.prime.router.validation.FHIRValidationResult
+import gov.cdc.prime.router.validation.HL7ValidationResult
+import gov.cdc.prime.router.validation.IMessageValidator
+import gov.nist.validation.report.Entry
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkClass
+import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.runs
 import io.mockk.spyk
@@ -49,6 +61,7 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import java.io.File
@@ -611,6 +624,234 @@ class FhirConverterTests {
                         it[1].message == "Missing mapping for code(s): *********"
                 }
             )
+        }
+    }
+
+    @Nested
+    inner class FhirConverterProcessTest {
+
+        @Suppress("ktlint:standard:max-line-length")
+        private val simpleHL7 = """
+                MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+                """.trimIndent()
+
+        @Suppress("ktlint:standard:max-line-length")
+        private val unparseableHL7 = """
+                MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORU^R01^ORU_R01|371784|P||||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+                """.trimIndent()
+
+        @Test
+        fun `should log an error and return no bundles if the message is empty`() {
+            val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+            val actionLogger = ActionLogger()
+            val mockMessage = mockk<ReportPipelineMessage>()
+            every { mockMessage.topic } returns Topic.FULL_ELR
+            every { mockMessage.downloadContent() } returns ""
+            val bundles = engine.process(Report.Format.FHIR, mockMessage, actionLogger)
+            assertThat(bundles).isEmpty()
+            assertThat(actionLogger.errors.map { it.detail.message }).contains("Provided raw data is empty.")
+        }
+
+        @Test
+        fun `should handle a parse failure for the entire HL7 batch`() {
+            mockkConstructor(Hl7InputStreamMessageStringIterator::class)
+            every {
+                anyConstructed<Hl7InputStreamMessageStringIterator>().hasNext()
+            } throws Hl7InputStreamMessageStringIterator.ParseFailureError(
+                "error",
+                RuntimeException()
+            )
+
+            val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+            val actionLogger = ActionLogger()
+            val mockMessage = mockk<ReportPipelineMessage>()
+            every { mockMessage.topic } returns Topic.FULL_ELR
+            every { mockMessage.reportId } returns UUID.randomUUID()
+            every {
+                mockMessage.downloadContent()
+            } returns simpleHL7
+            val bundles = engine.process(Report.Format.HL7, mockMessage, actionLogger)
+            assertThat(bundles).isEmpty()
+            assertThat(
+                actionLogger.errors.map {
+                    it.detail.message
+                }
+            ).contains("Parse error while attempting to iterate over HL7 raw message")
+        }
+
+        @Test
+        fun `should log an error and return no bundles if the format is not supported`() {
+            val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+            val actionLogger = ActionLogger()
+            val mockMessage = mockk<ReportPipelineMessage>()
+            every { mockMessage.topic } returns Topic.FULL_ELR
+            every { mockMessage.reportId } returns UUID.randomUUID()
+            every { mockMessage.downloadContent() } returns "test,1,2"
+            val bundles = engine.process(Report.Format.CSV, mockMessage, actionLogger)
+            assertThat(bundles).isEmpty()
+            assertThat(actionLogger.errors.map { it.detail.message })
+                .contains("Received unsupported report format: CSV")
+        }
+
+        @Test
+        fun `should a log FHIR parse error and not return a bundle`() {
+            val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+            val actionLogger = ActionLogger()
+            val mockMessage = mockk<ReportPipelineMessage>()
+            every { mockMessage.topic } returns Topic.FULL_ELR
+            every { mockMessage.reportId } returns UUID.randomUUID()
+            every { mockMessage.downloadContent() } returns "{\"id\":}"
+            val bundles = engine.process(Report.Format.FHIR, mockMessage, actionLogger)
+            assertThat(bundles).isEmpty()
+            assertThat(actionLogger.errors.map { it.detail.message }).contains(
+                @Suppress("ktlint:standard:max-line-length")
+                "Item 1 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected character ('}' (code 125)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n at [line: 1, column: 7]"
+            )
+        }
+
+        @Test
+        fun `should log a FHIR validation error and not return a bundle`() {
+            val fhirValidationResult = mockk<ValidationResult>()
+            val message = SingleValidationMessage()
+            message.severity = ResultSeverityEnum.ERROR
+            message.message = "Validation failed"
+            every { fhirValidationResult.isSuccessful } returns false
+            every { fhirValidationResult.messages } returns listOf(message)
+            val mockValidator = mockk<IMessageValidator>()
+            every { mockValidator.validate(any()) } returns FHIRValidationResult(fhirValidationResult)
+            mockkObject(Topic.FULL_ELR)
+            every { Topic.FULL_ELR.validator } returns mockValidator
+
+            val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+            val actionLogger = ActionLogger()
+            val mockMessage = mockk<ReportPipelineMessage>()
+
+            every { mockMessage.topic } returns Topic.FULL_ELR
+            every { mockMessage.reportId } returns UUID.randomUUID()
+            every { mockMessage.downloadContent() } returns "{\"id\":\"1\", \"resourceType\":\"Bundle\"}"
+            val bundles = engine.process(Report.Format.FHIR, mockMessage, actionLogger)
+            assertThat(bundles).isEmpty()
+            assertThat(actionLogger.errors.map { it.detail.message }).contains(
+                "Item 1 in the report was not valid. Reason: Validation failed"
+            )
+        }
+
+        @Test
+        fun `should log an HL7 parse error and not return a bundle`() {
+            val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+            val actionLogger = ActionLogger()
+            val mockMessage = mockk<ReportPipelineMessage>()
+            every { mockMessage.topic } returns Topic.FULL_ELR
+            every { mockMessage.reportId } returns UUID.randomUUID()
+            every {
+                mockMessage.downloadContent()
+            } returns unparseableHL7
+            val bundles = engine.process(Report.Format.HL7, mockMessage, actionLogger)
+            assertThat(bundles).isEmpty()
+            assertThat(
+                actionLogger.errors.map {
+                    it.detail.message
+                }
+            ).contains(
+                @Suppress("ktlint:standard:max-line-length")
+                "Item 1 in the report was not parseable. Reason: exception while parsing HL7: Can't find version ID - MSH.12 is null"
+            )
+        }
+
+        @Test
+        fun `should log a HL7 validation error and not return a bundle`() {
+            val mockValidation = mockk<hl7.v2.validation.report.Report>()
+            val mockEntry = mockk<Entry>()
+            every { mockEntry.classification } returns AbstractMessageValidator.ERROR_CLASSIFICATION
+            every { mockEntry.toText() } returns "Validation error"
+            every { mockValidation.entries } returns mapOf("ORU" to listOf(mockEntry))
+            val mockValidator = mockk<IMessageValidator>()
+            every { mockValidator.validate(any()) } returns HL7ValidationResult(mockValidation)
+            mockkObject(Topic.FULL_ELR)
+            every { Topic.FULL_ELR.validator } returns mockValidator
+
+            val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+            val actionLogger = ActionLogger()
+            val mockMessage = mockk<ReportPipelineMessage>()
+            every { mockMessage.topic } returns Topic.FULL_ELR
+            every { mockMessage.reportId } returns UUID.randomUUID()
+            every {
+                mockMessage.downloadContent()
+            } returns simpleHL7
+            val bundles = engine.process(Report.Format.HL7, mockMessage, actionLogger)
+            assertThat(bundles).isEmpty()
+            assertThat(
+                actionLogger.errors.map {
+                    it.detail.message
+                }
+            ).contains("Item 1 in the report was not valid. Reason: Validation error")
+        }
+
+        @Test
+        fun `should log a HL7 conversion error and not return a bundle`() {
+            mockkConstructor(HL7toFhirTranslator::class)
+            every { anyConstructed<HL7toFhirTranslator>().translate(any()) } throws RuntimeException("Conversion error")
+
+            val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+            val actionLogger = ActionLogger()
+            val mockMessage = mockk<ReportPipelineMessage>()
+            every { mockMessage.topic } returns Topic.FULL_ELR
+            every { mockMessage.reportId } returns UUID.randomUUID()
+            every {
+                mockMessage.downloadContent()
+            } returns simpleHL7
+            val bundles = engine.process(Report.Format.HL7, mockMessage, actionLogger)
+            assertThat(bundles).isEmpty()
+            assertThat(
+                actionLogger.errors.map {
+                    it.detail.message
+                }
+            ).contains(
+                "Item 1 in the report was not convertible. Reason: exception while converting HL7: Conversion error"
+            )
+        }
+
+        @Test
+        fun `should optionally support routing some or no items when routeMessageWithInvalidItems is set`() {
+            val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+            val actionLogger = ActionLogger()
+            val mockMessage = mockk<ReportPipelineMessage>()
+            every { mockMessage.topic } returns Topic.FULL_ELR
+            every { mockMessage.reportId } returns UUID.randomUUID()
+            every {
+                mockMessage.downloadContent()
+            } returns """{\"id\":}
+                {"id":"1", "resourceType":"Bundle"}
+            """.trimMargin()
+            val bundles = engine.process(Report.Format.FHIR, mockMessage, actionLogger)
+            assertThat(bundles).hasSize(1)
+            assertThat(actionLogger.errors.map { it.detail.message }).contains(
+                @Suppress("ktlint:standard:max-line-length")
+                "Item 1 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected character ('\\' (code 92)): was expecting double-quote to start field name\n at [line: 1, column: 2]"
+            )
+
+            val bundles2 = engine.process(Report.Format.FHIR, mockMessage, actionLogger, false)
+            assertThat(bundles2).hasSize(0)
+            assertThat(actionLogger.errors.map { it.detail.message }).contains(
+                @Suppress("ktlint:standard:max-line-length")
+                "Item 1 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected character ('\\' (code 92)): was expecting double-quote to start field name\n at [line: 1, column: 2]"
+            )
+        }
+
+        @Test
+        fun `should process an HL7 message`() {
+            val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+            val actionLogger = ActionLogger()
+            val mockMessage = mockk<ReportPipelineMessage>()
+            every { mockMessage.topic } returns Topic.FULL_ELR
+            every { mockMessage.reportId } returns UUID.randomUUID()
+
+            every {
+                mockMessage.downloadContent()
+            } returns simpleHL7
+            val bundles = engine.process(Report.Format.HL7, mockMessage, actionLogger)
+            assertThat(bundles).hasSize(1)
+            assertThat(actionLogger.errors).isEmpty()
         }
     }
 }

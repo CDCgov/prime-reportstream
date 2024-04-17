@@ -224,6 +224,23 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             Pair("2.16.840.1.113883.9.11", "NIST_ELR")
         )
 
+        data class MessageType(val msh93: String, val msh12: String, val msh213: String)
+        data class MessageParseConfiguration(
+            val messageModelClass: Class<out Message>,
+            val HL7toFHIRMappingLocation: String,
+        )
+
+        val messageToConfigMap = mapOf(
+            MessageType(
+                "ORU_R01",
+                "2.5.1",
+                "2.16.840.1.113883.9.10"
+            ) to MessageParseConfiguration(
+                NIST_ELR_ORU_R01::class.java,
+                "./metadata/HL7/v251-elr"
+            )
+        )
+
         // data class to uniquely identify a message profile
         data class MessageProfile(val typeID: String, val profileID: String)
 
@@ -251,6 +268,17 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                 is v251_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 else -> ""
             }
+        }
+
+        fun getMessageType(rawmessage: String): MessageType? {
+            val iterator = Hl7InputStreamMessageIterator(rawmessage.byteInputStream())
+            if (!iterator.hasNext()) return null
+            val terser = Terser(iterator.next())
+            return MessageType(
+                terser.get("MSH-9-3") ?: "",
+                terser.get("MSH-12") ?: "",
+                terser.get("MSH-21-3") ?: ""
+            )
         }
 
         /**
