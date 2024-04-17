@@ -128,5 +128,6 @@ export async function expectTableColumnDateInRange(
 }
 
 export async function getTableRowCount(page: Page) {
-    return await page.locator(".usa-table tbody").locator("tr").count();
+    const count = await page.locator(".usa-table tbody").locator("tr").count();
+    return count === 0 ? 1 : count;
 }

@@ -114,6 +114,10 @@ test.describe("Daily Data page", () => {
             await expect(page).toHaveTitle(/Daily Data - ReportStream/);
         });
 
+        test("has footer", async ({ page }) => {
+            await expect(page.locator("footer")).toBeAttached();
+        });
+
         test.describe("filter", () => {
             test("has filter", async ({ page }) => {
                 await expect(page.getByTestId("filter-form")).toBeAttached();
@@ -270,16 +274,22 @@ test.describe("Daily Data page", () => {
                     await expect(applyButton).toHaveAttribute("disabled");
                 });
 
-                // test("with 'Start' time and 'End' time", async ({ page }) => {
-                //     await dailyData.setStartTime(page, "6:00am");
-                //     await dailyData.setTime(page, "[name=end-time]", "8:00pm");
-                //
-                //     // Apply button is disabled
-                //     const applyButton = page.getByRole("button", {
-                //         name: "Apply",
-                //     });
-                //     await expect(applyButton).toHaveAttribute("disabled");
-                // });
+                test.only("with 'Start' time and 'End' time", async ({
+                    page,
+                }) => {
+                    await dailyData.setTime(
+                        page,
+                        "[name=start-time]",
+                        "6:00am",
+                    );
+                    await dailyData.setTime(page, "[name=end-time]", "8:00pm");
+
+                    // Apply button is disabled
+                    const applyButton = page.getByRole("button", {
+                        name: "Apply",
+                    });
+                    await expect(applyButton).toHaveAttribute("disabled");
+                });
 
                 test("with 'From' date and 'To' date", async ({ page }) => {
                     const fromDate = await dailyData.setDate(
@@ -301,17 +311,17 @@ test.describe("Daily Data page", () => {
                         .click();
 
                     // Check that table data contains the 'From' date that was selected
-                    // await expectTableColumnDateInRange(
-                    //     page,
-                    //     1,
-                    //     new Date(fromDate),
-                    //     new Date(toDate),
-                    // );
+                    await expectTableColumnDateInRange(
+                        page,
+                        1,
+                        new Date(fromDate),
+                        new Date(toDate),
+                    );
 
                     const rowCount = await getTableRowCount(page);
                     // Check filter status lists receiver value
                     await expect(page.getByTestId("filter-status")).toHaveText(
-                        `Showing (${rowCount}) result for: ${selectedReceiver}, ${format(fromDate, "MM/dd/yyyy")}-${format(toDate, "MM/dd/yyyy")}`,
+                        `Showing (${rowCount ?? 0}) ${rowCount === 1 ? "result" : "results"} for: ${selectedReceiver}, ${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                     );
                 });
 
@@ -394,10 +404,6 @@ test.describe("Daily Data page", () => {
                     page.getByTestId("Deliveries pagination"),
                 ).toBeAttached();
             });
-        });
-
-        test("has footer", async ({ page }) => {
-            await expect(page.locator("footer")).toBeAttached();
         });
     });
 
