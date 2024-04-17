@@ -23,7 +23,6 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.time.OffsetDateTime
 import java.util.logging.Logger
 
 /**
@@ -174,21 +173,6 @@ class SubmissionFunction(
             Pair(null, null)
 
         var responseBody = ""
-        // Fetch destination with organization of flexion AND the oldest possible sent report in the list of sent reports.
-        val actionId = this.actionFromId(id)
-        val submissionHistory = submissionsFacade.findDetailedSubmissionHistory(actionId)
-        var lookupId = ""
-        var currentDate: OffsetDateTime = OffsetDateTime.MIN
-
-        if (submissionHistory != null) {
-           lookupId = submissionHistory.destinations.stream().filter {
-               it.organizationId == "flexion"
-           }.findFirst().get().sentReports.get(0).reportId.toString()
-        }
-
-        if (lookupId.isEmpty()) {
-            return HttpUtilities.notFoundResponse(request, "lookup Id not found")
-        }
 
         runBlocking {
             launch {
@@ -201,6 +185,22 @@ class SubmissionFunction(
                 )
             }
         }
+
+        // Fetch destination with organization of flexion AND the oldest possible sent report in the list of sent reports.
+        val actionId = this.actionFromId(id)
+        val submissionHistory = submissionsFacade.findDetailedSubmissionHistory(actionId)
+        var lookupId = ""
+
+        if (submissionHistory != null) {
+            lookupId = submissionHistory.destinations.stream().filter {
+                it.organizationId == "flexion"
+            }.findFirst().get().sentReports[0].reportId.toString()
+        }
+
+        if (lookupId.isEmpty()) {
+            return HttpUtilities.notFoundResponse(request, "lookup Id not found")
+        }
+
         runBlocking {
             launch {
                 response = client.get("${System.getenv("ETOR_TI_baseurl")}/v1/etor/metadata/" + lookupId) {
@@ -214,6 +214,6 @@ class SubmissionFunction(
             }
         }
 
-        return HttpUtilities.createdResponse(request, responseBody)
+        return HttpUtilities.okResponse(request, responseBody)
     }
 }
