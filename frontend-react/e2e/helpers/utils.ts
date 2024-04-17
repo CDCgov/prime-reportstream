@@ -93,3 +93,40 @@ export async function expectTableColumnValues(
         expect(columnValue).toContain(expectedValue);
     }
 }
+
+export async function expectTableColumnDateInRange(
+    page: Page,
+    columnNumber: number,
+    startDateTime: Date,
+    endDateTime: Date,
+) {
+    let allDatesInRange = true;
+    const rowCount = await page
+        .locator(".usa-table tbody")
+        .locator("tr")
+        .count();
+
+    for (let i = 0; i <= rowCount; i++) {
+        const columnValue = await page
+            .locator(".usa-table tbody")
+            .locator("tr")
+            .nth(i)
+            .locator("td")
+            .nth(columnNumber)
+            .innerText();
+
+        const columnDate = new Date(columnValue);
+        if (!(columnDate >= startDateTime && columnDate < endDateTime)) {
+            allDatesInRange = false;
+            break;
+        }
+        if (rowCount === 0) {
+            break;
+        }
+    }
+    expect(allDatesInRange).toBe(true);
+}
+
+export async function getTableRowCount(page: Page) {
+    return await page.locator(".usa-table tbody").locator("tr").count();
+}

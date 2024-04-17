@@ -21,7 +21,12 @@ function TableFilterStatus({ filterStatus }: TableFilterStatusProps) {
                     .filter((filter) => filter)
                     .map((filter, index, array) => (
                         <span key={index}>
-                            <span className="text-bold">{filter}</span>
+                            <span
+                                data-testid="filter-status-results"
+                                className="text-bold"
+                            >
+                                {filter}
+                            </span>
                             {index < array.length - 1 && <span>, </span>}
                         </span>
                     ))}

@@ -27,34 +27,19 @@ export async function tableHeaders(page: Page) {
     );
 }
 
-export async function setFromDate(page: Page, offsetDate: number) {
+export async function setDate(page: Page, locator: string, offsetDate: number) {
     const currentDate = new Date();
-    const fromDate = format(
+    const newDate = format(
         new Date(currentDate.setDate(currentDate.getDate() - offsetDate)),
         "MM/dd/yyyy",
     );
-    await page.locator("#start-date").fill(fromDate);
+    await page.locator(locator).fill(newDate);
     await page.keyboard.press("Tab");
-    await expect(page.locator("#start-date")).toHaveValue(fromDate);
-    return fromDate;
+    await expect(page.locator(locator)).toHaveValue(newDate);
+    return new Date(newDate).toLocaleString();
 }
 
-export async function setToDate(page: Page, offsetDate: number) {
-    const currentDate = new Date();
-    const toDate = format(
-        new Date(currentDate.setDate(currentDate.getDate() - offsetDate)),
-        "MM/dd/yyyy",
-    );
-    await page.locator("#end-date").fill(toDate);
-    await page.keyboard.press("Tab");
-    await expect(page.locator("#end-date")).toHaveValue(toDate);
-    return toDate;
-}
-
-export async function setStartTime(page: Page, value: string) {
-    await page.getByTestId("combo-box").nth(0).selectOption({ value: value });
-}
-
-export async function setEndTime(page: Page, value: string) {
-    await page.locator("[name=end-time]").selectOption({ value: value });
+export async function setTime(page: Page, locator: string, time: string) {
+    await page.locator(locator).selectOption({ label: time });
+    // await expect(page.locator(locator)).toHaveValue(time);
 }

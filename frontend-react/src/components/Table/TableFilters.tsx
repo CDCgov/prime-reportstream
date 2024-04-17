@@ -208,10 +208,10 @@ function TableFilters({
                               currentServiceSelect,
                               [
                                   ...(rangeFrom && isValid(rangeFrom)
-                                      ? [format(rangeFrom, "MM/dd/yy")]
+                                      ? [format(rangeFrom, "MM/dd/yyyy")]
                                       : []),
                                   ...(rangeTo && isValid(rangeTo)
-                                      ? [format(rangeTo, "MM/dd/yy")]
+                                      ? [format(rangeTo, "MM/dd/yyyy")]
                                       : []),
                               ].join("–"),
                               [
