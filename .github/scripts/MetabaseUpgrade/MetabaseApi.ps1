@@ -7,7 +7,7 @@ $val = Invoke-RestMethod -Uri $stgendpoint -Method Get
 
 $stgVersion = $val.version.tag
 
-Write-Host "Version - " $stgVersion
+Write-Host "staging Version - " $stgVersion
 
 
 $Prdendpoint = "https://prime.cdc.gov/metabase/api/session/properties"
@@ -15,7 +15,7 @@ $prdval = Invoke-RestMethod -Uri $Prdendpoint -Method Get
 
 $PrdVersion = $prdval.version.tag
 
-Write-Host "Version - " $PrdVersion
+Write-Host "Prod Version - " $PrdVersion
 $upgradenecessary = 'false'
 if ($stgVersion -ne $PrdVersion)
 {
