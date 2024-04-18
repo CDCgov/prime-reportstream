@@ -2,7 +2,7 @@ elements:
 
   - name: ed-1-source-application
     resource: '%resource.extension("ED.1")'
-    schema: classpath:/metadata/hl7_mapping/datatypes/extensionHD/HD.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/extensionHD/HD.yml
     constants:
       hl7HDField: '%{hl7EDField}-1'
 
