@@ -778,12 +778,6 @@ repositories {
     maven {
         url = uri("https://hit-nexus.nist.gov/repository/releases/")
     }
-    maven {
-        url = uri("https://jitpack.io")
-        content {
-            includeModule("com.github.KennethWussmann", "mock-fuel")
-        }
-    }
 }
 
 buildscript {

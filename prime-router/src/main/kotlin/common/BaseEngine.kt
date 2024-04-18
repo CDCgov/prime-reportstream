@@ -21,7 +21,7 @@ abstract class BaseEngine(
     val queue: QueueAccess = QueueAccess,
 ) : Logging {
     companion object {
-        const val sequentialLimit = 1000
+        val sequentialLimit = 1000
 
         /**
          * These are all potentially heavyweight objects that

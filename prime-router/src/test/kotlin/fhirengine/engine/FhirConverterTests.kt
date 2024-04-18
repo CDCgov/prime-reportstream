@@ -795,7 +795,7 @@ class FhirConverterTests {
         @Test
         fun `should process items in parallel`() {
             mockkObject(BaseEngine.Companion)
-            every { BaseEngine.Companion.sequentialLimit } returns 2
+            every { BaseEngine.Companion getProperty "sequentialLimit" } returns 2
 
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
