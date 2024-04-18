@@ -4,9 +4,11 @@ import ca.uhn.hl7v2.AbstractHL7Exception
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.ErrorCode
 import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.HapiContext
 import ca.uhn.hl7v2.model.AbstractMessage
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
+import ca.uhn.hl7v2.parser.ParserConfiguration
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
@@ -211,6 +213,111 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
     }
 
     companion object {
+
+        /**
+         * Class captures the details from the MSH segment and can be used to map
+         * to which instance of a Message and which HL7 -> FHIR mappings should be used
+         *
+         * @param msh93 the message structure, i.e. ORU_R01
+         * @param msh12 the message version id, i.e. 2.5.1
+         * @param msh213 message profile universal id, i.e. 2.16.840.1.113883.9.10
+         */
+        data class HL7MessageType(val msh93: String, val msh12: String, val msh213: String)
+
+        /**
+         * Configuration class that contains details on how to parse an HL7 message and then how
+         * to convert it to FHIR
+         *
+         * @param messageModelClass a class that inherits from [Message]
+         * @param hl7toFHIRMappingLocation the location of the mappings files to convert the message to FHIR
+         */
+        data class HL7MessageParseAndConvertConfiguration(
+            val messageModelClass: Class<out Message>,
+            val hl7toFHIRMappingLocation: String,
+        )
+
+        /**
+         * Map of configured message types to their configuration
+         */
+        val messageToConfigMap = mapOf(
+            HL7MessageType(
+                "ORU_R01",
+                "2.5.1",
+                "2.16.840.1.113883.9.10"
+            ) to HL7MessageParseAndConvertConfiguration(
+                NIST_ELR_ORU_R01::class.java,
+                "./metadata/HL7/v251-elr"
+            )
+        )
+
+        // TODO tech debt ticket to switch the code base to using this method
+        /**
+         * Accepts a raw HL7 string and uses the MSH segment to detect the [HL7MessageType] which is then used
+         * to parse the string into an instance of [Message]. If the type is not one that is configured in
+         * [messageToConfigMap] the default HAPI parsing logic is used
+         *
+         * @param rawHL7 the HL7 string to convert into a [Message]
+         *
+         * @return a [Pair<Message, HL7MessageParseAndConvertConfiguration?>] with parsed message and optional type
+         */
+        fun parseHL7Message(rawHL7: String): Pair<Message, HL7MessageParseAndConvertConfiguration?> {
+            val hl7MessageType = getMessageType(rawHL7)
+            val parseConfiguration = messageToConfigMap[hl7MessageType]
+            val message = getHL7ParsingContext(parseConfiguration).pipeParser.parse(rawHL7)
+            return Pair(message, parseConfiguration)
+        }
+
+        /**
+         * Creates a HAPI context that can be used to parse an HL7 string.  If no configuration is passed, the function
+         * will return a context with the HAPI defaults which will defer to that library to determine the kind of message
+         *
+         * @param hl7MessageParseAndConvertConfiguration optional configuration to use when creating a context
+         */
+        private fun getHL7ParsingContext(
+            hl7MessageParseAndConvertConfiguration: HL7MessageParseAndConvertConfiguration?,
+        ): HapiContext {
+            return if (hl7MessageParseAndConvertConfiguration == null) {
+                DefaultHapiContext(ValidationContextFactory.noValidation())
+            } else {
+                DefaultHapiContext(
+                    ParserConfiguration(),
+                    ValidationContextFactory.noValidation(),
+                    CanonicalModelClassFactory(hl7MessageParseAndConvertConfiguration.messageModelClass),
+                )
+            }
+        }
+
+        /**
+         * Parses just the first line of an HL7 string to determine
+         * - the event trigger
+         * - the HL7 version
+         * - the conformance profile
+         *
+         * The returned type can be used to see if there is custom configuration set in [messageToConfigMap]
+         *
+         * @param rawHL7 the raw HL7 to determine the type for
+         *
+         * @return the details on the HL7 message type
+         */
+        @Throws(HL7Exception::class)
+        private fun getMessageType(rawHL7: String): HL7MessageType {
+            val message = getHL7ParsingContext(null)
+                .pipeParser
+                // In order to determine the message configuration, only parse the MSH segment since the type of message
+                // is required in order to accurately parse the message in its entirety
+                // HL7 messages can use \n or \r for new lines, so split on either
+                .parse(rawHL7.lines()[0])
+            val terser = Terser(message)
+            // TODO add a test for a 2.3 and 2.7 message
+            return HL7Reader.Companion.HL7MessageType(
+                terser.get("MSH-9-3") ?: "",
+                terser.get("MSH-12") ?: "",
+                terser.get("MSH-21-3") ?: ""
+            )
+        }
+
+        // TODO everything below should be considered deprecated
+
         // map of HL7 message profiles: maps profile to configuration directory path
         val profileDirectoryMap: Map<MessageProfile, String> = mapOf(
             // TODO: NIST ELR mappings to be enabled in a future PR (uncomment the following line)
@@ -222,23 +329,6 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
         private val oidProfileMap: Map<String, String> = mapOf(
             Pair("2.16.840.1.113883.9.10", "NIST_ELR"),
             Pair("2.16.840.1.113883.9.11", "NIST_ELR")
-        )
-
-        data class MessageType(val msh93: String, val msh12: String, val msh213: String)
-        data class MessageParseConfiguration(
-            val messageModelClass: Class<out Message>,
-            val HL7toFHIRMappingLocation: String,
-        )
-
-        val messageToConfigMap = mapOf(
-            MessageType(
-                "ORU_R01",
-                "2.5.1",
-                "2.16.840.1.113883.9.10"
-            ) to MessageParseConfiguration(
-                NIST_ELR_ORU_R01::class.java,
-                "./metadata/HL7/v251-elr"
-            )
         )
 
         // data class to uniquely identify a message profile
@@ -268,17 +358,6 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                 is v251_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 else -> ""
             }
-        }
-
-        fun getMessageType(rawmessage: String): MessageType? {
-            val iterator = Hl7InputStreamMessageIterator(rawmessage.byteInputStream())
-            if (!iterator.hasNext()) return null
-            val terser = Terser(iterator.next())
-            return MessageType(
-                terser.get("MSH-9-3") ?: "",
-                terser.get("MSH-12") ?: "",
-                terser.get("MSH-21-3") ?: ""
-            )
         }
 
         /**

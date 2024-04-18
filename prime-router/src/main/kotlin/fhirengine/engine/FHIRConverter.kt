@@ -1,15 +1,10 @@
 package gov.cdc.prime.router.fhirengine.engine
 
 import ca.uhn.fhir.parser.DataFormatException
-import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
-import ca.uhn.hl7v2.HapiContext
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
-import ca.uhn.hl7v2.parser.ParserConfiguration
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator.ParseFailureError
-import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.common.collect.Streams
 import fhirengine.engine.IProcessedItem
@@ -37,7 +32,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportCreatedEvent
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
 import gov.cdc.prime.router.fhirengine.utils.addMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.logging.LogMeasuredTime
@@ -47,7 +42,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.hl7.fhir.r4.model.Bundle
 import org.jooq.Field
 import java.time.OffsetDateTime
-import java.util.UUID
 import java.util.stream.Collectors
 import java.util.stream.Stream
 
@@ -65,8 +59,6 @@ class FHIRConverter(
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
-    // TODO delete
-    private val useUpdatedDebatch: Boolean = true,
 ) : FHIREngine(metadata, settings, db, blob, azureEventService) {
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
@@ -111,7 +103,7 @@ class FHIRConverter(
 
         val fhirBundles = process(format, queueMessage, actionLogger)
 
-        // TODO add more logging here
+        // TODO ticket to add more logs below
         if (fhirBundles.isNotEmpty()) {
             val transformer = getTransformerFromSchema(
                 schemaName
@@ -205,262 +197,276 @@ class FHIRConverter(
         return emptyList()
     }
 
-    // TODO delete
-    private fun measureProcessingItems(
-        reportId: UUID,
-        format: Report.Format,
-        getProcessedItems: () -> List<IProcessedItem<*>>,
-    ): List<IProcessedItem<*>> {
-        return LogMeasuredTime.measureAndLogDurationWithReturnedValue(
-            "Processed raw message into items",
-            mapOf(
-                "reportId" to reportId.toString(),
-                "format" to format.name
-            )
-        ) {
-            getProcessedItems()
-        }
-    }
-
     /**
-     * TODO
+     * Processes the raw report on the queue message by splitting it into individual items
+     * and then parsing, validating and in the case of the HL7 format converting the item to FHIR.
+     *
+     * The function will record for each item where it fails in the processing and finally log errors to the passed
+     * [actionLogger].
+     *
+     * Two important configurations for this function are:
+     * - the [BaseEngine.sequentialLimit] that determines whether the items will be processed in parallel
+     * - [routeReportWithInvalidItems] whether to items through when the entire report is not valid
+     *
+     * @param format the format of the items in the report
+     * @param queueMessage the message that contains the url for the raw report
+     * @param actionLogger keeps track of any errors (parsing, validation, conversion) that occur for individual items
+     * @param routeReportWithInvalidItems controls the behavior when some items encounter errors
+     *
+     * @return the bundles that should get routed
      */
     internal fun process(
         format: Report.Format,
         queueMessage: ReportPipelineMessage,
         actionLogger: ActionLogger,
         // TODO should this get configured on the sender?
-        routeMessageWithInvalidItems: Boolean = true,
+        routeReportWithInvalidItems: Boolean = true,
     ): List<Bundle> {
         val validator = queueMessage.topic.validator
-        val fhirBundles = if (useUpdatedDebatch) {
-            val rawMessage = queueMessage.downloadContent()
-            if (rawMessage.isBlank()) {
-                actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
-                emptyList()
-            } else {
-                // TODO test limit
-                val processedItems = when (format) {
-                    Report.Format.HL7, Report.Format.HL7_BATCH -> {
-                        try {
-                            measureProcessingItems(queueMessage.reportId, format) {
-                                getBundlesFromRawHL7(rawMessage, validator)
-                            }
-                        } catch (ex: ParseFailureError) {
-                            actionLogger.error(
-                                InvalidReportMessage("Parse error while attempting to iterate over HL7 raw message")
+        val rawReport = queueMessage.downloadContent()
+        return if (rawReport.isBlank()) {
+            actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
+            emptyList()
+        } else {
+            // TODO test limit
+            val processedItems = when (format) {
+                Report.Format.HL7, Report.Format.HL7_BATCH -> {
+                    try {
+                        LogMeasuredTime.measureAndLogDurationWithReturnedValue(
+                            "Processed raw message into items",
+                            mapOf(
+                                "reportId" to queueMessage.reportId.toString(),
+                                "format" to format.name
                             )
-                            emptyList()
+                        ) {
+                            getBundlesFromRawHL7(rawReport, validator)
                         }
-                    }
-                    Report.Format.FHIR -> {
-                        measureProcessingItems(queueMessage.reportId, format) {
-                            getBundlesFromRawFHIR(rawMessage, validator)
-                        }
-                    }
-                    else -> {
-                        logger.error("Received unsupported report format: $format")
-                        actionLogger.error(InvalidReportMessage("Received unsupported report format: $format"))
+                    } catch (ex: ParseFailureError) {
+                        actionLogger.error(
+                            InvalidReportMessage("Parse error while attempting to iterate over HL7 raw message")
+                        )
                         emptyList()
                     }
                 }
-
-                val areAllItemsParsedAndValid = processedItems.all { it.getError() == null }
-                val bundles = processedItems.mapNotNull { item ->
-                    val error = item.getError()
-                    if (error != null) {
-                        actionLogger.error(error)
+                Report.Format.FHIR -> {
+                    LogMeasuredTime.measureAndLogDurationWithReturnedValue(
+                        "Processed raw message into items",
+                        mapOf(
+                            "reportId" to queueMessage.reportId.toString(),
+                            "format" to format.name
+                        )
+                    ) {
+                        getBundlesFromRawFHIR(rawReport, validator)
                     }
-                    item.bundle
                 }
-
-                withLoggingContext(
-                    mapOf(
-                        "reportId" to queueMessage.reportId.toString(),
-                        "format" to format.name,
-                        "itemCount" to processedItems.size.toString(),
-                        "bundlesProducedCount" to bundles.size.toString(),
-                        "routeMessageWithInvalidItems" to routeMessageWithInvalidItems.toString()
-                    )
-                ) {
-                    logger.info("Successfully processed raw report")
-                }
-
-                if (!areAllItemsParsedAndValid && !routeMessageWithInvalidItems) {
+                else -> {
+                    logger.error("Received unsupported report format: $format")
+                    actionLogger.error(InvalidReportMessage("Received unsupported report format: $format"))
                     emptyList()
-                } else {
-                    bundles
                 }
             }
-        } else {
-            // TODO delete
-            when (format) {
-                Report.Format.HL7, Report.Format.HL7_BATCH -> getContentFromHL7(queueMessage, actionLogger)
-                Report.Format.FHIR -> getContentFromFHIR(queueMessage, actionLogger)
-                else -> throw NotImplementedError("Invalid format $format ")
+
+            val areAllItemsParsedAndValid = processedItems.all { it.getError() == null }
+            val bundles = processedItems.mapNotNull { item ->
+                val error = item.getError()
+                if (error != null) {
+                    actionLogger.getItemLogger(error.index + 1).error(error)
+                }
+                item.bundle
+            }
+
+            withLoggingContext(
+                mapOf(
+                    "reportId" to queueMessage.reportId.toString(),
+                    "format" to format.name,
+                    "itemCount" to processedItems.size.toString(),
+                    "bundlesProducedCount" to bundles.size.toString(),
+                    "routeMessageWithInvalidItems" to routeReportWithInvalidItems.toString()
+                )
+            ) {
+                logger.info("Successfully processed raw report")
+            }
+
+            if (!areAllItemsParsedAndValid && !routeReportWithInvalidItems) {
+                emptyList()
+            } else {
+                bundles
             }
         }
-        return fhirBundles
     }
 
     /**
-     * TODO
+     * Converts a raw HL7 string into validated FHIR bundles
+     *
+     * @param rawReport the string to convert into FHIR bundles
+     * @param validator instance of a validator to use for each parsed FHIR bundle
+     *
+     * @return the [IProcessedItem] produced from the raw report
      */
     private fun getBundlesFromRawHL7(
-        rawMessage: String,
+        rawReport: String,
         validator: IMessageValidator,
-    ): MutableList<IProcessedItem<Message>> {
+    ): List<IProcessedItem<Message>> {
         val itemStream =
-            Hl7InputStreamMessageStringIterator(rawMessage.byteInputStream()).asSequence()
+            Hl7InputStreamMessageStringIterator(rawReport.byteInputStream()).asSequence()
                 .mapIndexed { index, rawItem ->
                     ProcessedHL7Item(rawItem, index)
                 }.toList()
 
         return maybeParallelize(itemStream.size, itemStream.stream()).map { item ->
-            try {
-                val hl7MessageType = HL7Reader.getMessageType(item.rawItem.split(Regex("[\n\r]"))[0])
-                val parseConfiguration = HL7Reader.messageToConfigMap[hl7MessageType]
-                val message = getHL7ParsingContext(item.parseConfiguration).pipeParser.parse(item.rawItem)
-                item.updateParsed(message).setParseConfiguration(parseConfiguration)
-            } catch (e: ParseFailureError) {
-                item.updateParsed(
-                    InvalidItemActionLogDetail(
-                        ErrorCode.INVALID_MSG_PARSE,
-                        item.index,
-                        "exception while parsing HL7: ${ExceptionUtils.getRootCause(e).message}",
-                    )
-                )
-            } catch (e: HL7Exception) {
-                item.updateParsed(
-                    InvalidItemActionLogDetail(
-                        ErrorCode.INVALID_MSG_PARSE,
-                        item.index,
-                        "exception while parsing HL7: ${ExceptionUtils.getRootCause(e).message}",
-                    )
-                )
-            }
+            parseHL7Item(item)
         }.map { item ->
-            if (item.parsedItem != null) {
-                val validationResult = validator.validate(item.parsedItem)
-                if (validationResult.isValid()) {
-                    try {
-                        val bundle = when (val parseConfiguration = item.parseConfiguration) {
-                            null -> HL7toFhirTranslator().translate(item.parsedItem)
-                            else -> HL7toFhirTranslator(parseConfiguration.HL7toFHIRMappingLocation)
-                                .translate(item.parsedItem)
-                        }
-                        item.setBundle(bundle)
-                    } catch (ex: Exception) {
-                        item.setConversionError(
-                            InvalidItemActionLogDetail(
-                                ErrorCode.INVALID_MSG_CONVERSION,
-                                item.index,
-                                "exception while converting HL7: ${ex.message}"
-                            )
-                        )
-                    }
-                } else {
-                    item.updateValidation(
-                        InvalidItemActionLogDetail(
-                            ErrorCode.INVALID_MSG_VALIDATION,
-                            item.index,
-                            validationResult.getErrorsMessage()
-                        )
-                    )
-                }
-            } else {
-                item
-            }
+            validateAndConvertHL7Item(item, validator)
         }.collect(Collectors.toList())
     }
 
-    private fun getHL7ParsingContext(
-        messageParseConfiguration: HL7Reader.Companion.MessageParseConfiguration?,
-    ): HapiContext {
-        return if (messageParseConfiguration == null) {
-            DefaultHapiContext(ValidationContextFactory.noValidation())
+    private fun parseHL7Item(item: ProcessedHL7Item) = try {
+        // TODO validate that this works with ELIMS messages
+        val (
+            message,
+            parseConfiguration,
+        ) = parseHL7Message(item.rawItem)
+        item.updateParsed(message).setParseConfiguration(parseConfiguration)
+    } catch (e: HL7Exception) {
+        item.updateParsed(
+            InvalidItemActionLogDetail(
+                ErrorCode.INVALID_MSG_PARSE,
+                item.index,
+                "exception while parsing HL7: ${ExceptionUtils.getRootCause(e).message}",
+            )
+        )
+    }
+
+    private fun validateAndConvertHL7Item(
+        item: ProcessedHL7Item,
+        validator: IMessageValidator,
+    ): ProcessedHL7Item = if (item.parsedItem != null) {
+        val validationResult = validator.validate(item.parsedItem)
+        if (validationResult.isValid()) {
+            try {
+                val bundle = when (val parseConfiguration = item.parseConfiguration) {
+                    null -> HL7toFhirTranslator.getHL7ToFhirTranslatorInstance().translate(item.parsedItem)
+                    else ->
+                        HL7toFhirTranslator
+                            .getHL7ToFhirTranslatorInstance(parseConfiguration.hl7toFHIRMappingLocation)
+                            .translate(item.parsedItem)
+                }
+                item.setBundle(bundle)
+            } catch (ex: Exception) {
+                item.setConversionError(
+                    InvalidItemActionLogDetail(
+                        ErrorCode.INVALID_MSG_CONVERSION,
+                        item.index,
+                        "exception while converting HL7: ${ex.message}"
+                    )
+                )
+            }
         } else {
-            DefaultHapiContext(
-                ParserConfiguration(),
-                ValidationContextFactory.noValidation(),
-                CanonicalModelClassFactory(messageParseConfiguration.messageModelClass),
+            item.updateValidation(
+                InvalidItemActionLogDetail(
+                    ErrorCode.INVALID_MSG_VALIDATION,
+                    item.index,
+                    validationResult.getErrorsMessage()
+                )
             )
         }
+    } else {
+        item
     }
 
     /**
-     * TODO
+     * Converts a raw ndjson FHIR string into FHIR bundles
+     * @param rawReport the string to convert into FHIR bundles
+     * @param validator instance of a validator to use for each parsed FHIR bundle
+     *
+     * @return the [IProcessedItem] produced from the raw report
      */
     private fun getBundlesFromRawFHIR(
-        rawMessage: String,
+        rawReport: String,
         validator: IMessageValidator,
     ): MutableList<IProcessedItem<Bundle>> {
-        val lines = rawMessage.split("\n")
+        val lines = rawReport.lines()
         return maybeParallelize(
             lines.size,
             Streams.mapWithIndex(lines.stream()) { rawItem, index ->
                 ProcessedFHIRItem(rawItem, index.toInt())
             }
         ).map { item ->
-            try {
-                val bundle = FhirTranscoder.decode(item.rawItem)
-                item.updateParsed(bundle)
-            } catch (ex: DataFormatException) {
-                item.updateParsed(
-                    InvalidItemActionLogDetail(
-                        ErrorCode.INVALID_MSG_PARSE,
-                        item.index,
-                        "exception while parsing FHIR: ${ex.message}"
-                    )
-                )
-            }
+            parseFHIRItem(item)
         }.map { item ->
-            if (item.parsedItem != null) {
-                val validationResult = validator.validate(item.parsedItem)
-                if (validationResult.isValid()) {
-                    item.setBundle(item.parsedItem)
-                } else {
-                    item.updateValidation(
-                        InvalidItemActionLogDetail(
-                            ErrorCode.INVALID_MSG_VALIDATION,
-                            item.index,
-                            validationResult.getErrorsMessage()
-                        )
-                    )
-                }
-            } else {
-                item
-            }
+            validateFHIRItem(item, validator)
         }.collect(Collectors.toList())
     }
 
+    private fun validateFHIRItem(
+        item: ProcessedFHIRItem,
+        validator: IMessageValidator,
+    ): ProcessedFHIRItem = if (item.parsedItem != null) {
+        val validationResult = validator.validate(item.parsedItem)
+        if (validationResult.isValid()) {
+            item.setBundle(item.parsedItem)
+        } else {
+            item.updateValidation(
+                InvalidItemActionLogDetail(
+                    ErrorCode.INVALID_MSG_VALIDATION,
+                    item.index,
+                    validationResult.getErrorsMessage()
+                )
+            )
+        }
+    } else {
+        item
+    }
+
+    private fun parseFHIRItem(item: ProcessedFHIRItem) = try {
+        val bundle = FhirTranscoder.decode(item.rawItem)
+        item.updateParsed(bundle)
+    } catch (ex: DataFormatException) {
+        item.updateParsed(
+            InvalidItemActionLogDetail(
+                ErrorCode.INVALID_MSG_PARSE,
+                item.index,
+                "exception while parsing FHIR: ${ex.message}"
+            )
+        )
+    }
+
     /**
-     * TODO
+     * Returns a parallelized stream when the number of items being processed is greater
+     * than the [sequentialLimit]
+     *
+     * @param streamSize the number of items in the stream
+     * @param stream the stream to optionally parallelize
+     *
      */
     private fun <ProcessedItemType : IProcessedItem<*>> maybeParallelize(
         streamSize: Int,
-        it: Stream<ProcessedItemType>,
+        stream: Stream<ProcessedItemType>,
     ): Stream<ProcessedItemType> =
         if (streamSize > sequentialLimit) {
             withLoggingContext(mapOf("numberOfItems" to streamSize.toString())) {
                 logger.info("Generating FHIR bundles in parallel")
             }
-            it.parallel()
+            stream.parallel()
         } else {
             withLoggingContext(mapOf("numberOfItems" to streamSize.toString())) {
                 logger.info("Generating FHIR bundles in serial")
             }
-            it
+            stream
         }
 
     /**
-     * TODO
+     * Action log detail for tracking an error while processing an HL7 or FHIR item
+     *
+     * @param errorCode the kind of error that occurred
+     * @param errorDetail additional details on the error
+     * @param index the index of the item in the report
      */
     class InvalidItemActionLogDetail(
         override val errorCode: ErrorCode,
         val index: Int,
         @JsonProperty
-        private val errorDetail: String,
+        val errorDetail: String,
     ) : ActionLogDetail {
 
         override val scope: ActionLogScope = ActionLogScope.report
@@ -484,61 +490,12 @@ class FHIRConverter(
      */
     fun getTransformerFromSchema(schemaName: String): FhirTransformer? {
         return if (schemaName.isNotBlank()) {
+            withLoggingContext(mapOf("schemaName" to schemaName)) {
+                logger.info("Apply a sender transform to the items in the report")
+            }
             FhirTransformer(schemaName)
         } else {
             null
         }
-    }
-
-    // TODO: delete
-    /**
-     * Converts an incoming HL7 [queueMessage] into FHIR bundles and keeps track of any validation
-     * errors when reading the message into [actionLogger]
-     *
-     * @return one or more FHIR bundles
-     */
-    internal fun getContentFromHL7(
-        queueMessage: ReportPipelineMessage,
-        actionLogger: ActionLogger,
-    ): List<Bundle> {
-        // create the hl7 reader
-        val hl7Reader = HL7Reader(actionLogger)
-        // get the hl7 from the blob store
-        val hl7rawmessages = queueMessage.downloadContent()
-        val hl7profile = HL7Reader.getMessageProfile(hl7rawmessages)
-        val hl7messages = hl7Reader.getMessages(hl7rawmessages)
-
-        val bundles = if (actionLogger.hasErrors()) {
-            val errMessage = actionLogger.errors.joinToString("\n") { it.detail.message }
-            logger.error(errMessage)
-            actionLogger.error(InvalidReportMessage(errMessage))
-            emptyList()
-        } else {
-            // use fhir transcoder to turn hl7 into FHIR
-            // search hl7 profile map and create translator with config path if found
-            when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
-                null -> hl7messages.map {
-                    HL7toFhirTranslator().translate(it)
-                }
-                else -> hl7messages.map {
-                    HL7toFhirTranslator(configPath).translate(it)
-                }
-            }
-        }
-
-        return bundles
-    }
-
-    // TODO delete
-    /**
-     * Decodes a FHIR [queueMessage] into FHIR bundles and keeps track of any validation
-     * errors when reading the message into [actionLogger]
-     * @return a list containing a FHIR bundle
-     */
-    internal fun getContentFromFHIR(
-        queueMessage: ReportPipelineMessage,
-        actionLogger: ActionLogger,
-    ): List<Bundle> {
-        return FhirTranscoder.getBundles(queueMessage.downloadContent(), actionLogger)
     }
 }

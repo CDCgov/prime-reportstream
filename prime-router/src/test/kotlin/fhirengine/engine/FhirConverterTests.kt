@@ -4,15 +4,14 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
-import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import assertk.assertions.isTrue
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.validation.ResultSeverityEnum
 import ca.uhn.fhir.validation.SingleValidationMessage
 import ca.uhn.fhir.validation.ValidationResult
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
+import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -30,10 +29,9 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.ObservationMappingConstants
-import gov.cdc.prime.router.cli.tests.CompareData
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.utils.CompareFhirData
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.metadata.LookupTable
@@ -52,6 +50,7 @@ import io.mockk.mockkObject
 import io.mockk.runs
 import io.mockk.spyk
 import io.mockk.unmockkAll
+import io.mockk.unmockkObject
 import io.mockk.verify
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Coding
@@ -251,116 +250,52 @@ class FhirConverterTests {
         }
     }
 
-    @Test
-    fun `test getContentFromHL7`() {
-        val actionLogger = mockk<ActionLogger>()
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
-        val message = spyk(
-            FhirConvertQueueMessage(
-                UUID.randomUUID(),
-                BLOB_URL,
-                "test",
-                BLOB_SUB_FOLDER_NAME,
-                topic = Topic.FULL_ELR
-            )
-        )
-
-        every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(validHl7)
-
-        assertThat(engine.getContentFromHL7(message, actionLogger)).isNotEmpty()
-    }
-
-    @Test
-    fun `test getContentFromHL7 invalid HL7`() {
-        val actionLogger = spyk(ActionLogger())
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
-        val message = spyk(
-            FhirConvertQueueMessage(
-                UUID.randomUUID(),
-                BLOB_URL,
-                "test",
-                BLOB_SUB_FOLDER_NAME,
-                topic = Topic.FULL_ELR
-            )
-        )
-
-        every { message.downloadContent() }
-            .returns(File(VALID_DATA_URL).readText())
-
-        assertThat(engine.getContentFromHL7(message, actionLogger)).isEmpty()
-
-        verify(atLeast = 1) {
-            actionLogger.error(any<ActionLogDetail>())
-        }
-    }
-
-    @Test
-    fun `test getContentFromHL7 alternate profile`() {
-        @Suppress("ktlint:standard:max-line-length")
-        val expectedFHIR =
-            """{"resourceType":"Bundle","id":"1712209848170736000.4ee08e76-3054-4cab-b203-252ae2d97e30","meta":{"lastUpdated":"2024-04-04T01:50:48.179-04:00"},"identifier":{"system":"https://reportstream.cdc.gov/prime-router","value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T09:15:11.015-04:00","entry":[{"fullUrl":"MessageHeader/c03f1b6b-cfc3-3477-89c0-d38316cd1a38","resource":{"resourceType":"MessageHeader","id":"c03f1b6b-cfc3-3477-89c0-d38316cd1a38"}}]}"""
-        val testProfile = HL7Reader.Companion.MessageProfile("ORU", "TestProfile")
-
-        val actionLogger = spyk(ActionLogger())
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
-        val message = spyk(
-            FhirConvertQueueMessage(
-                UUID.randomUUID(),
-                BLOB_URL,
-                "test",
-                BLOB_SUB_FOLDER_NAME,
-                topic = Topic.FULL_ELR
-            )
-        )
-        val testConfigPaths = HL7toFhirTranslator.Companion.configPaths.toMutableList()
-        testConfigPaths.add("./metadata/test_fhir_mapping")
-        val testTemplates = HL7toFhirTranslator.Companion.loadTemplates(testConfigPaths.toList())
-
-        every { message.downloadContent() }
-            .returns(validHl7)
-        mockkObject(HL7Reader.Companion)
-        every { HL7Reader.Companion.getMessageProfile(any()) } returns testProfile
-        every { HL7Reader.Companion.profileDirectoryMap[testProfile] } returns "./metadata/test_fhir_mapping"
-
-        mockkObject(HL7toFhirTranslator.Companion)
-        every { HL7toFhirTranslator.Companion.getMessageTemplates() } returns testTemplates
-
-        val bundles = engine.getContentFromHL7(message, actionLogger)
-
-        // the test fhir mappings produce a small subset of what the input HL7 contains
-        assertThat(bundles).isNotEmpty()
-        // assertThat(bundles[0].equalsDeep(FhirTranscoder.decode(expectedFHIR))).isTrue()
-        val result = CompareData.Result()
-        CompareFhirData().compare(
-            FhirTranscoder.encode(bundles[0]).byteInputStream(),
-            expectedFHIR.byteInputStream(),
-            result
-        )
-        assertThat(result.passed).isTrue()
-    }
-
-    @Test
-    fun `test getContentFromFHIR`() {
-        val actionLogger = spyk(ActionLogger())
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
-        val message =
-            spyk(
-                FhirConvertQueueMessage(
-                    UUID.randomUUID(),
-                    BLOB_FHIR_URL,
-                    "test",
-                    BLOB_SUB_FOLDER_NAME,
-                    topic = Topic.FULL_ELR
-                )
-            )
-
-        every { message.downloadContent() }
-            .returns(File(VALID_DATA_URL).readText())
-
-        val result = engine.getContentFromFHIR(message, actionLogger)
-        assertThat(result).isNotEmpty()
-    }
+    // TODO move these assertions
+//
+//    @Test
+//    fun `test getContentFromHL7 alternate profile`() {
+//        @Suppress("ktlint:standard:max-line-length")
+//        val expectedFHIR =
+//            """{"resourceType":"Bundle","id":"1712209848170736000.4ee08e76-3054-4cab-b203-252ae2d97e30","meta":{"lastUpdated":"2024-04-04T01:50:48.179-04:00"},"identifier":{"system":"https://reportstream.cdc.gov/prime-router","value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T09:15:11.015-04:00","entry":[{"fullUrl":"MessageHeader/c03f1b6b-cfc3-3477-89c0-d38316cd1a38","resource":{"resourceType":"MessageHeader","id":"c03f1b6b-cfc3-3477-89c0-d38316cd1a38"}}]}"""
+//        val testProfile = HL7Reader.Companion.MessageProfile("ORU", "TestProfile")
+//
+//        val actionLogger = spyk(ActionLogger())
+//        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+//        val message = spyk(
+//            FhirConvertQueueMessage(
+//                UUID.randomUUID(),
+//                BLOB_URL,
+//                "test",
+//                BLOB_SUB_FOLDER_NAME,
+//                topic = Topic.FULL_ELR
+//            )
+//        )
+//        val testConfigPaths = HL7toFhirTranslator.Companion.configPaths.toMutableList()
+//        testConfigPaths.add("./metadata/test_fhir_mapping")
+//        val testTemplates = HL7toFhirTranslator.Companion.loadTemplates(testConfigPaths.toList())
+//
+//        every { message.downloadContent() }
+//            .returns(validHl7)
+//        mockkObject(HL7Reader.Companion)
+//        every { HL7Reader.Companion.getMessageProfile(any()) } returns testProfile
+//        every { HL7Reader.Companion.profileDirectoryMap[testProfile] } returns "./metadata/test_fhir_mapping"
+//
+//        mockkObject(HL7toFhirTranslator.Companion)
+//        every { HL7toFhirTranslator.Companion.getMessageTemplates() } returns testTemplates
+//
+//        val bundles = engine.getContentFromHL7(message, actionLogger)
+//
+//        // the test fhir mappings produce a small subset of what the input HL7 contains
+//        assertThat(bundles).isNotEmpty()
+//        // assertThat(bundles[0].equalsDeep(FhirTranscoder.decode(expectedFHIR))).isTrue()
+//        val result = CompareData.Result()
+//        CompareFhirData().compare(
+//            FhirTranscoder.encode(bundles[0]).byteInputStream(),
+//            expectedFHIR.byteInputStream(),
+//            result
+//        )
+//        assertThat(result.passed).isTrue()
+//    }
 
     @Test
     fun `test getTransformerFromSchema`() {
@@ -789,8 +724,10 @@ class FhirConverterTests {
 
         @Test
         fun `should log a HL7 conversion error and not return a bundle`() {
-            mockkConstructor(HL7toFhirTranslator::class)
-            every { anyConstructed<HL7toFhirTranslator>().translate(any()) } throws RuntimeException("Conversion error")
+            mockkObject(HL7toFhirTranslator)
+            val mockHL7toFhirTranslator = mockk<HL7toFhirTranslator>()
+            every { mockHL7toFhirTranslator.translate(any()) } throws RuntimeException("Conversion error")
+            every { HL7toFhirTranslator.getHL7ToFhirTranslatorInstance() } returns mockHL7toFhirTranslator
 
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
@@ -809,6 +746,7 @@ class FhirConverterTests {
             ).contains(
                 "Item 1 in the report was not convertible. Reason: exception while converting HL7: Conversion error"
             )
+            unmockkObject(HL7toFhirTranslator)
         }
 
         @Test
@@ -840,6 +778,55 @@ class FhirConverterTests {
 
         @Test
         fun `should process an HL7 message`() {
+            val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+            val actionLogger = ActionLogger()
+            val mockMessage = mockk<ReportPipelineMessage>()
+            every { mockMessage.topic } returns Topic.FULL_ELR
+            every { mockMessage.reportId } returns UUID.randomUUID()
+
+            every {
+                mockMessage.downloadContent()
+            } returns simpleHL7
+            val bundles = engine.process(Report.Format.HL7, mockMessage, actionLogger)
+            assertThat(bundles).hasSize(1)
+            assertThat(actionLogger.errors).isEmpty()
+        }
+
+        @Test
+        fun `should process items in parallel`() {
+            mockkObject(BaseEngine.Companion)
+            every { BaseEngine.Companion.sequentialLimit } returns 2
+
+            val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+            val actionLogger = ActionLogger()
+            val mockMessage = mockk<ReportPipelineMessage>()
+            every { mockMessage.topic } returns Topic.FULL_ELR
+            every { mockMessage.reportId } returns UUID.randomUUID()
+
+            every {
+                mockMessage.downloadContent()
+            } returns simpleHL7 + "\n" + simpleHL7 + "\n" + simpleHL7
+            val bundles = engine.process(Report.Format.HL7, mockMessage, actionLogger)
+            assertThat(bundles).hasSize(3)
+            assertThat(actionLogger.errors).isEmpty()
+
+            unmockkObject(BaseEngine.Companion)
+        }
+
+        @Test
+        fun `should process an HL7 message with a registered profile`() {
+            mockkObject(HL7Reader.Companion)
+            every { HL7Reader.Companion.messageToConfigMap } returns mapOf(
+                HL7Reader.Companion.HL7MessageType(
+                    "ORU_R01",
+                    "2.5.1",
+                    "2.16.840.1.113883.9.11"
+                ) to HL7Reader.Companion.HL7MessageParseAndConvertConfiguration(
+                    ORU_R01::class.java,
+                    "./metadata/test_fhir_mapping"
+                )
+            )
+
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
             val mockMessage = mockk<ReportPipelineMessage>()

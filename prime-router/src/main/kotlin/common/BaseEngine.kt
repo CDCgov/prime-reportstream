@@ -1,7 +1,5 @@
 package gov.cdc.prime.router.common
 
-import ca.uhn.hl7v2.DefaultHapiContext
-import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
@@ -23,9 +21,7 @@ abstract class BaseEngine(
     val queue: QueueAccess = QueueAccess,
 ) : Logging {
     companion object {
-        val sequentialLimit = 1000
-        val validationContext = ValidationContextFactory.noValidation()
-        val context = DefaultHapiContext()
+        const val sequentialLimit = 1000
 
         /**
          * These are all potentially heavyweight objects that

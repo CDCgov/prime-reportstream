@@ -13,7 +13,7 @@ import io.github.linuxforhealth.hl7.message.HL7MessageModel
 import io.github.linuxforhealth.hl7.resource.ResourceReader
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
-import java.lang.IllegalArgumentException
+import java.util.Collections
 
 /**
  * Creates a HL7toFhirTranslator object to perform HL7v2 to FHIR translations.
@@ -24,7 +24,29 @@ class HL7toFhirTranslator(
     private val configFolderPath: String = "./metadata/HL7/catchall",
     private val messageEngine: HL7MessageEngine = FhirTranscoder.getMessageEngine(),
 ) : Logging {
+
+    private val templates: Map<String, HL7MessageModel> =
+        ResourceReader(ConverterConfiguration(configFolderPath)).messageTemplates
+
     companion object {
+
+        // don't load the templtaes every time
+        // get individual isntances of the transaltor
+        // translro has its own templates
+
+        private val hl7ToFhirTranslatorInstances =
+            Collections.synchronizedMap(mutableMapOf<String, HL7toFhirTranslator>())
+
+        fun getHL7ToFhirTranslatorInstance(configFolderPath: String = "./metadata/HL7/catchall"): HL7toFhirTranslator {
+            return hl7ToFhirTranslatorInstances.getOrPut(configFolderPath) {
+                HL7toFhirTranslator(configFolderPath)
+            }
+        }
+
+        /**
+         * TODO tech debt ticket to clean everything below
+         */
+
         /**
          * List of all available mapping directory locations
          */
@@ -79,10 +101,7 @@ class HL7toFhirTranslator(
     ): HL7MessageModel {
         val messageTemplateType = getMessageTemplateType(hl7Message)
 
-        val messageTemplate = getMessageTemplates()[configFolderPath]
-            ?: throw IllegalArgumentException("Invalid FHIR translator configuration path: $configFolderPath")
-
-        return messageTemplate[messageTemplateType]
+        return templates[messageTemplateType]
             ?: throw UnsupportedOperationException("Message type not yet supported: $messageTemplateType")
     }
 
