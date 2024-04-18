@@ -6,9 +6,9 @@ id:
   expressionType: JEXL
 
 type:
-  expressionType: resource
-  valueOf: datatypes/CWE/CodeableConcept
-  specs: DLD.1
+  type: STRING
+  valueOf: DLD.1
+  expressionType: HL7Spec
 
 extension:
   generateList: true
