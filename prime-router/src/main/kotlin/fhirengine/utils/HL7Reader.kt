@@ -23,6 +23,8 @@ import ca.uhn.hl7v2.model.v251.message.ORU_R01 as v251_ORU_R01
 import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
 import ca.uhn.hl7v2.model.v27.message.ORU_R01 as v27_ORU_R01
 import ca.uhn.hl7v2.model.v27.segment.MSH as v27_MSH
+import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01 as NIST_ELR_ORU_R01
+import fhirengine.translation.hl7.structures.nistelr251.segment.MSH as NIST_MSH
 
 private const val MSH_SEGMENT_NAME = "MSH"
 
@@ -118,29 +120,39 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
      * This function assumes all the message types will be the same if this is a HL7 batch.
      */
     private fun getMessageModelClasses(rawMessage: String): List<Class<out AbstractMessage>> {
-        val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream())
-        if (iterator.hasNext()) {
-            try {
-                val firstMessage = iterator.next()
-                return when (val messageType = getMessageType(firstMessage)) {
-                    "ORU" -> listOf(
-                        v27_ORU_R01::class.java,
-                        v251_ORU_R01::class.java
-                    )
-                    "OML" -> listOf(
-                        v251_OML_O21::class.java
-                    )
+        try {
+            val messageProfile = getMessageProfile(rawMessage)
+            if (messageProfile != null) {
+                when (messageProfile.typeID) {
+                    "ORU" -> {
+                        return when (messageProfile.profileID) {
+                            // TODO: NIST ELR conformance profile to be enabled in a future PR (rename to "NIST_ELR")
+                            "NIST_ELR_TEST" -> listOf(
+                                NIST_ELR_ORU_R01::class.java
+                            )
+                            else -> listOf(
+                                v27_ORU_R01::class.java,
+                                v251_ORU_R01::class.java
+                            )
+                        }
+                    }
+                    "OML" -> {
+                        return listOf(
+                            v251_OML_O21::class.java
+                        )
+                    }
                     else -> {
                         logger.warn(
-                            "$messageType did not have any mapped message model classes, using default behavior"
+                            "${messageProfile.typeID} did not have any mapped message model classes, " +
+                                "using default behavior"
                         )
-                        emptyList()
+                        return emptyList()
                     }
                 }
-            } catch (ex: Hl7InputStreamMessageStringIterator.ParseFailureError) {
-                logHL7ParseFailure(ex)
-                return emptyList()
             }
+        } catch (ex: Hl7InputStreamMessageStringIterator.ParseFailureError) {
+            logHL7ParseFailure(ex)
+            return emptyList()
         }
         actionLogger.error(InvalidReportMessage("String did not contain any HL7 messages"))
         return emptyList()
@@ -200,7 +212,17 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
 
     companion object {
         // map of HL7 message profiles: maps profile to configuration directory path
-        val profileDirectoryMap: Map<MessageProfile, String> = emptyMap()
+        val profileDirectoryMap: Map<MessageProfile, String> = mapOf(
+            // TODO: NIST ELR mappings to be enabled in a future PR (uncomment the following line)
+            // Pair(MessageProfile("ORU", "NIST_ELR"), "./metadata/HL7/v251-elr"),
+        )
+
+        // map of HL7 OIDs to supported conformance profiles
+        // list of OIDs for NIST ELR retrieved from https://oidref.com/2.16.840.1.113883.9
+        private val oidProfileMap: Map<String, String> = mapOf(
+            Pair("2.16.840.1.113883.9.10", "NIST_ELR"),
+            Pair("2.16.840.1.113883.9.11", "NIST_ELR")
+        )
 
         // data class to uniquely identify a message profile
         data class MessageProfile(val typeID: String, val profileID: String)
@@ -211,6 +233,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          */
         fun getMessageTimestamp(message: Message): Date? {
             return when (val structure = message[MSH_SEGMENT_NAME]) {
+                is NIST_MSH -> structure.msh7_DateTimeOfMessage.ts1_Time.valueAsDate
                 is v27_MSH -> structure.msh7_DateTimeOfMessage.valueAsDate
                 is v251_MSH -> structure.msh7_DateTimeOfMessage.ts1_Time.valueAsDate
                 else -> null
@@ -223,6 +246,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          */
         fun getMessageType(message: Message): String {
             return when (val structure = message[MSH_SEGMENT_NAME]) {
+                is NIST_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 is v27_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 is v251_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 else -> ""
@@ -240,8 +264,8 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             if (!iterator.hasNext()) return null
             val hl7message = iterator.next()
             val msh9 = Terser(hl7message).get("MSH-9")
-            val msh21 = Terser(hl7message).get("MSH-21")
-            return MessageProfile(msh9 ?: "", msh21 ?: "")
+            val profileID = oidProfileMap[Terser(hl7message).get("MSH-21-3")] ?: ""
+            return MessageProfile(msh9 ?: "", profileID)
         }
 
         /**

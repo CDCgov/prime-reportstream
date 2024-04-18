@@ -1,0 +1,14 @@
+HL7 v2,,,,,,Condition (IF True),,,HL7 FHIR,,,,,,,,,Comments
+Sort Order,Identifier,Name,Data Type,Cardinality - Min,Cardinality - Max,Computable ANTLR,Computable FHIRPath,Narrative,FHIR Attribute/ Data Type,,Data Type,Cardinality - Min,Cardinality - Max,Data Type Mapping,"Vocabulary Mapping
+(IS, ID, CE, CNE, CWE)",Assignment,,
+1,CNN.1,ID Number,ST,0,1,,,,identifier.value,,string,0,1,,,,,
+2,CNN.2,Family Name,ST,0,1,,,,name.family,,string,0,1,,,,,
+3,CNN.3,Given Name,ST,0,1,,,,name.given[1],,string,0,-1,,,,,
+4,CNN.4,Second and Further Given Names or Initials Thereof,ST,0,1,,,,name.given[2],,string,0,-1,,,,,
+5,CNN.5,"Suffix (e.g., JR or III)",ST,0,1,,,,name.suffix[1],,string,0,-1,,,,,
+6,CNN.6,"Prefix (e.g., DR)",ST,0,1,,,,name.prefix,,string,0,-1,,,,,
+7,CNN.7,"Degree (e.g., MD)",IS,0,1,,,,name.suffix[2],,string,0,-1,,,,,
+8,CNN.8,Source Table,IS,0,1,,,,,,,,,,,,,
+9,CNN.9,Assigning Authority- Namespace ID,IS,0,1,,,,,identifier.extension??-assigningauthority.nameSpaceID,string,0,1,,,,,
+10,CNN.10,Assigning Authority- Universal ID,ST,0,1,,,,,identifier.extension??-assigningauthority.universalID,string,0,1,,,,,
+11,CNN.11,Assigning Authority- Universal ID Type,ID,0,1,,,,,identifier.extension??-assigningauthority.univeralIDType,code,0,1,,,,,

@@ -33,7 +33,7 @@ elements:
     resource: '%resource.identifier.extension(%`rsext-identifier-location`).value.resolve()'
     constants:
       hl7HDField: '%{hl7XONField}-8'
-    schema: classpath:/metadata/hl7_mapping/resources/Location/HD.yml
+    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/Location/HD.yml
 
   - name: xon-name-representation-code
     value: [ '%resource.extension(%`rsext-name-representation-code`).value' ]
@@ -41,4 +41,4 @@ elements:
 
   - name: xon-extension-value
     resource: '%resource.extension(%`rsext-xon-organization`)'
-    schema: classpath:/metadata/hl7_mapping/resources/Organization/XONExtension.yml
+    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/Organization/XONExtension.yml

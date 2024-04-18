@@ -681,9 +681,9 @@
     - code: 119334006
       display: 119334006
     - code: 258560004
-      display: Saliva specimen 
+      display: Saliva specimen
     - code: 258560004
-      display: Saliva 
+      display: Saliva
     - code: 258560004
       display: 258560004 
     - code: 119364003
@@ -778,6 +778,14 @@
       display: Exhaled air specimen
     - code: 445447003
       display: 445447003
+    - code: 1293160008
+      display: Swab from middle region of inferior nasal meatus
+    - code: 1293160008
+      display: 1293160008
+    - code: 119342007
+      display: Saliva specimen
+    - code: 119342007
+      display: 119342007
 
 - name: sender-automation/state
   system: LOCAL
