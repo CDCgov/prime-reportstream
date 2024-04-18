@@ -7,26 +7,21 @@ export interface TableFilterSearch {
 }
 
 interface TableFilterSearchProps {
-    filterReset: number;
     resetHandler: (e: FormEvent<Element>) => void;
     searchReset: number;
-    setCurrentServiceSelect: React.Dispatch<React.SetStateAction<string>>;
-    setFilterReset: React.Dispatch<React.SetStateAction<number>>;
     setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+    resetFilterFields: React.Dispatch<React.FormEvent<HTMLFormElement>>;
 }
 
 function TableFilterSearch({
-    filterReset,
     resetHandler,
     searchReset,
-    setCurrentServiceSelect,
-    setFilterReset,
     setSearchTerm,
+    resetFilterFields,
 }: TableFilterSearchProps) {
     const submitHandler = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setCurrentServiceSelect("");
-        setFilterReset(filterReset + 1);
+        resetFilterFields(e);
         const searchField = e.currentTarget.elements.namedItem(
             "search",
         ) as HTMLInputElement;
