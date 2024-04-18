@@ -14,20 +14,14 @@ and [/waters](../api/waters-reports.yml). The UP can receive data in either HL7 
 security is supported by
 the `/reports` endpoint. Static and unchanging API Keys can be defined
 in the Azure environment for the Reports function and sent to the client. This method is less secure than FHIR Auth
-Security and thus the `/reports` endpoint should only be used over the `/waters` endpoint in special circumstances.
+Security and thus the `/reports` endpoint should only be used over the `/waters` endpoint in special circumstances where
+clients or particular integrations do not have the technical ability to use the FHIR Auth Security.
 
 ### FHIR Auth Security
 
 [FHIR Auth Security (OAUth2.0)](https://docs.smarthealthit.org/authorization/best-practices/) is supported by
-the `/waters` endpoint. The ReportStream auth process is as follows:
-
-- The access token is retrieved from the request. See
-  the [auth onboarding documentation](https://reportstream.cdc.gov/developer-resources/api/getting-started) for details
-  on how this
-  token is created
-- Okta authentication using the retrieved access token will occur
-- If Okta authentication does not work then Server2Server auth using the retrieved access token will occur
-- If neither authentication method succeeds, the request will be Unauthorized
+the `/waters` endpoint and is the recommended auth clients should use. See
+the [authentication design note](../design/features/0002-authentication.md) for details.
 
 ### Validation
 
