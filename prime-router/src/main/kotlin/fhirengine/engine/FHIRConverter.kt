@@ -114,8 +114,7 @@ class FHIRConverter(
 
                 // 'stamp' observations with their condition code
                 bundle.getObservations().forEach {
-                    // TODO this is not quite right since there might be less bundles than items because of parsing and validating
-                    // TECH DEBT TICKET
+                    // TODO: https://github.com/CDCgov/prime-reportstream/issues/14114
                     it.addMappedConditions(metadata).run {
                         actionLogger.getItemLogger(bundleIndex + 1, it.id)
                             .setReportId(queueMessage.reportId)
@@ -123,7 +122,7 @@ class FHIRConverter(
                     }
                 }
 
-                // TODO: create tech debt ticket to clean all of this up
+                // TODO: https://github.com/CDCgov/prime-reportstream/issues/14115
                 // make a 'report'
                 val report = Report(
                     Report.Format.FHIR,
@@ -136,8 +135,7 @@ class FHIRConverter(
                     topic = queueMessage.topic,
                 )
 
-                // TODO test that validate the lineage
-                // create item lineage
+                // TODO: add tests https://github.com/CDCgov/prime-reportstream/issues/13507
                 report.itemLineages = listOf(
                     ItemLineage(
                         null,
@@ -219,7 +217,6 @@ class FHIRConverter(
         format: Report.Format,
         queueMessage: ReportPipelineMessage,
         actionLogger: ActionLogger,
-        // TODO should this get configured on the sender?
         routeReportWithInvalidItems: Boolean = true,
     ): List<Bundle> {
         val validator = queueMessage.topic.validator

@@ -30,10 +30,6 @@ class HL7toFhirTranslator(
 
     companion object {
 
-        // don't load the templtaes every time
-        // get individual isntances of the transaltor
-        // translro has its own templates
-
         private val hl7ToFhirTranslatorInstances =
             Collections.synchronizedMap(mutableMapOf<String, HL7toFhirTranslator>())
 
@@ -41,54 +37,6 @@ class HL7toFhirTranslator(
             return hl7ToFhirTranslatorInstances.getOrPut(configFolderPath) {
                 HL7toFhirTranslator(configFolderPath)
             }
-        }
-
-        /**
-         * TODO tech debt ticket to clean everything below
-         */
-
-        /**
-         * List of all available mapping directory locations
-         */
-        internal val configPaths: List<String> = listOf(
-            "./metadata/HL7/catchall",
-            "./metadata/HL7/v251-elr"
-        )
-
-        /**
-         * Stored message templates for HL7 -> FHIR translation
-         */
-        private var messageTemplates: Map<String, Map<String, HL7MessageModel>>
-
-        /**
-         * Function to retrieve stored message templates
-         */
-        internal fun getMessageTemplates(): Map<String, Map<String, HL7MessageModel>> {
-            return messageTemplates
-        }
-
-        /**
-         * Calls the HL7 to FHIR Translator resource reader to deserialize all message templates for all available
-         * configuration paths and stores the templates in the companion object
-         */
-        init {
-            messageTemplates = loadTemplates(configPaths)
-        }
-
-        /**
-         * Load templates from the list of [configPaths] sequentially and return a map of messageTemplates
-         */
-        internal fun loadTemplates(configPaths: List<String>): MutableMap<String, MutableMap<String, HL7MessageModel>> {
-            val loadedTemplates: MutableMap<String, MutableMap<String, HL7MessageModel>> = mutableMapOf()
-
-            // templates must be loaded sequentially due to ResourceReader being a singleton instance
-            for (configPath in configPaths) {
-                if (loadedTemplates[configPath] == null) {
-                    loadedTemplates[configPath] = ResourceReader(ConverterConfiguration(configPath)).messageTemplates
-                }
-            }
-
-            return loadedTemplates
         }
     }
 
@@ -123,6 +71,7 @@ class HL7toFhirTranslator(
         // If timezone specification is needed it can be provided via a custom HL7MessageEngine with a custom FHIRContext that has the time zone ID set
         val messageModel = getHL7MessageModel(hl7Message)
         val bundle = messageModel.convert(hl7Message, messageEngine)
+        // TODO https://github.com/CDCgov/prime-reportstream/issues/14117
         bundle.enhanceBundleMetadata(hl7Message)
         bundle.addProvenanceReference()
         bundle.handleBirthTime(hl7Message)

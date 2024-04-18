@@ -247,6 +247,14 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             ) to HL7MessageParseAndConvertConfiguration(
                 NIST_ELR_ORU_R01::class.java,
                 "./metadata/HL7/v251-elr"
+            ),
+            HL7MessageType(
+                "ORU_R01",
+                "2.5.1",
+                "2.16.840.1.113883.9.11"
+            ) to HL7MessageParseAndConvertConfiguration(
+                NIST_ELR_ORU_R01::class.java,
+                "./metadata/HL7/v251-elr"
             )
         )
 
@@ -300,7 +308,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          * @return the details on the HL7 message type
          */
         @Throws(HL7Exception::class)
-        private fun getMessageType(rawHL7: String): HL7MessageType {
+        internal fun getMessageType(rawHL7: String): HL7MessageType {
             val message = getHL7ParsingContext(null)
                 .pipeParser
                 // In order to determine the message configuration, only parse the MSH segment since the type of message
@@ -308,15 +316,14 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                 // HL7 messages can use \n or \r for new lines, so split on either
                 .parse(rawHL7.lines()[0])
             val terser = Terser(message)
-            // TODO add a test for a 2.3 and 2.7 message
-            return HL7Reader.Companion.HL7MessageType(
+            return HL7MessageType(
                 terser.get("MSH-9-3") ?: "",
                 terser.get("MSH-12") ?: "",
                 terser.get("MSH-21-3") ?: ""
             )
         }
 
-        // TODO everything below should be considered deprecated
+        // TODO: https://github.com/CDCgov/prime-reportstream/issues/14116
 
         // map of HL7 message profiles: maps profile to configuration directory path
         val profileDirectoryMap: Map<MessageProfile, String> = mapOf(
