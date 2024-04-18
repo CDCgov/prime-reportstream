@@ -14,7 +14,7 @@
 - [Debugging](#debugging)
 - [Running the frontend](#running-the-frontend)
 - [Running the static site](#running-the-static-site)
-- [Push a sample message through the app](#Push-a-sample-message-through-the-app)
+- [Push a sample message through the app](#push-a-sample-message-through-the-app)
 - [Troubleshooting](#troubleshooting)
 - [Next steps](#next-steps)
 
@@ -168,7 +168,7 @@ See the [frontend React docs](../../../frontend-react/README.md) for more inform
 
 2. If you haven't already, ensure the app is up and running. 
 
-3. Log into the app. Do this by way of the front-end app and your CDC okta credentials.
+3. Log into the LOCAL instance of the front end app. Do this by way of the front-end app and your CDC okta credentials.
 
 4. In order to send a message, you are going to need add the "sender id" to the POST header. Click on "edit" on the "development" row. 
 
