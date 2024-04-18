@@ -109,6 +109,9 @@ To run tests, the Postgres DB and the credential vault need to be seeded with va
 We will need to have ReportStream running for these steps to work (see previous steps).
 Again, we will use a Gradle task to do these steps.
 
+> [!Warning]
+> If you are getting a connection error during the `reloadTables` step, you're probably on a mac with the custom Apple CPU. Use command `gradlew run` to get the app up and running and try again. 
+
 ```bash
 ./gradlew primeCLI --args "create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass"
 ./gradlew reloadTables
@@ -128,7 +131,7 @@ docker compose --file "docker-compose.build.yml" up --detach
 
 <details>
   <summary>Gradle/Apple Silicon</summary>
-Use Gradle to launch ReportStream, as it will set up the environment variables that ReportStream needs.
+Use Gradle to launch ReportStream, as it will set up the environment variables that ReportStream needs. If you are on a Mac with the custom Apple CPU and are following this guide step by step you've already done this step when you seeded Postgres db and vault. 
 
 ```bash
 ./gradlew run
@@ -144,7 +147,7 @@ A `ctrl-c` will escape the running ReportStream instance.
 
 > [!TIP]
 > The recommended way to rapidly develop on the ReportStream backend is to use `./gradlew quickRun`.
-> This command skips some long running tasks, so use with caution as it will not build the FatJar, run database related tasks, or run the tests.
+> This command skips some long-running tasks, so use with caution as it will not build the FatJar, run database related tasks, or run the tests.
 
 ## Debugging
 
@@ -152,11 +155,32 @@ A `ctrl-c` will escape the running ReportStream instance.
 Connect your debugger remotely to port 5005.
 For profiling use the JMX port 9090.
 
-If using IntelliJ, this can be easily configured by first opening the `primer-router` folder as it's own project. Create a Remote JVM Debug Configuration with the port set to `5005`. 
+If using IntelliJ, this can be easily configured by first opening the `primer-router` folder as its own project. Create a Remote JVM Debug Configuration with the port set to `5005`. 
 
 ## Running the frontend
 
-See the [frontend React docs](../../../frontend-react/README.md) for more information.
+See the [frontend React docs](../../../frontend-react/README.md) for more information. Once you've done that and want to log in, __you need to use the same okta credentials you use when logging into the staging or production instances of the app__. 
+
+## Push a sample message through the app 
+
+1. If you haven't already, [download Postman](https://www.postman.com/downloads/) and install it. Import [the collections in the postman folder](prime-router/docs/getting-started/postman) into postman.
+
+2. If you haven't already, ensure the app is up and running. 
+
+3. Log into the app. Do this by way of the front-end app and your CDC okta credentials.
+
+4. In order to send a message, you are going to need add the "sender id" to the POST header. Click on "edit" on the "development" row. 
+
+![report_stream_organizations.png](./img/report_stream_organizations.png)
+
+5. The data you seek is under "Organization Sender Settings". The client header is the sender. Concat the org name and the sender name should get you a valid value like so `client: development.dev-elims` 
+
+![development_org_sender_settings.png](./img/development_org_sender_settings.png)
+
+6. In PostMan, open collection `ReportStream HL7 Demo (Local)` and select `POST Single HL7 Full ELR`. Then, under `headers` change the client value to `development.dev-elims` and press __Send__. If all went well you'll get an HTTP/201 response as shown below. 
+
+![postman_example.png](./img/postman_example.png)
+
 
 ## Running the static site
 
