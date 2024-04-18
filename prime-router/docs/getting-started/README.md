@@ -164,7 +164,7 @@ See the [frontend React docs](../../../frontend-react/README.md) for more inform
 
 ## Push a sample message through the app 
 
-1. If you haven't already, [download Postman](https://www.postman.com/downloads/) and install it. Import [the collections in the postman folder](prime-router/docs/getting-started/postman) into postman.
+1. If you haven't already, [download Postman](https://www.postman.com/downloads/) and install it. Import [the collections in the postman folder](./postman) into postman.
 
 2. If you haven't already, ensure the app is up and running. 
 
