@@ -14,6 +14,7 @@
 - [Debugging](#debugging)
 - [Running the frontend](#running-the-frontend)
 - [Running the static site](#running-the-static-site)
+- [Push a sample message through the app](#Push-a-sample-message-through-the-app)
 - [Troubleshooting](#troubleshooting)
 - [Next steps](#next-steps)
 
