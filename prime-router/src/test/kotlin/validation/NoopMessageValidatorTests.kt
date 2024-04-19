@@ -11,13 +11,13 @@ class NoopMessageValidatorTests {
 
     @Test
     fun `test noop validation result is always valid`() {
-        val noopValidationResult = NoopMessageValidationResult()
+        val noopValidationResult = NoopItemValidationResult()
         assertThat(noopValidationResult.isValid()).isTrue()
     }
 
     @Test
     fun `test NOOP validator always returns valid`() {
-        val noopMessageValidator = NoopMessageValidator()
+        val noopMessageValidator = NoopItemValidator()
         val mockHL7Message = mockk<Message>()
         val mockFHIRBundle = mockk<Bundle>()
         assertThat(noopMessageValidator.validate(mockHL7Message).isValid()).isTrue()

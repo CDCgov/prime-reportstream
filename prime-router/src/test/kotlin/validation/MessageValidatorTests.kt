@@ -31,7 +31,7 @@ class MessageValidatorTests {
                     "",
                     "",
                     "",
-                    AbstractMessageValidator.ERROR_CLASSIFICATION
+                    AbstractItemValidator.ERROR_CLASSIFICATION
                 )
             )
 
@@ -72,33 +72,33 @@ class MessageValidatorTests {
 
     @Test
     fun `test get HL7 validator`() {
-        val validator = AbstractMessageValidator.getHL7Validator(radxmarxProfileLocation)
+        val validator = AbstractItemValidator.getHL7Validator(radxmarxProfileLocation)
         assertThat(validator).isNotNull()
     }
 
     @Test
     fun `test get HL7 validator reuses existing one if loaded`() {
-        val validator1 = AbstractMessageValidator.getHL7Validator(radxmarxProfileLocation)
-        val validator2 = AbstractMessageValidator.getHL7Validator(radxmarxProfileLocation)
+        val validator1 = AbstractItemValidator.getHL7Validator(radxmarxProfileLocation)
+        val validator2 = AbstractItemValidator.getHL7Validator(radxmarxProfileLocation)
         assertThat(validator1).isEqualTo(validator2)
     }
 
     @Test
     fun `test get HL7 validator without a profile throws an error`() {
         assertThrows<RuntimeException> {
-            AbstractMessageValidator.getHL7Validator("validation/badProfile")
+            AbstractItemValidator.getHL7Validator("validation/badProfile")
         }
     }
 
     @Test
     fun `test loading HL7 validator with only a profile`() {
-        val validator = AbstractMessageValidator.getHL7Validator("validation/sparseProfile")
+        val validator = AbstractItemValidator.getHL7Validator("validation/sparseProfile")
         assertThat(validator).isNotNull()
     }
 
     @Test
     fun `test only validates an HL7 message or FHIR bundle`() {
-        class TestValidator : AbstractMessageValidator()
+        class TestValidator : AbstractItemValidator()
 
         val validator = TestValidator()
 
@@ -109,7 +109,7 @@ class MessageValidatorTests {
 
     @Test
     fun `test FHIR validation`() {
-        class TestValidator : AbstractMessageValidator()
+        class TestValidator : AbstractItemValidator()
 
         val validator = TestValidator()
 

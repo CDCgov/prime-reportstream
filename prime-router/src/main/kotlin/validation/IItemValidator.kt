@@ -11,18 +11,18 @@ import hl7.v2.validation.SyncHL7Validator
 import hl7.v2.validation.ValidationContextBuilder
 import org.hl7.fhir.r4.model.Bundle
 
-interface IMessageValidator {
+interface IItemValidator {
 
-    fun validate(message: Any): IMessageValidationResult
+    fun validate(message: Any): IItemValidationResult
 }
 
-interface IMessageValidationResult {
+interface IItemValidationResult {
     fun isValid(): Boolean
 
     fun getErrorsMessage(): String
 }
 
-data class HL7ValidationResult(val rawReport: Report) : IMessageValidationResult {
+data class HL7ValidationResult(val rawReport: Report) : IItemValidationResult {
     override fun isValid(): Boolean {
         val errors = getErrors()
         return errors.isEmpty()
@@ -30,7 +30,7 @@ data class HL7ValidationResult(val rawReport: Report) : IMessageValidationResult
 
     private fun getErrors(): List<Entry> {
         val errors = rawReport.entries.values.flatten().filter { entry ->
-            entry.classification == AbstractMessageValidator.ERROR_CLASSIFICATION
+            entry.classification == AbstractItemValidator.ERROR_CLASSIFICATION
         }
         return errors
     }
@@ -40,7 +40,7 @@ data class HL7ValidationResult(val rawReport: Report) : IMessageValidationResult
     }
 }
 
-data class FHIRValidationResult(val rawValidationResult: ValidationResult) : IMessageValidationResult {
+data class FHIRValidationResult(val rawValidationResult: ValidationResult) : IItemValidationResult {
     override fun isValid(): Boolean {
         return rawValidationResult.isSuccessful
     }
@@ -53,7 +53,7 @@ data class FHIRValidationResult(val rawValidationResult: ValidationResult) : IMe
     }
 }
 
-abstract class AbstractMessageValidator : IMessageValidator {
+abstract class AbstractItemValidator : IItemValidator {
 
     companion object {
         const val ERROR_CLASSIFICATION = "Error"
@@ -105,7 +105,7 @@ abstract class AbstractMessageValidator : IMessageValidator {
 
     open val hl7ConformanceProfileLocation: String? = null
 
-    override fun validate(message: Any): IMessageValidationResult {
+    override fun validate(message: Any): IItemValidationResult {
         if (message is Message && hl7ConformanceProfileLocation != null) {
             val validator = getHL7Validator(hl7ConformanceProfileLocation!!)
             return validateHL7(message, validator)
@@ -118,13 +118,13 @@ abstract class AbstractMessageValidator : IMessageValidator {
         throw RuntimeException("Message must be an HL7 message or a FHIR bundle")
     }
 
-    open fun validateHL7(message: Message, validator: SyncHL7Validator): IMessageValidationResult {
+    open fun validateHL7(message: Message, validator: SyncHL7Validator): IItemValidationResult {
         val msgId = validator.profile().messages().keys().head()
         val report = validator.check(message.encodePreserveEncodingChars(), msgId)
         return HL7ValidationResult(report)
     }
 
-    open fun validateFHIR(bundle: Bundle): IMessageValidationResult {
+    open fun validateFHIR(bundle: Bundle): IItemValidationResult {
         val ctx = FhirContext.forR4()
         val validator = ctx.newValidator()
         val result = validator.validateWithResult(bundle)

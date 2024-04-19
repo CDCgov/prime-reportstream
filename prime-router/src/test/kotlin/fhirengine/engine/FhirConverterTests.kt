@@ -35,10 +35,10 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.metadata.LookupTable
-import gov.cdc.prime.router.validation.AbstractMessageValidator
+import gov.cdc.prime.router.validation.AbstractItemValidator
 import gov.cdc.prime.router.validation.FHIRValidationResult
 import gov.cdc.prime.router.validation.HL7ValidationResult
-import gov.cdc.prime.router.validation.IMessageValidator
+import gov.cdc.prime.router.validation.IItemValidator
 import gov.nist.validation.report.Entry
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -650,7 +650,7 @@ class FhirConverterTests {
             message.message = "Validation failed"
             every { fhirValidationResult.isSuccessful } returns false
             every { fhirValidationResult.messages } returns listOf(message)
-            val mockValidator = mockk<IMessageValidator>()
+            val mockValidator = mockk<IItemValidator>()
             every { mockValidator.validate(any()) } returns FHIRValidationResult(fhirValidationResult)
             mockkObject(Topic.FULL_ELR)
             every { Topic.FULL_ELR.validator } returns mockValidator
@@ -695,10 +695,10 @@ class FhirConverterTests {
         fun `should log a HL7 validation error and not return a bundle`() {
             val mockValidation = mockk<hl7.v2.validation.report.Report>()
             val mockEntry = mockk<Entry>()
-            every { mockEntry.classification } returns AbstractMessageValidator.ERROR_CLASSIFICATION
+            every { mockEntry.classification } returns AbstractItemValidator.ERROR_CLASSIFICATION
             every { mockEntry.toText() } returns "Validation error"
             every { mockValidation.entries } returns mapOf("ORU" to listOf(mockEntry))
-            val mockValidator = mockk<IMessageValidator>()
+            val mockValidator = mockk<IItemValidator>()
             every { mockValidator.validate(any()) } returns HL7ValidationResult(mockValidation)
             mockkObject(Topic.FULL_ELR)
             every { Topic.FULL_ELR.validator } returns mockValidator

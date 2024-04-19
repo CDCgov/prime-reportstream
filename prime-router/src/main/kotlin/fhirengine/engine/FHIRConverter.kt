@@ -36,7 +36,7 @@ import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
 import gov.cdc.prime.router.fhirengine.utils.addMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.logging.LogMeasuredTime
-import gov.cdc.prime.router.validation.IMessageValidator
+import gov.cdc.prime.router.validation.IItemValidator
 import io.github.oshai.kotlinlogging.withLoggingContext
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.hl7.fhir.r4.model.Bundle
@@ -302,7 +302,7 @@ class FHIRConverter(
      */
     private fun getBundlesFromRawHL7(
         rawReport: String,
-        validator: IMessageValidator,
+        validator: IItemValidator,
     ): List<IProcessedItem<Message>> {
         val itemStream =
             Hl7InputStreamMessageStringIterator(rawReport.byteInputStream()).asSequence()
@@ -336,7 +336,7 @@ class FHIRConverter(
 
     private fun validateAndConvertHL7Item(
         item: ProcessedHL7Item,
-        validator: IMessageValidator,
+        validator: IItemValidator,
     ): ProcessedHL7Item = if (item.parsedItem != null) {
         val validationResult = validator.validate(item.parsedItem)
         if (validationResult.isValid()) {
@@ -380,7 +380,7 @@ class FHIRConverter(
      */
     private fun getBundlesFromRawFHIR(
         rawReport: String,
-        validator: IMessageValidator,
+        validator: IItemValidator,
     ): MutableList<IProcessedItem<Bundle>> {
         val lines = rawReport.lines()
         return maybeParallelize(
@@ -397,7 +397,7 @@ class FHIRConverter(
 
     private fun validateFHIRItem(
         item: ProcessedFHIRItem,
-        validator: IMessageValidator,
+        validator: IItemValidator,
     ): ProcessedFHIRItem = if (item.parsedItem != null) {
         val validationResult = validator.validate(item.parsedItem)
         if (validationResult.isValid()) {
