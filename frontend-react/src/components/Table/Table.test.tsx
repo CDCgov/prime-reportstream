@@ -8,7 +8,6 @@ import Table, { ColumnConfig, TableConfig } from "./Table";
 import TableFilters, { TableFilterDateLabel } from "./TableFilters";
 import { DatasetAction } from "./TableInfo";
 import { TableRowData, TableRows } from "./TableRows";
-import { receiverServicesGenerator } from "../../__mocks__/DataDashboardMockServer";
 import { filterManagerFixture } from "../../hooks/filters/filters.fixtures";
 import useCursorManager, {
     CursorActionType,
@@ -146,9 +145,6 @@ const FilteredTable = () => {
         <Table config={getTestConfig(10)} filterManager={mockFilterManager} />
     );
 };
-
-const mockReceiverServices = receiverServicesGenerator(5);
-const mockActiveReceiver = mockReceiverServices[0];
 
 const testDataRowOne = {
     one: "value one",
@@ -302,7 +298,6 @@ const TestTable = ({
                     hasPrev,
                     update: updateCursors,
                 }}
-                initialService={mockActiveReceiver}
                 setSearchTerm={
                     handleSearchTerm as Dispatch<SetStateAction<string>>
                 }

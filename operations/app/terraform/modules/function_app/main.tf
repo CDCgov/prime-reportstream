@@ -60,6 +60,7 @@ resource "azurerm_function_app" "function_app" {
       # Allows Docker versioning via GitHub Actions
       site_config[0].linux_fx_version,
       storage_account_access_key,
+      app_settings["APPLICATIONINSIGHTS_CONNECTION_STRING"],
       tags
     ]
   }

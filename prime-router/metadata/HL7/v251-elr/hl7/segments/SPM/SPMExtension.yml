@@ -17,7 +17,7 @@ extension:
           type: STRING
           value: SPM.3.1
         valueIdentifier:
-          valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
+          valueOf: ../../datatypes/v251/hl7/datatypes/EIP/Identifier-PlacerAssignedIdentifier
           expressionType: resource
           constants:
             hl7v2Field: SPM.3
@@ -33,7 +33,7 @@ extension:
           type: STRING
           value: SPM.3.2
         valueIdentifier:
-          valueOf: datatypes/EIP/Identifier-FillerAssignedIdentifier
+          valueOf: ../../datatypes/v251/hl7/datatypes/EIP/Identifier-FillerAssignedIdentifier
           expressionType: resource
           constants:
             hl7v2Field: SPM.3
@@ -50,7 +50,7 @@ extension:
           value: SPM.5
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
     - expressionType: nested
       vars:
         spm6: SPM.6
@@ -63,7 +63,7 @@ extension:
           value: SPM.6
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
     - expressionType: nested
       vars:
         spm10: SPM.10
@@ -76,7 +76,7 @@ extension:
           value: SPM.10
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
     - expressionType: nested
       vars:
         spm11: SPM.11
@@ -89,7 +89,7 @@ extension:
           value: SPM.11
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
     - expressionType: nested
       vars:
         spm13: SPM.13
@@ -115,7 +115,7 @@ extension:
           value: SPM.15
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
     - expressionType: nested
       vars:
         spm16: SPM.16
@@ -128,7 +128,7 @@ extension:
           value: SPM.16
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
     - expressionType: nested
       vars:
         spm19: SPM.19
@@ -167,7 +167,7 @@ extension:
           value: SPM.22
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
     - expressionType: nested
       vars:
         spm23: SPM.23
@@ -180,7 +180,7 @@ extension:
           value: SPM.23
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
     - expressionType: nested
       vars:
         spm25: SPM.25
@@ -193,7 +193,7 @@ extension:
           value: SPM.25
         valueQuantity:
           expressionType: resource
-          valueOf: datatypes/CQ/Quantity
+          valueOf: ../../datatypes/v251/hl7/datatypes/CQ/Quantity
     - expressionType: nested
       vars:
         spm26: SPM.26
@@ -219,7 +219,7 @@ extension:
           value: SPM.28
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
     - expressionType: nested
       vars:
         spm29: SPM.29
@@ -232,17 +232,4 @@ extension:
           value: SPM.29
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
-    - expressionType: nested
-      vars:
-        spm30: SPM.30
-      condition: $spm30 NOT_NULL
-      specs: SPM.30 *
-      generateList: true
-      expressionsMap:
-        url:
-          type: STRING
-          value: spm-30-accession-id
-        valueIdentifier:
-          expressionType: resource
-          valueOf: datatypes/CX/Identifier
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
