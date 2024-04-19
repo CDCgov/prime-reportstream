@@ -14,7 +14,7 @@
 - [Debugging](#debugging)
 - [Running the frontend](#running-the-frontend)
 - [Running the static site](#running-the-static-site)
-- [Push a sample message through the app](#push-a-sample-message-through-the-app)
+- [Submit a sample message through the app](#submit-a-sample-message-through-the-app)
 - [Troubleshooting](#troubleshooting)
 - [Next steps](#next-steps)
 
@@ -162,15 +162,15 @@ If using IntelliJ, this can be easily configured by first opening the `primer-ro
 
 See the [frontend React docs](../../../frontend-react/README.md) for more information. Once you've done that and want to log in, __you need to use the same okta credentials you use when logging into the staging or production instances of the app__. 
 
-## Push a sample message through the app 
+## Submit a sample message through the app 
 
 1. If you haven't already, [download Postman](https://www.postman.com/downloads/) and install it. Import [the collections in the postman folder](./postman) into postman.
 
 2. If you haven't already, ensure the app is up and running. 
 
-3. Log into the LOCAL instance of the front end app. Do this by way of the front-end app and your CDC okta credentials.
+3. Log into the LOCAL instance of the front end app. Use your STAGING CDC okta credentials.
 
-4. In order to send a message, you are going to need add the "sender id" to the POST header. Click on "edit" on the "development" row. 
+4. In order to send a message, you are going to need to add the "sender id" to the POST header. Click on "edit" on the "development" row. 
 
 ![report_stream_organizations.png](./img/report_stream_organizations.png)
 
@@ -178,7 +178,7 @@ See the [frontend React docs](../../../frontend-react/README.md) for more inform
 
 ![development_org_sender_settings.png](./img/development_org_sender_settings.png)
 
-6. In PostMan, open collection `ReportStream HL7 Demo (Local)` and select `POST Single HL7 Full ELR`. Then, under `headers` change the client value to `development.dev-elims` and press __Send__. If all went well you'll get an HTTP/201 response as shown below. 
+6. In postman, open collection `ReportStream HL7 Demo (Local)` and select `POST Single HL7 Full ELR`. Then, under `headers` change the client value to `development.dev-elims` and press __Send__. If all went well you'll get an HTTP/201 response as shown below. 
 
 ![postman_example.png](./img/postman_example.png)
 
