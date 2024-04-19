@@ -1,4 +1,4 @@
-export const MOCK_GET_REPORT_HISTORY = {
+export const MOCK_GET_SUBMISSION_HISTORY = {
     id: "73e3cbc8-9920-4ab7-871f-843a1db4c074",
     submissionId: 3812533,
     overallStatus: "Delivered",

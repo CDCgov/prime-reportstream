@@ -54,24 +54,7 @@ test.describe("Daily Data page", () => {
             });
 
             test("table has correct headers", async ({ page }) => {
-                await expect(page.locator(".usa-table th").nth(0)).toHaveText(
-                    /Report ID/,
-                );
-                await expect(page.locator(".usa-table th").nth(1)).toHaveText(
-                    /Time received/,
-                );
-                await expect(page.locator(".usa-table th").nth(2)).toHaveText(
-                    /File available until/,
-                );
-                await expect(page.locator(".usa-table th").nth(3)).toHaveText(
-                    /Items/,
-                );
-                await expect(page.locator(".usa-table th").nth(4)).toHaveText(
-                    /Filename/,
-                );
-                await expect(page.locator(".usa-table th").nth(5)).toHaveText(
-                    /Receiver/,
-                );
+                await dailyData.tableHeaders(page);
             });
 
             test("table has pagination", async ({ page }) => {
@@ -104,24 +87,7 @@ test.describe("Daily Data page", () => {
         });
 
         test("table has correct headers", async ({ page }) => {
-            await expect(page.locator(".usa-table th").nth(0)).toHaveText(
-                /Report ID/,
-            );
-            await expect(page.locator(".usa-table th").nth(1)).toHaveText(
-                /Time received/,
-            );
-            await expect(page.locator(".usa-table th").nth(2)).toHaveText(
-                /File available until/,
-            );
-            await expect(page.locator(".usa-table th").nth(3)).toHaveText(
-                /Items/,
-            );
-            await expect(page.locator(".usa-table th").nth(4)).toHaveText(
-                /Filename/,
-            );
-            await expect(page.locator(".usa-table th").nth(5)).toHaveText(
-                /Receiver/,
-            );
+            await dailyData.tableHeaders(page);
         });
 
         test("table has pagination", async ({ page }) => {
