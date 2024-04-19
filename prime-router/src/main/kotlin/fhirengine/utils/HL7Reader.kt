@@ -241,6 +241,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          * Map of configured message types to their configuration
          */
         val messageToConfigMap = mapOf(
+            // TODO: https://github.com/CDCgov/prime-reportstream/issues/14124
             HL7MessageType(
                 "ORU_R01",
                 "2.5.1",
@@ -259,7 +260,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             )
         )
 
-        // TODO tech debt ticket to switch the code base to using this method
+        // TODO: https://github.com/CDCgov/prime-reportstream/issues/14116
         /**
          * Accepts a raw HL7 string and uses the MSH segment to detect the [HL7MessageType] which is then used
          * to parse the string into an instance of [Message]. If the type is not one that is configured in
@@ -323,8 +324,6 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                 terser.get("MSH-21-3") ?: ""
             )
         }
-
-        // TODO: https://github.com/CDCgov/prime-reportstream/issues/14116
 
         // map of HL7 message profiles: maps profile to configuration directory path
         val profileDirectoryMap: Map<MessageProfile, String> = mapOf(

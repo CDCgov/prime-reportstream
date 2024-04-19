@@ -186,8 +186,6 @@ class FhirConverterTests {
 
         // assert
         verify(exactly = 1) {
-            // TODO clean up assertions
-            //            engine.getContentFromHL7(any(), any())
             actionHistory.trackExistingInputReport(any())
             transformer.process(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
