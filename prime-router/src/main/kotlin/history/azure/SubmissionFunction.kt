@@ -141,7 +141,8 @@ class SubmissionFunction(
 
     /**
      * API endpoint to return history of a single report from the CDC Intermediary.
-     * The [id] can be a valid UUID or a valid actionId (aka submissionId, to our users)
+     * The [id] is a valid report UUID.  This endpoint is for the Intermediary only, please don't update
+     * without contacting that engineering team
      */
     @FunctionName("getTiMetadataForHistory")
     fun getTiMetadata(
@@ -165,9 +166,8 @@ class SubmissionFunction(
         // TODO: Decide whether to refactor shared bits for calling TI Metadata in Submission and Delivery
         val receiver = workflowEngine.settings.findReceiver("flexion.etor-service-receiver-orders")
         val client = HttpClient()
-        val restTransport = RESTTransport()
         val restTransportInfo = receiver?.transport as RESTTransportType
-        val (credential, jksCredential) = restTransport.getCredential(restTransportInfo, receiver)
+        val (credential, jksCredential) = RESTTransport().getCredential(restTransportInfo, receiver)
         val logger: Logger = context.logger
         var authPair: Pair<Map<String, String>?, String?> =
             Pair(null, null)
@@ -176,7 +176,7 @@ class SubmissionFunction(
 
         runBlocking {
             launch {
-                authPair = restTransport.getOAuthToken(
+                authPair = RESTTransport().getOAuthToken(
                     restTransportInfo,
                     id,
                     jksCredential,
@@ -203,7 +203,7 @@ class SubmissionFunction(
 
         runBlocking {
             launch {
-                response = client.get("${System.getenv("ETOR_TI_baseurl")}/v1/etor/metadata/" + lookupId) {
+                response = HttpClient().get("${System.getenv("ETOR_TI_baseurl")}/v1/etor/metadata/" + lookupId) {
                     authPair.first?.forEach { entry ->
                         headers.append(entry.key, entry.value)
                     }

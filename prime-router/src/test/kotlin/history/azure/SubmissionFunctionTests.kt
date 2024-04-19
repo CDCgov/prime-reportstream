@@ -4,16 +4,21 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
+import com.microsoft.azure.functions.ExecutionContext
+import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.RESTTransportType
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.MockSettings
@@ -22,19 +27,35 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.cli.tests.ExpectedSubmissionList
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.credentials.RestCredential
+import gov.cdc.prime.router.credentials.UserJksCredential
+import gov.cdc.prime.router.history.Destination
+import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.SubmissionHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TestDefaultJwt
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
+import gov.cdc.prime.router.transport.RESTTransport
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.mockk.MockKMatcherScope
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
+import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.spyk
 import org.apache.logging.log4j.kotlin.Logging
+import org.apache.xmlbeans.impl.soap.Detail
 import org.jooq.exception.DataAccessException
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
@@ -43,6 +64,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import java.time.Instant
 import java.time.OffsetDateTime
+import java.util.UUID
+import java.util.logging.Logger
 import kotlin.test.Test
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -312,8 +335,27 @@ class SubmissionFunctionTests : Logging {
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "one"
         )
+
+            val receiver = Receiver("flexion.etor-service-receiver-orders",
+            "flexion.etor-service-receiver-orders",
+            Topic.ETOR_TI,
+            CustomerStatus.ACTIVE,
+            mockk<TranslatorConfiguration>(),
+            emptyList(),
+            emptyList(),
+            emptyList(),
+            emptyList(),
+            false,
+            emptyList(),
+            emptyList(),
+            false,
+            "test", null, "", mockk<RESTTransportType>(), "", emptyList())
+
+
         settings.senderStore[sender2.fullName] = sender2
+        settings.receiverStore["flexion.etor-service-receiver-orders"] = receiver
         val engine = makeEngine(metadata, settings)
+        engine.settings.receivers.plus(receiver)
         mockkObject(OktaAuthentication.Companion)
         every { OktaAuthentication.Companion.decodeJwt(any()) } returns
             TestDefaultJwt(
@@ -471,4 +513,93 @@ class SubmissionFunctionTests : Logging {
         response = function.getReportDetailedHistory(mockRequest, emptyActionId)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
     }
+
+
+    @Test
+    fun `test getTiMetadata`() {
+
+
+        val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
+        val mockRequest = MockHttpRequestMessage()
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+        val mockSubmissionFacade = mockk<SubmissionsFacade>()
+        val function = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, mockSubmissionFacade)
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
+            AuthenticatedClaims.generateTestClaims()
+
+        // Good return
+        val returnBody = DetailedSubmissionHistory(
+            550, TaskAction.receive, OffsetDateTime.now(), 201,
+            null
+        )
+
+        val detailedReport = DetailedReport(UUID.randomUUID(),
+            "flexion", "flexion", "lab", "lab", Topic.ETOR_TI, "external",
+            null, null, 1, 1, true )
+
+        returnBody.destinations = listOf(Destination("flexion", "test", mutableListOf(), mutableListOf(),
+         OffsetDateTime.now(), 1, 1, mutableListOf(detailedReport), mutableListOf())).toMutableList()
+
+        mockkConstructor(RESTTransport::class)
+        mockkConstructor(HttpClient::class)
+        val action = Action()
+        action.actionId = 550
+        action.sendingOrg = organizationName
+        action.actionName = TaskAction.receive
+        every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
+        every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
+        every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
+
+
+        val restCreds = mockk<RestCredential>()
+        val userCreds = mockk<UserJksCredential>()
+
+        val creds = Pair(restCreds, userCreds)
+
+        every { anyConstructed<RESTTransport>().getCredential(any(), any())} returns creds
+
+            coEvery {
+                    anyConstructed<RESTTransport>().getOAuthToken(
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any()
+                    )} returns Pair (mapOf("a" to "b"), "TEST")
+
+        //val mockResponse = mockk<HttpResponse>()
+
+//        coEvery {
+//            anyConstructed<HttpClient>().get(any())
+//        } returns MockKMatcherScope.DynamicCall("test")
+
+        val mock = MockEngine { call ->
+            respond("{}",
+                HttpStatusCode.OK,
+                headersOf("Content-Type", ContentType.Application.Json.toString()))
+        }
+
+
+        val customContext = mockk<ExecutionContext>()
+        every { customContext.logger } returns mockk<Logger>()
+
+        var response = function.getTiMetadata(mockRequest, goodUuid, customContext)
+
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+    }
  }
+
+//private fun mockHttpClient(): HttpClient {
+//    return HttpClient(MockEngine) {
+//        engine {
+//            addHandler {
+//                respond(
+//                    content = "test",
+//                    status = HttpStatusCode.OK,
+//                )
+//            }
+//        }
+//    }
+//}
