@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1712602072756028000.cb4b7521-c549-4932-b4a9-cd7e0c4cabd8",
+  "id" : "1713403085477795000.87b249cb-cffd-42d4-a0c6-1bc849ef19e1",
   "meta" : {
-    "lastUpdated" : "2024-04-08T12:47:52.765-06:00"
+    "lastUpdated" : "2024-04-17T19:18:05.487-06:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -35,10 +35,10 @@
       }
     }
   }, {
-    "fullUrl" : "Provenance/1712602073381530000.24fadd66-2d4f-4bf8-a9d6-1ba4029aea64",
+    "fullUrl" : "Provenance/1713403086125556000.56cddc76-997e-4010-bc99-8b72195af802",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1712602073381530000.24fadd66-2d4f-4bf8-a9d6-1ba4029aea64",
+      "id" : "1713403086125556000.56cddc76-997e-4010-bc99-8b72195af802",
       "target" : [ {
         "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
       } ],
@@ -50,11 +50,11 @@
       }
     }
   }, {
-    "fullUrl" : "Provenance/1712602073393562000.2170b388-c6b2-47df-ac0e-34f0e5c7bf15",
+    "fullUrl" : "Provenance/1713403086138867000.16053c96-7e09-45c1-be9e-5d973827c9e3",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1712602073393562000.2170b388-c6b2-47df-ac0e-34f0e5c7bf15",
-      "recorded" : "2024-04-08T12:47:53Z",
+      "id" : "1713403086138867000.16053c96-7e09-45c1-be9e-5d973827c9e3",
+      "recorded" : "2024-04-17T19:18:06Z",
       "policy" : [ "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle" ],
       "activity" : {
         "coding" : [ {
@@ -69,15 +69,15 @@
           } ]
         },
         "who" : {
-          "reference" : "Organization/1712602073392413000.6c10e08f-f979-479d-821f-72a27a8eeadf"
+          "reference" : "Organization/1713403086137725000.e57452f6-eedc-4aa0-8f3f-cb85dfdf3ef5"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1712602073392413000.6c10e08f-f979-479d-821f-72a27a8eeadf",
+    "fullUrl" : "Organization/1713403086137725000.e57452f6-eedc-4aa0-8f3f-cb85dfdf3ef5",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1712602073392413000.6c10e08f-f979-479d-821f-72a27a8eeadf",
+      "id" : "1713403086137725000.e57452f6-eedc-4aa0-8f3f-cb85dfdf3ef5",
       "identifier" : [ {
         "value" : "CDC PRIME - Atlanta"
       }, {
@@ -91,10 +91,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Patient/1712602073423968000.a30565ea-8a06-43d3-aed8-751a3838f9e4",
+    "fullUrl" : "Patient/1713403086172163000.32b3c4a9-e0e4-459c-a443-a028753bd407",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1712602073423968000.a30565ea-8a06-43d3-aed8-751a3838f9e4",
+      "id" : "1713403086172163000.32b3c4a9-e0e4-459c-a443-a028753bd407",
       "contact" : [ {
         "name" : {
           "extension" : [ {
@@ -105,9 +105,6 @@
             }, {
               "url" : "XPN.3",
               "valueString" : "B"
-            }, {
-              "url" : "XPN.14",
-              "valueString" : "MD"
             }, {
               "url" : "XPN.4",
               "valueString" : "2ND"
@@ -126,6 +123,9 @@
             }, {
               "url" : "XPN.13",
               "valueString" : "20230501102531-0400"
+            }, {
+              "url" : "XPN.14",
+              "valueString" : "MD"
             } ]
           }, {
             "url" : "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order",
@@ -159,14 +159,14 @@
       } ]
     }
   }, {
-    "fullUrl" : "Provenance/1712602073427627000.233cbea6-a41b-4daf-9ff7-97e17ec73689",
+    "fullUrl" : "Provenance/1713403086175184000.c6e7782b-d236-4380-9c66-45736f2b2b04",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1712602073427627000.233cbea6-a41b-4daf-9ff7-97e17ec73689",
+      "id" : "1713403086175184000.c6e7782b-d236-4380-9c66-45736f2b2b04",
       "target" : [ {
-        "reference" : "Patient/1712602073423968000.a30565ea-8a06-43d3-aed8-751a3838f9e4"
+        "reference" : "Patient/1713403086172163000.32b3c4a9-e0e4-459c-a443-a028753bd407"
       } ],
-      "recorded" : "2024-04-08T12:47:53Z",
+      "recorded" : "2024-04-17T19:18:06Z",
       "activity" : {
         "coding" : [ {
           "system" : "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
@@ -175,16 +175,16 @@
       }
     }
   }, {
-    "fullUrl" : "RelatedPerson/1712602073432396000.c58528d7-a0c9-47d9-be3b-0e9e8c8a9063",
+    "fullUrl" : "RelatedPerson/1713403086181253000.8d5b84f7-90b0-4865-976d-6ecf7f60e4b7",
     "resource" : {
       "resourceType" : "RelatedPerson",
-      "id" : "1712602073432396000.c58528d7-a0c9-47d9-be3b-0e9e8c8a9063",
+      "id" : "1713403086181253000.8d5b84f7-90b0-4865-976d-6ecf7f60e4b7",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
         "valueString" : "NK1"
       } ],
       "patient" : {
-        "reference" : "Patient/1712602073423968000.a30565ea-8a06-43d3-aed8-751a3838f9e4"
+        "reference" : "Patient/1713403086172163000.32b3c4a9-e0e4-459c-a443-a028753bd407"
       },
       "name" : [ {
         "extension" : [ {
@@ -198,9 +198,6 @@
           }, {
             "url" : "XPN.3",
             "valueString" : "B"
-          }, {
-            "url" : "XPN.14",
-            "valueString" : "MD"
           }, {
             "url" : "XPN.4",
             "valueString" : "2ND"
@@ -219,6 +216,9 @@
           }, {
             "url" : "XPN.13",
             "valueString" : "20230501102531-0400"
+          }, {
+            "url" : "XPN.14",
+            "valueString" : "MD"
           } ]
         }, {
           "url" : "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order",

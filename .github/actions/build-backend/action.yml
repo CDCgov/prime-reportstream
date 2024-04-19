@@ -45,7 +45,7 @@ runs:
       run: ./gradlew ktlintCheck
       shell: bash
 
-    - uses: gradle/actions/wrapper-validation@6cec5d49d4d6d4bb982fbed7047db31ea6d38f11
+    - uses: gradle/actions/wrapper-validation@750cdda3edd6d51b7fdfc069d2e2818cf3c44f4c
 
     - name: Spin up build containers
       working-directory: prime-router
@@ -129,12 +129,13 @@ runs:
       run: docker compose -f docker-compose.yml up -d prime_dev sftp azurite azurite-stage
       shell: bash
 
+      # Important to give enough time here in order to avoid a race described in https://github.com/CDCgov/prime-reportstream/issues/13961#issuecomment-2065217386
     - name: Give some time for the container to start
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
       run: |
-        echo "sleeping 30"
-        sleep 30
+        echo "sleeping 90"
+        sleep 90
         echo "wake up"
       shell: bash
 
