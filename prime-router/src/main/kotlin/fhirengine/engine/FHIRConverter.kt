@@ -115,8 +115,8 @@ class FHIRConverter(
                 maybeParallelize(
                     fhirBundles.size,
                     Streams.mapWithIndex(fhirBundles.stream()) { bundle, index ->
-                    Pair(bundle, index)
-                },
+                        Pair(bundle, index)
+                    },
                     "Applying sender transforms and routing"
                 ).map { (bundle, bundleIndex) ->
                     // conduct FHIR Transform
