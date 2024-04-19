@@ -103,93 +103,103 @@ class FHIRConverter(
 
         val fhirBundles = process(format, queueMessage, actionLogger)
 
-        // TODO ticket to add more logs below
         if (fhirBundles.isNotEmpty()) {
-            val transformer = getTransformerFromSchema(
-                schemaName
-            )
-            return fhirBundles.mapIndexed { bundleIndex, bundle ->
-                // conduct FHIR Transform
-                transformer?.process(bundle)
+            return LogMeasuredTime.measureAndLogDurationWithReturnedValue(
+                "Applied sender transform and routed",
+                mapOf("reportId" to queueMessage.reportId.toString(), "topic" to queueMessage.topic.name)
+            ) {
+                val transformer = getTransformerFromSchema(
+                    schemaName
+                )
 
-                // 'stamp' observations with their condition code
-                bundle.getObservations().forEach {
-                    // TODO: https://github.com/CDCgov/prime-reportstream/issues/14114
-                    it.addMappedConditions(metadata).run {
-                        actionLogger.getItemLogger(bundleIndex + 1, it.id)
-                            .setReportId(queueMessage.reportId)
-                            .warn(this)
+                maybeParallelize(
+                    fhirBundles.size,
+                    Streams.mapWithIndex(fhirBundles.stream()) { bundle, index ->
+                    Pair(bundle, index)
+                },
+                    "Applying sender transforms and routing"
+                ).map { (bundle, bundleIndex) ->
+                    // conduct FHIR Transform
+                    transformer?.process(bundle)
+
+                    // 'stamp' observations with their condition code
+                    bundle.getObservations().forEach {
+                        // TODO: https://github.com/CDCgov/prime-reportstream/issues/14114
+                        it.addMappedConditions(metadata).run {
+                            actionLogger.getItemLogger(bundleIndex.toInt() + 1, it.id)
+                                .warn(this)
+                        }
                     }
-                }
 
-                // TODO: https://github.com/CDCgov/prime-reportstream/issues/14115
-                // make a 'report'
-                val report = Report(
-                    Report.Format.FHIR,
-                    emptyList(),
-                    1,
-                    itemLineage = listOf(
-                        ItemLineage()
-                    ),
-                    metadata = this.metadata,
-                    topic = queueMessage.topic,
-                )
-
-                // TODO: add tests https://github.com/CDCgov/prime-reportstream/issues/13507
-                report.itemLineages = listOf(
-                    ItemLineage(
-                        null,
-                        queueMessage.reportId,
-                        bundleIndex,
-                        report.id,
+                    // TODO: https://github.com/CDCgov/prime-reportstream/issues/14115
+                    // make a 'report'
+                    val report = Report(
+                        Report.Format.FHIR,
+                        emptyList(),
                         1,
-                        null,
-                        null,
-                        null,
-                        report.getItemHashForRow(1)
+                        itemLineage = listOf(
+                            ItemLineage()
+                        ),
+                        metadata = this.metadata,
+                        topic = queueMessage.topic,
                     )
-                )
 
-                // create route event
-                val routeEvent = ProcessEvent(
-                    Event.EventAction.ROUTE,
-                    report.id,
-                    Options.None,
-                    emptyMap(),
-                    emptyList()
-                )
-
-                // upload to blobstore
-                val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
-                val blobInfo = BlobAccess.uploadBody(
-                    Report.Format.FHIR,
-                    bodyBytes,
-                    report.name,
-                    queueMessage.blobSubFolderName,
-                    routeEvent.eventAction
-                )
-
-                // track created report
-                actionHistory.trackCreatedReport(routeEvent, report, blobInfo = blobInfo)
-                azureEventService.trackEvent(
-                    ReportCreatedEvent(
-                        report.id,
-                        queueMessage.topic
+                    // TODO: add tests https://github.com/CDCgov/prime-reportstream/issues/13507
+                    report.itemLineages = listOf(
+                        ItemLineage(
+                            null,
+                            queueMessage.reportId,
+                            bundleIndex.toInt(),
+                            report.id,
+                            1,
+                            null,
+                            null,
+                            null,
+                            report.getItemHashForRow(1)
+                        )
                     )
-                )
 
-                FHIREngineRunResult(
-                    routeEvent,
-                    report,
-                    blobInfo.blobUrl,
-                    FhirRouteQueueMessage(
+                    // create route event
+                    val routeEvent = ProcessEvent(
+                        Event.EventAction.ROUTE,
                         report.id,
-                        blobInfo.blobUrl,
-                        BlobAccess.digestToString(blobInfo.digest),
+                        Options.None,
+                        emptyMap(),
+                        emptyList()
+                    )
+
+                    // upload to blobstore
+                    val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
+                    val blobInfo = BlobAccess.uploadBody(
+                        Report.Format.FHIR,
+                        bodyBytes,
+                        report.name,
                         queueMessage.blobSubFolderName,
-                        queueMessage.topic
+                        routeEvent.eventAction
                     )
-                )
+
+                    // track created report
+                    actionHistory.trackCreatedReport(routeEvent, report, blobInfo = blobInfo)
+                    azureEventService.trackEvent(
+                        ReportCreatedEvent(
+                            report.id,
+                            queueMessage.topic
+                        )
+                    )
+
+                    FHIREngineRunResult(
+                        routeEvent,
+                        report,
+                        blobInfo.blobUrl,
+                        FhirRouteQueueMessage(
+                            report.id,
+                            blobInfo.blobUrl,
+                            BlobAccess.digestToString(blobInfo.digest),
+                            queueMessage.blobSubFolderName,
+                            queueMessage.topic
+                        )
+                    )
+                }.collect(Collectors.toList())
             }
         }
         return emptyList()
@@ -310,7 +320,7 @@ class FHIRConverter(
                     ProcessedHL7Item(rawItem, index)
                 }.toList()
 
-        return maybeParallelize(itemStream.size, itemStream.stream()).map { item ->
+        return maybeParallelize(itemStream.size, itemStream.stream(), "Generating FHIR bundles in").map { item ->
             parseHL7Item(item)
         }.map { item ->
             validateAndConvertHL7Item(item, validator)
@@ -387,7 +397,8 @@ class FHIRConverter(
             lines.size,
             Streams.mapWithIndex(lines.stream()) { rawItem, index ->
                 ProcessedFHIRItem(rawItem, index.toInt())
-            }
+            },
+            "Generating FHIR bundles in"
         ).map { item ->
             parseFHIRItem(item)
         }.map { item ->
@@ -436,18 +447,19 @@ class FHIRConverter(
      * @param stream the stream to optionally parallelize
      *
      */
-    private fun <ProcessedItemType : IProcessedItem<*>> maybeParallelize(
+    private fun <ProcessedItemType> maybeParallelize(
         streamSize: Int,
         stream: Stream<ProcessedItemType>,
+        message: String,
     ): Stream<ProcessedItemType> =
         if (streamSize > sequentialLimit) {
             withLoggingContext(mapOf("numberOfItems" to streamSize.toString())) {
-                logger.info("Generating FHIR bundles in parallel")
+                logger.info("$message parallel")
             }
             stream.parallel()
         } else {
             withLoggingContext(mapOf("numberOfItems" to streamSize.toString())) {
-                logger.info("Generating FHIR bundles in serial")
+                logger.info("$message serial")
             }
             stream
         }
