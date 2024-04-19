@@ -7,6 +7,7 @@ import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.HapiContext
 import ca.uhn.hl7v2.model.AbstractMessage
 import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.model.v27.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.ParserConfiguration
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
@@ -245,16 +246,16 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                 "2.5.1",
                 "2.16.840.1.113883.9.10"
             ) to HL7MessageParseAndConvertConfiguration(
-                NIST_ELR_ORU_R01::class.java,
-                "./metadata/HL7/v251-elr"
+                ORU_R01::class.java,
+                "./metadata/HL7/catchall"
             ),
             HL7MessageType(
                 "ORU_R01",
                 "2.5.1",
                 "2.16.840.1.113883.9.11"
             ) to HL7MessageParseAndConvertConfiguration(
-                NIST_ELR_ORU_R01::class.java,
-                "./metadata/HL7/v251-elr"
+                ORU_R01::class.java,
+                "./metadata/HL7/catchall"
             )
         )
 
