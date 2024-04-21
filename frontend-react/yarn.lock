@@ -2256,9 +2256,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-react@npm:^6.7.0":
-  version: 6.7.0
-  resolution: "@okta/okta-react@npm:6.7.0"
+"@okta/okta-react@npm:^6.8.0":
+  version: 6.8.0
+  resolution: "@okta/okta-react@npm:6.8.0"
   dependencies:
     "@babel/runtime": ^7.11.2
     compare-versions: ^4.1.2
@@ -2267,13 +2267,13 @@ __metadata:
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     react-router-dom: ">=5.1.0"
-  checksum: cdc3fd1660fc24631032811ba45f3ae9036a218e7577dff68e61825ffba620a57815e3bba4160c81d5412df0da9dc56a59ad3c7574fafa9ca6087a113ee3781a
+  checksum: a116ec3a9b87bd745a7e6e32a3834c6ae651106330e8ac3b6136557ee0dd2da18d654410c0c7be5a4849df37d90252a0eade94f95f4deb67e02b1c7868d4dca4
   languageName: node
   linkType: hard
 
-"@okta/okta-signin-widget@npm:^7.16.2":
-  version: 7.16.2
-  resolution: "@okta/okta-signin-widget@npm:7.16.2"
+"@okta/okta-signin-widget@npm:^7.17.1":
+  version: 7.17.1
+  resolution: "@okta/okta-signin-widget@npm:7.17.1"
   dependencies:
     "@okta/okta-auth-js": ~7.0.0
     "@sindresorhus/to-milliseconds": ^1.0.0
@@ -2297,7 +2297,7 @@ __metadata:
   dependenciesMeta:
     fsevents:
       optional: true
-  checksum: e4e87286f3d87ad35a38e69ff3fabff6828aa9cb09ea26084106c9a180f22c425575dd1b352fd4f0d08a663de0b0dbb61bb669456c123df44cbeb18b218a037e
+  checksum: 19a5a3d229292224e89ba3ab0a230bffe8a73e44ea0766a815e49a8c51e74c888bacca9849f5fdc1c72fa819e13565451cec9edc200a21e3d589b7da745befaf
   languageName: node
   linkType: hard
 
@@ -12491,8 +12491,8 @@ __metadata:
     "@mdx-js/rollup": ^3.0.1
     "@microsoft/applicationinsights-react-js": ^17.1.1
     "@microsoft/applicationinsights-web": ^3.1.1
-    "@okta/okta-react": ^6.7.0
-    "@okta/okta-signin-widget": ^7.16.2
+    "@okta/okta-react": ^6.8.0
+    "@okta/okta-signin-widget": ^7.17.1
     "@playwright/test": ^1.43.1
     "@rest-hooks/rest": ^3.0.3
     "@rest-hooks/test": ^7.3.1
