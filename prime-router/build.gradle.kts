@@ -39,7 +39,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.9.20"
+    id("org.jetbrains.dokka") version "1.8.20"
     id("com.avast.gradle.docker-compose") version "0.17.6"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")

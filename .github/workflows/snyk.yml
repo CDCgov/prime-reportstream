@@ -16,7 +16,7 @@ jobs:
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -29,7 +29,7 @@ jobs:
       run:
         working-directory: prime-router
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f
       - uses: snyk/actions/setup@b98d498629f1c368650224d6d212bf7dfa89e4bf
       - name: Set up JDK 17 to generate backend coverage stats
         uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9
@@ -37,7 +37,7 @@ jobs:
           java-version: "17"
           distribution: "temurin"
           cache: "gradle"
-      - uses: gradle/actions/wrapper-validation@6cec5d49d4d6d4bb982fbed7047db31ea6d38f11
+      - uses: gradle/actions/wrapper-validation@750cdda3edd6d51b7fdfc069d2e2818cf3c44f4c
       - name: Snyk Monitor
         run: snyk monitor --org=prime-reportstream
         env:
