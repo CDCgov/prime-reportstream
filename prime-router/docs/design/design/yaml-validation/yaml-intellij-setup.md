@@ -1,4 +1,4 @@
-# Intellij Setup
+# IntelliJ IDEA Setup
 
 Getting Intellij setup to report errors during coding greatly speeds up development and reduces errors.
 
