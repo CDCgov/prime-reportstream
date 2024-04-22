@@ -1,0 +1,9 @@
+elements:
+
+  - name: dld-discharge-location
+    value: [ '%resource.type' ]
+    hl7Spec: [ '%{hl7DLDField}-1' ]
+
+  - name: dld-effective-date
+    value: [ '%resource.extension(%`rsext-dld2-effective-date`).value' ]
+    hl7Spec: [ '%{hl7DLDField}-2' ]

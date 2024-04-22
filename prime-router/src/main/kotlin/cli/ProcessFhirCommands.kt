@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.parameters.options.associate
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
@@ -97,6 +98,10 @@ class ProcessFhirCommands : CliktCommand(
      * Sender schema location
      */
     private val senderSchema by option("-s", "--sender-schema", help = "Sender schema location")
+
+    private val inputSchema by option(
+        "--input-schema", help = "Mapping schema for input file"
+    ).default("./metadata/HL7/catchall")
 
     private val hl7DiffHelper = HL7DiffHelper()
 
@@ -234,7 +239,7 @@ class ProcessFhirCommands : CliktCommand(
         val hl7profile = HL7Reader.getMessageProfile(message.toString())
         // search hl7 profile map and create translator with config path if found
         return when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
-            null -> Pair(HL7toFhirTranslator().translate(message), message)
+            null -> Pair(HL7toFhirTranslator(inputSchema).translate(message), message)
             else -> Pair(HL7toFhirTranslator(configPath).translate(message), message)
         }
     }
@@ -248,6 +253,7 @@ class ProcessFhirCommands : CliktCommand(
             senderSchema != null -> {
                 FhirTransformer(senderSchema!!).process(bundle)
             }
+
             else -> bundle
         }
     }
@@ -266,6 +272,7 @@ class ProcessFhirCommands : CliktCommand(
                     receiverSchema!!
                 ).process(enrichedBundle)
             }
+
             else -> enrichedBundle
         }
     }

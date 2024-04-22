@@ -2,6 +2,7 @@ package gov.cdc.prime.router.history
 
 import assertk.assertFailure
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
@@ -255,16 +256,29 @@ class SubmissionHistoryTests {
     fun `test SubmissionHistory init`() {
         SubmissionHistory(
             1,
-            OffsetDateTime.now()
+            OffsetDateTime.now(),
+            null,
+            null,
+            null,
+            null,
+            "",
+            null,
+            "",
+            null,
+            "",
+            "",
         ).run {
             assertThat(actionId).isEqualTo(1)
             assertThat(createdAt).isNotNull()
             assertThat(sendingOrg).isEqualTo("")
             assertThat(httpStatus).isNull()
-            assertThat(externalName).isEqualTo("")
+            assertThat(externalName).isEqualTo(null)
             assertThat(reportId).isNull()
             assertThat(topic).isNull()
             assertThat(reportItemCount).isNull()
+            assertThat(bodyUrl).isNull()
+            assertThat(schemaName).isEqualTo("")
+            assertThat(bodyFormat).isEqualTo("")
         }
         SubmissionHistory(
             1,
@@ -274,7 +288,11 @@ class SubmissionHistoryTests {
             null,
             null,
             "simple_report",
-            201
+            201,
+            "",
+            "http://anyblob.com",
+            "test-schema",
+            "CSV"
         ).run {
             assertThat(actionId).isEqualTo(1)
             assertThat(createdAt).isNotNull()
@@ -284,6 +302,9 @@ class SubmissionHistoryTests {
             assertThat(reportId).isNull()
             assertThat(topic).isNull()
             assertThat(reportItemCount).isNull()
+            assertThat(bodyUrl).isEqualTo("http://anyblob.com")
+            assertThat(schemaName).isEqualTo("test-schema")
+            assertThat(bodyFormat).isEqualTo("CSV")
         }
         SubmissionHistory(
             1,
@@ -294,6 +315,10 @@ class SubmissionHistoryTests {
             3,
             "simple_report",
             201,
+            "",
+            "http://anyblob.com",
+            "test-schema",
+            "CSV"
         ).run {
             assertThat(actionId).isEqualTo(1)
             assertThat(createdAt).isNotNull()
@@ -303,6 +328,36 @@ class SubmissionHistoryTests {
             assertThat(reportId).isEqualTo("a2cf1c46-7689-4819-98de-520b5007e45f")
             assertThat(topic).isEqualTo(Topic.COVID_19)
             assertThat(reportItemCount).isEqualTo(3)
+            assertThat(bodyUrl).isEqualTo("http://anyblob.com")
+            assertThat(schemaName).isEqualTo("test-schema")
+            assertThat(bodyFormat).isEqualTo("CSV")
+        }
+
+        SubmissionHistory(
+            1,
+            OffsetDateTime.now(),
+            "testname.csv",
+            "a2cf1c46-7689-4819-98de-520b5007e45f",
+            Topic.COVID_19,
+            3,
+            "simple_report",
+            201,
+            "",
+            null,
+            "test-schema",
+            "CSV"
+        ).run {
+            assertThat(actionId).isEqualTo(1)
+            assertThat(createdAt).isNotNull()
+            assertThat(sendingOrg).isEqualTo("simple_report")
+            assertThat(httpStatus).isEqualTo(201)
+            assertThat(externalName).isEqualTo("testname.csv")
+            assertThat(reportId).isEqualTo("a2cf1c46-7689-4819-98de-520b5007e45f")
+            assertThat(topic).isEqualTo(Topic.COVID_19)
+            assertThat(reportItemCount).isEqualTo(3)
+            assertThat(bodyUrl).isEqualTo(null)
+            assertThat(schemaName).isEqualTo("test-schema")
+            assertThat(bodyFormat).isEqualTo("CSV")
         }
     }
 

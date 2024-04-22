@@ -3075,6 +3075,10 @@ Code | Display | System
 119335007|119335007|SNOMED_CT
 445447003|Exhaled air specimen|SNOMED_CT
 445447003|445447003|SNOMED_CT
+1293160008|Swab from middle region of inferior nasal meatus|SNOMED_CT
+1293160008|1293160008|SNOMED_CT
+119342007|Saliva specimen|SNOMED_CT
+119342007|119342007|SNOMED_CT
 
 **Documentation**:
 Translate inbound text to outbound SNOMED Codes

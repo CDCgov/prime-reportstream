@@ -72,6 +72,8 @@
       display: Oral fluid specimen
     - code: 119335007
       display: Specimen obtained by bronchial aspiration
+    - code: 1293160008
+      display: Swab from middle region of inferior nasal meatus
     - code: 445447003
       display: Exhaled air specimen
 

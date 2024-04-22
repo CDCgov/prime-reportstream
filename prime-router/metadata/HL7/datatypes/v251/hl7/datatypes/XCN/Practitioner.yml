@@ -129,9 +129,6 @@ name:
           valueOf: XCN.5
           type: STRING
         - expressionType: HL7Spec
-          valueOf: XCN.7
-          type: STRING
-        - expressionType: HL7Spec
           valueOf: XCN.21
           type: STRING
     prefix:

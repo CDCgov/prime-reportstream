@@ -121,13 +121,11 @@ const DeliveriesFilterAndTable = ({
     filterManager,
     services,
     setService,
-    initialService,
 }: {
     fetchResults: ResultsFetcher<any>;
     filterManager: FilterManager;
     services: RSReceiver[];
-    setService?: Dispatch<SetStateAction<string | undefined>>;
-    initialService: RSReceiver;
+    setService?: Dispatch<SetStateAction<string>>;
 }) => {
     const { appInsights } = useAppInsightsContext();
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
@@ -193,7 +191,6 @@ const DeliveriesFilterAndTable = ({
                         },
                     })
                 }
-                initialService={initialService}
                 resultLength={paginationProps?.resultLength}
                 isPaginationLoading={paginationProps?.isPaginationLoading}
             />
@@ -213,13 +210,10 @@ const DeliveriesFilterAndTable = ({
     );
 };
 
-export const DailyData = () => {
+export function DailyData() {
     const { isLoading, isDisabled, activeReceivers } =
         useOrganizationReceivers();
-    const initialService = activeReceivers?.[0];
-    const { fetchResults, filterManager, setService } = useOrgDeliveries(
-        initialService?.name,
-    );
+    const { fetchResults, filterManager, setService } = useOrgDeliveries();
 
     if (isLoading) return <Spinner />;
 
@@ -232,9 +226,8 @@ export const DailyData = () => {
             filterManager={filterManager}
             setService={setService}
             services={activeReceivers}
-            initialService={initialService}
         />
     );
-};
+}
 
 export default DailyData;

@@ -8,7 +8,7 @@ are stored in an azure container.
 ### Setup
 
 - Verify that your local azurite containers are running. This should happen automatically when you spin ReportStream up,
-  and you can verify this by running `docker-compose ps` and checking for both azurite containers
+  and you can verify this by running `docker compose ps` and checking for both azurite containers
 - Make sure ReportStream is running locally
 - Download [azure storage browser](https://azure.microsoft.com/en-us/products/storage/storage-explorer)
 - Connect to the VPN
