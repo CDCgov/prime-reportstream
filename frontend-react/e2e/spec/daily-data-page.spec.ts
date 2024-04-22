@@ -10,21 +10,23 @@ import {
 import * as dailyData from "../pages/daily-data";
 import {
     applyButton,
-    defaultEndTime,
-    defaultStartTime,
+    endDate,
+    endTime,
     endTimeClear,
     getFilterStatus,
-    noData,
+    receiverDropdown,
     resetButton,
     setDate,
     setTime,
+    startDate,
+    startTime,
     startTimeClear,
 } from "../pages/daily-data";
 import { mockGetDeliveriesForOrgResponse } from "../pages/report-details";
 
 const selectedReceiver = "elr";
-const startTime = "9:00am";
-const endTime = "11:30pm";
+const defaultStartTime = "9:00am";
+const defaultEndTime = "11:30pm";
 test.describe("Daily Data page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
@@ -68,7 +70,7 @@ test.describe("Daily Data page", () => {
             });
 
             test("has receiver services dropdown", async ({ page }) => {
-                await expect(page.locator("#receiver-dropdown")).toBeAttached();
+                await expect(receiverDropdown(page)).toBeAttached();
             });
 
             test("has filter", async ({ page }) => {
@@ -114,7 +116,6 @@ test.describe("Daily Data page", () => {
         test.use({ storageState: "e2e/.auth/receiver.json" });
 
         test.beforeEach(async ({ page }) => {
-            // Will need to use mock data until staging can support live data for receiver
             await mockGetDeliveriesForOrgResponse(
                 page,
                 `ak-phd.${selectedReceiver}`,
@@ -137,38 +138,29 @@ test.describe("Daily Data page", () => {
             });
 
             test.describe("onLoad", () => {
-                // test.describe("receiver dropdown", () => {
-                //     test("onLoad does not have a receiver selected", async ({
-                //         page,
-                //     }) => {
-                //         const receivers = page.locator("#receiver-dropdown");
-                //         await expect(receivers).toBeAttached();
-                //         await expect(receivers).toHaveText("");
-                //     });
-                // });
+                test("does not have a receiver selected", async ({ page }) => {
+                    await expect(receiverDropdown(page)).toBeAttached();
+                    await expect(receiverDropdown(page)).toHaveValue("");
+                });
 
                 test("'From' date does not have a value", async ({ page }) => {
-                    const startDate = page.locator("#start-date");
-                    await expect(startDate).toBeAttached();
-                    await expect(startDate).toHaveValue("");
+                    await expect(startDate(page)).toBeAttached();
+                    await expect(startDate(page)).toHaveValue("");
                 });
 
                 test("'To' date does not have a value", async ({ page }) => {
-                    const endDate = page.locator("#end-date");
-                    await expect(endDate).toBeAttached();
-                    await expect(endDate).toHaveValue("");
+                    await expect(endDate(page)).toBeAttached();
+                    await expect(endDate(page)).toHaveValue("");
                 });
 
                 test("'Start time' does not have a value", async ({ page }) => {
-                    const startTime = page.locator("#start-time");
-                    await expect(startTime).toBeAttached();
-                    await expect(startTime).toHaveText("");
+                    await expect(startTime(page)).toBeAttached();
+                    await expect(startTime(page)).toHaveText("");
                 });
 
                 test("'End time'' does not have a value", async ({ page }) => {
-                    const endTime = page.locator("#end-time");
-                    await expect(endTime).toBeAttached();
-                    await expect(endTime).toHaveText("");
+                    await expect(endTime(page)).toBeAttached();
+                    await expect(endTime(page)).toHaveText("");
                 });
             });
 
@@ -181,7 +173,6 @@ test.describe("Daily Data page", () => {
 
                 test.afterEach(async ({ page }) => {
                     await resetButton(page).click();
-                    await expect(noData(page)).toBeAttached();
                 });
 
                 test("table loads with selected receiver data", async ({
@@ -204,13 +195,13 @@ test.describe("Daily Data page", () => {
                     await getFilterStatus(page, [selectedReceiver]);
 
                     // Receiver dropdown persists
-                    await expect(
-                        page.locator("#receiver-dropdown"),
-                    ).toHaveValue(selectedReceiver);
+                    await expect(receiverDropdown(page)).toHaveValue(
+                        selectedReceiver,
+                    );
                 });
 
                 test("with 'From' date", async ({ page }) => {
-                    await expect(page.locator("#start-date")).toHaveValue("");
+                    await expect(startDate(page)).toHaveValue("");
 
                     await setDate(page, "#start-date", 7);
 
@@ -219,7 +210,7 @@ test.describe("Daily Data page", () => {
                 });
 
                 test("with 'To' date", async ({ page }) => {
-                    await expect(page.locator("#end-date")).toHaveValue("");
+                    await expect(endDate(page)).toHaveValue("");
 
                     await setDate(page, "#end-date", 7);
 
@@ -229,7 +220,7 @@ test.describe("Daily Data page", () => {
 
                 test("with 'From' date and 'Start' time", async ({ page }) => {
                     await setDate(page, "#start-date", 7);
-                    await setTime(page, "#start-time", startTime);
+                    await setTime(page, "#start-time", defaultStartTime);
 
                     // Apply button is disabled
                     await expect(applyButton(page)).toHaveAttribute("disabled");
@@ -245,7 +236,7 @@ test.describe("Daily Data page", () => {
 
                 test("with 'To' date and 'Start' time", async ({ page }) => {
                     await setDate(page, "#end-date", 7);
-                    await setTime(page, "#start-time", startTime);
+                    await setTime(page, "#start-time", defaultStartTime);
 
                     // Apply button is disabled
                     await expect(applyButton(page)).toHaveAttribute("disabled");
@@ -261,22 +252,22 @@ test.describe("Daily Data page", () => {
 
                 test("with 'Start' time and 'End' time", async ({ page }) => {
                     // Start time
-                    await setTime(page, "#start-time", startTime);
+                    await setTime(page, "#start-time", defaultStartTime);
                     await expect(applyButton(page)).toHaveAttribute("disabled");
                     await startTimeClear(page).click();
                     await expect(page.locator("#start-time")).toHaveValue("");
                     await expect(applyButton(page)).toBeEnabled();
 
                     // End time
-                    await setTime(page, "#end-time", endTime);
+                    await setTime(page, "#end-time", defaultEndTime);
                     await expect(applyButton(page)).toHaveAttribute("disabled");
                     await endTimeClear(page).click();
                     await expect(page.locator("#end-time")).toHaveValue("");
                     await expect(applyButton(page)).toBeEnabled();
 
                     // Start time and End time
-                    await setTime(page, "#start-time", startTime);
-                    await setTime(page, "#end-time", endTime);
+                    await setTime(page, "#start-time", defaultStartTime);
+                    await setTime(page, "#end-time", defaultEndTime);
                     await expect(applyButton(page)).toHaveAttribute("disabled");
                     await startTimeClear(page).click();
                     await expect(page.locator("#start-time")).toHaveValue("");
@@ -314,17 +305,15 @@ test.describe("Daily Data page", () => {
                 }) => {
                     const fromDate = await setDate(page, "#start-date", 7);
                     const toDate = await setDate(page, "#end-date", 0);
-                    await setTime(page, "#start-time", startTime);
+                    await setTime(page, "#start-time", defaultStartTime);
 
                     // Apply button is enabled
                     await applyButton(page).click();
                     // Form values persist
-                    await expect(page.locator("#start-date")).toHaveValue(
-                        fromDate,
-                    );
-                    await expect(page.locator("#end-date")).toHaveValue(toDate);
+                    await expect(startDate(page)).toHaveValue(fromDate);
+                    await expect(endDate(page)).toHaveValue(toDate);
                     await expect(page.locator("#start-time")).toHaveValue(
-                        startTime,
+                        defaultStartTime,
                     );
 
                     // Check that table data contains the dates/times that were selected
@@ -333,7 +322,7 @@ test.describe("Daily Data page", () => {
                         1,
                         fromDate,
                         toDate,
-                        startTime,
+                        defaultStartTime,
                         "",
                     );
 
@@ -341,7 +330,7 @@ test.describe("Daily Data page", () => {
                     await getFilterStatus(page, [
                         selectedReceiver,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
-                        `${startTime}–${defaultEndTime}`,
+                        `${defaultStartTime}–${"11:59pm"}`,
                     ]);
                 });
 
@@ -350,17 +339,15 @@ test.describe("Daily Data page", () => {
                 }) => {
                     const fromDate = await setDate(page, "#start-date", 7);
                     const toDate = await setDate(page, "#end-date", 0);
-                    await setTime(page, "#end-time", endTime);
+                    await setTime(page, "#end-time", defaultEndTime);
 
                     // Apply button is enabled
                     await applyButton(page).click();
                     // Form values persist
-                    await expect(page.locator("#start-date")).toHaveValue(
-                        fromDate,
-                    );
-                    await expect(page.locator("#end-date")).toHaveValue(toDate);
+                    await expect(startDate(page)).toHaveValue(fromDate);
+                    await expect(endDate(page)).toHaveValue(toDate);
                     await expect(page.locator("#end-time")).toHaveValue(
-                        endTime,
+                        defaultEndTime,
                     );
 
                     // Check that table data contains the dates/times that were selected
@@ -370,14 +357,14 @@ test.describe("Daily Data page", () => {
                         fromDate,
                         toDate,
                         "",
-                        endTime,
+                        defaultEndTime,
                     );
 
                     // Check filter status lists receiver value
                     await getFilterStatus(page, [
                         selectedReceiver,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
-                        `${defaultStartTime}–${endTime}`,
+                        `${"12:00am"}–${defaultEndTime}`,
                     ]);
                 });
 
@@ -386,8 +373,8 @@ test.describe("Daily Data page", () => {
                 }) => {
                     const fromDate = await setDate(page, "#start-date", 7);
                     const toDate = await setDate(page, "#end-date", 0);
-                    await setTime(page, "#start-time", startTime);
-                    await setTime(page, "#end-time", endTime);
+                    await setTime(page, "#start-time", defaultStartTime);
+                    await setTime(page, "#end-time", defaultEndTime);
 
                     // Apply button is enabled
                     await applyButton(page).click();
@@ -398,15 +385,15 @@ test.describe("Daily Data page", () => {
                         1,
                         fromDate,
                         toDate,
-                        startTime,
-                        endTime,
+                        defaultStartTime,
+                        defaultEndTime,
                     );
 
                     // Check filter status lists receiver value
                     await getFilterStatus(page, [
                         selectedReceiver,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
-                        `${startTime}–${endTime}`,
+                        `${defaultStartTime}–${defaultEndTime}`,
                     ]);
                 });
             });
@@ -416,6 +403,17 @@ test.describe("Daily Data page", () => {
             //
             //     test.describe("with date and time", () => {});
             // });
+
+            test.describe("on reset", () => {
+                test("form elements clear", async ({ page }) => {
+                    await resetButton(page).click();
+                    await expect(receiverDropdown(page)).toHaveValue("");
+                    await expect(startDate(page)).toHaveValue("");
+                    await expect(endDate(page)).toHaveValue("");
+                    await expect(startTime(page)).toHaveValue("");
+                    await expect(endTime(page)).toHaveValue("");
+                });
+            });
         });
 
         test.describe("table", () => {

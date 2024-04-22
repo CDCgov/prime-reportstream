@@ -34,6 +34,26 @@ export function noData(page: Page) {
     return page.getByText(/No available data/);
 }
 
+export function receiverDropdown(page: Page) {
+    return page.locator("#receiver-dropdown");
+}
+
+export function startDate(page: Page) {
+    return page.locator("#start-date");
+}
+
+export function endDate(page: Page) {
+    return page.locator("#end-date");
+}
+
+export function startTime(page: Page) {
+    return page.locator("#start-time");
+}
+
+export function endTime(page: Page) {
+    return page.locator("#end-time");
+}
+
 export function startTimeClear(page: Page) {
     return page.getByTestId("combo-box-clear-button").nth(0);
 }
