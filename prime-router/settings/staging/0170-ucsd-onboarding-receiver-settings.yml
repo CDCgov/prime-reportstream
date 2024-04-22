@@ -24,7 +24,7 @@
       topic: "etor-ti"
       customerStatus: "active"
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
         receivingApplicationName: "EPIC-INNERCONNECT"
@@ -32,7 +32,8 @@
         receivingFacilityName: "CA"
         receivingFacilityOID: null
         messageProfileId: null
-        replaceValue: {}
+        replaceValue:
+          MSH-4-1: CDPH
         replaceValueAwithB: {}
         reportingFacilityName: null
         reportingFacilityId: null
@@ -69,7 +70,7 @@
           customLengthHl7Fields: {}
       jurisdictionalFilter:
         - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01')"
-        - "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() and %patientState = 'CA')"
+        - "(%performerState.exists() and %performerState = 'MN') or (%patientState.exists() and %patientState = 'MN')"
         - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = 'ucsd-receiver-id').exists()"
         - "(Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR')"
       qualityFilter:
@@ -90,12 +91,12 @@
           action: "NONE"
           onlyOncePerDay: false
       description: ""
-      transport: !<SFTP>
-        host: 172.17.6.20
+      transport:
+        type: SFTP
+        host: sftp
         port: 22
         filePath: ./upload
-        credentialName: null
-        type: "SFTP"
+        credentialName: DEFAULT-SFTP
       externalName: "UCSD"
       timeZone: null
       dateTimeFormat: "OFFSET"
