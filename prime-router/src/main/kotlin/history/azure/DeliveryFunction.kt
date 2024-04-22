@@ -29,6 +29,7 @@ import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.transport.RESTTransport
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpHeaders
@@ -201,8 +202,9 @@ class DeliveryFunction(
     }
 
     /**
-     * API endpoint to return history of a single report from the CDC Intermediary.
-     * The [id] is a valid report UUID
+     *Endpoint for intermediary receivers to verify status of messages.  It is calling another function
+     * because Azure gets upset if there are any non-annotated parameters in the method signature with the exception
+     * of ExecutionContext
      */
     @FunctionName("getTiMetadataForDelivery")
     fun getTiMetadata(
@@ -215,6 +217,20 @@ class DeliveryFunction(
         @BindingName("id") id: String,
         context: ExecutionContext,
     ): HttpResponseMessage {
+        return this.retrieveMetadata(request, id, context, null)
+    }
+
+    /**
+     * API function to return the history of a single report from the CDC Intermediary.
+     * The [id] is a valid report UUID.  This function is for the Intermediary only, please don't update
+     * without contacting that engineering team
+     */
+    fun retrieveMetadata(
+        request: HttpRequestMessage<String?>,
+        id: String,
+        context: ExecutionContext,
+        engine: HttpClientEngine?,
+    ): HttpResponseMessage {
         val authResult = this.authSingleBlocks(request, id)
 
         if (authResult != null) {
@@ -222,13 +238,10 @@ class DeliveryFunction(
         }
 
         var response: HttpResponse?
-        // TODO: Figure out if we should leave the receiver name below or extract it into an env var
-        // TODO: Decide whether to refactor shared bits for calling TI Metadata in Submission and Delivery
-        val receiver = workflowEngine.settings.findReceiver("flexion.etor-service-receiver-orders")
-        val client = HttpClient()
-        val restTransport = RESTTransport()
+        val receiver = workflowEngine.settings.findReceiver(this.intermediaryReceiverName)
+        val client = if (engine == null) HttpClient() else HttpClient(engine)
         val restTransportInfo = receiver?.transport as RESTTransportType
-        val (credential, jksCredential) = restTransport.getCredential(restTransportInfo, receiver)
+        val (credential, jksCredential) = RESTTransport().getCredential(restTransportInfo, receiver)
         val logger: Logger = context.logger
         var authPair: Pair<Map<String, String>?, String?> =
             Pair(null, null)
@@ -237,7 +250,7 @@ class DeliveryFunction(
 
         runBlocking {
             launch {
-                authPair = restTransport.getOAuthToken(
+                authPair = RESTTransport().getOAuthToken(
                     restTransportInfo,
                     id,
                     jksCredential,
@@ -277,7 +290,6 @@ class DeliveryFunction(
                 responseBody = response!!.body()
             }
         }
-
         return HttpUtilities.okResponse(request, responseBody)
     }
 

@@ -141,9 +141,9 @@ class SubmissionFunction(
     }
 
     /**
-     * API endpoint to return history of a single report from the CDC Intermediary.
-     * The [id] is a valid report UUID.  This endpoint is for the Intermediary only, please don't update
-     * without contacting that engineering team
+     *Endpoint for intermediary senders to verify status of messages.  It is calling another function
+     * because Azure gets upset if there are any non-annotated parameters in the method signature with the exception
+     * of ExecutionContext
      */
     @FunctionName("getTiMetadataForHistory")
     fun getTiMetadata(
@@ -155,7 +155,20 @@ class SubmissionFunction(
         ) request: HttpRequestMessage<String?>,
         @BindingName("id") id: String,
         context: ExecutionContext,
-        engine: HttpClientEngine,
+    ): HttpResponseMessage {
+        return this.retrieveMetadata(request, id, context, null)
+    }
+
+    /**
+     * Function to return history of a single report from the CDC Intermediary.
+     * The [id] is a valid report UUID.  This endpoint is for the Intermediary only, please don't update
+     * without contacting that engineering team
+     */
+    fun retrieveMetadata(
+        request: HttpRequestMessage<String?>,
+        id: String,
+        context: ExecutionContext,
+        engine: HttpClientEngine?,
     ): HttpResponseMessage {
         val authResult = this.authSingleBlocks(request, id)
 
@@ -164,10 +177,8 @@ class SubmissionFunction(
         }
 
         var response: HttpResponse?
-        // TODO: Figure out if we should leave the receiver name below or extract it into an env var
-        // TODO: Decide whether to refactor shared bits for calling TI Metadata in Submission and Delivery
-        val receiver = workflowEngine.settings.findReceiver("flexion.etor-service-receiver-orders")
-        val client = HttpClient(engine)
+        val receiver = workflowEngine.settings.findReceiver(this.intermediaryReceiverName)
+        val client = if (engine == null) HttpClient() else HttpClient(engine)
         val restTransportInfo = receiver?.transport as RESTTransportType
         val (credential, jksCredential) = RESTTransport().getCredential(restTransportInfo, receiver)
         val logger: Logger = context.logger

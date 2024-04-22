@@ -580,7 +580,7 @@ class SubmissionFunctionTests : Logging {
         val customContext = mockk<ExecutionContext>()
         every { customContext.logger } returns mockk<Logger>()
 
-        var response = function.getTiMetadata(mockRequest, goodUuid, customContext, mock)
+        var response = function.retrieveMetadata(mockRequest, goodUuid, customContext, mock)
 
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }

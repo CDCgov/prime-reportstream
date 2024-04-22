@@ -28,6 +28,8 @@ abstract class ReportFileFunction(
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
 
+    internal val intermediaryReceiverName = "flexion.etor-service-receiver-orders"
+
     /**
      * Helper to store currently loaded action to prevent extra DB calls
      */
