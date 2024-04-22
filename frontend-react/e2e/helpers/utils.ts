@@ -1,5 +1,6 @@
 import { expect, Page } from "@playwright/test";
 import fs from "node:fs";
+import { fromDateWithTime, toDateWithTime } from "../pages/daily-data";
 
 export const TEST_ORG_IGNORE = "ignore";
 export async function scrollToFooter(page: Page) {
@@ -94,18 +95,22 @@ export async function expectTableColumnValues(
     }
 }
 
-export async function expectTableColumnDateInRange(
+export async function expectTableColumnDateTimeInRange(
     page: Page,
     columnNumber: number,
-    startDateTime: Date,
-    endDateTime: Date,
+    fromDate: string,
+    toDate: string,
+    startTime: string,
+    endTime: string,
 ) {
-    let allDatesInRange = true;
+    let areDatesInRange = true;
+    const startDateTime = fromDateWithTime(fromDate, startTime);
+    const endDateTime = toDateWithTime(toDate, endTime);
     const rowCount = await page
+        .getByRole("table")
         .locator(".usa-table tbody")
         .locator("tr")
         .count();
-
     for (let i = 0; i <= rowCount; i++) {
         const columnValue = await page
             .locator(".usa-table tbody")
@@ -117,14 +122,11 @@ export async function expectTableColumnDateInRange(
 
         const columnDate = new Date(columnValue);
         if (!(columnDate >= startDateTime && columnDate < endDateTime)) {
-            allDatesInRange = false;
-            break;
-        }
-        if (rowCount === 0) {
+            areDatesInRange = false;
             break;
         }
     }
-    expect(allDatesInRange).toBe(true);
+    expect(areDatesInRange).toBe(true);
 }
 
 export async function getTableRowCount(page: Page) {

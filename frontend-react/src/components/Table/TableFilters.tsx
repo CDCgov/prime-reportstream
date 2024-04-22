@@ -224,7 +224,7 @@ function TableFilters({
                                                     "HH:mm",
                                                     new Date(),
                                                 ),
-                                                "hh:mm a",
+                                                "h:mm a",
                                             ),
                                             format(
                                                 parse(
@@ -232,7 +232,7 @@ function TableFilters({
                                                     "HH:mm",
                                                     new Date(),
                                                 ),
-                                                "hh:mm a",
+                                                "h:mm a",
                                             ),
                                         ]
                                       : []),
