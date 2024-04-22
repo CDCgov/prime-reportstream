@@ -584,4 +584,52 @@ class SubmissionFunctionTests : Logging {
 
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
+
+    @Test
+    fun `test getTiMetadata returns 404 when ID is invalid`() {
+        val badUuid = "762202ba-e3e5-4810-8cb8-161b75c63bc1"
+        val mockRequest = MockHttpRequestMessage()
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+        val mockSubmissionFacade = mockk<SubmissionsFacade>()
+        val function = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, mockSubmissionFacade)
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
+            AuthenticatedClaims.generateTestClaims()
+
+        mockkConstructor(RESTTransport::class)
+        mockkConstructor(HttpClient::class)
+        val action = Action()
+        action.actionId = 550
+        action.sendingOrg = organizationName
+        action.actionName = TaskAction.receive
+        every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
+        every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns null
+        every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
+
+        val restCreds = mockk<RestCredential>()
+        val userCreds = mockk<UserJksCredential>()
+
+        val creds = Pair(restCreds, userCreds)
+
+        every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
+
+        coEvery {
+            anyConstructed<RESTTransport>().getOAuthToken(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Pair(mapOf("a" to "b"), "TEST")
+
+        val customContext = mockk<ExecutionContext>()
+        every { customContext.logger } returns mockk<Logger>()
+
+        var response = function.retrieveMetadata(mockRequest, badUuid, customContext, null)
+
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+        assertThat(response.body.toString()).isEqualTo("{\"error\": \"lookup Id not found\"}")
+    }
  }

@@ -5,16 +5,19 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
+import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.azure.ApiSearchResult
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
@@ -26,6 +29,8 @@ import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.credentials.RestCredential
+import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.history.db.Delivery
@@ -39,8 +44,16 @@ import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TestDefaultJwt
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
+import gov.cdc.prime.router.transport.RESTTransport
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -60,6 +73,7 @@ import org.junit.jupiter.api.TestInstance
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.util.UUID
+import java.util.logging.Logger
 import kotlin.test.Test
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -361,6 +375,24 @@ class DeliveryFunctionTests : Logging {
         )
         settings.receiverStore[receiver2.fullName] = receiver2
 
+        val receiver3 = Receiver(
+            "flexion.etor-service-receiver-orders",
+            "flexion.etor-service-receiver-orders",
+            Topic.ETOR_TI,
+            CustomerStatus.ACTIVE,
+            mockk<TranslatorConfiguration>(),
+            emptyList(),
+            emptyList(),
+            emptyList(),
+            emptyList(),
+            false,
+            emptyList(),
+            emptyList(),
+            false,
+            "test", null, "", mockk<RESTTransportType>(), "", emptyList()
+        )
+        settings.receiverStore["flexion.etor-service-receiver-orders"] = receiver3
+
         val engine = makeEngine(metadata, settings)
         mockkObject(OktaAuthentication.Companion)
         every { OktaAuthentication.Companion.decodeJwt(any()) } returns
@@ -634,6 +666,122 @@ class DeliveryFunctionTests : Logging {
         every { mockDeliveryFacade.fetchAction(any()) } returns null
         response = function.getDeliveryFacilities(mockRequest, emptyActionId)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+    }
+
+    @Test
+    fun `test getTiMetadata`() {
+        val goodUuid = UUID.fromString("662202ba-e3e5-4810-8cb8-161b75c63bc1")
+        val mockRequest = MockHttpRequestMessage()
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+        val mockDeliveryFacade = mockk<DeliveryFacade>()
+        val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade)
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
+            AuthenticatedClaims.generateTestClaims()
+
+        // Good return
+        val returnBody = DeliveryHistory(
+            550, OffsetDateTime.now(), "test", goodUuid.toString(), Topic.ETOR_TI,
+            1, "flexion", "flexion", "", "test-schema",
+            "body", "test"
+        )
+
+        returnBody.originalIngestion = listOf(
+            mapOf(
+                "ingestionTime" to OffsetDateTime.now(), "reportId" to goodUuid
+            )
+        ).toMutableList()
+
+        mockkConstructor(RESTTransport::class)
+        mockkConstructor(HttpClient::class)
+        val action = Action()
+        action.actionId = 550
+        action.sendingOrg = organizationName
+        action.actionName = TaskAction.send
+        every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
+        every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
+        every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns returnBody
+        every { mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
+
+        val restCreds = mockk<RestCredential>()
+        val userCreds = mockk<UserJksCredential>()
+
+        val creds = Pair(restCreds, userCreds)
+
+        every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
+
+        coEvery {
+            anyConstructed<RESTTransport>().getOAuthToken(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Pair(mapOf("a" to "b"), "TEST")
+
+        val mock = MockEngine {
+            respond(
+                "{}",
+                HttpStatusCode.OK,
+                headersOf("Content-Type", ContentType.Application.Json.toString())
+            )
+        }
+
+        val customContext = mockk<ExecutionContext>()
+        every { customContext.logger } returns mockk<Logger>()
+
+        var response = function.retrieveMetadata(mockRequest, goodUuid.toString(), customContext, mock)
+
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+    }
+
+    @Test
+    fun `test getTiMetadata returns 404 when ID is invalid`() {
+        val badUuid = "762202ba-e3e5-4810-8cb8-161b75c63bc1"
+        val mockRequest = MockHttpRequestMessage()
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+        val mockDeliveryFacade = mockk<DeliveryFacade>()
+        val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade)
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
+            AuthenticatedClaims.generateTestClaims()
+
+        mockkConstructor(RESTTransport::class)
+        mockkConstructor(HttpClient::class)
+        val action = Action()
+        action.actionId = 550
+        action.sendingOrg = organizationName
+        action.actionName = TaskAction.send
+        every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
+        every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
+        every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns null
+        every { mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
+
+        val restCreds = mockk<RestCredential>()
+        val userCreds = mockk<UserJksCredential>()
+
+        val creds = Pair(restCreds, userCreds)
+
+        every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
+
+        coEvery {
+            anyConstructed<RESTTransport>().getOAuthToken(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Pair(mapOf("a" to "b"), "TEST")
+
+        val customContext = mockk<ExecutionContext>()
+        every { customContext.logger } returns mockk<Logger>()
+
+        var response = function.retrieveMetadata(mockRequest, badUuid, customContext, null)
+
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+        assertThat(response.body.toString()).isEqualTo("{\"error\": \"lookup Id not found\"}")
     }
 
     @Nested
