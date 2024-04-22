@@ -858,7 +858,7 @@ dependencies {
     implementation("org.yaml:snakeyaml:2.2")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
         version {
-            branch = "platform/kalish/13976-optionally-rethrow-error"
+            branch = "master"
         }
     }
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.0.2")

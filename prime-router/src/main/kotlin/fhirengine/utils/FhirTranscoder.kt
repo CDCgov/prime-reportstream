@@ -34,7 +34,7 @@ object FhirTranscoder : Logging {
         )
 
         return HL7MessageEngine(
-            context, finalOptions.bundleType, true
+            context, finalOptions.bundleType
         )
     }
 

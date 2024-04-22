@@ -71,6 +71,7 @@ class HL7toFhirTranslator(
         // If timezone specification is needed it can be provided via a custom HL7MessageEngine with a custom FHIRContext that has the time zone ID set
         val messageModel = getHL7MessageModel(hl7Message)
         val bundle = messageModel.convert(hl7Message, messageEngine)
+            ?: throw RuntimeException("Exception occurred while converting HL7 to FHIR ")
         // TODO https://github.com/CDCgov/prime-reportstream/issues/14117
         bundle.enhanceBundleMetadata(hl7Message)
         bundle.addProvenanceReference()
