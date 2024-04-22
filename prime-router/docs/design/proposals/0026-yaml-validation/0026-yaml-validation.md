@@ -71,6 +71,6 @@ This idea would work but may require a lot of custom work. This would be a good 
 
 #### Decision
 
-This would be my preferred solution as it has the least upfront work with the greatest return. It does not
+This is presently the preferred solution as it has the least upfront work with the greatest return. It does not
 provide us with the very Report Stream specific validations, but it will catch the type, structure, and typo errors 
 which is most of the battle.
