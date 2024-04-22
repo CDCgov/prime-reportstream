@@ -26,4 +26,4 @@ elements:
 
   - name: cnn-extension-value
     resource: '%resource.extension(%`rsext-cnn-practitioner`)'
-    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/CNNExtension.yml
+    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/Practitioner/CNNExtension.yml
