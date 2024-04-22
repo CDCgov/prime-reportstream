@@ -5,7 +5,6 @@ import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.ExecutionContext
-import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CovidSender
@@ -41,11 +40,9 @@ import gov.cdc.prime.router.transport.RESTTransport
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
-import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import io.mockk.MockKMatcherScope
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.every
@@ -55,7 +52,6 @@ import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.spyk
 import org.apache.logging.log4j.kotlin.Logging
-import org.apache.xmlbeans.impl.soap.Detail
 import org.jooq.exception.DataAccessException
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
@@ -336,7 +332,8 @@ class SubmissionFunctionTests : Logging {
             schemaName = "one"
         )
 
-            val receiver = Receiver("flexion.etor-service-receiver-orders",
+            val receiver = Receiver(
+                "flexion.etor-service-receiver-orders",
             "flexion.etor-service-receiver-orders",
             Topic.ETOR_TI,
             CustomerStatus.ACTIVE,
@@ -349,8 +346,8 @@ class SubmissionFunctionTests : Logging {
             emptyList(),
             emptyList(),
             false,
-            "test", null, "", mockk<RESTTransportType>(), "", emptyList())
-
+            "test", null, "", mockk<RESTTransportType>(), "", emptyList()
+            )
 
         settings.senderStore[sender2.fullName] = sender2
         settings.receiverStore["flexion.etor-service-receiver-orders"] = receiver
@@ -514,11 +511,8 @@ class SubmissionFunctionTests : Logging {
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
     }
 
-
     @Test
     fun `test getTiMetadata`() {
-
-
         val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
         val mockRequest = MockHttpRequestMessage()
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
@@ -528,18 +522,24 @@ class SubmissionFunctionTests : Logging {
         every { AuthenticatedClaims.authenticate(any()) } returns
             AuthenticatedClaims.generateTestClaims()
 
+        val detailedReport = DetailedReport(
+            UUID.randomUUID(),
+            "flexion", "flexion", "lab", "lab", Topic.ETOR_TI, "external",
+            null, null, 1, 1, true
+        )
+
         // Good return
         val returnBody = DetailedSubmissionHistory(
             550, TaskAction.receive, OffsetDateTime.now(), 201,
-            null
+            mutableListOf(detailedReport)
         )
 
-        val detailedReport = DetailedReport(UUID.randomUUID(),
-            "flexion", "flexion", "lab", "lab", Topic.ETOR_TI, "external",
-            null, null, 1, 1, true )
-
-        returnBody.destinations = listOf(Destination("flexion", "test", mutableListOf(), mutableListOf(),
-         OffsetDateTime.now(), 1, 1, mutableListOf(detailedReport), mutableListOf())).toMutableList()
+        returnBody.destinations = listOf(
+            Destination(
+                "flexion", "test", mutableListOf(), mutableListOf(),
+         OffsetDateTime.now(), 1, 1, mutableListOf(detailedReport), mutableListOf()
+            )
+        ).toMutableList()
 
         mockkConstructor(RESTTransport::class)
         mockkConstructor(HttpClient::class)
@@ -552,13 +552,12 @@ class SubmissionFunctionTests : Logging {
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
         every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
 
-
         val restCreds = mockk<RestCredential>()
         val userCreds = mockk<UserJksCredential>()
 
         val creds = Pair(restCreds, userCreds)
 
-        every { anyConstructed<RESTTransport>().getCredential(any(), any())} returns creds
+        every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
 
             coEvery {
                     anyConstructed<RESTTransport>().getOAuthToken(
@@ -567,39 +566,22 @@ class SubmissionFunctionTests : Logging {
                         any(),
                         any(),
                         any()
-                    )} returns Pair (mapOf("a" to "b"), "TEST")
+                    )
+            } returns Pair(mapOf("a" to "b"), "TEST")
 
-        //val mockResponse = mockk<HttpResponse>()
-
-//        coEvery {
-//            anyConstructed<HttpClient>().get(any())
-//        } returns MockKMatcherScope.DynamicCall("test")
-
-        val mock = MockEngine { call ->
-            respond("{}",
+        val mock = MockEngine {
+            respond(
+                "{}",
                 HttpStatusCode.OK,
-                headersOf("Content-Type", ContentType.Application.Json.toString()))
+                headersOf("Content-Type", ContentType.Application.Json.toString())
+            )
         }
-
 
         val customContext = mockk<ExecutionContext>()
         every { customContext.logger } returns mockk<Logger>()
 
-        var response = function.getTiMetadata(mockRequest, goodUuid, customContext)
+        var response = function.getTiMetadata(mockRequest, goodUuid, customContext, mock)
 
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
  }
-
-//private fun mockHttpClient(): HttpClient {
-//    return HttpClient(MockEngine) {
-//        engine {
-//            addHandler {
-//                respond(
-//                    content = "test",
-//                    status = HttpStatusCode.OK,
-//                )
-//            }
-//        }
-//    }
-//}

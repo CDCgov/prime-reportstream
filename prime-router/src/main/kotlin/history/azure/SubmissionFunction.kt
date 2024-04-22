@@ -18,6 +18,7 @@ import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.transport.RESTTransport
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpHeaders
@@ -154,6 +155,7 @@ class SubmissionFunction(
         ) request: HttpRequestMessage<String?>,
         @BindingName("id") id: String,
         context: ExecutionContext,
+        engine: HttpClientEngine,
     ): HttpResponseMessage {
         val authResult = this.authSingleBlocks(request, id)
 
@@ -165,7 +167,7 @@ class SubmissionFunction(
         // TODO: Figure out if we should leave the receiver name below or extract it into an env var
         // TODO: Decide whether to refactor shared bits for calling TI Metadata in Submission and Delivery
         val receiver = workflowEngine.settings.findReceiver("flexion.etor-service-receiver-orders")
-        val client = HttpClient()
+        val client = HttpClient(engine)
         val restTransportInfo = receiver?.transport as RESTTransportType
         val (credential, jksCredential) = RESTTransport().getCredential(restTransportInfo, receiver)
         val logger: Logger = context.logger
@@ -203,7 +205,7 @@ class SubmissionFunction(
 
         runBlocking {
             launch {
-                response = HttpClient().get("${System.getenv("ETOR_TI_baseurl")}/v1/etor/metadata/" + lookupId) {
+                response = client.get("${System.getenv("ETOR_TI_baseurl")}/v1/etor/metadata/" + lookupId) {
                     authPair.first?.forEach { entry ->
                         headers.append(entry.key, entry.value)
                     }
