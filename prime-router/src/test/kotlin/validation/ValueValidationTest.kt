@@ -49,7 +49,7 @@ class ValueValidationTest {
     @Test
     fun invalid() {
         val test = TestDataClass(
-            string = "a", // to short
+            string = "a", // too short
             nullable = -5, // negative
             list = listOf( // list not long enough
                 "1", // too short
