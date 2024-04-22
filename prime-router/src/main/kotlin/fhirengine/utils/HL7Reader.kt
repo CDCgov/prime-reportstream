@@ -327,7 +327,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
 
         // map of HL7 message profiles: maps profile to configuration directory path
         val profileDirectoryMap: Map<MessageProfile, String> = mapOf(
-            // TODO: NIST ELR mappings to be enabled in a future PR (uncomment the following line)
+            // TODO: https://github.com/CDCgov/prime-reportstream/issues/14124
             // Pair(MessageProfile("ORU", "NIST_ELR"), "./metadata/HL7/v251-elr"),
         )
 

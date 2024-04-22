@@ -1395,12 +1395,7 @@ class FhirFunctionIntegrationTests() {
             @Suppress("ktlint:standard:max-line-length")
             assertThat(actionLogs.first()).transform { it.detail.message }
                 .isEqualTo(
-                    "Item 1 in the report was not valid. Reason: [Error][6,266] Constraint Failure # OBX-19 - If  OBX-19.1 (Time)  is valued  then  OBX-19.1 (Time) shall match the regular expression '^(\\d{14}\\.\\d{1,4}|\\d{14})((\\x2D|\\x2B)\\d{4})\$'. \n" +
-                        "\tOBX.19[1].1[1] SHALL not be present OR ()OBX.19[1].1[1] SHALL match '^(\\d{14}\\.\\d{1,4}|\\d{14})((\\x2D|\\x2B)\\d{4})\$' regular expression\n" +
-                        "\tOBX.19[1].1[1] SHALL not be present\n" +
-                        "\t\t[6, 266] The inner expression is true\n" +
-                        "\t()OBX.19[1].1[1] SHALL match '^(\\d{14}\\.\\d{1,4}|\\d{14})((\\x2D|\\x2B)\\d{4})\$' regular expression\n" +
-                        "\t\t[6, 266] '20240403120000' doesn't match '^(\\d{14}\\.\\d{1,4}|\\d{14})((\\x2D|\\x2B)\\d{4})\$'"
+                    "Item 1 in the report was not valid. Reason: HL7 was not valid at OBX[1]-19[1].1"
                 )
         }
     }

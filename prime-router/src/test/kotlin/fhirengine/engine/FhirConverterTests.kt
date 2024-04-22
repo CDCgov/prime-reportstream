@@ -696,7 +696,7 @@ class FhirConverterTests {
             val mockValidation = mockk<hl7.v2.validation.report.Report>()
             val mockEntry = mockk<Entry>()
             every { mockEntry.classification } returns AbstractItemValidator.ERROR_CLASSIFICATION
-            every { mockEntry.toText() } returns "Validation error"
+            every { mockEntry.path } returns "PID[1]-13[1].7"
             every { mockValidation.entries } returns mapOf("ORU" to listOf(mockEntry))
             val mockValidator = mockk<IItemValidator>()
             every { mockValidator.validate(any()) } returns HL7ValidationResult(mockValidation)
@@ -717,7 +717,7 @@ class FhirConverterTests {
                 actionLogger.errors.map {
                     it.detail.message
                 }
-            ).contains("Item 1 in the report was not valid. Reason: Validation error")
+            ).contains("Item 1 in the report was not valid. Reason: HL7 was not valid at PID[1]-13[1].7")
         }
 
         @Test

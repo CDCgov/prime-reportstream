@@ -214,7 +214,7 @@ class FHIRConverter(
      *
      * Two important configurations for this function are:
      * - the [BaseEngine.sequentialLimit] that determines whether the items will be processed in parallel
-     * - [routeReportWithInvalidItems] whether to items through when the entire report is not valid
+     * - [routeReportWithInvalidItems] whether route to items through when the entire report is not valid
      *
      * @param format the format of the items in the report
      * @param queueMessage the message that contains the url for the raw report
@@ -235,7 +235,6 @@ class FHIRConverter(
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
             emptyList()
         } else {
-            // TODO test limit
             val processedItems = when (format) {
                 Report.Format.HL7, Report.Format.HL7_BATCH -> {
                     try {
@@ -328,7 +327,6 @@ class FHIRConverter(
     }
 
     private fun parseHL7Item(item: ProcessedHL7Item) = try {
-        // TODO validate that this works with ELIMS messages
         val (
             message,
             parseConfiguration,

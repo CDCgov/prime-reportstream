@@ -36,7 +36,8 @@ data class HL7ValidationResult(val rawReport: Report) : IItemValidationResult {
     }
 
     override fun getErrorsMessage(): String {
-        return getErrors().joinToString { it.toText() }
+        // The path gets returned here because the description can contain PII
+        return getErrors().joinToString { "HL7 was not valid at ${it.path}" }
     }
 }
 
