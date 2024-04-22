@@ -9,7 +9,7 @@ is correct.
 ```yaml
 # $schema: ./../../../metadata/json_schema/schema.json
 ```
-You can also register the schema with Intellij and apply it to certains files and directories. I don't recommend doing
+You can also register the schema with Intellij and apply it to certain files and directories. I don't recommend doing
 it this way as tracking it in the files ensure others don't have to continually update their Intellij settings to stay
 up to date on schema locations and new files.
 
