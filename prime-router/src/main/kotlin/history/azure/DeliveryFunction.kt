@@ -9,7 +9,6 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
-import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.ApiResponse
 import gov.cdc.prime.router.azure.HttpUtilities
@@ -26,18 +25,10 @@ import gov.cdc.prime.router.history.db.SubmitterApiSearch
 import gov.cdc.prime.router.history.db.SubmitterDatabaseAccess
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
-import gov.cdc.prime.router.transport.RESTTransport
-import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.request.get
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.HttpHeaders
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.time.OffsetDateTime
 import java.util.UUID
-import java.util.logging.Logger
 
 /**
  * Deliveries API
@@ -220,46 +211,7 @@ class DeliveryFunction(
         return this.retrieveMetadata(request, id, context, null)
     }
 
-    /**
-     * API function to return the history of a single report from the CDC Intermediary.
-     * The [id] is a valid report UUID.  This function is for the Intermediary only, please don't update
-     * without contacting that engineering team
-     */
-    fun retrieveMetadata(
-        request: HttpRequestMessage<String?>,
-        id: String,
-        context: ExecutionContext,
-        engine: HttpClientEngine?,
-    ): HttpResponseMessage {
-        val authResult = this.authSingleBlocks(request, id)
-
-        if (authResult != null) {
-            return authResult
-        }
-
-        var response: HttpResponse?
-        val receiver = workflowEngine.settings.findReceiver(this.intermediaryReceiverName)
-        val client = if (engine == null) HttpClient() else HttpClient(engine)
-        val restTransportInfo = receiver?.transport as RESTTransportType
-        val (credential, jksCredential) = RESTTransport().getCredential(restTransportInfo, receiver)
-        val logger: Logger = context.logger
-        var authPair: Pair<Map<String, String>?, String?> =
-            Pair(null, null)
-
-        var responseBody = ""
-
-        runBlocking {
-            launch {
-                authPair = RESTTransport().getOAuthToken(
-                    restTransportInfo,
-                    id,
-                    jksCredential,
-                    credential,
-                    logger
-                )
-            }
-        }
-
+    override fun getLookupId(id: String): String {
         val actionId = this.actionFromId(id).actionId
         val deliveryHistory = deliveryFacade.findDetailedDeliveryHistory(actionId)
         var lookupId = ""
@@ -273,24 +225,7 @@ class DeliveryFunction(
                 }
             }
         }
-
-        if (lookupId.isEmpty()) {
-            return HttpUtilities.notFoundResponse(request, "lookup Id not found")
-        }
-
-        runBlocking {
-            launch {
-                response = client.get("${System.getenv("ETOR_TI_baseurl")}/v1/etor/metadata/" + lookupId) {
-                    authPair.first?.forEach { entry ->
-                        headers.append(entry.key, entry.value)
-                    }
-
-                    headers.append(HttpHeaders.Authorization, "Bearer " + authPair.second!!)
-                }
-                responseBody = response!!.body()
-            }
-        }
-        return HttpUtilities.okResponse(request, responseBody)
+        return lookupId
     }
 
     /**

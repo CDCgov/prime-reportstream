@@ -1,8 +1,10 @@
 package gov.cdc.prime.router.history.azure
 
+import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -10,11 +12,21 @@ import gov.cdc.prime.router.history.ReportHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
+import gov.cdc.prime.router.transport.RESTTransport
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
 import java.util.UUID
+import java.util.logging.Logger
 
 /**
  * History API
@@ -191,6 +203,75 @@ abstract class ReportFileFunction(
             null
         }
     }
+
+    /**
+     * Function to return metadata of a single report from the CDC Intermediary.
+     * The [id] is a valid report UUID. This function is for the Intermediary only, please don't update
+     * without contacting that engineering team
+     */
+    fun retrieveMetadata(
+        request: HttpRequestMessage<String?>,
+        id: String,
+        context: ExecutionContext,
+        engine: HttpClientEngine?,
+    ): HttpResponseMessage {
+        val authResult = this.authSingleBlocks(request, id)
+
+        if (authResult != null) {
+            return authResult
+        }
+
+        var response: HttpResponse?
+        val receiver = workflowEngine.settings.findReceiver(this.intermediaryReceiverName)
+        val client = if (engine == null) HttpClient() else HttpClient(engine)
+        val restTransportInfo = receiver?.transport as RESTTransportType
+        val (credential, jksCredential) = RESTTransport().getCredential(restTransportInfo, receiver)
+        val logger: Logger = context.logger
+        var authPair: Pair<Map<String, String>?, String?> =
+            Pair(null, null)
+
+        var responseBody = ""
+
+        runBlocking {
+            launch {
+                authPair = RESTTransport().getOAuthToken(
+                    restTransportInfo,
+                    id,
+                    jksCredential,
+                    credential,
+                    logger
+                )
+            }
+        }
+
+        val lookupId = this.getLookupId(id)
+        if (lookupId.isEmpty()) {
+            return HttpUtilities.notFoundResponse(request, "lookup Id not found")
+        }
+
+        runBlocking {
+            launch {
+                response = client.get("${System.getenv("ETOR_TI_baseurl")}/v1/etor/metadata/" + lookupId) {
+                    authPair.first?.forEach { entry ->
+                        headers.append(entry.key, entry.value)
+                    }
+
+                    headers.append(HttpHeaders.Authorization, "Bearer " + authPair.second!!)
+                }
+                responseBody = response!!.body()
+            }
+        }
+
+        return HttpUtilities.okResponse(request, responseBody)
+    }
+
+    /**
+     * Use the specified report ID to find the lookup ID for the ETOR TI to use to retrieve metadata
+     *
+     * @param id DB Action that we are reviewing
+     * @return the string lookup ID if found, otherwise and empty string
+     */
+    abstract fun getLookupId(id: String): String
 
     /**
      * Look for an action related to the given id.
