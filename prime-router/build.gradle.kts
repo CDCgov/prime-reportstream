@@ -775,6 +775,9 @@ task<RunSQL>("clearDB") {
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://hit-nexus.nist.gov/repository/releases/")
+    }
 }
 
 buildscript {
@@ -926,6 +929,12 @@ dependencies {
     implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.16")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
+    implementation("gov.nist:hl7-v2-validation:1.6.4") {
+        // These conflict with the javax.xml.transform package available in the base JDK and need to be excluded
+        exclude("xerces")
+        exclude("xml-apis")
+    }
 
     // validations
     implementation("com.networknt:json-schema-validator:1.4.0")
