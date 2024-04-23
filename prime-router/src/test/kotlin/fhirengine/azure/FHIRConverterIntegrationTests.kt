@@ -381,7 +381,7 @@ class FHIRConverterIntegrationTests {
                 3 to "Missing mapping for code(s): 41458-1",
                 3 to "Missing mapping for code(s): 260373001",
                 4 to "Item 4 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected end-of-input: was expecting closing quote for a string value\n" +
-                    " at [line: 1, column: 23]"
+                        " at [line: 1, column: 23]"
             )
 
             val actualDetailedActions = actionLogs.map { log -> log.index to log.detail.message }
