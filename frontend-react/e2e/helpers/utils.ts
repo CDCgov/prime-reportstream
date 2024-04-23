@@ -124,8 +124,3 @@ export async function expectTableColumnDateTimeInRange(
     }
     expect(areDatesInRange).toBe(true);
 }
-
-export async function getTableRowCount(page: Page) {
-    const count = await getTableRows(page).count();
-    return count === 0 ? 1 : count;
-}

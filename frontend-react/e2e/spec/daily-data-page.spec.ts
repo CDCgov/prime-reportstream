@@ -13,7 +13,7 @@ import {
     endDate,
     endTime,
     endTimeClear,
-    getFilterStatus,
+    filterStatus,
     receiverDropdown,
     resetButton,
     setDate,
@@ -27,6 +27,7 @@ import {
 const selectedReceiver = "elr";
 const defaultStartTime = "9:00am";
 const defaultEndTime = "11:30pm";
+
 test.describe("Daily Data page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
@@ -174,7 +175,7 @@ test.describe("Daily Data page", () => {
                     );
 
                     // Check filter status lists receiver value
-                    await getFilterStatus(page, [selectedReceiver]);
+                    await filterStatus(page, [selectedReceiver]);
 
                     // Receiver dropdown persists
                     await expect(receiverDropdown(page)).toHaveValue(
@@ -200,7 +201,7 @@ test.describe("Daily Data page", () => {
                     await expect(applyButton(page)).toHaveAttribute("disabled");
                 });
 
-                test("with 'From' date and 'Start' time", async ({ page }) => {
+                test("with 'From' date and 'Start time'", async ({ page }) => {
                     await setDate(page, "#start-date", 7);
                     await setTime(page, "#start-time", defaultStartTime);
 
@@ -208,7 +209,7 @@ test.describe("Daily Data page", () => {
                     await expect(applyButton(page)).toHaveAttribute("disabled");
                 });
 
-                test("with 'From' date and 'End' time", async ({ page }) => {
+                test("with 'From' date and 'End time'", async ({ page }) => {
                     await setDate(page, "#start-date", 7);
                     await setTime(page, "#end-time", "8:00pm");
 
@@ -216,7 +217,7 @@ test.describe("Daily Data page", () => {
                     await expect(applyButton(page)).toHaveAttribute("disabled");
                 });
 
-                test("with 'To' date and 'Start' time", async ({ page }) => {
+                test("with 'To' date and 'Start time'", async ({ page }) => {
                     await setDate(page, "#end-date", 7);
                     await setTime(page, "#start-time", defaultStartTime);
 
@@ -224,7 +225,7 @@ test.describe("Daily Data page", () => {
                     await expect(applyButton(page)).toHaveAttribute("disabled");
                 });
 
-                test("with 'To' date and 'End' time", async ({ page }) => {
+                test("with 'To' date and 'End time'", async ({ page }) => {
                     await setDate(page, "#end-date", 7);
                     await setTime(page, "#end-time", "8:00pm");
 
@@ -232,7 +233,7 @@ test.describe("Daily Data page", () => {
                     await expect(applyButton(page)).toHaveAttribute("disabled");
                 });
 
-                test("with 'Start' time and 'End' time", async ({ page }) => {
+                test("with 'Start time' and 'End time'", async ({ page }) => {
                     // Start time
                     await setTime(page, "#start-time", defaultStartTime);
                     await expect(applyButton(page)).toHaveAttribute("disabled");
@@ -279,13 +280,13 @@ test.describe("Daily Data page", () => {
                     );
 
                     // Check filter status lists receiver value
-                    await getFilterStatus(page, [
+                    await filterStatus(page, [
                         selectedReceiver,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                     ]);
                 });
 
-                test("with 'From' date, 'To' date, 'Start' time", async ({
+                test("with 'From' date, 'To' date, 'Start time'", async ({
                     page,
                 }) => {
                     const fromDate = await setDate(page, "#start-date", 14);
@@ -316,14 +317,14 @@ test.describe("Daily Data page", () => {
                     );
 
                     // Check filter status lists receiver value
-                    await getFilterStatus(page, [
+                    await filterStatus(page, [
                         selectedReceiver,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         `${defaultStartTime}–${"11:59pm"}`,
                     ]);
                 });
 
-                test("with 'From' date, 'To' date, 'End' time", async ({
+                test("with 'From' date, 'To' date, 'End time'", async ({
                     page,
                 }) => {
                     const fromDate = await setDate(page, "#start-date", 14);
@@ -354,14 +355,14 @@ test.describe("Daily Data page", () => {
                     );
 
                     // Check filter status lists receiver value
-                    await getFilterStatus(page, [
+                    await filterStatus(page, [
                         selectedReceiver,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         `${"12:00am"}–${defaultEndTime}`,
                     ]);
                 });
 
-                test("with 'From' date, 'To' date, 'Start' time, 'End' time", async ({
+                test("with 'From' date, 'To' date, 'Start time', 'End time'", async ({
                     page,
                 }) => {
                     const fromDate = await setDate(page, "#start-date", 14);
@@ -386,19 +387,254 @@ test.describe("Daily Data page", () => {
                     );
 
                     // Check filter status lists receiver value
-                    await getFilterStatus(page, [
+                    await filterStatus(page, [
                         selectedReceiver,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         `${defaultStartTime}–${defaultEndTime}`,
                     ]);
                 });
+
+                test("with 'From' date, 'To' date, 'Start time' before 'End time'", async ({
+                    page,
+                }) => {
+                    await setDate(page, "#start-date", 0);
+                    await setDate(page, "#end-date", 0);
+                    await setTime(page, "#start-time", defaultEndTime);
+                    await setTime(page, "#end-time", defaultStartTime);
+
+                    // Apply button is disabled
+                    await expect(applyButton(page)).toHaveAttribute("disabled");
+                });
             });
 
-            // test.describe("no receiver", () => {
-            //     test.describe("with date", () => {});
-            //
-            //     test.describe("with date and time", () => {});
-            // });
+            test.describe("no receiver", () => {
+                test.beforeEach(async ({ page }) => {
+                    await page.locator("#receiver-dropdown").selectOption("");
+                });
+
+                test.afterEach(async ({ page }) => {
+                    await resetButton(page).click();
+                });
+
+                test("with 'From' date", async ({ page }) => {
+                    await expect(startDate(page)).toHaveValue("");
+
+                    await setDate(page, "#start-date", 7);
+
+                    // Apply button is disabled
+                    await expect(applyButton(page)).toHaveAttribute("disabled");
+                });
+
+                test("with 'To' date", async ({ page }) => {
+                    await expect(endDate(page)).toHaveValue("");
+
+                    await setDate(page, "#end-date", 7);
+
+                    // Apply button is disabled
+                    await expect(applyButton(page)).toHaveAttribute("disabled");
+                });
+
+                test("with 'From' date and 'Start time'", async ({ page }) => {
+                    await setDate(page, "#start-date", 7);
+                    await setTime(page, "#start-time", defaultStartTime);
+
+                    // Apply button is disabled
+                    await expect(applyButton(page)).toHaveAttribute("disabled");
+                });
+
+                test("with 'From' date and 'End time'", async ({ page }) => {
+                    await setDate(page, "#start-date", 7);
+                    await setTime(page, "#end-time", "8:00pm");
+
+                    // Apply button is disabled
+                    await expect(applyButton(page)).toHaveAttribute("disabled");
+                });
+
+                test("with 'To' date and 'Start time'", async ({ page }) => {
+                    await setDate(page, "#end-date", 7);
+                    await setTime(page, "#start-time", defaultStartTime);
+
+                    // Apply button is disabled
+                    await expect(applyButton(page)).toHaveAttribute("disabled");
+                });
+
+                test("with 'To' date and 'End time'", async ({ page }) => {
+                    await setDate(page, "#end-date", 7);
+                    await setTime(page, "#end-time", "8:00pm");
+
+                    // Apply button is disabled
+                    await expect(applyButton(page)).toHaveAttribute("disabled");
+                });
+
+                test("with 'Start time' and 'End time'", async ({ page }) => {
+                    // Start time
+                    await setTime(page, "#start-time", defaultStartTime);
+                    await expect(applyButton(page)).toHaveAttribute("disabled");
+                    await startTimeClear(page).click();
+                    await expect(page.locator("#start-time")).toHaveValue("");
+                    await expect(applyButton(page)).toBeDisabled();
+
+                    // End time
+                    await setTime(page, "#end-time", defaultEndTime);
+                    await expect(applyButton(page)).toHaveAttribute("disabled");
+                    await endTimeClear(page).click();
+                    await expect(page.locator("#end-time")).toHaveValue("");
+                    await expect(applyButton(page)).toBeDisabled();
+
+                    // Start time and End time
+                    await setTime(page, "#start-time", defaultStartTime);
+                    await setTime(page, "#end-time", defaultEndTime);
+                    await expect(applyButton(page)).toHaveAttribute("disabled");
+                    await startTimeClear(page).click();
+                    await expect(page.locator("#start-time")).toHaveValue("");
+                    await endTimeClear(page).click();
+                    await expect(page.locator("#end-time")).toHaveValue("");
+                    await expect(applyButton(page)).toBeDisabled();
+                });
+
+                test("with 'From' date and 'To' date", async ({ page }) => {
+                    const fromDate = await setDate(page, "#start-date", 14);
+                    const toDate = await setDate(page, "#end-date", 0);
+
+                    // Apply button is enabled
+                    await applyButton(page).click();
+                    await page
+                        .locator(".usa-table tbody")
+                        .waitFor({ state: "visible" });
+
+                    // Check that table data contains the dates that were selected
+                    await expectTableColumnDateTimeInRange(
+                        page,
+                        1,
+                        fromDate,
+                        toDate,
+                        "",
+                        "",
+                    );
+
+                    // Check filter status lists receiver value
+                    await filterStatus(page, [
+                        `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                    ]);
+                });
+
+                test("with 'From' date, 'To' date, 'Start time'", async ({
+                    page,
+                }) => {
+                    const fromDate = await setDate(page, "#start-date", 14);
+                    const toDate = await setDate(page, "#end-date", 0);
+                    await setTime(page, "#start-time", defaultStartTime);
+
+                    // Apply button is enabled
+                    await applyButton(page).click();
+                    await page
+                        .locator(".usa-table tbody")
+                        .waitFor({ state: "visible" });
+
+                    // Form values persist
+                    await expect(startDate(page)).toHaveValue(fromDate);
+                    await expect(endDate(page)).toHaveValue(toDate);
+                    await expect(page.locator("#start-time")).toHaveValue(
+                        defaultStartTime,
+                    );
+
+                    // Check that table data contains the dates/times that were selected
+                    await expectTableColumnDateTimeInRange(
+                        page,
+                        1,
+                        fromDate,
+                        toDate,
+                        defaultStartTime,
+                        "",
+                    );
+
+                    // Check filter status lists receiver value
+                    await filterStatus(page, [
+                        `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                        `${defaultStartTime}–${"11:59pm"}`,
+                    ]);
+                });
+
+                test("with 'From' date, 'To' date, 'End time'", async ({
+                    page,
+                }) => {
+                    const fromDate = await setDate(page, "#start-date", 14);
+                    const toDate = await setDate(page, "#end-date", 0);
+                    await setTime(page, "#end-time", defaultEndTime);
+
+                    // Apply button is enabled
+                    await applyButton(page).click();
+                    await page
+                        .locator(".usa-table tbody")
+                        .waitFor({ state: "visible" });
+
+                    // Form values persist
+                    await expect(startDate(page)).toHaveValue(fromDate);
+                    await expect(endDate(page)).toHaveValue(toDate);
+                    await expect(page.locator("#end-time")).toHaveValue(
+                        defaultEndTime,
+                    );
+
+                    // Check that table data contains the dates/times that were selected
+                    await expectTableColumnDateTimeInRange(
+                        page,
+                        1,
+                        fromDate,
+                        toDate,
+                        "",
+                        defaultEndTime,
+                    );
+
+                    // Check filter status lists receiver value
+                    await filterStatus(page, [
+                        `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                        `${"12:00am"}–${defaultEndTime}`,
+                    ]);
+                });
+
+                test("with 'From' date, 'To' date, 'Start time', 'End time'", async ({
+                    page,
+                }) => {
+                    const fromDate = await setDate(page, "#start-date", 14);
+                    const toDate = await setDate(page, "#end-date", 0);
+                    await setTime(page, "#start-time", defaultStartTime);
+                    await setTime(page, "#end-time", defaultEndTime);
+
+                    // Apply button is enabled
+                    await applyButton(page).click();
+                    await page
+                        .locator(".usa-table tbody")
+                        .waitFor({ state: "visible" });
+
+                    // Check that table data contains the dates/times that were selected
+                    await expectTableColumnDateTimeInRange(
+                        page,
+                        1,
+                        fromDate,
+                        toDate,
+                        defaultStartTime,
+                        defaultEndTime,
+                    );
+
+                    // Check filter status lists receiver value
+                    await filterStatus(page, [
+                        `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                        `${defaultStartTime}–${defaultEndTime}`,
+                    ]);
+                });
+
+                test("with 'From' date, 'To' date, 'Start time' before 'End time'", async ({
+                    page,
+                }) => {
+                    await setDate(page, "#start-date", 0);
+                    await setDate(page, "#end-date", 0);
+                    await setTime(page, "#start-time", defaultEndTime);
+                    await setTime(page, "#end-time", defaultStartTime);
+
+                    // Apply button is disabled
+                    await expect(applyButton(page)).toHaveAttribute("disabled");
+                });
+            });
 
             test.describe("on reset", () => {
                 test("form elements clear", async ({ page }) => {

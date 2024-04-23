@@ -128,7 +128,7 @@ export function toDateWithTime(toDate: string, toTime: string) {
     return toDateTime;
 }
 
-export async function getFilterStatus(
+export async function filterStatus(
     page: Page,
     filters: (string | undefined)[],
 ) {
