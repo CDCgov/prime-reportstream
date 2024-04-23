@@ -137,7 +137,7 @@ class SubmissionFunction(
     @FunctionName("getTiMetadataForHistory")
     fun getTiMetadata(
         @HttpTrigger(
-            name = "getTiMetadata",
+            name = "getTiMetadataForHistory",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/report/{id}/history/tiMetadata"
@@ -149,8 +149,8 @@ class SubmissionFunction(
     }
 
     override fun getLookupId(id: String): String {
-        val actionId = this.actionFromId(id)
-        val submissionHistory = submissionsFacade.findDetailedSubmissionHistory(actionId)
+        val submissionActionId = this.actionFromId(id)
+        val submissionHistory = submissionsFacade.findDetailedSubmissionHistory(submissionActionId)
         var lookupId = ""
 
         if (submissionHistory != null) {

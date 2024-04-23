@@ -193,14 +193,15 @@ class DeliveryFunction(
     }
 
     /**
-     *Endpoint for intermediary receivers to verify status of messages.  It is calling another function
-     * because Azure gets upset if there are any non-annotated parameters in the method signature with the exception
-     * of ExecutionContext
+     *Endpoint for intermediary receivers to verify status of messages. It passes
+     * a null engine to the retrieveMetadata function because Azure gets upset if there
+     * are any non-annotated parameters in the method signature other than ExecutionContext
+     * and we needed the engine to be a parameter so it can be mocked for tests
      */
     @FunctionName("getTiMetadataForDelivery")
     fun getTiMetadata(
         @HttpTrigger(
-            name = "getTiMetadata",
+            name = "getTiMetadataForDelivery",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/report/{id}/delivery/tiMetadata"
@@ -212,9 +213,9 @@ class DeliveryFunction(
     }
 
     override fun getLookupId(id: String): String {
-        val actionId = this.actionFromId(id).actionId
-        val deliveryHistory = deliveryFacade.findDetailedDeliveryHistory(actionId)
         var lookupId = ""
+        val deliveryActionId = this.actionFromId(id).actionId
+        val deliveryHistory = deliveryFacade.findDetailedDeliveryHistory(deliveryActionId)
         var currentDate: OffsetDateTime = OffsetDateTime.now()
 
         if (deliveryHistory != null) {
