@@ -37,12 +37,16 @@ export async function mockGetDeliveriesForOrgResponse(
     page: Page,
     org: string,
     state: string,
+    orgAndService: string,
     responseStatus = 200,
 ) {
-    await page.route(`${API_WATERS_ORG}/${org}/deliveries`, async (route) => {
-        const json = state === "AK" ?? deliveries.MOCK_GET_DELIVERIES_AK;
-        await route.fulfill({ json, status: responseStatus });
-    });
+    await page.route(
+        `${API_WATERS_ORG}/${org}/${orgAndService}/deliveries`,
+        async (route) => {
+            const json = state === "AK" ?? deliveries.MOCK_GET_DELIVERIES_AK;
+            await route.fulfill({ json, status: responseStatus });
+        },
+    );
 }
 
 export async function mockGetFacilitiesResponse(

@@ -21,8 +21,8 @@ import {
     startDate,
     startTime,
     startTimeClear,
+    tableHeaders,
 } from "../pages/daily-data";
-import { mockGetDeliveriesForOrgResponse } from "../pages/report-details";
 
 const selectedReceiver = "elr";
 const defaultStartTime = "9:00am";
@@ -79,24 +79,7 @@ test.describe("Daily Data page", () => {
 
             test.describe("table", () => {
                 test("has correct headers", async ({ page }) => {
-                    await expect(
-                        page.locator(".usa-table th").nth(0),
-                    ).toHaveText(/Report ID/);
-                    await expect(
-                        page.locator(".usa-table th").nth(1),
-                    ).toHaveText(/Time received/);
-                    await expect(
-                        page.locator(".usa-table th").nth(2),
-                    ).toHaveText(/File available until/);
-                    await expect(
-                        page.locator(".usa-table th").nth(3),
-                    ).toHaveText(/Items/);
-                    await expect(
-                        page.locator(".usa-table th").nth(4),
-                    ).toHaveText(/Filename/);
-                    await expect(
-                        page.locator(".usa-table th").nth(5),
-                    ).toHaveText(/Receiver/);
+                    await tableHeaders(page);
                 });
 
                 test("has pagination", async ({ page }) => {
@@ -116,12 +99,15 @@ test.describe("Daily Data page", () => {
         test.use({ storageState: "e2e/.auth/receiver.json" });
 
         test.beforeEach(async ({ page }) => {
-            await mockGetDeliveriesForOrgResponse(
-                page,
-                `ak-phd.${selectedReceiver}`,
-                "AK",
-            );
+            // If we decide to use mock data
+            // await mockGetDeliveriesForOrgResponse(
+            //     page,
+            //     `ak-phd.${selectedReceiver}`,
+            //     "ak-phd",
+            //     "AK",
+            // );
             await dailyData.goto(page);
+            await page.getByTestId("filter-form").waitFor({ state: "visible" });
         });
 
         test("has correct title", async ({ page }) => {
@@ -133,10 +119,6 @@ test.describe("Daily Data page", () => {
         });
 
         test.describe("filter", () => {
-            test("has filter", async ({ page }) => {
-                await expect(page.getByTestId("filter-form")).toBeAttached();
-            });
-
             test.describe("onLoad", () => {
                 test("does not have a receiver selected", async ({ page }) => {
                     await expect(receiverDropdown(page)).toBeAttached();
@@ -277,11 +259,14 @@ test.describe("Daily Data page", () => {
                 });
 
                 test("with 'From' date and 'To' date", async ({ page }) => {
-                    const fromDate = await setDate(page, "#start-date", 7);
+                    const fromDate = await setDate(page, "#start-date", 14);
                     const toDate = await setDate(page, "#end-date", 0);
 
                     // Apply button is enabled
                     await applyButton(page).click();
+                    await page
+                        .locator(".usa-table tbody")
+                        .waitFor({ state: "visible" });
 
                     // Check that table data contains the dates that were selected
                     await expectTableColumnDateTimeInRange(
@@ -303,12 +288,16 @@ test.describe("Daily Data page", () => {
                 test("with 'From' date, 'To' date, 'Start' time", async ({
                     page,
                 }) => {
-                    const fromDate = await setDate(page, "#start-date", 7);
+                    const fromDate = await setDate(page, "#start-date", 14);
                     const toDate = await setDate(page, "#end-date", 0);
                     await setTime(page, "#start-time", defaultStartTime);
 
                     // Apply button is enabled
                     await applyButton(page).click();
+                    await page
+                        .locator(".usa-table tbody")
+                        .waitFor({ state: "visible" });
+
                     // Form values persist
                     await expect(startDate(page)).toHaveValue(fromDate);
                     await expect(endDate(page)).toHaveValue(toDate);
@@ -337,12 +326,16 @@ test.describe("Daily Data page", () => {
                 test("with 'From' date, 'To' date, 'End' time", async ({
                     page,
                 }) => {
-                    const fromDate = await setDate(page, "#start-date", 7);
+                    const fromDate = await setDate(page, "#start-date", 14);
                     const toDate = await setDate(page, "#end-date", 0);
                     await setTime(page, "#end-time", defaultEndTime);
 
                     // Apply button is enabled
                     await applyButton(page).click();
+                    await page
+                        .locator(".usa-table tbody")
+                        .waitFor({ state: "visible" });
+
                     // Form values persist
                     await expect(startDate(page)).toHaveValue(fromDate);
                     await expect(endDate(page)).toHaveValue(toDate);
@@ -371,13 +364,16 @@ test.describe("Daily Data page", () => {
                 test("with 'From' date, 'To' date, 'Start' time, 'End' time", async ({
                     page,
                 }) => {
-                    const fromDate = await setDate(page, "#start-date", 7);
+                    const fromDate = await setDate(page, "#start-date", 14);
                     const toDate = await setDate(page, "#end-date", 0);
                     await setTime(page, "#start-time", defaultStartTime);
                     await setTime(page, "#end-time", defaultEndTime);
 
                     // Apply button is enabled
                     await applyButton(page).click();
+                    await page
+                        .locator(".usa-table tbody")
+                        .waitFor({ state: "visible" });
 
                     // Check that table data contains the dates/times that were selected
                     await expectTableColumnDateTimeInRange(
@@ -418,24 +414,7 @@ test.describe("Daily Data page", () => {
 
         test.describe("table", () => {
             test("has correct headers", async ({ page }) => {
-                await expect(page.locator(".usa-table th").nth(0)).toHaveText(
-                    /Report ID/,
-                );
-                await expect(page.locator(".usa-table th").nth(1)).toHaveText(
-                    /Time received/,
-                );
-                await expect(page.locator(".usa-table th").nth(2)).toHaveText(
-                    /File available until/,
-                );
-                await expect(page.locator(".usa-table th").nth(3)).toHaveText(
-                    /Items/,
-                );
-                await expect(page.locator(".usa-table th").nth(4)).toHaveText(
-                    /Filename/,
-                );
-                await expect(page.locator(".usa-table th").nth(5)).toHaveText(
-                    /Receiver/,
-                );
+                await tableHeaders(page);
             });
 
             test("has pagination", async ({ page }) => {

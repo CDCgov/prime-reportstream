@@ -20,6 +20,10 @@ export async function waitForAPIResponse(page: Page, requestUrl: string) {
     return response.status();
 }
 
+export function getTableRows(page: Page) {
+    return page.locator(".usa-table tbody").locator("tr");
+}
+
 export async function selectTestOrg(page: Page) {
     await page.goto("/admin/settings", {
         waitUntil: "domcontentloaded",
@@ -39,12 +43,7 @@ export async function tableData(
     expectedData: string,
 ) {
     await expect(
-        page
-            .locator(".usa-table tbody")
-            .locator("tr")
-            .nth(row)
-            .locator("td")
-            .nth(column),
+        getTableRows(page).nth(row).locator("td").nth(column),
     ).toHaveText(expectedData);
 }
 
@@ -78,15 +77,10 @@ export async function expectTableColumnValues(
     columnNumber: number,
     expectedValue: string,
 ) {
-    const rowCount = await page
-        .locator(".usa-table tbody")
-        .locator("tr")
-        .count();
+    const rowCount = await getTableRows(page).count();
 
     for (let i = 0; i < rowCount; i++) {
-        const columnValue = await page
-            .locator(".usa-table tbody")
-            .locator("tr")
+        const columnValue = await getTableRows(page)
             .nth(i)
             .locator("td")
             .nth(columnNumber)
@@ -104,14 +98,15 @@ export async function expectTableColumnDateTimeInRange(
     endTime: string,
 ) {
     let areDatesInRange = true;
-    const startDateTime = fromDateWithTime(fromDate, startTime);
-    const endDateTime = toDateWithTime(toDate, endTime);
     const rowCount = await page
         .getByRole("table")
         .locator(".usa-table tbody")
         .locator("tr")
         .count();
+
     for (let i = 0; i <= rowCount; i++) {
+        const startDateTime = fromDateWithTime(fromDate, startTime);
+        const endDateTime = toDateWithTime(toDate, endTime);
         const columnValue = await page
             .locator(".usa-table tbody")
             .locator("tr")
@@ -121,6 +116,7 @@ export async function expectTableColumnDateTimeInRange(
             .innerText();
 
         const columnDate = new Date(columnValue);
+
         if (!(columnDate >= startDateTime && columnDate < endDateTime)) {
             areDatesInRange = false;
             break;
@@ -130,6 +126,6 @@ export async function expectTableColumnDateTimeInRange(
 }
 
 export async function getTableRowCount(page: Page) {
-    const count = await page.locator(".usa-table tbody").locator("tr").count();
+    const count = await getTableRows(page).count();
     return count === 0 ? 1 : count;
 }

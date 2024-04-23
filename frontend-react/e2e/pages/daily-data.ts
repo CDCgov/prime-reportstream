@@ -1,10 +1,7 @@
 import { expect, Page } from "@playwright/test";
 import { format } from "date-fns";
-import { getTableRowCount } from "../helpers/utils";
 
 const URL_DAILY_DATA = "/daily-data";
-export const defaultStartTime = "12:00am";
-export const defaultEndTime = "11:59pm";
 
 export async function goto(page: Page) {
     await page.goto(URL_DAILY_DATA, {
@@ -63,6 +60,18 @@ export function endTimeClear(page: Page) {
 }
 
 export async function tableHeaders(page: Page) {
+    await expect(page.locator(".usa-table th").nth(0)).toHaveText(/Report ID/);
+    await expect(page.locator(".usa-table th").nth(1)).toHaveText(
+        /Time received/,
+    );
+    await expect(page.locator(".usa-table th").nth(2)).toHaveText(
+        /File available until/,
+    );
+    await expect(page.locator(".usa-table th").nth(3)).toHaveText(/Items/);
+    await expect(page.locator(".usa-table th").nth(4)).toHaveText(/Filename/);
+    await expect(page.locator(".usa-table th").nth(5)).toHaveText(/Receiver/);
+}
+export async function detailsTableHeaders(page: Page) {
     await expect(page.locator(".usa-table th").nth(0)).toHaveText(/Facility/);
     await expect(page.locator(".usa-table th").nth(1)).toHaveText(/Location/);
     await expect(page.locator(".usa-table th").nth(2)).toHaveText(/CLIA/);
@@ -123,10 +132,10 @@ export async function getFilterStatus(
     page: Page,
     filters: (string | undefined)[],
 ) {
-    // Refactor so that all logic is contained in here vs passing in
-    // i.e. defaultStartTime
-    const rowCount = await getTableRowCount(page);
-    let filterStatus = `Showing (${rowCount ?? 0}) ${rowCount === 1 ? "result" : "results"} for: `;
+    // TODO: rowCount is not attainable with live data since this is returned from the API
+    // const rowCount = await getTableRowCount(page);
+    // let filterStatus = `Showing (${rowCount ?? 0}) ${rowCount === 1 ? "result" : "results"} for: `;
+    let filterStatus = ` for: `;
 
     for (let i = 0; i < filters.length; i++) {
         filterStatus += filters[i];
@@ -135,5 +144,5 @@ export async function getFilterStatus(
         }
     }
 
-    await expect(page.getByTestId("filter-status")).toHaveText(filterStatus);
+    await expect(page.getByTestId("filter-status")).toContainText(filterStatus);
 }
