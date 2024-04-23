@@ -60,6 +60,11 @@ This idea would work but may require a lot of custom work. This would be a good 
 
 ### Write JSON Schema files and run validations against it
 
+#### Approach
+* Create JSON Schema files to test our YAML files against to ensure the proper structure
+* Use a library to test our deserialized configuration values
+  * We will be using the [Konform library](https://github.com/konform-kt/konform)
+
 #### Pros
 
 * Off the shelf standardized solution

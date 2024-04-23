@@ -2,8 +2,8 @@
 
 ## Approach
 
-To validate the structure of our YAML files, we will use the Konform validation library. We will define data classes
-corresponding to our yaml files and be able to define simple validations on them.
+To validate the configuration values of our YAML files, we will use the Konform library. We will define data classes
+corresponding to our yaml files and be able to define constraints on values in an easy-to-read way.
 
 ## Library
 
