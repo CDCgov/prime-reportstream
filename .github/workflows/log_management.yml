@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Run log management steps
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f
       - name: Workflow Housekeeper - workflows NOT in default branch
         uses: JosiahSiegel/workflow-housekeeper@f73f78d6cd72f7e6552ddc40838d12922d5dded2
         env:

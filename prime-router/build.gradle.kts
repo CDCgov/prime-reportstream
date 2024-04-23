@@ -32,14 +32,14 @@ import java.util.Properties
 plugins {
     val kotlinVersion by System.getProperties()
     kotlin("jvm") version "$kotlinVersion"
-    id("org.flywaydb.flyway") version "10.8.1"
+    id("org.flywaydb.flyway") version "10.11.0"
     id("nu.studer.jooq") version "9.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.14.0"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.9.20"
+    id("org.jetbrains.dokka") version "1.8.20"
     id("com.avast.gradle.docker-compose") version "0.17.6"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
@@ -776,6 +776,9 @@ task<RunSQL>("clearDB") {
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://hit-nexus.nist.gov/repository/releases/")
+    }
 }
 
 buildscript {
@@ -799,7 +802,7 @@ buildscript {
         // will need to be removed once this issue is resolved in Maven.
         classpath("net.minidev:json-smart:2.5.1")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
-        classpath("org.flywaydb:flyway-database-postgresql:10.8.1")
+        classpath("org.flywaydb:flyway-database-postgresql:10.11.0")
     }
 }
 
@@ -859,10 +862,10 @@ dependencies {
             branch = "master"
         }
     }
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.0.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.0.2")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:7.0.0")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.0.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:7.0.2")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
@@ -882,8 +885,8 @@ dependencies {
     implementation("commons-io:commons-io:2.16.0")
     implementation("org.postgresql:postgresql:42.7.3")
     implementation("com.zaxxer:HikariCP:5.1.0")
-    implementation("org.flywaydb:flyway-core:10.8.1")
-    implementation("org.flywaydb:flyway-database-postgresql:10.8.1")
+    implementation("org.flywaydb:flyway-core:10.11.0")
+    implementation("org.flywaydb:flyway-database-postgresql:10.11.0")
     implementation("org.commonmark:commonmark:0.22.0")
     implementation("com.google.guava:guava:33.1.0-jre")
     implementation("com.helger.as2:as2-lib:5.1.2")
@@ -928,6 +931,12 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
+    implementation("gov.nist:hl7-v2-validation:1.6.4") {
+        // These conflict with the javax.xml.transform package available in the base JDK and need to be excluded
+        exclude("xerces")
+        exclude("xml-apis")
+    }
+
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     runtimeOnly("com.squareup.okio:okio:3.9.0")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
@@ -941,9 +950,9 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
-    testImplementation("org.testcontainers:testcontainers:1.19.6")
-    testImplementation("org.testcontainers:junit-jupiter:1.19.6")
-    testImplementation("org.testcontainers:postgresql:1.19.6")
+    testImplementation("org.testcontainers:testcontainers:1.19.7")
+    testImplementation("org.testcontainers:junit-jupiter:1.19.7")
+    testImplementation("org.testcontainers:postgresql:1.19.7")
 
     implementation(kotlin("script-runtime"))
 }
