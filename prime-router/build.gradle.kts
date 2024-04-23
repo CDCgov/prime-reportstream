@@ -935,6 +935,8 @@ dependencies {
         exclude("xerces")
         exclude("xml-apis")
     }
+    // pin xalan for CVE-2022-34169 via gov.nist:hl7-v2-validation@1.6.4
+    implementation("xalan:xalan:2.7.3")
 
     // validations
     implementation("com.networknt:json-schema-validator:1.4.0")
