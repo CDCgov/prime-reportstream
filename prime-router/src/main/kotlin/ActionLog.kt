@@ -113,9 +113,15 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
     /**
      * Create an item logger to add logs to [logs] for the given [itemIndex] and [trackingId].
      */
-    private constructor(logs: MutableList<ActionLog>, itemIndex: Int, trackingId: String? = null) : this(logs) {
+    private constructor(
+        logs: MutableList<ActionLog>,
+        itemIndex: Int,
+        trackingId: String? = null,
+        reportId: UUID? = null,
+    ) : this(logs) {
         this.itemIndex = itemIndex
         this.trackingId = trackingId
+        this.reportId = reportId
     }
 
     /**
@@ -139,7 +145,7 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
      */
     fun getItemLogger(itemIndex: Int, trackingId: String? = null): ActionLogger {
         check(itemIndex > 0) { "Item index must be a positive number" }
-        return ActionLogger(this.logs, itemIndex, trackingId)
+        return ActionLogger(this.logs, itemIndex, trackingId, this.reportId)
     }
 
     /**
