@@ -140,6 +140,12 @@
       customerStatus: active
       schemaName: classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml
       format: FHIR
+    - name: ignore-fhir-e2e
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      schemaName: classpath:/metadata/fhir_transforms/senders/baseline-sender-transform.yml
+      format: FHIR
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
       topic: covid-19
@@ -260,7 +266,7 @@
         - "%processingId.exists() and %processingId = 'P'"
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
       timing:
-        operation: MERGE
+        operation: NONE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
@@ -270,6 +276,42 @@
         type: "HL7"
         receivingApplicationName: "CO-ELR"
         receivingFacilityName: "CO"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: FULL_ELR_FHIR_A_E2E
+      externalName: Ignore FULL_ELR_FHIR_A_E2E
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "Bundle.entry.resource.ofType(Location).address[0].state.exists() and Bundle.entry.resource.ofType(Location).address[0].state = 'TX'" ]
+      timing:
+        operation: NONE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<FHIR>
+        type: "FHIR"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: FULL_ELR_FHIR_B_E2E
+      externalName: Ignore FULL_ELR_FHIR_B_E2E
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "Bundle.entry.resource.ofType(Patient).address.city.exists() and Bundle.entry.resource.ofType(Patient).address.city = 'CANTERBURY'" ]
+      timing:
+        operation: NONE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<FHIR>
+        type: "FHIR"
       transport:
         type: SFTP
         host: sftp

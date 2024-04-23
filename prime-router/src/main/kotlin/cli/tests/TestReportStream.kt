@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.max
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.OffsetDateTime
@@ -870,10 +871,10 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $fullELRSenderName for organization ${org1.name}")
         }
 
-        const val etorTISenderName = "ignore-etor-ti"
-        val etorTISender by lazy {
-            settings.findSender("$org1Name.$etorTISenderName") as? UniversalPipelineSender
-                ?: error("Unable to find sender $etorTISenderName for organization ${org1.name}")
+        const val fhirSenderName = "ignore-fhir-e2e"
+        val fhirSender by lazy {
+            settings.findSender("$org1Name.$fhirSenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $fhirSenderName for organization ${org1.name}")
         }
 
         const val elrElimsSenderName = "ignore-elr-elims"
@@ -912,17 +913,14 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $hl7SenderName for organization ${org1.name}")
         }
 
-        const val hl7MonkeypoxSenderName = "ignore-monkeypox"
-        val hl7MonkeypoxSender by lazy {
-            settings.findSender("$org1Name.$hl7MonkeypoxSenderName") as? LegacyPipelineSender
-                ?: error("Unable to find sender $hl7MonkeypoxSenderName for organization ${org1.name}")
-        }
-
         val hl7FullELRReceiver = settings.receivers.filter {
             it.organizationName == org1Name && it.name == "FULL_ELR_E2E"
         }[0]
-        val fhirFullELRReceiver = settings.receivers.filter {
-            it.organizationName == org1Name && it.name == "FULL_ELR_FHIR"
+        val fhirFullELRE2EReceiverA = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "FULL_ELR_FHIR_A_E2E"
+        }[0]
+        val fhirFullELRE2EReceiverB = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "FULL_ELR_FHIR_B_E2E"
         }[0]
         val elimsReceiver = settings.receivers.first { it.topic == Topic.ELR_ELIMS }
         val csvReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "CSV" }[0]
@@ -930,15 +928,10 @@ abstract class CoolTest {
         val hl7BatchReceiver =
             settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7_BATCH" }[0]
         val hl7NullReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7_NULL" }[0]
-        val hl7PpkReceiver = settings.receivers.filter {
-            it.organizationName == org1Name && it.name == "HL7_BATCH_PPK"
-        }[0]
-        val hl7PemReceiver = settings.receivers.filter {
-            it.organizationName == org1Name && it.name == "HL7_BATCH_PEM"
-        }[0]
 
         lateinit var allGoodReceivers: MutableList<Receiver>
         lateinit var allGoodCounties: String
+        lateinit var testData: ArrayList<E2EData>
         const val historyTestOrgName = "historytest"
         val historyTestSender = (
             settings.findSender("$historyTestOrgName.default")
@@ -957,10 +950,38 @@ abstract class CoolTest {
             allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
         }
 
-        fun initListOfGoodReceiversAndCountiesForUniversalPipeline() {
-            allGoodReceivers = mutableListOf(hl7FullELRReceiver)
-            allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
+        fun initTestDataForUniversalPipeline() {
+            testData = ArrayList<E2EData>()
+            testData.add(
+                E2EData(
+                    File("src/test/resources/fhirengine/smoketest/valid_hl7.hl7"),
+                    fullELRSender,
+                    listOf(fhirFullELRE2EReceiverB, hl7FullELRReceiver)
+                )
+            )
+            testData.add(
+                E2EData(
+                    File("src/test/resources/fhirengine/smoketest/valid_hl7.hl7"),
+                    elrElimsSender,
+                    listOf(elimsReceiver)
+                )
+            )
+            testData.add(
+                E2EData(
+                    File("src/test/resources/fhirengine/smoketest/valid_fhir.fhir"),
+                    fhirSender,
+                    listOf(fhirFullELRE2EReceiverA)
+                )
+            )
         }
+
+        data class E2EData(
+            val file: File,
+            val sender: UniversalPipelineSender,
+            val receivers: List<Receiver>,
+            var reportId: ReportId? = null,
+            var historyResponse: String = "",
+        )
 
         val blobstoreReceiver = settings.receivers.filter {
             it.organizationName == org1Name && it.name == "BLOBSTORE"

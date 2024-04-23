@@ -12,7 +12,6 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.HttpUtilities
@@ -31,6 +30,7 @@ import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import kotlinx.coroutines.delay
 import org.jooq.exception.DataAccessException
+import org.json.JSONObject
 import java.io.File
 import java.io.FileInputStream
 import java.lang.Thread.sleep
@@ -78,43 +78,42 @@ class Ping : CoolTest() {
 }
 
 /**
- * Updated end2end test for the universal pipeline. This test posts a report and verifies that the file was sent to
- * the expected receiver and that the contents of the file match the expected contents.
- * This test runs through three scenarios:
- * - A report that comes in as HL7 and is sent as HL7 (FULL-ELR).
- * - A report that comes in as HL7 and is sent as FHIR (FULL-ELR).
- * - A report that comes in as HL7 and is sent as HL7 but has the send original flag (ELIMS).
+ * An End-to-End test for the Universal Pipeline. This test posts a report and verifies that the file was sent to
+ * the expected receiver(s), then verifies the contents of the file match the expected contents.
+ * This test runs through four scenarios:
+ * - A report that is submitted as HL7 and is sent as HL7 (Topic: FULL-ELR).
+ * - A report that is submitted as HL7 and is sent as FHIR (Topic: FULL-ELR).
+ * - A report that is submitted as HL7 and is sent as HL7 but has the send original flag (Topic: ELIMS).
+ * - A report that is submitted as FHIR and is sent as FHIR (Topic: FULL-ELR).
  */
 class End2EndUniversalPipeline : CoolTest() {
     override val name = "end2end_up"
-    override val description = "e2e tests that verify reports are correctly received and uploaded"
+    override val description = "e2e tests that verify reports are correctly received and routed"
     override val status = TestStatus.SMOKE
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCountiesForUniversalPipeline()
+        initTestDataForUniversalPipeline()
+        var passed = true
 
-        val file = File("src/test/resources/fhirengine/smoketest/valid_hl7.hl7")
-        echo("Loaded datafile $file")
+        ugly("Starting $name Test")
 
-        // First: Post the reports
-        ugly("Starting $name Test: send ${fullELRSender.fullName} data to $allGoodCounties")
-        val fullELRReportId = postPreTestReports(file, environment, options, fullELRSender)
-
-        ugly("Starting $name Test: send ${elrElimsSender.fullName} data to $allGoodCounties")
-        val elimsReportId = postPreTestReports(file, environment, options, elrElimsSender)
-
-        if (elimsReportId == null || fullELRReportId == null) {
-            return bad("***$name FAILED***: Did not find report ID in report submission (post) response)")
+        // Posting the reports first. All three must be sent before the next step which includes a pause for batching
+        testData.forEach {
+            ugly("Sending ${it.file.extension} data from ${it.sender.fullName} to the UP")
+            it.reportId = postPreTestReports(it.file, environment, options, it.sender)
         }
 
-        // Need just a little wait for the batch step to process the reports
-        delay(75000)
+        // Wait until reports are marked as Delivered and then run test validations
+        testData.forEach {
+            it.historyResponse = pauseForBatchProcess(environment, it.reportId)
 
-        // Last: Run steps to compare actual and expected file contents
-        var passed = end2EndUP(
-            file, environment, fullELRSender, listOf(fhirFullELRReceiver, hl7FullELRReceiver), fullELRReportId
-        )
-        passed = passed and end2EndUP(file, environment, elrElimsSender, listOf(elimsReceiver), elimsReportId)
+            if (it.historyResponse.isEmpty()) {
+                return bad("***$name test FAILED***: One or more reports failed batch step.")
+            }
+
+            ugly("Examining sent reports for the posted report ID ${it.reportId}")
+            passed = passed and end2EndUP(it.file, it.historyResponse, it.sender, it.receivers)
+        }
 
         return passed
     }
@@ -122,7 +121,7 @@ class End2EndUniversalPipeline : CoolTest() {
     /**
      * Posts a file to the UP. Verifies the response from the server and returns the extracted report ID from it.
      */
-    private suspend fun postPreTestReports(
+    private fun postPreTestReports(
         file: File,
         environment: Environment,
         options: CoolTestOptions,
@@ -138,62 +137,94 @@ class End2EndUniversalPipeline : CoolTest() {
                 payloadName = "$name ${status.description}",
             )
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
-            bad("***$name FAILED***: Response code $responseCode")
+            bad("***$name test FAILED***: Response code $responseCode")
         } else {
             good("Posting of report succeeded with response code $responseCode")
         }
 
-        echo(json)
-
         if (!examinePostResponse(json, false)) {
-            bad("***$name FAILED***: Error in post response")
+            bad("***$name test FAILED***: Error in post response")
         }
 
         return getReportIdFromResponse(json)
     }
 
-    private suspend fun end2EndUP(
+    /**
+     * Calls the report history endpoint periodically, waiting for the overall status to be set to Delivered.
+     * Times out after 90 seconds.
+     */
+    private suspend fun pauseForBatchProcess(environment: Environment, reportId: ReportId?): String {
+        val maxPollSecs = 90
+        val pollSleepSecs = 5
+        var timeElapsedSecs = 0
+        var overallStatus = ""
+
+        echo("\nPolling for history endpoint for report ID: $reportId. (Max poll time $maxPollSecs seconds)")
+        while (timeElapsedSecs <= maxPollSecs) {
+            delay(pollSleepSecs.toLong() * 1000)
+            timeElapsedSecs += pollSleepSecs
+
+            val getUrl = "${environment.url}/api/waters/report/$reportId/history"
+            val (_: Int, response: String) = HttpUtilities.getHttp(getUrl)
+            overallStatus = JSONObject(response).getString("overallStatus")
+
+            if (DetailedSubmissionHistory.Status.DELIVERED.toString() == overallStatus) {
+                good("Report $reportId status was $overallStatus after $timeElapsedSecs seconds")
+                return response
+            }
+        }
+
+        bad(
+            "***$name test FAILED***: Batch step polling for report $reportId failed. " +
+            "After $timeElapsedSecs seconds the report status is $overallStatus."
+        )
+        return ""
+    }
+
+    /**
+     * Runs validations after a report has been submitted to the UP and marked as Delivered.
+     * For all expected receivers this will validate:
+     * - An external filename matching the receiver is present in the history endpoint response
+     * - Download the file from BlobStorage
+     * - Mimic the expected UP Transforms on the original data
+     * - Compare the resulting expected data with the actual data returned from BlobStorage
+     */
+    private fun end2EndUP(
         file: File,
-        environment: Environment,
+        historyResponse: String,
         sender: Sender,
         expectedReceivers: List<Receiver>,
-        reportId: ReportId,
     ): Boolean {
         var passed = true
-        val blobconnectionstring = Environment.get().blobEnvVar
+        val blobConnectionString = Environment.get().blobEnvVar
         val blobContainerMetadata: BlobAccess.BlobContainerMetadata =
-            BlobAccess.BlobContainerMetadata.build("reports", blobconnectionstring)
-
-        // Call history endpoint to get information on posted report
-        val getUrl = "${environment.url}/api/waters/report/$reportId/history"
-        val (_: Int, response: String) = HttpUtilities.getHttp(getUrl)
+            BlobAccess.BlobContainerMetadata.build("reports", blobConnectionString)
 
         expectedReceivers.forEach { expectedReceiver ->
-            // Retrieve external filenames associated with the receiver from the history endpoint response
-            val actualFilename = findReportExternalNames(response, expectedReceiver)
-            if (actualFilename.isNotEmpty()) {
-                good("The report was received by ${expectedReceiver.name}")
-            } else {
-                bad("***$name FAILED***: Did not find the sent report name for receiver ${expectedReceiver.name}")
-                passed = false
+            // Retrieve external filename
+            val actualFilename = findReportExternalName(historyResponse, expectedReceiver)
+            if (actualFilename.isEmpty()) {
+                passed = bad(
+                    "***$name test FAILED***: " +
+                    "Did not find the sent report name for receiver ${expectedReceiver.name}"
+                )
                 return@forEach
             }
 
-            // Grab the uploaded files out of Blob storage
+            // Grab the uploaded files out of blob store
             val actualName = actualFilename.removeSurrounding("\"")
             val actualURL = "${blobContainerMetadata.getBlobEndpoint()}/none/${expectedReceiver.fullName}/$actualName"
             var actualByteArray: ByteArray
 
             try {
                 actualByteArray = BlobAccess.downloadBlobAsByteArray(actualURL, blobContainerMetadata)
+                good("File successfully uploaded to blob store as $actualFilename")
             } catch (e: BlobStorageException) {
-                bad("***$name FAILED***: Failed to find $actualURL in blob storage")
+                passed = bad("***$name test FAILED***: Failed to find $actualURL in blob storage")
                 return@forEach
             }
 
-            good("File successfully uploaded to blob store as $actualFilename")
-
-            // Mimic the UP transformations to get what expected file contents
+            // Mimic the UP transformations to get the expected file contents
             val expectedByteArray = performFileTransforms(
                 file.inputStream(),
                 expectedReceiver,
@@ -201,7 +232,7 @@ class End2EndUniversalPipeline : CoolTest() {
                 blobContainerMetadata
             )
 
-            // Compare actual file taken from blob store with what we expected to happen to it
+            // Compare the actual file content with the expected content
             val expectedFormat = Report.Format.valueOfFromExt(expectedReceiver.translation.type)
             passed = passed and CompareData().compare(
                 expectedByteArray.inputStream(),
@@ -213,7 +244,7 @@ class End2EndUniversalPipeline : CoolTest() {
             if (passed) {
                 good("The contents of $actualFilename matches the expected data")
             } else {
-                bad("***$name FAILED***: The contents of $actualFilename did not match the expected contents")
+                bad("***$name test FAILED***: The contents of $actualFilename did not match the expected contents")
             }
         }
 
@@ -221,29 +252,28 @@ class End2EndUniversalPipeline : CoolTest() {
     }
 
     /**
-     * Searches the provided json response for the external filename that matches the expected receiver.
-     * Will fail if the destination objects are not populated.
+     * Searches a submission history json response for the external filename that matches the expected receiver.
+     * Will fail if the expected json objects are not populated.
+     * @param response must be a response from the submission history endpoint for json lookup
+     * @param expectedReceiver receiver for which to find a matching destination service
      */
-    private fun findReportExternalNames(response: String, expectedReceiver: Receiver): String {
+    private fun findReportExternalName(response: String, expectedReceiver: Receiver): String {
         var filename = ""
 
         try {
-            val jsonResponse = jacksonObjectMapper.readTree(response)
+            val destinations = JSONObject(response).getJSONArray("destinations")
 
-            if (!jsonResponse.isEmpty && !jsonResponse["destinations"].isEmpty) {
-                jsonResponse["destinations"].forEach { destination ->
-                    val reports = destination["sentReports"]
+            destinations.forEach { d ->
+                val destination = JSONObject(d.toString())
 
-                    // Check that externalName is present and that the destination service matches the expected receiver
-                    if (!reports.isNull && !reports.first().isNull && !reports.first()["externalName"].isNull &&
-                        expectedReceiver.name == destination["service"].toString().removeSurrounding("\"")
-                    ) {
-                        filename = reports.first()["externalName"].toString()
-                    }
+                // Check that the destination service matches the expected receiver. Uses the first name listed.
+                if (expectedReceiver.name == destination.getString("service").removeSurrounding("\"")) {
+                    filename = destination.getJSONArray("sentReports").getJSONObject(0).getString("externalName")
+                    good("The report was received by ${expectedReceiver.name}")
                 }
             }
-        } catch (e: NoSuchElementException) {
-            bad("***$name FAILED***: History response is missing an element for the sent report")
+        } catch (e: org.json.JSONException) {
+            bad("***$name test FAILED***: History response is missing an element for the sent report: $e")
         }
 
         return filename
@@ -251,33 +281,36 @@ class End2EndUniversalPipeline : CoolTest() {
 
     /**
      * Performs the expected transforms that would happen to a file moving through the UP. If the topic is ELIMS this
-     * process will be skipped. Otherwise, the file will be converted to FHIR, sender enrichment will be run, and
-     * it will be translated back to HL7, if applicable, will be performed with receiver translation schema.
-     * Caveats: This does not perform all transformations from the UP. Notably batch headers/footers are absent.
-     * @param hl7File the file to transform
-     * @param expectedReceiver used for the receiver translation information
+     * process will be skipped. Otherwise, the file will be converted to FHIR if necessary. Sender enrichments will be
+     * run. Then translated based on the expected receiver format.
+     * Caveats: This does not perform all transformations from the UP. Notably, batch headers/footers are absent.
+     * @param originalFile the file to transform
+     * @param expectedReceiver determines resulting data format
      * @param sender used for the sender enrichment schema
      * @param blobMetadata necessary for the FhirTransformer
-     * @return the resulting ByteArray in the proper format
+     * @return the transformed ByteArray in the proper data format of HL7 or FHIR
      */
     private fun performFileTransforms(
-        hl7File: FileInputStream,
+        originalFile: FileInputStream,
         expectedReceiver: Receiver,
         sender: Sender,
         blobMetadata: BlobAccess.BlobContainerMetadata,
     ): ByteArray {
-        // If topic is ELIMS then we do not need to perform conversion for expected file
-        if (expectedReceiver.topic == Topic.ELR_ELIMS) {
-            return hl7File.readBytes()
+        // If topic is set to send original then we do not need to perform any transformations
+        if (expectedReceiver.topic.isSendOriginal) {
+            return originalFile.readBytes()
         }
 
-        // Translate HL7 to FHIR
-        val hl7messages = HL7Reader(ActionLogger()).getMessages(hl7File.bufferedReader().readText())
-        var fhirBundle = hl7messages.map { message -> HL7toFhirTranslator().translate(message) }.first()
-
-        val enrichmentSchema = settings.senders.first { it.name == sender.name }.schemaName
+        // Create FHIR Bundle, translate to FHIR if originally in HL7
+        var fhirBundle = if (sender.format.toString() == "HL7") {
+            val hl7messages = HL7Reader(ActionLogger()).getMessages(originalFile.bufferedReader().readText())
+            hl7messages.map { message -> HL7toFhirTranslator().translate(message) }.first()
+        } else {
+            FhirTranscoder.getBundles(originalFile.bufferedReader().readText(), ActionLogger()).first()
+        }
 
         // Run Sender Enrichment
+        val enrichmentSchema = settings.senders.first { it.name == sender.name }.schemaName
         fhirBundle = FhirTransformer(enrichmentSchema).process(fhirBundle)
         val encodedBundle = FhirTranscoder.encode(fhirBundle).byteInputStream()
 
