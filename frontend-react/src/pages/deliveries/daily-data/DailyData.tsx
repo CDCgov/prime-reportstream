@@ -28,6 +28,7 @@ import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceiver
 import usePagination, { ResultsFetcher } from "../../../hooks/UsePagination";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
+import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 
 const extractCursor = (d: RSDelivery) => d.batchReadyAt;
 
@@ -58,6 +59,57 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
     const handleExpirationDate = (expiresDate: string) => {
         return !isDateExpired(expiresDate);
     };
+    const onColumnCustomSort = (columnID: string) => {
+        filterManager?.updateSort({
+            type: SortSettingsActionType.CHANGE_COL,
+            payload: {
+                column: columnID,
+            },
+        });
+        filterManager?.updateSort({
+            type: SortSettingsActionType.SWAP_ORDER,
+        });
+    };
+    console.log("serviceReportsList = ", serviceReportsList);
+    const data = serviceReportsList?.map((dataRow) => [
+        {
+            columnKey: DeliveriesDataAttr.REPORT_ID,
+            columnHeader: "Report ID",
+            content: dataRow.reportId,
+        },
+        {
+            columnKey: DeliveriesDataAttr.BATCH_READY,
+            columnHeader: "Time received",
+            content: dataRow.batchReadyAt,
+            columnCustomSort: () =>
+                onColumnCustomSort(DeliveriesDataAttr.BATCH_READY),
+            columnCustomSortSettings: filterManager.sortSettings,
+        },
+        {
+            columnKey: DeliveriesDataAttr.EXPIRES,
+            columnHeader: "File available until",
+            content: dataRow.expires,
+            columnCustomSort: () =>
+                onColumnCustomSort(DeliveriesDataAttr.EXPIRES),
+            columnCustomSortSettings: filterManager.sortSettings,
+        },
+        {
+            columnKey: DeliveriesDataAttr.ITEM_COUNT,
+            columnHeader: "Items",
+            content: dataRow.reportItemCount,
+        },
+        {
+            columnKey: DeliveriesDataAttr.FILE_NAME,
+            columnHeader: "Filename",
+            content: dataRow.fileName,
+        },
+        {
+            columnKey: DeliveriesDataAttr.RECEIVER,
+            columnHeader: "Receiver",
+            content: dataRow.receiver,
+        },
+    ]);
+    console.log("data = ", data);
     const columns: ColumnConfig[] = [
         {
             dataAttr: DeliveriesDataAttr.REPORT_ID,
