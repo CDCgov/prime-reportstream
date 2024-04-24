@@ -19,6 +19,25 @@ import java.text.SimpleDateFormat
 import kotlin.test.Test
 
 class HL7ReaderTests {
+
+    @Test
+    fun `test getMessageType for a 23 message`() {
+        @Suppress("ktlint:standard:max-line-length")
+        val rawMessage =
+            "MSH|^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORU^R01^ORU_R01|371784|P|2.3|||NE|NE|USA"
+        val type = HL7Reader.getMessageType(rawMessage)
+        assertThat(type).isEqualTo(HL7Reader.Companion.HL7MessageType("ORU_R01", "2.3", ""))
+    }
+
+    @Test
+    fun `test getMessageType for a 27 message`() {
+        @Suppress("ktlint:standard:max-line-length")
+        val rawMessage =
+            "MSH|^~\\&#|Sending Application^2.1.3.1^ISO|Facility^3.1.2^UUID|Receiving Application^2.1.5^ISO|Receiving Facility^7.1.1^ISO|20230501102531-0400|security|ORU^R01^ORU_R01|3003786103_4988249_33033|T|2.7|10|abc|ACCEPT|ACKNOLWEDGE|USA|UTF-8~UNICODE|EN^^^EN-US|UTF-16|LAB_PRU_COMPONENT^^2.16.840.1.113883.9.82^ISO~LAB_TO_COMPONENT^^2.16.840.1.113883.9.22^ISO|Sending Org^1234-5&TestText&LN&1234-5&TestAltText&LN&1&2&OriginalText^123^Check Digit^C1^Assigning Authority&2.1.4.1&ISO^MD^Hospital A&2.16.840.1.113883.9.11&ISO|Receiving Org^1234-5&TestText&LN&1234-5&TestAltText&LN&1&2&OriginalText^123^Check Digit^C1^Assigning Authority&2.1.4.1&ISO^MD^Hospital A&2.16.840.1.113883.9.11&ISO|Alt Sending App^Alt Sending App Universal^UUID|Receiving Network^2.1.1^ISO"
+        val type = HL7Reader.getMessageType(rawMessage)
+        assertThat(type).isEqualTo(HL7Reader.Companion.HL7MessageType("ORU_R01", "2.7", "2.16.840.1.113883.9.82"))
+    }
+
     @Test
     fun `test decoding of bad HL7 messages`() {
         val actionLogger = ActionLogger()
