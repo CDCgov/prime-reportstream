@@ -24,7 +24,8 @@ import {
     tableHeaders,
 } from "../pages/daily-data";
 
-const selectedReceiver = "elr";
+const ignoreReceiver = "FULL_ELR";
+const alaskaReceiver = "elr";
 const defaultStartTime = "9:00am";
 const defaultEndTime = "11:30pm";
 
@@ -116,7 +117,7 @@ test.describe("Daily Data page", () => {
                     test.beforeEach(async ({ page }) => {
                         await page
                             .locator("#receiver-dropdown")
-                            .selectOption(selectedReceiver);
+                            .selectOption(ignoreReceiver);
                     });
 
                     test.afterEach(async ({ page }) => {
@@ -136,15 +137,15 @@ test.describe("Daily Data page", () => {
                         await expectTableColumnValues(
                             page,
                             5,
-                            `ak-phd.${selectedReceiver}`,
+                            `ignore.${ignoreReceiver}`,
                         );
 
                         // Check filter status lists receiver value
-                        await filterStatus(page, [selectedReceiver]);
+                        await filterStatus(page, [ignoreReceiver]);
 
                         // Receiver dropdown persists
                         await expect(receiverDropdown(page)).toHaveValue(
-                            selectedReceiver,
+                            ignoreReceiver,
                         );
                     });
 
@@ -276,7 +277,7 @@ test.describe("Daily Data page", () => {
 
                         // Check filter status lists receiver value
                         await filterStatus(page, [
-                            selectedReceiver,
+                            ignoreReceiver,
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         ]);
                     });
@@ -313,7 +314,7 @@ test.describe("Daily Data page", () => {
 
                         // Check filter status lists receiver value
                         await filterStatus(page, [
-                            selectedReceiver,
+                            ignoreReceiver,
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                             `${defaultStartTime}–${"11:59pm"}`,
                         ]);
@@ -351,7 +352,7 @@ test.describe("Daily Data page", () => {
 
                         // Check filter status lists receiver value
                         await filterStatus(page, [
-                            selectedReceiver,
+                            ignoreReceiver,
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                             `${"12:00am"}–${defaultEndTime}`,
                         ]);
@@ -383,7 +384,7 @@ test.describe("Daily Data page", () => {
 
                         // Check filter status lists receiver value
                         await filterStatus(page, [
-                            selectedReceiver,
+                            ignoreReceiver,
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                             `${defaultStartTime}–${defaultEndTime}`,
                         ]);
@@ -748,7 +749,7 @@ test.describe("Daily Data page", () => {
                 test.beforeEach(async ({ page }) => {
                     await page
                         .locator("#receiver-dropdown")
-                        .selectOption(selectedReceiver);
+                        .selectOption(alaskaReceiver);
                 });
 
                 test.afterEach(async ({ page }) => {
@@ -768,15 +769,15 @@ test.describe("Daily Data page", () => {
                     await expectTableColumnValues(
                         page,
                         5,
-                        `ak-phd.${selectedReceiver}`,
+                        `ak-phd.${alaskaReceiver}`,
                     );
 
                     // Check filter status lists receiver value
-                    await filterStatus(page, [selectedReceiver]);
+                    await filterStatus(page, [alaskaReceiver]);
 
                     // Receiver dropdown persists
                     await expect(receiverDropdown(page)).toHaveValue(
-                        selectedReceiver,
+                        alaskaReceiver,
                     );
                 });
 
@@ -878,7 +879,7 @@ test.describe("Daily Data page", () => {
 
                     // Check filter status lists receiver value
                     await filterStatus(page, [
-                        selectedReceiver,
+                        alaskaReceiver,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                     ]);
                 });
@@ -915,7 +916,7 @@ test.describe("Daily Data page", () => {
 
                     // Check filter status lists receiver value
                     await filterStatus(page, [
-                        selectedReceiver,
+                        alaskaReceiver,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         `${defaultStartTime}–${"11:59pm"}`,
                     ]);
@@ -953,7 +954,7 @@ test.describe("Daily Data page", () => {
 
                     // Check filter status lists receiver value
                     await filterStatus(page, [
-                        selectedReceiver,
+                        alaskaReceiver,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         `${"12:00am"}–${defaultEndTime}`,
                     ]);
@@ -985,7 +986,7 @@ test.describe("Daily Data page", () => {
 
                     // Check filter status lists receiver value
                     await filterStatus(page, [
-                        selectedReceiver,
+                        alaskaReceiver,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         `${defaultStartTime}–${defaultEndTime}`,
                     ]);

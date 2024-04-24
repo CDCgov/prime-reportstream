@@ -102,28 +102,36 @@ export async function setTime(page: Page, locator: string, time: string) {
     await page.keyboard.press("Tab");
 }
 
-export function fromDateWithTime(fromDate: string, startTime: string) {
-    const fromDateTime = new Date(fromDate);
-    const time = startTime.substring(0, startTime.length - 2);
+export function fromDateWithTime(date: string, time: string) {
+    const fromDateTime = new Date(date);
 
     if (time) {
-        const [startHours, startMinutes] = time.split(":").map(Number);
-        fromDateTime.setHours(startHours, startMinutes, 0, 0);
+        // eslint-disable-next-line prefer-const
+        let [hours, minutes] = time
+            .substring(0, time.length - 2)
+            .split(":")
+            .map(Number);
+        hours = hours + (time.indexOf("pm") !== -1 ? 12 : 0);
+        fromDateTime.setHours(hours, minutes, 0, 0);
     } else {
-        fromDateTime.setHours(12, 0, 0);
+        fromDateTime.setHours(0, 0, 0);
     }
     return fromDateTime;
 }
 
-export function toDateWithTime(toDate: string, toTime: string) {
-    const toDateTime = new Date(toDate);
-    const time = toTime.substring(0, toTime.length - 2);
+export function toDateWithTime(date: string, time: string) {
+    const toDateTime = new Date(date);
 
     if (time) {
-        const [endHours, endMinutes] = time.split(":").map(Number);
-        toDateTime.setHours(endHours, endMinutes, 0, 0);
+        // eslint-disable-next-line prefer-const
+        let [hours, minutes] = time
+            .substring(0, time.length - 2)
+            .split(":")
+            .map(Number);
+        hours = hours + (time.indexOf("pm") !== -1 ? 12 : 0);
+        toDateTime.setHours(hours, minutes, 0, 0);
     } else {
-        toDateTime.setHours(11, 59, 0);
+        toDateTime.setHours(23, 59, 0);
     }
     return toDateTime;
 }
