@@ -8,13 +8,13 @@ import ca.uhn.hl7v2.HapiContext
 import ca.uhn.hl7v2.model.AbstractMessage
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v27.message.ORU_R01
-import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.ParserConfiguration
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
 import ca.uhn.hl7v2.validation.ValidationException
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
+import fhirengine.utils.ReportStreamCanonicalModelClassFactory
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import org.apache.commons.lang3.exception.ExceptionUtils
@@ -83,7 +83,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             val parseError = mutableListOf<Hl7InputStreamMessageStringIterator.ParseFailureError>()
             run modelLoop@{
                 messageModelsToTry.forEach { model ->
-                    val context = DefaultHapiContext(CanonicalModelClassFactory(model))
+                    val context = DefaultHapiContext(ReportStreamCanonicalModelClassFactory(model))
                     context.validationContext = validationContext
                     try {
                         val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream(), context)
@@ -287,12 +287,16 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             hl7MessageParseAndConvertConfiguration: HL7MessageParseAndConvertConfiguration?,
         ): HapiContext {
             return if (hl7MessageParseAndConvertConfiguration == null) {
-                DefaultHapiContext(ValidationContextFactory.noValidation())
+                DefaultHapiContext(
+                    ParserConfiguration(),
+                    ValidationContextFactory.noValidation(),
+                    ReportStreamCanonicalModelClassFactory(ORU_R01::class.java),
+                )
             } else {
                 DefaultHapiContext(
                     ParserConfiguration(),
                     ValidationContextFactory.noValidation(),
-                    CanonicalModelClassFactory(hl7MessageParseAndConvertConfiguration.messageModelClass),
+                    ReportStreamCanonicalModelClassFactory(hl7MessageParseAndConvertConfiguration.messageModelClass),
                 )
             }
         }
