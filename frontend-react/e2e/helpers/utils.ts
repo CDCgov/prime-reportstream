@@ -98,17 +98,12 @@ export async function expectTableColumnDateTimeInRange(
     endTime: string,
 ) {
     let areDatesInRange = true;
-    const rowCount = await page
-        .locator(".usa-table tbody")
-        .locator("tr")
-        .count();
+    const rowCount = await getTableRows(page).count();
 
     for (let i = 0; i < rowCount; i++) {
         const startDateTime = fromDateWithTime(fromDate, startTime);
         const endDateTime = toDateWithTime(toDate, endTime);
-        const columnValue = await page
-            .locator(".usa-table tbody")
-            .locator("tr")
+        const columnValue = await getTableRows(page)
             .nth(i)
             .locator("td")
             .nth(columnNumber)
