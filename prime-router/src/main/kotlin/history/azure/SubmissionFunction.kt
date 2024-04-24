@@ -129,18 +129,13 @@ class SubmissionFunction(
         return this.getDetailedView(request, id)
     }
 
-    /**
-     *Endpoint for intermediary senders to verify status of messages.  It is calling another function
-     * because Azure gets upset if there are any non-annotated parameters in the method signature with the exception
-     * of ExecutionContext
-     */
     @FunctionName("getTiMetadataForHistory")
     fun getTiMetadata(
         @HttpTrigger(
             name = "getTiMetadataForHistory",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "waters/report/{id}/history/tiMetadata"
+            route = "waters/report/{id}/history/etorMetadata"
         ) request: HttpRequestMessage<String?>,
         @BindingName("id") id: String,
         context: ExecutionContext,

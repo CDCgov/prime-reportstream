@@ -25,8 +25,6 @@ import gov.cdc.prime.router.history.db.SubmitterApiSearch
 import gov.cdc.prime.router.history.db.SubmitterDatabaseAccess
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
-import io.ktor.client.call.body
-import io.ktor.client.request.get
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -192,19 +190,13 @@ class DeliveryFunction(
         return this.getDetailedView(request, id)
     }
 
-    /**
-     *Endpoint for intermediary receivers to verify status of messages. It passes
-     * a null engine to the retrieveMetadata function because Azure gets upset if there
-     * are any non-annotated parameters in the method signature other than ExecutionContext
-     * and we needed the engine to be a parameter so it can be mocked for tests
-     */
     @FunctionName("getTiMetadataForDelivery")
     fun getTiMetadata(
         @HttpTrigger(
             name = "getTiMetadataForDelivery",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "waters/report/{id}/delivery/tiMetadata"
+            route = "waters/report/{id}/delivery/etorMetadata"
         ) request: HttpRequestMessage<String?>,
         @BindingName("id") id: String,
         context: ExecutionContext,
