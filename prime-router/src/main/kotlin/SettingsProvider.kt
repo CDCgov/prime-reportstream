@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonValue
 import gov.cdc.prime.router.CustomerStatus.ACTIVE
 import gov.cdc.prime.router.CustomerStatus.INACTIVE
 import gov.cdc.prime.router.CustomerStatus.TESTING
+import gov.cdc.prime.router.validation.IItemValidator
+import gov.cdc.prime.router.validation.MarsOtcElrValidator
+import gov.cdc.prime.router.validation.NoopItemValidator
 
 /**
  * Used by the engine to find orgs, senders and receivers
@@ -49,6 +52,7 @@ enum class Topic(
     @JsonValue val jsonVal: String,
     val isUniversalPipeline: Boolean = true,
     val isSendOriginal: Boolean = false,
+    val validator: IItemValidator = NoopItemValidator(),
 ) {
     FULL_ELR("full-elr", true, false),
     ETOR_TI("etor-ti", true, false),
@@ -56,4 +60,5 @@ enum class Topic(
     COVID_19("covid-19", false, false),
     MONKEYPOX("monkeypox", false, false),
     TEST("test", false, false),
+    MARS_OTC_ELR("mars-otc-elr", true, false, MarsOtcElrValidator()),
 }
