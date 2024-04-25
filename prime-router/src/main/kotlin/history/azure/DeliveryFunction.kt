@@ -201,7 +201,7 @@ class DeliveryFunction(
         @BindingName("id") id: String,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        return this.retrieveMetadata(request, id, context, null)
+        return this.retrieveETORIntermediaryMetadata(request, id, context, null)
     }
 
     override fun getLookupId(id: String): String {
