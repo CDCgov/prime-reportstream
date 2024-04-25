@@ -209,7 +209,7 @@ abstract class ReportFileFunction(
      * The [id] is a valid report UUID. This function is for the Intermediary only, please don't update
      * without contacting that engineering team
      */
-    fun retrieveMetadata(
+    fun retrieveETORIntermediaryMetadata(
         request: HttpRequestMessage<String?>,
         id: String,
         context: ExecutionContext,
