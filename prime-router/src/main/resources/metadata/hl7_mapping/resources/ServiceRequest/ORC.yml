@@ -1,3 +1,5 @@
+# possible '%resource's:
+# Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id).basedOn.resolve()
 constants:
   hl7Order: /PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/ORC
 

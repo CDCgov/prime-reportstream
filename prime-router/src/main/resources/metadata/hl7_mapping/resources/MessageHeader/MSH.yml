@@ -1,3 +1,5 @@
+# possible '%resource's:
+# Bundle.entry.resource.ofType(MessageHeader)
 elements:
   - name: encoding-characters
     condition: '%resource.extension(%`rsext-encoding-characters`).exists()'

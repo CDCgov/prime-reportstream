@@ -1,3 +1,5 @@
+# possible '%resource's:
+# Bundle.entry.resource.ofType(Patient)
 constants:
   hl7SegmentGroup: '/PATIENT_RESULT(%{patientIndex})/PATIENT'
 

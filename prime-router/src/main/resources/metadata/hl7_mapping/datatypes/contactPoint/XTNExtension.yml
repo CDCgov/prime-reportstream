@@ -1,3 +1,5 @@
+# possible '%resource's:
+# PID-13: Bundle.entry.resource.ofType(Patient).telecom.where((use = "home" or use = "mobile") and extension(%`rsext-hl7v2Field`).exists().not()).extension(%`rsext-xtn-contact-point`)
 elements:
 
   - name: xtn-1-telephone-number

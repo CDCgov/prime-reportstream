@@ -1,3 +1,5 @@
+# possible '%resource's:
+# PID-5: Bundle.entry.resource.ofType(Patient).name
 elements:
 
   - name: xpn-family-name

@@ -1,3 +1,5 @@
+# possible '%resource's:
+# Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id)
 elements:
 
   # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen

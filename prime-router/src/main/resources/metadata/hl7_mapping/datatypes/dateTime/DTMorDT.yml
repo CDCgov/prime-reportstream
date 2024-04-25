@@ -1,8 +1,11 @@
+# possible '%resource's:
+# SPM-17-1: Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id).specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "SPM") | Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id).specimen.resolve().where(extension(%`rsext-hl7v2Segment`).exists().not()).collection.collected
+# SPM-17-1: Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id).specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "SPM") | Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id).specimen.resolve().where(extension(%`rsext-hl7v2Segment`).exists().not()).collection.collected.start
+# PID-7 : Bundle.entry.resource.ofType(Patient).birthDate
 elements:
   - name: dateTime
     value:
       - '%resource.extension(%`rsext-hl7v2-date-time`).value'
-      # These two values are backups to allow FHIR senders to not have to use the rs specific extensions
-      - '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-birthTime").value'
+      # This value is a backup to allow FHIR senders to not have to use the rs specific extensions
       - '%resource'
     hl7Spec: [ '%{dtmFieldPath}' ]

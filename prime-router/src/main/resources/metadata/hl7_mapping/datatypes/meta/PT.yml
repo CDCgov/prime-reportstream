@@ -1,3 +1,5 @@
+# possible '%resource's:
+# MSH-11: Bundle.entry.resource.ofType(MessageHeader).meta
 elements:
 
   - name: pt-processing-id
