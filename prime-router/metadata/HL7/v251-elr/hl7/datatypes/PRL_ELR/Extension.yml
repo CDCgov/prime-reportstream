@@ -15,7 +15,7 @@ extension:
           type: STRING
           value: prl-1-parent-observation-identifier
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
           expressionType: resource
           specs: PRL.1
     - vars:

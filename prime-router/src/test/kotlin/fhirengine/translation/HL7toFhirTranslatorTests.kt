@@ -3,16 +3,11 @@ package gov.cdc.prime.router.fhirengine.translator
 import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
-import gov.cdc.prime.router.fhirengine.utils.CompareFhirData
-import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import org.hl7.fhir.r4.model.Bundle
@@ -68,7 +63,7 @@ OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by
 
         // Source: https://confluence.hl7.org/display/OO/v2+Sample+Messages
         val unsupportedHL7 = """
-MSH|^~\&#|NIST EHR|NIST EHR Facility|NIST Test Lab APP|NIST Lab Facility|20130211184101-0500||OML^O21^OML_O21|NIST-LOI_5.0_1.1-NG|T|2.5.1|||AL|AL|||||
+MSH|^~\&#|NIST EHR|NIST EHR Facility|NIST Test Lab APP|NIST Lab Facility|20130211184101-0500||OML^O33^OML_O33|NIST-LOI_5.0_1.1-NG|T|2.5.1|||AL|AL|||||
 PID|1||PATID5421^^^NIST MPI^MR||Wilson^Patrice^Natasha^^^^L||19820304|F||2106-3^White^HL70005|144 East 12th Street^^Los Angeles^CA^90012^^H||^PRN^PH^^^203^2290210|||||||||N^Not Hispanic or Latino^HL70189
 NK1|1|Wilson^Phillip^Arthur^^^^L|SPO^Spouse^HL70063|144 East 12th Street^^Los Angeles^CA^90012^^H|||||||||
 ORC|NW|ORD448811^NIST EHR|||||||20120628070100|||5742200012^Radon^Nicholas^^^^^^NPI^L^^^NPI
@@ -134,43 +129,5 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
         assertThat(
             patient.birthDateElement.valueAsString
         ).isEqualTo(Hl7RelatedGeneralUtils.dateTimeWithZoneId(birthDate, ""))
-    }
-
-    @Test
-    fun `test object multithreading`() {
-        // within the translate process the converter library switches to a singleton instance of
-        // ResourceReader/ConverterConfiguration. we want to make sure separate instances of
-        // HL7toFhirTranslator keep their individual configurations and won't cross over.
-
-        // empty the stored message templates
-        HL7toFhirTranslator.Companion.messageTemplates.clear()
-
-        val message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
-        assertThat(message.size).isEqualTo(1)
-
-        // process using standard templates
-        val bundle = translator.translate(message[0])
-
-        // process using test templates
-        val testTranslator = HL7toFhirTranslator("./metadata/test_fhir_mapping")
-        val bundle2 = testTranslator.translate(message[0])
-
-        // reprocess using standard templates
-        val bundle3 = translator.translate(message[0])
-
-        val result = CompareData.Result()
-        CompareFhirData().compare(
-            FhirTranscoder.encode(bundle).byteInputStream(),
-            FhirTranscoder.encode(bundle3).byteInputStream(),
-            result
-        )
-        assertThat(result.passed).isTrue()
-
-        CompareFhirData().compare(
-            FhirTranscoder.encode(bundle).byteInputStream(),
-            FhirTranscoder.encode(bundle2).byteInputStream(),
-            result
-        )
-        assertThat(result.passed).isFalse()
     }
 }

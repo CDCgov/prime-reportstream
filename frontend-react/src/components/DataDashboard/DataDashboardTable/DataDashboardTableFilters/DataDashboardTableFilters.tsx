@@ -8,9 +8,9 @@ import {
     CursorManager,
 } from "../../../../hooks/filters/UseCursorManager";
 import {
-    FALLBACK_FROM,
+    FALLBACK_FROM_DATE_STRING,
     FALLBACK_FROM_STRING,
-    FALLBACK_TO,
+    FALLBACK_TO_DATE_STRING,
     FALLBACK_TO_STRING,
     getEndOfDay,
     RangeSettingsActionType,
@@ -65,8 +65,8 @@ function DataDashboardTableFilters({
 }: TableFilterProps) {
     // store ISO strings to pass to FilterManager when user clicks 'Filter'
     // TODO: Remove FilterManager and CursorManager
-    const [rangeFrom, setRangeFrom] = useState<string>(FALLBACK_FROM);
-    const [rangeTo, setRangeTo] = useState<string>(FALLBACK_TO);
+    const [rangeFrom, setRangeFrom] = useState<string>(FALLBACK_FROM_STRING);
+    const [rangeTo, setRangeTo] = useState<string>(FALLBACK_TO_STRING);
     const isFilterEnabled = Boolean(
         rangeFrom && rangeTo && rangeFrom < rangeTo,
     );
@@ -118,20 +118,20 @@ function DataDashboardTableFilters({
                     "end-date",
                 ) as HTMLInputElement;
 
-                startDateEle.value = FALLBACK_FROM_STRING;
+                startDateEle.value = FALLBACK_FROM_DATE_STRING;
                 startDateEle.dispatchEvent(
                     new InputEvent("input", {
                         bubbles: true,
                     }),
                 );
-                endDateEle.value = FALLBACK_TO_STRING;
+                endDateEle.value = FALLBACK_TO_DATE_STRING;
                 endDateEle.dispatchEvent(
                     new InputEvent("input", {
                         bubbles: true,
                     }),
                 );
 
-                applyToFilterManager(FALLBACK_FROM, FALLBACK_TO);
+                applyToFilterManager(FALLBACK_FROM_STRING, FALLBACK_TO_STRING);
             }
         },
         [applyToFilterManager],
@@ -146,7 +146,7 @@ function DataDashboardTableFilters({
     );
 
     return (
-        <div data-testid="filter-container" className={StyleClass.CONTAINER}>
+        <div data-testid="filter-container" className="filter-container">
             <form
                 className="grid-row display-flex flex-align-end"
                 ref={formRef}

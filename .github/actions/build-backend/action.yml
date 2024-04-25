@@ -45,12 +45,12 @@ runs:
       run: ./gradlew ktlintCheck
       shell: bash
 
-    - uses: gradle/wrapper-validation-action@b231772637bb498f11fdbc86052b6e8a8dc9fc92
+    - uses: gradle/actions/wrapper-validation@750cdda3edd6d51b7fdfc069d2e2818cf3c44f4c
 
     - name: Spin up build containers
       working-directory: prime-router
       shell: bash
-      run: docker-compose -f docker-compose.postgres.yml up -d
+      run: docker compose -f docker-compose.postgres.yml up -d
 
     - name: Build Prime Router Package
       uses: ./.github/actions/retry
@@ -117,7 +117,7 @@ runs:
       run: |
         mkdir .vault/env
         touch .vault/env/.env.local
-        docker-compose -f docker-compose.yml up -d vault
+        docker compose -f docker-compose.yml up -d vault
         while [ ! -s .vault/env/.env.local ]; do sleep 1; done
         echo "loaded env vars"
       shell: bash
@@ -126,15 +126,16 @@ runs:
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
       id: spin_containers
-      run: docker-compose -f docker-compose.yml up -d prime_dev sftp azurite azurite-stage
+      run: docker compose -f docker-compose.yml up -d prime_dev sftp azurite azurite-stage
       shell: bash
 
+      # Important to give enough time here in order to avoid a race described in https://github.com/CDCgov/prime-reportstream/issues/13961#issuecomment-2065217386
     - name: Give some time for the container to start
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
       run: |
-        echo "sleeping 30"
-        sleep 30
+        echo "sleeping 90"
+        sleep 90
         echo "wake up"
       shell: bash
 
@@ -168,7 +169,7 @@ runs:
     - name: Correct sftp perms
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
-      run: docker-compose exec -T sftp chmod 777 /home/foo/upload
+      run: docker compose exec -T sftp chmod 777 /home/foo/upload
       shell: bash
 
     - name: Smoke tests
@@ -199,7 +200,7 @@ runs:
 
     - name: Upload Artifact
       if: inputs.upload-build == 'true'
-      uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
+      uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router/prime-router-build.tar.gz

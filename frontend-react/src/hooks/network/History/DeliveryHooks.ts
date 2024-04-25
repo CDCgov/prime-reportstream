@@ -28,6 +28,18 @@ export enum DeliveriesDataAttr {
     RECEIVER = "receiver",
 }
 
+export type SearchParams =
+    | {
+          reportId: string;
+      }
+    | {
+          fileName: string;
+      };
+
+export type SearchFetcher<T> = (
+    additionalParams?: SearchParams,
+) => Promise<T[]>;
+
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
         column: DeliveriesDataAttr.BATCH_READY,
@@ -43,7 +55,9 @@ const filterManagerDefaults: FilterManagerDefaults = {
  * @param service {string} the chosen receiver service (e.x. `elr-secondary`)
  * */
 const useOrgDeliveries = (initialService?: string) => {
-    const [service, setService] = useState(initialService);
+    const [service, setService] = useState(
+        initialService ? initialService : "",
+    );
     const { activeMembership } = useSessionContext();
     const authorizedFetch = useAuthorizedFetch();
 
@@ -63,32 +77,35 @@ const useOrgDeliveries = (initialService?: string) => {
     const rangeFrom = filterManager.rangeSettings.from;
 
     const fetchResults = useCallback(
-        (currentCursor: string, numResults: number) => {
-            // HACK: return empty results if requesting as an admin
+        (currentCursor: string, numResults: number, additionalParams = {}) => {
             if (activeMembership?.parsedName === Organizations.PRIMEADMINS) {
                 return Promise.resolve<RSDelivery[]>([]);
             }
 
+            const params = {
+                sortdir: sortOrder,
+                cursor: currentCursor,
+                since: rangeFrom,
+                until: rangeTo,
+                pageSize: numResults,
+                receivingOrgSvcStatus: "ACTIVE,TESTING",
+                ...additionalParams,
+            };
+
             return authorizedFetch(getOrgDeliveries, {
                 segments: {
-                    orgAndService,
+                    orgAndService: orgAndService,
                 },
-                params: {
-                    sortdir: sortOrder,
-                    cursor: currentCursor,
-                    since: rangeFrom,
-                    until: rangeTo,
-                    pageSize: numResults,
-                },
+                params,
             }) as unknown as Promise<RSDelivery[]>;
         },
         [
             activeMembership?.parsedName,
-            authorizedFetch,
-            orgAndService,
             sortOrder,
             rangeFrom,
             rangeTo,
+            orgAndService,
+            authorizedFetch,
         ],
     );
 
