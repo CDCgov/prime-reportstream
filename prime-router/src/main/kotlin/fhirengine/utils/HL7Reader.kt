@@ -273,7 +273,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
         fun parseHL7Message(rawHL7: String): Pair<Message, HL7MessageParseAndConvertConfiguration?> {
             val hl7MessageType = getMessageType(rawHL7)
             val parseConfiguration = messageToConfigMap[hl7MessageType]
-            val message = getHL7ParsingContext(parseConfiguration).pipeParser.parse(rawHL7)
+            val message = getHL7ParsingContext(hl7MessageType, parseConfiguration).pipeParser.parse(rawHL7)
             return Pair(message, parseConfiguration)
         }
 
@@ -284,14 +284,19 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          * @param hl7MessageParseAndConvertConfiguration optional configuration to use when creating a context
          */
         private fun getHL7ParsingContext(
+            hl7MessageType: HL7MessageType?,
             hl7MessageParseAndConvertConfiguration: HL7MessageParseAndConvertConfiguration?,
         ): HapiContext {
             return if (hl7MessageParseAndConvertConfiguration == null) {
-                DefaultHapiContext(
-                    ParserConfiguration(),
-                    ValidationContextFactory.noValidation(),
-                    ReportStreamCanonicalModelClassFactory(ORU_R01::class.java),
-                )
+                if (hl7MessageType?.msh93 == "ORU_R01") {
+                    DefaultHapiContext(
+                        ParserConfiguration(),
+                        ValidationContextFactory.noValidation(),
+                        ReportStreamCanonicalModelClassFactory(ORU_R01::class.java),
+                    )
+                } else {
+                    DefaultHapiContext(ValidationContextFactory.noValidation())
+                }
             } else {
                 DefaultHapiContext(
                     ParserConfiguration(),
@@ -315,7 +320,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          */
         @Throws(HL7Exception::class)
         internal fun getMessageType(rawHL7: String): HL7MessageType {
-            val message = getHL7ParsingContext(null)
+            val message = getHL7ParsingContext(null, null)
                 .pipeParser
                 // In order to determine the message configuration, only parse the MSH segment since the type of message
                 // is required in order to accurately parse the message in its entirety
