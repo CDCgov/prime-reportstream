@@ -1,5 +1,6 @@
 import { expect, Page } from "@playwright/test";
 import fs from "node:fs";
+import { fromDateWithTime, toDateWithTime } from "../pages/daily-data";
 
 export const TEST_ORG_IGNORE = "ignore";
 export async function scrollToFooter(page: Page) {
@@ -17,6 +18,10 @@ export async function waitForAPIResponse(page: Page, requestUrl: string) {
         response.url().includes(requestUrl),
     );
     return response.status();
+}
+
+export function getTableRows(page: Page) {
+    return page.locator(".usa-table tbody").locator("tr");
 }
 
 export async function selectTestOrg(page: Page) {
@@ -38,12 +43,7 @@ export async function tableData(
     expectedData: string,
 ) {
     await expect(
-        page
-            .locator(".usa-table tbody")
-            .locator("tr")
-            .nth(row)
-            .locator("td")
-            .nth(column),
+        getTableRows(page).nth(row).locator("td").nth(column),
     ).toHaveText(expectedData);
 }
 
@@ -70,4 +70,51 @@ export async function restoreSessionStorage(userType: string, page: Page) {
         for (const [key, value] of Object.entries<any>(session))
             window.sessionStorage.setItem(key, value);
     }, session);
+}
+
+export async function expectTableColumnValues(
+    page: Page,
+    columnNumber: number,
+    expectedValue: string,
+) {
+    const rowCount = await getTableRows(page).count();
+
+    for (let i = 0; i < rowCount; i++) {
+        const columnValue = await getTableRows(page)
+            .nth(i)
+            .locator("td")
+            .nth(columnNumber)
+            .innerText();
+        expect(columnValue).toContain(expectedValue);
+    }
+}
+
+export async function expectTableColumnDateTimeInRange(
+    page: Page,
+    columnNumber: number,
+    fromDate: string,
+    toDate: string,
+    startTime: string,
+    endTime: string,
+) {
+    let areDatesInRange = true;
+    const rowCount = await getTableRows(page).count();
+
+    for (let i = 0; i < rowCount; i++) {
+        const startDateTime = fromDateWithTime(fromDate, startTime);
+        const endDateTime = toDateWithTime(toDate, endTime);
+        const columnValue = await getTableRows(page)
+            .nth(i)
+            .locator("td")
+            .nth(columnNumber)
+            .innerText();
+
+        const columnDate = new Date(columnValue);
+
+        if (!(columnDate >= startDateTime && columnDate < endDateTime)) {
+            areDatesInRange = false;
+            break;
+        }
+    }
+    expect(areDatesInRange).toBe(true);
 }

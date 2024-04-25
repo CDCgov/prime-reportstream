@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { selectTestOrg, tableData } from "../helpers/utils";
-import { tableHeaders, title } from "../pages/daily-data";
+import { detailsTableHeaders, title } from "../pages/daily-data";
 import * as reportDetails from "../pages/report-details";
 
 const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
@@ -21,6 +21,8 @@ test.describe("Daily Data Details page", () => {
                 await reportDetails.mockGetDeliveryResponse(page, id);
                 await reportDetails.mockGetFacilitiesResponse(page, id);
                 await reportDetails.goto(page, id);
+
+                await page.getByRole("table").waitFor({ state: "visible" });
             });
 
             test("has correct title", async ({ page }) => {
@@ -29,7 +31,7 @@ test.describe("Daily Data Details page", () => {
 
             test.describe("table", () => {
                 test("has correct headers", async ({ page }) => {
-                    await tableHeaders(page);
+                    await detailsTableHeaders(page);
                 });
 
                 test("'Facility' column has expected data", async ({
@@ -72,6 +74,8 @@ test.describe("Daily Data Details page", () => {
                 await reportDetails.mockGetDeliveryResponse(page, id);
                 await reportDetails.mockGetFacilitiesResponse(page, id);
                 await reportDetails.goto(page, id);
+
+                await page.getByRole("table").waitFor({ state: "visible" });
             });
 
             test("has correct title", async ({ page }) => {
@@ -80,7 +84,7 @@ test.describe("Daily Data Details page", () => {
 
             test.describe("table", () => {
                 test("has correct headers", async ({ page }) => {
-                    await tableHeaders(page);
+                    await detailsTableHeaders(page);
                 });
 
                 test("'Facility' column has expected data", async ({
@@ -151,6 +155,8 @@ test.describe("Daily Data Details page", () => {
             await reportDetails.mockGetDeliveryResponse(page, id);
             await reportDetails.mockGetFacilitiesResponse(page, id);
             await reportDetails.goto(page, id);
+
+            await page.getByRole("table").waitFor({ state: "visible" });
         });
 
         test("has correct title", async ({ page }) => {
@@ -159,7 +165,7 @@ test.describe("Daily Data Details page", () => {
 
         test.describe("table", () => {
             test("has correct headers", async ({ page }) => {
-                await tableHeaders(page);
+                await detailsTableHeaders(page);
             });
 
             test("'Facility' column has expected data", async ({ page }) => {
