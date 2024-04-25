@@ -332,8 +332,8 @@ class SubmissionFunctionTests : Logging {
             schemaName = "one"
         )
 
-            val receiver = Receiver(
-                "flexion.etor-service-receiver-orders",
+        val receiver = Receiver(
+            "flexion.etor-service-receiver-orders",
             "flexion.etor-service-receiver-orders",
             Topic.ETOR_TI,
             CustomerStatus.ACTIVE,
@@ -347,7 +347,7 @@ class SubmissionFunctionTests : Logging {
             emptyList(),
             false,
             "test", null, "", mockk<RESTTransportType>(), "", emptyList()
-            )
+        )
 
         settings.senderStore[sender2.fullName] = sender2
         settings.receiverStore["flexion.etor-service-receiver-orders"] = receiver
@@ -375,13 +375,13 @@ class SubmissionFunctionTests : Logging {
         return httpRequestMessage
     }
 
-     @Test
-     fun `test access user can view their organization's submission history`() {
-         val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
-         val httpRequestMessage = setupHttpRequestMessageForTesting()
-         val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, organizationName)
-         assertThat(response.status).isEqualTo(HttpStatus.OK)
-     }
+    @Test
+    fun `test access user can view their organization's submission history`() {
+        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val httpRequestMessage = setupHttpRequestMessageForTesting()
+        val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, organizationName)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+    }
 
     @Test
     fun `test access user cannot view another organization's submission history`() {
@@ -537,7 +537,7 @@ class SubmissionFunctionTests : Logging {
         returnBody.destinations = listOf(
             Destination(
                 "flexion", "test", mutableListOf(), mutableListOf(),
-         OffsetDateTime.now(), 1, 1, mutableListOf(detailedReport), mutableListOf()
+                OffsetDateTime.now(), 1, 1, mutableListOf(detailedReport), mutableListOf()
             )
         ).toMutableList()
 
@@ -559,15 +559,15 @@ class SubmissionFunctionTests : Logging {
 
         every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
 
-            coEvery {
-                    anyConstructed<RESTTransport>().getOAuthToken(
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any()
-                    )
-            } returns Pair(mapOf("a" to "b"), "TEST")
+        coEvery {
+            anyConstructed<RESTTransport>().getOAuthToken(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Pair(mapOf("a" to "b"), "TEST")
 
         val mock = MockEngine {
             respond(
@@ -580,7 +580,7 @@ class SubmissionFunctionTests : Logging {
         val customContext = mockk<ExecutionContext>()
         every { customContext.logger } returns mockk<Logger>()
 
-        var response = function.retrieveMetadata(mockRequest, goodUuid, customContext, mock)
+        var response = function.retrieveETORIntermediaryMetadata(mockRequest, goodUuid, customContext, mock)
 
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
@@ -627,9 +627,9 @@ class SubmissionFunctionTests : Logging {
         val customContext = mockk<ExecutionContext>()
         every { customContext.logger } returns mockk<Logger>()
 
-        var response = function.retrieveMetadata(mockRequest, badUuid, customContext, null)
+        var response = function.retrieveETORIntermediaryMetadata(mockRequest, badUuid, customContext, null)
 
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
         assertThat(response.body.toString()).isEqualTo("{\"error\": \"lookup Id not found\"}")
     }
- }
+}
