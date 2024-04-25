@@ -1,6 +1,11 @@
 import { expect, test } from "@playwright/test";
 
-import { selectTestOrg, tableData, TEST_ORG_IGNORE } from "../helpers/utils";
+import {
+    getTableRows,
+    selectTestOrg,
+    tableData,
+    TEST_ORG_IGNORE,
+} from "../helpers/utils";
 import * as submissionHistory from "../pages/submission-history";
 import { openReportIdDetailPage } from "../pages/submission-history";
 
@@ -68,9 +73,7 @@ test.describe("Submission history page", () => {
                 test("table column 'ReportId' will open the report details", async ({
                     page,
                 }) => {
-                    const reportId = page
-                        .locator(".usa-table tbody")
-                        .locator("tr")
+                    const reportId = getTableRows(page)
                         .nth(0)
                         .locator("td")
                         .nth(0);
@@ -183,12 +186,7 @@ test.describe("Submission history page", () => {
             test("table column 'ReportId' will open the report details", async ({
                 page,
             }) => {
-                const reportId = page
-                    .locator(".usa-table tbody")
-                    .locator("tr")
-                    .nth(0)
-                    .locator("td")
-                    .nth(0);
+                const reportId = getTableRows(page).nth(0).locator("td").nth(0);
                 await expect(reportId).toContainText(id);
                 await reportId.getByRole("link", { name: id }).click();
 
