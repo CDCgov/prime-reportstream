@@ -190,39 +190,44 @@ class DeliveryFunction(
         return this.getDetailedView(request, id)
     }
 
-/**
- *Endpoint for intermediary receivers to verify status of messages. It passes
- * a null engine to the retrieveMetadata function because Azure gets upset if there
- * are any non-annotated parameters in the method signature other than ExecutionContext
- * and we needed the engine to be a parameter so it can be mocked for tests
- *
- */
+    /**
+     *Endpoint for intermediary receivers to verify status of messages. It passes
+     * a null engine to the retrieveMetadata function because Azure gets upset if there
+     * are any non-annotated parameters in the method signature other than ExecutionContext
+     * and we needed the engine to be a parameter so it can be mocked for tests
+     *
+     */
     @FunctionName("getTiMetadataForDelivery")
     fun getTiMetadata(
         @HttpTrigger(
             name = "getTiMetadataForDelivery",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "waters/report/{id}/delivery/etorMetadata"
+            route = "waters/report/{reportId}/delivery/etorMetadata"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("id") id: String,
+        @BindingName("reportId") reportId: UUID,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        return this.retrieveETORIntermediaryMetadata(request, id, context, null)
+        return this.retrieveETORIntermediaryMetadata(request, reportId, context, null)
     }
 
-    override fun getLookupId(reportId: String): String {
-        var lookupId = ""
-        val deliveryActionId = this.actionFromId(reportId).actionId
-        val deliveryHistory = deliveryFacade.findDetailedDeliveryHistory(deliveryActionId)
-        var currentDate: OffsetDateTime = OffsetDateTime.now()
+    override fun getLookupId(reportId: UUID): UUID? {
+        // TODO - turn this into something useful/coherent:
+        // the delivery endpoint is called by the final receiver with a sent report ID, where TI
+        // knows about the related submission report ID
 
-        if (deliveryHistory != null) {
-            deliveryHistory.originalIngestion?.stream()?.forEach {
-                if (currentDate.isAfter(it["ingestionTime"] as OffsetDateTime?)) {
-                    lookupId = (it["reportId"] as UUID).toString()
-                    currentDate = it["ingestionTime"] as OffsetDateTime
-                }
+        // TODO:
+        // update tests
+        // do some manual/gut tests?
+        val reportGraph = ReportGraph(workflowEngine.db)
+        val roots = reportGraph.getRootReports(reportId)
+
+        var lookupId: UUID? = null
+        var oldestDate: OffsetDateTime = OffsetDateTime.now()
+        roots.stream().forEach {
+            if (oldestDate.isAfter(it.createdAt)) {
+                lookupId = it.reportId
+                oldestDate = it.createdAt
             }
         }
         return lookupId

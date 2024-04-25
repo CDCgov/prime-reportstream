@@ -206,16 +206,16 @@ abstract class ReportFileFunction(
 
     /**
      * Function to return metadata of a single report from the CDC Intermediary.
-     * The [id] is a valid report UUID. This function is for the Intermediary only, please don't update
+     * The [reportId] is a valid report UUID. This function is for the Intermediary only, please don't update
      * without contacting that engineering team
      */
     fun retrieveETORIntermediaryMetadata(
         request: HttpRequestMessage<String?>,
-        id: String,
+        reportId: UUID,
         context: ExecutionContext,
         engine: HttpClientEngine?,
     ): HttpResponseMessage {
-        val authResult = this.authSingleBlocks(request, id)
+        val authResult = this.authSingleBlocks(request, reportId.toString())
 
         if (authResult != null) {
             return authResult
@@ -236,7 +236,7 @@ abstract class ReportFileFunction(
             launch {
                 authPair = RESTTransport().getOAuthToken(
                     restTransportInfo,
-                    id,
+                    reportId,
                     jksCredential,
                     credential,
                     logger
@@ -244,7 +244,7 @@ abstract class ReportFileFunction(
             }
         }
 
-        val lookupId = this.getLookupId(id)
+        val lookupId = this.getLookupId(reportId)
         if (lookupId.isEmpty()) {
             return HttpUtilities.notFoundResponse(request, "lookup Id not found")
         }
@@ -271,7 +271,7 @@ abstract class ReportFileFunction(
      * @param reportId DB Action that we are reviewing
      * @return the string lookup ID if found, otherwise and empty string
      */
-    abstract fun getLookupId(reportId: String): String
+    abstract fun getLookupId(reportId: UUID): UUID?
 
     /**
      * Look for an action related to the given id.

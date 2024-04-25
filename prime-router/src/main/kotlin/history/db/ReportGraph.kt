@@ -145,6 +145,22 @@ class ReportGraph(
     }
 
     /**
+     * Recursively goes down the report_linage table from any report until it reaches
+     * all reports with an action type of "sent" (the descendant report)
+     *
+     * This will return an empty list if no report with action type "send" or "resend" is present or if
+     * the descendant is passed in
+     *
+     * If the passed in report ID has multiple descendant reports, they will all be returned
+     */
+    fun getDescendantReports(childReportId: UUID): List<ReportFile> {
+        return db.transactReturning { txn ->
+            val cte = reportDescendantGraphCommonTableExpression(listOf(childReportId))
+            descendantReportRecords(txn, cte).fetchInto(ReportFile::class.java)
+        }
+    }
+
+    /**
      * Returns all the metadata rows associated with the passed in [ItemGraphRecord]
      *
      * @param itemGraphRecords the item graph records that should be used to find the metadata
@@ -382,4 +398,24 @@ class ReportGraph(
 
                 )
         )
+
+    /**
+     * Fetches all descendant report records in a recursive manner.
+     *
+     * @param txn the data access transaction
+     * @param cte the common table expression for report lineage
+     * @return the descendant report records
+     */
+    private fun descendantReportRecords(
+        txn: DataAccessTransaction,
+        cte: CommonTableExpression<Record2<UUID, String>>,
+    ) = DSL.using(txn)
+        .withRecursive(cte)
+        .select(REPORT_FILE.asterisk())
+        .from(cte)
+        .join(REPORT_FILE)
+        .on(REPORT_FILE.REPORT_ID.eq(cte.field(0, UUID::class.java)))
+        .join(ACTION)
+        .on(ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
+        .where(ACTION.ACTION_NAME.eq(TaskAction.send).or(ACTION.ACTION_NAME.eq(TaskAction.resend)))
 }

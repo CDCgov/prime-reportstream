@@ -13,6 +13,9 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
+import gov.cdc.prime.router.history.db.ReportGraph
+import java.util.UUID
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * Submissions API
@@ -141,24 +144,20 @@ class SubmissionFunction(
             name = "getTiMetadataForHistory",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "waters/report/{id}/history/etorMetadata"
+            route = "waters/report/{reportId}/history/etorMetadata"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("id") id: String,
+        @BindingName("reportId") reportId: UUID,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        return this.retrieveETORIntermediaryMetadata(request, id, context, null)
+        return this.retrieveETORIntermediaryMetadata(request, reportId, context, null)
     }
 
-    override fun getLookupId(reportId: String): String {
-        val submissionActionId = this.actionFromId(reportId)
-        val submissionHistory = submissionsFacade.findDetailedSubmissionHistory(submissionActionId)
-        var lookupId = ""
+    override fun getLookupId(reportId: UUID): UUID? {
+        val reportGraph = ReportGraph(workflowEngine.db)
+        val descendants = reportGraph.getDescendantReports(reportId)
 
-        if (submissionHistory != null) {
-            lookupId = submissionHistory.destinations.stream().filter {
-                it.organizationId == "flexion"
-            }.findFirst().get().sentReports[0].reportId.toString()
-        }
-        return lookupId
+        return descendants.stream().filter {
+            it.receivingOrg == "flexion"
+        }.findFirst().getOrNull()?.reportId
     }
 }
