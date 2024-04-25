@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
+import assertk.assertions.containsOnly
 import assertk.assertions.each
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
@@ -22,14 +23,27 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.hl7Sender
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils.hl7SenderWithNoTransform
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils.senderWithValidation
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.universalPipelineOrganization
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles
+import gov.cdc.prime.router.common.badEncodingHL7Record
 import gov.cdc.prime.router.common.cleanHL7Record
+import gov.cdc.prime.router.common.cleanHL7RecordConverted
 import gov.cdc.prime.router.common.cleanHL7RecordConvertedAndTransformed
+import gov.cdc.prime.router.common.invalidEmptyFHIRRecord
 import gov.cdc.prime.router.common.invalidHL7Record
+import gov.cdc.prime.router.common.invalidHL7RecordConverted
 import gov.cdc.prime.router.common.invalidHL7RecordConvertedAndTransformed
+import gov.cdc.prime.router.common.invalidMalformedFHIRRecord
+import gov.cdc.prime.router.common.invalidRadxMarsHL7Message
 import gov.cdc.prime.router.common.unparseableHL7Record
+import gov.cdc.prime.router.common.validFHIRRecord1
+import gov.cdc.prime.router.common.validFHIRRecord2
+import gov.cdc.prime.router.common.validRadxMarsHL7Message
+import gov.cdc.prime.router.common.validRadxMarsHL7MessageConverted
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
@@ -48,6 +62,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import java.nio.charset.Charset
 
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
@@ -189,46 +204,43 @@ class FHIRConverterIntegrationTests {
     @Test
     fun `should successfully convert HL7 messages`() {
         val receivedReportContents =
-            """$cleanHL7Record
-$invalidHL7Record
-$unparseableHL7Record
-""".trimIndent()
+            listOf(cleanHL7Record, invalidHL7Record, unparseableHL7Record, badEncodingHL7Record)
+                .joinToString("\n")
         val receiveBlobUrl = BlobAccess.uploadBlob(
-            "receive/happy-path-.hl7",
+            "receive/happy-path.hl7",
             receivedReportContents.toByteArray(),
             getBlobContainerMetadata()
         )
 
-        val receiveReport = setupConvertStep(Report.Format.HL7, hl7Sender, receiveBlobUrl, 3)
-        val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7Sender)
+        val receiveReport = setupConvertStep(Report.Format.HL7, hl7SenderWithNoTransform, receiveBlobUrl, 4)
+        val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7SenderWithNoTransform)
         val fhirFunctions = createFHIRFunctionsInstance()
 
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         verify(exactly = 2) {
-            QueueAccess.sendMessage(any(), any())
+            QueueAccess.sendMessage("elr-fhir-route", any(String::class))
         }
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, txn, 2)
+            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, receiveReport, txn, 2)
             // Verify that the expected FHIR bundles were uploaded
             val fhirBundles =
                 routedReports.map { BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata()) }
-            // TODO figure out how to make this assertion work
-            // The issue is that the SR transform sets a value on specimen to %diagnosticReport.id
-            // and %diagnosticReport.id is a random value generated when converting rom HL7 -> FHIR
+
             assertThat(fhirBundles).each {
                 it.matchesPredicate { bytes ->
                     val invalidHL7Result = CompareData().compare(
-                        cleanHL7RecordConvertedAndTransformed.byteInputStream(),
                         bytes.inputStream(),
+                        cleanHL7RecordConverted.byteInputStream(),
+
                         Report.Format.FHIR,
                         null
                     )
                     invalidHL7Result.passed
 
                     val cleanHL7Result = CompareData().compare(
-                        invalidHL7RecordConvertedAndTransformed.byteInputStream(),
                         bytes.inputStream(),
+                        invalidHL7RecordConverted.byteInputStream(),
                         Report.Format.FHIR,
                         null
                     )
@@ -243,30 +255,202 @@ $unparseableHL7Record
                     DetailedActionLog::class.java
                 )
 
-            assertThat(actionLogs).hasSize(1)
+            assertThat(actionLogs).hasSize(2)
             @Suppress("ktlint:standard:max-line-length")
-            assertThat(actionLogs.first()).transform { it.detail.message }
-                .isEqualTo("Item 3 in the report was not parseable. Reason: exception while parsing HL7: Determine encoding for message. The following is the first 50 chars of the message for reference, although this may not be where the issue is: MSH^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16")
+            assertThat(actionLogs).transform { logs -> logs.map { it.detail.message } }
+                .containsOnly(
+                    "Item 3 in the report was not parseable. Reason: exception while parsing HL7: Determine encoding for message. The following is the first 50 chars of the message for reference, although this may not be where the issue is: MSH^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16",
+                    "Item 4 in the report was not parseable. Reason: exception while parsing HL7: Invalid or incomplete encoding characters - MSH-2 is ^~\\&#!"
+                )
         }
     }
 
     @Test
     fun `should successfully convert FHIR messages`() {
+        val receivedReportContents =
+            listOf(
+                validFHIRRecord1,
+                invalidEmptyFHIRRecord,
+                validFHIRRecord2,
+                invalidMalformedFHIRRecord
+            ).joinToString(
+                "\n"
+            )
+
+        val receiveBlobUrl = BlobAccess.uploadBlob(
+            "receive/happy-path-.fhir",
+            receivedReportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
+
+        val receiveReport = setupConvertStep(
+            Report.Format.FHIR,
+            UniversalPipelineTestUtils.fhirSenderWithNoTransform, receiveBlobUrl, 4
+        )
+        val queueMessage = generateQueueMessage(
+            receiveReport, receivedReportContents,
+            UniversalPipelineTestUtils.fhirSenderWithNoTransform
+        )
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+
+        verify(exactly = 2) {
+            QueueAccess.sendMessage("elr-fhir-route", any(String::class))
+        }
+
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, receiveReport, txn, 2)
+            // Verify that the expected FHIR bundles were uploaded
+            val fhirBundles =
+                routedReports.map { BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata()) }
+                    .map { it.toString(Charset.defaultCharset()) }
+            assertThat(fhirBundles).containsOnly(validFHIRRecord1, validFHIRRecord2)
+
+            val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk()).from(Tables.ACTION_LOG)
+                .where(Tables.ACTION_LOG.REPORT_ID.eq(receiveReport.id))
+                .and(Tables.ACTION_LOG.TYPE.eq(ActionLogType.error))
+                .fetchInto(
+                    DetailedActionLog::class.java
+                )
+
+            assertThat(actionLogs).hasSize(2)
+            @Suppress("ktlint:standard:max-line-length")
+            assertThat(actionLogs).transform {
+                it.map { log ->
+                    log.detail.message
+                }
+            }
+                .containsOnly(
+                    "Item 2 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1838: Invalid JSON content detected, missing required element: 'resourceType'",
+                    "Item 4 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected end-of-input: was expecting closing quote for a string value\n" +
+                        " at [line: 1, column: 23]"
+                )
+        }
     }
 
     @Test
-    fun `should successfully convert messages for a topic without validation`() {
+    fun `should successfully convert messages for a topic with validation`() {
+        listOf(validRadxMarsHL7Message, invalidRadxMarsHL7Message).joinToString("\n")
+        val receivedReportContents = listOf(validRadxMarsHL7Message, invalidRadxMarsHL7Message)
+            .joinToString("\n")
+        val receiveBlobUrl = BlobAccess.uploadBlob(
+            "receive/happy-path.hl7",
+            receivedReportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
+
+        val receiveReport = setupConvertStep(Report.Format.HL7, senderWithValidation, receiveBlobUrl, 2)
+        val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, senderWithValidation)
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+
+        verify(exactly = 1) {
+            QueueAccess.sendMessage("elr-fhir-route", any(String::class))
+        }
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, receiveReport, txn, 1)
+            // Verify that the expected FHIR bundles were uploaded
+            val fhirBundles =
+                routedReports.map { BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata()) }
+
+            assertThat(fhirBundles).each {
+                it.matchesPredicate { bytes ->
+                    CompareData().compare(
+                        bytes.inputStream(),
+                        validRadxMarsHL7MessageConverted.byteInputStream(),
+                        Report.Format.FHIR,
+                        null
+                    ).passed
+                }
+            }
+
+            val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk()).from(Tables.ACTION_LOG)
+                .where(Tables.ACTION_LOG.REPORT_ID.eq(receiveReport.id))
+                .and(Tables.ACTION_LOG.TYPE.eq(ActionLogType.error))
+                .fetchInto(
+                    DetailedActionLog::class.java
+                )
+
+            assertThat(actionLogs).hasSize(1)
+            assertThat(actionLogs.first()).transform { it.detail.message }
+                .isEqualTo("Item 2 in the report was not valid. Reason: HL7 was not valid at OBX[1]-19[1].1")
+        }
     }
 
     @Test
-    fun `should successfully convert messages for a sender without a transform`() {
+    fun `should successfully convert HL7 reports for a sender with a transform`() {
+        val receivedReportContents = listOf(cleanHL7Record, invalidHL7Record)
+            .joinToString("\n")
+        val receiveBlobUrl = BlobAccess.uploadBlob(
+            "receive/happy-path.hl7",
+            receivedReportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
+
+        val receiveReport = setupConvertStep(Report.Format.HL7, hl7Sender, receiveBlobUrl, 2)
+        val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7Sender)
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+
+        verify(exactly = 2) {
+            QueueAccess.sendMessage("elr-fhir-route", any(String::class))
+        }
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, receiveReport, txn, 2)
+            // Verify that the expected FHIR bundles were uploaded
+            val fhirBundles =
+                routedReports.map { BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata()) }
+
+            assertThat(fhirBundles).each {
+                it.matchesPredicate { bytes ->
+                    val invalidHL7Result = CompareData().compare(
+                        bytes.inputStream(),
+                        cleanHL7RecordConvertedAndTransformed.byteInputStream(),
+
+                        Report.Format.FHIR,
+                        null
+                    )
+                    val cleanHL7Result = CompareData().compare(
+                        bytes.inputStream(),
+                        invalidHL7RecordConvertedAndTransformed.byteInputStream(),
+                        Report.Format.FHIR,
+                        null
+                    )
+                    invalidHL7Result.passed || cleanHL7Result.passed
+                }
+            }
+
+            val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk()).from(Tables.ACTION_LOG)
+                .where(Tables.ACTION_LOG.REPORT_ID.eq(receiveReport.id))
+                .and(Tables.ACTION_LOG.TYPE.eq(ActionLogType.error))
+                .fetchInto(
+                    DetailedActionLog::class.java
+                )
+
+            assertThat(actionLogs).hasSize(0)
+        }
     }
 
     @Test
     fun `test should gracefully handle a case where no items get converted`() {
-    }
+        val receivedReportContents = unparseableHL7Record
+        val receiveBlobUrl = BlobAccess.uploadBlob(
+            "receive/happy-path.hl7",
+            receivedReportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
 
-    @Test
-    fun `test should successfully convert an HL7 message with a custom message type configured`() {
+        val receiveReport = setupConvertStep(Report.Format.HL7, hl7Sender, receiveBlobUrl, 1)
+        val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7Sender)
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+
+        verify(exactly = 0) {
+            QueueAccess.sendMessage(any(), any())
+        }
     }
 }
