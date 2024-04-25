@@ -166,7 +166,29 @@ paths:
           description: Unauthorized
         '500':
           description: Internal Server Error
-
+    /waters/report/{id}/history/etorMetadata:
+      get:
+        summary: Retrieves ETOR metadata for a report
+        description: Allows fetching of ETOR intermediary metadata by report ID
+        operationId: getTiMetadataForDelivery
+        parameters:
+          - name: reportId
+            in: path
+            required: true
+            description: The unique identifier of the report.
+            schema:
+              type: string
+        responses:
+          '200':
+            description: Successful retrieval of ETOR metadata.
+            content:
+              application/json:
+                schema:
+                  $ref: 'https://github.com/LinuxForHealth/FHIR/blob/main/fhir-openapi/src/main/webapp/META-INF/openapi.json?raw=true#/components/schemas/OperationOutcome'
+          '404':
+            description: lookup Id not found
+          '500':
+            description: Internal server error.
 # Building
 components:
   schemas:

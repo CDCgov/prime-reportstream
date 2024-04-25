@@ -268,10 +268,10 @@ abstract class ReportFileFunction(
     /**
      * Use the specified report ID to find the lookup ID for the ETOR TI to use to retrieve metadata
      *
-     * @param id DB Action that we are reviewing
+     * @param reportId DB Action that we are reviewing
      * @return the string lookup ID if found, otherwise and empty string
      */
-    abstract fun getLookupId(id: String): String
+    abstract fun getLookupId(reportId: String): String
 
     /**
      * Look for an action related to the given id.

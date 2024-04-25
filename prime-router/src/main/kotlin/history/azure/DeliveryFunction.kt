@@ -190,6 +190,13 @@ class DeliveryFunction(
         return this.getDetailedView(request, id)
     }
 
+/**
+ *Endpoint for intermediary receivers to verify status of messages. It passes
+ * a null engine to the retrieveMetadata function because Azure gets upset if there
+ * are any non-annotated parameters in the method signature other than ExecutionContext
+ * and we needed the engine to be a parameter so it can be mocked for tests
+ *
+ */
     @FunctionName("getTiMetadataForDelivery")
     fun getTiMetadata(
         @HttpTrigger(
@@ -204,9 +211,9 @@ class DeliveryFunction(
         return this.retrieveETORIntermediaryMetadata(request, id, context, null)
     }
 
-    override fun getLookupId(id: String): String {
+    override fun getLookupId(reportId: String): String {
         var lookupId = ""
-        val deliveryActionId = this.actionFromId(id).actionId
+        val deliveryActionId = this.actionFromId(reportId).actionId
         val deliveryHistory = deliveryFacade.findDetailedDeliveryHistory(deliveryActionId)
         var currentDate: OffsetDateTime = OffsetDateTime.now()
 

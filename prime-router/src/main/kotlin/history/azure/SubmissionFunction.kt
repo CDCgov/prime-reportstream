@@ -13,7 +13,6 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
-import io.ktor.client.request.get
 
 /**
  * Submissions API
@@ -129,6 +128,13 @@ class SubmissionFunction(
         return this.getDetailedView(request, id)
     }
 
+    /**
+     *Endpoint for intermediary receivers to verify status of messages. It passes
+     * a null engine to the retrieveMetadata function because Azure gets upset if there
+     * are any non-annotated parameters in the method signature other than ExecutionContext
+     * and we needed the engine to be a parameter so it can be mocked for tests
+     *
+     */
     @FunctionName("getTiMetadataForHistory")
     fun getTiMetadata(
         @HttpTrigger(
@@ -143,8 +149,8 @@ class SubmissionFunction(
         return this.retrieveETORIntermediaryMetadata(request, id, context, null)
     }
 
-    override fun getLookupId(id: String): String {
-        val submissionActionId = this.actionFromId(id)
+    override fun getLookupId(reportId: String): String {
+        val submissionActionId = this.actionFromId(reportId)
         val submissionHistory = submissionsFacade.findDetailedSubmissionHistory(submissionActionId)
         var lookupId = ""
 
