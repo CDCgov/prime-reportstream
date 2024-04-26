@@ -589,7 +589,6 @@ elements:
     value: [ '%diagnosticReport.issued' ]
 
   - name: sr-diagnostic-report-effective-date-time
-    condition: '%diagnosticReport.effective.exists().not()'
     resource: '%diagnosticReport.effective'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
     value: [ '%diagnosticReport.effective' ]
