@@ -38,8 +38,8 @@ import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Structure;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.radxmars251.segment.NTE_NIH;
-import fhirengine.translation.hl7.structures.radxmars251.segment.OBX_NIH;
+import ca.uhn.hl7v2.model.v27.segment.NTE;
+import fhirengine.translation.hl7.structures.radxmars251.segment.OBX;
 
 
 /**
@@ -65,8 +65,8 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
 
   private void init(ModelClassFactory factory) {
     try {
-      this.add(OBX_NIH.class, true, false, false);
-      this.add(NTE_NIH.class, false, true, false);
+      this.add(OBX.class, true, false, false);
+      this.add(NTE.class, false, true, false);
     } catch (HL7Exception e) {
       log.error("Unexpected error creating ORU_R01_OBSERVATION - this is probably a bug in the source code generator.", e);
     }
@@ -84,8 +84,8 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
    * Returns
    * OBX (Observation/Result) - creates it if necessary
    */
-  public OBX_NIH getOBX() {
-    OBX_NIH retVal = getTyped("OBX", OBX_NIH.class);
+  public OBX getOBX() {
+    OBX retVal = getTyped("OBX", OBX.class);
     return retVal;
   }
 
@@ -95,8 +95,8 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
    * the first repetition of
    * NTE (Notes and Comments for OBX) - creates it if necessary
    */
-  public NTE_NIH getNTE() {
-    NTE_NIH retVal = getTyped("NTE", NTE_NIH.class);
+  public NTE getNTE() {
+    NTE retVal = getTyped("NTE", NTE.class);
     return retVal;
   }
 
@@ -109,8 +109,8 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
    * @throws HL7Exception if the repetition requested is more than one
    *                      greater than the number of existing repetitions.
    */
-  public NTE_NIH getNTE(int rep) {
-    NTE_NIH retVal = getTyped("NTE", rep, NTE_NIH.class);
+  public NTE getNTE(int rep) {
+    NTE retVal = getTyped("NTE", rep, NTE.class);
     return retVal;
   }
 
@@ -130,8 +130,8 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
    * if none are already present, so an empty list may be returned.
    * </p>
    */
-  public java.util.List<NTE_NIH> getNTEAll() throws HL7Exception {
-    return getAllAsList("NTE", NTE_NIH.class);
+  public java.util.List<NTE> getNTEAll() throws HL7Exception {
+    return getAllAsList("NTE", NTE.class);
   }
 
   /**
@@ -139,7 +139,7 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
-  public void insertNTE(NTE_NIH structure, int rep) throws HL7Exception {
+  public void insertNTE(NTE structure, int rep) throws HL7Exception {
     super.insertRepetition("NTE", structure, rep);
   }
 
@@ -149,8 +149,8 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
-  public NTE_NIH insertNTE(int rep) throws HL7Exception {
-    return (NTE_NIH) super.insertRepetition("NTE", rep);
+  public NTE insertNTE(int rep) throws HL7Exception {
+    return (NTE) super.insertRepetition("NTE", rep);
   }
 
 
@@ -159,8 +159,8 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
    *
    * @see AbstractGroup#removeRepetition(String, int)
    */
-  public NTE_NIH removeNTE(int rep) throws HL7Exception {
-    return (NTE_NIH) super.removeRepetition("NTE", rep);
+  public NTE removeNTE(int rep) throws HL7Exception {
+    return (NTE) super.removeRepetition("NTE", rep);
   }
 
 

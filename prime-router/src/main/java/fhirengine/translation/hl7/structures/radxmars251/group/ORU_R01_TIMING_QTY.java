@@ -37,8 +37,8 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import ca.uhn.hl7v2.model.v251.segment.TQ1;
-import ca.uhn.hl7v2.model.v251.segment.TQ2;
+import ca.uhn.hl7v2.model.v27.segment.TQ1;
+import ca.uhn.hl7v2.model.v27.segment.TQ2;
 
 /**
  * <p>Represents a ORU_R01_TIMING_QTY group structure (PATIENT_RESULT.ORDER_OBSERVATION.TIMING_QTY).

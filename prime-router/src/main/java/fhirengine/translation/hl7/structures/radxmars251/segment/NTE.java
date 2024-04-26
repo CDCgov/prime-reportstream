@@ -54,12 +54,12 @@ import fhirengine.translation.hl7.structures.radxmars251.datatype.*;
  * </ul>
  */
 @SuppressWarnings("unused")
-public class NTE_NIH extends AbstractSegment {
+public class NTE extends AbstractSegment {
 
   /**
    * Creates a new NTE segment
    */
-  public NTE_NIH(Group parent, ModelClassFactory factory) {
+  public NTE(Group parent, ModelClassFactory factory) {
     super(parent, factory);
     init(factory);
   }

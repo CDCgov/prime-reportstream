@@ -40,9 +40,8 @@ import ca.uhn.hl7v2.model.AbstractSegment;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
 import ca.uhn.hl7v2.model.Varies;
-import ca.uhn.hl7v2.model.v251.datatype.*;
+import ca.uhn.hl7v2.model.v27.datatype.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.radxmars251.datatype.*;
 
 
 /**
@@ -76,17 +75,17 @@ import fhirengine.translation.hl7.structures.radxmars251.datatype.*;
  * <li>OBX-25: Performing Organization Medical Director (XCN) <b>optional </b>
  * <li>OBX-26: Patient Results Release Category (ID) <b>optional </b>
  * <li>OBX-27: Root Cause (CWE) <b>optional </b>
- * <li>OBX-28: Local Process Control (ID) <b>optional </b>
+ * <li>OBX-28: Local Process Control (CWE) <b>optional repeating</b>
  * <li>OBX-29: Observation Type (ID) <b>optional </b>
  * </ul>
  */
 @SuppressWarnings("unused")
-public class OBX_NIH extends AbstractSegment {
+public class OBX extends AbstractSegment {
 
   /**
    * Creates a new OBX segment
    */
-  public OBX_NIH(Group parent, ModelClassFactory factory) {
+  public OBX(Group parent, ModelClassFactory factory) {
     super(parent, factory);
     init(factory);
   }
@@ -95,31 +94,32 @@ public class OBX_NIH extends AbstractSegment {
     try {
       this.add(SI.class, false, 1, 4, new Object[]{getMessage()}, "Set ID - OBX");
       this.add(ID.class, false, 1, 3, new Object[]{getMessage(), Integer.valueOf(125)}, "Value Type");
-      this.add(CWE_NIH.class, true, 1, 0, new Object[]{getMessage()}, "Observation Identifier");
-      this.add(ST.class, false, 1, 20, new Object[]{getMessage()}, "Observation Sub-ID");
-      this.add(Varies.class, true, 1, 99999, new Object[]{getMessage()}, "Observation Value");
-      this.add(CWE_NIH.class, false, 1, 0, new Object[]{getMessage()}, "Units");
-      this.add(ST.class, false, 1, 60, new Object[]{getMessage()}, "References Range");
-      this.add(CWE_NIH.class, false, 0, 0, new Object[]{getMessage()}, "Interpretation Codes");
-      this.add(NM.class, false, 1, 5, new Object[]{getMessage()}, "Probability");
+      this.add(CWE.class, true, 1, 0, new Object[]{getMessage()}, "Observation Identifier");
+      this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Observation Sub-ID");
+      this.add(Varies.class, false, 0, 0, new Object[]{getMessage()}, "Observation Value");
+      this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Units");
+      this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "References Range");
+      this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Interpretation Codes");
+      this.add(NM.class, false, 1, 0, new Object[]{getMessage()}, "Probability");
       this.add(ID.class, false, 0, 2, new Object[]{getMessage(), Integer.valueOf(80)}, "Nature of Abnormal Test");
       this.add(ID.class, true, 1, 1, new Object[]{getMessage(), Integer.valueOf(85)}, "Observation Result Status");
-      this.add(TS_NIH.class, false, 1, 0, new Object[]{getMessage()}, "Effective Date of Reference Range");
-      this.add(ST.class, false, 1, 20, new Object[]{getMessage()}, "User Defined Access Checks");
-      this.add(TS_NIH.class, false, 1, 0, new Object[]{getMessage()}, "Date/Time of the Observation");
-      this.add(CWE_OBX_15.class, false, 1, 0, new Object[]{getMessage()}, "Producer's ID");
+      this.add(DTM.class, false, 1, 0, new Object[]{getMessage()}, "Effective Date of Reference Range");
+      this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "User Defined Access Checks");
+      this.add(DTM.class, false, 1, 0, new Object[]{getMessage()}, "Date/Time of the Observation");
+      this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Producer's ID");
       this.add(XCN.class, false, 0, 0, new Object[]{getMessage()}, "Responsible Observer");
-      this.add(CWE_OBX_17.class, false, 0, 0, new Object[]{getMessage()}, "Observation Method");
-      this.add(EI_NIH.class, false, 0, 0, new Object[]{getMessage()}, "Equipment Instance Identifier");
-      this.add(TS_NIH2.class, false, 1, 0, new Object[]{getMessage()}, "Date/Time of the Analysis");
-      this.add(NULLDT.class, false, 0, 0, new Object[]{getMessage()}, "Observation Site");
-      this.add(NULLDT.class, false, 1, 0, new Object[]{getMessage()}, "Observation Instance Identifier");
-      this.add(NULLDT.class, false, 1, 0, new Object[]{getMessage()}, "Mood Code");
-      this.add(XON_OBX_23.class, false, 1, 0, new Object[]{getMessage()}, "Performing Organization Name");
-      this.add(XAD_OBX_24.class, false, 1, 0, new Object[]{getMessage()}, "Performing Organization Address");
-      this.add(XCN_NIH.class, false, 1, 0, new Object[]{getMessage()}, "Performing Organization Medical Director");
+      this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Observation Method");
+      this.add(EI.class, false, 0, 0, new Object[]{getMessage()}, "Equipment Instance Identifier");
+      this.add(DTM.class, false, 1, 0, new Object[]{getMessage()}, "Date/Time of the Analysis");
+      this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Observation Site");
+      this.add(EI.class, false, 1, 0, new Object[]{getMessage()}, "Observation Instance Identifier");
+      this.add(CNE.class, false, 1, 0, new Object[]{getMessage()}, "Mood Code");
+      this.add(XON.class, false, 1, 0, new Object[]{getMessage()}, "Performing Organization Name");
+      this.add(XAD.class, false, 1, 0, new Object[]{getMessage()}, "Performing Organization Address");
+      this.add(XCN.class, false, 1, 0, new Object[]{getMessage()}, "Performing Organization Medical Director");
+      this.add(ID.class, false, 1, 10, new Object[]{getMessage(), Integer.valueOf(909)}, "Patient Results Release Category");
       this.add(ID.class, false, 1, 10, new Object[]{getMessage()}, "Patient Results Release Category");
-      this.add(CWE_NIH.class, false, 1, 0, new Object[]{getMessage()}, "Root Cause");
+      this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Root Cause");
       this.add(ID.class, false, 0, 5, new Object[]{getMessage()}, "Local Process Control");
       this.add(ID.class, false, 1, 4, new Object[]{getMessage()}, "Observation Type");
     } catch (HL7Exception e) {
@@ -170,8 +170,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-3: "Observation Identifier" - creates it if necessary
    */
-  public CWE_NIH getObservationIdentifier() {
-    CWE_NIH retVal = this.getTypedField(3, 0);
+  public CWE getObservationIdentifier() {
+    CWE retVal = this.getTypedField(3, 0);
     return retVal;
   }
 
@@ -179,8 +179,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-3: "Observation Identifier" - creates it if necessary
    */
-  public CWE_NIH getObx3_ObservationIdentifier() {
-    CWE_NIH retVal = this.getTypedField(3, 0);
+  public CWE getObx3_ObservationIdentifier() {
+    CWE retVal = this.getTypedField(3, 0);
     return retVal;
   }
 
@@ -205,21 +205,110 @@ public class OBX_NIH extends AbstractSegment {
 
 
   /**
-   * Returns
-   * OBX-5: "Observation Value" - creates it if necessary
+   * Returns all repetitions of Observation Value (OBX-5).
    */
-  public Varies getObservationValue() {
-    Varies retVal = this.getTypedField(5, 0);
+  public Varies[] getObservationValue() {
+    Varies[] retVal = this.getTypedField(5, new Varies[0]);
+    return retVal;
+  }
+
+
+  /**
+   * Returns all repetitions of Observation Value (OBX-5).
+   */
+  public Varies[] getObx5_ObservationValue() {
+    Varies[] retVal = this.getTypedField(5, new Varies[0]);
+    return retVal;
+  }
+
+
+  /**
+   * Returns a count of the current number of repetitions of Observation Value (OBX-5).
+   * This method does not create a repetition, so if no repetitions have currently been defined or accessed,
+   * it will return zero.
+   */
+  public int getObservationValueReps() {
+    return this.getReps(5);
+  }
+
+
+  /**
+   * Returns a specific repetition of
+   * OBX-5: "Observation Value" - creates it if necessary
+   *
+   * @param rep The repetition index (0-indexed)
+   */
+  public Varies getObservationValue(int rep) {
+    Varies retVal = this.getTypedField(5, rep);
     return retVal;
   }
 
   /**
-   * Returns
+   * Returns a specific repetition of
    * OBX-5: "Observation Value" - creates it if necessary
+   *
+   * @param rep The repetition index (0-indexed)
    */
-  public Varies getObx4_ObservationValue() {
-    Varies retVal = this.getTypedField(5, 0);
+  public Varies getObx5_ObservationValue(int rep) {
+    Varies retVal = this.getTypedField(5, rep);
     return retVal;
+  }
+
+  /**
+   * Returns a count of the current number of repetitions of Observation Value (OBX-5).
+   * This method does not create a repetition, so if no repetitions have currently been defined or accessed,
+   * it will return zero.
+   */
+  public int getObx5_ObservationValueReps() {
+    return this.getReps(5);
+  }
+
+
+  /**
+   * Inserts a repetition of
+   * OBX-5: "Observation Value" at a specific index
+   *
+   * @param rep The repetition index (0-indexed)
+   * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
+   */
+  public Varies insertObservationValue(int rep) throws HL7Exception {
+    return (Varies) super.insertRepetition(5, rep);
+  }
+
+
+  /**
+   * Inserts a repetition of
+   * OBX-5: "Observation Value" at a specific index
+   *
+   * @param rep The repetition index (0-indexed)
+   * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
+   */
+  public Varies insertObx5_ObservationValue(int rep) throws HL7Exception {
+    return (Varies) super.insertRepetition(5, rep);
+  }
+
+
+  /**
+   * Removes a repetition of
+   * OBX-5: "Observation Value" at a specific index
+   *
+   * @param rep The repetition index (0-indexed)
+   * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
+   */
+  public Varies removeObservationValue(int rep) throws HL7Exception {
+    return (Varies) super.removeRepetition(5, rep);
+  }
+
+
+  /**
+   * Removes a repetition of
+   * OBX-5: "Observation Value" at a specific index
+   *
+   * @param rep The repetition index (0-indexed)
+   * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
+   */
+  public Varies removeObx5_ObservationValue(int rep) throws HL7Exception {
+    return (Varies) super.removeRepetition(5, rep);
   }
 
 
@@ -227,8 +316,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-6: "Units" - creates it if necessary
    */
-  public CWE_NIH getUnits() {
-    CWE_NIH retVal = this.getTypedField(6, 0);
+  public CWE getUnits() {
+    CWE retVal = this.getTypedField(6, 0);
     return retVal;
   }
 
@@ -236,8 +325,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-6: "Units" - creates it if necessary
    */
-  public CWE_NIH getObx6_Units() {
-    CWE_NIH retVal = this.getTypedField(6, 0);
+  public CWE getObx6_Units() {
+    CWE retVal = this.getTypedField(6, 0);
     return retVal;
   }
 
@@ -264,8 +353,8 @@ public class OBX_NIH extends AbstractSegment {
   /**
    * Returns all repetitions of Interpretation Codes (OBX-8).
    */
-  public CWE_NIH[] getInterpretationCodes() {
-    CWE_NIH[] retVal = this.getTypedField(8, new CWE_NIH[0]);
+  public CWE[] getInterpretationCodes() {
+    CWE[] retVal = this.getTypedField(8, new CWE[0]);
     return retVal;
   }
 
@@ -273,8 +362,8 @@ public class OBX_NIH extends AbstractSegment {
   /**
    * Returns all repetitions of Interpretation Codes (OBX-8).
    */
-  public CWE_NIH[] getObx8_InterpretationCodes() {
-    CWE_NIH[] retVal = this.getTypedField(8, new CWE_NIH[0]);
+  public CWE[] getObx8_InterpretationCodes() {
+    CWE[] retVal = this.getTypedField(8, new CWE[0]);
     return retVal;
   }
 
@@ -295,8 +384,8 @@ public class OBX_NIH extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public CWE_NIH getInterpretationCodes(int rep) {
-    CWE_NIH retVal = this.getTypedField(8, rep);
+  public CWE getInterpretationCodes(int rep) {
+    CWE retVal = this.getTypedField(8, rep);
     return retVal;
   }
 
@@ -306,8 +395,8 @@ public class OBX_NIH extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public CWE_NIH getObx8_InterpretationCodes(int rep) {
-    CWE_NIH retVal = this.getTypedField(8, rep);
+  public CWE getObx8_InterpretationCodes(int rep) {
+    CWE retVal = this.getTypedField(8, rep);
     return retVal;
   }
 
@@ -328,8 +417,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CWE_NIH insertInterpretationCodes(int rep) throws HL7Exception {
-    return (CWE_NIH) super.insertRepetition(8, rep);
+  public CWE insertInterpretationCodes(int rep) throws HL7Exception {
+    return (CWE) super.insertRepetition(8, rep);
   }
 
 
@@ -340,8 +429,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CWE_NIH insertObx8_InterpretationCodes(int rep) throws HL7Exception {
-    return (CWE_NIH) super.insertRepetition(8, rep);
+  public CWE insertObx8_InterpretationCodes(int rep) throws HL7Exception {
+    return (CWE) super.insertRepetition(8, rep);
   }
 
 
@@ -352,8 +441,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CWE_NIH removeInterpretationCodes(int rep) throws HL7Exception {
-    return (CWE_NIH) super.removeRepetition(8, rep);
+  public CWE removeInterpretationCodes(int rep) throws HL7Exception {
+    return (CWE) super.removeRepetition(8, rep);
   }
 
 
@@ -364,8 +453,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CWE_NIH removeObx8_InterpretationCodes(int rep) throws HL7Exception {
-    return (CWE_NIH) super.removeRepetition(8, rep);
+  public CWE removeObx8_InterpretationCodes(int rep) throws HL7Exception {
+    return (CWE) super.removeRepetition(8, rep);
   }
 
 
@@ -519,8 +608,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-12: "Effective Date of Reference Range" - creates it if necessary
    */
-  public TS_NIH getEffectiveDateOfReferenceRange() {
-    TS_NIH retVal = this.getTypedField(12, 0);
+  public DTM getEffectiveDateOfReferenceRange() {
+    DTM retVal = this.getTypedField(12, 0);
     return retVal;
   }
 
@@ -528,8 +617,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-12: "Effective Date of Reference Range" - creates it if necessary
    */
-  public TS_NIH getObx12_EffectiveDateOfReferenceRange() {
-    TS_NIH retVal = this.getTypedField(12, 0);
+  public DTM getObx12_EffectiveDateOfReferenceRange() {
+    DTM retVal = this.getTypedField(12, 0);
     return retVal;
   }
 
@@ -557,8 +646,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-14: "Date/Time of the Observation" - creates it if necessary
    */
-  public TS_NIH getDateTimeOfTheObservation() {
-    TS_NIH retVal = this.getTypedField(14, 0);
+  public DTM getDateTimeOfTheObservation() {
+    DTM retVal = this.getTypedField(14, 0);
     return retVal;
   }
 
@@ -566,8 +655,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-14: "Date/Time of the Observation" - creates it if necessary
    */
-  public TS_NIH getObx14_DateTimeOfTheObservation() {
-    TS_NIH retVal = this.getTypedField(14, 0);
+  public DTM getObx14_DateTimeOfTheObservation() {
+    DTM retVal = this.getTypedField(14, 0);
     return retVal;
   }
 
@@ -576,8 +665,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-15: "Producer's ID" - creates it if necessary
    */
-  public CWE_OBX_15 getProducerSID() {
-    CWE_OBX_15 retVal = this.getTypedField(15, 0);
+  public CWE getProducerSID() {
+    CWE retVal = this.getTypedField(15, 0);
     return retVal;
   }
 
@@ -585,8 +674,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-15: "Producer's ID" - creates it if necessary
    */
-  public CWE_OBX_15 getObx15_ProducerSID() {
-    CWE_OBX_15 retVal = this.getTypedField(15, 0);
+  public CWE getObx15_ProducerSID() {
+    CWE retVal = this.getTypedField(15, 0);
     return retVal;
   }
 
@@ -702,8 +791,8 @@ public class OBX_NIH extends AbstractSegment {
   /**
    * Returns all repetitions of Observation Method (OBX-17).
    */
-  public CWE_OBX_17[] getObservationMethod() {
-    CWE_OBX_17[] retVal = this.getTypedField(17, new CWE_OBX_17[0]);
+  public CWE[] getObservationMethod() {
+    CWE[] retVal = this.getTypedField(17, new CWE[0]);
     return retVal;
   }
 
@@ -711,8 +800,8 @@ public class OBX_NIH extends AbstractSegment {
   /**
    * Returns all repetitions of Observation Method (OBX-17).
    */
-  public CWE_OBX_17[] getObx17_ObservationMethod() {
-    CWE_OBX_17[] retVal = this.getTypedField(17, new CWE_OBX_17[0]);
+  public CWE[] getObx17_ObservationMethod() {
+    CWE[] retVal = this.getTypedField(17, new CWE[0]);
     return retVal;
   }
 
@@ -733,8 +822,8 @@ public class OBX_NIH extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public CWE_OBX_17 getObservationMethod(int rep) {
-    CWE_OBX_17 retVal = this.getTypedField(17, rep);
+  public CWE getObservationMethod(int rep) {
+    CWE retVal = this.getTypedField(17, rep);
     return retVal;
   }
 
@@ -744,8 +833,8 @@ public class OBX_NIH extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public CWE_OBX_17 getObx17_ObservationMethod(int rep) {
-    CWE_OBX_17 retVal = this.getTypedField(17, rep);
+  public CWE getObx17_ObservationMethod(int rep) {
+    CWE retVal = this.getTypedField(17, rep);
     return retVal;
   }
 
@@ -766,8 +855,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CWE_OBX_17 insertObservationMethod(int rep) throws HL7Exception {
-    return (CWE_OBX_17) super.insertRepetition(17, rep);
+  public CWE insertObservationMethod(int rep) throws HL7Exception {
+    return (CWE) super.insertRepetition(17, rep);
   }
 
 
@@ -778,8 +867,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CWE_OBX_17 insertObx17_ObservationMethod(int rep) throws HL7Exception {
-    return (CWE_OBX_17) super.insertRepetition(17, rep);
+  public CWE insertObx17_ObservationMethod(int rep) throws HL7Exception {
+    return (CWE) super.insertRepetition(17, rep);
   }
 
 
@@ -790,8 +879,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CWE_OBX_17 removeObservationMethod(int rep) throws HL7Exception {
-    return (CWE_OBX_17) super.removeRepetition(17, rep);
+  public CWE removeObservationMethod(int rep) throws HL7Exception {
+    return (CWE) super.removeRepetition(17, rep);
   }
 
 
@@ -802,16 +891,16 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CWE_OBX_17 removeObx17_ObservationMethod(int rep) throws HL7Exception {
-    return (CWE_OBX_17) super.removeRepetition(17, rep);
+  public CWE removeObx17_ObservationMethod(int rep) throws HL7Exception {
+    return (CWE) super.removeRepetition(17, rep);
   }
 
 
   /**
    * Returns all repetitions of Equipment Instance Identifier (OBX-18).
    */
-  public EI_NIH[] getEquipmentInstanceIdentifier() {
-    EI_NIH[] retVal = this.getTypedField(18, new EI_NIH[0]);
+  public EI[] getEquipmentInstanceIdentifier() {
+    EI[] retVal = this.getTypedField(18, new EI[0]);
     return retVal;
   }
 
@@ -819,8 +908,8 @@ public class OBX_NIH extends AbstractSegment {
   /**
    * Returns all repetitions of Equipment Instance Identifier (OBX-18).
    */
-  public EI_NIH[] getObx18_EquipmentInstanceIdentifier() {
-    EI_NIH[] retVal = this.getTypedField(18, new EI_NIH[0]);
+  public EI[] getObx18_EquipmentInstanceIdentifier() {
+    EI[] retVal = this.getTypedField(18, new EI[0]);
     return retVal;
   }
 
@@ -841,8 +930,8 @@ public class OBX_NIH extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public EI_NIH getEquipmentInstanceIdentifier(int rep) {
-    EI_NIH retVal = this.getTypedField(18, rep);
+  public EI getEquipmentInstanceIdentifier(int rep) {
+    EI retVal = this.getTypedField(18, rep);
     return retVal;
   }
 
@@ -852,8 +941,8 @@ public class OBX_NIH extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public EI_NIH getObx18_EquipmentInstanceIdentifier(int rep) {
-    EI_NIH retVal = this.getTypedField(18, rep);
+  public EI getObx18_EquipmentInstanceIdentifier(int rep) {
+    EI retVal = this.getTypedField(18, rep);
     return retVal;
   }
 
@@ -874,8 +963,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public EI_NIH insertEquipmentInstanceIdentifier(int rep) throws HL7Exception {
-    return (EI_NIH) super.insertRepetition(18, rep);
+  public EI insertEquipmentInstanceIdentifier(int rep) throws HL7Exception {
+    return (EI) super.insertRepetition(18, rep);
   }
 
 
@@ -886,8 +975,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public EI_NIH insertObx18_EquipmentInstanceIdentifier(int rep) throws HL7Exception {
-    return (EI_NIH) super.insertRepetition(18, rep);
+  public EI insertObx18_EquipmentInstanceIdentifier(int rep) throws HL7Exception {
+    return (EI) super.insertRepetition(18, rep);
   }
 
 
@@ -898,8 +987,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public EI_NIH removeEquipmentInstanceIdentifier(int rep) throws HL7Exception {
-    return (EI_NIH) super.removeRepetition(18, rep);
+  public EI removeEquipmentInstanceIdentifier(int rep) throws HL7Exception {
+    return (EI) super.removeRepetition(18, rep);
   }
 
 
@@ -910,8 +999,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public EI_NIH removeObx18_EquipmentInstanceIdentifier(int rep) throws HL7Exception {
-    return (EI_NIH) super.removeRepetition(18, rep);
+  public EI removeObx18_EquipmentInstanceIdentifier(int rep) throws HL7Exception {
+    return (EI) super.removeRepetition(18, rep);
   }
 
 
@@ -919,8 +1008,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-19: "Date/Time of the Analysis" - creates it if necessary
    */
-  public TS_NIH2 getDateTimeOfTheAnalysis() {
-    TS_NIH2 retVal = this.getTypedField(19, 0);
+  public DTM getDateTimeOfTheAnalysis() {
+    DTM retVal = this.getTypedField(19, 0);
     return retVal;
   }
 
@@ -928,8 +1017,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-19: "Date/Time of the Analysis" - creates it if necessary
    */
-  public TS_NIH2 getObx19_DateTimeOfTheAnalysis() {
-    TS_NIH2 retVal = this.getTypedField(19, 0);
+  public DTM getObx19_DateTimeOfTheAnalysis() {
+    DTM retVal = this.getTypedField(19, 0);
     return retVal;
   }
 
@@ -937,8 +1026,8 @@ public class OBX_NIH extends AbstractSegment {
   /**
    * Returns all repetitions of Observation Site (OBX-20).
    */
-  public NULLDT[] getObservationSite() {
-    NULLDT[] retVal = this.getTypedField(20, new NULLDT[0]);
+  public CWE[] getObservationSite() {
+    CWE[] retVal = this.getTypedField(20, new CWE[0]);
     return retVal;
   }
 
@@ -946,8 +1035,8 @@ public class OBX_NIH extends AbstractSegment {
   /**
    * Returns all repetitions of Observation Site (OBX-20).
    */
-  public NULLDT[] getObx20_ObservationSite() {
-    NULLDT[] retVal = this.getTypedField(20, new NULLDT[0]);
+  public CWE[] getObx20_ObservationSite() {
+    CWE[] retVal = this.getTypedField(20, new CWE[0]);
     return retVal;
   }
 
@@ -968,8 +1057,8 @@ public class OBX_NIH extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public NULLDT getObservationSite(int rep) {
-    NULLDT retVal = this.getTypedField(20, rep);
+  public CWE getObservationSite(int rep) {
+    CWE retVal = this.getTypedField(20, rep);
     return retVal;
   }
 
@@ -979,8 +1068,8 @@ public class OBX_NIH extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public NULLDT getObx20_ObservationSite(int rep) {
-    NULLDT retVal = this.getTypedField(20, rep);
+  public CWE getObx20_ObservationSite(int rep) {
+    CWE retVal = this.getTypedField(20, rep);
     return retVal;
   }
 
@@ -1001,8 +1090,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public NULLDT insertObservationSite(int rep) throws HL7Exception {
-    return (NULLDT) super.insertRepetition(20, rep);
+  public CWE insertObservationSite(int rep) throws HL7Exception {
+    return (CWE) super.insertRepetition(20, rep);
   }
 
 
@@ -1013,8 +1102,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public NULLDT insertObx20_ObservationSite(int rep) throws HL7Exception {
-    return (NULLDT) super.insertRepetition(20, rep);
+  public CWE insertObx20_ObservationSite(int rep) throws HL7Exception {
+    return (CWE) super.insertRepetition(20, rep);
   }
 
 
@@ -1025,8 +1114,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public NULLDT removeObservationSite(int rep) throws HL7Exception {
-    return (NULLDT) super.removeRepetition(20, rep);
+  public CWE removeObservationSite(int rep) throws HL7Exception {
+    return (CWE) super.removeRepetition(20, rep);
   }
 
 
@@ -1037,8 +1126,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public NULLDT removeObx20_ObservationSite(int rep) throws HL7Exception {
-    return (NULLDT) super.removeRepetition(20, rep);
+  public CWE removeObx20_ObservationSite(int rep) throws HL7Exception {
+    return (CWE) super.removeRepetition(20, rep);
   }
 
 
@@ -1046,8 +1135,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-21: "Observation Instance Identifier" - creates it if necessary
    */
-  public NULLDT getObservationInstanceIdentifier() {
-    NULLDT retVal = this.getTypedField(21, 0);
+  public EI getObservationInstanceIdentifier() {
+    EI retVal = this.getTypedField(21, 0);
     return retVal;
   }
 
@@ -1055,8 +1144,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-21: "Observation Instance Identifier" - creates it if necessary
    */
-  public NULLDT getObx21_ObservationInstanceIdentifier() {
-    NULLDT retVal = this.getTypedField(21, 0);
+  public EI getObx21_ObservationInstanceIdentifier() {
+    EI retVal = this.getTypedField(21, 0);
     return retVal;
   }
 
@@ -1065,8 +1154,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-22: "Mood Code" - creates it if necessary
    */
-  public NULLDT getMoodCode() {
-    NULLDT retVal = this.getTypedField(22, 0);
+  public CNE getMoodCode() {
+    CNE retVal = this.getTypedField(22, 0);
     return retVal;
   }
 
@@ -1074,8 +1163,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-22: "Mood Code" - creates it if necessary
    */
-  public NULLDT getObx22_MoodCode() {
-    NULLDT retVal = this.getTypedField(22, 0);
+  public CNE getObx22_MoodCode() {
+    CNE retVal = this.getTypedField(22, 0);
     return retVal;
   }
 
@@ -1084,8 +1173,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-23: "Performing Organization Name" - creates it if necessary
    */
-  public XON_OBX_23 getPerformingOrganizationName() {
-    XON_OBX_23 retVal = this.getTypedField(23, 0);
+  public XON getPerformingOrganizationName() {
+    XON retVal = this.getTypedField(23, 0);
     return retVal;
   }
 
@@ -1093,8 +1182,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-23: "Performing Organization Name" - creates it if necessary
    */
-  public XON_OBX_23 getObx23_PerformingOrganizationName() {
-    XON_OBX_23 retVal = this.getTypedField(23, 0);
+  public XON getObx23_PerformingOrganizationName() {
+    XON retVal = this.getTypedField(23, 0);
     return retVal;
   }
 
@@ -1103,8 +1192,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-24: "Performing Organization Address" - creates it if necessary
    */
-  public XAD_OBX_24 getPerformingOrganizationAddress() {
-    XAD_OBX_24 retVal = this.getTypedField(24, 0);
+  public XAD getPerformingOrganizationAddress() {
+    XAD retVal = this.getTypedField(24, 0);
     return retVal;
   }
 
@@ -1112,8 +1201,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-24: "Performing Organization Address" - creates it if necessary
    */
-  public XAD_OBX_24 getObx24_PerformingOrganizationAddress() {
-    XAD_OBX_24 retVal = this.getTypedField(24, 0);
+  public XAD getObx24_PerformingOrganizationAddress() {
+    XAD retVal = this.getTypedField(24, 0);
     return retVal;
   }
 
@@ -1122,8 +1211,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-25: "Performing Organization Medical Director" - creates it if necessary
    */
-  public XCN_NIH getPerformingOrganizationMedicalDirector() {
-    XCN_NIH retVal = this.getTypedField(25, 0);
+  public XCN getPerformingOrganizationMedicalDirector() {
+    XCN retVal = this.getTypedField(25, 0);
     return retVal;
   }
 
@@ -1131,8 +1220,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-25: "Performing Organization Medical Director" - creates it if necessary
    */
-  public XCN_NIH getObx25_PerformingOrganizationMedicalDirector() {
-    XCN_NIH retVal = this.getTypedField(25, 0);
+  public XCN getObx25_PerformingOrganizationMedicalDirector() {
+    XCN retVal = this.getTypedField(25, 0);
     return retVal;
   }
 
@@ -1160,8 +1249,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-27: "Root Cause" - creates it if necessary
    */
-  public CWE_NIH getRootCause() {
-    CWE_NIH retVal = this.getTypedField(27, 0);
+  public CWE getRootCause() {
+    CWE retVal = this.getTypedField(27, 0);
     return retVal;
   }
 
@@ -1169,8 +1258,8 @@ public class OBX_NIH extends AbstractSegment {
    * Returns
    * OBX-27: "Root Cause" - creates it if necessary
    */
-  public CWE_NIH getObx27_RootCause() {
-    CWE_NIH retVal = this.getTypedField(27, 0);
+  public CWE getObx27_RootCause() {
+    CWE retVal = this.getTypedField(27, 0);
     return retVal;
   }
 
@@ -1178,8 +1267,8 @@ public class OBX_NIH extends AbstractSegment {
   /**
    * Returns all repetitions of Local Process Control (OBX-28).
    */
-  public CWE_NIH[] getLocalProcessControl() {
-    CWE_NIH[] retVal = this.getTypedField(28, new CWE_NIH[0]);
+  public CWE[] getLocalProcessControl() {
+    CWE[] retVal = this.getTypedField(28, new CWE[0]);
     return retVal;
   }
 
@@ -1187,8 +1276,8 @@ public class OBX_NIH extends AbstractSegment {
   /**
    * Returns all repetitions of Local Process Control (OBX-28).
    */
-  public CWE_NIH[] getObx28_LocalProcessControl() {
-    CWE_NIH[] retVal = this.getTypedField(28, new CWE_NIH[0]);
+  public CWE[] getObx28_LocalProcessControl() {
+    CWE[] retVal = this.getTypedField(28, new CWE[0]);
     return retVal;
   }
 
@@ -1209,8 +1298,8 @@ public class OBX_NIH extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public CWE_NIH getLocalProcessControl(int rep) {
-    CWE_NIH retVal = this.getTypedField(28, rep);
+  public CWE getLocalProcessControl(int rep) {
+    CWE retVal = this.getTypedField(28, rep);
     return retVal;
   }
 
@@ -1220,8 +1309,8 @@ public class OBX_NIH extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public CWE_NIH getObx28_LocalProcessControl(int rep) {
-    CWE_NIH retVal = this.getTypedField(28, rep);
+  public CWE getObx28_LocalProcessControl(int rep) {
+    CWE retVal = this.getTypedField(28, rep);
     return retVal;
   }
 
@@ -1242,8 +1331,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CWE_NIH insertLocalProcessControl(int rep) throws HL7Exception {
-    return (CWE_NIH) super.insertRepetition(28, rep);
+  public CWE insertLocalProcessControl(int rep) throws HL7Exception {
+    return (CWE) super.insertRepetition(28, rep);
   }
 
 
@@ -1254,8 +1343,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CWE_NIH insertObx28_LocalProcessControl(int rep) throws HL7Exception {
-    return (CWE_NIH) super.insertRepetition(28, rep);
+  public CWE insertObx28_LocalProcessControl(int rep) throws HL7Exception {
+    return (CWE) super.insertRepetition(28, rep);
   }
 
 
@@ -1266,8 +1355,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CWE_NIH removeLocalProcessControl(int rep) throws HL7Exception {
-    return (CWE_NIH) super.removeRepetition(28, rep);
+  public CWE removeLocalProcessControl(int rep) throws HL7Exception {
+    return (CWE) super.removeRepetition(28, rep);
   }
 
 
@@ -1278,8 +1367,8 @@ public class OBX_NIH extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CWE_NIH removeObx28_LocalProcessControl(int rep) throws HL7Exception {
-    return (CWE_NIH) super.removeRepetition(28, rep);
+  public CWE removeObx28_LocalProcessControl(int rep) throws HL7Exception {
+    return (CWE) super.removeRepetition(28, rep);
   }
 
 
@@ -1312,17 +1401,17 @@ public class OBX_NIH extends AbstractSegment {
       case 1:
         return new ID(getMessage(), Integer.valueOf(125));
       case 2:
-        return new CWE_NIH(getMessage());
+        return new CWE(getMessage());
       case 3:
         return new ST(getMessage());
       case 4:
         return new Varies(getMessage());
       case 5:
-        return new CWE_NIH(getMessage());
+        return new CWE(getMessage());
       case 6:
         return new ST(getMessage());
       case 7:
-        return new CWE_NIH(getMessage());
+        return new CWE(getMessage());
       case 8:
         return new NM(getMessage());
       case 9:
@@ -1330,39 +1419,39 @@ public class OBX_NIH extends AbstractSegment {
       case 10:
         return new ID(getMessage(), Integer.valueOf(85));
       case 11:
-        return new TS_NIH(getMessage());
+        return new DTM(getMessage());
       case 12:
         return new ST(getMessage());
       case 13:
-        return new TS_NIH(getMessage());
+        return new DTM(getMessage());
       case 14:
-        return new CWE_OBX_15(getMessage());
+        return new CWE(getMessage());
       case 15:
         return new XCN(getMessage());
       case 16:
-        return new CWE_OBX_17(getMessage());
+        return new CWE(getMessage());
       case 17:
-        return new EI_NIH(getMessage());
+        return new EI(getMessage());
       case 18:
-        return new TS_NIH(getMessage());
+        return new DTM(getMessage());
       case 19:
-        return new NULLDT(getMessage());
+        return new CWE(getMessage());
       case 20:
-        return new NULLDT(getMessage());
+        return new EI(getMessage());
       case 21:
-        return new NULLDT(getMessage());
+        return new CNE(getMessage());
       case 22:
-        return new XON_OBX_23(getMessage());
+        return new XON(getMessage());
       case 23:
-        return new XAD_OBX_24(getMessage());
+        return new XAD(getMessage());
       case 24:
-        return new XCN_NIH(getMessage());
+        return new XCN(getMessage());
       case 25:
-        return new ID(getMessage());
+        return new ID(getMessage(), Integer.valueOf(909));
       case 26:
-        return new CWE_NIH(getMessage());
+        return new CWE(getMessage());
       case 27:
-        return new ID(getMessage());
+        return new CWE(getMessage());
       case 28:
         return new ID(getMessage());
       default:

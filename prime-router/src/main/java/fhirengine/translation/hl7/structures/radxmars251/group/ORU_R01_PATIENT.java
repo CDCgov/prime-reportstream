@@ -38,10 +38,10 @@ import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Structure;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import ca.uhn.hl7v2.model.v251.segment.NK1;
-import ca.uhn.hl7v2.model.v251.segment.NTE;
-import ca.uhn.hl7v2.model.v251.segment.PD1;
-import fhirengine.translation.hl7.structures.radxmars251.segment.PID;
+import ca.uhn.hl7v2.model.v27.segment.NK1;
+import ca.uhn.hl7v2.model.v27.segment.NTE;
+import ca.uhn.hl7v2.model.v27.segment.PD1;
+import ca.uhn.hl7v2.model.v27.segment.PID;
 
 /**
  * <p>Represents a ORU_R01_PATIENT group structure (PATIENT_RESULT.PATIENT).
