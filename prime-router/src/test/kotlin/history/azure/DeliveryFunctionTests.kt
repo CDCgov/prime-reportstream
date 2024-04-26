@@ -731,7 +731,9 @@ class DeliveryFunctionTests : Logging {
         val customContext = mockk<ExecutionContext>()
         every { customContext.logger } returns mockk<Logger>()
 
-        var response = function.retrieveETORIntermediaryMetadata(mockRequest, goodUuid.toString(), customContext, mock)
+        var response = function.retrieveETORIntermediaryMetadata(
+            mockRequest, goodUuid, customContext, mock
+        )
 
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
@@ -778,7 +780,9 @@ class DeliveryFunctionTests : Logging {
         val customContext = mockk<ExecutionContext>()
         every { customContext.logger } returns mockk<Logger>()
 
-        var response = function.retrieveETORIntermediaryMetadata(mockRequest, badUuid, customContext, null)
+        var response = function.retrieveETORIntermediaryMetadata(
+            mockRequest, UUID.fromString(badUuid), customContext, null
+        )
 
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
         assertThat(response.body.toString()).isEqualTo("{\"error\": \"lookup Id not found\"}")
