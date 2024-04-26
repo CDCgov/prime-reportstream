@@ -15,6 +15,12 @@ elements:
     value: [ '%resource.extension(%`rsext-sub-id`).value' ]
     hl7Spec: [ '%{hl7OBXField}-4' ]
 
+  - name: obx-value-attachment
+    resource: '%resource.extension("https://hl7.org/fhir/R5/StructureDefinition/observation-value-attachment").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/Attachment/ED.yml
+    constants:
+      hl7EDField: '%{hl7OBXField}-5'
+
   - name: obx-value
     schema: classpath:/metadata/hl7_mapping/resources/Observation/OBXValue.yml
 
@@ -122,12 +128,6 @@ elements:
   - name: obx-observation-sub-type
     value: [ '%resource.extension(%`rsext-observation-sub-type`).value' ]
     hl7Spec: [ '%{hl7OBXField}-30' ]
-
-  - name: obx-value-attachment
-    resource: '%resource.extension("https://hl7.org/fhir/R5/StructureDefinition/observation-value-attachment").value'
-    schema: classpath:/metadata/hl7_mapping/datatypes/Attachment/ED.yml
-    constants:
-      hl7EDField: '%{hl7OBXField}-5'
 
   - name: obx-extension-values
     resource: '%resource.extension(%`rsext-obx-observation`)'
