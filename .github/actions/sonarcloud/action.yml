@@ -25,6 +25,7 @@ runs:
           -Dsonar.sources=frontend-react/src,prime-router/src
           -Dsonar.projectKey=CDCgov_prime-data-hub
           -Dsonar.organization=cdcgov
+          -Dsonar.java.binaries=build/classes/java/main,build/classes/kotlin/main
           -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
           -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
           -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
@@ -59,5 +60,6 @@ runs:
           -Dsonar.sources=prime-router/src,frontend-react/src
           -Dsonar.projectKey=CDCgov_prime-data-hub
           -Dsonar.organization=cdcgov
+          -Dsonar.java.binaries=build/classes/java/main,build/classes/kotlin/main
           -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
           -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
