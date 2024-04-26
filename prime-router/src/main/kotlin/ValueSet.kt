@@ -1,5 +1,4 @@
 package gov.cdc.prime.router
-// gratuitous
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 
