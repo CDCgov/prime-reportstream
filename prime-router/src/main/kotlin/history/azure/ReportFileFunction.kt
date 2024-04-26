@@ -236,7 +236,7 @@ abstract class ReportFileFunction(
             launch {
                 authPair = RESTTransport().getOAuthToken(
                     restTransportInfo,
-                    reportId,
+                    reportId.toString(),
                     jksCredential,
                     credential,
                     logger
@@ -245,7 +245,7 @@ abstract class ReportFileFunction(
         }
 
         val lookupId = this.getLookupId(reportId)
-        if (lookupId.isEmpty()) {
+        if (lookupId == null) {
             return HttpUtilities.notFoundResponse(request, "lookup Id not found")
         }
 
