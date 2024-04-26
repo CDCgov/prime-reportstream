@@ -2,9 +2,13 @@ import { expect, test } from "@playwright/test";
 
 import { format } from "date-fns";
 import {
-    expectTableColumnDateTimeInRange,
     expectTableColumnValues,
     selectTestOrg,
+    tableColumnDateTimeInRange,
+    tableDataCellValue,
+    tableRows,
+    TEST_ORG_AK_RECEIVER,
+    TEST_ORG_IGNORE_RECEIVER,
     waitForAPIResponse,
 } from "../helpers/utils";
 import * as dailyData from "../pages/daily-data";
@@ -13,9 +17,12 @@ import {
     endDate,
     endTime,
     endTimeClear,
+    filterReset,
     filterStatus,
     receiverDropdown,
-    resetButton,
+    searchButton,
+    searchInput,
+    searchReset,
     setDate,
     setTime,
     startDate,
@@ -24,8 +31,6 @@ import {
     tableHeaders,
 } from "../pages/daily-data";
 
-const ignoreReceiver = "FULL_ELR";
-const alaskaReceiver = "elr";
 const defaultStartTime = "9:00am";
 const defaultEndTime = "11:30pm";
 
@@ -117,11 +122,11 @@ test.describe("Daily Data page", () => {
                     test.beforeEach(async ({ page }) => {
                         await page
                             .locator("#receiver-dropdown")
-                            .selectOption(ignoreReceiver);
+                            .selectOption(TEST_ORG_IGNORE_RECEIVER);
                     });
 
                     test.afterEach(async ({ page }) => {
-                        await resetButton(page).click();
+                        await filterReset(page).click();
                     });
 
                     test("table loads with selected receiver data", async ({
@@ -137,15 +142,20 @@ test.describe("Daily Data page", () => {
                         await expectTableColumnValues(
                             page,
                             5,
-                            `ignore.${ignoreReceiver}`,
+                            `ignore.${TEST_ORG_IGNORE_RECEIVER}`,
                         );
 
                         // Check filter status lists receiver value
-                        await filterStatus(page, [ignoreReceiver]);
+                        const filterStatusText = filterStatus(page, [
+                            TEST_ORG_IGNORE_RECEIVER,
+                        ]);
+                        await expect(
+                            page.getByTestId("filter-status"),
+                        ).toContainText(filterStatusText);
 
                         // Receiver dropdown persists
                         await expect(receiverDropdown(page)).toHaveValue(
-                            ignoreReceiver,
+                            TEST_ORG_IGNORE_RECEIVER,
                         );
                     });
 
@@ -266,20 +276,25 @@ test.describe("Daily Data page", () => {
                             .waitFor({ state: "visible" });
 
                         // Check that table data contains the dates that were selected
-                        await expectTableColumnDateTimeInRange(
-                            page,
-                            1,
-                            fromDate,
-                            toDate,
-                            "",
-                            "",
-                        );
+                        const areDatesInRange =
+                            await tableColumnDateTimeInRange(
+                                page,
+                                1,
+                                fromDate,
+                                toDate,
+                                "",
+                                "",
+                            );
+                        expect(areDatesInRange).toBe(true);
 
                         // Check filter status lists receiver value
-                        await filterStatus(page, [
-                            ignoreReceiver,
+                        const filterStatusText = filterStatus(page, [
+                            TEST_ORG_IGNORE_RECEIVER,
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         ]);
+                        await expect(
+                            page.getByTestId("filter-status"),
+                        ).toContainText(filterStatusText);
                     });
 
                     test("with 'From' date, 'To' date, 'Start time'", async ({
@@ -303,21 +318,26 @@ test.describe("Daily Data page", () => {
                         );
 
                         // Check that table data contains the dates/times that were selected
-                        await expectTableColumnDateTimeInRange(
-                            page,
-                            1,
-                            fromDate,
-                            toDate,
-                            defaultStartTime,
-                            "",
-                        );
+                        const areDatesInRange =
+                            await tableColumnDateTimeInRange(
+                                page,
+                                1,
+                                fromDate,
+                                toDate,
+                                defaultStartTime,
+                                "",
+                            );
+                        expect(areDatesInRange).toBe(true);
 
                         // Check filter status lists receiver value
-                        await filterStatus(page, [
-                            ignoreReceiver,
+                        const filterStatusText = filterStatus(page, [
+                            TEST_ORG_IGNORE_RECEIVER,
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                             `${defaultStartTime}–${"11:59pm"}`,
                         ]);
+                        await expect(
+                            page.getByTestId("filter-status"),
+                        ).toContainText(filterStatusText);
                     });
 
                     test("with 'From' date, 'To' date, 'End time'", async ({
@@ -341,21 +361,26 @@ test.describe("Daily Data page", () => {
                         );
 
                         // Check that table data contains the dates/times that were selected
-                        await expectTableColumnDateTimeInRange(
-                            page,
-                            1,
-                            fromDate,
-                            toDate,
-                            "",
-                            defaultEndTime,
-                        );
+                        const areDatesInRange =
+                            await tableColumnDateTimeInRange(
+                                page,
+                                1,
+                                fromDate,
+                                toDate,
+                                "",
+                                defaultEndTime,
+                            );
+                        expect(areDatesInRange).toBe(true);
 
                         // Check filter status lists receiver value
-                        await filterStatus(page, [
-                            ignoreReceiver,
+                        const filterStatusText = filterStatus(page, [
+                            TEST_ORG_IGNORE_RECEIVER,
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                             `${"12:00am"}–${defaultEndTime}`,
                         ]);
+                        await expect(
+                            page.getByTestId("filter-status"),
+                        ).toContainText(filterStatusText);
                     });
 
                     test("with 'From' date, 'To' date, 'Start time', 'End time'", async ({
@@ -373,21 +398,26 @@ test.describe("Daily Data page", () => {
                             .waitFor({ state: "visible" });
 
                         // Check that table data contains the dates/times that were selected
-                        await expectTableColumnDateTimeInRange(
-                            page,
-                            1,
-                            fromDate,
-                            toDate,
-                            defaultStartTime,
-                            defaultEndTime,
-                        );
+                        const areDatesInRange =
+                            await tableColumnDateTimeInRange(
+                                page,
+                                1,
+                                fromDate,
+                                toDate,
+                                defaultStartTime,
+                                defaultEndTime,
+                            );
+                        expect(areDatesInRange).toBe(true);
 
                         // Check filter status lists receiver value
-                        await filterStatus(page, [
-                            ignoreReceiver,
+                        const filterStatusText = filterStatus(page, [
+                            TEST_ORG_IGNORE_RECEIVER,
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                             `${defaultStartTime}–${defaultEndTime}`,
                         ]);
+                        await expect(
+                            page.getByTestId("filter-status"),
+                        ).toContainText(filterStatusText);
                     });
 
                     test("with 'From' date, 'To' date, 'Start time' before 'End time'", async ({
@@ -413,7 +443,7 @@ test.describe("Daily Data page", () => {
                     });
 
                     test.afterEach(async ({ page }) => {
-                        await resetButton(page).click();
+                        await filterReset(page).click();
                     });
 
                     test("with 'From' date", async ({ page }) => {
@@ -533,19 +563,24 @@ test.describe("Daily Data page", () => {
                             .waitFor({ state: "visible" });
 
                         // Check that table data contains the dates that were selected
-                        await expectTableColumnDateTimeInRange(
-                            page,
-                            1,
-                            fromDate,
-                            toDate,
-                            "",
-                            "",
-                        );
+                        const areDatesInRange =
+                            await tableColumnDateTimeInRange(
+                                page,
+                                1,
+                                fromDate,
+                                toDate,
+                                "",
+                                "",
+                            );
+                        expect(areDatesInRange).toBe(true);
 
                         // Check filter status lists receiver value
-                        await filterStatus(page, [
+                        const filterStatusText = filterStatus(page, [
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         ]);
+                        await expect(
+                            page.getByTestId("filter-status"),
+                        ).toContainText(filterStatusText);
                     });
 
                     test("with 'From' date, 'To' date, 'Start time'", async ({
@@ -569,20 +604,25 @@ test.describe("Daily Data page", () => {
                         );
 
                         // Check that table data contains the dates/times that were selected
-                        await expectTableColumnDateTimeInRange(
-                            page,
-                            1,
-                            fromDate,
-                            toDate,
-                            defaultStartTime,
-                            "",
-                        );
+                        const areDatesInRange =
+                            await tableColumnDateTimeInRange(
+                                page,
+                                1,
+                                fromDate,
+                                toDate,
+                                defaultStartTime,
+                                "",
+                            );
+                        expect(areDatesInRange).toBe(true);
 
                         // Check filter status lists receiver value
-                        await filterStatus(page, [
+                        const filterStatusText = filterStatus(page, [
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                             `${defaultStartTime}–${"11:59pm"}`,
                         ]);
+                        await expect(
+                            page.getByTestId("filter-status"),
+                        ).toContainText(filterStatusText);
                     });
 
                     test("with 'From' date, 'To' date, 'End time'", async ({
@@ -606,20 +646,25 @@ test.describe("Daily Data page", () => {
                         );
 
                         // Check that table data contains the dates/times that were selected
-                        await expectTableColumnDateTimeInRange(
-                            page,
-                            1,
-                            fromDate,
-                            toDate,
-                            "",
-                            defaultEndTime,
-                        );
+                        const areDatesInRange =
+                            await tableColumnDateTimeInRange(
+                                page,
+                                1,
+                                fromDate,
+                                toDate,
+                                "",
+                                defaultEndTime,
+                            );
+                        expect(areDatesInRange).toBe(true);
 
                         // Check filter status lists receiver value
-                        await filterStatus(page, [
+                        const filterStatusText = filterStatus(page, [
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                             `${"12:00am"}–${defaultEndTime}`,
                         ]);
+                        await expect(
+                            page.getByTestId("filter-status"),
+                        ).toContainText(filterStatusText);
                     });
 
                     test("with 'From' date, 'To' date, 'Start time', 'End time'", async ({
@@ -637,20 +682,25 @@ test.describe("Daily Data page", () => {
                             .waitFor({ state: "visible" });
 
                         // Check that table data contains the dates/times that were selected
-                        await expectTableColumnDateTimeInRange(
-                            page,
-                            1,
-                            fromDate,
-                            toDate,
-                            defaultStartTime,
-                            defaultEndTime,
-                        );
+                        const areDatesInRange =
+                            await tableColumnDateTimeInRange(
+                                page,
+                                1,
+                                fromDate,
+                                toDate,
+                                defaultStartTime,
+                                defaultEndTime,
+                            );
+                        expect(areDatesInRange).toBe(true);
 
                         // Check filter status lists receiver value
-                        await filterStatus(page, [
+                        const filterStatusText = filterStatus(page, [
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                             `${defaultStartTime}–${defaultEndTime}`,
                         ]);
+                        await expect(
+                            page.getByTestId("filter-status"),
+                        ).toContainText(filterStatusText);
                     });
 
                     test("with 'From' date, 'To' date, 'Start time' before 'End time'", async ({
@@ -670,13 +720,185 @@ test.describe("Daily Data page", () => {
 
                 test.describe("on reset", () => {
                     test("form elements clear", async ({ page }) => {
-                        await resetButton(page).click();
+                        await filterReset(page).click();
                         await expect(receiverDropdown(page)).toHaveValue("");
                         await expect(startDate(page)).toHaveValue("");
                         await expect(endDate(page)).toHaveValue("");
                         await expect(startTime(page)).toHaveValue("");
                         await expect(endTime(page)).toHaveValue("");
                     });
+                });
+
+                test("clears search on Apply", async ({ page }) => {
+                    // Search by Report ID
+                    const reportId = await tableDataCellValue(page, 0, 0);
+                    await searchInput(page).fill(reportId);
+                    await searchButton(page).click();
+
+                    const rowCount = await tableRows(page).count();
+                    expect(rowCount).toEqual(1);
+
+                    // Check filter status lists receiver value
+                    let filterStatusText = filterStatus(page, [reportId]);
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText(filterStatusText);
+
+                    //Check table data matches search
+                    expect(await tableDataCellValue(page, 0, 0)).toEqual(
+                        reportId,
+                    );
+                    // Perform search with all filters selected
+                    await page
+                        .locator("#receiver-dropdown")
+                        .selectOption(TEST_ORG_IGNORE_RECEIVER);
+                    const fromDate = await setDate(page, "#start-date", 14);
+                    const toDate = await setDate(page, "#end-date", 0);
+                    await setTime(page, "#start-time", defaultStartTime);
+                    await setTime(page, "#end-time", defaultEndTime);
+
+                    await applyButton(page).click();
+                    await page
+                        .locator(".usa-table tbody")
+                        .waitFor({ state: "visible" });
+
+                    // Check that table data contains the dates/times that were selected
+                    const areDatesInRange = await tableColumnDateTimeInRange(
+                        page,
+                        1,
+                        fromDate,
+                        toDate,
+                        defaultStartTime,
+                        defaultEndTime,
+                    );
+                    expect(areDatesInRange).toBe(true);
+
+                    // Check filter status lists receiver value
+                    filterStatusText = filterStatus(page, [
+                        TEST_ORG_IGNORE_RECEIVER,
+                        `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                        `${defaultStartTime}–${defaultEndTime}`,
+                    ]);
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText(filterStatusText);
+
+                    // Check search is cleared
+                    await expect(searchInput(page)).toHaveValue("");
+                });
+            });
+
+            test.describe("search", () => {
+                test("returns match for Report ID", async ({ page }) => {
+                    const reportId = await tableDataCellValue(page, 2, 0);
+                    await searchInput(page).fill(reportId);
+                    await searchButton(page).click();
+
+                    const rowCount = await tableRows(page).count();
+                    expect(rowCount).toEqual(1);
+
+                    // Check filter status lists receiver value
+                    const filterStatusText = filterStatus(page, [reportId]);
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText(filterStatusText);
+
+                    //Check table data matches search
+                    expect(await tableDataCellValue(page, 0, 0)).toEqual(
+                        reportId,
+                    );
+                });
+
+                test("returns match for Filename", async ({ page }) => {
+                    const fileName = await tableDataCellValue(page, 2, 4);
+                    await searchInput(page).fill(fileName);
+                    await searchButton(page).click();
+
+                    const rowCount = await tableRows(page).count();
+                    expect(rowCount).toEqual(1);
+
+                    // Check filter status lists receiver value
+                    const filterStatusText = filterStatus(page, [fileName]);
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText(filterStatusText);
+
+                    //Check table data matches search
+                    expect(await tableDataCellValue(page, 0, 4)).toEqual(
+                        fileName,
+                    );
+                });
+
+                test("on reset clears search results", async ({ page }) => {
+                    const fileName = await tableDataCellValue(page, 1, 4);
+                    await searchInput(page).fill(fileName);
+                    await searchButton(page).click();
+
+                    await searchReset(page).click();
+                    await expect(searchInput(page)).toHaveValue("");
+                });
+
+                test("clears filters on search", async ({ page }) => {
+                    // Perform search with all filters selected
+                    await page
+                        .locator("#receiver-dropdown")
+                        .selectOption(TEST_ORG_IGNORE_RECEIVER);
+                    const fromDate = await setDate(page, "#start-date", 14);
+                    const toDate = await setDate(page, "#end-date", 0);
+                    await setTime(page, "#start-time", defaultStartTime);
+                    await setTime(page, "#end-time", defaultEndTime);
+
+                    await applyButton(page).click();
+                    await page
+                        .locator(".usa-table tbody")
+                        .waitFor({ state: "visible" });
+
+                    // Check that table data contains the dates/times that were selected
+                    const areDatesInRange = await tableColumnDateTimeInRange(
+                        page,
+                        1,
+                        fromDate,
+                        toDate,
+                        defaultStartTime,
+                        defaultEndTime,
+                    );
+                    expect(areDatesInRange).toBe(true);
+
+                    // Check filter status lists receiver value
+                    let filterStatusText = filterStatus(page, [
+                        TEST_ORG_IGNORE_RECEIVER,
+                        `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                        `${defaultStartTime}–${defaultEndTime}`,
+                    ]);
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText(filterStatusText);
+
+                    // Search by Report ID
+                    const reportId = await tableDataCellValue(page, 0, 0);
+                    await searchInput(page).fill(reportId);
+                    await searchButton(page).click();
+
+                    const rowCount = await tableRows(page).count();
+                    expect(rowCount).toEqual(1);
+
+                    // Check filter status lists receiver value
+                    filterStatusText = filterStatus(page, [reportId]);
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText(filterStatusText);
+
+                    //Check table data matches search
+                    expect(await tableDataCellValue(page, 0, 0)).toEqual(
+                        reportId,
+                    );
+
+                    // Check filters are cleared
+                    await expect(receiverDropdown(page)).toHaveValue("");
+                    await expect(startDate(page)).toHaveValue("");
+                    await expect(endDate(page)).toHaveValue("");
+                    await expect(startTime(page)).toHaveValue("");
+                    await expect(endTime(page)).toHaveValue("");
                 });
             });
 
@@ -749,11 +971,11 @@ test.describe("Daily Data page", () => {
                 test.beforeEach(async ({ page }) => {
                     await page
                         .locator("#receiver-dropdown")
-                        .selectOption(alaskaReceiver);
+                        .selectOption(TEST_ORG_AK_RECEIVER);
                 });
 
                 test.afterEach(async ({ page }) => {
-                    await resetButton(page).click();
+                    await filterReset(page).click();
                 });
 
                 test("table loads with selected receiver data", async ({
@@ -769,15 +991,20 @@ test.describe("Daily Data page", () => {
                     await expectTableColumnValues(
                         page,
                         5,
-                        `ak-phd.${alaskaReceiver}`,
+                        `ak-phd.${TEST_ORG_AK_RECEIVER}`,
                     );
 
                     // Check filter status lists receiver value
-                    await filterStatus(page, [alaskaReceiver]);
+                    const filterStatusText = filterStatus(page, [
+                        TEST_ORG_AK_RECEIVER,
+                    ]);
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText(filterStatusText);
 
                     // Receiver dropdown persists
                     await expect(receiverDropdown(page)).toHaveValue(
-                        alaskaReceiver,
+                        TEST_ORG_AK_RECEIVER,
                     );
                 });
 
@@ -868,7 +1095,7 @@ test.describe("Daily Data page", () => {
                         .waitFor({ state: "visible" });
 
                     // Check that table data contains the dates that were selected
-                    await expectTableColumnDateTimeInRange(
+                    const areDatesInRange = await tableColumnDateTimeInRange(
                         page,
                         1,
                         fromDate,
@@ -876,12 +1103,16 @@ test.describe("Daily Data page", () => {
                         "",
                         "",
                     );
+                    expect(areDatesInRange).toBe(true);
 
                     // Check filter status lists receiver value
-                    await filterStatus(page, [
-                        alaskaReceiver,
+                    const filterStatusText = filterStatus(page, [
+                        TEST_ORG_AK_RECEIVER,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                     ]);
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText(filterStatusText);
                 });
 
                 test("with 'From' date, 'To' date, 'Start time'", async ({
@@ -905,7 +1136,7 @@ test.describe("Daily Data page", () => {
                     );
 
                     // Check that table data contains the dates/times that were selected
-                    await expectTableColumnDateTimeInRange(
+                    const areDatesInRange = await tableColumnDateTimeInRange(
                         page,
                         1,
                         fromDate,
@@ -913,13 +1144,17 @@ test.describe("Daily Data page", () => {
                         defaultStartTime,
                         "",
                     );
+                    expect(areDatesInRange).toBe(true);
 
                     // Check filter status lists receiver value
-                    await filterStatus(page, [
-                        alaskaReceiver,
+                    const filterStatusText = filterStatus(page, [
+                        TEST_ORG_AK_RECEIVER,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         `${defaultStartTime}–${"11:59pm"}`,
                     ]);
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText(filterStatusText);
                 });
 
                 test("with 'From' date, 'To' date, 'End time'", async ({
@@ -943,7 +1178,7 @@ test.describe("Daily Data page", () => {
                     );
 
                     // Check that table data contains the dates/times that were selected
-                    await expectTableColumnDateTimeInRange(
+                    const areDatesInRange = await tableColumnDateTimeInRange(
                         page,
                         1,
                         fromDate,
@@ -951,13 +1186,17 @@ test.describe("Daily Data page", () => {
                         "",
                         defaultEndTime,
                     );
+                    expect(areDatesInRange).toBe(true);
 
                     // Check filter status lists receiver value
-                    await filterStatus(page, [
-                        alaskaReceiver,
+                    const filterStatusText = filterStatus(page, [
+                        TEST_ORG_AK_RECEIVER,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         `${"12:00am"}–${defaultEndTime}`,
                     ]);
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText(filterStatusText);
                 });
 
                 test("with 'From' date, 'To' date, 'Start time', 'End time'", async ({
@@ -975,7 +1214,7 @@ test.describe("Daily Data page", () => {
                         .waitFor({ state: "visible" });
 
                     // Check that table data contains the dates/times that were selected
-                    await expectTableColumnDateTimeInRange(
+                    const areDatesInRange = await tableColumnDateTimeInRange(
                         page,
                         1,
                         fromDate,
@@ -983,13 +1222,17 @@ test.describe("Daily Data page", () => {
                         defaultStartTime,
                         defaultEndTime,
                     );
+                    expect(areDatesInRange).toBe(true);
 
                     // Check filter status lists receiver value
-                    await filterStatus(page, [
-                        alaskaReceiver,
+                    const filterStatusText = filterStatus(page, [
+                        TEST_ORG_AK_RECEIVER,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         `${defaultStartTime}–${defaultEndTime}`,
                     ]);
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText(filterStatusText);
                 });
 
                 test("with 'From' date, 'To' date, 'Start time' before 'End time'", async ({
@@ -1011,7 +1254,7 @@ test.describe("Daily Data page", () => {
                 });
 
                 test.afterEach(async ({ page }) => {
-                    await resetButton(page).click();
+                    await filterReset(page).click();
                 });
 
                 test("with 'From' date", async ({ page }) => {
@@ -1101,7 +1344,7 @@ test.describe("Daily Data page", () => {
                         .waitFor({ state: "visible" });
 
                     // Check that table data contains the dates that were selected
-                    await expectTableColumnDateTimeInRange(
+                    const areDatesInRange = await tableColumnDateTimeInRange(
                         page,
                         1,
                         fromDate,
@@ -1109,11 +1352,15 @@ test.describe("Daily Data page", () => {
                         "",
                         "",
                     );
+                    expect(areDatesInRange).toBe(true);
 
                     // Check filter status lists receiver value
-                    await filterStatus(page, [
+                    const filterStatusText = filterStatus(page, [
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                     ]);
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText(filterStatusText);
                 });
 
                 test("with 'From' date, 'To' date, 'Start time'", async ({
@@ -1137,7 +1384,7 @@ test.describe("Daily Data page", () => {
                     );
 
                     // Check that table data contains the dates/times that were selected
-                    await expectTableColumnDateTimeInRange(
+                    const areDatesInRange = await tableColumnDateTimeInRange(
                         page,
                         1,
                         fromDate,
@@ -1145,12 +1392,16 @@ test.describe("Daily Data page", () => {
                         defaultStartTime,
                         "",
                     );
+                    expect(areDatesInRange).toBe(true);
 
                     // Check filter status lists receiver value
-                    await filterStatus(page, [
+                    const filterStatusText = filterStatus(page, [
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         `${defaultStartTime}–${"11:59pm"}`,
                     ]);
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText(filterStatusText);
                 });
 
                 test("with 'From' date, 'To' date, 'End time'", async ({
@@ -1174,7 +1425,7 @@ test.describe("Daily Data page", () => {
                     );
 
                     // Check that table data contains the dates/times that were selected
-                    await expectTableColumnDateTimeInRange(
+                    const areDatesInRange = await tableColumnDateTimeInRange(
                         page,
                         1,
                         fromDate,
@@ -1182,12 +1433,16 @@ test.describe("Daily Data page", () => {
                         "",
                         defaultEndTime,
                     );
+                    expect(areDatesInRange).toBe(true);
 
                     // Check filter status lists receiver value
-                    await filterStatus(page, [
+                    const filterStatusText = filterStatus(page, [
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         `${"12:00am"}–${defaultEndTime}`,
                     ]);
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText(filterStatusText);
                 });
 
                 test("with 'From' date, 'To' date, 'Start time', 'End time'", async ({
@@ -1205,7 +1460,7 @@ test.describe("Daily Data page", () => {
                         .waitFor({ state: "visible" });
 
                     // Check that table data contains the dates/times that were selected
-                    await expectTableColumnDateTimeInRange(
+                    const areDatesInRange = await tableColumnDateTimeInRange(
                         page,
                         1,
                         fromDate,
@@ -1213,12 +1468,16 @@ test.describe("Daily Data page", () => {
                         defaultStartTime,
                         defaultEndTime,
                     );
+                    expect(areDatesInRange).toBe(true);
 
                     // Check filter status lists receiver value
-                    await filterStatus(page, [
+                    const filterStatusText = filterStatus(page, [
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         `${defaultStartTime}–${defaultEndTime}`,
                     ]);
+                    await expect(
+                        page.getByTestId("filter-status"),
+                    ).toContainText(filterStatusText);
                 });
 
                 test("with 'From' date, 'To' date, 'Start time' before 'End time'", async ({
@@ -1234,15 +1493,180 @@ test.describe("Daily Data page", () => {
                 });
             });
 
+            test("clears search on Apply", async ({ page }) => {
+                // Search by Report ID
+                const reportId = await tableDataCellValue(page, 0, 0);
+                await searchInput(page).fill(reportId);
+                await searchButton(page).click();
+
+                const rowCount = await tableRows(page).count();
+                expect(rowCount).toEqual(1);
+
+                // Check filter status lists receiver value
+                let filterStatusText = filterStatus(page, [reportId]);
+                await expect(page.getByTestId("filter-status")).toContainText(
+                    filterStatusText,
+                );
+
+                //Check table data matches search
+                expect(await tableDataCellValue(page, 0, 0)).toEqual(reportId);
+
+                // Perform search with all filters selected
+                await page
+                    .locator("#receiver-dropdown")
+                    .selectOption(TEST_ORG_AK_RECEIVER);
+                const fromDate = await setDate(page, "#start-date", 14);
+                const toDate = await setDate(page, "#end-date", 0);
+                await setTime(page, "#start-time", defaultStartTime);
+                await setTime(page, "#end-time", defaultEndTime);
+
+                await applyButton(page).click();
+                await page
+                    .locator(".usa-table tbody")
+                    .waitFor({ state: "visible" });
+
+                // Check that table data contains the dates/times that were selected
+                const areDatesInRange = await tableColumnDateTimeInRange(
+                    page,
+                    1,
+                    fromDate,
+                    toDate,
+                    defaultStartTime,
+                    defaultEndTime,
+                );
+                expect(areDatesInRange).toBe(true);
+
+                // Check filter status lists receiver value
+                filterStatusText = filterStatus(page, [
+                    TEST_ORG_AK_RECEIVER,
+                    `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                    `${defaultStartTime}–${defaultEndTime}`,
+                ]);
+                await expect(page.getByTestId("filter-status")).toContainText(
+                    filterStatusText,
+                );
+
+                // Check search is cleared
+                await expect(searchInput(page)).toHaveValue("");
+            });
+
             test.describe("on reset", () => {
                 test("form elements clear", async ({ page }) => {
-                    await resetButton(page).click();
+                    await filterReset(page).click();
                     await expect(receiverDropdown(page)).toHaveValue("");
                     await expect(startDate(page)).toHaveValue("");
                     await expect(endDate(page)).toHaveValue("");
                     await expect(startTime(page)).toHaveValue("");
                     await expect(endTime(page)).toHaveValue("");
                 });
+            });
+        });
+
+        test.describe("search", () => {
+            test("returns match for Report ID", async ({ page }) => {
+                const reportId = await tableDataCellValue(page, 0, 0);
+                await searchInput(page).fill(reportId);
+                await searchButton(page).click();
+
+                const rowCount = await tableRows(page).count();
+                expect(rowCount).toEqual(1);
+
+                // Check filter status lists receiver value
+                const filterStatusText = filterStatus(page, [reportId]);
+                await expect(page.getByTestId("filter-status")).toContainText(
+                    filterStatusText,
+                );
+
+                //Check table data matches search
+                expect(await tableDataCellValue(page, 0, 0)).toEqual(reportId);
+            });
+
+            test("returns match for Filename", async ({ page }) => {
+                const fileName = await tableDataCellValue(page, 0, 4);
+                await searchInput(page).fill(fileName);
+                await searchButton(page).click();
+
+                const rowCount = await tableRows(page).count();
+                expect(rowCount).toEqual(1);
+
+                // Check filter status lists receiver value
+                const filterStatusText = filterStatus(page, [fileName]);
+                await expect(page.getByTestId("filter-status")).toContainText(
+                    filterStatusText,
+                );
+
+                //Check table data matches search
+                expect(await tableDataCellValue(page, 0, 4)).toEqual(fileName);
+            });
+
+            test("on reset clears search results", async ({ page }) => {
+                const fileName = await tableDataCellValue(page, 0, 4);
+                await searchInput(page).fill(fileName);
+                await searchButton(page).click();
+
+                await searchReset(page).click();
+                await expect(searchInput(page)).toHaveValue("");
+            });
+
+            test("clears filters on search", async ({ page }) => {
+                // Perform search with all filters selected
+                await page
+                    .locator("#receiver-dropdown")
+                    .selectOption(TEST_ORG_AK_RECEIVER);
+                const fromDate = await setDate(page, "#start-date", 14);
+                const toDate = await setDate(page, "#end-date", 0);
+                await setTime(page, "#start-time", defaultStartTime);
+                await setTime(page, "#end-time", defaultEndTime);
+
+                await applyButton(page).click();
+                await page
+                    .locator(".usa-table tbody")
+                    .waitFor({ state: "visible" });
+
+                // Check that table data contains the dates/times that were selected
+                const areDatesInRange = await tableColumnDateTimeInRange(
+                    page,
+                    1,
+                    fromDate,
+                    toDate,
+                    defaultStartTime,
+                    defaultEndTime,
+                );
+                expect(areDatesInRange).toBe(true);
+
+                // Check filter status lists receiver value
+                let filterStatusText = filterStatus(page, [
+                    TEST_ORG_AK_RECEIVER,
+                    `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                    `${defaultStartTime}–${defaultEndTime}`,
+                ]);
+                await expect(page.getByTestId("filter-status")).toContainText(
+                    filterStatusText,
+                );
+
+                // Search by Report ID
+                const reportId = await tableDataCellValue(page, 0, 0);
+                await searchInput(page).fill(reportId);
+                await searchButton(page).click();
+
+                const rowCount = await tableRows(page).count();
+                expect(rowCount).toEqual(1);
+
+                // Check filter status lists receiver value
+                filterStatusText = filterStatus(page, [reportId]);
+                await expect(page.getByTestId("filter-status")).toContainText(
+                    filterStatusText,
+                );
+
+                //Check table data matches search
+                expect(await tableDataCellValue(page, 0, 0)).toEqual(reportId);
+
+                // Check filters are cleared
+                await expect(receiverDropdown(page)).toHaveValue("");
+                await expect(startDate(page)).toHaveValue("");
+                await expect(endDate(page)).toHaveValue("");
+                await expect(startTime(page)).toHaveValue("");
+                await expect(endTime(page)).toHaveValue("");
             });
         });
 

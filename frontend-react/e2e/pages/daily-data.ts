@@ -21,14 +21,22 @@ export function applyButton(page: Page) {
     });
 }
 
-export function resetButton(page: Page) {
+export function searchInput(page: Page) {
+    return page.locator("#search-field");
+}
+
+export function searchButton(page: Page) {
+    return page.getByTestId("form").getByRole("button", { name: "Search" });
+}
+
+export function searchReset(page: Page) {
+    return page.getByRole("button", { name: "Reset" }).nth(0);
+}
+
+export function filterReset(page: Page) {
     return page
         .getByTestId("filter-form")
         .getByRole("button", { name: "Reset" });
-}
-
-export function noData(page: Page) {
-    return page.getByText(/No available data/);
 }
 
 export function receiverDropdown(page: Page) {
@@ -136,13 +144,8 @@ export function toDateWithTime(date: string, time: string) {
     return toDateTime;
 }
 
-export async function filterStatus(
-    page: Page,
-    filters: (string | undefined)[],
-) {
-    // TODO: rowCount is not attainable with live data since this is returned from the API
-    // const rowCount = await getTableRowCount(page);
-    // let filterStatus = `Showing (${rowCount ?? 0}) ${rowCount === 1 ? "result" : "results"} for: `;
+export function filterStatus(page: Page, filters: (string | undefined)[]) {
+    // RowCount is not attainable with live data since it is returned from the API
     let filterStatus = ` for: `;
 
     for (let i = 0; i < filters.length; i++) {
@@ -151,6 +154,5 @@ export async function filterStatus(
             filterStatus += ", ";
         }
     }
-
-    await expect(page.getByTestId("filter-status")).toContainText(filterStatus);
+    return filterStatus;
 }

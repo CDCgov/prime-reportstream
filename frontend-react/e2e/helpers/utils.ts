@@ -3,6 +3,8 @@ import fs from "node:fs";
 import { fromDateWithTime, toDateWithTime } from "../pages/daily-data";
 
 export const TEST_ORG_IGNORE = "ignore";
+export const TEST_ORG_IGNORE_RECEIVER = "FULL_ELR";
+export const TEST_ORG_AK_RECEIVER = "elr";
 export async function scrollToFooter(page: Page) {
     // Scrolling to the bottom of the page
     await page.locator("footer").scrollIntoViewIfNeeded();
@@ -20,7 +22,10 @@ export async function waitForAPIResponse(page: Page, requestUrl: string) {
     return response.status();
 }
 
-export function getTableRows(page: Page) {
+export function noData(page: Page) {
+    return page.getByText(/No available data/);
+}
+export function tableRows(page: Page) {
     return page.locator(".usa-table tbody").locator("tr");
 }
 
@@ -34,17 +39,6 @@ export async function selectTestOrg(page: Page) {
     await page.getByTestId("gridContainer").waitFor({ state: "visible" });
     await page.getByTestId("textInput").fill(TEST_ORG_IGNORE);
     await page.getByTestId("ignore_set").click();
-}
-
-export async function tableData(
-    page: Page,
-    row: number,
-    column: number,
-    expectedData: string,
-) {
-    await expect(
-        getTableRows(page).nth(row).locator("td").nth(column),
-    ).toHaveText(expectedData);
 }
 
 /**
@@ -72,15 +66,22 @@ export async function restoreSessionStorage(userType: string, page: Page) {
     }, session);
 }
 
+export function tableDataCellValue(page: Page, row: number, column: number) {
+    return tableRows(page).nth(row).locator("td").nth(column).innerText();
+}
+
+/**
+ * This method loops through all the cells in a column to compare with expected value.
+ */
 export async function expectTableColumnValues(
     page: Page,
     columnNumber: number,
     expectedValue: string,
 ) {
-    const rowCount = await getTableRows(page).count();
+    const rowCount = await tableRows(page).count();
 
     for (let i = 0; i < rowCount; i++) {
-        const columnValue = await getTableRows(page)
+        const columnValue = await tableRows(page)
             .nth(i)
             .locator("td")
             .nth(columnNumber)
@@ -89,7 +90,10 @@ export async function expectTableColumnValues(
     }
 }
 
-export async function expectTableColumnDateTimeInRange(
+/**
+ * This method loops through all the cells in a date/time column to compare with a date value.
+ */
+export async function tableColumnDateTimeInRange(
     page: Page,
     columnNumber: number,
     fromDate: string,
@@ -97,13 +101,13 @@ export async function expectTableColumnDateTimeInRange(
     startTime: string,
     endTime: string,
 ) {
-    let areDatesInRange = true;
-    const rowCount = await getTableRows(page).count();
+    let datesInRange = true;
+    const rowCount = await tableRows(page).count();
 
     for (let i = 0; i < rowCount; i++) {
         const startDateTime = fromDateWithTime(fromDate, startTime);
         const endDateTime = toDateWithTime(toDate, endTime);
-        const columnValue = await getTableRows(page)
+        const columnValue = await tableRows(page)
             .nth(i)
             .locator("td")
             .nth(columnNumber)
@@ -112,9 +116,9 @@ export async function expectTableColumnDateTimeInRange(
         const columnDate = new Date(columnValue);
 
         if (!(columnDate >= startDateTime && columnDate < endDateTime)) {
-            areDatesInRange = false;
+            datesInRange = false;
             break;
         }
     }
-    expect(areDatesInRange).toBe(true);
+    return datesInRange;
 }
