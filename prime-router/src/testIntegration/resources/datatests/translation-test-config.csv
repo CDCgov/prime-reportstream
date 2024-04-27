@@ -38,3 +38,4 @@ FHIR_to_HL7/sample_NV_20240304-0002.fhir,,FHIR_to_HL7/sample_NV_20240304-0002.hl
 FHIR_to_HL7/sample_HI_20240304-0001.fhir,,FHIR_to_HL7/sample_HI_20240304-0001.hl7,classpath:/metadata/hl7_mapping/receivers/STLTs/HI/HI-receiver-transform.yml,HL7,PASS,"","","classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml","","",""
 FHIR_to_HL7/sample_CO_20240403.fhir,,FHIR_to_HL7/sample_CO_20240403.hl7,classpath:/metadata/hl7_mapping/receivers/STLTs/CO/CO-receiver-transform.yml,HL7,PASS,"","","","","","classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
 HL7_to_FHIR/sample_oml_20240319-001.hl7,,HL7_to_FHIR/sample_oml_20240319-001.fhir,,FHIR,PASS,"","","","","",""
+FHIR_to_HL7/sample_AZ_20240424-0001.fhir,,FHIR_to_HL7/sample_AZ_20240424-0001.hl7,classpath:/metadata/hl7_mapping/receivers/STLTs/AZ/AZ-receiver-transform.yml,HL7,PASS,"","","","","","classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
