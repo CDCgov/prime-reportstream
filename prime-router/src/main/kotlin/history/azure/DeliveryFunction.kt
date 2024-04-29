@@ -197,10 +197,10 @@ class DeliveryFunction(
      * and we needed the engine to be a parameter so it can be mocked for tests
      *
      */
-    @FunctionName("getTiMetadataForDelivery")
-    fun getTiMetadata(
+    @FunctionName("getEtorMetadataForDelivery")
+    fun getEtorMetadata(
         @HttpTrigger(
-            name = "getTiMetadataForDelivery",
+            name = "getEtorMetadataForDelivery",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/report/{reportId}/delivery/etorMetadata"

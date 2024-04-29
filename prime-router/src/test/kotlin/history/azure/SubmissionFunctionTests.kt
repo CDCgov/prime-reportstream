@@ -514,7 +514,7 @@ class SubmissionFunctionTests : Logging {
     }
 
     @Test
-    fun `test getTiMetadata`() {
+    fun `test getEtorMetadata`() {
         val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
         val mockRequest = MockHttpRequestMessage()
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
@@ -602,7 +602,7 @@ class SubmissionFunctionTests : Logging {
     }
 
     @Test
-    fun `test getTiMetadata returns 404 when ID is invalid`() {
+    fun `test getEtorMetadata returns 404 when ID is invalid`() {
         val badUuid = "762202ba-e3e5-4810-8cb8-161b75c63bc1"
         val mockRequest = MockHttpRequestMessage()
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"

@@ -138,10 +138,10 @@ class SubmissionFunction(
      * and we needed the engine to be a parameter so it can be mocked for tests
      *
      */
-    @FunctionName("getTiMetadataForHistory")
-    fun getTiMetadata(
+    @FunctionName("getEtorMetadataForHistory")
+    fun getEtorMetadata(
         @HttpTrigger(
-            name = "getTiMetadataForHistory",
+            name = "getEtorMetadataForHistory",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/report/{reportId}/history/etorMetadata"

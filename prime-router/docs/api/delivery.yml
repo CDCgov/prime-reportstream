@@ -45,7 +45,7 @@ paths:
     get:
       summary: Retrieves ETOR metadata for a report
       description: Allows fetching of ETOR intermediary metadata by report ID
-      operationId: getTiMetadataForDelivery
+      operationId: getEtorMetadataForDelivery
       parameters:
         - name: reportId
           in: path
