@@ -4,11 +4,9 @@ import { getReportAndDownload } from "./ReportsUtils";
 import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
 import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 import Spinner from "../../../components/Spinner";
-import { PaginationProps } from "../../../components/Table/Pagination";
-import Table, {
-    ColumnConfig,
-    TableConfig,
-} from "../../../components/Table/Table";
+import Pagination, {
+    PaginationProps,
+} from "../../../components/Table/Pagination";
 import TableFilters, {
     TableFilterDateLabel,
 } from "../../../components/Table/TableFilters";
@@ -20,15 +18,20 @@ import {
 } from "../../../contexts/AppInsights";
 import { useSessionContext } from "../../../contexts/Session";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager";
+import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
+import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import {
     DeliveriesDataAttr,
     useOrgDeliveries,
 } from "../../../hooks/network/History/DeliveryHooks";
 import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceivers";
-import usePagination, { ResultsFetcher } from "../../../hooks/UsePagination";
+import usePagination, {
+    getSlots,
+    ResultsFetcher,
+} from "../../../hooks/UsePagination";
+import { Table } from "../../../shared";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
-import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 
 const extractCursor = (d: RSDelivery) => d.batchReadyAt;
 
@@ -70,8 +73,11 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
             type: SortSettingsActionType.SWAP_ORDER,
         });
     };
-    console.log("serviceReportsList = ", serviceReportsList);
-    const data = serviceReportsList?.map((dataRow) => [
+    if (isLoading || !serviceReportsList || !paginationProps)
+        return <Spinner />;
+
+    const currentPageNum = filterManager.pageSettings.currentPage;
+    const data = serviceReportsList.map((dataRow) => [
         {
             columnKey: DeliveriesDataAttr.REPORT_ID,
             columnHeader: "Report ID",
@@ -109,61 +115,25 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
             content: dataRow.receiver,
         },
     ]);
-    console.log("data = ", data);
-    const columns: ColumnConfig[] = [
-        {
-            dataAttr: DeliveriesDataAttr.REPORT_ID,
-            columnHeader: "Report ID",
-            feature: {
-                link: true,
-                linkBasePath: "/report-details/",
-            },
-        },
-        {
-            dataAttr: DeliveriesDataAttr.BATCH_READY,
-            columnHeader: "Time received",
-            sortable: true,
-            transform: transformDate,
-        },
-        {
-            dataAttr: DeliveriesDataAttr.EXPIRES,
-            columnHeader: "File available until",
-            sortable: true,
-            transform: transformDate,
-        },
-        {
-            dataAttr: DeliveriesDataAttr.ITEM_COUNT,
-            columnHeader: "Items",
-        },
-        {
-            dataAttr: DeliveriesDataAttr.FILE_NAME,
-            columnHeader: "Filename",
-            feature: {
-                action: handleFetchAndDownload,
-                param: DeliveriesDataAttr.REPORT_ID,
-                actionButtonHandler: handleExpirationDate,
-                actionButtonParam: DeliveriesDataAttr.EXPIRES,
-            },
-        },
-        {
-            dataAttr: DeliveriesDataAttr.RECEIVER,
-            columnHeader: "Receiver",
-        },
-    ];
 
-    const resultsTableConfig: TableConfig = {
-        columns: columns,
-        rows: serviceReportsList ?? [],
-    };
-
-    if (isLoading) return <Spinner />;
     return (
         <>
-            <Table
-                config={resultsTableConfig}
-                filterManager={filterManager}
-                paginationProps={paginationProps}
-            />
+            <Table apiSortable rowData={data} />
+            {data.length && (
+                <Pagination
+                    currentPageNum={currentPageNum}
+                    setSelectedPage={(pageNum) => {
+                        filterManager.updatePage({
+                            type: PageSettingsActionType.SET_PAGE,
+                            payload: { page: pageNum },
+                        });
+                    }}
+                    slots={getSlots(
+                        currentPageNum,
+                        paginationProps.slots.length,
+                    )}
+                />
+            )}
         </>
     );
 };
