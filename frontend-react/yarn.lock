@@ -5459,9 +5459,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browserslist-useragent-regexp@npm:^4.1.1":
-  version: 4.1.1
-  resolution: "browserslist-useragent-regexp@npm:4.1.1"
+"browserslist-useragent-regexp@npm:^4.1.3":
+  version: 4.1.3
+  resolution: "browserslist-useragent-regexp@npm:4.1.3"
   dependencies:
     argue-cli: ^2.1.0
     easy-table: ^1.2.0
@@ -5473,7 +5473,7 @@ __metadata:
   bin:
     bluare: dist/cli.js
     browserslist-useragent-regexp: dist/cli.js
-  checksum: 6d09c9053843f14e067e4993c6e31b19950327679c902cc3f64267413b5dd6e3964bd61f4ce1668780dcacfccb27bf422f0796f9d582b080d6eed8f7a9669d5f
+  checksum: fd8c30bf84b248aa91b5d46d429c39055f2d3304e2d5cef82589d859f406c16f3795949da0ab45fe64264df4591ced6f791c77d6e6fb0fa83be0c3b027327e7b
   languageName: node
   linkType: hard
 
@@ -12431,7 +12431,7 @@ __metadata:
     autoprefixer: ^10.4.19
     axios: ^1.6.8
     browserslist: ^4.23.0
-    browserslist-useragent-regexp: ^4.1.1
+    browserslist-useragent-regexp: ^4.1.3
     chromatic: ^11.3.0
     classnames: ^2.5.1
     cross-env: ^7.0.3

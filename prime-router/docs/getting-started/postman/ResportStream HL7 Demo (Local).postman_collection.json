@@ -1,0 +1,1328 @@
+{
+	"info": {
+		"_postman_id": "fc5ef6f9-dc82-44d7-85f6-0e54ce66e1b6",
+		"name": "ResportStream HL7 Demo (Local)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "/reports",
+			"item": [
+				{
+					"name": "HCA",
+					"item": [
+						{
+							"name": "Single HL7 Message HCA Tester 1",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "client",
+										"value": "simple_report.hl7test",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hl7-v2",
+										"type": "text"
+									},
+									{
+										"key": "x-functions-key",
+										"value": "09xifjf....444s",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "MSH|^~\\&|MEDITECH LAB^1.3.6.1.4.1.24310^ISO|COCOMC^10D2067107^CLIA|FDOH-ELR^2.16.840.1.114222.4.3.3.8.1.3^ISO|FDOH^2.16.840.1.114222.1.3645^ISO|20280821045526-0400||ORU^R01^ORU_R01|MT_COCOMC_ORU_OMCPHELR.1.930311|P|2.5.1|||||||||PHLabReport-NoAck^HL7^2.16.840.1.113883.9.11^ISO\r\nSFT|MEDITECH, Inc.^L^^^^MEDITECH&1.3.6.1.4.1.24310&ISO^XX^^^MEDITECH|5.67|Laboratory Applicati|20210823||20210823\r\nPID|1||100004^^^MEDITECH LAB&1.3.6.1.4.1.24310&ISO^MR^COCOMC&2.16.840.1.113883.3.1110.3.1.26750&ISO~589-55-2376^^^MEDITECH LAB&1.3.6.1.4.1.24310&ISO^SS^COCOMC&2.16.840.1.113883.3.1110.3.1.26750&ISO~BO61956^^^MEDITECH LAB&1.3.6.1.4.1.24310&ISO^PI^COCOMC&2.16.840.1.113883.3.1110.3.1.26750&ISO~BO0001525077^^^MEDITECH LAB&1.3.6.1.4.1.24310&ISO^AN^COCOMC&2.16.840.1.113883.3.1110.3.1.26750&ISO||COUTINO^SHANDA^SU^^^^L|^^|19860314|F||W^WHITE^L^^^^5.67|5063 FRANESI WAY^^FPO^AP^34478^USA^H^||^PRN^PH^^1^352^3042710|^WPN^PH^^1^999^9999999^^Business||S|NON|||||2||||||||N|||20210823015200-0400|COCOMC^2.16.840.1.113883.3.1110.3.1.26750^ISO|337915000^Homo sapiens (organism)^SCT^Human^Human^L^1^1\r\nNTE|1|P|SEE NOTES|RE^Remark^HL70364^C^Comment^L^2.5.1^V1\r\nNK1|1|FREILICH^CORDELL^^^^^L|LP^LIFE PARTNER^UNKNOWN^LP^LIFE PARTNER^L^2.5.1^5.67|2442 OAK VIEW RD^^MOOSE^WY^34478^USA^H^|^PRN^PH^^1^352^3042710||||||||||||||||||||||||||^WPN^PH^^1^352^3042710|5063 FRANESI WAY^^OCALA^FL^34478^USA^H\r\nPV1|1|I|BO.ERHMS^BO.ERM^8|EM|||1427078344^Chatfield^David^W^^^DO^^Central FL Regional &2.16.840.1.114222.1.3645&ISO^^^^NPI|.SELF^REFERRED^SELF^^^^^^Central FL Regional &2.16.840.1.114222.1.3645&ISO^^^^XX|.SELF^REFERRED^SELF^^^^^^Central FL Regional &2.16.840.1.114222.1.3645&ISO^^^^XX|MED||||PR|||1427078344^Chatfield^David^W^^^DO^^Central FL Regional &2.16.840.1.114222.1.3645&ISO^^^^NPI|INO||08|||||||||||||||||||COCOMC||AD|||202808210201\r\nORC|RE|00540079^L733258.1^2.16.840.1.114222.1.3645^ISO|0823:OMC:S00023R.1^L733258.1^2.16.840.1.113883.3.1110.3.1.26750^ISO|0823:OMC:S00023R^L733258^2.16.840.1.114222.1.3645^ISO||N|||202808210455|||1700815842^CHANNAPPA^RAVISHANKAR^^^^^^NPI&2.16.840.1.114222.1.3645&ISO^L^^^NPI^COCOMC&2.16.840.1.113883.3.1110.3.1.26750&ISO^^^^^^^MD||^WPN^PH^^1^727^4373085^^Hospital Line|202108230130||Baldwin Park FSED||||Baldwin Park FSED^L^^^^Baldwin Park FSED&2.16.840.1.114222.1.3645&ISO^XX^^^10D2160006|2361, North Semoran Blvd^^Orlando^FL^32771^USA^B^^MD|^WPN^PH^^1^407^6772412|5380 TECH DATA DRIVE^SUITE 101^CLEARWATER^FL^33760^USA^B^^MD\r\nOBR|1|00540079^L733258.1^2.16.840.1.114222.1.3645^ISO|0823:OMC:S00023R.1^L733258.1^2.16.840.1.113883.3.1110.3.1.26750^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^COVID19IHAG^COVID19 AG^L^2.40^5.67|||20280821043201-0400|20280821043201-0400||3EOJ7840|||ACUTE PANCREATITIS, DIZZINESS|||1700815842^CHANNAPPA^RAVISHANKAR^^^^^^NPI&2.16.840.1.114222.1.3645&ISO^L^^^NPI^COCOMC&2.16.840.1.113883.3.1110.3.1.26750&ISO^^^^^^^MD|^WPN^PH^^1^727^4373085^^Hospital Line||00540079||Baldwin Park FSED|20280821045500-0400|||F||^^^^||||K8590^ACUTE PANCREATITIS WITHOUT NECROSIS OR INFECTION, UNSP^I10^^^^38~R42^DIZZINESS AND GIDDINESS^I10^^^^38|IRL.CS1&SANTIAGO&CARLOS&&&&&&COCOMC&2.16.840.1.113883.3.1110.3.1.26750&ISO||||\r\nTQ1|1||||||20280821043201-0400|20280821045526-0400|R\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^COVID19IHAG^COVID19 AG^L^2.40^5.67||260385009^Negative^SCT^Negative^Negative^L^5.67^^Negative||NEGATIVE||||F|||20280821043201-0400|BP^Baldwin Park FSED^LB||30014613202219_DII^equipnametest^99ELR||20280821045500-0400||||Baldwin Park FSED^L^^^^Baldwin Park FSED&2.16.840.1.114222.1.3645&ISO^XX^^^10D2160006|2361, North Semoran Blvd^^Orlando^FL^32771^USA^B|^RAMOS^CARLOS^E.^^DR.^^^COCOMC&2.16.840.1.113883.3.1110.3.1.26750&ISO^L^^^FI^Baldwin Park FSED&2.16.840.1.113883.3.1110.3.1.26750&ISO^^^^^^^MD\r\nNTE|1|L|NOTE: This assay has been cleared by the U.S. Food and Drug|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|2|L|Administration for SARS-Cov-2 (COVID19) testing under the|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|3|L|Emergency Use Authorization (EUA). Integrated Regional|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|4|L|Laboratories is designated a high complexity laboratory by|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|5|L|the Clinical Laboratory Improvement Amendments of 1988|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|6|L|(CLIA) and is qualified to perform this test.|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|7|L|Assay Information: Antigen Detection|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nSPM|1|00540079^L733258&COCOMC&2.16.840.1.113883.3.1110.3.1.26750&ISO||258411007^Nasopharyngeal aspirate^SCT^NP^NASO-PHARYNGEAL^L^01/31/2011^5.67|||||||||||||20280821043201-0400^20280821043201-0400|20210823013300-0400\r\nOBX|1|SN|30525-0^Age^LN||=^25|a^year^UCUM|||||F|||20280821043201-0400|BP^Baldwin Park FSED^LB||||20280821045500-0400||||Baldwin Park FSED^L^^^^Baldwin Park FSED&2.16.840.1.114222.1.3645&ISO^XX^^^10D2160006|2361, North Semoran Blvd^^Orlando^FL^32771^USA^B|^RAMOS^CARLOS^E.^^DR.^^^COCOMC&2.16.840.1.113883.3.1110.3.1.26750&ISO^L^^^FI^Baldwin Park FSED&2.16.840.1.113883.3.1110.3.1.26750&ISO^^^^^^^MD"
+								},
+								"url": {
+									"raw": "http://localhost:7071/api/reports",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "7071",
+									"path": [
+										"api",
+										"reports"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Multiple text/csv Message Async",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "abbott",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "text/csv",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "{{functions-key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "senderId,processingModeCode,testOrdered,testName,testResult,testPerformed,testResultDate,testReportDate,deviceIdentifier,deviceName,specimenId,testId,patientAge,patientRace,patientEthnicity,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityState,performingFacilityZip,specimenSource,patientUniqueId,patientUniqueIdHash,patientState,firstTest,previousTestType,previousTestResult,healthcareEmployee,symptomatic,symptomsList,hospitalized,symptomsIcu,congregateResident,congregateResidentType,pregnant\r\nabbott,P,95209-3,SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay,419984006,95209-3,202112181841-0500,202112151325-0500,LumiraDx SARS-CoV-2 Ag Test_LumiraDx UK Ltd.,LumiraDx SARS-CoV-2 Ag Test*,SomeEntityID,SomeEntityID,3,2131-1,2135-2,F,19931,Sussex,1404270765,Reichert,Normanc,19931,97D0667471,Any lab USA,DE,19931,122554006,esyuj9,vhd3cfvvt,DE,NO,bgq0b2e,840533007,NO,NO,h8jev96rc,YES,YES,YES,257628001,60001007\r\nabbott,P,95209-3,SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay,419984006,95209-3,202112181841-0500,202112151325-0500,LumiraDx SARS-CoV-2 Ag Test_LumiraDx UK Ltd.,LumiraDx SARS-CoV-2 Ag Test*,SomeEntityID,SomeEntityID,3,2131-1,2135-2,F,19931,Sussex,1404270765,Reicherts,Normanb,19931,97D0667471,Any lab USA,DE,19931,122554006,esyuj9,vhd3cfvvt,DE,NO,bgq0b2e,840533007,NO,NO,h8jev96rc,YES,YES,YES,257628001,60001007"
+						},
+						"url": {
+							"raw": "{{url}}/api/reports?processing=async&allowDuplicate=false&option=SkipInvalidItems",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"reports"
+							],
+							"query": [
+								{
+									"key": "processing",
+									"value": "async"
+								},
+								{
+									"key": "default",
+									"value": "aaa",
+									"disabled": true
+								},
+								{
+									"key": "routeTo",
+									"value": "bbb",
+									"disabled": true
+								},
+								{
+									"key": "allowDuplicate",
+									"value": "false"
+								},
+								{
+									"key": "option",
+									"value": "SkipInvalidItems"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single HL7 Submission",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "simple_report.hl7test",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "09xifjf....444s",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^10811877011290^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
+						},
+						"url": {
+							"raw": "http://localhost:7071/api/reports?processing=async&allowDuplicate=false",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"api",
+								"reports"
+							],
+							"query": [
+								{
+									"key": "processing",
+									"value": "async"
+								},
+								{
+									"key": "allowDuplicate",
+									"value": "false"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single HL7 Validate",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "simple_report.hl7test",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "09xifjf....444s",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^10811877011290^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
+						},
+						"url": {
+							"raw": "http://localhost:7071/api/reports?processing=async&allowDuplicate=false",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"api",
+								"reports"
+							],
+							"query": [
+								{
+									"key": "processing",
+									"value": "async"
+								},
+								{
+									"key": "allowDuplicate",
+									"value": "false"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single HL7 Message as Batch",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "simple_report.hl7test",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "09xifjf....444s",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "FHS|^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|FDOH-ELR^2.16.840.1.114222.4.3.3.8.1.3^ISO|FDOH^2.16.840.1.114222.1.3645^ISO|202108050848-0400\r\nBHS|^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|FDOH-ELR^2.16.840.1.114222.4.3.3.8.1.3^ISO|FDOH^2.16.840.1.114222.1.3645^ISO|202108050848-0400\r\nMSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500\r\nBTS|1\r\nFTS|1"
+						},
+						"url": {
+							"raw": "http://localhost:7071/api/reports",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"api",
+								"reports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Multiple HL7 Messages as Batch - Full ELR",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "simple_report.hl7test",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "09xifjf....444s",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "FHS|^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|FDOH-ELR^2.16.840.1.114222.4.3.3.8.1.3^ISO|FDOH^2.16.840.1.114222.1.3645^ISO|202108050848-0400\r\nBHS|^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|FDOH-ELR^2.16.840.1.114222.4.3.3.8.1.3^ISO|FDOH^2.16.840.1.114222.1.3645^ISO|202108050848-0400\r\nMSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500\r\nMSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500\r\nMSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500\r\nBTS|3\r\nFTS|1"
+						},
+						"url": {
+							"raw": "http://localhost:7071/api/reports",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"api",
+								"reports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single HL7 Full ELR",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "simple_report.hl7test",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "09xifjf....444s",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^^99ELR^^^^2.68^^10811877011290_DIT||20210802||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
+						},
+						"url": {
+							"raw": "http://localhost:7071/api/reports",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"api",
+								"reports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HL7 Parsing Error",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "simple_report.hl7test",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "09xifjf....444s",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|TT|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
+						},
+						"url": {
+							"raw": "http://localhost:7071/api/reports",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"api",
+								"reports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HL7 Missing Required Data Error",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "simple_report.hl7test",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "09xifjf....444s",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
+						},
+						"url": {
+							"raw": "http://localhost:7071/api/reports",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"api",
+								"reports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Client Error",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "invalid_client",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "09xifjf....444s",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|TT|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
+						},
+						"url": {
+							"raw": "http://localhost:7071/api/reports",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"api",
+								"reports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single Hl7 Message Verify",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "lifepoint",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "{{functions-key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH FL REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^FL^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^FL^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^FL^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^10811877011290^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^FL^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^FL^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^FL^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^FL^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^FL^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
+						},
+						"url": {
+							"raw": "{{url}}/api/reports?processing=async",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"reports"
+							],
+							"query": [
+								{
+									"key": "processing",
+									"value": "async"
+								},
+								{
+									"key": "default",
+									"value": "aaa",
+									"disabled": true
+								},
+								{
+									"key": "routeTo",
+									"value": "bbb",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Multiple text/csv Message Async",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "abbott",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "text/csv",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "{{functions-key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "senderId,processingModeCode,testOrdered,testName,testResult,testPerformed,testResultDate,testReportDate,deviceIdentifier,deviceName,specimenId,testId,patientAge,patientRace,patientEthnicity,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityState,performingFacilityZip,specimenSource,patientUniqueId,patientUniqueIdHash,patientState,firstTest,previousTestType,previousTestResult,healthcareEmployee,symptomatic,symptomsList,hospitalized,symptomsIcu,congregateResident,congregateResidentType,pregnant\r\nabbott,P,95209-3,SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay,419984006,95209-3,202112181841-0500,202112151325-0500,LumiraDx SARS-CoV-2 Ag Test_LumiraDx UK Ltd.,LumiraDx SARS-CoV-2 Ag Test*,SomeEntityID,SomeEntityID,3,2131-1,2135-2,F,19931,Sussex,1404270765,Reichert,Norman,19931,97D0667471,Any lab USA,DE,19931,122554006,esyuj9,vhd3cfvvt,DE,NO,bgq0b2e,840533007,NO,NO,h8jev96rc,YES,YES,YES,257628001,60001007\r\nabbott,P,94558-4,SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay,419984006,94558-4,202112140721-0500,202112150307-0500,\"BD Veritor System for Rapid Detection of SARS-CoV-2_Becton, Dickinson and Company (BD)\",BD Veritor System for Rapid Detection of SARS-CoV-2*,SomeEntityID,SomeEntityID,5,ASKU,UNK,N,96729,Maui,1544857422,Emmerich,Abdul,96729,59D7547291,Any lab USA,HI,96729,258411007,uu8u2,cgu2jyj7,HI,UNK,0dln8x,840534001,YES,YES,c729cs7,NO,NO,UNK,57656006,77386006\r\nabbott,P,94558-4,SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay,419984006,94558-4,202112180318-0500,202112181846-0500,\"BD Veritor System for Rapid Detection of SARS-CoV-2_Becton, Dickinson and Company (BD)\",BD Veritor System for Rapid Detection of SARS-CoV-2*,SomeEntityID,SomeEntityID,3,UNK,UNK,A,,Vieques,1367040569,Gibson,Gene,,79D0172818,Any lab USA,PR,,119297000,p4mv7chl,4r8ieem,PR,NO,730cbwc2a,125154007,YES,UNK,c1mq38zxk,UNK,NO,UNK,257628001,261665006\r\nabbott,P,94558-4,SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay,260415000,94558-4,202112121806-0500,202112220432-0500,\"BD Veritor System for Rapid Detection of SARS-CoV-2_Becton, Dickinson and Company (BD)\",BD Veritor System for Rapid Detection of SARS-CoV-2*,SomeEntityID,SomeEntityID,9,2131-1,2186-5,N,76305,Wichita,1562783344,Rogahn,Erwin,76305,89D4130662,Any lab USA,TX,76305,440500007,kv2sriml,v5hlc5c,TX,YES,ht718,462371000124108,NO,NO,uq3ra9,NO,NO,UNK,224929004,60001007\r\nabbott,P,95209-3,SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay,419984006,95209-3,202112150459-0500,202112160335-0500,LumiraDx SARS-CoV-2 Ag Test_LumiraDx UK Ltd.,LumiraDx SARS-CoV-2 Ag Test*,SomeEntityID,SomeEntityID,3,ASKU,UNK,O,02129,Suffolk,1271814836,Goyette,Karyl,02129,93D4819421,Any lab USA,MA,02129,258411007,h3q9vs,s7zu2,MA,YES,p7n0f3s,840533007,YES,UNK,4djrhn,UNK,YES,UNK,257628001,77386006\r\nabbott,P,94558-4,SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay,260415000,94558-4,202112140916-0500,202112201447-0500,\"BD Veritor System for Rapid Detection of SARS-CoV-2_Becton, Dickinson and Company (BD)\",BD Veritor System for Rapid Detection of SARS-CoV-2*,SomeEntityID,SomeEntityID,8,UNK,2186-5,F,20690,St Marys,1942578364,Walter,Luke,20690,45D2446884,Any lab USA,MD,20690,122554006,j8zhnlc,0zdp8dfgx,MD,UNK,t3yz96zuf,419984006,YES,NO,prla6,NO,UNK,NO,2081004,77386006\r\nabbott,P,95209-3,SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay,260415000,95209-3,202112180940-0500,202112192306-0500,LumiraDx SARS-CoV-2 Ag Test_LumiraDx UK Ltd.,LumiraDx SARS-CoV-2 Ag Test*,SomeEntityID,SomeEntityID,5,1002-5,2186-5,M,04257,Oxford,1565203308,Schmidt,Lorrine,04257,18D0346404,Any lab USA,ME,04257,122555007,qa73wsp2,9z9oln9,ME,YES,vicya6wdt,840544004,YES,YES,yvhu4,NO,YES,UNK,224929004,60001007\r\nabbott,P,95209-3,SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay,260373001,95209-3,202112172053-0500,202112131240-0500,LumiraDx SARS-CoV-2 Ag Test_LumiraDx UK Ltd.,LumiraDx SARS-CoV-2 Ag Test*,SomeEntityID,SomeEntityID,8,2054-5,UNK,F,52346,Benton,1470926423,Blanda,Joan,52346,63D0107556,Any lab USA,IA,52346,119361006,hzqumyy,cgmcxcqde,IA,UNK,ic43ye,42425007,YES,YES,2veybodcw,NO,YES,YES,257628001,77386006\r\nabbott,P,95209-3,SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay,419984006,95209-3,202112150004-0500,202112131310-0500,LumiraDx SARS-CoV-2 Ag Test_LumiraDx UK Ltd.,LumiraDx SARS-CoV-2 Ag Test*,SomeEntityID,SomeEntityID,2,2028-9,UNK,O,83406,Bonneville,1900810791,Reichert,Daren,83406,87D4681231,Any lab USA,ID,83406,119342007,y6r92ot2,1zpdtdj,ID,NO,7209nd,260415000,NO,NO,imp8bwtp,YES,YES,YES,257628001,60001007\r\nabbott,P,95209-3,SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay,419984006,95209-3,202112151719-0500,202112201608-0500,LumiraDx SARS-CoV-2 Ag Test_LumiraDx UK Ltd.,LumiraDx SARS-CoV-2 Ag Test*,SomeEntityID,SomeEntityID,3,2131-1,UNK,M,48754,Huron,1135425522,Hirthe,Leonard,48754,44D6554408,Any lab USA,MI,48754,119297000,rcifx,oxnra,MI,UNK,mtpcnv0,260373001,UNK,NO,smj8a,YES,UNK,YES,224683003,261665006\r\n"
+						},
+						"url": {
+							"raw": "{{url}}/api/reports?processing=async",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"reports"
+							],
+							"query": [
+								{
+									"key": "processing",
+									"value": "async"
+								},
+								{
+									"key": "default",
+									"value": "aaa",
+									"disabled": true
+								},
+								{
+									"key": "routeTo",
+									"value": "bbb",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Multiple text/csv Message Async",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "ignore.no-duplicates",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "text/csv",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "{{functions-key}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "Patient_last_name,Patient_first_name,Patient_middle_name,Patient_suffix,Patient_tribal_affiliation,Patient_ID,Ordered_test_code,Specimen_source_site_code,Specimen_type_code,Device_ID,Instrument_ID,Result_ID,Corrected_result_ID,Test_correction_reason,Test_result_status,Test_result_code,Illness_onset_date,Specimen_collection_date_time,Order_test_date,Test_date,Date_result_released,Patient_race,Patient_DOB,Patient_gender,Patient_ethnicity,Patient_preferred_language,Patient_street,Patient_street_2,Patient_city,Patient_state,Patient_zip_code,Patient_country,Patient_phone_number,Patient_county,Patient_email,Patient_role,Processing_mode_code,Employed_in_healthcare,Resident_congregate_setting,First_test,Symptomatic_for_disease,Testing_lab_name,Testing_lab_CLIA,Testing_lab_street,Testing_lab_street_2,Testing_lab_city,Testing_lab_state,Testing_lab_zip_code,Testing_lab_phone_number,Testing_lab_county,Organization_name,Ordering_facility_name,Ordering_facility_street,Ordering_facility_street_2,Ordering_facility_city,Ordering_facility_state,Ordering_facility_zip_code,Ordering_facility_phone_number,Ordering_facility_county,Ordering_provider_ID,Ordering_provider_last_name,Ordering_provider_first_name,Ordering_provider_street,Ordering_provider_street_2,Ordering_provider_city,Ordering_provider_state,Ordering_provider_zip_code,Ordering_provider_phone_number,Ordering_provider_county,Site_of_care\r\nDUPLICATETEST,DUP,DUP,,267,nmfolq,94558-4,71836000,122555007,BD Veritor System for Rapid Detection of SARS-CoV-2,190846,DUPLICATETEST,838707,inpzanp25,C,260373001,20220221,202202281336-0500,202202270422-0500,20220301,20220224,2028-9,20160531,A,U,Swahili,8068 McLaughlin Trail,,Rollinsville,MD,80474,USA,2133839508,Gilpin,waylonaaaa.ritchie@email.com,prv2c3,P,Y,Y,N,UNK,Any lab USA,53D1255188,80427 Hilma Springs,,Rollinsville,MD,80474,2930427656,Gilpin,760qrnn,Any facility USA,4482 Byron Ramp,,Rollinsville,MD,80474,2347418784,Gilpin,1231092473,Olson,Patricia,74865 Hilario Way,,Rollinsville,AK,80474,2537155784,Gilpin,shelter\r\nDUPLICATETEST,DUP,DUP,,267,nmfolq,94558-4,71836000,122555007,BD Veritor System for Rapid Detection of SARS-CoV-2,190846,DUPLICATETEST,838707,inpzanp25,C,260373001,20220221,202202281336-0500,202202270422-0500,20220301,20220224,2028-9,20160531,A,U,Swahili,8068 McLaughlin Trail,,Rollinsville,MD,80474,USA,2133839508,Gilpin,waylonaaaa.ritchie@email.com,prv2c3,P,Y,Y,N,UNK,Any lab USA,53D1255188,80427 Hilma Springs,,Rollinsville,MD,80474,2930427656,Gilpin,760qrnn,Any facility USA,4482 Byron Ramp,,Rollinsville,MD,80474,2347418784,Gilpin,1231092473,Olson,Patricia,74865 Hilario Way,,Rollinsville,AK,80474,2537155784,Gilpin,shelter\r\n"
+						},
+						"url": {
+							"raw": "{{url}}/api/reports?processing=async&allowDuplicate=false",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"reports"
+							],
+							"query": [
+								{
+									"key": "processing",
+									"value": "async"
+								},
+								{
+									"key": "default",
+									"value": "aaa",
+									"disabled": true
+								},
+								{
+									"key": "routeTo",
+									"value": "bbb",
+									"disabled": true
+								},
+								{
+									"key": "allowDuplicate",
+									"value": "false"
+								},
+								{
+									"key": "option",
+									"value": "SkipInvalidItems",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single HL7 Full ELR",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "ignore.ignore-full-elr",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "09xifjf....444s",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^^99ELR^^^^2.68^^10811877011290_DIT||20210802||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
+						},
+						"url": {
+							"raw": "http://localhost:7071/api/reports?processing=async",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"api",
+								"reports"
+							],
+							"query": [
+								{
+									"key": "processing",
+									"value": "async"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Multiple HL7 Messages as Batch - Full ELR",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "ignore.ignore-full-elr",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "09xifjf....444s",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "FHS|^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|FDOH-ELR^2.16.840.1.114222.4.3.3.8.1.3^ISO|FDOH^2.16.840.1.114222.1.3645^ISO|202108050848-0400\r\nBHS|^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|FDOH-ELR^2.16.840.1.114222.4.3.3.8.1.3^ISO|FDOH^2.16.840.1.114222.1.3645^ISO|202108050848-0400\r\nMSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500\r\nMSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500\r\nMSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500\r\nBTS|3\r\nFTS|1"
+						},
+						"url": {
+							"raw": "http://localhost:7071/api/reports?processing=async",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"api",
+								"reports"
+							],
+							"query": [
+								{
+									"key": "processing",
+									"value": "async"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/submissions",
+			"item": [
+				{
+					"name": "Get Submissions List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7071/api/submissions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"api",
+								"submissions"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/lookup",
+			"item": [
+				{
+					"name": "LookupTables List",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "dummy",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7071/api/lookuptables/list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"api",
+								"lookuptables",
+								"list"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/history",
+			"item": [
+				{
+					"name": "Get Report History by ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "client",
+								"value": "simple_report.hl7test",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "09xifjf....444s",
+								"type": "text"
+							},
+							{
+								"key": "organization",
+								"value": "md-phd",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^10811877011290^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
+						},
+						"url": {
+							"raw": "http://localhost:7071/api/history/report/66f7d099-5df8-460e-b1e7-1979d0ad22cf",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"api",
+								"history",
+								"report",
+								"66f7d099-5df8-460e-b1e7-1979d0ad22cf"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getReportHistory",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "dummy",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7071/api/waters/report/922/history/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"api",
+								"waters",
+								"report",
+								"922",
+								"history",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sender Submission History",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "dummy",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7071/api/waters/org/simple_report/submissions/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"api",
+								"waters",
+								"org",
+								"simple_report",
+								"submissions",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "FHIR",
+			"item": [
+				{
+					"name": "Single HL7 -> Fhir (Convert)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "simple_report.hl7test",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "09xifjf....444s",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^10811877011290^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
+						},
+						"url": {
+							"raw": "http://localhost:7071/api/convert-data",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"api",
+								"convert-data"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Full ELR - VXU",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "ignore.ignore-full-elr",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "{{functions-key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "MSH|^~\\&|EPIC|^LINDAS TEST ORGANIZATION|||||VXU^V04^VXU_V04|225|P|2.5.1||||AL|PID|1||E46749^^^^MR^||DOE^JOHN^C^JR^^^L|SMITH|20140515|M|SMITH^JOHN|2106-3^WHITE^HL70005|115 MAINSTREET^^GOODTOWN^KY^42010^USA^L^010||^PRN^PH^^^270^6009800||EN^ENGLISH^HL70296||||523968712|||2186-5^NOT HISPANIC OR LATINO^HL70012||||||||N|\r\nPD1|||LINDAS TEST ORGANIZATION^^SIISCLIENT818|^^^^^^^^^^^^MR|||||||02^Reminder/recall-any method^HL70215|||||A^Active^HL70441|20150202^20150202 NK1|1|DOE^MARY|MTH^MOTHER^HL70063|\r\nPV1||R||||||||||||||||||V02^20150202|\r\nORC|RE||9645^SIISCLIENT001||||||20150202111146|2001^HARVEY^MARVIN^K| RXA|0|1|20150202|20150202|20^DTaP^CVX^90700^DTAP^CPT|.5|ML^mL^ISO+||00^New immunization record^NIP001|JONES^MARK|^^^SIISCLIENT818||||A7894-2|20161115|PMC^SANOFI PASTEUR^MVX||||ARXR|ID^INTRADERMAL^HL70162|LD^LEFT DELTOID^HL70163\r\nOBX|1|CE|64994-7^VACCINE FUNDING PROGRAM ELIGIBILITY CATEGORY^LN|1| V02^MEDICAID^HL70064||||||F|||20150202|||VXC40^ELIGIBILITY CAPTURED AT THE IMMUNIZATION LEVEL^CDCPHINVSOBX|2|CE|30956-7^VACCINE TYPE^LN|2|88^FLU^CVX||||||F|||20150202102525 OBX|3|TS|29768-9^Date vaccine information statement published^LN|2|20120702||||||FOBX|4|TS|29769-7^Date vaccine information statement presented^LN|2|20120202||||||F\r\nRXA|0|1|20141215|20141115|141^influenza, SEASONAL 36^CVX^90658^Influenza Split^CPT|999|||01^HISTORICAL INFORMATION – SOURCE UNSPECIFIED^ NIP001||||||||||||A"
+						},
+						"url": {
+							"raw": "{{url}}/api/reports?processing=async&default=aaa",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"reports"
+							],
+							"query": [
+								{
+									"key": "processing",
+									"value": "async"
+								},
+								{
+									"key": "default",
+									"value": "aaa"
+								},
+								{
+									"key": "allowDuplicate",
+									"value": "false",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Full ELR - New Born Screening Copy",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "ignore.ignore-full-elr",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "{{functions-key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "MSH|^~\\&|PHLIMS^3.11.333.1.333333.1.333^ISO|TNSPHLAB^77D7777777^CLIA|EHRSYSTEM|ST ELSEWHERE HOSPITAL^9999999999^NPI|20101014210405-0400||ORU^R01^ORU_R01|123|P|2.5.1\r\nPID|1||123456789^^^ST ELSEWHERE HOSPITAL&9999999999&NPI^MR||Lane^Jane^Mary^^^^L~Smith^Baby Girl^^^^^A|Smith|20101013|F||2106-3^white^HL70005|123 Main Street^Apartment 3-C^Anytown^TN^55555^USA^^^333|333|^^^^^865^5551212|||||||||N^Not Hispanic or Latino^HL70189||Y|1|||||N\r\nNK1|1|Lane^Lois^^^^^L|MTH^Mother^HL70063|123 Main Street^Apartment 3-C^Anytown^TN^55555^USA^^^333|^^^^^865^5551212|||||||||||19850710|||||||||||||||||123121234^^^SSA&2.16.840.1.113883.4.1&ISO^SS~222222222A2^^^TN^MA\r\nORC|RE|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|||||||||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD|||||||||ST ELSEWHERE HOSPITAL^^^^^NPI&2.16.840.1.113883.4.6&ISO^NPI^^^9999999999|211 Small Street^^Anytown^TN^55555^USA^^^333|^^^^^865^4442222||||||I\r\nOBR|1|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|54089-8^Newborn screening panel American Health Information Community (AHIC)^LN|||201010141853|||^VH||||201010140920||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBR|2|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|57128-1^Newborn Screening Report summary panel^LN|||201010141853|||^VH||||201010151121||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|CE|57721-3^Reason for lab test in Dried blood spot^LN||LA12421-6^Initial screen^LN|||N|||F\r\nOBX|2|CE|57718-9^Sample quality of Dried blood spot^LN||LA12432-3^Acceptable^LN|||N|||F\r\nOBX|3|CE|57130-7^Newborn screening report - overall interpretation^LN||LA12431-5^Out of range requiring immediate second-tier testing for at least one condition^LN|||A|||F\r\nOBX|4|CE|57131-5^Newborn conditions with positive markers [Identifier] in Dried blood spot^LN|1|LA12509-8^MCAD^LN^128596003^Medium-chain acyl-coenzyme A dehydrogenase deficiency^SCT|||A|||F\r\nOBX|5|CE|57131-5^Newborn conditions with positive markers [Identifier] in Dried blood spot^LN|1|LA16207-5^Hemoglobinopathies^LN^80141007^Hemoglobinopathy^SCT|||A|||F\r\nOBX|6|CE|57720-5^Newborn conditions with equivocal markers [Identifier] in Dried blood spot^LN||LA12532-0^BIO^LN^8808004^Biotinidase deficiency^SCT|||A|||F\r\nOBX|7|FT|57724-7^Newborn screening short narrative summary^LN||SUMMARY: Newborn Metabolic Screen REQUIRES FOLLOW UP\\.br\\Sample Quality: Acceptable\\.br\\Amino Acids, In range\\.br\\Fatty acids, ABNORMAL MCAD SCREEN\\.br\\Organic acids, In range\\.br\\TSH (CH), In range\\.br\\17-OH-Progesterone (CAH), No evidence of CAH\\.br\\Biotinidase, BORDERLINE BIOT SCREEN\\.br\\IRT (Cystic Fibrosis), No evidence of cystic fibrosis\\.br\\Hemoglobins, ABNORMAL HGB SCREEN due to a type of hemoglobin that could not be identified\\.br\\|||N|||F\r\nOBX|8|FT|57129-9^Full newborn screening summary report for display or printing^LN||NEWBORN METABOLIC SCREEN\\.br\\Patient's Name: Babygirl Lane Twin A\\.br\\Date of birth: 13 Oct 2010, Time of birth: 06:32 am\\.br\\Sex: Female\\.br\\Age at collection: 30 hours\\.br\\Mother's name: Lois Lane\\.br\\Accession number: 200902, Collected: 14 Oct 2010, Received: 15 Oct 2010\\.br\\Ordering physician: Dr. Minnie Smiles\\.br\\SUMMARY: Newborn Metabolic Screen REQUIRES FOLLOW UP\\.br\\Sample Quality: Acceptable\\.br\\Amino Acids, In range\\.br\\Fatty acids, ABNORMAL MCAD SCREEN\\.br\\Screen positive for medium chain acyl-CoA dehydrogenase deficiency (MCAD). Immediate clinical follow-up and contact with metabolic specialist indicated. Result phoned to Dr. Bob Healthy (865) 444-2222 2010-10-16, 2:34 pm, by Nurse Nancy. C8 = 19.71 umol/L (< 0.25 umol/L), C6 = 2.81 umol/L (< 0.25 umol/L), C10:1 = 0.71 umol/L (< 0.20 umol/L), C8/C10 = 11.324 (< 4.000), C8/C2 = 0.813 (< 0.050).\\.br\\...\\.br\\(full example report not included in this message for brevity)\\.br\\|||A|||F\r\nOBX|9|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|1|LA12463-8^HEAR^LN^15188001^Hearing loss^SCT|||N|||F\r\nOBX|10|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|2|LA20349-9^CCHD^LN|||N|||F\r\nOBX|11|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|3|LA12466-1^3-MCC^LN^13144005^Methylcrotonyl-CoA carboxylase deficiency^SCT|||N|||F\r\nOBX|12|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|4|LA12471-1^ASA^LN^41013004^Argininosuccinate lyase deficiency^SCT|||N|||F\r\nOBX|13|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|5|LA12474-5^BKT^LN^237953006^Mitochondrial 2-methylacetoacetyl-CoA thiolase deficiency - potassium stimulated^SCT|||N|||F\r\nOBX|14|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|6|LA12476-0^CBL A^LN^73843004^Cobalamin A disease^SCT|||N|||F\r\nOBX|15|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|7|LA12477-8^CBL B^LN^82245003^Cobalamin B disease^SCT|||N|||F\r\nOBX|16|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|8|LA12482-8^CIT-I^LN^398680004^Citrullinaemia^SCT|||N|||F\r\nOBX|17|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|9|LA12496-8^HCY^LN^11282001^Homocystinuria^SCT|||N|||F\r\nOBX|18|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|10|LA12487-7^CUD^LN^21764004^Renal carnitine transport defect^SCT|||N|||F\r\nOBX|19|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|11|LA12493-5^GA-1^LN^76175005^Glutaric aciduria, type 1^SCT|||N|||F\r\nOBX|20|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|12|LA12499-2^HMG^LN^410059004^Hydroxymethylglutaric aciduria^SCT|||N|||F\r\nOBX|21|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|13|LA12505-6^IVA^LN^87827003^Isovaleryl-CoA dehydrogenase deficiency^SCT|||N|||F\r\nOBX|22|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|14|LA12509-8^MCAD^LN^128596003^Medium-chain acyl-coenzyme A dehydrogenase deficiency^SCT|||A|||F\r\nOBX|23|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|15|LA12510-6^MCD^LN^360369003^Holocarboxylase synthase deficiency^SCT|||N|||F\r\nOBX|24|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|16|LA12513-0^MSUD^LN^27718001^Maple syrup urine disease^SCT|||N|||F\r\nOBX|25|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|17|LA12515-5^MUT^LN^124680001^Deficiency of methylmalonyl-CoA mutase^SCT|||N|||F\r\nOBX|26|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|18|LA12520-5^PKU^LN^7573000^Classical phenylketonuria^SCT|||N|||F\r\nOBX|27|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|19|LA12523-9^PROP^LN^69080001^Propionic acidemia^SCT|||N|||F\r\nOBX|28|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|20|LA12527-0^TFP^LN^237999008^Mitochondrial trifunctional protein deficiency^SCT|||N|||F\r\nOBX|29|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|21|LA12528-8^TYR-1^LN^410056006^Tyrosinaemia type I^SCT|||N|||F\r\nOBX|30|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|22|LA12531-2^VLCAD^LN^237997005^Very long chain acyl-CoA dehydrogenase deficiency^SCT|||N|||F\r\nOBX|31|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|23|LA12507-2^LCHAD^LN^307127004^Isolated long chain hydroxyacyl-CoA dehydrogenase deficiency^SCT|||N|||F\r\nOBX|32|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|24|LA12532-0^BIO^LN^8808004^Biotinidase deficiency^SCT|||A|||F\r\nOBX|33|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|25|LA12533-8^CAH^LN^124214007^Deficiency of steroid 11-beta-monooxygenase^SCT|||N|||F\r\nOBX|34|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|26|LA12537-9^CF^LN^190905008^Cystic fibrosis^SCT|||N|||F\r\nOBX|35|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|27|LA12538-7^CH^LN^190268003^Congenital hypothyroidism^SCT|||N|||F\r\nOBX|36|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|28|LA12543-7^GALT^LN^398664009^Deficiency of UTP-hexose-1-phosphate uridylyltransferase^SCT|||N|||F\r\nOBX|37|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|29|LA12614-6^Hb SS-disease (sickle cell anemia)^LN^127040003^Hereditary hemoglobinopathy disorder homozygous for hemoglobin S^SCT|||N|||F\r\nOBX|38|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|30|LA12616-1^Hb SC-disease^LN^35434009^Sickle cell-hemoglobin C disease^SCT|||N|||F\r\nOBX|39|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|31|LA12615-3^Hb S beta-thalassemia^LN^127041004^Sickle cell-beta-thalassemia^SCT|||N|||F\r\nOBX|40|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|32|LA12566-8^SCID^LN^31323000^Severe combined immunodeficiency disease^SCT|||N|||F\r\nOBR|3|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|57717-1^Newborn screen card data panel^LN|||201010141853|||^VH||||201010140920||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|ST|57716-3^State printed on filter paper card [Identifier] in NBS card^LN||TN|||N|||F\r\nOBX|2|ST|57723-9^Unique bar code number of Current sample^LN||97893203|||N|||F\r\nOBX|3|CE|57722-1^Birth plurality of Pregnancy^LN||LA12412-5^Twins^LN|||N|||F\r\nOBX|4|TM|57715-5^Birth time^LN||0632-0500|||N|||F\r\nOBX|5|NM|57714-8^Obstetric estimation of gestational age^LN||37|wk||N|||F\r\nOBX|6|NM|8339-4^Birth weight Measured^LN||2920|g||N|||F\r\nOBX|7|NM|58229-6^Body weight Measured --when specimen taken^LN||2750|g|||||F\r\nOBX|8|TX|62323-1^Post-discharge provider ID [Identifier]^LN||4444444444||||||F\r\nOBX|9|TX|62324-9^Post-discharge provider name in Provider^LN||Dr Bob Healthy||||||F\r\nOBX|10|TX|62325-6^Post-discharge provider practice ID^LN||5555555555||||||F\r\nOBX|11|TX|62326-4^Post-discharge provider practice name^LN||Healthy Clinic||||||F\r\nOBX|12|TX|62327-2^Post-discharge provider practice address^LN||100 Small Street, Suite 3B, Anytown, Tennessee 55555||||||F\r\nOBX|13|TN|62328-0^Post-discharge provider practice telephone number^LN||(865) 542-3333||||||F\r\nOBX|14|TX|62329-8^Birth hospital facility ID [Identifier] in Facility^LN||9999999999||||||F\r\nOBX|15|TX|62330-6^Birth hospital facility name^LN||ST ELSEWHERE HOSPITAL||||||F\r\nOBX|16|TX|62331-4^Birth hospital facility address^LN||211 Small Street, Anytown, Tennessee 55555||||||F\r\nOBX|17|TN|62332-2^Birth hospital facility phone number in Facility^LN||(865) 444-2222|||N|||F\r\nOBX|18|CE|67704-7^Feeding types^LN|1|LA14041-0^Lactose free formula (including soy or hydrolyzed)^LN||||||F\r\nOBX|19|CE|67704-7^Feeding types^LN|2|LA16914-6^Breast milk^LN||||||F\r\nOBX|20|CE|57713-0^Infant NICU factors that affect newborn screening interpretation^LN|1|LA12419-0^Infant in ICU at time of specimen collection^LN||||||F\r\nOBX|21|CE|57713-0^Infant NICU factors that affect newborn screening interpretation^LN|2|LA12417-4^Any blood product transfusion (including ECMO)^LN||||||F\r\nOBX|22|DTM|62317-3^Date of last blood product transfusion^LN||201010131723||||||F\r\nOBX|23|CE|67706-2^Maternal factors that affect newborn screening interpretation^LN||LA46-8^Other^LN||||||F\r\nOBX|24|TX|67707-0^Other maternal factors that affect newborn screening interpretation Narrative^LN||Mother has Lupus||||||F\r\nOBR|4|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|57794-0^Newborn screening test results panel - Dried blood spot^LN|||201010141853|||^VH||||201010151121||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBR|5|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|53261-4^Amino acid newborn screen panel^LN|||201010141853|||^VH||||201010151121||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|CE|46733-2^Amino acidemias newborn screen interpretation^LN||LA18592-8^In range^LN|||N|||F\r\nOBX|2|TX|57710-6^Amino acidemias newborn screening comment-discussion^LN||Any baby with clinical features suggestive of a metabolic disorder requires clinical and diagnostic follow-up regardless of whether the NBS result is normal or abnormal.|||N|||F\r\nOBX|3|CE|57793-2^Amino acidemia disorder suspected [Identifier] in Dried blood spot^LN||LA137-2^None^LN|||N|||F\r\nOBX|4|CE|46746-4^Phenylketonuria and variants/Biopterin defects newborn screen interpretation^LN||LA18592-8^In range^LN|||N|||F\r\nOBX|5|TX|58231-2^Phenylketonuria and variants/Biopterin defects newborn screening comment-discussion^LN||Any baby with clinical features suggestive of a metabolic disorder requires clinical and diagnostic follow-up regardless of whether the NBS result is normal or abnormal.|||N|||F\r\nOBX|6|CE|46743-1^Maple syrup urine disease newborn screen interpretation^LN||LA18592-8^In range^LN|||N|||F\r\nOBX|7|TX|58230-4^Maple syrup urine disease newborn screening comment-discussion^LN||Any baby with clinical features suggestive of a metabolic disorder requires clinical and diagnostic follow-up regardless of whether the NBS result is normal or abnormal.|||N|||F\r\nOBX|8|NM|47539-2^3-Methylhistidine [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|9|NM|53232-5^5-Oxoproline+Pipecolate [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|10|NM|53394-3^5-Oxoproline+Pipecolate/Phenylalanine [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|11|NM|53150-9^Alanine+Beta Alanine+Sarcosine [Moles/volume] in Dried blood spot^LN||1236.06|umol/L|<1500|N|||F\r\nOBX|12|NM|53393-5^Alloisoleucine+Isoleucine+Leucine+Hydroxyproline+Valine/Phenylalanine+Tyrosine [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|13|NM|53152-5^Alloisoleucine+Isoleucine+Leucine+Hydroxyproline [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|14|NM|53153-3^Alloisoleucine+Isoleucine+Leucine+Hydroxyproline/Phenylalanine [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|15|NM|53154-1^Alloisoleucine+Isoleucine+Leucine+Hydroxyproline/Alanine [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|16|NM|47562-4^Arginine [Moles/volume] in Dried blood spot^LN||5.89|umol/L|<90|N|||F\r\nOBX|17|NM|53398-4^Arginine/Phenylalanine [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|18|NM|53062-6^Argininosuccinate [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|19|NM|53200-2^Argininosuccinate/Arginine [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|20|NM|53155-8^Asparagine+Ornithine [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|21|NM|53395-0^Asparagine+Ornithine/Serine [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|22|NM|53396-8^Asparagine+Ornithine/Phenylalanine [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|23|NM|47573-1^Aspartate [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|24|NM|42892-0^Citrulline [Moles/volume] in Dried blood spot^LN||19.4|umol/L|<55|N|||F\r\nOBX|25|NM|54092-2^Citrulline/Arginine [Molar ratio] in Dried blood spot^LN||5.63|{Ratio}|5.1-6.0|N|||F\r\nOBX|26|NM|53157-4^Citrulline/Phenylalanine [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|27|NM|53399-2^Citrulline/Tyrosine [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|28|NM|47623-4^Glutamate [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|29|NM|47633-3^Glycine [Moles/volume] in Dried blood spot^LN||528|umol/L|<999|N|||N\r\nOBX|30|NM|47643-2^Histidine [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|31|NM|53158-2^Homocitrulline [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|32|NM|47689-5^Lysine [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|33|NM|47700-0^Methionine [Moles/volume] in Dried blood spot^LN||45.97|umol/L|44-49|N|||F\r\nOBX|34|NM|53397-6^Methionine/Alloisoleucine+Isoleucine+Leucine+Hydroxyproline [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|35|NM|53156-6^Methionine/Phenylalanine [Molar ratio] in Dried blood spot^LN||0.82|{Ratio}|0.76-1.0|N|||F\r\nOBX|36|NM|29573-3^Phenylalanine [Moles/volume] in Dried blood spot^LN||104.61|umol/L|99-135|N|||F\r\nOBX|37|NM|35572-7^Phenylalanine/Tyrosine [Molar ratio] in Dried blood spot^LN||2.46|{Ratio}|1.64-2.50|N|||F\r\nOBX|38|NM|47732-3^Proline [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|39|NM|53392-7^Proline/Phenylalanine [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|40|NM|47742-2^Serine [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|41|NM|53231-7^Succinylacetone [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|42|NM|47784-4^Threonine [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|43|NM|53159-0^Tryptophan [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|44|NM|35571-9^Tyrosine [Moles/volume] in Dried blood spot^LN||281.53|umol/L|205-223|H|||F\r\nOBX|45|NM|47799-2^Valine [Moles/volume] in Dried blood spot^LN||76|umol/L|<250|N|||F\r\nOBX|46|NM|53151-7^Valine/Phenylalanine [Molar ratio] in Dried blood spot^LN||1.44|{Ratio}|<4.0|N|||F\r\nOBR|6|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|58092-8^Acylcarnitine newborn screen panel^LN|||201010141853|||^VH||||201010151121||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|CE|58088-6^Acylcarnitine newborn screen interpretation^LN||LA12431-5^Out of range requiring immediate second-tier testing for at least one condition^LN|||A|||F \r\nOBX|2|TX|58093-6^Acylcarnitine newborn screening comment-discussion^LN||ABNORMAL MCAD SCREEN. Screen positive for medium chain acyl-CoA dehydrogenase deficiency (MCAD). Immediate clinical follow-up and contact with metabolic specialist indicated. Result phoned to (XXX) XXX-XXXX; YYYY-MM-DD, HHMMh, by NAME.|||A|||F\r\nOBR|7|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|57084-6^Fatty acid oxidation newborn screen panel^LN|||201010141853|||^VH||||201010151121||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|CE|46736-5^Fatty acid oxidation defects newborn screen interpretation^LN|1|LA12431-5^Out of range requiring immediate second-tier testing for at least one condition^LN|||A|||F\r\nOBX|2|CE|57792-4^Fatty acid oxidation conditions suspected [Identifier] in Dried blood spot^LN||LA12509-8^MCAD^LN^128596003^Medium-chain acyl-coenzyme A dehydrogenase deficiency^SCT|||A|||F\r\nOBX|3|TX|57709-8^Fatty acid oxidation defects newborn screening comment-discussion^LN||ABNORMAL MCAD SCREEN. Screen positive for medium chain acyl-CoA dehydrogenase deficiency (MCAD). Immediate clinical follow-up and contact with metabolic specialist indicated. Result phoned to (XXX) XXX-XXXX; YYYY-MM-DD, HHMMh, by NAME.|||A|||F\r\nOBX|4|NM|38481-8^Carnitine free (C0) [Moles/volume] in Dried blood spot^LN||11.88|umol/L|7.50-12.00|N|||F\r\nOBX|5|NM|53233-3^Carnitine free (C0)/Palmitoylcarnitine (C16) [Molar ratio] in Dried blood spot^LN||67.04|{Ratio}|<999|N|||F\r\nOBX|6|NM|54462-7^Malonylcarnitine (C3-DC) [Moles/volume] in Dried blood spot^LN||0.13|umol/L|<1.40|N|||F\r\nOBX|7|NM|53234-1^Carnitine free (C0)/Stearoylcarnitine (C18) [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|8|NM|53235-8^Carnitine free (C0)/Palmitoylcarnitine (C16)+Stearoylcarnitine (C18) [Molar ratio] in Dried blood spot^LN||45.87|{Ratio}|<999|N|||F\r\nOBX|9|NM|53236-6^Carnitine.free (C0)+Acetylcarnitine (C2)+Propionylcarnitine (C3)+Palmitoylcarnitine (C16)+Oleoylcarnitine (C18:1)+Stearoylcarnitine (C18)/Citrulline [Molar ratio] in Dried blood spot^LN||0.09|{Ratio}|<999|N|||F\r\nOBX|10|NM|50157-7^Acetylcarnitine (C2) [Moles/volume] in Dried blood spot^LN||31.78|umol/L|<999|N|||F\r\nOBX|11|NM|53166-5^Butyrylcarnitine+Isobutyrylcarnitine (C4) [Moles/volume] in Dried blood spot^LN||0.84|umol/L|0.75-1.02|N|||N\r\nOBX|12|NM|53167-3^Butyrylcarnitine+Isobutyrylcarnitine (C4)/Acetylcarnitine (C2) [Molar ratio] in Dried blood spot^LN||0|{Ratio}|<999|N|||F\r\nOBX|13|NM|53168-1^Butyrylcarnitine+Isobutyrylcarnitine (C4)/Propionylcarnitine (C3) [Molar ratio] in Dried blood spot^LN||0.26|{Ratio}|<999|N|||F\r\nOBX|14|NM|53169-9^Butyrylcarnitine+Isobutyrylcarnitine (C4)/Octanoylcarnitine (C8) [Molar ratio] in Dried blood spot^LN||2.04|{Ratio}|<18.00|N|||F\r\nOBX|15|NM|50102-3^3-Hydroxybutyrylcarnitine (C4-OH) [Moles/volume] in Dried blood spot^LN||0.59|umol/L|0.43-0.66|N|||F\r\nOBX|16|NM|45211-0^Hexanoylcarnitine (C6) [Moles/volume] in Dried blood spot^LN||2.81|umol/L|<0.25|H|||F\r\nOBX|17|NM|53173-1^3-Hydroxyhexanoylcarnitine (C6-OH) [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|18|NM|45207-8^Glutarylcarnitine (C5-DC) [Moles/volume] in Dried blood spot^LN||0.05|umol/L|<999|N|||F\r\nOBX|19|NM|53174-9^Octenoylcarnitine (C8:1) [Moles/volume] in Dried blood spot^LN||0.52|umol/L|0.21-0.7|N|||F\r\nOBX|20|NM|53175-6^Octanoylcarnitine (C8) [Moles/volume] in Dried blood spot^LN||19.71|umol/L|<0.25|H|||NF\r\nOBX|21|NM|53176-4^Octanoylcarnitine (C8)/Acetylcarnitine (C2) [Molar ratio] in Dried blood spot^LN||0.813|{Ratio}|<0.050|H|||F\r\nOBX|22|NM|53177-2^Octanoylcarnitine (C8)/Decanoylcarnitine (C10) [Molar ratio] in Dried blood spot^LN||11.324|{Ratio}|<4.000|H|||F\r\nOBX|23|NM|53178-0^3-Hydroxyoctanoylcarnitine (C8-OH)+Malonylcarnitine (C3-DC) [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|24|NM|53402-4^3-Hydroxyoctanoylcarnitine (C8-OH)+Malonylcarnitine (C3-DC)/Butyrylcarnitine+Isobutyrylcarnitine (C4) [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|25|NM|53179-8^3-Hydroxyoctanoylcarnitine (C8-OH)+Malonylcarnitine (C3-DC)/Decanoylcarnitine (C10) [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|26|NM|53180-6^Decadienoylcarnitine (C10:2) [Moles/volume] in Dried blood spot^LN||0.07|umol/L|<0.12|N|||F\r\nOBX|27|NM|45198-9^Decenoylcarnitine (C10:1) [Moles/volume] in Dried blood spot^LN||0.71|umol/L|<0.20|H|||F\r\nOBX|28|NM|45197-1^Decanoylcarnitine (C10) [Moles/volume] in Dried blood spot^LN||0.31|umol/L|0.28-0.40|N|||F\r\nOBX|29|NM|53182-2^3-Hydroxydecenoylcarnitine (C10:1-OH) [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|30|NM|53183-0^Glutarylcarnitine (C5-DC)+3-Hydroxydecanoylcarnitine (C10-OH) [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|31|NM|53403-2^Glutarylcarnitine (C5-DC)+3-Hydroxydecanoylcarnitine (C10-OH)/Butyrylcarnitine+Isobutyrylcarnitine (C4) [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|32|NM|53184-8^Glutarylcarnitine (C5-DC)+3-Hydroxydecanoylcarnitine (C10-OH)/3-Hydroxyisovalerylcarnitine (C5-OH) [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|33|NM|53185-5^Glutarylcarnitine (C5-DC)+3-Hydroxydecanoylcarnitine (C10-OH)/Octanoylcarnitine (C8) [Molar ratio] in Dried blood spot^LN||3.63|{Ratio}|0.21-0.72|H|||F\r\nOBX|34|NM|53186-3^Glutarylcarnitine (C5-DC)+3-Hydroxydecanoylcarnitine (C10-OH)/Palmitoylcarnitine (C16) [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|35|NM|45200-3^Dodecenoylcarnitine (C12:1) [Moles/volume] in Dried blood spot^LN||0.31|umol/L|0.28-0.50|N|||F\r\nOBX|36|NM|45199-7^Dodecanoylcarnitine (C12) [Moles/volume] in Dried blood spot^LN||0.77|umol/L|0.44-0.80|N|||F\r\nOBX|37|NM|53188-9^3-Hydroxydodecenoylcarnitine (C12:1-OH) [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|38|NM|53189-7^3-Hydroxydodecanoylcarnitine (C12-OH) [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|39|NM|53190-5^Tetradecadienoylcarnitine (C14:2) [Moles/volume] in Dried blood spot^LN||0.12|umol/L|0.09-0.15|N|||F\r\nOBX|40|NM|53191-3^Tetradecenoylcarnitine (C14:1) [Moles/volume] in Dried blood spot^LN||0.48|umol/L|0.37-0.71|N|||F\r\nOBX|41|NM|53192-1^Tetradecanoylcarnitine (C14) [Moles/volume] in Dried blood spot^LN||0.61|umol/L|0.50-0.80|N|||F\r\nOBX|42|NM|53193-9^Tetradecenoylcarnitine (C14:1)/Acetylcarnitine (C2) [Molar ratio] in Dried blood spot^LN||0.51|{Ratio}|0.37-.070|N|||F\r\nOBX|43|NM|53194-7^Tetradecenoylcarnitine (C14:1)/Dodecenoylcarnitine (C12:1) [Molar ratio] in Dried blood spot^LN||1.53|{Ratio}|<999|N|||F\r\nOBX|44|NM|53195-4^Tetradecenoylcarnitine (C14:1)/Palmitoylcarnitine (C16) [Molar ratio] in Dried blood spot^LN||0.47|{Ratio}|0.37-0.70|N|||F\r\nOBX|45|NM|53196-2^3-Hydroxytetradecadienoylcarnitine (C14:2-OH) [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|46|NM|53197-0^3-Hydroxytetradecenoylcarnitine (C14:1-OH) [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|47|NM|50281-5^3-Hydroxytetradecanoylcarnitine (C14-OH) [Moles/volume] in Dried blood spot^LN||0.09|umol/L|<999|N|||F\r\nOBX|48|NM|53198-8^Palmitoleylcarnitine (C16:1) [Moles/volume] in Dried blood spot^LN||0.09|umol/L|<999|N|||F\r\nOBX|49|NM|53199-6^Palmitoylcarnitine (C16) [Moles/volume] in Dried blood spot^LN||6.13|umol/L|5.86-7.16|N|||F\r\nOBX|50|NM|50121-3^3-Hydroxypalmitoleylcarnitine (C16:1-OH) [Moles/volume] in Dried blood spot^LN||0.13|umol/L|0.10-0.15|N|||F\r\nOBX|51|NM|50125-4^3-Hydroxypalmitoylcarnitine (C16-OH) [Moles/volume] in Dried blood spot^LN||0.17|umol/L|0.09-0.19|N|||F\r\nOBX|52|NM|53201-0^3-Hydroxypalmitoylcarnitine (C16-OH)/Palmitoylcarnitine (C16) [Molar ratio] in Dried blood spot^LN||0.03|{Ratio}|<0.20|N|||F\r\nOBX|53|NM|45217-7^Linoleoylcarnitine (C18:2) [Moles/volume] in Dried blood spot^LN||0.63|umol/L|0.62-0.65|N|||F\r\nOBX|54|NM|53202-8^Oleoylcarnitine (C18:1) [Moles/volume] in Dried blood spot^LN||2.42|umol/L|2.39-2.50|N|||F\r\nOBX|55|NM|53241-6^Stearoylcarnitine (C18) [Moles/volume] in Dried blood spot^LN||0.26|umol/L|<0.31|N|||F\r\nOBX|56|NM|53400-8^Stearoylcarnitine (C18)/Propionylcarnitine (C3) [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|57|NM|50109-8^3-Hydroxylinoleoylcarnitine (C18:2-OH) [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|58|NM|50113-0^3-Hydroxyoleoylcarnitine (C18:1-OH) [Moles/volume] in Dried blood spot^LN||0.09|umol/L|0.08-0.10|N|||F\r\nOBX|59|NM|50132-0^3-Hydroxystearoylcarnitine (C18-OH) [Moles/volume] in Dried blood spot^LN||0.08|umol/L|0.07-0.10|N|||F\r\nOBR|8|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|57085-3^Organic acid newborn screen panel^LN|||201010141853|||^VH||||201010151121||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|CE|46744-9^Organic acidemias newborn screen interpretation^LN||LA18592-8^In range^LN|||N|||F\r\nOBX|2|CE|57791-6^Organic acidemia conditions suspected [Identifier] in Dried blood spot^LN||LA137-2^None^LN|||N|||F\r\nOBX|3|TX|57708-0^Organic acidemias defects newborn screening comment-discussion^LN||Any baby with clinical features suggestive of a metabolic disorder requires clinical and diagnostic follow-up regardless of whether the NBS result is normal or abnormal.|||N|||F\r\nOBX|4|NM|50157-7^Acetylcarnitine (C2) [Moles/volume] in Dried blood spot^LN||31.78|umol/L|<999|N|||F\r\nOBX|5|NM|53237-4^Acrylylcarnitine (C3:1) [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||N\r\nOBX|6|NM|53160-8^Propionylcarnitine (C3) [Moles/volume] in Dried blood spot^LN||5.17|umol/L|4.62-5.50|N|||F\r\nOBX|7|NM|53161-6^Propionylcarnitine (C3)/Methionine [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|8|NM|53162-4^Propionylcarnitine (C3)/Carnitine.free (C0) [Molar ratio] in Dried blood spot^LN||0.03|{Ratio}|<999|N|||F\r\nOBX|9|NM|53163-2^Propionylcarnitine (C3)/Acetylcarnitine (C2) [Molar ratio] in Dried blood spot^LN||0.15|{Ratio}|<999|N|||F\r\nOBX|10|NM|54462-7^Malonylcarnitine (C3-DC) [Moles/volume] in Dried blood spot^LN||0.13|umol/L|<1.40|N|||F\r\nOBX|11|NM|53164-0^Propionylcarnitine (C3)/Palmitoylcarnitine (C16) [Molar ratio] in Dried blood spot^LN||0.69|{Ratio}|<2.0|N|||F\r\nOBX|12|NM|53166-5^Butyrylcarnitine+Isobutyrylcarnitine (C4) [Moles/volume] in Dried blood spot^LN||0.84|umol/L|0.75-1.02|N|||F\r\nOBX|13|NM|53167-3^Butyrylcarnitine+Isobutyrylcarnitine (C4)/Acetylcarnitine (C2) [Molar ratio] in Dried blood spot^LN||0|{Ratio}|<999|N|||F\r\nOBX|14|NM|53168-1^Butyrylcarnitine+Isobutyrylcarnitine (C4)/Propionylcarnitine (C3) [Molar ratio] in Dried blood spot^LN||0.26|{Ratio}|<999|N|||F\r\nOBX|15|NM|53169-9^Butyrylcarnitine+Isobutyrylcarnitine (C4)/Octanoylcarnitine (C8) [Molar ratio] in Dried blood spot^LN||2.04|{Ratio}|<18.00|N|||F\r\nOBX|16|NM|53170-7^Tiglylcarnitine (C5:1) [Moles/volume] in Dried blood spot^LN||0.1|umol/L|0.09-0.24|N|||F\r\nOBX|17|NM|45207-8^Glutarylcarnitine (C5-DC) [Moles/volume] in Dried blood spot^LN||0.05|umol/L|<999|N|||F\r\nOBX|18|NM|45216-9^Isovalerylcarnitine+Methylbutyrylcarnitine (C5) [Moles/volume] in Dried blood spot^LN||0.43|umol/L|0.39-0.48|N|||F\r\nOBX|19|NM|53238-2^Isovalerylcarnitine+Methylbutyrylcarnitine (C5)/Carnitine.free (C0) [Molar ratio] in Dried blood spot^LN||0.00|{Ratio}|<0.05|N|||F\r\nOBX|20|NM|53239-0^Isovalerylcarnitine+Methylbutyrylcarnitine (C5)/Acetylcarnitine (C2) [Molar ratio] in Dried blood spot^LN||0.00|{Ratio}|<0.04|N|||F\r\nOBX|21|NM|53240-8^Isovalerylcarnitine+Methylbutyrylcarnitine (C5)/Propionylcarnitine (C3) [Molar ratio] in Dried blood spot^LN||0.31|{Ratio}|<999|N|||F\r\nOBX|22|NM|53401-6^Isovalerylcarnitine+Methylbutyrylcarnitine (C5)/Octanoylcarnitine (C8) [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|23|NM|50106-4^3-Hydroxyisovalerylcarnitine (C5-OH) [Moles/volume] in Dried blood spot^LN||0.26|umol/L|<999|N|||F\r\nOBX|24|NM|53171-5^3-Hydroxyisovalerylcarnitine (C5-OH)/Carnitine.free (C0) [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|25|NM|53172-3^3-Hydroxyisovalerylcarnitine (C5-OH)/Octanoylcarnitine (C8) [Molar ratio] in Dried blood spot^LN||0.436|{Ratio}|0.35-0.70|N|||F\r\nOBX|26|NM|53178-0^3-Hydroxyoctanoylcarnitine (C8-OH)+Malonylcarnitine (C3-DC) [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|27|NM|53402-4^3-Hydroxyoctanoylcarnitine (C8-OH)+Malonylcarnitine (C3-DC)/Butyrylcarnitine+Isobutyrylcarnitine (C4) [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|28|NM|53179-8^3-Hydroxyoctanoylcarnitine (C8-OH)+Malonylcarnitine (C3-DC)/Decanoylcarnitine (C10) [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|29|NM|45222-7^Methylmalonylcarnitine (C4-DC) [Moles/volume] in Dried blood spot^LN||3.16|umol/L|<999|N|||F\r\nOBX|30|NM|53181-4^Methylmalonylcarnitine (C4-DC)/3-Hydroxyisovalerylcarnitine (C5-OH) [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|31|NM|53183-0^Glutarylcarnitine (C5-DC)+3-Hydroxydecanoylcarnitine (C10-OH) [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|32|NM|53403-2^Glutarylcarnitine (C5-DC)+3-Hydroxydecanoylcarnitine (C10-OH)/Butyrylcarnitine+Isobutyrylcarnitine (C4) [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|33|NM|53184-8^Glutarylcarnitine (C5-DC)+3-Hydroxydecanoylcarnitine (C10-OH)/3-Hydroxyisovalerylcarnitine (C5-OH) [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|34|NM|53185-5^Glutarylcarnitine (C5-DC)+3-Hydroxydecanoylcarnitine (C10-OH)/Octanoylcarnitine (C8) [Molar ratio] in Dried blood spot^LN||3.63|{Ratio}|0.21-0.72|H|||F\r\nOBX|35|NM|53186-3^Glutarylcarnitine (C5-DC)+3-Hydroxydecanoylcarnitine (C10-OH)/Palmitoylcarnitine (C16) [Molar ratio] in Dried blood spot^LN||99|{Ratio}|<999|N|||F\r\nOBX|36|NM|53187-1^Methylglutarylcarnitine (C6-DC) [Moles/volume] in Dried blood spot^LN||0.11|umol/L|0.10-0.12|N|||F\r\nOBX|37|NM|53165-7^Formiminoglutamate [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBX|38|NM|67708-8^Malonylcarnitine (C3-DC)+3-Hydroxybutyrylcarnitine (C4-OH) [Moles/volume] in Dried blood spot^LN||0.26|umol/L|<999|N|||F\r\nOBX|39|NM|67709-6^Methylmalonylcarnitine (C4-DC)+3-Hydroxyisovalerylcarnitine (C5-OH) [Moles/volume] in Dried blood spot^LN||3.16|umol/L|<999|N|||F\r\nOBX|40|NM|67710-4^Glutarylcarnitine (C5-DC)+3-Hydroxyhexanoylcarnitine (C6-OH) [Moles/volume] in Dried blood spot^LN||99|umol/L|<999|N|||F\r\nOBR|9|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|54078-1^Cystic fibrosis newborn screening panel^LN|||201010141853|||^VH||||201010151121||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|CE|46769-6^Cystic fibrosis newborn screen interpretation^LN||LA18592-8^In range^LN|||N|||F\r\nOBX|2|TX|57707-2^Cystic fibrosis newborn screening comment-discussion^LN||No evidence of cystic fibrosis. CF mutation analysis not performed. Further testing is only required if there is clinical suspicion of cystic fibrosis. Symptoms include poor growth, loose stools or evidence of malabsorption, persistent cough, or respiratory concerns.|||N|||F\r\nOBX|3|NM|2077-6^Chloride [Moles/volume] in Sweat^LN||99|mmol/L|<999|N|||F\r\nOBX|4|NM|48633-2^Trypsinogen I Free [Mass/volume] in Dried blood spot^LN||99|ug/L|<999|N|||F\r\nOBR|10|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|54076-5^Endocrine newborn screening panel^LN|||201010141853|||^VH||||201010151121||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBR|11|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|57086-1^Congenital adrenal hyperplasia (CAH) newborn screening panel^LN|||201010141853|||^VH||||201010151121||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|CE|46758-9^Congenital adrenal hyperplasia newborn screen interpretation^LN||LA18592-8^In range^LN|||N|||F\r\nOBX|2|NM|53347-1^11-Deoxycorticosterone [Mass/volume] in Dried blood spot^LN||99|ng/dL|<999|N|||F\r\nOBX|3|NM|53338-0^11-Deoxycortisol [Mass/volume] in Dried blood spot^LN||99|ug/dL|<999|N|||F\r\nOBX|4|NM|38473-5^17-Hydroxyprogesterone [Mass/volume] in Dried blood spot^LN||182|ng/mL|<190|N|||F\r\nOBX|5|NM|53336-4^17-Hydroxyprogesterone+Androstenedione/Cortisol [Mass Ratio] in Dried blood spot^LN||99|{ratio}|<999|N|||F\r\nOBX|6|NM|53341-4^21-Deoxycortisol [Mass/volume] in Dried blood spot^LN||99|ug/dL|<999|N|||F\r\nOBX|7|NM|53343-0^Androstenedione [Mass/volume] in Dried blood spot^LN||99|ng/dL|<999|N|||F\r\nOBX|8|NM|53345-5^Cortisol [Mass/volume] in Dried blood spot^LN||99|ug/dL|<999|N|||F\r\nOBR|12|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|54090-6^Thyroid newborn screening panel^LN|||201010141853|||^VH||||201010151121||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|CE|46762-1^Congenital hypothyroidism newborn screen interpretation^LN||LA18592-8^In range^LN|||N|||F\r\nOBX|2|TX|57705-6^Congenital hypothyroidism newborn screening comment-discussion^LN||Any baby with clinical features suggestive of a metabolic disorder requires clinical and diagnostic follow-up regardless of whether the NBS result is normal or abnormal.|||N|||F\r\nOBX|3|NM|31144-9^Thyroxine (T4) [Mass/volume] in Dried blood spot^LN||10.36|ug/dL|<25|N|||F\r\nOBX|4|NM|29575-8^Thyrotropin [Units/volume] in Dried blood spot^LN||1.2|m[IU]/L|<8|N|||F\r\nOBR|13|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|54079-9^Galactosemia newborn screening panel^LN|||201010141853|||^VH||||201010151121||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|CE|46737-3^Galactosemias newborn screen interpretation^LN||LA18592-8^In range^LN|||N|||F\r\nOBX|2|TX|57704-9^Galactosemias newborn screening comment-discussion^LN||Any baby with clinical features suggestive of a metabolic disorder requires clinical and diagnostic follow-up regardless of whether the NBS result is normal or abnormal.|||N|||F\r\nOBX|3|NM|54084-9^Galactose [Mass/volume] in Dried blood spot^LN||1.6|mg/dL|<11|N|||F\r\nOBX|4|NM|42906-8^Galactose 1 phosphate uridyl transferase [Enzymatic activity/volume] in Dried blood spot^LN||99|U/g{Hb}|<999|N|||F\r\nOBX|5|NM|40842-7^Galactose 1 phosphate [Mass/volume] in Dried blood spot^LN||99|mg/dL|<999|N|||F\r\nOBR|14|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|54081-5^Hemoglobinopathies newborn screening panel^LN|||201010141853|||^VH||||201010151121||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|CE|46740-7^Hemoglobin disorders newborn screen interpretation^LN||LA18593-6^Out of range^LN|||N|||F\r\nOBX|2|TX|57703-1^Hemoglobin disorders newborn screening comment-discussion^LN||An unidentified hemoglobin was detected that cannot be interpreted by newborn screening. Suggest hematology referral and diagnostic testing at an appropriate age.|||N|||F\r\nOBR|15|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|64116-7^Hemoglobin observations newborn screening panel^LN|||201010141853|||^VH||||201010151121||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|CE|64117-5^Most predominant hemoglobin in Dried blood spot^LN||LA16208-3^Hb F^LN|||N|||F\r\nOBX|2|CE|64118-3^Second most predominant hemoglobin in Dried blood spot^LN||LA16223-2^Hb unidentified^LN|||N|||F\r\nOBX|3|CE|64122-5^Hemoglobins that can be presumptively identified based on available controls in Dried blood spot^LN|1|LA16208-3^Hb F^LN|||N|||F\r\nOBX|4|CE|64122-5^Hemoglobins that can be presumptively identified based on available controls in Dried blood spot^LN|2|LA16209-1^Hb A^LN|||N|||F\r\nOBX|5|CE|64122-5^Hemoglobins that can be presumptively identified based on available controls in Dried blood spot^LN|3|LA13002-3^Hb C^LN|||N|||F\r\nOBX|6|CE|64122-5^Hemoglobins that can be presumptively identified based on available controls in Dried blood spot^LN|4|LA13003-1^Hb D^LN|||N|||F\r\nOBX|7|CE|64122-5^Hemoglobins that can be presumptively identified based on available controls in Dried blood spot^LN|5|LA13005-6^Hb E^LN|||N|||F\r\nOBX|8|CE|64122-5^Hemoglobins that can be presumptively identified based on available controls in Dried blood spot^LN|6|LA16218-2^Hb G^LN|||N|||F\r\nOBX|9|CE|64122-5^Hemoglobins that can be presumptively identified based on available controls in Dried blood spot^LN|7|LA16220-8^Hb H^LN|||N|||F\r\nOBX|10|CE|64122-5^Hemoglobins that can be presumptively identified based on available controls in Dried blood spot^LN|8|LA16222-4^Hb O-Arab^LN|||N|||F\r\nOBX|11|CE|64122-5^Hemoglobins that can be presumptively identified based on available controls in Dried blood spot^LN|9|LA13007-2^Hb S^LN|||N|||F\r\nOBX|12|CE|64122-5^Hemoglobins that can be presumptively identified based on available controls in Dried blood spot^LN|10|LA16223-2^Hb unidentified^LN|||N|||F\r\nOBR|16|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|57087-9^Biotinidase newborn screening panel^LN|||201010141853|||^VH||||201010151121||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|CE|46761-3^Biotinidase deficiency newborn screen interpretation^LN||LA4259-3^Borderline^LN|||A|||F\r\nOBX|2|TX|57699-1^Biotinidase deficiency newborn screening comment-discussion^LN||Borderline abnormal screen for biotinidase deficiency (BIOT). Slightly decreased biotinidase activity, unlikely to be significant. Suggest clinical follow-up and repeat newborn metabolic screen.|||A|||F\r\nOBX|3|ST|38478-4^Biotinidase [Presence] in Dried blood spot^LN||reduced enzyme activity|||A|||F\r\nOBR|17|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|62333-0^Severe combined newborn screening immunodeficiency (SCID) panel in Dried blood spot^LN|||201010141853|||^VH||||201010140920||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201101051142|||F\r\nOBX|1|CE|62321-5^Severe combined immunodeficiency newborn screen interpretation^LN||LA18592-8^In range^LN|||N|||F\r\nOBX|2|TX|62322-3^Severe combined immunodeficiency newborn screening comment-discussion^LN||Any baby with clinical features suggestive of an immune system disorder requires clinical and diagnostic follow-up regardless of whether the NBS result is normal or abnormal.|||N|||F\r\nOBX|3|NM|62320-7^T-cell receptor excision circle [#/volume] in Dried blood spot by Probe and target amplification method^LN||100|{copies}|>60|N|||F\r\nOBR|18|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|73738-7^Newborn screening test results panel - Point of Care^LN|||201010141853|||^VH||||||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBR|19|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|54111-0^Newborn hearing loss panel^LN|||201010141853|||^VH||||||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|TX|57700-7^Hearing loss newborn screening comment/discussion^LN||Any baby with clinical features suggestive of hearing loss requires clinical and diagnostic follow-up regardless of whether the NMS result is normal or abnormal.|||N|||F\r\nOBX|2|CE|54106-0^Newborn hearing screen method^LN||LA10388-9^Auditory brain stem response^LN|||N|||F\r\nOBR|20|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|73744-5^Newborn hearing screen panel of Ear - right^LN|||201010141853|||^VH||||||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|CE|54109-4^Newborn hearing screen of Ear - right^LN||LA10392-1^Pass^LN|||N|||F\r\nOBR|21|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|73741-1^Newborn hearing screen panel of Ear - left^LN|||201010141853|||^VH||||||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|CE|54108-6^Newborn hearing screen of Ear - left^LN||LA10392-1^Pass^LN|||N|||F\r\nOBR|22|128993^ST ELSEWHERE HOSPITAL^9999999999^NPI|999555^TNSPHLAB^77D7777777^CLIA|73805-4^CCHD newborn screening panel^LN|||201010141853|||^VH||||||1111111111^Smiles^Minnie^^^Dr^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI^^^^^^^^MD||||||201010160918|||F\r\nOBX|1|CE|73700-7^CCHD newborn screening interpretation^LN||LA18592-8^In range^LN|||N|||F\r\nOBX|2|NM|73806-2^Newborn age in hours^LN||36|h||N|||F\r\nOBX|3|CE|73699-1^Number of prior CCHD screens [#] Qualitative^LN||LA6111-4^0^LN|||N|||F\r\nOBX|4|NM|59407-7^Oxygen saturation in Blood Preductal by Pulse oximetry^LN||99|%|>95|N|||F\r\nOBX|5|CE|73796-5^Infant activity during preductal oxygen saturation measurement^LN||LA19830-1^Awake and quiet^LN|||N|||F\r\nOBX|6|NM|59418-4^Oxygen saturation in Blood Postductal by Pulse oximetry^LN||97|%|>95|N|||F\r\nOBX|7|CE|73792-4^Infant activity during postductal oxygen saturation measurement^LN||LA11864-8^Sleeping^LN|||N|||F\r\nOBX|8|NM|73696-7^Oxygen saturation.preductal-oxygen saturation.postductal [Mass fraction difference] in Bld.preductal and Bld.postductal^LN||2|%|<3|N|||F"
+						},
+						"url": {
+							"raw": "{{url}}/api/reports?processing=async&default=aaa",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"reports"
+							],
+							"query": [
+								{
+									"key": "processing",
+									"value": "async"
+								},
+								{
+									"key": "default",
+									"value": "aaa"
+								},
+								{
+									"key": "allowDuplicate",
+									"value": "false",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Full ELR - Single MPX",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "ignore.ignore-full-elr",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "{{functions-key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "MSH|^~\\&#|CLIMS-ECLRS Reporter^33D0654341^CLIA|WADSWORTH^33D0654341^CLIA|LRN.Data.Portal.STAG^2.16.840.1.114222.4.3.2.19^ISO|CDC_LRNB^2.16.840.1.114222.4.1.219619^ISO|20220617145047-0800|LRNB|ORU^R01^ORU_R01|2317|T|2.5.1|||||USA||||PHLabReport-NoAck^ELR Receiver^2.16.840.1.113883.9.11^ISO~LRN_B_IG^LRNB Receiver^2.16.840.1.114222.4.3.5.1^ISO \r\nSFT|WADSWORTH^L|5.1|CLIMS|20160728\r\nPID|1||TF-QNT-13408^^^STARLIMS.CO.Prod&2.16.840.1.114222.4.3.3.2.30.1&ISO^PI||~^^^^^^S||20000515|F|||^^Middletown^CO^10940^^^^10940\r\nORC|RE||ELRPOXTA1^STARLIMS.CO.Prod^2.16.840.1.114222.4.3.3.2.30.1^ISO|||||||||MIDDLETOWN COMMUNITY HEALTH CENTER|||||||||Evergreen Hospital Medical Center Attn:Laboratory^^^^^STARLIMS.CO.Prod&2.16.840.1.114222.4.3.3.2.30.1&ISO^XX^^^339|12040 128th St^Micro Ste Coral 103^Middletown^NY^10940|^WPN^PH^^^425^8992732~^WPN^FX^^^425^8992726\r\nOBR|1||1500^NY.Albany.SPHL^2.16.840.1.114222.4.1.34^ISO|41853-3^Orthopoxvirus DNA [Presence] in Specimen by NAA with probe detection^LN|||20220610-0800|20220610-0800||||||||||||||20220610-0800||20220310|F||||||RT^Routine^CDCLRNB^RT^Routine^2.16.840.1.113883.5.1008\r\nOBX|1|CWE|41853-3^Orthopoxvirus DNA [Presence] in Specimen by NAA with probe detection^LN|1|260373001^Non-variola Orthopoxvirus DNA detected^2.16.840.1.113883.6.96|||||20220310|F|||20220610|||||20220610120550-0800\r\nSPM|1|ELRPOXTA1_031722&STARLIMS.CO.Prod&2.16.840.1.114222.4.3.3.2.30.1&ISO^ELRPOXTA1_031722&STARLIMS.WA.Prod&2.16.840.1.114222.4.3.3.2.30.1&ISO||257261003^Swab (specimen)^HL70487|276339004^Environmental^L||||||||||||20220610|20220617"
+						},
+						"url": {
+							"raw": "{{url}}/api/reports?processing=async&default=aaa",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"reports"
+							],
+							"query": [
+								{
+									"key": "processing",
+									"value": "async"
+								},
+								{
+									"key": "default",
+									"value": "aaa"
+								},
+								{
+									"key": "routeTo",
+									"value": "bbb",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Full ELR - HCA Example",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "client",
+								"value": "ignore.ignore-full-elr",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							},
+							{
+								"key": "x-functions-key",
+								"value": "{{functions-key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "MSH|^~\\&#|MEDITECH^2.16.840.1.114222.4.3.2.2.1.321.111^ISO|COCAA^^ISO|DCEED.ELR^2.16.840.1.114222.4.1.144.2.5^ISO|CDPHE^2.16.840.1.114222.4.1.144^ISO|20280808092805-0600||ORU^R01^ORU_R01|MT_COCAA_ORU_AAPHELR.1.6214638|P|2.5.1|||||||||PHLabReport-NoAck^HL7^2.16.840.1.113883.9.11^ISO\r\nSFT|MEDITECH, Inc.^L^^^^MEDITECH&1.3.6.1.4.1.24310&ISO^XX^^^MEDITECH|5.67|Laboratory Applicati|20210810||20210810\r\nPID|1||100001^^^MEDITECH&2.16.840.1.114222.4.3.2.2.1.321.111&ISO^MR^COCAA&&ISO~285-64-4175^^^MEDITECH&2.16.840.1.114222.4.3.2.2.1.321.111&ISO^SS^COCAA&&ISO~X605236^^^MEDITECH&2.16.840.1.114222.4.3.2.2.1.321.111&ISO^PI^COCAA&&ISO~E40014904640^^^MEDITECH&2.16.840.1.114222.4.3.2.2.1.321.111&ISO^AN^COCAA&&ISO||BIERLY^LONNIE^^^^^L||19361023|M||2106-3^White^HL70005^W^White^L^2.5.1^5.67|4673 ELM ST^CHERRY CRK NURSING CTR^CAPITAN^NM^80014^USA^H||^PRN^PH^^1^303^6930111|^WPN^PH^^1^303^9999999^^Business||S|NOE^Nonreligious^HL70006|||||N^Not Hispanic or Latino^HL70189^2^Not Hispanic or Latin^L^2.5.1^5.61||||||||N|||20210809085200-0600|COCAA^^ISO|337915000^Homo sapiens (organism)^SCT^Human^Human^L^1^1\r\nNTE|1|P|EH|RE^Remark^HL70364^C^Comment^L^2.5.1^V1\r\nNK1|1|SURYAN^GENARO^^^^^L|OTH^Other^HL70063^OT^OTHER RELATIONSHIP^L^2.5.1^5.67|4861 20TH AVE^^THUNDER MOUNTAIN^NV^99999^USA^H|^PRN^PH^^1^720^3013954||||||||||||||||||||||||||^WPN^PH^^1^720^3013954|4861 20TH AVE^^AURORA^CO^99999^USA^H\r\nPV1|1|I|E.ICUB^E.ICB^05|E|||1437205069^Hunt^James^Madison^^^MD^^Medical Center of Au&2.16.840.1.114222.4.1.144&ISO^^^^NPI|1437205069^Hunt^James^Madison^^^MD^^Medical Center of Au&2.16.840.1.114222.4.1.144&ISO^^^^NPI|1437205069^Hunt^James^Madison^^^MD^^Medical Center of Au&2.16.840.1.114222.4.1.144&ISO^^^^NPI~1962467126^Neid^James^M^^^MD^^Medical Center of Au^^^^NPI~1184669806^Hultman^Todd^^^^NP^^Medical Center of Au^^^^NPI|ICU||||PR|||1437205069^Hunt^James^Madison^^^MD^^Medical Center of Au&2.16.840.1.114222.4.1.144&ISO^^^^NPI|IN||01||||||||||||||||SAP|||COCAA||AD|||202808020556\r\nORC|RE|09339017^M12776123.1^2.16.840.1.114222.4.1.144^ISO|21:AA:B0029251S.1^M12776123.1^^ISO|21:AA:B0029251S^M12776123^2.16.840.1.114222.4.1.144^ISO||N|||202808080928|||1871759365^Willison^Christopher^Beau^^^^^NPI&2.16.840.1.114222.4.1.144&ISO^L^^^NPI^RML&&ISO^^^^^^^MD||^WPN^PH^^1^303^4362727^^Hospital Line|202108032350||TMCA, SOUTH CAMPUS||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^MD|^WPN^PH^^1^303^6952653|5600 S Quebec St #312A^^Greenwood Village^CO^80111^USA^B^^MD\r\nOBR|1|09339017^M12776123.1^2.16.840.1.114222.4.1.144^ISO|21:AA:B0029251S.1^M12776123.1^^ISO|600-7^Bacteria identified in Blood by Culture^LN^BCEXT^EXTENDED BLOOD CULTURE^L^2.40^5.67|||20280802025201-0600|20280802025201-0600||ER|||SEPTIC SHOCK|||1871759365^Willison^Christopher^Beau^^^^^NPI&2.16.840.1.114222.4.1.144&ISO^L^^^NPI^RML&&ISO^^^^^^^MD|^WPN^PH^^1^303^4362727^^Hospital Line|21:AA:B0029251Sm12776123|09339017||TMCA, SOUTH CAMPUS|20210810062500-0600|||P||||||R6521^SEVERE SEPSIS WITH SEPTIC SHOCK^I10^R6521^SEVERE SEPSIS WITH SEPTIC SHOCK^I10^38^38|||||\r\nNTE|1|L| |RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|2|L|Critical result called to and read back by:CLAIRE HCE7362|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|3|L|Location:ICUB on 08/08/21 at 1539 by ELB.RM|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|4|L|Critical result called to and read back by:CLAIRE HCE7362|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|5|L|Location:ICUB on 08/08/21 at 1050 by ELB.SMX|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nTQ1|1||||||20280802025201-0600|20280808092805-0600|S\r\nOBX|1|ST|600-7^Bacteria identified in Blood by Culture^LN^BCEXT^EXTENDED BLOOD CULTURE^L^2.40^5.67|1.1| ||||||C|||20280802025201-0600|MCOE^ROSE MEDICAL CENTER (MCOE)^LB||||20280807163601-0600||||ROSE MEDICAL CENTER (MCOE)^L|4567 E. NINTH AVENUE^^DENVER^CO^80220^USA^B^^S|1033122247^Chahal^Shalini^^^Dr.^^^RML&&ISO^L^^^FI^ROSE MEDICAL CENTER &&ISO^^^^^^^MD\r\nOBX|2|CWE|600-7^Bacteria identified in Blood by Culture^LN^BCEXT^EXTENDED BLOOD CULTURE^L^2.40^5.67|1|782959008^Vancomycin resistant Enterococcus raffinosus^SCT^ENTRAFVRE^ENTEROCOCCUS RAFFINOSIS, VRE^L^07/31/2012^5.67^ENTEROCOCCUS RAFFINOSIS, VRE||||||C|||20280802025201-0600|MCOE^ROSE MEDICAL CENTER (MCOE)^LB||||20280807163601-0600||||ROSE MEDICAL CENTER (MCOE)^L|4567 E. NINTH AVENUE^^DENVER^CO^80220^USA^B^^MD|1033122247^Chahal^Shalini^^^Dr.^^^RML&&ISO^L^^^FI^ROSE MEDICAL CENTER &&ISO^^^^^^^MD\r\nOBX|3|CWE|600-7^Bacteria identified in Blood by Culture^LN^BCEXT^EXTENDED BLOOD CULTURE^L^2.40^5.67|2|53326005^Candida albicans^SCT^CANALB^CANDIDA ALBICANS^L^07/31/2012^5.67^CANDIDA ALBICANS||||||C|||20280802025201-0600|MCOE^ROSE MEDICAL CENTER (MCOE)^LB||||20280807163601-0600||||ROSE MEDICAL CENTER (MCOE)^L|4567 E. NINTH AVENUE^^DENVER^CO^80220^USA^B^^MD|1033122247^Chahal^Shalini^^^Dr.^^^RML&&ISO^L^^^FI^ROSE MEDICAL CENTER &&ISO^^^^^^^MD\r\nNTE|1|L|            ***THIS IS AN URGENT RESULT***|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|2|L|***** Test Results Called To And Verbally Read Back|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|3|L|By: RICHARD DDI7840 *****|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|4|L|    (Date: 08/08/21 Time: 1511 Called BY AMLB.IF.)|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|5|L|******************************|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|6|L|**THIS IS A CORRECTED REPORT**|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|7|L|******************************|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|8|L| |RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|9|L|Original report of  ALPHA STRP,NOT ENTEROC.OR PNEU|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|10|L|has been revised to ENTEROCOCCUS SPECIES (GRP D). |RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|11|L| |RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|12|L|***** Test Results Called To And Verbally Read Back|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|13|L|By: LISA WSJ9135 AT AURORA MICROBIOLOGY *****|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|14|L|    (Date: 08/06/21 Time: 0945 Called BY AMLB.LJ1.)|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nSPM|1|09339017^M12776123&&&ISO||119297000^Blood specimen^SCT^BLD^BLOOD^L^07/31/2012^5.67||||RA^RIGHT ARM^L^5.67||||||RA^RIGHT ARM^RIGHT ARM|||20280802025201-0600^20280802025201-0600|20210804001800-0600||||||||1|^BACTEC AEROBIC PLUS\r\nORC|RE|09339017^M12776123.2^2.16.840.1.114222.4.1.144^ISO|21:AA:B0029251S.2^M12776123.2^^ISO|21:AA:B0029251S^M12776123^2.16.840.1.114222.4.1.144^ISO||N|||202808080928|||1871759365^Willison^Christopher^Beau^^^^^NPI&2.16.840.1.114222.4.1.144&ISO^L^^^NPI^RML&&ISO^^^^^^^MD||^WPN^PH^^1^303^4362727^^Hospital Line|202108032350||TMCA, SOUTH CAMPUS||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^MD|^WPN^PH^^1^303^6952653|5600 S Quebec St #312A^^Greenwood Village^CO^80111^USA^B^^MD\r\nOBR|2|09339017^M12776123.2^2.16.840.1.114222.4.1.144^ISO|21:AA:B0029251S.2^M12776123.2^^ISO|600-7^Bacteria identified in Blood by Culture^LN^BLOODC^BLOOD CULTURE^L^2.40^5.67|||20280802025201-0600|20280802025201-0600||ER|||SEPTIC SHOCK|||1871759365^Willison^Christopher^Beau^^^^^NPI&2.16.840.1.114222.4.1.144&ISO^L^^^NPI^RML&&ISO^^^^^^^MD|^WPN^PH^^1^303^4362727^^Hospital Line|21:AA:B0029251Sm12776123|09339017||TMCA, SOUTH CAMPUS|20210810062500-0600|||P||||||R6521^SEVERE SEPSIS WITH SEPTIC SHOCK^I10^R6521^SEVERE SEPSIS WITH SEPTIC SHOCK^I10^38^38|||||\r\nNTE|1|L| |RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|2|L|Critical result called to and read back by:CLAIRE HCE7362|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|3|L|Location:ICUB on 08/08/21 at 1539 by ELB.RM|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|4|L|Critical result called to and read back by:CLAIRE HCE7362|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|5|L|Location:ICUB on 08/08/21 at 1050 by ELB.SMX|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nTQ1|1||||||20280802025201-0600|20210810062500-0600|S\r\nOBX|1|ST|600-7^Bacteria identified in Blood by Culture^LN^BLOODC^BLOOD CULTURE^L^2.40^5.67|1.1| ||||||C|||20280802025201-0600|RML^TMCA, SOUTH CAMPUS^LB||||20210810062500-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^S|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nOBX|2|ST|MBCPCR^BLOOD CULTURE PCR^L^^^^5.67^^BLOOD CULTURE PCR|2.1|GRAM POSITIVE PCR; NO TARGETS DETECTED (SEE COMMENT)||||||C|||20280802025201-0600|RML^TMCA, SOUTH CAMPUS^LB||||20210810062500-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nOBX|3|ST|MPOSBC^BLOOD CULTURE GRAM STAIN^L^^^^5.67^^BLOOD CULTURE GRAM STAIN|2.2|GRAM POSITIVE COCCI IN PAIRS|||A^Abnormal (applies to non-numeric results)^HL70078^A^A^L^2.5.1^5.67|||C|||20280802025201-0600|RML^TMCA, SOUTH CAMPUS^LB||||20210810062500-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^A|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nOBX|4|ST|MPOSBC^BLOOD CULTURE GRAM STAIN^L^^^^5.67^^BLOOD CULTURE GRAM STAIN|2.3|ANAEROBIC BOTTLE||||||C|||20280802025201-0600|RML^TMCA, SOUTH CAMPUS^LB||||20210810062500-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nOBX|5|ST|MPOSBC^BLOOD CULTURE GRAM STAIN^L^^^^5.67^^BLOOD CULTURE GRAM STAIN|2.4|YEAST|||A^Abnormal (applies to non-numeric results)^HL70078^A^A^L^2.5.1^5.67|||C|||20280802025201-0600|RML^TMCA, SOUTH CAMPUS^LB||||20210810062500-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^A|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nOBX|6|ST|MPOSBC^BLOOD CULTURE GRAM STAIN^L^^^^5.67^^BLOOD CULTURE GRAM STAIN|2.5|AEROBIC BOTTLE||||||C|||20280802025201-0600|RML^TMCA, SOUTH CAMPUS^LB||||20210810062500-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nOBX|7|CWE|600-7^Bacteria identified in Blood by Culture^LN^BLOODC^BLOOD CULTURE^L^2.40^5.67||POSITIVE^POSITIVE^L^^^^5.67^^POSITIVE||||||C|||20280802025201-0600|RML^TMCA, SOUTH CAMPUS^LB||||20210810062500-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^MD|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nNTE|1|L|Nucleic acid test for the detection of Staphylococcus spp.,|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|2|L|S. aureus, S. epidermidis, S. lugdunensis, Streptococcus|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|3|L|spp., S. pneumoniae, S. pyogenes, S. agalactiae,|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|4|L|S. anginosus group, Enterococcus faecalis, Enterococcus|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|5|L|faecium, mec-A mediated methicillin resistance, and|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|6|L|vanA/vanB mediated Vancomycin resistance was performed and|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|7|L|was NEGATIVE for all targets tested.|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|8|L| |RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|9|L|          *****CORRECTED REPORT*****|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|10|L|Previous report of  was incorrect.|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|11|L|The correct report of YEAST PRESENT ON GRAM STAIN|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|12|L|was called  and texted to ALLISON CABRERA|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|13|L|Date:08/08/28 Time:0613 Called by:ELB.RMH|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|14|L| |RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|15|L|Critical result called to and read back by:RN LIBBY HILL|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|16|L|Location:ICU on 08/06/21 at 1136 by ELB.HC|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|17|L| |RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|18|L|Critical result called to and read back by:HANNAH STEVENS RN|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|19|L|Location:ICUB on 08/02/28 at 2201 by ELB.MS3|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nSPM|1|09339017^M12776123&&&ISO||119297000^Blood specimen^SCT^BLD^BLOOD^L^07/31/2012^5.67||||RA^RIGHT ARM^L^5.67||||||RA^RIGHT ARM^RIGHT ARM|||20280802025201-0600^20280802025201-0600|20210804001800-0600||||||||3.0|^BACTEC BLOOD CULTURE BOTTLES\r\nORC|RE|09339017^M12776123.3^2.16.840.1.114222.4.1.144^ISO|21:AA:B0029251S.3^M12776123.3^^ISO|21:AA:B0029251S^M12776123^2.16.840.1.114222.4.1.144^ISO||N|||202808080928|||1871759365^Willison^Christopher^Beau^^^^^NPI&2.16.840.1.114222.4.1.144&ISO^L^^^NPI^RML&&ISO^^^^^^^MD||^WPN^PH^^1^303^4362727^^Hospital Line|202108032350||TMCA, SOUTH CAMPUS||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^MD|^WPN^PH^^1^303^6952653|5600 S Quebec St #312A^^Greenwood Village^CO^80111^USA^B^^MD\r\nOBR|3|09339017^M12776123.3^2.16.840.1.114222.4.1.144^ISO|21:AA:B0029251S.3^M12776123.3^^ISO|77202-0^Laboratory comment [Text] in Report Narrative^LN^VERGPCOM^COMMENT^L^2.40^5.67|||20280802025201-0600|20280802025201-0600||ER|||SEPTIC SHOCK|||1871759365^Willison^Christopher^Beau^^^^^NPI&2.16.840.1.114222.4.1.144&ISO^L^^^NPI^RML&&ISO^^^^^^^MD|^WPN^PH^^1^303^4362727^^Hospital Line|21:AA:B0029251Sm12776123|09339017||TMCA, SOUTH CAMPUS|20210810062500-0600|||P||||||R6521^SEVERE SEPSIS WITH SEPTIC SHOCK^I10^R6521^SEVERE SEPSIS WITH SEPTIC SHOCK^I10^38^38|||||\r\nNTE|1|L| |RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|2|L|Critical result called to and read back by:CLAIRE HCE7362|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|3|L|Location:ICUB on 08/08/21 at 1539 by ELB.RM|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|4|L|Critical result called to and read back by:CLAIRE HCE7362|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nNTE|5|L|Location:ICUB on 08/08/21 at 1050 by ELB.SMX|RE^Remark^HL70364^C^Comment^L^2.5.1^5.67\r\nTQ1|1||||||20280802025201-0600|20280808092805-0600|S\r\nOBX|1|CE|77202-0^Laboratory comment [Text] in Report Narrative^LN^VERGPCOM^COMMENT^L^2.40^5.67|1|COM^^L||||||F|||20280802025201-0600|RML^TMCA, SOUTH CAMPUS^LB||||20210805013800-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^S|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nOBX|2|ST|77202-0^Laboratory comment [Text] in Report Narrative^LN^VERGPCOM^COMMENT^L^2.40^5.67|1.1|This is a rapid molecular assay that simultaneously detects||||||F||||RML^TMCA, SOUTH CAMPUS^LB||||20210805013800-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^MD|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nOBX|3|ST|77202-0^Laboratory comment [Text] in Report Narrative^LN^VERGPCOM^COMMENT^L^2.40^5.67|1.1|and identifies the following gram-positive organisms:||||||F||||RML^TMCA, SOUTH CAMPUS^LB||||20210805013800-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^MD|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nOBX|4|ST|77202-0^Laboratory comment [Text] in Report Narrative^LN^VERGPCOM^COMMENT^L^2.40^5.67|1.1| ||||||F||||RML^TMCA, SOUTH CAMPUS^LB||||20210805013800-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^MD|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nOBX|5|ST|77202-0^Laboratory comment [Text] in Report Narrative^LN^VERGPCOM^COMMENT^L^2.40^5.67|1.1|Staphylococcus spp.          Streptococcus pyogenes||||||F||||RML^TMCA, SOUTH CAMPUS^LB||||20210805013800-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^MD|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nOBX|6|ST|77202-0^Laboratory comment [Text] in Report Narrative^LN^VERGPCOM^COMMENT^L^2.40^5.67|1.1|Staphylococcus aureus        Streptococcus agalactiae||||||F||||RML^TMCA, SOUTH CAMPUS^LB||||20210805013800-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^MD|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nOBX|7|ST|77202-0^Laboratory comment [Text] in Report Narrative^LN^VERGPCOM^COMMENT^L^2.40^5.67|1.1|Staphylococcus epidermidis   Streptococcus anginosus group||||||F||||RML^TMCA, SOUTH CAMPUS^LB||||20210805013800-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^MD|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nOBX|8|ST|77202-0^Laboratory comment [Text] in Report Narrative^LN^VERGPCOM^COMMENT^L^2.40^5.67|1.1|Staphylococcus lugdunensis   Streptococcus faecalis||||||F||||RML^TMCA, SOUTH CAMPUS^LB||||20210805013800-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^MD|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nOBX|9|ST|77202-0^Laboratory comment [Text] in Report Narrative^LN^VERGPCOM^COMMENT^L^2.40^5.67|1.1|Streptococcus spp.           Enterococcus faecium||||||F||||RML^TMCA, SOUTH CAMPUS^LB||||20210805013800-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^MD|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nOBX|10|ST|77202-0^Laboratory comment [Text] in Report Narrative^LN^VERGPCOM^COMMENT^L^2.40^5.67|1.1|Streptococcus pneumoniae     ||||||F||||RML^TMCA, SOUTH CAMPUS^LB||||20210805013800-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^MD|1740336429^KOTNIS^GREGORY^R^^DR.^^^RML&&ISO^L^^^FI^TMCA, SOUTH CAMPUS&&ISO^^^^^^^MD\r\nSPM|1|09339017^M12776123&&&ISO||119297000^Blood specimen^SCT^BLD^BLOOD^L^07/31/2012^5.67||||RA^RIGHT ARM^L^5.67||||||RA^RIGHT ARM^RIGHT ARM|||20280802025201-0600^20280802025201-0600|20210804001800-0600\r\nOBR|4||21:AA:B0029251S.4^M12776123.4^^ISO|50545-3^Bacterial susceptibility panel by Minimum inhibitory concentration (MIC)^LN^MDAPTOE^MIC DAPTOMYCIN E TEST^L^2.40^5.67|||20280807163601-0600|20280807163601-0600||ER|||SEPTIC SHOCK|||1871759365^Willison^Christopher^Beau^^^^^NPI&2.16.840.1.114222.4.1.144&ISO^L^^^NPI^RML&&ISO^^^^^^^MD|^WPN^PH^^1^303^4362727^^Hospital Line|21:AA:B0029251Sm12776123|09339017||TMCA, SOUTH CAMPUS|20210810062500-0600|||P|600-7&&LN&BCEXT&EXTENDED BLOOD CULTURE&L&2.40&5.67&EXTENDED BLOOD CULTURE^1^ENTRAFVRE|||^21:AA:B0029251Sm12776123&RML&&ISO||R6521^SEVERE SEPSIS WITH SEPTIC SHOCK^I10^R6521^SEVERE SEPSIS WITH SEPTIC SHOCK^I10^38^38|||||\r\nOBX|1|SN|35788-9^DAPTOmycin [Susceptibility] by Minimum inhibitory concentration (MIC)^LN^DAP^DAPTOMYCIN^L^2.40^5.67|1|=^0.5|ug/mL^MicroGrams Per MilliLiter [Mass Concentration Units]^UCUM^ug/mL^ug/mL^L^2.40^5.67||S^Susceptible. Indicates for microbiology susceptibilities only.^HL70078^S^S^L^2.5.1^5.67|||P|||20280807163601-0600|MCOE^ROSE MEDICAL CENTER (MCOE)^LB||||20280807163601-0600||||ROSE MEDICAL CENTER (MCOE)^L|4567 E. NINTH AVENUE^^DENVER^CO^80220^USA^B^^S|1033122247^Chahal^Shalini^^^Dr.^^^RML&&ISO^L^^^FI^ROSE MEDICAL CENTER &&ISO^^^^^^^MD\r\nOBR|5||21:AA:B0029251S.5^M12776123.5^^ISO|VGP-75^VITEK2 AST-GP75^L^^^^5.67|||20280807163601-0600|20280807163601-0600||ER|||SEPTIC SHOCK|||1871759365^Willison^Christopher^Beau^^^^^NPI&2.16.840.1.114222.4.1.144&ISO^L^^^NPI^RML&&ISO^^^^^^^MD|^WPN^PH^^1^303^4362727^^Hospital Line|21:AA:B0029251Sm12776123|09339017||ROSE MEDICAL CENTER (MCOE)|20210810062500-0600|||P|600-7&&LN&BCEXT&EXTENDED BLOOD CULTURE&L&2.40&5.67&EXTENDED BLOOD CULTURE^1^ENTRAFVRE|||^21:AA:B0029251Sm12776123&RML&&ISO||R6521^SEVERE SEPSIS WITH SEPTIC SHOCK^I10^R6521^SEVERE SEPSIS WITH SEPTIC SHOCK^I10^38^38|||||\r\nOBX|1|SN|28-1^Ampicillin [Susceptibility] by Minimum inhibitory concentration (MIC)^LN^AM^AMPICILLIN^L^2.40^5.67|1|=^16|ug/mL^MicroGrams Per MilliLiter [Mass Concentration Units]^UCUM^ug/mL^ug/mL^L^2.40^5.67||R^Resistant. Indicates for microbiology susceptibilities only.^HL70078^R^R^L^2.5.1^5.67|||P|||20280807163601-0600|MCOE^ROSE MEDICAL CENTER (MCOE)^LB||||20280807163601-0600||||ROSE MEDICAL CENTER (MCOE)^L|4567 E. NINTH AVENUE^^DENVER^CO^80220^USA^B^^R|1033122247^Chahal^Shalini^^^Dr.^^^RML&&ISO^L^^^FI^ROSE MEDICAL CENTER &&ISO^^^^^^^MD\r\nOBX|2|ST|7018-5^Gentamicin.high potency [Susceptibility] by Minimum inhibitory concentration (MIC)^LN^GMS^GENTAMICIN SYNERGY SCREEN^L^2.40^5.67|1|SYN-S|ug/mL^MicroGrams Per MilliLiter [Mass Concentration Units]^UCUM^ug/mL^ug/mL^L^2.40^5.67||S^Susceptible. Indicates for microbiology susceptibilities only.^HL70078^S^S^L^2.5.1^5.67|||P|||20280807163601-0600|MCOE^ROSE MEDICAL CENTER (MCOE)^LB||||20280807163601-0600||||ROSE MEDICAL CENTER (MCOE)^L|4567 E. NINTH AVENUE^^DENVER^CO^80220^USA^B^^S|1033122247^Chahal^Shalini^^^Dr.^^^RML&&ISO^L^^^FI^ROSE MEDICAL CENTER &&ISO^^^^^^^MD\r\nOBX|3|SN|29254-0^Linezolid [Susceptibility] by Minimum inhibitory concentration (MIC)^LN^LZD^LINEZOLID^L^2.40^5.67|1|=^2|ug/mL^MicroGrams Per MilliLiter [Mass Concentration Units]^UCUM^ug/mL^ug/mL^L^2.40^5.67||S^Susceptible. Indicates for microbiology susceptibilities only.^HL70078^S^S^L^2.5.1^5.67|||P|||20280807163601-0600|MCOE^ROSE MEDICAL CENTER (MCOE)^LB||||20280807163601-0600||||ROSE MEDICAL CENTER (MCOE)^L|4567 E. NINTH AVENUE^^DENVER^CO^80220^USA^B^^S|1033122247^Chahal^Shalini^^^Dr.^^^RML&&ISO^L^^^FI^ROSE MEDICAL CENTER &&ISO^^^^^^^MD\r\nOBX|4|ST|6933-6^Streptomycin.high potency [Susceptibility] by Minimum inhibitory concentration (MIC)^LN^STS^STREPTOMYCIN SYNERGY SCREEN^L^2.40^5.67|1|SYN-S|ug/mL^MicroGrams Per MilliLiter [Mass Concentration Units]^UCUM^ug/mL^ug/mL^L^2.40^5.67||S^Susceptible. Indicates for microbiology susceptibilities only.^HL70078^S^S^L^2.5.1^5.67|||P|||20280807163601-0600|MCOE^ROSE MEDICAL CENTER (MCOE)^LB||||20280807163601-0600||||ROSE MEDICAL CENTER (MCOE)^L|4567 E. NINTH AVENUE^^DENVER^CO^80220^USA^B^^S|1033122247^Chahal^Shalini^^^Dr.^^^RML&&ISO^L^^^FI^ROSE MEDICAL CENTER &&ISO^^^^^^^MD\r\nOBX|5|SN|19000-9^Vancomycin [Susceptibility]^LN^VA^VANCOMYCIN^L^2.40^5.67|1|>=^32|ug/mL^MicroGrams Per MilliLiter [Mass Concentration Units]^UCUM^ug/mL^ug/mL^L^2.40^5.67||R^Resistant. Indicates for microbiology susceptibilities only.^HL70078^R^R^L^2.5.1^5.67|||P|||20280807163601-0600|MCOE^ROSE MEDICAL CENTER (MCOE)^LB||||20280807163601-0600||||ROSE MEDICAL CENTER (MCOE)^L|4567 E. NINTH AVENUE^^DENVER^CO^80220^USA^B^^R|1033122247^Chahal^Shalini^^^Dr.^^^RML&&ISO^L^^^FI^ROSE MEDICAL CENTER &&ISO^^^^^^^MD\r\nSPM|1|09339017^M12776123&&&ISO||119303007^Microbial isolate^SCT^ISLT^ISOLATE^L^07/31/2012^5.67||||RA^RIGHT ARM^L^5.67||||||RA^RIGHT ARM^RIGHT ARM|||20280808092805-0600^20280808092805-0600|20210804001800-0600||||||||3.0|^BACTEC BLOOD CULTURE BOTTLES\r\n"
+						},
+						"url": {
+							"raw": "{{url}}/api/reports?processing=async&default=aaa",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"reports"
+							],
+							"query": [
+								{
+									"key": "processing",
+									"value": "async"
+								},
+								{
+									"key": "default",
+									"value": "aaa"
+								},
+								{
+									"key": "routeTo",
+									"value": "bbb",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CSV Message Verify - QualityFilters",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "client",
+						"value": "simple_report",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "text/csv",
+						"type": "text"
+					},
+					{
+						"key": "x-functions-key",
+						"value": "{{functions-key}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "Patient_last_name,Patient_first_name,Patient_middle_name,Patient_suffix,Patient_tribal_affiliation,Patient_ID,Ordered_test_code,Specimen_source_site_code,Specimen_type_code,Device_ID,Instrument_ID,Result_ID,Corrected_result_ID,Test_correction_reason,Test_result_status,Test_result_code,Illness_onset_date,Specimen_collection_date_time,Order_test_date,Test_date,Date_result_released,Patient_race,Patient_DOB,Patient_gender,Patient_ethnicity,Patient_preferred_language,Patient_street,Patient_street_2,Patient_city,Patient_state,Patient_zip_code,Patient_country,Patient_phone_number,Patient_county,Patient_email,Patient_role,Processing_mode_code,Employed_in_healthcare,Resident_congregate_setting,First_test,Symptomatic_for_disease,Testing_lab_name,Testing_lab_CLIA,Testing_lab_street,Testing_lab_street_2,Testing_lab_city,Testing_lab_state,Testing_lab_zip_code,Testing_lab_phone_number,Testing_lab_county,Organization_name,Ordering_facility_name,Ordering_facility_street,Ordering_facility_street_2,Ordering_facility_city,Ordering_facility_state,Ordering_facility_zip_code,Ordering_facility_phone_number,Ordering_facility_county,Ordering_provider_ID,Ordering_provider_last_name,Ordering_provider_first_name,Ordering_provider_street,Ordering_provider_street_2,Ordering_provider_city,Ordering_provider_state,Ordering_provider_zip_code,Ordering_provider_phone_number,Ordering_provider_county,Site_of_care\r\nAlaska1,Judy,Suellen,,39,xen4p,94558-4,71836000,440500007,BD Veritor System for Rapid Detection of SARS-CoV-2,939273,Alaska1,613603,nh1rigems,F,260373001,20220225,202202201809-0500,202202261540-0500,20220221,20220220,2106-3,,F,H,Iloko,10269 Larry Villages,,Yellow jacket,AK,81335,USA,2853464789,Montezuma,lyndon.smitham@email.com,kgvmoxba,P,Y,UNK,N,Y,Any lab USA,BadCLIA,3279 Schroeder Mountain,,Yellow jacket,AK,81335,2365001476,Montezuma,see3r8,Any facility USA,35260 Dustin Crossroad,,Yellow jacket,AK,81335,2862149859,Montezuma,1368398388,Huels,Bradley,283 Runolfsson Drive,,Yellow jacket,AK,81335,2241497529,Montezuma,camp\r\nAlaska2,Kenny,Breann,Sr.,27,2gbqrv,94558-4,71836000,440500007,BD Veritor System for Rapid Detection of SARS-CoV-2,468099,Alaska2,636749,rra2j4s,F,260415000,20220301,202202222307-0500,202202252245-0500,20220228,20220225,2028-9,19690614,F,H,Berber (Other),8056 Reichel Crossing,,Windsor,AK,80550,USA,2790266596,Weld,eli.crona@email.com,t9ipygo,P,UNK,UNK,UNK,Y,Any lab USA,BadCLIA,16553 Macejkovic Via,,Windsor,AK,80550,2500542124,Weld,gdo6is6sm,Any facility USA,4239 Mayer Freeway,,Windsor,AK,80550,2662649784,Weld,1455133326,Williamson,Hayden,324 Buckridge Court,,Windsor,AK,80550,2566122093,Weld,employer\r\nAlaska3,Venice,Blake,,267,nmfolq,94558-4,71836000,122555007,BD Veritor System for Rapid Detection of SARS-CoV-2,190846,Alaska3,838707,inpzanp25,C,260373001,20220221,202202281336-0500,202202270422-0500,20220301,20220224,2028-9,20160531,A,U,Swahili,8068 McLaughlin Trail,,Rollinsville,AK,80474,USA,2133839508,Gilpin,waylon.ritchie@email.com,prv2c3,P,Y,Y,N,UNK,Any lab USA,53D1255188,80427 Hilma Springs,,Rollinsville,AK,80474,2930427656,Gilpin,760qrnn,Any facility USA,4482 Byron Ramp,,Rollinsville,AK,80474,2347418784,Gilpin,1231092473,Olson,Patricia,74865 Hilario Way,,Rollinsville,AK,80474,2537155784,Gilpin,shelter\r\nAlaska4,Lakia,Jasmine,II,425,681gcvcej,95209-3,71836000,119364003,LumiraDx SARS-CoV-2 Ag Test,488125,Alaska4,149794,mf433,C,260373001,20220224,202202201018-0500,202202280213-0500,20220228,20220224,ASKU,20040109,O,U,Otomian languages,73745 Garfield Junctions,,Loveland,AK,80537,USA,2410308513,Larimer,dot.swaniawski@email.com,mawsfa,P,UNK,Y,Y,UNK,Any lab USA,BadCLIA,91150 Runolfsson Trail,,Loveland,AK,80537,2381431370,Larimer,3e3lsxz,Any facility USA,285 Javier Lodge,,Loveland,AK,80537,2227498182,Larimer,1073411005,Collins,Edward,8131 Morton Vista,,Loveland,AK,80537,2545052905,Larimer,hospital\r\nAlaska5,Camilla,Aaron,PhD,155,znh1w4,94558-4,71836000,258529004,BD Veritor System for Rapid Detection of SARS-CoV-2,714105,Alaska5,969475,rxmbg2q8,F,260373001,20220224,202202200933-0500,202202281920-0500,20220227,20220222,2054-5,20181119,N,U,Gaelic; Scottish Gaelic,316 Esperanza Mountain,,Villegreen,AK,81049,USA,2628197766,Las Animas,darcie.schmidt@email.com,0p4y9,P,N,UNK,Y,Y,Any lab USA,19D1982418,3383 Natividad Fall,,Villegreen,AK,81049,2363622974,Las Animas,auzsv79j,Any facility USA,9269 Tyrell Run,,Villegreen,AK,81049,2259860436,Las Animas,1871021246,Beier,Jaime,056 Stracke Canyon,,Villegreen,AK,81049,2316942250,Las Animas,urgent_care\r\nHawaii6,Roman,Ethan,DDS,337,3y8kvx,95209-3,71836000,WRONG_specimen_type,LumiraDx SARS-CoV-2 Ag Test,91792,Hawaii6,248058,19bxo4,F,419984006,20220220,202202240743-0500,202202270006-0500,20220226,20220227,2028-9,19630418,O,N,Arawak,68346 Kuhn Rest,,Paauilo,HI,96776,USA,2893386593,Hawaii,king.schmeler@email.com,07e9jsv9,P,N,UNK,UNK,N,Any lab USA,52D0993791,70172 Maynard Mills,,Paauilo,HI,96776,2509382172,Hawaii,xt4bs4,Any facility USA,143 Bailey Prairie,,Paauilo,HI,96776,2433464082,Hawaii,1500461516,Kris,Milan,46478 Jason Ferry,,Paauilo,HI,96776,2221021721,Hawaii,treatment_center\r\nHawaii7,Oren,Booker,I,508,9j5ucoy3,95209-3,71836000,WRONG_specimen_type,WRONG_equipment_model_name,314875,Hawaii7,96325,hbngcaokg,C,419984006,20220301,202202271959-0500,202202230746-0500,20220227,20220228,ASKU,19850227,M,U,Khotanese,48626 Andrea Cape,,Holualoa,HI,96725,USA,2723653056,Hawaii,jarod.stark@email.com,fozgv3559,P,N,N,N,N,Any lab USA,45D7232637,625 Raynor Vista,,Holualoa,HI,96725,2454972847,Hawaii,jvdqgzo4,Any facility USA,0023 Erdman Ville,,Holualoa,HI,96725,2417450135,Hawaii,1082220249,Terry,Hans,937 Takisha Estates,,Holualoa,HI,96725,2926957961,Hawaii,employer\r\nHawaii8,Dale,Rosario,MD,485,o16jg5h,95209-3,71836000,119364003,LumiraDx SARS-CoV-2 Ag Test,311546,Hawaii8,901196,q4two0yw,C,260373001,20220226,202202251550-0500,202202271952-0500,20220224,20220222,2106-3,19611009,M,U,Thai,754 Muller Course,,Kurtistown,HI,96760,USA,2946622751,Hawaii,moriah.raynor@email.com,8d5k2,P,UNK,UNK,UNK,UNK,Any lab USA,43D1961163,895 Francisco Forge,,Kurtistown,HI,96760,2150017419,Hawaii,8iq8yvj7u,Any facility USA,89484 Madison Harbor,,Kurtistown,HI,96760,2716381441,Hawaii,1197461100,Marquardt,Issac,4275 Hilpert Avenue,,Kurtistown,HI,96760,WRONG_ordering_provider_phone_number,Hawaii,other\r\nHawaii9,Novella,Rod,III,200,h8wezxv,95209-3,71836000,WRONG_specimen_type,LumiraDx SARS-CoV-2 Ag Test,693890,Hawaii9,292399,9z429e,F,260373001,20220220,202202230448-0500,202202271318-0500,20220224,20220301,1002-5,19501019,M,U,Udmurt,987 Auer Fall,,Waialua,HI,96791,USA,2234211896,Honolulu,rosalba.morissette@email.com,3w9uhcf6k,P,Y,UNK,Y,UNK,Any lab USA,16D2071231,943 Norbert Brook,,Waialua,HI,96791,2715832456,Honolulu,1np6picz,Any facility USA,374 Mueller Drives,,Waialua,HI,96791,2489936569,Honolulu,1854296955,Schmidt,Antonina,48128 Hickle Union,,Waialua,HI,96791,2525447391,Honolulu,urgent_care\r\nHawaii10,Billy,Valentin,,452,m1wue,95209-3,71836000,119364003,LumiraDx SARS-CoV-2 Ag Test,891092,Hawaii10,637474,1xxpv,C,260415000,20220221,202202210211-0500,202202210714-0500,20220223,20220222,2106-3,19860321,M,N,Sanskrit,625 Guy Cove,,Kekaha,HI,96752,USA,2333963105,Kauai,samual.hartmann@email.com,l20fv,P,N,N,UNK,UNK,Any lab USA,90D6609198,2327 Keven Streets,,Kekaha,HI,96752,2072926659,Kauai,bceghnfw,Any facility USA,294 Candice Path,,Kekaha,HI,96752,2743949909,Kauai,1440905523,Aufderhar,Elene,98786 Reynolds Ways,,Kekaha,HI,96752,2035417314,Kauai,treatment_center\r\nOhio11,A,A,,39,asdfasdf,94558-4,71836000,440500007,BD Veritor System for Rapid Detection of SARS-CoV-2,939273,Ohio11,613603,nh1rigems,F,260373001,,,,,,2106-3,,F,H,Iloko,10269 Larry Villages,,Yellow jacket,OH,81335,USA,2853464789,Montezuma,lyndon.smitham@email.com,kgvmoxba,P,Y,UNK,N,Y,Any lab USA,BadCLIA,3279 Schroeder Mountain,,Yellow jacket,OH,81335,2365001476,Montezuma,see3r8,Any facility USA,35260 Dustin Crossroad,,Yellow jacket,OH,81335,2862149859,Montezuma,1368398388,Huels,Bradley,283 Runolfsson Drive,,Yellow jacket,OH,81335,2241497529,Montezuma,camp\r\nOhio12,B,B,,39,jkljkl,94558-4,71836000,440500007,BD Veritor System for Rapid Detection of SARS-CoV-2,939273,Ohio12,613603,nh1rigems,F,260373001,20220225,202202201809-0500,202202261540-0500,20220221,20220220,2106-3,,F,H,Iloko,10269 Larry Villages,,Yellow jacket,OH,81335,USA,2853464789,Montezuma,lyndon.smitham@email.com,kgvmoxba,P,Y,UNK,N,Y,Any lab USA,BadCLIA,3279 Schroeder Mountain,,Yellow jacket,OH,81335,2365001476,Montezuma,see3r8,Any facility USA,35260 Dustin Crossroad,,Yellow jacket,OH,81335,2862149859,Montezuma,1368398388,Huels,Bradley,283 Runolfsson Drive,,Yellow jacket,OH,81335,2241497529,Montezuma,camp\r\nMD13,C,C,,267,nmfolq,94558-4,71836000,122555007,BD Veritor System for Rapid Detection of SARS-CoV-2,190846,Alaska3,838707,inpzanp25,C,260373001,20220221,202202281336-0500,202202270422-0500,20220301,20220224,2028-9,20160531,A,U,Swahili,8068 McLaughlin Trail,,Rollinsville,MD,80474,USA,2133839508,Gilpin,waylon.ritchie@email.com,prv2c3,P,Y,Y,N,UNK,Any lab USA,53D1255188,80427 Hilma Springs,,Rollinsville,MD,80474,2930427656,Gilpin,760qrnn,Any facility USA,4482 Byron Ramp,,Rollinsville,MD,80474,2347418784,Gilpin,1231092473,Olson,Patricia,74865 Hilario Way,,Rollinsville,AK,80474,2537155784,Gilpin,shelter\r\nMD14,D,D,,267,nmfolq,94558-4,71836000,122555007,BD Veritor System for Rapid Detection of SARS-CoV-2,190846,Alaska3,838707,inpzanp25,C,260373001,20220221,202202281336-0500,202202270422-0500,20220301,20220224,2028-9,20160531,A,U,Swahili,8068 McLaughlin Trail,,Rollinsville,MD,80474,USA,2133839508,Gilpin,waylon.ritchie@email.com,prv2c3,P,Y,Y,N,UNK,Any lab USA,53D1255188,80427 Hilma Springs,,Rollinsville,MD,80474,2930427656,Gilpin,760qrnn,Any facility USA,4482 Byron Ramp,,Rollinsville,MD,80474,2347418784,Gilpin,1231092473,Olson,Patricia,74865 Hilario Way,,Rollinsville,AK,80474,2537155784,Gilpin,shelter\r\n"
+				},
+				"url": {
+					"raw": "{{url}}/api/verify",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"verify"
+					],
+					"query": [
+						{
+							"key": "default",
+							"value": "aaa",
+							"disabled": true
+						},
+						{
+							"key": "routeTo",
+							"value": "bbb",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Single HL7 Submission",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "client",
+						"value": "simple_report.hl7test",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/hl7-v2",
+						"type": "text"
+					},
+					{
+						"key": "x-functions-key",
+						"value": "09xifjf....444s",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^10811877011290^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
+				},
+				"url": {
+					"raw": "http://localhost:7071/api/reports?processing=async&allowDuplicate=false",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7071",
+					"path": [
+						"api",
+						"reports"
+					],
+					"query": [
+						{
+							"key": "processing",
+							"value": "async"
+						},
+						{
+							"key": "allowDuplicate",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Single HL7 Validate",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "client",
+						"value": "simple_report.hl7test",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/hl7-v2",
+						"type": "text"
+					},
+					{
+						"key": "x-functions-key",
+						"value": "09xifjf....444s",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r\nSFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\r\nPID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\r\nORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^CA^95126\r\nOBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\r\nOBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^10811877011290^99ELR^^^^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\r\nOBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nOBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\r\nSPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
+				},
+				"url": {
+					"raw": "http://localhost:7071/api/validate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7071",
+					"path": [
+						"api",
+						"validate"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
