@@ -12,6 +12,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.db.ReportGraph
 import java.util.UUID
@@ -154,7 +155,11 @@ class SubmissionFunction(
 
     override fun getLookupId(reportId: UUID): UUID? {
         val reportGraph = ReportGraph(workflowEngine.db)
-        val descendants = reportGraph.getDescendantReports(reportId)
+        var descendants: List<ReportFile> = emptyList()
+        workflowEngine.db.transactReturning { txn ->
+            // looking for the descendant batch report because RS sends the batch report ID, not the send report ID, to ReST receivers
+            descendants = reportGraph.getDescendantReports(txn, reportId, setOf(TaskAction.batch))
+        }
 
         return descendants.stream().filter {
             it.receivingOrg == "flexion"

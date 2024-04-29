@@ -560,7 +560,9 @@ class SubmissionFunctionTests : Logging {
         secondReport.reportId = UUID.randomUUID()
         secondReport.receivingOrg = "flexion"
 
-        every { anyConstructed<ReportGraph>().getDescendantReports(any()) } returns listOf(firstReport, secondReport)
+        every {
+            anyConstructed<ReportGraph>().getDescendantReports(any(), any(), any())
+        } returns listOf(firstReport, secondReport)
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
@@ -621,7 +623,7 @@ class SubmissionFunctionTests : Logging {
 
         mockkConstructor(ReportGraph::class)
 
-        every { anyConstructed<ReportGraph>().getDescendantReports(any()) } returns emptyList()
+        every { anyConstructed<ReportGraph>().getDescendantReports(any(), any(), any()) } returns emptyList()
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns null

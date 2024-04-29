@@ -357,8 +357,12 @@ class ReportGraphTest {
 
         @Test
         fun `find descendant reports from receive parent report`() {
-            val descendants = reportGraph.getDescendantReports(receivedReportId)
-            System.out.println(descendants)
+            var descendants: List<ReportFile> = emptyList()
+
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+                descendants = reportGraph.getDescendantReports(txn, receivedReportId, setOf(TaskAction.send))
+            }
+
             assertThat(descendants)
                 .isNotNull()
                 .hasSize(1)
