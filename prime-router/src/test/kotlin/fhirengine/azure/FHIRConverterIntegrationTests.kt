@@ -51,6 +51,7 @@ import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
@@ -135,6 +136,7 @@ class FHIRConverterIntegrationTests {
         unmockkObject(BlobAccess)
         unmockkObject(BlobAccess.BlobContainerMetadata)
         unmockkObject(QueueAccess)
+        clearAllMocks()
     }
 
     private fun getBlobContainerMetadata(): BlobAccess.BlobContainerMetadata {
