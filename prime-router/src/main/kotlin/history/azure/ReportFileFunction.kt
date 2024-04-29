@@ -262,6 +262,7 @@ abstract class ReportFileFunction(
             }
         }
 
+        // TODO - check the response, don't return ok if it isn't
         return HttpUtilities.okResponse(request, responseBody)
     }
 
