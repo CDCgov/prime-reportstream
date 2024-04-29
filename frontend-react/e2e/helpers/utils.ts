@@ -29,6 +29,13 @@ export function tableRows(page: Page) {
     return page.locator(".usa-table tbody").locator("tr");
 }
 
+export async function fulfillGoogleAnalytics(page: Page) {
+    // fulfill GA request so that we don't log it and alter the metrics
+    await page.route("https://www.google-analytics.com/**", (route) =>
+        route.fulfill({ status: 204, body: "" }),
+    );
+}
+
 export async function selectTestOrg(page: Page) {
     await page.goto("/admin/settings", {
         waitUntil: "domcontentloaded",
@@ -39,6 +46,11 @@ export async function selectTestOrg(page: Page) {
     await page.getByTestId("gridContainer").waitFor({ state: "visible" });
     await page.getByTestId("textInput").fill(TEST_ORG_IGNORE);
     await page.getByTestId("ignore_set").click();
+}
+
+export async function logOut(page: Page) {
+    await page.getByRole("button", { name: "Logout" }).click();
+    await expect(page.getByRole("button", { name: "Login" })).toBeVisible();
 }
 
 /**
