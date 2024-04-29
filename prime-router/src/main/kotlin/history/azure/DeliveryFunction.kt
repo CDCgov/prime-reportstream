@@ -212,13 +212,9 @@ class DeliveryFunction(
     }
 
     override fun getLookupId(reportId: UUID): UUID? {
-        // TODO - turn this into something useful/coherent:
         // the delivery endpoint is called by the final receiver with a sent report ID, where TI
         // knows about the related submission report ID
 
-        // TODO:
-        // update tests
-        // do some manual/gut tests?
         val reportGraph = ReportGraph(workflowEngine.db)
         val roots = reportGraph.getRootReports(reportId)
 

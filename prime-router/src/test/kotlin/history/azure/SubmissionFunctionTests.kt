@@ -24,6 +24,7 @@ import gov.cdc.prime.router.azure.MockSettings
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.cli.tests.ExpectedSubmissionList
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.credentials.RestCredential
@@ -32,6 +33,7 @@ import gov.cdc.prime.router.history.Destination
 import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.SubmissionHistory
+import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TestDefaultJwt
@@ -547,6 +549,18 @@ class SubmissionFunctionTests : Logging {
         action.actionId = 550
         action.sendingOrg = organizationName
         action.actionName = TaskAction.receive
+
+        mockkConstructor(ReportGraph::class)
+
+        val firstReport = ReportFile()
+        firstReport.reportId = UUID.randomUUID()
+        firstReport.receivingOrg = "not-flexion"
+
+        val secondReport = ReportFile()
+        secondReport.reportId = UUID.randomUUID()
+        secondReport.receivingOrg = "flexion"
+
+        every { anyConstructed<ReportGraph>().getDescendantReports(any()) } returns listOf(firstReport, secondReport)
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
@@ -604,6 +618,10 @@ class SubmissionFunctionTests : Logging {
         action.actionId = 550
         action.sendingOrg = organizationName
         action.actionName = TaskAction.receive
+
+        mockkConstructor(ReportGraph::class)
+
+        every { anyConstructed<ReportGraph>().getDescendantReports(any()) } returns emptyList()
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns null

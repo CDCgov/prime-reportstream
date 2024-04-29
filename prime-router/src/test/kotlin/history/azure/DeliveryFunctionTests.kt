@@ -698,6 +698,19 @@ class DeliveryFunctionTests : Logging {
         action.actionId = 550
         action.sendingOrg = organizationName
         action.actionName = TaskAction.send
+
+        mockkConstructor(ReportGraph::class)
+
+        val firstReport = ReportFile()
+        firstReport.reportId = UUID.randomUUID()
+        firstReport.createdAt = OffsetDateTime.parse("2023-04-18T23:36:00Z")
+
+        val secondReport = ReportFile()
+        secondReport.reportId = UUID.randomUUID()
+        secondReport.createdAt = OffsetDateTime.parse("2022-08-26T00:00:00Z")
+
+        every { anyConstructed<ReportGraph>().getRootReports(any()) } returns listOf(firstReport, secondReport)
+
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns returnBody
@@ -731,7 +744,7 @@ class DeliveryFunctionTests : Logging {
         val customContext = mockk<ExecutionContext>()
         every { customContext.logger } returns mockk<Logger>()
 
-        var response = function.retrieveETORIntermediaryMetadata(
+        val response = function.retrieveETORIntermediaryMetadata(
             mockRequest, goodUuid, customContext, mock
         )
 
@@ -755,6 +768,9 @@ class DeliveryFunctionTests : Logging {
         action.actionId = 550
         action.sendingOrg = organizationName
         action.actionName = TaskAction.send
+
+        every { anyConstructed<ReportGraph>().getRootReports(any()) } returns emptyList()
+
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns null
