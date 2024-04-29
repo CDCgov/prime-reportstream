@@ -39,7 +39,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.9.20"
+    id("org.jetbrains.dokka") version "1.8.20"
     id("com.avast.gradle.docker-compose") version "0.17.6"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
@@ -775,6 +775,9 @@ task<RunSQL>("clearDB") {
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://hit-nexus.nist.gov/repository/releases/")
+    }
 }
 
 buildscript {
@@ -926,6 +929,18 @@ dependencies {
     implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.16")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
+    implementation("gov.nist:hl7-v2-validation:1.6.4") {
+        // These conflict with the javax.xml.transform package available in the base JDK and need to be excluded
+        exclude("xerces")
+        exclude("xml-apis")
+    }
+    // pin xalan for CVE-2022-34169 via gov.nist:hl7-v2-validation@1.6.4
+    implementation("xalan:xalan:2.7.3")
+
+    // validations
+    implementation("com.networknt:json-schema-validator:1.4.0")
+    implementation("io.konform:konform-jvm:0.4.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     runtimeOnly("com.squareup.okio:okio:3.9.0")

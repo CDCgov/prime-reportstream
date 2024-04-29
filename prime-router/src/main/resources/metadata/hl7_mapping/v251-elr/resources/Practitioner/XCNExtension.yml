@@ -12,10 +12,6 @@ elements:
     value: [ '%resource.extension("XCN.5").value' ]
     hl7Spec: [ '%{hl7XCNField}-5' ]
 
-  - name: xcn-7-degree
-    value: [ '%resource.extension("XCN.7").value' ]
-    hl7Spec: [ '%{hl7XCNField}-7' ]
-
   - name: xcn-8-source-table
     resource: '%resource.extension("XCN.8").value'
     constants:

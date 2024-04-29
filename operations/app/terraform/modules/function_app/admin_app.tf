@@ -99,7 +99,9 @@ resource "azurerm_function_app" "admin" {
     ignore_changes = [
       client_cert_mode,
       tags,
-      site_config[0].ip_restriction
+      site_config[0].ip_restriction,
+      site_config[0].vnet_route_all_enabled,
+      app_settings["SCM_DO_BUILD_DURING_DEPLOYMENT"]
     ]
   }
   depends_on = [
