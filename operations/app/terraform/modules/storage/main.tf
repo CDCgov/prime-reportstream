@@ -108,13 +108,30 @@ module "storageaccount_queue_private_endpoint" {
   dns_zone            = var.dns_zones["queue"].name
 }
 
+
+resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
+  name                       = "${var.resource_prefix}-storage_account_queue_default-diag"
+  target_resource_id         = "${azurerm_storage_account.storage_account.id}/queueServices/default"
+  log_analytics_workspace_id = var.law_id
+  enabled_log {
+    category = "StorageWrite"
+  }
+  metric {
+    category = "Transaction"
+  }
+  lifecycle {
+    ignore_changes = [
+        metric
+    ]
+  }
+}
+
 # Point-in-time restore, soft delete, versioning, and change feed were
 # enabled in the portal as terraform does not currently support this.
 # At some point, this should be moved into an azurerm_template_deployment
 # resource.
 # These settings can be configured under the "Data protection" blade
 # for Blob service
-
 resource "azurerm_storage_management_policy" "retention_policy" {
   storage_account_id = azurerm_storage_account.storage_account.id
 

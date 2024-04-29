@@ -59,3 +59,5 @@ variable "storage_queue_name" {
   type        = list(string)
   default     = ["proces"]
 }
+
+variable "law_id" {}
