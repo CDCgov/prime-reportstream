@@ -133,6 +133,7 @@ class FHIRConverterIntegrationTests {
     @AfterEach
     fun afterEach() {
         unmockkObject(BlobAccess)
+        unmockkObject(BlobAccess.BlobContainerMetadata)
         unmockkObject(QueueAccess)
     }
 
