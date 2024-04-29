@@ -55,7 +55,6 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
-import io.mockk.unmockkObject
 import io.mockk.verify
 import org.jooq.impl.DSL
 import org.junit.jupiter.api.AfterEach
@@ -133,9 +132,6 @@ class FHIRConverterIntegrationTests {
 
     @AfterEach
     fun afterEach() {
-        unmockkObject(BlobAccess)
-        unmockkObject(BlobAccess.BlobContainerMetadata)
-        unmockkObject(QueueAccess)
         clearAllMocks()
     }
 
