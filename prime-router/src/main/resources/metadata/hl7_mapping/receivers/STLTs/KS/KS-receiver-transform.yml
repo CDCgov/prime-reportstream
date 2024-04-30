@@ -9,11 +9,6 @@ elements:
     value: [ '"NET"' ]
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
-  - name: ks-message-encoding-characters
-    condition: true
-    value: [ '"^~\\&"' ]
-    hl7Spec: [ 'MSH-2' ]
-
   - name: ks-name-of-the-receiving-application
     condition: true
     value: [ '"KSDOH"' ]

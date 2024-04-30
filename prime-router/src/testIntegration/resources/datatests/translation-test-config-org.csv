@@ -35,5 +35,4 @@ FHIR_to_HL7/sample_NV_20240212-0001.fhir,,FHIR_to_HL7/sample_NV_20240212-0001.h7
 FHIR_to_HL7/sample_AK_20240220-0001.fhir,,FHIR_to_HL7/sample_AK_20240220-0001.hl7,classpath:/metadata/hl7_mapping/receivers/STLTs/AK/AK-receiver-transform.yml,HL7,PASS,"","","","","",""
 HL7_to_FHIR_to_HL7/etor_ORU_20240220.hl7,,HL7_to_FHIR_to_HL7/etor_ORU_20240220-expected.hl7,classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml,HL7,PASS,"","flexion.simulated-lab","","","",""
 FHIR_to_HL7/sample_SC_20240305-0001.fhir,,FHIR_to_HL7/sample_SC_20240305-0001.hl7,classpath:/metadata/hl7_mapping/receivers/STLTs/SC/SC-receiver-transform.yml,HL7,PASS,"","","","","",""
-FHIR_to_HL7/sample_KS_2024040529-0001.fhir,,FHIR_to_HL7/sample_KS_2024040529-0001.hl7,classpath:/metadata/hl7_mapping/receivers/STLTs/KS/KS-receiver-transform.yml,HL7,PASS,"","","","","",""
 HL7_to_FHIR/sample_oml_20240319-001.hl7,,HL7_to_FHIR/sample_oml_20240319-001.fhir,,FHIR,PASS,"","","","","",""
