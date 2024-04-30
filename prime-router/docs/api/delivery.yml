@@ -43,8 +43,8 @@ paths:
           description: The receiver could not be found
   /waters/report/{reportId}/delivery/etorMetadata:
     get:
-      summary: Retrieves ETOR metadata for a report
-      description: Allows fetching of ETOR intermediary metadata by report ID
+      summary: Retrieves ETOR metadata for a recipient's report
+      description: Fetches the ETOR intermediary's metadata given the recipient's report ID.
       operationId: getEtorMetadataForDelivery
       parameters:
         - name: reportId
