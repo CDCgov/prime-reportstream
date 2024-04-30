@@ -73,8 +73,10 @@ test.describe("Daily Data page", () => {
                 await selectTestOrg(page);
                 await mockGetOrgIgnoreReceiversResponse(page);
                 await mockGetDeliveriesForOrgIgnoreResponse(page);
+                await mockGetDeliveriesForOrgIgnoreResponse(page, true);
                 await mockGetDeliveriesForOrgIgnoreResponse(
                     page,
+                    false,
                     TEST_ORG_IGNORE_RECEIVER,
                 );
                 await dailyData.goto(page);
@@ -745,14 +747,14 @@ test.describe("Daily Data page", () => {
                     });
                 });
 
-                test("clears search on Apply", async ({ page }) => {
+                test("clears search on 'Apply'", async ({ page }) => {
                     // Search by Report ID
                     const reportId = await tableDataCellValue(page, 0, 0);
                     await searchInput(page).fill(reportId);
                     await searchButton(page).click();
 
                     const rowCount = await tableRows(page).count();
-                    expect(rowCount).toEqual(10);
+                    expect(rowCount).toEqual(1);
 
                     // Check filter status lists receiver value
                     let filterStatusText = filterStatus(page, [reportId]);
@@ -805,8 +807,8 @@ test.describe("Daily Data page", () => {
             });
 
             test.describe("search", () => {
-                test.skip("returns match for Report ID", async ({ page }) => {
-                    const reportId = await tableDataCellValue(page, 2, 0);
+                test("returns match for Report ID", async ({ page }) => {
+                    const reportId = await tableDataCellValue(page, 0, 0);
                     await searchInput(page).fill(reportId);
                     await searchButton(page).click();
 
@@ -892,12 +894,13 @@ test.describe("Daily Data page", () => {
                     ).toContainText(filterStatusText);
 
                     // Search by Report ID
-                    const reportId = await tableDataCellValue(page, 0, 0);
+                    // const reportId = await tableDataCellValue(page, 0, 0);
+                    const reportId = "729158ce-4125-46fa-bea0-3c0f910f472c";
                     await searchInput(page).fill(reportId);
                     await searchButton(page).click();
 
                     const rowCount = await tableRows(page).count();
-                    expect(rowCount).toEqual(10);
+                    expect(rowCount).toEqual(1);
 
                     // Check filter status lists receiver value
                     filterStatusText = filterStatus(page, [reportId]);
@@ -940,8 +943,10 @@ test.describe("Daily Data page", () => {
         test.beforeEach(async ({ page }) => {
             await mockGetOrgAlaskaReceiversResponse(page);
             await mockGetDeliveriesForOrgAlaskaResponse(page);
+            await mockGetDeliveriesForOrgAlaskaResponse(page, true);
             await mockGetDeliveriesForOrgAlaskaResponse(
                 page,
+                false,
                 TEST_ORG_AK_RECEIVER,
             );
             await dailyData.goto(page);
@@ -1518,14 +1523,14 @@ test.describe("Daily Data page", () => {
                 });
             });
 
-            test("clears search on Apply", async ({ page }) => {
+            test("clears search on 'Apply'", async ({ page }) => {
                 // Search by Report ID
                 const reportId = await tableDataCellValue(page, 0, 0);
                 await searchInput(page).fill(reportId);
                 await searchButton(page).click();
 
                 const rowCount = await tableRows(page).count();
-                expect(rowCount).toEqual(9);
+                expect(rowCount).toEqual(1);
 
                 // Check filter status lists receiver value
                 let filterStatusText = filterStatus(page, [reportId]);
@@ -1587,7 +1592,7 @@ test.describe("Daily Data page", () => {
         });
 
         test.describe("search", () => {
-            test.skip("returns match for Report ID", async ({ page }) => {
+            test("returns match for Report ID", async ({ page }) => {
                 const reportId = await tableDataCellValue(page, 0, 0);
                 await searchInput(page).fill(reportId);
                 await searchButton(page).click();

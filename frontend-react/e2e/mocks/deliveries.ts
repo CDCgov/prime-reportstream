@@ -298,6 +298,23 @@ export const MOCK_GET_DELIVERIES_AK_ELR = [
     },
 ];
 
+export const MOCK_GET_DELIVERIES_AK_5 = [
+    {
+        deliveryId: 5,
+        batchReadyAt: "2024-04-23T21:44:01.210Z",
+        expires: "2024-05-23T21:44:01.210Z",
+        receiver: "ak-phd.full-elr-test",
+        receivingOrgSvcStatus: "active",
+        reportId: "f4155156-1230-4f0a-8a50-0a0cdec5aa0e",
+        topic: "full-elr",
+        reportItemCount: 5,
+        fileName:
+            "ak-receiver-transform.yml-f4155156-1230-4f0a-8a50-0a0cdec5aa0e-20240423214401.hl7",
+        fileType: "HL7_BATCH",
+        originalIngestion: null,
+    },
+];
+
 export const MOCK_GET_DELIVERIES_IGNORE = [
     {
         deliveryId: 0,
@@ -581,6 +598,22 @@ export const MOCK_GET_DELIVERIES_IGNORE = [
         fileName:
             "co.yml-e24571a0-03fe-4abe-850d-514afdf59ed1-20240426202119.hl7",
         fileType: "HL7",
+        originalIngestion: null,
+    },
+];
+
+export const MOCK_GET_DELIVERIES_IGNORE_0 = [
+    {
+        deliveryId: 0,
+        batchReadyAt: "2024-04-26T20:42:35.817Z",
+        expires: "2024-05-26T20:42:35.817Z",
+        receiver: "ignore.FULL_ELR_FHIR_B_E2E",
+        receivingOrgSvcStatus: "active",
+        reportId: "729158ce-4125-46fa-bea0-3c0f910f472c",
+        topic: "full-elr",
+        reportItemCount: 1,
+        fileName: "-729158ce-4125-46fa-bea0-3c0f910f472c-20240426204235.fhir",
+        fileType: "FHIR",
         originalIngestion: null,
     },
 ];

@@ -2,8 +2,10 @@ import { expect, Page } from "@playwright/test";
 import fs from "node:fs";
 import {
     MOCK_GET_DELIVERIES_AK,
+    MOCK_GET_DELIVERIES_AK_5,
     MOCK_GET_DELIVERIES_AK_ELR,
     MOCK_GET_DELIVERIES_IGNORE,
+    MOCK_GET_DELIVERIES_IGNORE_0,
     MOCK_GET_DELIVERIES_IGNORE_FULL_ELR,
 } from "../mocks/deliveries";
 import { MOCK_GET_DELIVERY } from "../mocks/delivery";
@@ -40,6 +42,7 @@ export async function mockGetDeliveryResponse(
 
 export async function mockGetDeliveriesForOrgAlaskaResponse(
     page: Page,
+    byReportId?: boolean,
     receiver?: string,
     responseStatus = 200,
 ) {
@@ -49,6 +52,17 @@ export async function mockGetDeliveriesForOrgAlaskaResponse(
             async (route) => {
                 const json = MOCK_GET_DELIVERIES_AK_ELR;
                 await route.fulfill({ json, status: responseStatus });
+            },
+        );
+    } else if (byReportId) {
+        await page.route(
+            `${API_WATERS_ORG}/ak-phd/deliveries?sortdir=DESC&cursor=3000-01-01T00:00:00.000Z&since=2000-01-01T00:00:00.000Z&until=3000-01-01T00:00:00.000Z&pageSize=61&receivingOrgSvcStatus=ACTIVE,TESTING&reportId=f4155156-1230-4f0a-8a50-0a0cdec5aa0e`,
+            async (route) => {
+                const json = MOCK_GET_DELIVERIES_AK_5;
+                await route.fulfill({
+                    json,
+                    status: 200,
+                });
             },
         );
     } else {
@@ -64,6 +78,7 @@ export async function mockGetDeliveriesForOrgAlaskaResponse(
 
 export async function mockGetDeliveriesForOrgIgnoreResponse(
     page: Page,
+    byReportId?: boolean,
     receiver?: string,
     responseStatus = 200,
 ) {
@@ -73,6 +88,17 @@ export async function mockGetDeliveriesForOrgIgnoreResponse(
             async (route) => {
                 const json = MOCK_GET_DELIVERIES_IGNORE_FULL_ELR;
                 await route.fulfill({ json, status: responseStatus });
+            },
+        );
+    } else if (byReportId) {
+        await page.route(
+            `${API_WATERS_ORG}/ignore/deliveries?sortdir=DESC&cursor=3000-01-01T00:00:00.000Z&since=2000-01-01T00:00:00.000Z&until=3000-01-01T00:00:00.000Z&pageSize=61&receivingOrgSvcStatus=ACTIVE,TESTING&reportId=729158ce-4125-46fa-bea0-3c0f910f472c`,
+            async (route) => {
+                const json = MOCK_GET_DELIVERIES_IGNORE_0;
+                await route.fulfill({
+                    json,
+                    status: 200,
+                });
             },
         );
     } else {
