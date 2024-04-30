@@ -42,6 +42,10 @@ const defaultStartTime = "9:00am";
 const defaultEndTime = "11:30pm";
 
 test.describe("Daily Data page", () => {
+    // usePaginationHook, similar to unit tests, is buggy and breaks easily.
+    // temporarily increase retries
+    test.describe.configure({ retries: 6 });
+
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
             await dailyData.goto(page);

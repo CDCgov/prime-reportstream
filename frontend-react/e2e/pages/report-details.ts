@@ -23,20 +23,6 @@ export async function goto(page: Page, id: string) {
     });
 }
 
-/**
- * Artificially delay resolve of a promise.
- */
-export function delayPromise(promise: Promise<any>, delay = 300) {
-    let p, res: (value: unknown) => unknown;
-
-    // eslint-disable-next-line prefer-const
-    p = new Promise((_res) => (res = _res));
-
-    setTimeout(() => void promise.then((v) => res(v)), delay);
-
-    return p;
-}
-
 export async function reportIdDetailPage(page: Page) {
     const reportDetailsPage = page;
     await reportDetailsPage.waitForLoadState();
@@ -51,7 +37,7 @@ export async function mockGetDeliveryResponse(
 ) {
     await page.route(`${API_WATERS_REPORT}/${id}/delivery`, async (route) => {
         const json = MOCK_GET_DELIVERY;
-        await delayPromise(route.fulfill({ json, status: responseStatus }));
+        await route.fulfill({ json, status: responseStatus });
     });
 }
 
@@ -67,9 +53,7 @@ export async function mockGetDeliveriesForOrgAlaskaResponse(
             `${API_WATERS_ORG}/ak-phd.${receiver}/deliveries?*`,
             async (route) => {
                 const json = MOCK_GET_DELIVERIES_AK_ELR;
-                await delayPromise(
-                    route.fulfill({ json, status: responseStatus }),
-                );
+                await route.fulfill({ json, status: responseStatus });
             },
         );
     } else if (byReportId) {
@@ -77,12 +61,10 @@ export async function mockGetDeliveriesForOrgAlaskaResponse(
             `${API_WATERS_ORG}/ak-phd/deliveries?sortdir=DESC&cursor=3000-01-01T00:00:00.000Z&since=2000-01-01T00:00:00.000Z&until=3000-01-01T00:00:00.000Z&pageSize=61&receivingOrgSvcStatus=ACTIVE,TESTING&reportId=f4155156-1230-4f0a-8a50-0a0cdec5aa0e`,
             async (route) => {
                 const json = MOCK_GET_DELIVERIES_AK_5;
-                await delayPromise(
-                    route.fulfill({
-                        json,
-                        status: 200,
-                    }),
-                );
+                await route.fulfill({
+                    json,
+                    status: 200,
+                });
             },
         );
     } else if (byFileName) {
@@ -90,12 +72,10 @@ export async function mockGetDeliveriesForOrgAlaskaResponse(
             `${API_WATERS_ORG}/ak-phd/deliveries?sortdir=DESC&cursor=3000-01-01T00:00:00.000Z&since=2000-01-01T00:00:00.000Z&until=3000-01-01T00:00:00.000Z&pageSize=61&receivingOrgSvcStatus=ACTIVE,TESTING&fileName=ak-receiver-transform.yml-f4155156-1230-4f0a-8a50-0a0cdec5aa0e-20240423214401.hl7`,
             async (route) => {
                 const json = MOCK_GET_DELIVERIES_AK_5;
-                await delayPromise(
-                    route.fulfill({
-                        json,
-                        status: 200,
-                    }),
-                );
+                await route.fulfill({
+                    json,
+                    status: 200,
+                });
             },
         );
     } else {
@@ -103,9 +83,7 @@ export async function mockGetDeliveriesForOrgAlaskaResponse(
             `${API_WATERS_ORG}/ak-phd/deliveries?*`,
             async (route) => {
                 const json = MOCK_GET_DELIVERIES_AK;
-                await delayPromise(
-                    route.fulfill({ json, status: responseStatus }),
-                );
+                await route.fulfill({ json, status: responseStatus });
             },
         );
     }
@@ -123,9 +101,7 @@ export async function mockGetDeliveriesForOrgIgnoreResponse(
             `${API_WATERS_ORG}/ignore.${receiver}/deliveries?*`,
             async (route) => {
                 const json = MOCK_GET_DELIVERIES_IGNORE_FULL_ELR;
-                await delayPromise(
-                    route.fulfill({ json, status: responseStatus }),
-                );
+                await route.fulfill({ json, status: responseStatus });
             },
         );
     } else if (byReportId) {
@@ -133,12 +109,10 @@ export async function mockGetDeliveriesForOrgIgnoreResponse(
             `${API_WATERS_ORG}/ignore/deliveries?sortdir=DESC&cursor=3000-01-01T00:00:00.000Z&since=2000-01-01T00:00:00.000Z&until=3000-01-01T00:00:00.000Z&pageSize=61&receivingOrgSvcStatus=ACTIVE,TESTING&reportId=729158ce-4125-46fa-bea0-3c0f910f472c`,
             async (route) => {
                 const json = MOCK_GET_DELIVERIES_IGNORE_REPORT_ID;
-                await delayPromise(
-                    route.fulfill({
-                        json,
-                        status: 200,
-                    }),
-                );
+                await route.fulfill({
+                    json,
+                    status: 200,
+                });
             },
         );
     } else if (byFileName) {
@@ -146,12 +120,10 @@ export async function mockGetDeliveriesForOrgIgnoreResponse(
             `${API_WATERS_ORG}/ignore/deliveries?sortdir=DESC&cursor=3000-01-01T00:00:00.000Z&since=2000-01-01T00:00:00.000Z&until=3000-01-01T00:00:00.000Z&pageSize=61&receivingOrgSvcStatus=ACTIVE,TESTING&fileName=21c217a4-d098-494c-9364-f4dcf16b1d63-20240426204235.fhir`,
             async (route) => {
                 const json = MOCK_GET_DELIVERIES_IGNORE_FILENAME;
-                await delayPromise(
-                    route.fulfill({
-                        json,
-                        status: 200,
-                    }),
-                );
+                await route.fulfill({
+                    json,
+                    status: 200,
+                });
             },
         );
     } else {
@@ -159,9 +131,7 @@ export async function mockGetDeliveriesForOrgIgnoreResponse(
             `${API_WATERS_ORG}/ignore/deliveries?*`,
             async (route) => {
                 const json = MOCK_GET_DELIVERIES_IGNORE;
-                await delayPromise(
-                    route.fulfill({ json, status: responseStatus }),
-                );
+                await route.fulfill({ json, status: responseStatus });
             },
         );
     }
