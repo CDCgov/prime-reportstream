@@ -588,7 +588,7 @@ elements:
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
     value: [ '%diagnosticReport.issued' ]
 
-  # TODO: ticket.  This transform causes a circular JSON structure when applied to a FHIR bundle generated from converting HL7
+  # TODO: https://github.com/CDCgov/prime-reportstream/issues/14257
   - name: sr-diagnostic-report-effective-date-time
     resource: '%diagnosticReport.effective'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
