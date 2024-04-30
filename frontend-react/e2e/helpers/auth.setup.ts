@@ -11,8 +11,8 @@ async function logIntoOkta(page: Page, login: TestLogin) {
     // fulfill GA request so that we don't log to it and alter the metrics
     await fulfillGoogleAnalytics(page);
 
-    // abort all app insight calls
-    await page.route("**/v2/track", (route) => route.abort());
+    // block AI
+    await page.route("**/v2/track", (route) => route.abort("blockedbyclient"));
 
     await page.goto("/login", {
         waitUntil: "domcontentloaded",

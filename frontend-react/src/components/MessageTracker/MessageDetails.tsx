@@ -8,7 +8,7 @@ import { WarningError } from "../../config/endpoints/messageTracker";
 import { useMessageDetails } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
 import { parseFileLocation } from "../../utils/misc";
 import { DetailItem } from "../DetailItem/DetailItem";
-import { withCatchAndSuspense } from "../RSErrorBoundary";
+import { withCatchAndSuspense } from "../RSErrorBoundary/RSErrorBoundary";
 
 interface MessageDetailsProps {
     id: string | undefined;
