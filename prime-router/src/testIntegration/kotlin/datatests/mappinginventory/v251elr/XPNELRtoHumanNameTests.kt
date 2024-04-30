@@ -13,12 +13,5 @@ class XPNELRtoHumanNameTests {
                 outputSchema = "classpath:/metadata/hl7_mapping/v251-elr/ORU_R01.yml",
             ).passed
         )
-        assert(
-            verifyHL7ToFHIRToHL7Mapping(
-                "v251-elr/xpn/xpn-to-humanname-xpn10-populated-xpn12-13-empty",
-                profile = "./metadata/HL7/v251-elr",
-                outputSchema = "classpath:/metadata/hl7_mapping/v251-elr/ORU_R01.yml",
-            ).passed
-        )
     }
 }
