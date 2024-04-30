@@ -50,7 +50,9 @@ export interface TableProps {
 }
 
 const TableHeader = ({ dataContent }: { dataContent: RowData["content"] }) => (
-    <td className="column-data">{dataContent}</td>
+    <th className="column-header">
+        <p className="column-header-text">{dataContent}</p>
+    </th>
 );
 
 const SortableTableHeader = ({
@@ -95,7 +97,7 @@ const SortableTableHeader = ({
                 })}
                 onClick={handleHeaderClick}
             >
-                <div className="column-header column-header--sortable">
+                <div className="column-header--sortable">
                     <p className="column-header-text">
                         {columnHeaderData.columnHeader}
                     </p>
@@ -138,7 +140,7 @@ const CustomSortableTableHeader = ({
                 className="column-header-button"
                 onClick={handleHeaderClick}
             >
-                <div className="column-header column-header--sortable">
+                <div className="column-header--sortable">
                     <p className="column-header-text">
                         {columnHeaderData.columnHeader}
                     </p>

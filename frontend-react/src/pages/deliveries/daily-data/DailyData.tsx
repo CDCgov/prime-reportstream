@@ -76,7 +76,6 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
     if (isLoading || !serviceReportsList || !paginationProps)
         return <Spinner />;
 
-    const currentPageNum = filterManager.pageSettings.currentPage;
     const data = serviceReportsList.map((dataRow) => [
         {
             columnKey: DeliveriesDataAttr.REPORT_ID,
@@ -109,7 +108,7 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
             columnHeader: "Filename",
             content: (
                 <>
-                    {!handleExpirationDate(dataRow.expires) ? (
+                    {handleExpirationDate(dataRow.expires) ? (
                         <Button
                             className="font-mono-2xs line-height-alt-4"
                             type="button"
@@ -135,13 +134,13 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
 
     return (
         <>
-            <Table apiSortable borderless rowData={data} />
+            <Table apiSortable borderless striped rowData={data} />
             {data.length && (
                 <Pagination
-                    currentPageNum={currentPageNum}
+                    currentPageNum={paginationProps.currentPageNum}
                     setSelectedPage={paginationProps.setSelectedPage}
                     slots={getSlots(
-                        currentPageNum,
+                        paginationProps.currentPageNum,
                         paginationProps.slots.length,
                     )}
                 />
