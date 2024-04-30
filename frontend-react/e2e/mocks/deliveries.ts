@@ -325,7 +325,7 @@ export const MOCK_GET_DELIVERIES_IGNORE = [
         reportId: "729158ce-4125-46fa-bea0-3c0f910f472c",
         topic: "full-elr",
         reportItemCount: 1,
-        fileName: "-729158ce-4125-46fa-bea0-3c0f910f472c-20240426204235.fhir",
+        fileName: "729158ce-4125-46fa-bea0-3c0f910f472c-20240426204235.fhir",
         fileType: "FHIR",
         originalIngestion: null,
     },
@@ -352,7 +352,7 @@ export const MOCK_GET_DELIVERIES_IGNORE = [
         reportId: "21c217a4-d098-494c-9364-f4dcf16b1d63",
         topic: "full-elr",
         reportItemCount: 1,
-        fileName: "-21c217a4-d098-494c-9364-f4dcf16b1d63-20240426204235.fhir",
+        fileName: "21c217a4-d098-494c-9364-f4dcf16b1d63-20240426204235.fhir",
         fileType: "FHIR",
         originalIngestion: null,
     },
@@ -602,7 +602,7 @@ export const MOCK_GET_DELIVERIES_IGNORE = [
     },
 ];
 
-export const MOCK_GET_DELIVERIES_IGNORE_0 = [
+export const MOCK_GET_DELIVERIES_IGNORE_REPORT_ID = [
     {
         deliveryId: 0,
         batchReadyAt: "2024-04-26T20:42:35.817Z",
@@ -612,7 +612,23 @@ export const MOCK_GET_DELIVERIES_IGNORE_0 = [
         reportId: "729158ce-4125-46fa-bea0-3c0f910f472c",
         topic: "full-elr",
         reportItemCount: 1,
-        fileName: "-729158ce-4125-46fa-bea0-3c0f910f472c-20240426204235.fhir",
+        fileName: "729158ce-4125-46fa-bea0-3c0f910f472c-20240426204235.fhir",
+        fileType: "FHIR",
+        originalIngestion: null,
+    },
+];
+
+export const MOCK_GET_DELIVERIES_IGNORE_FILENAME = [
+    {
+        deliveryId: 2,
+        batchReadyAt: "2024-04-26T20:42:35.630Z",
+        expires: "2024-05-26T20:42:35.630Z",
+        receiver: "ignore.FULL_ELR_FHIR",
+        receivingOrgSvcStatus: "active",
+        reportId: "21c217a4-d098-494c-9364-f4dcf16b1d63",
+        topic: "full-elr",
+        reportItemCount: 1,
+        fileName: "21c217a4-d098-494c-9364-f4dcf16b1d63-20240426204235.fhir",
         fileType: "FHIR",
         originalIngestion: null,
     },

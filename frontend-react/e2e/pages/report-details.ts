@@ -5,8 +5,9 @@ import {
     MOCK_GET_DELIVERIES_AK_5,
     MOCK_GET_DELIVERIES_AK_ELR,
     MOCK_GET_DELIVERIES_IGNORE,
-    MOCK_GET_DELIVERIES_IGNORE_0,
+    MOCK_GET_DELIVERIES_IGNORE_FILENAME,
     MOCK_GET_DELIVERIES_IGNORE_FULL_ELR,
+    MOCK_GET_DELIVERIES_IGNORE_REPORT_ID,
 } from "../mocks/deliveries";
 import { MOCK_GET_DELIVERY } from "../mocks/delivery";
 import { MOCK_GET_FACILITIES } from "../mocks/facilities";
@@ -43,6 +44,7 @@ export async function mockGetDeliveryResponse(
 export async function mockGetDeliveriesForOrgAlaskaResponse(
     page: Page,
     byReportId?: boolean,
+    byFileName?: boolean,
     receiver?: string,
     responseStatus = 200,
 ) {
@@ -65,6 +67,17 @@ export async function mockGetDeliveriesForOrgAlaskaResponse(
                 });
             },
         );
+    } else if (byFileName) {
+        await page.route(
+            `${API_WATERS_ORG}/ak-phd/deliveries?sortdir=DESC&cursor=3000-01-01T00:00:00.000Z&since=2000-01-01T00:00:00.000Z&until=3000-01-01T00:00:00.000Z&pageSize=61&receivingOrgSvcStatus=ACTIVE,TESTING&fileName=ak-receiver-transform.yml-f4155156-1230-4f0a-8a50-0a0cdec5aa0e-20240423214401.hl7`,
+            async (route) => {
+                const json = MOCK_GET_DELIVERIES_AK_5;
+                await route.fulfill({
+                    json,
+                    status: 200,
+                });
+            },
+        );
     } else {
         await page.route(
             `${API_WATERS_ORG}/ak-phd/deliveries?*`,
@@ -79,6 +92,7 @@ export async function mockGetDeliveriesForOrgAlaskaResponse(
 export async function mockGetDeliveriesForOrgIgnoreResponse(
     page: Page,
     byReportId?: boolean,
+    byFileName?: boolean,
     receiver?: string,
     responseStatus = 200,
 ) {
@@ -94,7 +108,18 @@ export async function mockGetDeliveriesForOrgIgnoreResponse(
         await page.route(
             `${API_WATERS_ORG}/ignore/deliveries?sortdir=DESC&cursor=3000-01-01T00:00:00.000Z&since=2000-01-01T00:00:00.000Z&until=3000-01-01T00:00:00.000Z&pageSize=61&receivingOrgSvcStatus=ACTIVE,TESTING&reportId=729158ce-4125-46fa-bea0-3c0f910f472c`,
             async (route) => {
-                const json = MOCK_GET_DELIVERIES_IGNORE_0;
+                const json = MOCK_GET_DELIVERIES_IGNORE_REPORT_ID;
+                await route.fulfill({
+                    json,
+                    status: 200,
+                });
+            },
+        );
+    } else if (byFileName) {
+        await page.route(
+            `${API_WATERS_ORG}/ignore/deliveries?sortdir=DESC&cursor=3000-01-01T00:00:00.000Z&since=2000-01-01T00:00:00.000Z&until=3000-01-01T00:00:00.000Z&pageSize=61&receivingOrgSvcStatus=ACTIVE,TESTING&fileName=21c217a4-d098-494c-9364-f4dcf16b1d63-20240426204235.fhir`,
+            async (route) => {
+                const json = MOCK_GET_DELIVERIES_IGNORE_FILENAME;
                 await route.fulfill({
                     json,
                     status: 200,

@@ -74,8 +74,10 @@ test.describe("Daily Data page", () => {
                 await mockGetOrgIgnoreReceiversResponse(page);
                 await mockGetDeliveriesForOrgIgnoreResponse(page);
                 await mockGetDeliveriesForOrgIgnoreResponse(page, true);
+                await mockGetDeliveriesForOrgIgnoreResponse(page, false, true);
                 await mockGetDeliveriesForOrgIgnoreResponse(
                     page,
+                    false,
                     false,
                     TEST_ORG_IGNORE_RECEIVER,
                 );
@@ -285,19 +287,6 @@ test.describe("Daily Data page", () => {
                             .locator(".usa-table tbody")
                             .waitFor({ state: "visible" });
 
-                        // Only needed when using live data
-                        // Check that table data contains the dates that were selected
-                        // const areDatesInRange =
-                        //     await tableColumnDateTimeInRange(
-                        //         page,
-                        //         1,
-                        //         fromDate,
-                        //         toDate,
-                        //         "",
-                        //         "",
-                        //     );
-                        // expect(areDatesInRange).toBe(true);
-
                         // Check filter status lists receiver value
                         const filterStatusText = filterStatus(page, [
                             TEST_ORG_IGNORE_RECEIVER,
@@ -327,19 +316,6 @@ test.describe("Daily Data page", () => {
                         await expect(page.locator("#start-time")).toHaveValue(
                             defaultStartTime,
                         );
-
-                        // Only needed when using live data
-                        // Check that table data contains the dates/times that were selected
-                        // const areDatesInRange =
-                        //     await tableColumnDateTimeInRange(
-                        //         page,
-                        //         1,
-                        //         fromDate,
-                        //         toDate,
-                        //         defaultStartTime,
-                        //         "",
-                        //     );
-                        // expect(areDatesInRange).toBe(true);
 
                         // Check filter status lists receiver value
                         const filterStatusText = filterStatus(page, [
@@ -371,19 +347,6 @@ test.describe("Daily Data page", () => {
                         await expect(page.locator("#end-time")).toHaveValue(
                             defaultEndTime,
                         );
-
-                        // Only needed when using live data
-                        // Check that table data contains the dates/times that were selected
-                        // const areDatesInRange =
-                        //     await tableColumnDateTimeInRange(
-                        //         page,
-                        //         1,
-                        //         fromDate,
-                        //         toDate,
-                        //         "",
-                        //         defaultEndTime,
-                        //     );
-                        // expect(areDatesInRange).toBe(true);
 
                         // Check filter status lists receiver value
                         const filterStatusText = filterStatus(page, [
@@ -576,19 +539,6 @@ test.describe("Daily Data page", () => {
                             .locator(".usa-table tbody")
                             .waitFor({ state: "visible" });
 
-                        // Only needed when using live data
-                        // Check that table data contains the dates that were selected
-                        // const areDatesInRange =
-                        //     await tableColumnDateTimeInRange(
-                        //         page,
-                        //         1,
-                        //         fromDate,
-                        //         toDate,
-                        //         "",
-                        //         "",
-                        //     );
-                        // expect(areDatesInRange).toBe(true);
-
                         // Check filter status lists receiver value
                         const filterStatusText = filterStatus(page, [
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
@@ -617,19 +567,6 @@ test.describe("Daily Data page", () => {
                         await expect(page.locator("#start-time")).toHaveValue(
                             defaultStartTime,
                         );
-
-                        // Only needed when using live data
-                        // Check that table data contains the dates/times that were selected
-                        // const areDatesInRange =
-                        //     await tableColumnDateTimeInRange(
-                        //         page,
-                        //         1,
-                        //         fromDate,
-                        //         toDate,
-                        //         defaultStartTime,
-                        //         "",
-                        //     );
-                        // expect(areDatesInRange).toBe(true);
 
                         // Check filter status lists receiver value
                         const filterStatusText = filterStatus(page, [
@@ -660,19 +597,6 @@ test.describe("Daily Data page", () => {
                         await expect(page.locator("#end-time")).toHaveValue(
                             defaultEndTime,
                         );
-
-                        // Only needed when using live data
-                        // Check that table data contains the dates/times that were selected
-                        // const areDatesInRange =
-                        //     await tableColumnDateTimeInRange(
-                        //         page,
-                        //         1,
-                        //         fromDate,
-                        //         toDate,
-                        //         "",
-                        //         defaultEndTime,
-                        //     );
-                        // expect(areDatesInRange).toBe(true);
 
                         // Check filter status lists receiver value
                         const filterStatusText = filterStatus(page, [
@@ -762,12 +686,6 @@ test.describe("Daily Data page", () => {
                         page.getByTestId("filter-status"),
                     ).toContainText(filterStatusText);
 
-                    // Only needed when using live data
-                    //Check table data matches search
-                    // expect(await tableDataCellValue(page, 0, 0)).toEqual(
-                    //     reportId,
-                    // );
-
                     // Perform search with filters selected
                     await page
                         .locator("#receiver-dropdown")
@@ -779,18 +697,6 @@ test.describe("Daily Data page", () => {
                     await page
                         .locator(".usa-table tbody")
                         .waitFor({ state: "visible" });
-
-                    // Only needed when using live data
-                    // Check that table data contains the dates/times that were selected
-                    // const areDatesInRange = await tableColumnDateTimeInRange(
-                    //     page,
-                    //     1,
-                    //     fromDate,
-                    //     toDate,
-                    //     "",
-                    //     "",
-                    // );
-                    // expect(areDatesInRange).toBe(true);
 
                     // Check filter status lists receiver value
                     filterStatusText = filterStatus(page, [
@@ -827,13 +733,13 @@ test.describe("Daily Data page", () => {
                     );
                 });
 
-                test.skip("returns match for Filename", async ({ page }) => {
+                test("returns match for Filename", async ({ page }) => {
                     const fileName = await tableDataCellValue(page, 2, 4);
                     await searchInput(page).fill(fileName);
                     await searchButton(page).click();
 
                     const rowCount = await tableRows(page).count();
-                    expect(rowCount).toEqual(10);
+                    expect(rowCount).toEqual(1);
 
                     // Check filter status lists receiver value
                     const filterStatusText = filterStatus(page, [fileName]);
@@ -871,18 +777,6 @@ test.describe("Daily Data page", () => {
                         .locator(".usa-table tbody")
                         .waitFor({ state: "visible" });
 
-                    // Only needed when using live data
-                    // Check that table data contains the dates/times that were selected
-                    // const areDatesInRange = await tableColumnDateTimeInRange(
-                    //     page,
-                    //     1,
-                    //     fromDate,
-                    //     toDate,
-                    //     defaultStartTime,
-                    //     defaultEndTime,
-                    // );
-                    // expect(areDatesInRange).toBe(true);
-
                     // Check filter status lists receiver value
                     let filterStatusText = filterStatus(page, [
                         TEST_ORG_IGNORE_RECEIVER,
@@ -893,8 +787,6 @@ test.describe("Daily Data page", () => {
                         page.getByTestId("filter-status"),
                     ).toContainText(filterStatusText);
 
-                    // Search by Report ID
-                    // const reportId = await tableDataCellValue(page, 0, 0);
                     const reportId = "729158ce-4125-46fa-bea0-3c0f910f472c";
                     await searchInput(page).fill(reportId);
                     await searchButton(page).click();
@@ -943,8 +835,10 @@ test.describe("Daily Data page", () => {
             await mockGetOrgAlaskaReceiversResponse(page);
             await mockGetDeliveriesForOrgAlaskaResponse(page);
             await mockGetDeliveriesForOrgAlaskaResponse(page, true);
+            await mockGetDeliveriesForOrgAlaskaResponse(page, false, true);
             await mockGetDeliveriesForOrgAlaskaResponse(
                 page,
+                false,
                 false,
                 TEST_ORG_AK_RECEIVER,
             );
@@ -1115,18 +1009,6 @@ test.describe("Daily Data page", () => {
                         .locator(".usa-table tbody")
                         .waitFor({ state: "visible" });
 
-                    // Only needed when using live data
-                    // Check that table data contains the dates that were selected
-                    // const areDatesInRange = await tableColumnDateTimeInRange(
-                    //     page,
-                    //     1,
-                    //     fromDate,
-                    //     toDate,
-                    //     "",
-                    //     "",
-                    // );
-                    // expect(areDatesInRange).toBe(true);
-
                     // Check filter status lists receiver value
                     const filterStatusText = filterStatus(page, [
                         TEST_ORG_AK_RECEIVER,
@@ -1156,18 +1038,6 @@ test.describe("Daily Data page", () => {
                     await expect(page.locator("#start-time")).toHaveValue(
                         defaultStartTime,
                     );
-
-                    // Only needed when using live data
-                    // Check that table data contains the dates/times that were selected
-                    // const areDatesInRange = await tableColumnDateTimeInRange(
-                    //     page,
-                    //     1,
-                    //     fromDate,
-                    //     toDate,
-                    //     defaultStartTime,
-                    //     "",
-                    // );
-                    // expect(areDatesInRange).toBe(true);
 
                     // Check filter status lists receiver value
                     const filterStatusText = filterStatus(page, [
@@ -1199,18 +1069,6 @@ test.describe("Daily Data page", () => {
                     await expect(page.locator("#end-time")).toHaveValue(
                         defaultEndTime,
                     );
-
-                    // Only needed when using live data
-                    // Check that table data contains the dates/times that were selected
-                    // const areDatesInRange = await tableColumnDateTimeInRange(
-                    //     page,
-                    //     1,
-                    //     fromDate,
-                    //     toDate,
-                    //     "",
-                    //     defaultEndTime,
-                    // );
-                    // expect(areDatesInRange).toBe(true);
 
                     // Check filter status lists receiver value
                     const filterStatusText = filterStatus(page, [
@@ -1368,18 +1226,6 @@ test.describe("Daily Data page", () => {
                         .locator(".usa-table tbody")
                         .waitFor({ state: "visible" });
 
-                    // Only needed when using live data
-                    // Check that table data contains the dates that were selected
-                    // const areDatesInRange = await tableColumnDateTimeInRange(
-                    //     page,
-                    //     1,
-                    //     fromDate,
-                    //     toDate,
-                    //     "",
-                    //     "",
-                    // );
-                    // expect(areDatesInRange).toBe(true);
-
                     // Check filter status lists receiver value
                     const filterStatusText = filterStatus(page, [
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
@@ -1408,18 +1254,6 @@ test.describe("Daily Data page", () => {
                     await expect(page.locator("#start-time")).toHaveValue(
                         defaultStartTime,
                     );
-
-                    // Only needed when using live data
-                    // Check that table data contains the dates/times that were selected
-                    // const areDatesInRange = await tableColumnDateTimeInRange(
-                    //     page,
-                    //     1,
-                    //     fromDate,
-                    //     toDate,
-                    //     defaultStartTime,
-                    //     "",
-                    // );
-                    // expect(areDatesInRange).toBe(true);
 
                     // Check filter status lists receiver value
                     const filterStatusText = filterStatus(page, [
@@ -1450,18 +1284,6 @@ test.describe("Daily Data page", () => {
                     await expect(page.locator("#end-time")).toHaveValue(
                         defaultEndTime,
                     );
-
-                    // Only needed when using live data
-                    // Check that table data contains the dates/times that were selected
-                    // const areDatesInRange = await tableColumnDateTimeInRange(
-                    //     page,
-                    //     1,
-                    //     fromDate,
-                    //     toDate,
-                    //     "",
-                    //     defaultEndTime,
-                    // );
-                    // expect(areDatesInRange).toBe(true);
 
                     // Check filter status lists receiver value
                     const filterStatusText = filterStatus(page, [
@@ -1537,10 +1359,6 @@ test.describe("Daily Data page", () => {
                     filterStatusText,
                 );
 
-                // Only needed when using live data
-                //Check table data matches search
-                // expect(await tableDataCellValue(page, 0, 0)).toEqual(reportId);
-
                 // Perform search with filters selected
                 await page
                     .locator("#receiver-dropdown")
@@ -1552,18 +1370,6 @@ test.describe("Daily Data page", () => {
                 await page
                     .locator(".usa-table tbody")
                     .waitFor({ state: "visible" });
-
-                // Only needed when using live data
-                // Check that table data contains the dates/times that were selected
-                // const areDatesInRange = await tableColumnDateTimeInRange(
-                //     page,
-                //     1,
-                //     fromDate,
-                //     toDate,
-                //     "",
-                //     "",
-                // );
-                // expect(areDatesInRange).toBe(true);
 
                 // Check filter status lists receiver value
                 filterStatusText = filterStatus(page, [
@@ -1609,13 +1415,13 @@ test.describe("Daily Data page", () => {
                 expect(await tableDataCellValue(page, 0, 0)).toEqual(reportId);
             });
 
-            test.skip("returns match for Filename", async ({ page }) => {
+            test("returns match for Filename", async ({ page }) => {
                 const fileName = await tableDataCellValue(page, 0, 4);
                 await searchInput(page).fill(fileName);
                 await searchButton(page).click();
 
                 const rowCount = await tableRows(page).count();
-                expect(rowCount).toEqual(10);
+                expect(rowCount).toEqual(1);
 
                 // Check filter status lists receiver value
                 const filterStatusText = filterStatus(page, [fileName]);
@@ -1651,18 +1457,6 @@ test.describe("Daily Data page", () => {
                     .locator(".usa-table tbody")
                     .waitFor({ state: "visible" });
 
-                // Only needed when using live data
-                // Check that table data contains the dates/times that were selected
-                // const areDatesInRange = await tableColumnDateTimeInRange(
-                //     page,
-                //     1,
-                //     fromDate,
-                //     toDate,
-                //     defaultStartTime,
-                //     defaultEndTime,
-                // );
-                // expect(areDatesInRange).toBe(true);
-
                 // Check filter status lists receiver value
                 let filterStatusText = filterStatus(page, [
                     TEST_ORG_AK_RECEIVER,
@@ -1686,10 +1480,6 @@ test.describe("Daily Data page", () => {
                 await expect(page.getByTestId("filter-status")).toContainText(
                     filterStatusText,
                 );
-
-                // Only needed when using live data
-                //Check table data matches search
-                // expect(await tableDataCellValue(page, 0, 0)).toEqual(reportId);
 
                 // Check filters are cleared
                 await expect(receiverDropdown(page)).toHaveValue("");
