@@ -85,7 +85,11 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
         {
             columnKey: DeliveriesDataAttr.BATCH_READY,
             columnHeader: "Time received",
-            content: transformDate(dataRow.batchReadyAt),
+            content: (
+                <span className="text-no-wrap">
+                    {transformDate(dataRow.batchReadyAt)}
+                </span>
+            ),
             columnCustomSort: () =>
                 onColumnCustomSort(DeliveriesDataAttr.BATCH_READY),
             columnCustomSortSettings: filterManager.sortSettings,
@@ -128,9 +132,13 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
         {
             columnKey: DeliveriesDataAttr.RECEIVER,
             columnHeader: "Receiver",
-            content: dataRow.receiver.includes(".")
-                ? dataRow.receiver.split(/\.(.*)/)[1]
-                : dataRow.receiver,
+            content: (
+                <span className="text-no-wrap">
+                    {dataRow.receiver.includes(".")
+                        ? dataRow.receiver.split(/\.(.*)/)[1]
+                        : dataRow.receiver}
+                </span>
+            ),
         },
     ]);
 
