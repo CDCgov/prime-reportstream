@@ -11,24 +11,11 @@ import usePagination, {
     UsePaginationProps,
 } from "./UsePagination";
 import { OVERFLOW_INDICATOR } from "../components/Table/Pagination";
-import * as AppInsightsContext from "../contexts/AppInsights";
+import useAppInsightsContext from "../hooks/UseAppInsightsContext";
 import { renderHook } from "../utils/CustomRenderUtils";
 
-const mockTrackEvent = vi.fn();
-
-const mockUseAppInsightsContext = vi.spyOn(
-    AppInsightsContext,
-    "useAppInsightsContext",
-);
-
-function mockUseAppInsightsContextImplementation(obj?: any) {
-    return mockUseAppInsightsContext.mockImplementation(() => ({
-        appInsights: {
-            trackEvent: mockTrackEvent,
-        },
-        ...obj,
-    }));
-}
+const mockUseAppInsightsContext = vi.mocked(useAppInsightsContext);
+const mockAppInsights = mockUseAppInsightsContext();
 
 interface SampleRecord {
     cursor: string;
@@ -448,7 +435,6 @@ describe("usePagination", () => {
         { retry: 3 },
         async () => {
             const mockFetchResults = vi.fn().mockResolvedValueOnce([]);
-            mockUseAppInsightsContextImplementation();
             const { result } = doRenderHook({
                 startCursor: "0",
                 isCursorInclusive: false,
@@ -474,7 +460,6 @@ describe("usePagination", () => {
     test("Fetches results and updates the available slots and page of results", async () => {
         const results = createSampleRecords(40);
         const mockFetchResults = vi.fn().mockResolvedValueOnce(results);
-        mockUseAppInsightsContextImplementation();
         const { result } = doRenderHook({
             startCursor: "0",
             isCursorInclusive: false,
@@ -508,7 +493,6 @@ describe("usePagination", () => {
                 .fn()
                 .mockResolvedValueOnce(results1)
                 .mockResolvedValueOnce(results2);
-            mockUseAppInsightsContextImplementation();
             const { result } = doRenderHook({
                 startCursor: "0",
                 isCursorInclusive: false,
@@ -570,7 +554,6 @@ describe("usePagination", () => {
                 .fn()
                 .mockResolvedValueOnce(createSampleRecords(11))
                 .mockResolvedValueOnce(createSampleRecords(11));
-            mockUseAppInsightsContextImplementation();
             const { result, rerender } = doRenderHook({
                 startCursor: "0",
                 isCursorInclusive: false,
@@ -629,7 +612,6 @@ describe("usePagination", () => {
                 fetchResults: mockFetchResults1,
                 extractCursor,
             };
-            mockUseAppInsightsContextImplementation();
             const { result, rerender } = doRenderHook(initialProps);
 
             // Set the results and move to the second page.
@@ -659,42 +641,45 @@ describe("usePagination", () => {
         },
     );
 
-    test("Calls appInsights?.trackEvent with page size and page number.", async () => {
-        const mockFetchResults = vi
-            .fn()
-            .mockResolvedValueOnce(createSampleRecords(11))
-            .mockResolvedValueOnce(createSampleRecords(11));
-        mockUseAppInsightsContextImplementation();
-        const { result } = doRenderHook({
-            startCursor: "0",
-            isCursorInclusive: false,
-            pageSize: 10,
-            fetchResults: mockFetchResults,
-            extractCursor,
-            analyticsEventName: "Test Analytics Event",
-        });
+    test(
+        "Calls appInsights?.trackEvent with page size and page number.",
+        { retry: 3 },
+        async () => {
+            const mockFetchResults = vi
+                .fn()
+                .mockResolvedValueOnce(createSampleRecords(11))
+                .mockResolvedValueOnce(createSampleRecords(11));
+            const { result } = doRenderHook({
+                startCursor: "0",
+                isCursorInclusive: false,
+                pageSize: 10,
+                fetchResults: mockFetchResults,
+                extractCursor,
+                analyticsEventName: "Test Analytics Event",
+            });
 
-        // Wait for the fetch promise to resolve, then check the slots and move
-        // to the next page.
-        await waitFor(() =>
-            expect(result.current.paginationProps).toBeDefined(),
-        );
-        expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61, {});
-        expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
-        expect(mockTrackEvent).not.toHaveBeenCalled();
+            // Wait for the fetch promise to resolve, then check the slots and move
+            // to the next page.
+            await waitFor(() =>
+                expect(result.current.paginationProps).toBeDefined(),
+            );
+            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61, {});
+            expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
+            expect(mockAppInsights.trackEvent).not.toHaveBeenCalled();
 
-        act(() => {
-            result.current.paginationProps?.setSelectedPage(2);
-        });
+            act(() => {
+                result.current.paginationProps?.setSelectedPage(2);
+            });
 
-        expect(mockTrackEvent).toHaveBeenCalledWith({
-            name: "Test Analytics Event",
-            properties: {
-                tablePagination: {
-                    pageSize: 10,
-                    pageNumber: 2,
+            expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
+                name: "Test Analytics Event",
+                properties: {
+                    tablePagination: {
+                        pageSize: 10,
+                        pageNumber: 2,
+                    },
                 },
-            },
-        });
-    });
+            });
+        },
+    );
 });

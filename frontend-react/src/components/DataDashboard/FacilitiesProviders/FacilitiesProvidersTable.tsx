@@ -1,18 +1,16 @@
 import { useState } from "react";
 
 import { RSReceiver } from "../../../config/endpoints/settings";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../../contexts/AppInsights";
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import useReceiverSubmitters, {
     DeliveriesAttr,
 } from "../../../hooks/network/DataDashboard/UseReceiverSubmitters";
+import useAppInsightsContext from "../../../hooks/UseAppInsightsContext";
 import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceivers";
 import { getSlots } from "../../../hooks/UsePagination";
 import { Table } from "../../../shared";
+import { EventName } from "../../../utils/AppInsights";
 import {
     transformFacilityTypeClass,
     transformFacilityTypeLabel,
@@ -35,7 +33,7 @@ function FacilitiesProvidersFilterAndTable({
     activeReceiver: RSReceiver;
     setActiveReceiver: (receiver: RSReceiver) => void;
 }) {
-    const { appInsights } = useAppInsightsContext();
+    const appInsights = useAppInsightsContext();
     const featureEvent = `${FeatureName.FACILITIES_PROVIDERS} | ${EventName.TABLE_FILTER}`;
 
     const handleSetActive = (name: string) => {

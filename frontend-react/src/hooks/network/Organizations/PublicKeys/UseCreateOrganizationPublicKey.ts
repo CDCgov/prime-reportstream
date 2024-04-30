@@ -4,8 +4,8 @@ import {
     RSApiKeysResponse,
     servicesEndpoints,
 } from "../../../../config/endpoints/settings";
-import { useAuthorizedFetch } from "../../../../contexts/AuthorizedFetch";
-import { useSessionContext } from "../../../../contexts/Session";
+import useAuthorizedFetch from "../../../../contexts/AuthorizedFetch/useAuthorizedFetch";
+import useSessionContext from "../../../../contexts/Session/useSessionContext";
 
 export interface OrganizationPublicKeyPostArgs {
     kid: string;

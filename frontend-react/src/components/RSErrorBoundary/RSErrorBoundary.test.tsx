@@ -2,10 +2,9 @@ import { screen } from "@testing-library/react";
 import { AxiosError } from "axios";
 
 import RSErrorBoundary from "./RSErrorBoundary";
-import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
-import { mockRsconsole } from "../utils/console/__mocks__/rsconsole";
-import { renderApp } from "../utils/CustomRenderUtils";
-import { RSNetworkError } from "../utils/RSNetworkError";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import { mockRsconsole } from "../../utils/rsConsole/rsConsole.fixtures";
+import { RSNetworkError } from "../../utils/RSNetworkError";
 
 const rsError = new RSNetworkError(new AxiosError("rsnetwork error test"));
 
@@ -18,11 +17,6 @@ describe("RSErrorBoundary", () => {
     beforeAll(() => {
         // shut up react's auto console.error
         mockRsconsole.error.mockImplementation(() => void 0);
-        mockSessionContentReturnValue({
-            config: {
-                AI_CONSOLE_SEVERITY_LEVELS: { error: 0 },
-            } as any,
-        });
     });
     afterAll(() => {
         mockRsconsole.error.mockRestore();
