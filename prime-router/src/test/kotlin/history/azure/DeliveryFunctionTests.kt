@@ -752,6 +752,28 @@ class DeliveryFunctionTests : Logging {
     }
 
     @Test
+    fun `test getEtorMetadata returns 401 when not authorized`() {
+        val badUuid = "762202ba-e3e5-4810-8cb8-161b75c63bc1"
+        val mockRequest = MockHttpRequestMessage()
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+        val mockDeliveryFacade = mockk<DeliveryFacade>()
+        val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade)
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
+            null
+
+        val customContext = mockk<ExecutionContext>()
+        every { customContext.logger } returns mockk<Logger>()
+
+        val response = function.retrieveETORIntermediaryMetadata(
+            mockRequest, UUID.fromString(badUuid), customContext, null
+        )
+
+        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+        assertThat(response.body.toString()).isEqualTo("{\"error\": \"Authentication Failed\"}")
+    }
+
+    @Test
     fun `test getEtorMetadata returns 404 when ID is invalid`() {
         val badUuid = "762202ba-e3e5-4810-8cb8-161b75c63bc1"
         val mockRequest = MockHttpRequestMessage()
