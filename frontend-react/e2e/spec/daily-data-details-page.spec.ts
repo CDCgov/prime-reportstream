@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { selectTestOrg, tableData } from "../helpers/utils";
+import { selectTestOrg, tableDataCellValue } from "../helpers/utils";
 import { detailsTableHeaders, title } from "../pages/daily-data";
 import * as reportDetails from "../pages/report-details";
 
@@ -37,29 +37,35 @@ test.describe("Daily Data Details page", () => {
                 test("'Facility' column has expected data", async ({
                     page,
                 }) => {
-                    await tableData(page, 0, 0, "Any lab USA 1");
+                    expect(await tableDataCellValue(page, 0, 0)).toEqual(
+                        "Any lab USA 1",
+                    );
                 });
 
                 test("'Location' column has expected data", async ({
                     page,
                 }) => {
-                    await tableData(page, 0, 1, "Juneau, AK");
+                    expect(await tableDataCellValue(page, 0, 1)).toEqual(
+                        "Juneau, AK",
+                    );
                 });
 
                 test("'CLIA' column has expected data", async ({ page }) => {
-                    await tableData(page, 0, 2, "34D8574402");
+                    expect(await tableDataCellValue(page, 0, 2)).toEqual(
+                        "34D8574402",
+                    );
                 });
 
                 test("'Total tests' column has expected data", async ({
                     page,
                 }) => {
-                    await tableData(page, 0, 3, "10");
+                    expect(await tableDataCellValue(page, 0, 3)).toEqual("10");
                 });
 
                 test("'Total positive' column has expected data", async ({
                     page,
                 }) => {
-                    await tableData(page, 0, 4, "1");
+                    expect(await tableDataCellValue(page, 0, 4)).toEqual("1");
                 });
             });
 
@@ -90,29 +96,35 @@ test.describe("Daily Data Details page", () => {
                 test("'Facility' column has expected data", async ({
                     page,
                 }) => {
-                    await tableData(page, 0, 0, "Any lab USA 1");
+                    expect(await tableDataCellValue(page, 0, 0)).toEqual(
+                        "Any lab USA 1",
+                    );
                 });
 
                 test("'Location' column has expected data", async ({
                     page,
                 }) => {
-                    await tableData(page, 0, 1, "Juneau, AK");
+                    expect(await tableDataCellValue(page, 0, 1)).toEqual(
+                        "Juneau, AK",
+                    );
                 });
 
                 test("'CLIA' column has expected data", async ({ page }) => {
-                    await tableData(page, 0, 2, "34D8574402");
+                    expect(await tableDataCellValue(page, 0, 2)).toEqual(
+                        "34D8574402",
+                    );
                 });
 
                 test("'Total tests' column has expected data", async ({
                     page,
                 }) => {
-                    await tableData(page, 0, 3, "10");
+                    expect(await tableDataCellValue(page, 0, 3)).toEqual("10");
                 });
 
                 test("'Total positive' column has expected data", async ({
                     page,
                 }) => {
-                    await tableData(page, 0, 4, "1");
+                    expect(await tableDataCellValue(page, 0, 4)).toEqual("1");
                 });
             });
 
@@ -169,25 +181,31 @@ test.describe("Daily Data Details page", () => {
             });
 
             test("'Facility' column has expected data", async ({ page }) => {
-                await tableData(page, 0, 0, "Any lab USA 1");
+                expect(await tableDataCellValue(page, 0, 0)).toEqual(
+                    "Any lab USA 1",
+                );
             });
 
             test("'Location' column has expected data", async ({ page }) => {
-                await tableData(page, 0, 1, "Juneau, AK");
+                expect(await tableDataCellValue(page, 0, 1)).toEqual(
+                    "Juneau, AK",
+                );
             });
 
             test("'CLIA' column has expected data", async ({ page }) => {
-                await tableData(page, 0, 2, "34D8574402");
+                expect(await tableDataCellValue(page, 0, 2)).toEqual(
+                    "34D8574402",
+                );
             });
 
             test("'Total tests' column has expected data", async ({ page }) => {
-                await tableData(page, 0, 3, "10");
+                expect(await tableDataCellValue(page, 0, 3)).toEqual("10");
             });
 
             test("'Total positive' column has expected data", async ({
                 page,
             }) => {
-                await tableData(page, 0, 4, "1");
+                expect(await tableDataCellValue(page, 0, 4)).toEqual("1");
             });
         });
 

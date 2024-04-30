@@ -2,9 +2,12 @@ import { waitFor } from "@testing-library/react";
 
 import useReceiverDeliveries from "./UseReceiverDeliveries";
 import { dataDashboardServer } from "../../../__mocks__/DataDashboardMockServer";
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
+
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../../contexts/Session/__mocks__/useSessionContext")
+>("../../../contexts/Session/useSessionContext");
 
 describe("useReceiverDeliveries", () => {
     beforeAll(() => dataDashboardServer.listen());
