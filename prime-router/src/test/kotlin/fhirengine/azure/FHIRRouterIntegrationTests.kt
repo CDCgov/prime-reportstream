@@ -21,9 +21,9 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.common.*
 // import gov.cdc.prime.router.cli.tests.CompareData
-import gov.cdc.prime.router.common.TestcontainersUtils
-import gov.cdc.prime.router.common.UniversalPipelineTestUtils.hl7SenderWithNoTransform
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransform
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.universalPipelineOrganization
 // import gov.cdc.prime.router.common.UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles
 // import gov.cdc.prime.router.common.badEncodingHL7Record
@@ -190,6 +190,54 @@ class FHIRRouterIntegrationTests {
         )
     }
 
+    private fun setupRouteStep(
+        format: Report.Format,
+        sender: Sender,
+        receiveReportBlobUrl: String,
+        itemCount: Int,
+    ): Report {
+        return ReportStreamTestDatabaseContainer.testDatabaseAccess.transactReturning { txn ->
+            val report = Report(
+                format,
+                emptyList(),
+                itemCount,
+                metadata = UnitTestUtils.simpleMetadata,
+                nextAction = TaskAction.route,
+                topic = sender.topic,
+            )
+            report.bodyURL = receiveReportBlobUrl
+            val convertAction = Action().setActionName(TaskAction.convert)
+            val convertActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, convertAction)
+            val reportFile = ReportFile()
+                .setSchemaTopic(sender.topic)
+                .setReportId(report.id)
+                .setActionId(convertActionId)
+                .setSchemaName("")
+                .setBodyFormat(sender.format.toString())
+                .setItemCount(itemCount)
+                .setExternalName("test-external-name")
+                .setBodyUrl(receiveReportBlobUrl)
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
+                reportFile, txn, convertAction
+            )
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertTask(
+                report,
+                format.toString().lowercase(),
+                report.bodyURL,
+                nextAction = ProcessEvent(
+                    Event.EventAction.ROUTE,
+                    report.id,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                ),
+                txn
+            )
+
+            report
+        }
+    }
+
     @BeforeEach
     fun beforeEach() {
         mockkObject(QueueAccess)
@@ -207,19 +255,27 @@ class FHIRRouterIntegrationTests {
     }
 
     @Test
-    fun `should tralalala down the happiest of happy paths`() {
-        val fhirData = File(VALID_FHIR_URL).readText()
+    fun `should tralalalalala down the happiest of happy paths`() {
+        val convertReportContents =
+            listOf(
+                validFHIRRecord1
+            ).joinToString()
 
-        val blobUrl = BlobAccess.uploadBlob(
-            "receive/valid.fhir",
-            fhirData.toByteArray(),
+        val convertBlobUrl = BlobAccess.uploadBlob(
+            "convert/tralalalalala.fhir",
+            convertReportContents.toByteArray(),
             getBlobContainerMetadata()
         )
 
-        val report = createReport(Report.Format.FHIR, hl7SenderWithNoTransform, blobUrl, 1)
-        val queueMessage = generateQueueMessage(report, fhirData, hl7SenderWithNoTransform)
-        val fhirFunctions = createFHIRFunctionsInstance()
+        val convertReport = setupRouteStep(
+            Report.Format.FHIR,
+            fhirSenderWithNoTransform,
+            convertBlobUrl,
+            1
+        )
 
+        val queueMessage = generateQueueMessage(convertReport, convertReportContents, fhirSenderWithNoTransform)
+        val fhirFunctions = createFHIRFunctionsInstance()
         fhirFunctions.doRoute(queueMessage, 1, createFHIRRouter())
     }
 }
