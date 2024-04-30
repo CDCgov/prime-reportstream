@@ -1,7 +1,7 @@
 import { UseMutateAsyncFunction, useMutation } from "@tanstack/react-query";
 
 import { watersEndpoints, WatersResponse } from "../../config/endpoints/waters";
-import { useAuthorizedFetch } from "../../contexts/AuthorizedFetch";
+import useAuthorizedFetch from "../../contexts/AuthorizedFetch/useAuthorizedFetch";
 import { RSNetworkError } from "../../utils/RSNetworkError";
 import { ContentType, FileType } from "../../utils/TemporarySettingsAPITypes";
 
