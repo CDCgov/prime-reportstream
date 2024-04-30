@@ -33,14 +33,30 @@ elements:
     hl7Spec: [ MSH-4-3 ]
 
   # MSH 5
-  - name: nj-receiving-application
-    value: [ '"ELRS^2.16.840.1.113883.3.1299.5.1.6.1^ISO"' ]
-    hl7Spec: [ MSH-5 ]
+  - name: nj-receiving-application-namespace-id
+    value: [ '"ELRS"' ]
+    hl7Spec: [ MSH-5-1 ]
+
+  - name: nj-receiving-application-universal-id
+    value: [ '"2.16.840.1.113883.3.1299.5.1.6.1"' ]
+    hl7Spec: [ MSH-5-2 ]
+
+  - name: nj-receiving-application-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ MSH-5-3 ]
 
   # MSH 6
-  - name: nj-receiving-facility
-    value: [ '"NJDOH^2.16.840.1.113883.3.1299^ISO"' ]
-    hl7Spec: [ MSH-6 ]
+  - name: nj-receiving-facility-namespace-id
+    value: [ '"NJDOH"' ]
+    hl7Spec: [ MSH-6-1 ]
+
+  - name: nj-receiving-facility-universal-id
+    value: [ '"2.16.840.1.113883.3.1299"' ]
+    hl7Spec: [ MSH-6-2 ]
+
+  - name: nj-receiving-facility-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ MSH-6-3 ]
 
   # OBX 18-1
   - name: nj-equipment-instance-entity-id
