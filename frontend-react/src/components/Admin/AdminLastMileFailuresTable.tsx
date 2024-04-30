@@ -21,9 +21,9 @@ import {
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 
 import config from "../../config";
-import { useAppInsightsContext } from "../../contexts/AppInsights";
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import { showToast } from "../../contexts/Toast";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import AdmAction from "../../resources/AdmActionResource";
 import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
@@ -262,7 +262,7 @@ const DataLoadRenderTable = (props: {
 
 // Main component. Tracks state but does not load/contain data.
 export function AdminLastMileFailuresTable() {
-    const { fetchHeaders } = useAppInsightsContext();
+    const { properties } = useAppInsightsContext();
     const { authState } = useSessionContext();
     const modalShowInfoId = "sendFailuresModalDetails";
     const modalResendId = "sendFailuresModalDetails";
@@ -356,7 +356,7 @@ ${data.receiver}`;
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
-                    ...fetchHeaders(),
+                    "x-ms-session-id": properties.context.getSessionId(),
                     Authorization: `Bearer ${authState.accessToken?.accessToken}`,
                 },
                 mode: "cors",

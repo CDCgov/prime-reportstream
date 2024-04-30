@@ -1,32 +1,26 @@
 import axios, { AxiosError } from "axios";
-import {
-    createContext,
-    PropsWithChildren,
-    useCallback,
-    useContext,
-} from "react";
+import { createContext, PropsWithChildren, useCallback } from "react";
 
 import { AxiosOptionsWithSegments, RSEndpoint } from "../../config/endpoints";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
 import { RSNetworkError } from "../../utils/RSNetworkError";
-import { useAppInsightsContext } from "../AppInsights";
-import { useSessionContext } from "../Session";
+import useSessionContext from "../Session/useSessionContext";
 
 export type AuthorizedFetcher<T = any> = (
     EndpointConfig: RSEndpoint,
     options?: Partial<AxiosOptionsWithSegments>,
 ) => Promise<T>;
 
-type IAuthorizedFetchContext<T = any> = AuthorizedFetcher<T>;
+export type IAuthorizedFetchContext<T = any> = AuthorizedFetcher<T>;
 
 export const AuthorizedFetchContext = createContext<IAuthorizedFetchContext>(
     () => Promise.reject("fetcher uninitialized"),
 );
-
 const AuthorizedFetchProvider = ({
     children,
 }: PropsWithChildren<{ initializedOverride?: boolean }>) => {
     const { activeMembership, authState = {} } = useSessionContext();
-    const { fetchHeaders } = useAppInsightsContext();
+    const { properties } = useAppInsightsContext();
     const authorizedFetch = useCallback(
         async function <TData>(
             EndpointConfig: RSEndpoint,
@@ -35,7 +29,7 @@ const AuthorizedFetchProvider = ({
             const headerOverrides = options?.headers ?? {};
 
             const authHeaders = {
-                ...fetchHeaders(),
+                "x-ms-session-id": properties.context.getSessionId(),
                 "authentication-type": "okta",
                 authorization: `Bearer ${
                     authState?.accessToken?.accessToken ?? ""
@@ -62,7 +56,7 @@ const AuthorizedFetchProvider = ({
         [
             activeMembership?.parsedName,
             authState?.accessToken?.accessToken,
-            fetchHeaders,
+            properties,
         ],
     );
 
@@ -72,14 +66,5 @@ const AuthorizedFetchProvider = ({
         </AuthorizedFetchContext.Provider>
     );
 };
-
-// an extra level of indirection here to allow for generic typing of the returned fetch function
-export function useAuthorizedFetch<
-    TQueryFnData = unknown,
->(): IAuthorizedFetchContext<TQueryFnData> {
-    return useContext<IAuthorizedFetchContext<TQueryFnData>>(
-        AuthorizedFetchContext,
-    );
-}
 
 export default AuthorizedFetchProvider;
