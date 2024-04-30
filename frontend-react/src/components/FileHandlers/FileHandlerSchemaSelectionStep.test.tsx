@@ -25,10 +25,6 @@ describe("FileHandlerSchemaSelectionStep", () => {
             renderApp(<FileHandlerSchemaSelectionStep {...DEFAULT_PROPS} />);
         }
 
-        afterEach(() => {
-            vi.resetAllMocks();
-        });
-
         test("renders the loading text", () => {
             setup();
             expect(screen.getByText("Loading...")).toBeVisible();
@@ -62,10 +58,6 @@ describe("FileHandlerSchemaSelectionStep", () => {
                 />,
             );
         }
-
-        afterEach(() => {
-            vi.resetAllMocks();
-        });
 
         test("renders the options", () => {
             setup();

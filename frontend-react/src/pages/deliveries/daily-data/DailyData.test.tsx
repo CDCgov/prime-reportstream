@@ -7,19 +7,18 @@ import {
     orgServer,
     receiversGenerator,
 } from "../../../__mocks__/OrganizationMockServer";
-import {
-    mockAppInsights,
-    mockAppInsightsContextReturnValue,
-} from "../../../contexts/__mocks__/AppInsightsContext";
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { filterManagerFixture } from "../../../hooks/filters/filters.fixtures";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import useAppInsightsContext from "../../../hooks/UseAppInsightsContext";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 import { selectDatesFromRange } from "../../../utils/TestUtils";
 
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../../contexts/Session/__mocks__/useSessionContext")
+>("../../../contexts/Session/useSessionContext");
 const mockUsePagination = {
     currentPageResults: makeDeliveryFixtureArray(10),
     paginationProps: { currentPageNum: 1, slots: [1, 2, 3, 4] },
@@ -48,6 +47,10 @@ vi.mock("../../../hooks/UsePagination", async (importActual) => ({
     __esModule: true,
 }));
 
+const mockUseAppInsightsContext = vi.mocked(useAppInsightsContext);
+const { trackEvent } = mockUseAppInsightsContext();
+const mockTrackEvent = vi.mocked(trackEvent);
+
 beforeEach(() => {
     // Mock our SessionProvider's data
     mockSessionContentReturnValue({
@@ -75,9 +78,6 @@ describe("DeliveriesTable", () => {
 
     describe("useReceiverFeed without data", () => {
         function setup() {
-            mockAppInsightsContextReturnValue({
-                fetchHeaders: () => ({}),
-            });
             // Mock our receiver services feed data
             mockUseOrganizationReceivers.mockReturnValue({
                 allReceivers: [],
@@ -128,9 +128,6 @@ describe("DeliveriesTableWithNumbered", () => {
     describe("when enabled", () => {
         describe("with active services and data", () => {
             function setup() {
-                mockAppInsightsContextReturnValue({
-                    fetchHeaders: () => ({}),
-                });
                 mockUseOrganizationReceivers.mockReturnValue({
                     allReceivers: [mockActiveReceiver],
                     activeReceivers: [mockActiveReceiver],
@@ -182,7 +179,7 @@ describe("DeliveriesTableWithNumbered", () => {
                     await selectDatesFromRange("20", "23");
                     await userEvent.click(screen.getByText("Apply"));
 
-                    expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
+                    expect(mockTrackEvent).toHaveBeenCalledWith({
                         name: "Daily Data | Table Filter",
                         properties: {
                             tableFilter: {
@@ -197,9 +194,6 @@ describe("DeliveriesTableWithNumbered", () => {
 
         describe("with no services", () => {
             function setup() {
-                mockAppInsightsContextReturnValue({
-                    fetchHeaders: () => ({}),
-                });
                 // Mock our receiver services feed data
                 mockUseOrganizationReceivers.mockReturnValue({
                     allReceivers: [],
@@ -252,9 +246,6 @@ describe("DeliveriesTableWithNumbered", () => {
 
     describe("when disabled", () => {
         function setup() {
-            mockAppInsightsContextReturnValue({
-                fetchHeaders: () => ({}),
-            });
             // Mock our receiver services feed data
             mockUseOrganizationReceivers.mockReturnValue({
                 allReceivers: [],
