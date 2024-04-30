@@ -1475,7 +1475,6 @@ test.describe("Daily Data page", () => {
                 const reportId = await tableDataCellValue(page, 0, 0);
                 await searchInput(page).fill(reportId);
                 await searchButton(page).click();
-                1232;
 
                 // Check filter status lists receiver value
                 filterStatusText = filterStatus(page, [reportId]);
