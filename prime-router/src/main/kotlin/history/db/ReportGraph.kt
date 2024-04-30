@@ -147,10 +147,10 @@ class ReportGraph(
 
     /**
      * Recursively goes down the report_linage table from any report until it reaches
-     * all reports with an action type of "sent" (the descendant report)
-     * TODO - send in action type as a param
-     * This will return an empty list if no report with action type "batch" is present or if
-     * the descendant is passed in
+     * all descendant reports with the specified action type(s)
+     *
+     * This will return an empty list if no report with the specified action type is present or if
+     * the ID of the final descendant is passed in
      *
      * If the passed in report ID has multiple descendant reports, they will all be returned
      */
