@@ -246,9 +246,7 @@ abstract class ReportFileFunction(
         }
 
         val lookupId = this.getLookupId(reportId)
-        if (lookupId == null) {
-            return HttpUtilities.notFoundResponse(request, "lookup Id not found")
-        }
+            ?: return HttpUtilities.notFoundResponse(request, "lookup Id not found")
 
         var status: HttpStatusCode = HttpStatusCode.NotFound
         runBlocking {
