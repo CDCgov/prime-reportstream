@@ -153,6 +153,10 @@ class SubmissionFunction(
         return this.retrieveETORIntermediaryMetadata(request, reportId, context, null)
     }
 
+    /**
+     * Function for finding the associated report ID that the intermediary knows about given the report ID that the sender is
+     * given from report stream
+     */
     override fun getLookupId(reportId: UUID): UUID? {
         val reportGraph = ReportGraph(workflowEngine.db)
         var descendants: List<ReportFile> = emptyList()

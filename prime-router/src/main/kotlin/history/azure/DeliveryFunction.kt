@@ -211,6 +211,10 @@ class DeliveryFunction(
         return this.retrieveETORIntermediaryMetadata(request, reportId, context, null)
     }
 
+    /**
+     * Function for finding the associated report ID that the intermediary knows about given the report ID that the receiver is
+     * given from report stream
+     */
     override fun getLookupId(reportId: UUID): UUID? {
         // the delivery endpoint is called by the final receiver with a sent report ID, where TI
         // knows about the related submission report ID
