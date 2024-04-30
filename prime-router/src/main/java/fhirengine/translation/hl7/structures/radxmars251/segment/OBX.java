@@ -118,9 +118,8 @@ public class OBX extends AbstractSegment {
       this.add(XAD.class, false, 1, 0, new Object[]{getMessage()}, "Performing Organization Address");
       this.add(XCN.class, false, 1, 0, new Object[]{getMessage()}, "Performing Organization Medical Director");
       this.add(ID.class, false, 1, 10, new Object[]{getMessage(), Integer.valueOf(909)}, "Patient Results Release Category");
-      this.add(ID.class, false, 1, 10, new Object[]{getMessage()}, "Patient Results Release Category");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Root Cause");
-      this.add(ID.class, false, 0, 5, new Object[]{getMessage()}, "Local Process Control");
+      this.add(CWE.class, false, 0, 5, new Object[]{getMessage()}, "Local Process Control");
       this.add(ID.class, false, 1, 4, new Object[]{getMessage()}, "Observation Type");
     } catch (HL7Exception e) {
       log.error("Unexpected error creating OBX - this is probably a bug in the source code generator.", e);
