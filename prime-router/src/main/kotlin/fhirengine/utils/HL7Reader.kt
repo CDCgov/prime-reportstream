@@ -28,6 +28,7 @@ import ca.uhn.hl7v2.model.v27.message.ORU_R01 as v27_ORU_R01
 import ca.uhn.hl7v2.model.v27.segment.MSH as v27_MSH
 import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01 as NIST_ELR_ORU_R01
 import fhirengine.translation.hl7.structures.nistelr251.segment.MSH as NIST_MSH
+import fhirengine.translation.hl7.structures.radxmars251.message.ORU_R01 as RadxMarsORU_R01
 
 private const val MSH_SEGMENT_NAME = "MSH"
 
@@ -293,7 +294,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                     DefaultHapiContext(
                         ParserConfiguration(),
                         ValidationContextFactory.noValidation(),
-                        ReportStreamCanonicalModelClassFactory(ORU_R01::class.java),
+                        ReportStreamCanonicalModelClassFactory(RadxMarsORU_R01::class.java),
                     )
                 } else {
                     DefaultHapiContext(ValidationContextFactory.noValidation())
