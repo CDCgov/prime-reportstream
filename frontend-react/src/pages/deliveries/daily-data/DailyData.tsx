@@ -128,7 +128,9 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
         {
             columnKey: DeliveriesDataAttr.RECEIVER,
             columnHeader: "Receiver",
-            content: dataRow.receiver,
+            content: dataRow.receiver.includes(".")
+                ? dataRow.receiver.split(/\.(.*)/)[1]
+                : dataRow.receiver,
         },
     ]);
 
