@@ -334,12 +334,9 @@ const Table = ({
                                         <tr key={index}>
                                             {row.map((data, dataIndex) => {
                                                 return (
-                                                    <TableHeader
-                                                        key={dataIndex}
-                                                        dataContent={
-                                                            data.content
-                                                        }
-                                                    />
+                                                    <td key={dataIndex}>
+                                                        <p>{data.content}</p>
+                                                    </td>
                                                 );
                                             })}
                                         </tr>

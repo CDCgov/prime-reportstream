@@ -75,9 +75,7 @@ test.describe("Daily Data page", () => {
             });
 
             test("table has pagination", async ({ page }) => {
-                await expect(
-                    page.getByTestId("Deliveries pagination"),
-                ).toBeAttached();
+                await expect(page.getByTestId("Pagination")).toBeAttached();
             });
 
             test("has footer", async ({ page }) => {
@@ -125,9 +123,7 @@ test.describe("Daily Data page", () => {
         });
 
         test("table has pagination", async ({ page }) => {
-            await expect(
-                page.getByTestId("Deliveries pagination"),
-            ).toBeAttached();
+            await expect(page.getByTestId("Pagination")).toBeAttached();
         });
 
         test("has footer", async ({ page }) => {
