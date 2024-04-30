@@ -705,11 +705,11 @@ class DeliveryFunctionTests : Logging {
         firstReport.reportId = UUID.randomUUID()
         firstReport.createdAt = OffsetDateTime.parse("2023-04-18T23:36:00Z")
 
-        val secondReport = ReportFile()
-        secondReport.reportId = UUID.randomUUID()
-        secondReport.createdAt = OffsetDateTime.parse("2022-08-26T00:00:00Z")
+//        val secondReport = ReportFile()
+//        secondReport.reportId = UUID.randomUUID()
+//        secondReport.createdAt = OffsetDateTime.parse("2022-08-26T00:00:00Z")
 
-        every { anyConstructed<ReportGraph>().getRootReports(any()) } returns listOf(firstReport, secondReport)
+        every { anyConstructed<ReportGraph>().getRootReport(any()) } returns firstReport
 
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
@@ -791,7 +791,7 @@ class DeliveryFunctionTests : Logging {
         action.sendingOrg = organizationName
         action.actionName = TaskAction.send
 
-        every { anyConstructed<ReportGraph>().getRootReports(any()) } returns emptyList()
+        every { anyConstructed<ReportGraph>().getRootReport(any()) } returns null
 
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID

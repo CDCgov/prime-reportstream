@@ -25,7 +25,6 @@ import gov.cdc.prime.router.history.db.SubmitterApiSearch
 import gov.cdc.prime.router.history.db.SubmitterDatabaseAccess
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
-import java.time.OffsetDateTime
 import java.util.UUID
 
 /**
@@ -191,7 +190,7 @@ class DeliveryFunction(
     }
 
     /**
-     *Endpoint for intermediary receivers to verify status of messages. It passes
+     * Endpoint for intermediary receivers to verify status of messages. It passes
      * a null engine to the retrieveMetadata function because Azure gets upset if there
      * are any non-annotated parameters in the method signature other than ExecutionContext
      * and we needed the engine to be a parameter so it can be mocked for tests
@@ -220,17 +219,9 @@ class DeliveryFunction(
         // knows about the related submission report ID
 
         val reportGraph = ReportGraph(workflowEngine.db)
-        val roots = reportGraph.getRootReports(reportId)
+        val root = reportGraph.getRootReport(reportId)
 
-        var lookupId: UUID? = null
-        var oldestDate: OffsetDateTime = OffsetDateTime.now()
-        roots.stream().forEach {
-            if (oldestDate.isAfter(it.createdAt)) {
-                lookupId = it.reportId
-                oldestDate = it.createdAt
-            }
-        }
-        return lookupId
+        return root?.reportId
     }
 
     /**

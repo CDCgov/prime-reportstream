@@ -133,7 +133,7 @@ class SubmissionFunction(
     }
 
     /**
-     *Endpoint for intermediary receivers to verify status of messages. It passes
+     * Endpoint for intermediary senders to verify status of messages. It passes
      * a null engine to the retrieveMetadata function because Azure gets upset if there
      * are any non-annotated parameters in the method signature other than ExecutionContext
      * and we needed the engine to be a parameter so it can be mocked for tests
