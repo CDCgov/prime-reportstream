@@ -6265,12 +6265,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns-tz@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "date-fns-tz@npm:2.0.0"
+"date-fns-tz@npm:^3.1.3":
+  version: 3.1.3
+  resolution: "date-fns-tz@npm:3.1.3"
   peerDependencies:
-    date-fns: ">=2.0.0"
-  checksum: a6553603a9d26dd9669326c99a58a2335ac550bc060c74b86a5ad9e1de73c9d4e3e5236f0f552f990e616e4e8dcc2b6a637913a04d2e04396e6a9f8ae83c73da
+    date-fns: ^3.0.0
+  checksum: b184841dddf825adcfecbe0812546e4c7332d79eb2e898ca746cb9081e6efdbfd1af4804caafb64d90da02e57025f8042e2fc521bdf86bffbae4a4e5b5040acc
   languageName: node
   linkType: hard
 
@@ -12436,7 +12436,7 @@ __metadata:
     classnames: ^2.5.1
     cross-env: ^7.0.3
     date-fns: ^3.6.0
-    date-fns-tz: ^2.0.0
+    date-fns-tz: ^3.1.3
     dompurify: ^3.0.11
     dotenv-flow: ^4.1.0
     downloadjs: ^1.4.7
