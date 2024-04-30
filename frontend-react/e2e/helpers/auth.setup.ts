@@ -3,14 +3,13 @@ import { TOTP } from "otpauth";
 
 import { test as setup } from "./rs-test";
 import type { TestLogin } from "./rs-test";
+import { fulfillGoogleAnalytics } from "./utils";
 
 async function logIntoOkta(page: Page, login: TestLogin) {
     const totp = new TOTP({ secret: login.totpCode });
 
     // fulfill GA request so that we don't log to it and alter the metrics
-    await page.route("https://www.google-analytics.com/**", (route) =>
-        route.fulfill({ status: 204, body: "" }),
-    );
+    await fulfillGoogleAnalytics(page);
 
     // abort all app insight calls
     await page.route("**/v2/track", (route) => route.abort());
