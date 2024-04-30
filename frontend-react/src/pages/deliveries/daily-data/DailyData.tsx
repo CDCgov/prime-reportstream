@@ -1,3 +1,4 @@
+import { Button } from "@trussworks/react-uswds";
 import { Dispatch, FC, SetStateAction } from "react";
 
 import { getReportAndDownload } from "./ReportsUtils";
@@ -18,7 +19,6 @@ import {
 } from "../../../contexts/AppInsights";
 import { useSessionContext } from "../../../contexts/Session";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager";
-import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import {
     DeliveriesDataAttr,
@@ -86,7 +86,7 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
         {
             columnKey: DeliveriesDataAttr.BATCH_READY,
             columnHeader: "Time received",
-            content: dataRow.batchReadyAt,
+            content: transformDate(dataRow.batchReadyAt),
             columnCustomSort: () =>
                 onColumnCustomSort(DeliveriesDataAttr.BATCH_READY),
             columnCustomSortSettings: filterManager.sortSettings,
@@ -94,7 +94,7 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
         {
             columnKey: DeliveriesDataAttr.EXPIRES,
             columnHeader: "File available until",
-            content: dataRow.expires,
+            content: transformDate(dataRow.expires),
             columnCustomSort: () =>
                 onColumnCustomSort(DeliveriesDataAttr.EXPIRES),
             columnCustomSortSettings: filterManager.sortSettings,
@@ -107,7 +107,24 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
         {
             columnKey: DeliveriesDataAttr.FILE_NAME,
             columnHeader: "Filename",
-            content: dataRow.fileName,
+            content: (
+                <>
+                    {!handleExpirationDate(dataRow.expires) ? (
+                        <Button
+                            className="font-mono-2xs line-height-alt-4"
+                            type="button"
+                            unstyled
+                            onClick={() =>
+                                handleFetchAndDownload(dataRow.reportId)
+                            }
+                        >
+                            {dataRow.fileName}
+                        </Button>
+                    ) : (
+                        <div>{dataRow.fileName}</div>
+                    )}
+                </>
+            ),
         },
         {
             columnKey: DeliveriesDataAttr.RECEIVER,
@@ -118,16 +135,11 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
 
     return (
         <>
-            <Table apiSortable rowData={data} />
+            <Table apiSortable borderless rowData={data} />
             {data.length && (
                 <Pagination
                     currentPageNum={currentPageNum}
-                    setSelectedPage={(pageNum) => {
-                        filterManager.updatePage({
-                            type: PageSettingsActionType.SET_PAGE,
-                            payload: { page: pageNum },
-                        });
-                    }}
+                    setSelectedPage={paginationProps.setSelectedPage}
                     slots={getSlots(
                         currentPageNum,
                         paginationProps.slots.length,
@@ -176,10 +188,6 @@ const DeliveriesFilterAndTable = ({
         extractCursor,
         analyticsEventName,
     });
-
-    if (paginationProps) {
-        paginationProps.label = "Deliveries pagination";
-    }
 
     const receiverDropdown = [
         ...new Set(
