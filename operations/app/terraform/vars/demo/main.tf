@@ -134,6 +134,7 @@ module "storage" {
   dns_zones                     = module.network.dns_zones
   delete_pii_storage_after_days = local.security.delete_pii_storage_after_days
   is_temp_env                   = local.is_temp_env
+  law_id                        = module.log_analytics_workspace.law_id
 }
 
 
