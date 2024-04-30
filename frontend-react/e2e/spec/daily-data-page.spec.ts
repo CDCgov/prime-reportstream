@@ -899,8 +899,8 @@ test.describe("Daily Data page", () => {
                     await searchInput(page).fill(reportId);
                     await searchButton(page).click();
 
-                    const rowCount = await tableRows(page).count();
-                    expect(rowCount).toEqual(1);
+                    // const rowCount = await tableRows(page).count();
+                    // expect(rowCount).toEqual(1);
 
                     // Check filter status lists receiver value
                     filterStatusText = filterStatus(page, [reportId]);
@@ -908,11 +908,10 @@ test.describe("Daily Data page", () => {
                         page.getByTestId("filter-status"),
                     ).toContainText(filterStatusText);
 
-                    // Only needed when using live data
                     //Check table data matches search
-                    // expect(await tableDataCellValue(page, 0, 0)).toEqual(
-                    //     reportId,
-                    // );
+                    expect(await tableDataCellValue(page, 0, 0)).toEqual(
+                        reportId,
+                    );
 
                     // Check filters are cleared
                     await expect(receiverDropdown(page)).toHaveValue("");
