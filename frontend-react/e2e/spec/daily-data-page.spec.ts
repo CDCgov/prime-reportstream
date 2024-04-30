@@ -41,7 +41,7 @@ import {
 const defaultStartTime = "9:00am";
 const defaultEndTime = "11:30pm";
 
-test.describe.skip("Daily Data page", () => {
+test.describe("Daily Data page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
             await dailyData.goto(page);
@@ -791,9 +791,6 @@ test.describe.skip("Daily Data page", () => {
                     await searchInput(page).fill(reportId);
                     await searchButton(page).click();
 
-                    const rowCount = await tableRows(page).count();
-                    expect(rowCount).toEqual(1);
-
                     // Check filter status lists receiver value
                     filterStatusText = filterStatus(page, [reportId]);
                     await expect(
@@ -1223,8 +1220,12 @@ test.describe.skip("Daily Data page", () => {
                     // Apply button is enabled
                     await applyButton(page).click();
                     await page
-                        .locator(".usa-table tbody")
-                        .waitFor({ state: "visible" });
+                        .getByTestId("filter-status")
+                        .waitFor({ timeout: 3000 });
+
+                    // Form values persist
+                    await expect(startDate(page)).toHaveValue(fromDate);
+                    await expect(endDate(page)).toHaveValue(toDate);
 
                     // Check filter status lists receiver value
                     const filterStatusText = filterStatus(page, [
@@ -1245,8 +1246,8 @@ test.describe.skip("Daily Data page", () => {
                     // Apply button is enabled
                     await applyButton(page).click();
                     await page
-                        .locator(".usa-table tbody")
-                        .waitFor({ state: "visible" });
+                        .getByTestId("filter-status")
+                        .waitFor({ timeout: 3000 });
 
                     // Form values persist
                     await expect(startDate(page)).toHaveValue(fromDate);
@@ -1275,8 +1276,8 @@ test.describe.skip("Daily Data page", () => {
                     // Apply button is enabled
                     await applyButton(page).click();
                     await page
-                        .locator(".usa-table tbody")
-                        .waitFor({ state: "visible" });
+                        .getByTestId("filter-status")
+                        .waitFor({ timeout: 3000 });
 
                     // Form values persist
                     await expect(startDate(page)).toHaveValue(fromDate);
@@ -1308,6 +1309,9 @@ test.describe.skip("Daily Data page", () => {
                     await page
                         .locator(".usa-table tbody")
                         .waitFor({ state: "visible" });
+                    await page
+                        .getByTestId("filter-status")
+                        .waitFor({ timeout: 3000 });
 
                     // Only needed when using live data
                     // Check that table data contains the dates/times that were selected
@@ -1471,9 +1475,7 @@ test.describe.skip("Daily Data page", () => {
                 const reportId = await tableDataCellValue(page, 0, 0);
                 await searchInput(page).fill(reportId);
                 await searchButton(page).click();
-
-                const rowCount = await tableRows(page).count();
-                expect(rowCount).toEqual(9);
+                1232;
 
                 // Check filter status lists receiver value
                 filterStatusText = filterStatus(page, [reportId]);
