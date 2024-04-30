@@ -30,10 +30,6 @@ export const ReceiverOrganizationsMissingTransport: string[] = [
     "pima-az-phd",
 ];
 
-export function isOrganizationsMissingTransport(orgName: string): boolean {
-    return ReceiverOrganizationsMissingTransport.indexOf(orgName) > -1;
-}
-
 export const useOrganizationSettings = () => {
     const { activeMembership } = useSessionContext();
     const parsedName = activeMembership?.parsedName;

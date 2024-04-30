@@ -45,7 +45,7 @@ runs:
       run: ./gradlew ktlintCheck
       shell: bash
 
-    - uses: gradle/wrapper-validation-action@b231772637bb498f11fdbc86052b6e8a8dc9fc92
+    - uses: gradle/actions/wrapper-validation@db19848a5fa7950289d3668fb053140cf3028d43
 
     - name: Spin up build containers
       working-directory: prime-router
@@ -129,12 +129,13 @@ runs:
       run: docker compose -f docker-compose.yml up -d prime_dev sftp azurite azurite-stage
       shell: bash
 
+      # Important to give enough time here in order to avoid a race described in https://github.com/CDCgov/prime-reportstream/issues/13961#issuecomment-2065217386
     - name: Give some time for the container to start
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
       run: |
-        echo "sleeping 30"
-        sleep 30
+        echo "sleeping 90"
+        sleep 90
         echo "wake up"
       shell: bash
 
@@ -199,7 +200,7 @@ runs:
 
     - name: Upload Artifact
       if: inputs.upload-build == 'true'
-      uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
+      uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router/prime-router-build.tar.gz

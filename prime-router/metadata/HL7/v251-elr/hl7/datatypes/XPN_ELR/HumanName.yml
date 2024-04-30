@@ -6,7 +6,7 @@ family:
   expressionType: HL7Spec
 _family:
   expressionType: resource
-  valueOf: datatypes/FN/ExtensionHumanName-family
+  valueOf: ../../datatypes/v251/hl7/datatypes/FN/ExtensionHumanName-family
   specs: XPN.1
 
 given:
@@ -40,18 +40,6 @@ use:
   type: NAME_USE
   valueOf: XPN.7
   expressionType: HL7Spec
-
-# This needs to use variables because the message parses this field using NULLDT since it is deprecated which means that
-# the values do not get correctly loaded and will not be mapped over correctly using a spec.
-period_1:
-  vars:
-    xpn12: String, XPN.12
-    xpn13: String, XPN.13
-    start: String, XPN.10.1
-    end: String, XPN.10.2
-  condition: $xpn12 NULL && $xpn13 NULL
-  expressionType: resource
-  valueOf: datatypes/DR/Period
 
 extension_AssemblyOrder:
   vars:
@@ -109,4 +97,4 @@ extension:
           type: STRING
           valueOf: $hl7v2Component
     - expressionType: resource
-      valueOf: datatypes/XPN/XPNExtension
+      valueOf: datatypes/XPN_ELR/XPNExtension

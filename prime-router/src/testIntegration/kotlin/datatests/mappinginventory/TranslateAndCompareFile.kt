@@ -31,7 +31,8 @@ fun verifyHL7ToFHIRToHL7Mapping(
     skipHl7ToFhir: Boolean = false,
     skipFhirToHl7: Boolean = false,
     skipHl7ToHl7: Boolean = false,
-    additionalProfiles: List<String> = emptyList(),
+    profile: String = "./metadata/HL7/catchall",
+    outputSchema: String = "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-test.yml",
 ): CompareData.Result {
     if (!skipHl7ToFhir) {
         val hl7ToFhirConfig = TranslationTests.TestConfig(
@@ -45,7 +46,7 @@ fun verifyHL7ToFHIRToHL7Mapping(
             null,
             null,
             null,
-            additionalProfiles = additionalProfiles
+            profile = profile
         )
         val hl7ToFhirResult = TranslationTests().FileConversionTest(hl7ToFhirConfig).runTest()
         if (!hl7ToFhirResult.passed) {
@@ -60,7 +61,7 @@ fun verifyHL7ToFHIRToHL7Mapping(
             "",
             "mappinginventory/$testFileName.hl7",
             Report.Format.HL7,
-            "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-test.yml",
+            outputSchema,
             true,
             null,
             null,
@@ -78,11 +79,12 @@ fun verifyHL7ToFHIRToHL7Mapping(
             "",
             "mappinginventory/$testFileName.hl7",
             Report.Format.HL7,
-            "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-test.yml",
+            outputSchema,
             true,
             null,
             null,
-            null
+            null,
+            profile = profile
         )
         return TranslationTests().FileConversionTest(hl7toFhirToHl7Config).runTest()
     }

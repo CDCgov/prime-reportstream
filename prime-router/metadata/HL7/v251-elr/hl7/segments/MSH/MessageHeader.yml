@@ -7,13 +7,13 @@ id:
 
 eventCoding:
   expressionType: resource
-  valueOf: datatypes/MSG/Coding
+  valueOf: ../../datatypes/v251/hl7/datatypes/MSG/Coding
   specs: MSH.9
   required: true
 
 meta:
   expressionType: resource
-  valueOf: datatypes/PT/Meta
+  valueOf: ../../datatypes/v251/hl7/datatypes/PT/Meta
   specs: MSH.11
   vars:
     metaSecurity: STRING, MSH.8
@@ -22,7 +22,6 @@ source:
   expressionType: nested
   vars:
     msh3: STRING_ALL, MSH.3
-    msh24: STRING_ALL, MSH.24
   expressions:
     - constants:
         messageHeaderSourceField: MSH.3
@@ -30,17 +29,10 @@ source:
       valueOf: segments/MSH/datatypes/HD/Source
       expressionType: resource
       specs: MSH.3
-    - constants:
-        messageHeaderSourceField: MSH.24
-      condition: $msh3 NULL && $msh24 NOT_NULL
-      valueOf: segments/MSH/datatypes/HD/Source
-      expressionType: resource
-      specs: MSH.24
-
 
 sender:
   condition: $msh4 NOT_NULL || $organizationCountry NOT_NULL
-  valueOf: datatypes/HD/Organization
+  valueOf: ../../datatypes/v251/hl7/datatypes/HD/Organization
   expressionType: reference
   generateList: true
   specs: MSH.4
@@ -51,9 +43,7 @@ sender:
 destination:
   vars:
     msh6: MSH.6
-    msh23: MSH.23
     msh5: STRING_ALL, MSH.5
-    msh25: STRING_ALL, MSH.25
   expressionType: nested
   generateList: true
   expressions:
@@ -63,36 +53,15 @@ destination:
       expressionType: resource
       valueOf: segments/MSH/datatypes/HD/Destination
       specs: MSH.5
-    - constants:
-        messageHeaderDestinationField: MSH.25
-      condition: $msh25 NOT_NULL && $msh25 NOT_EQUALS $msh5
-      valueOf: segments/MSH/datatypes/HD/Destination
-      expressionType: resource
-      specs: MSH.25
-    - constants:
-        messageHeaderDestinationField: MSH.25
-      condition: $msh25 NOT_NULL && $msh5 NULL
-      valueOf: segments/MSH/datatypes/HD/Destination
-      expressionType: resource
-      specs: MSH.25
     - expressionType: nested
-      condition: $msh6 NOT_NULL && $msh5 NULL && $msh25 NULL
+      condition: $msh6 NOT_NULL && $msh5 NULL
       constants:
         hdOrganizationHL7Field: MSH.6
       expressionsMap:
         receiver:
           expressionType: reference
-          valueOf: datatypes/HD/Organization
+          valueOf: ../../datatypes/v251/hl7/datatypes/HD/Organization
           specs: MSH.6
-    - expressionType: nested
-      condition: $msh6 NOT_NULL && $msh23 NOT_NULL
-      constants:
-        XONHL7Field: MSH.23
-      expressionsMap:
-        receiver:
-          expressionType: reference
-          valueOf: datatypes/XON/Organization
-          specs: MSH.23
 
 language:
   vars:
@@ -107,7 +76,6 @@ language:
       valueOf: MSH.19.4
       type: STRING
       expressionType: HL7Spec
-
 
 # MSH.10 is captured in Bundle.Identifier
 # MSH.12 is hardcoded to 2.5.1
@@ -144,11 +112,3 @@ extension_messageHeader:
           expressionType: HL7Spec
     - expressionType: resource
       valueOf: segments/MSH/MSHExtension
-
-responsible:
-  vars:
-    msh22: MSH.22
-  condition: $msh22 NOT_NULL
-  expressionType: reference
-  valueOf: datatypes/XON/Organization
-  specs: MSH.22

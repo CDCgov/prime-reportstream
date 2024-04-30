@@ -30,7 +30,7 @@ extension:
           value: PV2.23
         valueReference:
           expressionType: reference
-          valueOf: datatypes/XON/Organization
+          valueOf: ../../datatypes/v251/hl7/datatypes/XON/Organization
     - vars:
         pv226: STRING_ALL, PV2.26
       condition: $pv226 NOT_NULL

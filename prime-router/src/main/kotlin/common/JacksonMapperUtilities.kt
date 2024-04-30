@@ -4,8 +4,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.datatype.jsr310.ser.OffsetDateTimeSerializer
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.fasterxml.jackson.module.kotlin.kotlinModule
@@ -71,4 +74,19 @@ object JacksonMapperUtilities {
         disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         enable(SerializationFeature.INDENT_OUTPUT) // Pretty print JSON output
     }.run { setTimeZone(TimeZone.getTimeZone(Environment.rsTimeZone)) }
+
+    /**
+     * Default YAML mapper
+     */
+    val yamlMapper: ObjectMapper by lazy {
+        ObjectMapper(YAMLFactory()).registerModule(
+            KotlinModule.Builder()
+                .withReflectionCacheSize(512)
+                .configure(KotlinFeature.NullToEmptyCollection, false)
+                .configure(KotlinFeature.NullToEmptyMap, false)
+                .configure(KotlinFeature.NullIsSameAsDefault, false)
+                .configure(KotlinFeature.StrictNullChecks, false)
+                .build()
+        )
+    }
 }

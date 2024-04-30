@@ -27,7 +27,7 @@ extension:
           type: STRING
           value: OBX.6
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CWE_ELR/CodeableConcept
           specs: OBX.6
           expressionType: resource
     - expressionType: nested
@@ -89,7 +89,7 @@ extension:
           type: STRING
           value: OBX.17
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           expressionType: resource
     - expressionType: nested
       vars:
@@ -104,19 +104,6 @@ extension:
         valueReference:
           valueOf: segments/OBX/Device
           expressionType: reference
-    - expressionType: nested
-      vars:
-        obx20: STRING_ALL, OBX.20
-      condition: $obx20 NOT_NULL
-      generateList: true
-      specs: OBX.20 *
-      expressionsMap:
-        url:
-          type: STRING
-          value: OBX.20
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
 
 
 

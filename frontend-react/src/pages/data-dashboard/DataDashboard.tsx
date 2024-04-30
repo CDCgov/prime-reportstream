@@ -30,11 +30,10 @@ function DataDashboardPage() {
                     content="An abstract illustration of screens and a document."
                 />
             </Helmet>
-            <Alert type="warning" headingLevel="h2">
-                On April 11, Daily Data will be your new dashboard. ReportStream
-                will not be maintaining this dashboard. You can begin viewing
-                your data status in{" "}
-                <USLink href="/daily-data">Daily Data</USLink> now.
+            <Alert type="error" headingLevel="h2">
+                ReportStream is not maintaining this dashboard. Visit{" "}
+                <USLink href="/daily-data">Daily Data</USLink> to view the
+                status of data sent to you.
             </Alert>
             <div className={styles.DataDashboard}>
                 <div className="bg-primary-darker text-white">

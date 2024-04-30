@@ -25,10 +25,6 @@ import styles from "./ReportStreamHeader.module.scss";
 import site from "../../content/site.json";
 import { RSSessionContext } from "../../contexts/Session/SessionProvider";
 import useSessionContext from "../../contexts/Session/useSessionContext";
-import {
-    isOrganizationsMissingTransport,
-    useOrganizationSettings,
-} from "../../hooks/UseOrganizationSettings";
 import { Icon } from "../../shared";
 import SenderModeBanner from "../SenderModeBanner";
 import Spinner from "../Spinner";
@@ -94,10 +90,6 @@ function ReportStreamNavbar({
     containerRef,
 }: ReportStreamNavbarProps) {
     const [openMenuItem, setOpenMenuItem] = useState<undefined | string>();
-    const { data: organization } = useOrganizationSettings();
-    const isOrgMissingTransport = organization
-        ? isOrganizationsMissingTransport(organization.name)
-        : false;
 
     const setMenu = useCallback((menuName?: string) => {
         setOpenMenuItem((curr) => {
@@ -228,17 +220,6 @@ function ReportStreamNavbar({
     ];
 
     const menuItemsReceiver = [
-        <div className="primary-nav-link-container" key="dashboard">
-            <USSmartLink
-                className={primaryLinkClasses(!!useMatch("/data-dashboard/*"))}
-                href="/data-dashboard"
-            >
-                Dashboard
-            </USSmartLink>
-        </div>,
-    ];
-
-    const menuItemsReceiverMissingTransport = [
         <div className="primary-nav-link-container" key="daily">
             <USSmartLink
                 className={primaryLinkClasses(!!useMatch("/daily-data/*"))}
@@ -297,22 +278,8 @@ function ReportStreamNavbar({
     const navbarItemBuilder = () => {
         let menuItems = [...menuItemsAbout, ...defaultMenuItems];
 
-        if (
-            (user.isUserReceiver ||
-                user.isUserTransceiver ||
-                user.isUserAdmin) &&
-            !isOrgMissingTransport
-        ) {
+        if (user.isUserReceiver || user.isUserTransceiver || user.isUserAdmin) {
             menuItems = [...menuItems, ...menuItemsReceiver];
-        }
-
-        if (
-            (user.isUserReceiver ||
-                user.isUserTransceiver ||
-                user.isUserAdmin) &&
-            isOrgMissingTransport
-        ) {
-            menuItems = [...menuItems, ...menuItemsReceiverMissingTransport];
         }
 
         if (user.isUserSender || user.isUserTransceiver || user.isUserAdmin) {

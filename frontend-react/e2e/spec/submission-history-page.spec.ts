@@ -1,9 +1,16 @@
 import { expect, test } from "@playwright/test";
 
-import { selectTestOrg, TEST_ORG_IGNORE } from "../helpers/utils";
+import {
+    noData,
+    selectTestOrg,
+    tableDataCellValue,
+    tableRows,
+    TEST_ORG_IGNORE,
+} from "../helpers/utils";
 import * as submissionHistory from "../pages/submission-history";
 import { openReportIdDetailPage } from "../pages/submission-history";
 
+const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
 test.describe("Submission history page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
@@ -59,84 +66,62 @@ test.describe("Submission history page", () => {
                 ).toBeAttached();
             });
 
-            test("table has correct headers", async ({ page }) => {
-                await expect(page.locator(".usa-table th").nth(0)).toHaveText(
-                    /Report ID/,
-                );
-                await expect(page.locator(".usa-table th").nth(1)).toHaveText(
-                    "Date/time submitted",
-                );
-                await expect(page.locator(".usa-table th").nth(2)).toHaveText(
-                    /File/,
-                );
-                await expect(page.locator(".usa-table th").nth(3)).toHaveText(
-                    /Records/,
-                );
-                await expect(page.locator(".usa-table th").nth(4)).toHaveText(
-                    /Status/,
-                );
-            });
+            test.describe("table", () => {
+                test("table has correct headers", async ({ page }) => {
+                    await submissionHistory.tableHeaders(page);
+                });
 
-            test("table column 'ReportId' will open the report details", async ({
-                page,
-            }) => {
-                const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
-
-                const reportId = page
-                    .locator(".usa-table tbody")
-                    .locator("tr")
-                    .nth(0)
-                    .locator("td")
-                    .nth(0);
-                await expect(reportId).toContainText(id);
-                await reportId.click();
-
-                await openReportIdDetailPage(page, id);
-            });
-
-            test("table column 'Date/time submitted' has expected data", async ({
-                page,
-            }) => {
-                await expect(
-                    page
-                        .locator(".usa-table tbody")
-                        .locator("tr")
+                test("table column 'ReportId' will open the report details", async ({
+                    page,
+                }) => {
+                    const reportId = tableRows(page)
                         .nth(0)
                         .locator("td")
-                        .nth(1),
-                ).toHaveText("3/7/2024, 6:00:22 PM");
-            });
+                        .nth(0);
+                    await expect(reportId).toContainText(id);
+                    await reportId.getByRole("link", { name: id }).click();
 
-            test("table column 'Records' has expected data", async ({
-                page,
-            }) => {
-                await expect(
-                    page
-                        .locator(".usa-table tbody")
-                        .locator("tr")
-                        .nth(0)
-                        .locator("td")
-                        .nth(3),
-                ).toHaveText("1");
-            });
+                    await openReportIdDetailPage(page, id);
+                });
 
-            test("table column 'Status' has expected data", async ({
-                page,
-            }) => {
-                await expect(
-                    page
-                        .locator(".usa-table tbody")
-                        .locator("tr")
-                        .nth(0)
-                        .locator("td")
-                        .nth(4),
-                ).toHaveText("Success");
-            });
+                test("table column 'Date/time submitted' has expected data", async ({
+                    page,
+                }) => {
+                    expect(await tableDataCellValue(page, 0, 1)).toEqual(
+                        "3/7/2024, 6:00:22 PM",
+                    );
+                });
 
-            test("table has pagination", async ({ page }) => {
-                await expect(
-                    page.getByTestId("Submissions pagination"),
-                ).toBeAttached();
+                test("table column 'File' has expected data", async ({
+                    page,
+                }) => {
+                    expect(await tableDataCellValue(page, 0, 2)).toEqual(
+                        "myfile.hl7",
+                    );
+                    expect(await tableDataCellValue(page, 1, 2)).toEqual(
+                        "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+                    );
+                });
+
+                test("table column 'Records' has expected data", async ({
+                    page,
+                }) => {
+                    expect(await tableDataCellValue(page, 0, 3)).toEqual("1");
+                });
+
+                test("table column 'Status' has expected data", async ({
+                    page,
+                }) => {
+                    expect(await tableDataCellValue(page, 0, 4)).toEqual(
+                        "Success",
+                    );
+                });
+
+                test("table has pagination", async ({ page }) => {
+                    await expect(
+                        page.getByTestId("Submissions pagination"),
+                    ).toBeAttached();
+                });
             });
 
             test("has footer", async ({ page }) => {
@@ -160,7 +145,7 @@ test.describe("Submission history page", () => {
         });
 
         test("displays no data message", async ({ page }) => {
-            await expect(page.getByText(/No available data/)).toBeAttached();
+            await expect(noData(page)).toBeAttached();
         });
 
         test("has correct title", async ({ page }) => {
@@ -197,80 +182,46 @@ test.describe("Submission history page", () => {
             await expect(page.getByTestId("filter-container")).toBeAttached();
         });
 
-        test("table has correct headers", async ({ page }) => {
-            await expect(page.locator(".usa-table th").nth(0)).toHaveText(
-                /Report ID/,
-            );
-            await expect(page.locator(".usa-table th").nth(1)).toHaveText(
-                "Date/time submitted",
-            );
-            await expect(page.locator(".usa-table th").nth(2)).toHaveText(
-                /File/,
-            );
-            await expect(page.locator(".usa-table th").nth(3)).toHaveText(
-                /Records/,
-            );
-            await expect(page.locator(".usa-table th").nth(4)).toHaveText(
-                /Status/,
-            );
-        });
+        test.describe("table", () => {
+            test("table has correct headers", async ({ page }) => {
+                await submissionHistory.tableHeaders(page);
+            });
 
-        test("table column 'ReportId' will open the report details", async ({
-            page,
-        }) => {
-            const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
+            test("table column 'ReportId' will open the report details", async ({
+                page,
+            }) => {
+                const reportId = tableRows(page).nth(0).locator("td").nth(0);
+                await expect(reportId).toContainText(id);
+                await reportId.getByRole("link", { name: id }).click();
 
-            const reportId = page
-                .locator(".usa-table tbody")
-                .locator("tr")
-                .nth(0)
-                .locator("td")
-                .nth(0);
-            await expect(reportId).toContainText(id);
-            await reportId.click();
+                await openReportIdDetailPage(page, id);
+            });
 
-            await openReportIdDetailPage(page, id);
-        });
+            test("table column 'Date/time submitted' has expected data", async ({
+                page,
+            }) => {
+                expect(await tableDataCellValue(page, 0, 1)).toEqual(
+                    "3/7/2024, 6:00:22 PM",
+                );
+            });
 
-        test("table column 'Date/time submitted' has expected data", async ({
-            page,
-        }) => {
-            await expect(
-                page
-                    .locator(".usa-table tbody")
-                    .locator("tr")
-                    .nth(0)
-                    .locator("td")
-                    .nth(1),
-            ).toHaveText("3/7/2024, 6:00:22 PM");
-        });
+            test("table column 'Records' has expected data", async ({
+                page,
+            }) => {
+                expect(await tableDataCellValue(page, 0, 3)).toEqual("1");
+            });
 
-        test("table column 'Records' has expected data", async ({ page }) => {
-            await expect(
-                page
-                    .locator(".usa-table tbody")
-                    .locator("tr")
-                    .nth(0)
-                    .locator("td")
-                    .nth(3),
-            ).toHaveText("1");
-        });
+            test("table column 'Status' has expected data", async ({
+                page,
+            }) => {
+                expect(await tableDataCellValue(page, 0, 4)).toEqual("Success");
+            });
 
-        test("table column 'Status' has expected data", async ({ page }) => {
-            await expect(
-                page
-                    .locator(".usa-table tbody")
-                    .locator("tr")
-                    .nth(0)
-                    .locator("td")
-                    .nth(4),
-            ).toHaveText("Success");
-        });
-
-        test("table has pagination", async ({ page }) => {
-            await expect(
-                page.getByTestId("Submissions pagination"),
-            ).toBeAttached();
+            test("table has pagination", async ({ page }) => {
+                await expect(
+                    page.getByTestId("Submissions pagination"),
+                ).toBeAttached();
+            });
         });
 
         test("has footer", async ({ page }) => {

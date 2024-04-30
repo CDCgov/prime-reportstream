@@ -140,12 +140,20 @@ object ConfigSchemaReader : Logging {
             "file" -> {
                 val file = File(schemaUri)
                 if (!file.canRead()) throw SchemaException("Cannot read ${file.absolutePath}")
-                readOneYamlSchema(file.inputStream(), schemaClass)
+                file.inputStream().use { fis ->
+                    readOneYamlSchema(fis, schemaClass)
+                }
             }
             "classpath" -> {
-                val input = javaClass.classLoader.getResourceAsStream(schemaUri.path.substring(1))
+                (
+                    javaClass.classLoader.getResourceAsStream(schemaUri.path.substring(1))
                     ?: throw SchemaException("Cannot read $schemaUri")
-                readOneYamlSchema(input, schemaClass)
+                ).use { ips ->
+                    readOneYamlSchema(
+                        ips,
+                        schemaClass
+                    )
+                }
             }
             "azure" -> {
                 // Note: the schema URIs will not include the container name i.e.
@@ -154,7 +162,9 @@ object ConfigSchemaReader : Logging {
                     "${blobConnectionInfo.getBlobEndpoint()}${schemaUri.path}",
                     blobConnectionInfo
                 )
-                readOneYamlSchema(blob.inputStream(), schemaClass)
+                blob.inputStream().use { bis ->
+                    readOneYamlSchema(bis, schemaClass)
+                }
             }
             else -> throw SchemaException("Unexpected scheme: ${schemaUri.scheme}")
         }

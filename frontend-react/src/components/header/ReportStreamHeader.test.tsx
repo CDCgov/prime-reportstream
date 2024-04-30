@@ -28,7 +28,6 @@ describe("SignInOrUser", () => {
         await waitFor(() =>
             expect(screen.getByText("Submissions")).toBeVisible(),
         );
-        expect(screen.queryByText("Dashboard")).not.toBeInTheDocument();
         expect(screen.queryByText("Admin")).not.toBeInTheDocument();
         testNav();
     });
@@ -42,7 +41,7 @@ describe("SignInOrUser", () => {
         } as RSSessionContext);
         renderApp(<ReportStreamHeader />);
         await waitFor(() =>
-            expect(screen.getByText("Dashboard")).toBeVisible(),
+            expect(screen.getByText("Daily Data")).toBeVisible(),
         );
         expect(screen.queryByText("Submissions")).not.toBeInTheDocument();
         expect(screen.queryByText("Admin")).not.toBeInTheDocument();
@@ -58,7 +57,7 @@ describe("SignInOrUser", () => {
         } as RSSessionContext);
         renderApp(<ReportStreamHeader />);
         await waitFor(() =>
-            expect(screen.getByText("Dashboard")).toBeVisible(),
+            expect(screen.getByText("Daily Data")).toBeVisible(),
         );
         expect(screen.getByText("Submissions")).toBeVisible();
         expect(screen.queryByText("Admin")).not.toBeInTheDocument();
@@ -76,7 +75,7 @@ describe("SignInOrUser", () => {
         await waitFor(() =>
             expect(screen.getByText("Submissions")).toBeVisible(),
         );
-        expect(screen.getByText("Dashboard")).toBeVisible();
+        expect(screen.getByText("Daily Data")).toBeVisible();
         expect(screen.getByText("Admin")).toBeVisible();
         testNav();
     });
