@@ -656,4 +656,184 @@ class SubmissionFunctionTests : Logging {
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
         assertThat(response.body.toString()).isEqualTo("{\"error\": \"lookup Id not found\"}")
     }
+
+    @Test
+    fun `test getEtorMetadata returns 404 when TI returns 404`() {
+        val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
+        val mockRequest = MockHttpRequestMessage()
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+        val mockSubmissionFacade = mockk<SubmissionsFacade>()
+        val function = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, mockSubmissionFacade)
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
+            AuthenticatedClaims.generateTestClaims()
+
+        val detailedReport = DetailedReport(
+            UUID.randomUUID(),
+            "flexion", "flexion", "lab", "lab", Topic.ETOR_TI, "external",
+            null, null, 1, 1, true
+        )
+
+        // Good return
+        val returnBody = DetailedSubmissionHistory(
+            550, TaskAction.receive, OffsetDateTime.now(), 201,
+            mutableListOf(detailedReport)
+        )
+
+        returnBody.destinations = listOf(
+            Destination(
+                "flexion", "test", mutableListOf(), mutableListOf(),
+                OffsetDateTime.now(), 1, 1, mutableListOf(detailedReport), mutableListOf()
+            )
+        ).toMutableList()
+
+        mockkConstructor(RESTTransport::class)
+        mockkConstructor(HttpClient::class)
+        val action = Action()
+        action.actionId = 550
+        action.sendingOrg = organizationName
+        action.actionName = TaskAction.receive
+
+        mockkConstructor(ReportGraph::class)
+
+        val firstReport = ReportFile()
+        firstReport.reportId = UUID.randomUUID()
+        firstReport.receivingOrg = "not-flexion"
+
+        val secondReport = ReportFile()
+        secondReport.reportId = UUID.randomUUID()
+        secondReport.receivingOrg = "flexion"
+
+        every {
+            anyConstructed<ReportGraph>().getDescendantReports(any(), any(), any())
+        } returns listOf(firstReport, secondReport)
+        every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
+        every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
+        every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
+
+        val restCreds = mockk<RestCredential>()
+        val userCreds = mockk<UserJksCredential>()
+
+        val creds = Pair(restCreds, userCreds)
+
+        every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
+
+        coEvery {
+            anyConstructed<RESTTransport>().getOAuthToken(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Pair(mapOf("a" to "b"), "TEST")
+
+        val mock = MockEngine {
+            respond(
+                "{}",
+                HttpStatusCode.NotFound,
+                headersOf("Content-Type", ContentType.Application.Json.toString())
+            )
+        }
+
+        val customContext = mockk<ExecutionContext>()
+        every { customContext.logger } returns mockk<Logger>()
+
+        var response = function.retrieveETORIntermediaryMetadata(
+            mockRequest, UUID.fromString(goodUuid), customContext, mock
+        )
+
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+    }
+
+    @Test
+    fun `test getEtorMetadata returns 500 for non-404 errors`() {
+        val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
+        val mockRequest = MockHttpRequestMessage()
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+        val mockSubmissionFacade = mockk<SubmissionsFacade>()
+        val function = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, mockSubmissionFacade)
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
+            AuthenticatedClaims.generateTestClaims()
+
+        val detailedReport = DetailedReport(
+            UUID.randomUUID(),
+            "flexion", "flexion", "lab", "lab", Topic.ETOR_TI, "external",
+            null, null, 1, 1, true
+        )
+
+        // Good return
+        val returnBody = DetailedSubmissionHistory(
+            550, TaskAction.receive, OffsetDateTime.now(), 201,
+            mutableListOf(detailedReport)
+        )
+
+        returnBody.destinations = listOf(
+            Destination(
+                "flexion", "test", mutableListOf(), mutableListOf(),
+                OffsetDateTime.now(), 1, 1, mutableListOf(detailedReport), mutableListOf()
+            )
+        ).toMutableList()
+
+        mockkConstructor(RESTTransport::class)
+        mockkConstructor(HttpClient::class)
+        val action = Action()
+        action.actionId = 550
+        action.sendingOrg = organizationName
+        action.actionName = TaskAction.receive
+
+        mockkConstructor(ReportGraph::class)
+
+        val firstReport = ReportFile()
+        firstReport.reportId = UUID.randomUUID()
+        firstReport.receivingOrg = "not-flexion"
+
+        val secondReport = ReportFile()
+        secondReport.reportId = UUID.randomUUID()
+        secondReport.receivingOrg = "flexion"
+
+        every {
+            anyConstructed<ReportGraph>().getDescendantReports(any(), any(), any())
+        } returns listOf(firstReport, secondReport)
+        every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
+        every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
+        every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
+
+        val restCreds = mockk<RestCredential>()
+        val userCreds = mockk<UserJksCredential>()
+
+        val creds = Pair(restCreds, userCreds)
+
+        every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
+
+        coEvery {
+            anyConstructed<RESTTransport>().getOAuthToken(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Pair(mapOf("a" to "b"), "TEST")
+
+        val mock = MockEngine {
+            respond(
+                "{}",
+                HttpStatusCode.Forbidden,
+                headersOf("Content-Type", ContentType.Application.Json.toString())
+            )
+        }
+
+        val customContext = mockk<ExecutionContext>()
+        every { customContext.logger } returns mockk<Logger>()
+
+        var response = function.retrieveETORIntermediaryMetadata(
+            mockRequest, UUID.fromString(goodUuid), customContext, mock
+        )
+
+        assertThat(response.status).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+    }
 }

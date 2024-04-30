@@ -19,6 +19,7 @@ import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.Logging
@@ -249,6 +250,7 @@ abstract class ReportFileFunction(
             return HttpUtilities.notFoundResponse(request, "lookup Id not found")
         }
 
+        var status: HttpStatusCode = HttpStatusCode.NotFound
         runBlocking {
             launch {
                 response = client.get("${System.getenv("ETOR_TI_baseurl")}/v1/etor/metadata/" + lookupId) {
@@ -259,10 +261,18 @@ abstract class ReportFileFunction(
                     headers.append(HttpHeaders.Authorization, "Bearer " + authPair.second!!)
                 }
                 responseBody = response!!.body()
+                status = response!!.status
             }
         }
 
-        // TODO - check the response, don't return ok if it isn't
+        if (status == HttpStatusCode.NotFound) {
+            return HttpUtilities.notFoundResponse(request, "metadata not found")
+        }
+
+        if (status.value >= 300) {
+            return HttpUtilities.internalErrorResponse(request)
+        }
+
         return HttpUtilities.okResponse(request, responseBody)
     }
 
