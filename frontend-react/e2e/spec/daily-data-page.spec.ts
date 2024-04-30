@@ -899,8 +899,8 @@ test.describe("Daily Data page", () => {
                     await searchInput(page).fill(reportId);
                     await searchButton(page).click();
 
-                    // const rowCount = await tableRows(page).count();
-                    // expect(rowCount).toEqual(1);
+                    const rowCount = await tableRows(page).count();
+                    expect(rowCount).toEqual(1);
 
                     // Check filter status lists receiver value
                     filterStatusText = filterStatus(page, [reportId]);
