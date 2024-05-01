@@ -957,34 +957,38 @@ abstract class CoolTest {
         }
 
         fun initTestDataForUniversalPipeline() {
-            testData = ArrayList<E2EData>()
-            testData.add(
+            val smoketestDir = "src/test/resources/fhirengine/smoketest"
+
+            testData = arrayListOf(
                 E2EData(
-                    File("src/test/resources/fhirengine/smoketest/valid_hl7.hl7"),
+                    File("$smoketestDir/valid_hl7.hl7"),
                     fullELRE2ESender,
-                    listOf(fhirFullELRE2EReceiverB, hl7FullELRReceiver)
-                )
-            )
-            testData.add(
+                    arrayListOf(
+                        Pair(hl7FullELRReceiver, File("$smoketestDir/Expected_HL7_to_HL7_FULLELR.hl7")),
+                        Pair(fhirFullELRE2EReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_FULLELR.fhir"))
+                    )
+                ),
                 E2EData(
-                    File("src/test/resources/fhirengine/smoketest/valid_hl7.hl7"),
+                    File("$smoketestDir/valid_hl7.hl7"),
                     elrElimsSender,
-                    listOf(elimsReceiver)
-                )
-            )
-            testData.add(
+                    arrayListOf(
+                        Pair(elimsReceiver, File("$smoketestDir/Expected_HL7_to_HL7_ELIMS.hl7"))
+                    )
+                ),
                 E2EData(
-                    File("src/test/resources/fhirengine/smoketest/valid_fhir.fhir"),
+                    File("$smoketestDir/valid_fhir.fhir"),
                     fhirSender,
-                    listOf(fhirFullELRE2EReceiverA)
+                    arrayListOf(
+                        Pair(fhirFullELRE2EReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_FULLELR.fhir"))
+                    )
                 )
             )
         }
 
         data class E2EData(
-            val file: File,
+            val baseFile: File,
             val sender: UniversalPipelineSender,
-            val receivers: List<Receiver>,
+            val expectedResults: List<Pair<Receiver, File>>,
             var reportId: ReportId? = null,
             var historyResponse: String = "",
         )
