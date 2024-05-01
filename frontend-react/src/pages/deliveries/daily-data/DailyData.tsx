@@ -97,7 +97,11 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
         {
             columnKey: DeliveriesDataAttr.EXPIRES,
             columnHeader: "File available until",
-            content: transformDate(dataRow.expires),
+            content: (
+                <span className="text-no-wrap">
+                    {transformDate(dataRow.expires)}
+                </span>
+            ),
             columnCustomSort: () =>
                 onColumnCustomSort(DeliveriesDataAttr.EXPIRES),
             columnCustomSortSettings: filterManager.sortSettings,
