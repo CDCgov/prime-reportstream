@@ -28,7 +28,6 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.TestcontainersUtils
 import io.mockk.CapturingSlot
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -78,7 +77,7 @@ class BlobAccessTests {
 
         @AfterEach
         fun afterEach() {
-            clearAllMocks()
+            unmockkAll()
         }
 
         @Test
