@@ -39,6 +39,7 @@ import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.history.db.Submitter
 import gov.cdc.prime.router.history.db.SubmitterDatabaseAccess
 import gov.cdc.prime.router.history.db.SubmitterType
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.tokens.OktaAuthentication
@@ -336,6 +337,7 @@ class DeliveryFunctionTests : Logging {
     private fun setupDeliveryFunctionForTesting(
         oktaClaimsOrganizationName: String,
         facade: DeliveryFacade,
+        reportService: ReportService = ReportService(),
     ): DeliveryFunction {
         val claimsMap = buildClaimsMap(oktaClaimsOrganizationName)
         val metadata = Metadata(schema = Schema(name = "one", topic = Topic.TEST))
@@ -405,7 +407,8 @@ class DeliveryFunctionTests : Logging {
 
         return DeliveryFunction(
             deliveryFacade = facade,
-            workflowEngine = engine
+            workflowEngine = engine,
+            reportService = reportService,
         )
     }
 
@@ -674,7 +677,8 @@ class DeliveryFunctionTests : Logging {
         val mockRequest = MockHttpRequestMessage()
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
         val mockDeliveryFacade = mockk<DeliveryFacade>()
-        val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade)
+        val mockReportService = mockk<ReportService>()
+        val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade, mockReportService)
         mockkObject(AuthenticatedClaims.Companion)
         every { AuthenticatedClaims.authenticate(any()) } returns
             AuthenticatedClaims.generateTestClaims()
@@ -699,13 +703,11 @@ class DeliveryFunctionTests : Logging {
         action.sendingOrg = organizationName
         action.actionName = TaskAction.send
 
-        mockkConstructor(ReportGraph::class)
-
         val firstReport = ReportFile()
         firstReport.reportId = UUID.randomUUID()
         firstReport.createdAt = OffsetDateTime.parse("2023-04-18T23:36:00Z")
 
-        every { anyConstructed<ReportGraph>().getRootReport(any()) } returns firstReport
+        every { mockReportService.getRootReport(any()) } returns firstReport
 
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
@@ -775,7 +777,8 @@ class DeliveryFunctionTests : Logging {
         val mockRequest = MockHttpRequestMessage()
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
         val mockDeliveryFacade = mockk<DeliveryFacade>()
-        val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade)
+        val mockReportService = mockk<ReportService>()
+        val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade, mockReportService)
         mockkObject(AuthenticatedClaims.Companion)
         every { AuthenticatedClaims.authenticate(any()) } returns
             AuthenticatedClaims.generateTestClaims()
@@ -787,7 +790,7 @@ class DeliveryFunctionTests : Logging {
         action.sendingOrg = organizationName
         action.actionName = TaskAction.send
 
-        every { anyConstructed<ReportGraph>().getRootReport(any()) } returns null
+        every { mockReportService.getRootReport(any()) } throws IllegalStateException("can't find the root report")
 
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
@@ -814,7 +817,7 @@ class DeliveryFunctionTests : Logging {
         val customContext = mockk<ExecutionContext>()
         every { customContext.logger } returns mockk<Logger>()
 
-        var response = function.retrieveETORIntermediaryMetadata(
+        val response = function.retrieveETORIntermediaryMetadata(
             mockRequest, UUID.fromString(badUuid), customContext, null
         )
 

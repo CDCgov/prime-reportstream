@@ -23,6 +23,7 @@ import gov.cdc.prime.router.history.db.DeliveryDatabaseAccess
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.history.db.SubmitterApiSearch
 import gov.cdc.prime.router.history.db.SubmitterDatabaseAccess
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import java.util.UUID
@@ -33,10 +34,12 @@ import java.util.UUID
  *
  * @property reportFileFacade Facade class containing business logic to handle the data.
  * @property workflowEngine Container for helpers and accessors used when dealing with the workflow.
+ * @property reportService Service for querying graphs of reports or items
  */
 class DeliveryFunction(
     val deliveryFacade: DeliveryFacade = DeliveryFacade.instance,
     workflowEngine: WorkflowEngine = WorkflowEngine(),
+    private val reportService: ReportService = ReportService(),
 ) : ReportFileFunction(
     deliveryFacade,
     workflowEngine
@@ -217,11 +220,13 @@ class DeliveryFunction(
     override fun getLookupId(reportId: UUID): UUID? {
         // the delivery endpoint is called by the final receiver with a sent report ID, where TI
         // knows about the related submission report ID
-
-        val reportGraph = ReportGraph(workflowEngine.db)
-        val root = reportGraph.getRootReport(reportId)
-
-        return root?.reportId
+        try {
+            val root = reportService.getRootReport(reportId)
+            return root.reportId
+        } catch (ex: IllegalStateException) {
+            logger.error("Unable to locate root report for report $reportId")
+            return null
+        }
     }
 
     /**
