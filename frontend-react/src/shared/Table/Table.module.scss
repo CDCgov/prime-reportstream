@@ -27,7 +27,9 @@
             }
 
             .column-header-button {
-                background-color: color("gray-5");
+                background-color: inherit;
+                font-weight: inherit;
+                font-size: inherit;
                 width: 100%;
                 height: 100%;
                 padding: 0.5rem 1rem;
@@ -54,13 +56,15 @@
             }
 
             .column-header-text {
-                font-size: 14px;
+                font-size: 16px;
                 margin: 0;
             }
         }
 
         .column-header-button {
-            background-color: color("gray-5");
+            background-color: inherit;
+            font-weight: inherit;
+            font-size: inherit;
             width: 100%;
             height: 100%;
             padding: 0.5rem 1rem;
@@ -82,7 +86,7 @@
         }
 
         .column-header-text {
-            font-size: 14px;
+            font-size: 16px;
             margin: 0;
         }
     }
