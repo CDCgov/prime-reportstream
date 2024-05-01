@@ -282,14 +282,26 @@ class FHIRRouterIntegrationTests : Logging {
         )
 
         // Seed the steps backwards so report lineage can be correctly generated
-        val translateReport = seedTask(
+
+        val receiveReport = seedTask(
             Report.Format.FHIR,
-            TaskAction.translate,
-            TaskAction.send,
+            TaskAction.receive,
+            TaskAction.convert,
+            Event.EventAction.CONVERT,
+            Topic.ELR_ELIMS,
+            97
+        )
+
+        val convertReport = seedTask(
+            Report.Format.FHIR,
+            TaskAction.receive,
+            TaskAction.convert,
             Event.EventAction.SEND,
             Topic.ELR_ELIMS,
-            100
+            98,
+            receiveReport
         )
+
         val routeReport = seedTask(
             Report.Format.FHIR,
             TaskAction.route,
@@ -297,7 +309,7 @@ class FHIRRouterIntegrationTests : Logging {
             Event.EventAction.TRANSLATE,
             Topic.ELR_ELIMS,
             99,
-            translateReport,
+            convertReport,
             convertedBlobUrl
         )
 
