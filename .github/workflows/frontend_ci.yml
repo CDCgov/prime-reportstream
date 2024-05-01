@@ -67,6 +67,12 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
 
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2, 3, 4]
+        shardTotal: [4]
     steps:
         - name: Check out changes
           uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
@@ -81,8 +87,50 @@ jobs:
         - name: Install Playwright
           run: npx playwright install --with-deps
         - name: Run E2E tests
-          run: yarn run test:e2e
+          run: yarn run test:e2e --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        - name: Upload blob report to GitHub Actions Artifacts
+          if: ${{ !cancelled() }}
+          uses: actions/upload-artifact@v4
+          with:
+            name: blob-report-${{ matrix.shardIndex }}
+            path: blob-report
+            retention-days: 1
 
+  merge_e2e_reports:
+      # Merge reports after playwright-tests, even if some shards have failed
+      if: ${{ !cancelled() }}
+      needs: [e2e_tests]
+
+      runs-on: ubuntu-latest
+      steps:
+        - name: Check out changes
+          uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        - name: Use Node.js with yarn
+          uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+          with:
+            node-version-file: "frontend-react/.nvmrc"
+            cache: yarn
+            cache-dependency-path: frontend-react/yarn.lock
+        - name: Yarn install
+          run: yarn install --immutable
+
+        - name: Download blob reports from GitHub Actions Artifacts
+          uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
+          with:
+            path: all-blob-reports
+            pattern: blob-report-*
+            merge-multiple: true
+
+        - name: Merge into HTML Report
+          run: npx playwright merge-reports --reporter html ./all-blob-reports 
+
+        - name: Upload HTML report
+          uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+          with:
+            name: html-report--attempt-${{ github.run_attempt }}
+            path: playwright-report
+            retention-days: 14
+  
   codeql:
     name: CodeQL Analysis
     needs: lint
@@ -126,7 +174,7 @@ jobs:
       - name: Yarn install
         run: yarn install --immutable
       - name: Collect coverage
-        run: yarn run test:ci --coverage
+        run: yarn run test:ci
       - name: Run SonarCloud Scan
         run: >
           npx sonarqube-scanner 
