@@ -1,11 +1,10 @@
 import { SeverityLevel } from "@microsoft/applicationinsights-web";
 
-import { mockAppInsights } from "../../../__mocks__/ApplicationInsights";
-import type { RSConsole } from "../index";
+import type { RSConsole } from "./rsConsole";
 
 export const mockRsconsole = {
-    ai: mockAppInsights as any,
-    consoleSeverityLevels: {
+    ai: {} as any,
+    severityLevels: {
         assert: SeverityLevel.Critical,
         debug: SeverityLevel.Critical,
         error: SeverityLevel.Critical,
@@ -13,14 +12,7 @@ export const mockRsconsole = {
         trace: SeverityLevel.Critical,
         warn: SeverityLevel.Critical,
     },
-    reportableConsoleLevels: [
-        "assert",
-        "debug",
-        "error",
-        "info",
-        "trace",
-        "warn",
-    ],
+    reportableLevels: ["assert", "debug", "error", "info", "trace", "warn"],
     assert: vi.fn(),
     warn: vi.fn(),
     info: vi.fn(),

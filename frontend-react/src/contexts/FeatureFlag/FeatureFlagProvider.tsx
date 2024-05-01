@@ -4,7 +4,6 @@ import {
     Dispatch,
     PropsWithChildren,
     useCallback,
-    useContext,
     useMemo,
     useReducer,
 } from "react";
@@ -25,21 +24,21 @@ export interface FeatureFlagAction {
     payload: string;
 }
 
-type StringCheck = (flags: string | string[]) => boolean;
+export type StringCheck = (flags: string | string[]) => boolean;
 
-interface FeatureFlagContextValues {
+export interface FeatureFlagContextValues {
     checkFlags: StringCheck;
     dispatch: Dispatch<FeatureFlagAction>;
     featureFlags: string[];
 }
 
-interface FeatureFlagState {
+export interface FeatureFlagState {
     featureFlags: string[];
 }
 
 const { DEFAULT_FEATURE_FLAGS } = config;
 
-const FeatureFlagContext = createContext<FeatureFlagContextValues>({
+export const FeatureFlagContext = createContext<FeatureFlagContextValues>({
     checkFlags: (flags: string | string[]) => {
         const arr = Array.isArray(flags) ? flags : [flags];
         return !!DEFAULT_FEATURE_FLAGS.find((el) => arr.includes(el));
@@ -110,9 +109,5 @@ const FeatureFlagProvider = ({ children }: PropsWithChildren<object>) => {
         </FeatureFlagContext.Provider>
     );
 };
-
-// an extra level of indirection here to allow for generic typing of the returned fetch function
-export const useFeatureFlags = (): FeatureFlagContextValues =>
-    useContext(FeatureFlagContext);
 
 export default FeatureFlagProvider;
