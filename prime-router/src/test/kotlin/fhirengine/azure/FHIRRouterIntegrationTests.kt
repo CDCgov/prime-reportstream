@@ -44,6 +44,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
+import org.apache.logging.log4j.kotlin.Logging
 // import io.mockk.verify
 // import org.jooq.impl.DSL
 import org.junit.jupiter.api.AfterEach
@@ -52,7 +53,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import java.io.File
+import java.util.*
 
 private const val ORGANIZATION_NAME = "co-phd"
 private const val RECEIVER_NAME = "full-elr-hl7"
@@ -73,7 +74,7 @@ private const val CONDITION_FILTER = "%resource.code.coding.code = '95418-0'"
 
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
-class FHIRRouterIntegrationTests {
+class FHIRRouterIntegrationTests : Logging {
 
     @Container
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
@@ -193,11 +194,26 @@ class FHIRRouterIntegrationTests {
     private fun setupRouteStep(
         format: Report.Format,
         sender: Sender,
-        receiveReportBlobUrl: String,
+        convertReportBlobUrl: String,
         itemCount: Int,
     ): Report {
         return ReportStreamTestDatabaseContainer.testDatabaseAccess.transactReturning { txn ->
-            val report = Report(
+
+            // create reports that have the correct lineage.
+            // this feels like the stupid way to do this but I'm not seeing how else to establish a chain of
+            // item lineage without creating three distinct messages. I can't alter the value of ${report}.id
+
+            val receivedReport = Report(
+                format,
+                emptyList(),
+                itemCount,
+                metadata = UnitTestUtils.simpleMetadata,
+                nextAction = TaskAction.convert,
+                topic = sender.topic,
+            )
+            receivedReport.bodyURL = convertReportBlobUrl
+
+            val convertedReport = Report(
                 format,
                 emptyList(),
                 itemCount,
@@ -205,28 +221,34 @@ class FHIRRouterIntegrationTests {
                 nextAction = TaskAction.route,
                 topic = sender.topic,
             )
-            report.bodyURL = receiveReportBlobUrl
+            convertedReport.bodyURL = convertReportBlobUrl
+            convertedReport.itemLineages = Report.createOneToOneItemLineages(receivedReport, convertedReport);
+
+            //
+
             val convertAction = Action().setActionName(TaskAction.convert)
             val convertActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, convertAction)
             val reportFile = ReportFile()
                 .setSchemaTopic(sender.topic)
-                .setReportId(report.id)
+                .setReportId(convertedReport.id)
                 .setActionId(convertActionId)
                 .setSchemaName("")
                 .setBodyFormat(sender.format.toString())
                 .setItemCount(itemCount)
                 .setExternalName("test-external-name")
-                .setBodyUrl(receiveReportBlobUrl)
+                .setBodyUrl(convertReportBlobUrl)
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
                 reportFile, txn, convertAction
             )
+
+            // next task
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertTask(
-                report,
+                convertedReport,
                 format.toString().lowercase(),
-                report.bodyURL,
+                convertedReport.bodyURL,
                 nextAction = ProcessEvent(
                     Event.EventAction.ROUTE,
-                    report.id,
+                    convertedReport.id,
                     Options.None,
                     emptyMap(),
                     emptyList()
@@ -234,7 +256,7 @@ class FHIRRouterIntegrationTests {
                 txn
             )
 
-            report
+            convertedReport
         }
     }
 
