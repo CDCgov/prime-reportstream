@@ -8,13 +8,13 @@ import ca.uhn.hl7v2.HapiContext
 import ca.uhn.hl7v2.model.AbstractMessage
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v27.message.ORU_R01
-import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.ParserConfiguration
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
 import ca.uhn.hl7v2.validation.ValidationException
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
+import fhirengine.utils.ReportStreamCanonicalModelClassFactory
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import org.apache.commons.lang3.exception.ExceptionUtils
@@ -83,7 +83,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             val parseError = mutableListOf<Hl7InputStreamMessageStringIterator.ParseFailureError>()
             run modelLoop@{
                 messageModelsToTry.forEach { model ->
-                    val context = DefaultHapiContext(CanonicalModelClassFactory(model))
+                    val context = DefaultHapiContext(ReportStreamCanonicalModelClassFactory(model))
                     context.validationContext = validationContext
                     try {
                         val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream(), context)
@@ -273,7 +273,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
         fun parseHL7Message(rawHL7: String): Pair<Message, HL7MessageParseAndConvertConfiguration?> {
             val hl7MessageType = getMessageType(rawHL7)
             val parseConfiguration = messageToConfigMap[hl7MessageType]
-            val message = getHL7ParsingContext(parseConfiguration).pipeParser.parse(rawHL7)
+            val message = getHL7ParsingContext(hl7MessageType, parseConfiguration).pipeParser.parse(rawHL7)
             return Pair(message, parseConfiguration)
         }
 
@@ -284,15 +284,24 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          * @param hl7MessageParseAndConvertConfiguration optional configuration to use when creating a context
          */
         private fun getHL7ParsingContext(
+            hl7MessageType: HL7MessageType?,
             hl7MessageParseAndConvertConfiguration: HL7MessageParseAndConvertConfiguration?,
         ): HapiContext {
             return if (hl7MessageParseAndConvertConfiguration == null) {
-                DefaultHapiContext(ValidationContextFactory.noValidation())
+                if (hl7MessageType?.msh93 == "ORU_R01") {
+                    DefaultHapiContext(
+                        ParserConfiguration(),
+                        ValidationContextFactory.noValidation(),
+                        ReportStreamCanonicalModelClassFactory(ORU_R01::class.java),
+                    )
+                } else {
+                    DefaultHapiContext(ValidationContextFactory.noValidation())
+                }
             } else {
                 DefaultHapiContext(
                     ParserConfiguration(),
                     ValidationContextFactory.noValidation(),
-                    CanonicalModelClassFactory(hl7MessageParseAndConvertConfiguration.messageModelClass),
+                    ReportStreamCanonicalModelClassFactory(hl7MessageParseAndConvertConfiguration.messageModelClass),
                 )
             }
         }
@@ -311,7 +320,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          */
         @Throws(HL7Exception::class)
         internal fun getMessageType(rawHL7: String): HL7MessageType {
-            val message = getHL7ParsingContext(null)
+            val message = getHL7ParsingContext(null, null)
                 .pipeParser
                 // In order to determine the message configuration, only parse the MSH segment since the type of message
                 // is required in order to accurately parse the message in its entirety
