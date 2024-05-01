@@ -26,19 +26,23 @@ See https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?t
 sudo apt-get update
 sudo apt-get --yes install curl lsb-release gpg # tools needed for subsequent commands
 
-# Pull down Microsoft's Key and mark it as a trusted on
+# Pull down Microsoft's Key and mark it as a trusted on (this may produce a write error if the key already exists)
 curl https://packages.microsoft.com/keys/microsoft.asc \
     | gpg --dearmor \
     | sudo cat > "/etc/apt/trusted.gpg.d/microsoft.gpg"
+```
 
-# Pick one of the following
+Pick one of the following
+```
 # Ubuntu (you most likely want this if you are on any ubuntu derivate)
 echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" \
     | sudo tee "/etc/apt/sources.list.d/dotnetdev.list"
 # Debian Add the right apt repository (do not use this one on Ubuntu)
 echo "deb [arch=amd64] https://packages.microsoft.com/debian/$(lsb_release -rs | cut -d'.' -f 1)/prod $(lsb_release -cs) main" \
     | sudo tee /etc/apt/sources.list.d/dotnetdev.list
-
+```
+Install
+```
 sudo apt-get update
 sudo apt-get --yes install azure-functions-core-tools-4
 ```

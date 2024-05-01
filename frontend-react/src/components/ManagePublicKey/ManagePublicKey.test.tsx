@@ -4,7 +4,6 @@ import { userEvent } from "@testing-library/user-event";
 import { ManagePublicKeyPage } from "./ManagePublicKey";
 import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
 import { RSSender } from "../../config/endpoints/settings";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 import * as useCreateOrganizationPublicKeyExports from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import { UseCreateOrganizationPublicKeyResult } from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import * as useOrganizationPublicKeysExports from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
@@ -13,6 +12,10 @@ import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSende
 import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { MemberType } from "../../utils/OrganizationUtils";
+
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
 
 const DEFAULT_SENDERS: RSSender[] = sendersGenerator(2);
 
@@ -49,11 +52,11 @@ describe("ManagePublicKey", () => {
     function mockUseCreateOrganizationPublicKey(
         result: Partial<UseCreateOrganizationPublicKeyResult>,
     ) {
-        jest.spyOn(
+        vi.spyOn(
             useCreateOrganizationPublicKeyExports,
             "default",
         ).mockReturnValue({
-            mutateAsync: jest.fn(),
+            mutateAsync: vi.fn(),
             ...result,
         } as UseCreateOrganizationPublicKeyResult);
     }
@@ -61,7 +64,7 @@ describe("ManagePublicKey", () => {
     function mockUseOrganizationSenders(
         result: Partial<UseOrganizationSendersResult> = {},
     ) {
-        jest.spyOn(useOrganizationSendersExports, "default").mockReturnValue({
+        vi.spyOn(useOrganizationSendersExports, "default").mockReturnValue({
             data: DEFAULT_SENDERS,
             ...result,
         } as UseOrganizationSendersResult);
@@ -70,12 +73,10 @@ describe("ManagePublicKey", () => {
     function mockUseOrganizationPublicKeys(
         result: Partial<UseOrganizationPublicKeysResult> = {},
     ) {
-        jest.spyOn(useOrganizationPublicKeysExports, "default").mockReturnValue(
-            {
-                data: { orgName: "elr-0", keys: [] },
-                ...result,
-            } as UseOrganizationPublicKeysResult,
-        );
+        vi.spyOn(useOrganizationPublicKeysExports, "default").mockReturnValue({
+            data: { orgName: "elr-0", keys: [] },
+            ...result,
+        } as UseOrganizationPublicKeysResult);
     }
 
     beforeEach(() => {
@@ -92,10 +93,6 @@ describe("ManagePublicKey", () => {
                 isUserTransceiver: false,
             } as any,
         });
-    });
-
-    afterEach(() => {
-        jest.resetAllMocks();
     });
 
     describe("when the Organization has more than one Sender", () => {

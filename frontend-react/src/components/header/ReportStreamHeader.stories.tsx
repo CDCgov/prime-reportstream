@@ -2,7 +2,7 @@ import { FC, ReactElement } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 
 import ReportStreamHeader from "./ReportStreamHeader";
-import { SessionContext } from "../../contexts/Session";
+import { SessionContext } from "../../contexts/Session/SessionProvider";
 import { MemberType } from "../../utils/OrganizationUtils";
 
 export default {
@@ -20,68 +20,139 @@ export default {
     ],
 };
 
-export const NavbarDefault = (): ReactElement => <ReportStreamHeader />;
+export const NavbarDefault = {
+    render: (): ReactElement => <ReportStreamHeader />,
+    decorators: [
+        (Story: FC) => (
+            <SessionContext.Provider
+                value={
+                    {
+                        activeMembership: {
+                            parsedName: "Test Co",
+                            memberType: MemberType.PRIME_ADMIN,
+                        },
+                        user: {
+                            claims: { email: "test@testing.com", sub: "" },
+                            isUserAdmin: true,
+                            isAdminStrictCheck: true,
+                            isUserReceiver: false,
+                            isUserSender: false,
+                            isUserTransceiver: false,
+                        },
+                        logout: () => undefined,
+                        setActiveMembership: () => undefined,
+                        config: {
+                            IS_PREVIEW: true,
+                            MODE: "story",
+                        },
+                    } as any
+                }
+            >
+                <Story />
+            </SessionContext.Provider>
+        ),
+    ],
+};
 
-export const NavbarBlueVariant = (): ReactElement => (
-    <ReportStreamHeader blueVariant={true} />
-);
+export const NavbarBlueVariant = {
+    render: (): ReactElement => <ReportStreamHeader blueVariant={true} />,
+    decorators: [
+        (Story: FC) => (
+            <SessionContext.Provider
+                value={
+                    {
+                        activeMembership: {
+                            parsedName: "Test Co",
+                            memberType: MemberType.PRIME_ADMIN,
+                        },
+                        user: {
+                            claims: { email: "test@testing.com", sub: "" },
+                            isUserAdmin: true,
+                            isAdminStrictCheck: true,
+                            isUserReceiver: false,
+                            isUserSender: false,
+                            isUserTransceiver: false,
+                        },
+                        logout: () => undefined,
+                        setActiveMembership: () => undefined,
+                        config: {
+                            IS_PREVIEW: true,
+                            MODE: "story",
+                        },
+                    } as any
+                }
+            >
+                <Story />
+            </SessionContext.Provider>
+        ),
+    ],
+};
 
-export const LoggedInNavbarDefault = (): ReactElement => <ReportStreamHeader />;
+export const LoggedInNavbarDefault = {
+    render: (): ReactElement => <ReportStreamHeader />,
+    decorators: [
+        (Story: FC) => (
+            <SessionContext.Provider
+                value={
+                    {
+                        activeMembership: {
+                            parsedName: "Test Co",
+                            memberType: MemberType.PRIME_ADMIN,
+                        },
+                        user: {
+                            claims: { email: "test@testing.com", sub: "" },
+                            isUserAdmin: true,
+                            isAdminStrictCheck: true,
+                            isUserReceiver: false,
+                            isUserSender: false,
+                            isUserTransceiver: false,
+                        },
+                        logout: () => undefined,
+                        setActiveMembership: () => undefined,
+                        config: {
+                            IS_PREVIEW: true,
+                            MODE: "story",
+                        },
+                    } as any
+                }
+            >
+                <Story />
+            </SessionContext.Provider>
+        ),
+    ],
+};
 
-LoggedInNavbarDefault.decorators = [
-    (Story: FC) => (
-        <SessionContext.Provider
-            value={
-                {
-                    activeMembership: {
-                        parsedName: "Test Co",
-                        memberType: MemberType.PRIME_ADMIN,
-                    },
-                    user: {
-                        claims: { email: "test@testing.com", sub: "" },
-                        isUserAdmin: true,
-                        isAdminStrictCheck: true,
-                        isUserReceiver: false,
-                        isUserSender: false,
-                        isUserTransceiver: false,
-                    },
-                    logout: () => undefined,
-                    setActiveMembership: () => undefined,
-                } as any
-            }
-        >
-            <Story />
-        </SessionContext.Provider>
-    ),
-];
+export const LoggedInNavbarBlueVariant = {
+    render: (): ReactElement => <ReportStreamHeader blueVariant={true} />,
 
-export const LoggedInNavbarBlueVariant = (): ReactElement => (
-    <ReportStreamHeader blueVariant={true} />
-);
-
-LoggedInNavbarBlueVariant.decorators = [
-    (Story: FC) => (
-        <SessionContext.Provider
-            value={
-                {
-                    activeMembership: {
-                        parsedName: "Test Co",
-                        memberType: MemberType.PRIME_ADMIN,
-                    },
-                    user: {
-                        isUserAdmin: true,
-                        isAdminStrictCheck: true,
-                        isUserReceiver: false,
-                        isUserSender: false,
-                        isUserTransceiver: false,
-                        claims: { email: "test@testing.com", sub: "" },
-                    },
-                    logout: () => undefined,
-                    setActiveMembership: () => undefined,
-                } as any
-            }
-        >
-            <Story />
-        </SessionContext.Provider>
-    ),
-];
+    decorators: [
+        (Story: FC) => (
+            <SessionContext.Provider
+                value={
+                    {
+                        activeMembership: {
+                            parsedName: "Test Co",
+                            memberType: MemberType.PRIME_ADMIN,
+                        },
+                        user: {
+                            isUserAdmin: true,
+                            isAdminStrictCheck: true,
+                            isUserReceiver: false,
+                            isUserSender: false,
+                            isUserTransceiver: false,
+                            claims: { email: "test@testing.com", sub: "" },
+                        },
+                        logout: () => undefined,
+                        setActiveMembership: () => undefined,
+                        config: {
+                            IS_PREVIEW: true,
+                            MODE: "story",
+                        },
+                    } as any
+                }
+            >
+                <Story />
+            </SessionContext.Provider>
+        ),
+    ],
+};

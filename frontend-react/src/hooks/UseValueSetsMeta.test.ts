@@ -5,6 +5,8 @@ import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { LookupTables } from "../config/endpoints/lookupTables";
 import { renderHook } from "../utils/CustomRenderUtils";
 
+//vi.mock("../contexts/Session/useSessionContext")
+
 describe("useValueSetsMeta", () => {
     const renderWithAppWrapper = (tableName?: LookupTables) =>
         renderHook(() => useValueSetsMeta(tableName));

@@ -7,7 +7,7 @@ import Crumbs, { CrumbConfig } from "../../components/Crumbs";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
 import Spinner from "../../components/Spinner";
 import Title from "../../components/Title";
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import ActionDetailsResource, {
     Destination,
 } from "../../resources/ActionDetailsResource";
@@ -33,25 +33,25 @@ interface SubmissionDetailsProps {
     in the report history details API
 */
 export function DestinationItem({ destinationObj }: DestinationItemProps) {
-    const submissionDate = generateDateTitles(destinationObj.sending_at);
+    const submissionDate = generateDateTitles(destinationObj?.sending_at);
     const dataStream = destinationObj.service.toUpperCase();
     return (
         <div className="display-flex flex-column">
             <h2>{destinationObj.organization}</h2>
             <DetailItem item={"Data Stream"} content={dataStream} />
             <DetailItem
-                item={"Transmission Date"}
+                item="Transmission Date"
                 content={
                     destinationObj.itemCount > 0
-                        ? submissionDate?.dateString ?? "Parsing error"
+                        ? submissionDate.dateString
                         : "Not transmitting - all data filtered"
                 }
             />
             <DetailItem
-                item={"Transmission Time"}
+                item="Transmission Time"
                 content={
                     destinationObj.itemCount > 0
-                        ? submissionDate?.timeString ?? "Parsing error"
+                        ? submissionDate.timeString
                         : "Not transmitting - all data filtered"
                 }
             />

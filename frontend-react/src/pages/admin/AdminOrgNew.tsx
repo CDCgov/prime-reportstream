@@ -9,7 +9,7 @@ import {
     TextInputComponent,
 } from "../../components/Admin/AdminFormEdit";
 import Spinner from "../../components/Spinner";
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import { showToast } from "../../contexts/Toast";
 import OrganizationResource from "../../resources/OrganizationResource";
 import { getErrorDetailFromResponse } from "../../utils/misc";
@@ -55,6 +55,14 @@ export function AdminOrgNewPage() {
         <NetworkErrorBoundary fallbackComponent={fallbackPage}>
             <Helmet>
                 <title>New organization - Admin</title>
+                <meta
+                    property="og:image"
+                    content="/assets/img/opengraph/reportstream.png"
+                />
+                <meta
+                    property="og:image:alt"
+                    content='"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'
+                />
             </Helmet>
             <section className="grid-container margin-bottom-5">
                 <Suspense

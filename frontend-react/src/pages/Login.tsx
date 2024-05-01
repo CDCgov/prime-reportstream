@@ -5,12 +5,11 @@ import { Navigate, useLocation } from "react-router-dom";
 import type { Location } from "react-router-dom";
 
 import { USLink } from "../components/USLink";
-import { useSessionContext } from "../contexts/Session";
-import { oktaSignInConfig } from "../oktaConfig";
+import useSessionContext from "../contexts/Session/useSessionContext";
 import OktaSignInWidget from "../shared/OktaSignInWidget/OktaSignInWidget";
 
 export function Login() {
-    const { oktaAuth, authState } = useSessionContext();
+    const { oktaAuth, authState, config } = useSessionContext();
     const location: Location<{ originalUrl?: string } | undefined> =
         useLocation();
 
@@ -35,10 +34,18 @@ export function Login() {
         <>
             <Helmet>
                 <title>ReportStream login</title>
+                <meta
+                    property="og:image"
+                    content="/assets/img/opengraph/reportstream.png"
+                />
+                <meta
+                    property="og:image:alt"
+                    content='"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'
+                />
             </Helmet>
             <OktaSignInWidget
                 className="margin-top-6 margin-x-auto width-mobile-lg padding-x-8"
-                config={oktaSignInConfig}
+                config={config.OKTA_WIDGET}
                 onSuccess={onSuccess}
                 onError={onError}
             >

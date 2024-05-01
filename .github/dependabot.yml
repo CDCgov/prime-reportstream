@@ -20,6 +20,12 @@ updates:
     schedule:
       interval: "weekly"
 
+  # slack-boltjs-app (chatops)
+  - package-ecosystem: "gitsubmodule"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
   # GitHub Actions workflows
   - package-ecosystem: "github-actions"
     # Workflow files stored in `.github/workflows`
@@ -116,12 +122,6 @@ updates:
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
     groups:
-      types-lodash:
-        patterns:
-          - "@types/lodash*"
-      babel:
-        patterns:
-          - "@babel*"
       mdx:
         patterns:
           - "*mdx*"
@@ -136,13 +136,13 @@ updates:
           - "eslint*"
         exclude-patterns:
           - "*prettier"
-          - "*cypress"
-          - "*jest*"
+          - "*vitest*"
           - "*storybook"
           - "*testing-library"
-      jest:
+          - "*playwright*"
+      vitest:
         patterns:
-          - "*jest*"
+          - "*vitest*"
       msw:
         patterns:
           - "*msw*"
@@ -162,15 +162,16 @@ updates:
       react-router:
         patterns:
           - "*react-router*"
-      cypress:
+      playwright:
         patterns:
-          - "*cypress*"
+          - "*playwright*"
       vite:
         patterns:
           - "vite*"
           - "@vitejs*"
         exclude-patterns:
           - "@storybook*"
+          - "vitest*"
       okta:
         patterns:
           - "@okta*"

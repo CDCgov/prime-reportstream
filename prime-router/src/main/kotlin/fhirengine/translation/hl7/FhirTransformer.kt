@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
+import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
@@ -7,7 +9,6 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhir
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
-import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.Level
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -18,7 +19,7 @@ import org.hl7.fhir.r4.model.Extension
  */
 class FhirTransformer(
     private val schemaRef: FhirTransformSchema,
-) : ConfigSchemaProcessor() {
+) : ConfigSchemaProcessor<Bundle, Bundle, FhirTransformSchema, FhirTransformSchemaElement>(schemaRef) {
     private val extensionRegex = """^extension\(["']([^'"]+)["']\)""".toRegex()
 
     /**
@@ -26,28 +27,25 @@ class FhirTransformer(
      */
     constructor(
         schema: String,
-        schemaFolder: String,
+        blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.BlobContainerMetadata.build(
+            "metadata",
+            Environment.get().blobEnvVar
+        ),
     ) : this(
-        schemaRef = fhirTransformSchemaFromFile(schema, schemaFolder),
-    )
-
-    /**
-     * Transform a FHIR bundle based on the [schema] (which includes a folder location).
-     */
-    constructor(
-        schema: String,
-    ) : this(
-        schema = FilenameUtils.getName(schema),
-        schemaFolder = FilenameUtils.getPathNoEndSeparator(schema)
+        schemaRef = fhirTransformSchemaFromFile(schema, blobConnectionInfo),
     )
 
     /**
      * Transform the given [bundle]. The bundle passed in will be updated directly, and will also be returned.
      * @return the transformed bundle
      */
-    fun transform(bundle: Bundle): Bundle {
-        transformWithSchema(schemaRef, bundle = bundle, focusResource = bundle)
-        return bundle
+    override fun process(input: Bundle): Bundle {
+        transformWithSchema(schemaRef, bundle = input, focusResource = input)
+        return input
+    }
+
+    override fun checkForEquality(converted: Bundle, expectedOutput: Bundle): Boolean {
+        return converted.equalsDeep(expectedOutput)
     }
 
     /**
@@ -121,7 +119,7 @@ class FhirTransformer(
                         }
                         logger.log(logLevel, "Processing element ${element.name} with schema ${element.schema} ...")
                         transformWithSchema(
-                            element.schemaRef!! as FhirTransformSchema,
+                            element.schemaRef!!,
                             bundle,
                             singleFocusResource,
                             indexContext,

@@ -6,8 +6,11 @@ import {
     ConfirmSaveSettingModal,
     ConfirmSaveSettingModalRef,
 } from "./CompareJsonModal";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 import { renderApp } from "../../utils/CustomRenderUtils";
+
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
 
 describe("ConfirmSaveSettingModal", () => {
     const VALID_JSON = JSON.stringify({ a: 1 });
@@ -24,7 +27,7 @@ describe("ConfirmSaveSettingModal", () => {
         return (
             <ConfirmSaveSettingModal
                 uniquid={new Date().getTime().toString()}
-                onConfirm={jest.fn()}
+                onConfirm={vi.fn()}
                 ref={confirmModalRef}
                 oldjson={VALID_JSON}
                 newjson={VALID_JSON}
@@ -45,7 +48,7 @@ describe("ConfirmSaveSettingModal", () => {
         mockSessionContentReturnValue();
     });
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     describe("on initial mount", () => {

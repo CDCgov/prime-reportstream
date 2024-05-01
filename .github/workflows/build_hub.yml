@@ -12,6 +12,12 @@ on:
     branches:
       - master
     paths: prime-router/**
+  merge_group:
+    types:
+      - checks_requested
+    branches:
+      - master
+
 env:
   # These are for CI and not credentials of any system
   DB_USER: prime
@@ -37,7 +43,7 @@ jobs:
           sudo swapon --show
 
       - name: "Check out changes"
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b
 
       - name: Build backend
         uses: ./.github/actions/build-backend
@@ -45,6 +51,7 @@ jobs:
           version: ${{ github.run_id }}
           upload-build: false
           run-integration-tests: true
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Generate New Schema Docs
         run: |

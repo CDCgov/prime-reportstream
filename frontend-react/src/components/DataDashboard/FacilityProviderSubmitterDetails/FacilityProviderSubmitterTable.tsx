@@ -1,17 +1,15 @@
 import styles from "./FacilityProviderSubmitterTable.module.scss";
 import { SenderTypeDetailResource } from "../../../config/endpoints/dataDashboard";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../../contexts/AppInsights";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
+import useAppInsightsContext from "../../../hooks/UseAppInsightsContext";
 import Table from "../../../shared/Table/Table";
+import { EventName } from "../../../utils/AppInsights";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
-import TableFilters from "../../Table/TableFilters";
 import { USLink } from "../../USLink";
+import DataDashboardTableFilters from "../DataDashboardTable/DataDashboardTableFilters/DataDashboardTableFilters";
 
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
@@ -28,7 +26,7 @@ interface FacilityProviderSubmitterTableProps {
 function FacilityProviderSubmitterTable(
     props: FacilityProviderSubmitterTableProps,
 ) {
-    const { appInsights } = useAppInsightsContext();
+    const appInsights = useAppInsightsContext();
     const featureEvent = `${FeatureName.REPORT_DETAILS} | ${EventName.TABLE_FILTER}`;
     // const { senderTypeId }: FacilityProviderSubmitterTableProps = props;
     const data: SenderTypeDetailResource[] = [
@@ -96,7 +94,7 @@ function FacilityProviderSubmitterTable(
         <div className={styles.FacilityProviderSubmitterTable}>
             <section id="facilities">
                 <h2>Your available reports including {props.senderTypeName}</h2>
-                <TableFilters
+                <DataDashboardTableFilters
                     startDateLabel="From: (mm/dd/yyyy)"
                     endDateLabel="To: (mm/dd/yyyy)"
                     filterManager={filterManager}

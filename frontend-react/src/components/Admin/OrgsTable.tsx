@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { useResource } from "rest-hooks";
 
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import Table from "../../shared/Table/Table";
 import { MembershipSettings, MemberType } from "../../utils/OrganizationUtils";
@@ -116,6 +116,7 @@ export function OrgsTable() {
                     content: (
                         <ButtonGroup type="segmented">
                             <Button
+                                data-testid={`${eachOrg.name}_set`}
                                 key={`${eachOrg.name}_select`}
                                 onClick={() =>
                                     handleSelectOrgClick(`${eachOrg.name}`)
@@ -126,6 +127,7 @@ export function OrgsTable() {
                                 Set
                             </Button>
                             <Button
+                                data-testid={`${eachOrg.name}_edit`}
                                 key={`${eachOrg.name}_edit`}
                                 onClick={() =>
                                     handleEditOrgClick(`${eachOrg.name}`)

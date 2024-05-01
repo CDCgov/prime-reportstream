@@ -38,6 +38,10 @@
         },
         {
             "status": "Live",
+            "state": "Hawaii"
+        },
+        {
+            "status": "Live",
             "state": "Idaho"
         },
         {
@@ -142,6 +146,10 @@
         },
         {
             "status": "Live",
+            "state": "South Carolina"
+        },
+        {
+            "status": "Live",
             "state": "Tennessee"
         },
         {
@@ -155,6 +163,10 @@
         {
             "status": "Live",
             "state": "Vermont"
+        },
+        {
+            "status": "Live",
+            "state": "Virgin Islands"
         },
         {
             "status": "Live",

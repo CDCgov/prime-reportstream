@@ -37,6 +37,11 @@ resource "azurerm_monitor_action_group" "action_group" {
   tags = {
     environment = var.environment
   }
+  lifecycle {
+    ignore_changes = [
+      webhook_receiver[0].service_uri
+    ]
+  }
 }
 
 resource "azurerm_monitor_action_group" "action_group_metabase" {
@@ -75,7 +80,7 @@ resource "azurerm_monitor_action_group" "action_group_dummy" {
 
   webhook_receiver {
     name                    = "Dummy URL"
-    service_uri             = "https://foo.local"
+    service_uri             = "https://events.pagerduty.com/integration"
     use_common_alert_schema = false
   }
 

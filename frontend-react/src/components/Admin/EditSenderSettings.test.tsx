@@ -6,23 +6,26 @@ import { useResource } from "rest-hooks";
 import { EditSenderSettingsPage } from "./EditSenderSettings";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import config from "../../config";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 import { useToast } from "../../contexts/Toast";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
+
 const mockData: OrgSenderSettingsResource = new TestResponse(
     ResponseType.SENDER_SETTINGS,
 ).data;
 let editJsonAndSaveButton: HTMLElement;
-const mockUseToast = jest.mocked(useToast);
+const mockUseToast = vi.mocked(useToast);
 const mockCtx = mockUseToast();
-const mockUseResource = jest.mocked(useResource);
+const mockUseResource = vi.mocked(useResource);
 
-jest.mock("rest-hooks", () => ({
-    ...jest.requireActual("rest-hooks"),
-    useResource: jest.fn(),
+vi.mock("rest-hooks", async (importActual) => ({
+    ...(await importActual<typeof import("rest-hooks")>()),
+    useResource: vi.fn(),
     useController: () => {
         // fetch is destructured as fetchController in component
         return { fetch: () => mockData };
@@ -33,10 +36,10 @@ jest.mock("rest-hooks", () => ({
     },
 }));
 
-jest.mock("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"),
+vi.mock("react-router-dom", async (importActual) => ({
+    ...(await importActual<typeof import("react-router-dom")>()),
     useNavigate: () => {
-        return jest.fn();
+        return vi.fn();
     },
     useParams: () => {
         return {
@@ -47,7 +50,7 @@ jest.mock("react-router-dom", () => ({
     },
 }));
 
-jest.mock("../../contexts/Toast");
+vi.mock("../../contexts/Toast");
 
 describe("EditSenderSettings", () => {
     async function setup(data: Partial<OrgSenderSettingsResource> = mockData) {
@@ -84,6 +87,7 @@ describe("EditSenderSettings", () => {
                 await setup(data);
                 await userEvent.click(editJsonAndSaveButton);
             }
+            afterEach(() => void vi.clearAllMocks());
             test("should display an error if name value contains a disallowed char", async () => {
                 await editSetup({ ...mockData, name: "a\\nlinefeed" });
                 await waitFor(() => expect(mockCtx.toast).toHaveBeenCalled());

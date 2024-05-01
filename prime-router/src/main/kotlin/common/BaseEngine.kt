@@ -21,6 +21,8 @@ abstract class BaseEngine(
     val queue: QueueAccess = QueueAccess,
 ) : Logging {
     companion object {
+        val sequentialLimit = 500
+
         /**
          * These are all potentially heavyweight objects that
          * should only be created once.
@@ -80,18 +82,6 @@ abstract class BaseEngine(
                 1440
             }
             return ((minNumRetries + 1) * frequencyMins + BATCH_LOOKBACK_PADDING_MINS)
-        }
-
-        // TODO: #10510
-        fun convertRelativeSchemaPathToUri(schemaPath: String): String {
-            if (schemaPath.isEmpty()) {
-                return ""
-            }
-            if (schemaPath.startsWith("classpath:/")) {
-                return schemaPath
-            } else {
-                return "classpath:/$schemaPath.yml"
-            }
         }
     }
 }

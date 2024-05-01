@@ -1,0 +1,61 @@
+resourceType: Specimen
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+collection:
+  condition: $spm7 NOT_NULL
+  expressionType: nested
+  generateList: true
+  vars:
+  expressionsMap:
+    collectedPeriod:
+      condition: $end NOT_NULL
+      expressionType: nested
+      vars:
+        start: OBR.7
+        end: OBR.8
+        dateTimeIn: OBR.7
+        dateTimeOut: OBR.8
+      expressions:
+        - valueOf: ../../datatypes/v251/hl7/datatypes/DR/Period
+          expressionType: resource
+    collectedDateTime:
+      expressionType: nested
+      vars:
+        dateTimeIn: OBR.7
+        end: OBR.8
+      expressions:
+        - condition: $end NULL
+          type: STRING
+          valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+          expressionType: JEXL
+    collector:
+      condition: $obr10 NOT_NULL
+      vars:
+        obr10: OBR.10
+      expressionType: reference
+      valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
+      specs: OBR.10
+
+note_collectors-comment:
+  condition: $obr39 NOT_NULL
+  generateList: true
+  vars:
+    obr39: STRING_ALL, OBR.39
+  specs: OBR.39 *
+  valueOf: ../../datatypes/v251/hl7/datatypes/CWE/Annotation
+  expressionType: resource
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: hl7v2Segment
+        valueString:
+          valueOf: 'OBR'

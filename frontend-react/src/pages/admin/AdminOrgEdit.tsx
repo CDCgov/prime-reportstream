@@ -21,9 +21,9 @@ import Spinner from "../../components/Spinner";
 import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
 import { USLink } from "../../components/USLink";
 import config from "../../config";
-import { useAppInsightsContext } from "../../contexts/AppInsights";
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import { useToast } from "../../contexts/Toast";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
@@ -43,7 +43,7 @@ interface AdminOrgEditProps {
 
 export function AdminOrgEditPage() {
     const { toast: showAlertNotification } = useToast();
-    const { fetchHeaders } = useAppInsightsContext();
+    const { properties } = useAppInsightsContext();
     const { orgname } = useParams<AdminOrgEditProps>();
     const { activeMembership, authState } = useSessionContext();
 
@@ -66,7 +66,7 @@ export function AdminOrgEditPage() {
             `${RS_API_URL}/api/settings/organizations/${orgname}`,
             {
                 headers: {
-                    ...fetchHeaders(),
+                    "x-ms-session-id": properties.context.getSessionId(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },
@@ -169,6 +169,14 @@ export function AdminOrgEditPage() {
         >
             <Helmet>
                 <title>Organization edit - Admin</title>
+                <meta
+                    property="og:image"
+                    content="/assets/img/opengraph/reportstream.png"
+                />
+                <meta
+                    property="og:image:alt"
+                    content='"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'
+                />
             </Helmet>
             <section className="grid-container margin-top-3 margin-bottom-5">
                 <h2>

@@ -1,7 +1,6 @@
 import { screen } from "@testing-library/react";
 
 import { ReportDetailsSummary } from "./ReportDetailsSummary";
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import {
@@ -10,7 +9,10 @@ import {
 } from "../../../utils/OrganizationUtils";
 import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 
-const mockGetUser = jest.fn();
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../../contexts/Session/__mocks__/useSessionContext")
+>("../../../contexts/Session/useSessionContext");
+const mockGetUser = vi.fn();
 
 const currentDate = new Date();
 const futureDate = new Date(currentDate.setDate(currentDate.getDate() + 1));
@@ -83,7 +85,10 @@ describe("ReportDetailsSummary", () => {
     test("Does not display the download button if the date has expired", () => {
         renderApp(
             <ReportDetailsSummary
-                report={{ ...DEFAULT_RSDELIVERY, expires: pastDate.toString() }}
+                report={{
+                    ...DEFAULT_RSDELIVERY,
+                    expires: pastDate.toISOString(),
+                }}
             />,
         );
 

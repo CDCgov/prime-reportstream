@@ -8,11 +8,11 @@ import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
 import ManagePublicKeyUploadError from "./ManagePublicKeyUploadError";
 import ManagePublicKeyUploadSuccess from "./ManagePublicKeyUploadSuccess";
 import { ApiKey } from "../../config/endpoints/settings";
-import { useAppInsightsContext } from "../../contexts/AppInsights";
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import { showToast } from "../../contexts/Toast";
 import useCreateOrganizationPublicKey from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import useOrganizationPublicKeys from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
 import useOrganizationSenders from "../../hooks/UseOrganizationSenders";
 import Alert from "../../shared/Alert/Alert";
 import { FeatureName } from "../../utils/FeatureName";
@@ -24,7 +24,7 @@ export const CONTENT_TYPE = "application/x-x509-ca-cert";
 export const FORMAT = "PEM";
 
 export function ManagePublicKeyPage() {
-    const { appInsights } = useAppInsightsContext();
+    const appInsights = useAppInsightsContext();
     const [hasPublicKey, setHasPublicKey] = useState(false);
     const [uploadNewPublicKey, setUploadNewPublicKey] = useState(false);
     const [sender, setSender] = useState("");
@@ -162,6 +162,14 @@ export function ManagePublicKeyPage() {
                 <meta
                     name="description"
                     content="Send your public key to begin the REST API authentication process."
+                />
+                <meta
+                    property="og:image"
+                    content="/assets/img/opengraph/howwehelpyou-3.png"
+                />
+                <meta
+                    property="og:image:alt"
+                    content="An abstract illustration of screens and a document."
                 />
             </Helmet>
             <GridContainer className="manage-public-key padding-bottom-5 tablet:padding-top-6">

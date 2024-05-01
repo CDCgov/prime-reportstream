@@ -11,16 +11,17 @@ const mockUseMessageSearchInitial = {
     error: null,
 };
 
-jest.mock<
-    typeof import("../../hooks/network/MessageTracker/MessageTrackerHooks")
->("../../hooks/network/MessageTracker/MessageTrackerHooks", () => ({
-    ...jest.requireActual(
-        "../../hooks/network/MessageTracker/MessageTrackerHooks",
-    ),
-    useMessageSearch: jest.fn(),
-}));
+vi.mock(
+    "../../hooks/network/MessageTracker/MessageTrackerHooks",
+    async (importActual) => ({
+        ...(await importActual<
+            typeof import("../../hooks/network/MessageTracker/MessageTrackerHooks")
+        >()),
+        useMessageSearch: vi.fn(),
+    }),
+);
 
-const mockUseMessageSearch = jest.mocked(useMessageSearch);
+const mockUseMessageSearch = vi.mocked(useMessageSearch);
 
 describe("MessageTracker component", () => {
     function setup() {

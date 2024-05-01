@@ -1,12 +1,14 @@
 package gov.cdc.prime.router.history.azure
 
 import com.microsoft.azure.functions.HttpRequestMessage
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import java.time.OffsetDateTime
 import java.util.*
@@ -18,6 +20,7 @@ import java.util.*
 class DeliveryFacade(
     private val dbDeliveryAccess: DatabaseDeliveryAccess = DatabaseDeliveryAccess(),
     dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
+    val reportService: ReportService = ReportService(),
 ) : ReportFileFacade(
     dbAccess
 ) {
@@ -34,6 +37,7 @@ class DeliveryFacade(
      * @param pageSize Int of items to return per page.
      * @param reportIdStr is the reportId to get results for.
      * @param fileName is the fileName to get results for.
+     * @param receivingOrgSvcStatus is the customer status of the receiving organization's service.
      *
      * @return a List of Actions
      */
@@ -48,6 +52,7 @@ class DeliveryFacade(
         pageSize: Int,
         reportIdStr: String?,
         fileName: String?,
+        receivingOrgSvcStatus: List<CustomerStatus>?,
     ): List<DeliveryHistory> {
         require(organization.isNotBlank()) {
             "Invalid organization."
@@ -66,7 +71,7 @@ class DeliveryFacade(
             throw IllegalArgumentException("Invalid format for report ID: $reportIdStr")
         }
 
-        return dbDeliveryAccess.fetchActions(
+        return dbDeliveryAccess.fetchActionsForDeliveries(
             organization,
             receivingOrgSvc,
             sortDir,
@@ -78,7 +83,8 @@ class DeliveryFacade(
             true,
             DeliveryHistory::class.java,
             reportId,
-            fileName
+            fileName,
+            receivingOrgSvcStatus
         )
     }
 
@@ -91,11 +97,23 @@ class DeliveryFacade(
     fun findDetailedDeliveryHistory(
         deliveryId: Long,
     ): DeliveryHistory? {
-        return dbDeliveryAccess.fetchAction(
+        val deliveryHistory = dbDeliveryAccess.fetchAction(
             deliveryId,
             orgName = null,
             DeliveryHistory::class.java
         )
+        val reportId = deliveryHistory?.reportId
+        if (reportId != null) {
+            val roots = reportService.getRootReports(UUID.fromString(reportId))
+            deliveryHistory.originalIngestion = roots.map {
+                mapOf(
+                    "reportId" to it.reportId,
+                    "ingestionTime" to it.createdAt,
+                    "sendingOrg" to it.sendingOrg,
+                )
+            }
+        }
+        return deliveryHistory
     }
 
     /**

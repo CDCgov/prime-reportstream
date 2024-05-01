@@ -4,17 +4,21 @@ import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.translation.hl7.utils.FhirPathFunctions
+import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.HL7ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TranslationFunctions
-import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.Level
+import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 
@@ -28,13 +32,13 @@ import org.hl7.fhir.r4.model.Bundle
  * @property constantSubstitutor the constant substitutor. Should be a static instance, but is not thread safe
  */
 class FhirToHl7Converter(
-    private val schemaRef: ConverterSchema,
+    private val schemaRef: HL7ConverterSchema,
     private val strict: Boolean = false,
     private var terser: Terser? = null,
     // the constant substitutor is not thread safe, so we need one instance per converter instead of using a shared copy
     private val constantSubstitutor: ConstantSubstitutor = ConstantSubstitutor(),
     private val context: FhirToHl7Context? = null,
-) : ConfigSchemaProcessor() {
+) : ConfigSchemaProcessor<Bundle, Message, HL7ConverterSchema, ConverterSchemaElement>(schemaRef), Logging {
     /**
      * Convert a FHIR bundle to an HL7 message using the [schema] in the [schemaFolder] location to perform the conversion.
      * The converter will error out if [strict] is set to true and there is an error during the conversion.  If [strict]
@@ -45,33 +49,28 @@ class FhirToHl7Converter(
      */
     constructor(
         schema: String,
-        schemaFolder: String,
         strict: Boolean = false,
         terser: Terser? = null,
         context: FhirToHl7Context? = null,
+        blobConnectionInfo: BlobAccess.BlobContainerMetadata,
     ) : this(
-        schemaRef = converterSchemaFromFile(schema, schemaFolder),
+        schemaRef = converterSchemaFromFile(schema, blobConnectionInfo),
         strict = strict,
         terser = terser,
         context = context
     )
 
-    /**
-     * Convert a FHIR bundle to an HL7 message using the [schema] which includes it folder location to perform the conversion.
-     * The converter will error out if [strict] is set to true and there is an error during the conversion.  if [strict]
-     * is set to false (the default) then any conversion errors are logged as a warning.  Note [strict] does not affect
-     * the schema validation process.
-     * @param terser the terser to use for building the HL7 message (use for dependency injection)
-     */
     constructor(
-        schema: String,
+        schemaUri: String,
+        blobConnectionInfo: BlobAccess.BlobContainerMetadata,
         strict: Boolean = false,
         terser: Terser? = null,
         context: FhirToHl7Context? = null,
     ) : this(
-        schemaRef = converterSchemaFromFile(
-            FilenameUtils.getName(schema),
-            FilenameUtils.getPathNoEndSeparator(schema)
+        ConfigSchemaReader.fromFile(
+            schemaUri,
+            HL7ConverterSchema::class.java,
+            blobConnectionInfo = blobConnectionInfo
         ),
         strict = strict,
         terser = terser,
@@ -82,14 +81,56 @@ class FhirToHl7Converter(
      * Convert the given [bundle] to an HL7 message.
      * @return the HL7 message
      */
-    fun convert(bundle: Bundle): Message {
+    override fun process(input: Bundle): Message {
         // Sanity check, but the schema is assumed good to go here
         check(!schemaRef.hl7Class.isNullOrBlank())
         val message = HL7Utils.getMessageInstance(schemaRef.hl7Class!!)
 
         terser = Terser(message)
-        processSchema(schemaRef, bundle, bundle)
+        processSchema(schemaRef, input, input)
         return message
+    }
+
+    override fun checkForEquality(converted: Message, expectedOutput: Message): Boolean {
+        return converted.encodePreserveEncodingChars() == expectedOutput.encodePreserveEncodingChars()
+    }
+
+    /**
+     * Get the first valid string from the list of values specified in the schema for a given [element] using
+     * [bundle] and [context] starting at the [focusResource].
+     * @return the value for the element or an empty string if no value found
+     */
+    internal fun getValueAsString(
+        element: ConverterSchemaElement,
+        bundle: Bundle,
+        focusResource: Base,
+        context: CustomContext,
+        constantSubstitutor: ConstantSubstitutor? = null,
+    ): String {
+        var retVal = ""
+        run findValue@{
+            element.value?.forEach {
+                val value = if (it.isBlank()) {
+                    ""
+                } else {
+                    try {
+                        FhirPathUtils.evaluateString(context, focusResource, bundle, it, element, constantSubstitutor)
+                    } catch (e: SchemaException) {
+                        logger.error("Error while getting value for element ${element.name}", e)
+                        ""
+                    }
+                }
+                logger.trace("Evaluated value expression '$it' to '$value'")
+                if (value.isNotBlank()) {
+                    retVal = value
+                    return@findValue
+                }
+            }
+        }
+
+        // when valueSet is available, use the matching value else just pass the value as is
+        retVal = element.valueSet?.getMappedValue(retVal) ?: retVal
+        return retVal
     }
 
     /**
@@ -99,7 +140,7 @@ class FhirToHl7Converter(
      * Starting at the [schemaResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
      */
     private fun processSchema(
-        schema: ConverterSchema,
+        schema: HL7ConverterSchema,
         bundle: Bundle,
         schemaResource: Base,
         context: CustomContext = CustomContext(
@@ -171,7 +212,7 @@ class FhirToHl7Converter(
 
                         logger.log(logLevel, "Processing element ${element.name} with schema ${element.schema} ...")
                         processSchema(
-                            element.schemaRef!! as ConverterSchema,
+                            element.schemaRef!!,
                             bundle,
                             focusResource,
                             indexContext,

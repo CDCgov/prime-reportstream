@@ -1,13 +1,14 @@
 import { chunk, range } from "lodash";
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useEffect, useReducer, useState } from "react";
 import useDeepCompareEffect from "use-deep-compare-effect";
+import { validate as uuidValidate } from "uuid";
+import useAppInsightsContext from "./UseAppInsightsContext";
 
 import {
     OVERFLOW_INDICATOR,
     PaginationProps,
     SlotItem,
 } from "../components/Table/Pagination";
-import { useAppInsightsContext } from "../contexts/AppInsights";
 
 // A function that will return a cursor value for a resource in the paginated
 // set.
@@ -18,6 +19,7 @@ export type CursorExtractor<T> = (arg: T) => string;
 export type ResultsFetcher<T> = (
     cursor: string,
     numResults: number,
+    additionalParams?: object,
 ) => Promise<T[]>;
 
 // Returns a list of slots based on the USWDS pagination behavior rules.
@@ -114,6 +116,8 @@ export interface PaginationState<T> {
     pageSize: number;
     // Optional set of parameters for requesting a new batch of results.
     requestConfig?: RequestConfig;
+    // Total number of results
+    resultLength?: number;
 }
 
 enum PaginationActionType {
@@ -157,11 +161,12 @@ export function processResultsReducer<T>(
         pageCursorMap,
         pageResultsMap,
     } = state;
-
     // Determine the number of whole pages we requested data for. Ignoring the
     // remainder accounts for a dangling result, which we use as an indicator of
     // a subsequent page.
     const numTargetWholePages = Math.floor(numResults / pageSize);
+    const resultLength =
+        cursorPageNum === 1 ? results.length : state.resultLength;
     let finalPageNum;
 
     const resultPages = chunk(results, pageSize);
@@ -213,6 +218,7 @@ export function processResultsReducer<T>(
         finalPageNum,
         pageResultsMap,
         pageCursorMap,
+        resultLength,
     };
 }
 
@@ -318,6 +324,8 @@ interface UsePaginationState<T> {
     currentPageResults: T[];
     isLoading: boolean;
     paginationProps?: PaginationProps;
+    setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+    searchTerm: string;
 }
 
 // Arguments need to initialize the hook's internal state.
@@ -359,7 +367,7 @@ function usePagination<T>({
     extractCursor,
     analyticsEventName,
 }: UsePaginationProps<T>): UsePaginationState<T> {
-    const { appInsights } = useAppInsightsContext();
+    const appInsights = useAppInsightsContext();
     const [state, dispatch] = useReducer<
         PaginationReducer<PaginationState<T>, PaginationAction<T>>
     >(
@@ -371,6 +379,7 @@ function usePagination<T>({
             extractCursor,
         }),
     );
+    const [searchTerm, setSearchTerm] = useState("");
 
     // Reset the state if any of the hook props change.
     useEffect(() => {
@@ -383,7 +392,14 @@ function usePagination<T>({
                 extractCursor,
             },
         });
-    }, [fetchResults, pageSize, startCursor, extractCursor, isCursorInclusive]);
+    }, [
+        searchTerm,
+        fetchResults,
+        pageSize,
+        startCursor,
+        extractCursor,
+        isCursorInclusive,
+    ]);
 
     // Fetch a new batch of results when the fetch parameters change.
     const { requestConfig } = state;
@@ -396,9 +412,20 @@ function usePagination<T>({
             if (!requestConfig) {
                 return;
             }
+            // Search terms can either be fileName string or a UUID,
+            // and we need to know since we have to query the API by
+            // that specific query param. All reportId(s) are UUIDs, so
+            // if the searchTerm is a UUID, assume reportId, otherwise
+            // assume fileName
+            const searchParam = searchTerm
+                ? uuidValidate(searchTerm)
+                    ? { reportId: searchTerm }
+                    : { fileName: searchTerm }
+                : {};
             const results = await fetchResults(
                 requestConfig.cursor,
                 requestConfig.numResults,
+                searchParam,
             );
             dispatch({
                 type: PaginationActionType.PROCESS_RESULTS,
@@ -409,7 +436,7 @@ function usePagination<T>({
             });
         }
         void doEffect();
-    }, [fetchResults, requestConfig]);
+    }, [fetchResults, requestConfig, searchTerm]);
 
     // Create a callback for changing the current page to pass down to the
     // pagination UI component.
@@ -443,6 +470,16 @@ function usePagination<T>({
             slots: getSlots(state.currentPageNum, state.finalPageNum),
             setSelectedPage,
             currentPageNum: state.currentPageNum,
+            resultLength: state.resultLength,
+            isPaginationLoading: state.isLoading,
+        };
+    } else {
+        paginationProps = {
+            slots: [],
+            setSelectedPage,
+            currentPageNum: 0,
+            resultLength: state.resultLength,
+            isPaginationLoading: state.isLoading,
         };
     }
 
@@ -450,6 +487,8 @@ function usePagination<T>({
         currentPageResults,
         isLoading: state.isLoading,
         paginationProps,
+        setSearchTerm,
+        searchTerm,
     };
 }
 

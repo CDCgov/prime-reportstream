@@ -1,15 +1,13 @@
 import styles from "./ReportDetailsTable.module.scss";
 import Table, { TableConfig } from "../../../components/Table/Table";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../../contexts/AppInsights";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
 import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
+import useAppInsightsContext from "../../../hooks/UseAppInsightsContext";
+import { EventName } from "../../../utils/AppInsights";
 import { FeatureName } from "../../../utils/FeatureName";
-import TableFilters from "../../Table/TableFilters";
+import DataDashboardTableFilters from "../DataDashboardTable/DataDashboardTableFilters/DataDashboardTableFilters";
 
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
@@ -23,7 +21,7 @@ interface ReportDetailsTableProps {
 }
 
 function ReportDetailsTable(props: ReportDetailsTableProps) {
-    const { appInsights } = useAppInsightsContext();
+    const appInsights = useAppInsightsContext();
     const { reportId }: ReportDetailsTableProps = props;
     const { data: reportFacilities } = useReportsFacilities(reportId);
     const featureEvent = `${FeatureName.REPORT_DETAILS} | ${EventName.TABLE_FILTER}`;
@@ -45,7 +43,7 @@ function ReportDetailsTable(props: ReportDetailsTableProps) {
         <div className={styles.ReportDetailsTable}>
             <section id="facilities">
                 <h2>Facilities & Providers included in this report</h2>
-                <TableFilters
+                <DataDashboardTableFilters
                     startDateLabel="From: (mm/dd/yyyy)"
                     endDateLabel="To: (mm/dd/yyyy)"
                     filterManager={filterManager}

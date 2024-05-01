@@ -22,6 +22,8 @@ module.exports = {
         "playwright.config.ts",
         "jest.config.ts",
         "coverage",
+        "storybook-static",
+        "e2e-data",
     ],
     parser: "@typescript-eslint/parser",
     parserOptions: {
@@ -49,7 +51,7 @@ module.exports = {
         },
     },
     overrides: [
-        /* Jest */
+        /* Vitest */
         {
             files: [
                 "./src/**/__tests__/**/*.[jt]s?(x)",
@@ -57,13 +59,14 @@ module.exports = {
             ],
             extends: [
                 "plugin:testing-library/react",
-                "plugin:jest/recommended",
+                "plugin:vitest/recommended",
                 "plugin:jest-dom/recommended",
             ],
             rules: {
                 /* Temporarily changed to warnings or disabled pending future work */
                 "testing-library/no-node-access": ["warn"],
-                "jest/no-mocks-import": ["warn"],
+                "vitest/no-mocks-import": ["warn"],
+                "vitest/expect-expect": ["warn"],
 
                 /* Tweaks for plugin conflicts */
                 "@typescript-eslint/unbound-method": "off",

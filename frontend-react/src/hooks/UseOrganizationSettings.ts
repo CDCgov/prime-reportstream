@@ -7,8 +7,8 @@ import {
     RSOrganizationSettings,
     servicesEndpoints,
 } from "../config/endpoints/settings";
-import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
-import { useSessionContext } from "../contexts/Session";
+import useAuthorizedFetch from "../contexts/AuthorizedFetch/useAuthorizedFetch";
+import useSessionContext from "../contexts/Session/useSessionContext";
 import { getAuthFetchProps } from "../network/Middleware";
 
 const { settings } = servicesEndpoints;
@@ -29,10 +29,6 @@ export const ReceiverOrganizationsMissingTransport: string[] = [
     "pa-philadelphia-phd",
     "pima-az-phd",
 ];
-
-export function isOrganizationsMissingTransport(orgName: string): boolean {
-    return ReceiverOrganizationsMissingTransport.indexOf(orgName) > -1;
-}
 
 export const useOrganizationSettings = () => {
     const { activeMembership } = useSessionContext();

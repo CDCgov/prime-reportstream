@@ -10,7 +10,9 @@ import MarkdownLayoutContext from "./Context";
 import { LayoutBackToTop, LayoutMain, LayoutSidenav } from "./LayoutComponents";
 import styles from "./MarkdownLayout.module.scss";
 import { TableOfContents } from "./TableOfContents";
+import { createMeta } from "./utils";
 import { USNavLink, USSmartLink } from "../../components/USLink";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import * as shared from "../../shared";
 
 /**
@@ -85,19 +87,19 @@ function MarkdownLayout({
     children,
     article,
     mdx,
-    frontmatter: {
+    frontmatter = {},
+    toc: tocEntries,
+}: MarkdownLayoutProps) {
+    const {
         title,
-        metaTitle,
-        metaDescription,
         breadcrumbs,
         subtitle,
         callToAction,
         lastUpdated,
         toc,
         backToTop,
-    } = {},
-    toc: tocEntries,
-}: MarkdownLayoutProps) {
+    } = frontmatter;
+    const { config } = useSessionContext();
     const [sidenavContent, setSidenavContent] = useState<ReactNode>(undefined);
     const [mainContent, setMainContent] = useState<ReactNode>(undefined);
     const ctx = useMemo(() => {
@@ -120,17 +122,22 @@ function MarkdownLayout({
     const matches = useMatches() as RsRouteObject[];
     const { handle = {} } = matches.at(-1) ?? {};
     const { isFullWidth } = handle;
+    const meta = useMemo(
+        () => createMeta(config, frontmatter),
+        [config, frontmatter],
+    );
 
     return (
         <MarkdownLayoutContext.Provider value={ctx}>
-            {(metaTitle ?? metaDescription) && (
-                <Helmet>
-                    {metaTitle && <title>{metaTitle}</title>}
-                    {metaDescription && (
-                        <meta name="description" content={metaDescription} />
-                    )}
-                </Helmet>
-            )}
+            <Helmet>
+                <title>{meta.title}</title>
+                <meta name="description" content={meta.description} />
+                <meta property="og:image" content={meta.openGraph.image.src} />
+                <meta
+                    property="og:image:alt"
+                    content={meta.openGraph.image.altText}
+                />
+            </Helmet>
             {sidenavContent ? (
                 <nav
                     aria-label="side-navigation"

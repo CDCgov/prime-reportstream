@@ -23,11 +23,8 @@ import { useMatch } from "react-router-dom";
 
 import styles from "./ReportStreamHeader.module.scss";
 import site from "../../content/site.json";
-import { RSSessionContext, useSessionContext } from "../../contexts/Session";
-import {
-    isOrganizationsMissingTransport,
-    useOrganizationSettings__,
-} from "../../hooks/UseOrganizationSettings";
+import { RSSessionContext } from "../../contexts/Session/SessionProvider";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import { Icon } from "../../shared";
 import SenderModeBanner from "../SenderModeBanner";
 import Spinner from "../Spinner";
@@ -93,10 +90,6 @@ function ReportStreamNavbar({
     containerRef,
 }: ReportStreamNavbarProps) {
     const [openMenuItem, setOpenMenuItem] = useState<undefined | string>();
-    const { data: organization } = useOrganizationSettings__();
-    const isOrgMissingTransport = organization
-        ? isOrganizationsMissingTransport(organization.name)
-        : false;
 
     const setMenu = useCallback((menuName?: string) => {
         setOpenMenuItem((curr) => {
@@ -204,6 +197,9 @@ function ReportStreamNavbar({
                 <USSmartLink href="/about/our-network" key="our-network">
                     Our network
                 </USSmartLink>,
+                <USSmartLink href="/about/roadmap" key="roadmap">
+                    Product roadmap
+                </USSmartLink>,
                 <USSmartLink href="/about/news" key="news">
                     News
                 </USSmartLink>,
@@ -224,17 +220,6 @@ function ReportStreamNavbar({
     ];
 
     const menuItemsReceiver = [
-        <div className="primary-nav-link-container" key="dashboard">
-            <USSmartLink
-                className={primaryLinkClasses(!!useMatch("/data-dashboard/*"))}
-                href="/data-dashboard"
-            >
-                Dashboard
-            </USSmartLink>
-        </div>,
-    ];
-
-    const menuItemsReceiverMissingTransport = [
         <div className="primary-nav-link-container" key="daily">
             <USSmartLink
                 className={primaryLinkClasses(!!useMatch("/daily-data/*"))}
@@ -293,22 +278,8 @@ function ReportStreamNavbar({
     const navbarItemBuilder = () => {
         let menuItems = [...menuItemsAbout, ...defaultMenuItems];
 
-        if (
-            (user.isUserReceiver ||
-                user.isUserTransceiver ||
-                user.isUserAdmin) &&
-            !isOrgMissingTransport
-        ) {
+        if (user.isUserReceiver || user.isUserTransceiver || user.isUserAdmin) {
             menuItems = [...menuItems, ...menuItemsReceiver];
-        }
-
-        if (
-            (user.isUserReceiver ||
-                user.isUserTransceiver ||
-                user.isUserAdmin) &&
-            isOrgMissingTransport
-        ) {
-            menuItems = [...menuItems, ...menuItemsReceiverMissingTransport];
         }
 
         if (user.isUserSender || user.isUserTransceiver || user.isUserAdmin) {
@@ -396,6 +367,7 @@ const ReportStreamHeader = ({
                                             {user.isUserAdmin && (
                                                 <USLinkButton
                                                     outline
+                                                    data-testid="org-settings"
                                                     href="/admin/settings"
                                                 >
                                                     {activeMembership?.parsedName ??

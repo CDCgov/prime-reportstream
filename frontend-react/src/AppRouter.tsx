@@ -1,7 +1,7 @@
-import { ComponentType, lazy, LazyExoticComponent } from "react";
+import { lazy } from "react";
 import { Outlet, redirect, RouteObject } from "react-router";
-import { createBrowserRouter } from "react-router-dom";
 
+import RSErrorBoundary from "./components/RSErrorBoundary/RSErrorBoundary";
 import { RequireGate } from "./shared/RequireGate/RequireGate";
 import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
@@ -14,6 +14,9 @@ const About = lazy(
 );
 const OurNetwork = lazy(
     lazyRouteMarkdown(() => import("./content/about/our-network.mdx")),
+);
+const Roadmap = lazy(
+    lazyRouteMarkdown(() => import("./content/about/roadmap.mdx")),
 );
 const News = lazy(lazyRouteMarkdown(() => import("./content/about/news.mdx")));
 const Security = lazy(
@@ -181,10 +184,14 @@ const FacilityProviderSubmitterDetailsPage = lazy(
 );
 const NewSettingPage = lazy(() => import("./components/Admin/NewSetting"));
 
+const MainLayout = lazy(() => import("./layouts/Main/MainLayout"));
+
 export const appRoutes: RouteObject[] = [
     /* Public Site */
     {
         path: "/",
+        Component: MainLayout,
+        ErrorBoundary: RSErrorBoundary,
         children: [
             {
                 path: "",
@@ -216,6 +223,13 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "our-network",
                         element: <OurNetwork />,
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        path: "roadmap",
+                        element: <Roadmap />,
                         handle: {
                             isContentPage: true,
                         },
@@ -610,9 +624,3 @@ export const appRoutes: RouteObject[] = [
         ],
     },
 ] satisfies RsRouteObject[];
-
-export function createRouter(Component: LazyExoticComponent<ComponentType>) {
-    appRoutes[0].element = <Component />;
-    const router = createBrowserRouter(appRoutes);
-    return router;
-}

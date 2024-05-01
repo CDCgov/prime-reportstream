@@ -1,15 +1,13 @@
 import type { StorybookConfig } from "@storybook/react-vite";
 import remarkToc from "remark-mdx-toc";
-import turbosnap from "vite-plugin-turbosnap";
 
 const config: StorybookConfig = {
     stories: [
         "../src/**/*.stories.mdx",
         "../src/**/*.stories.@(js|jsx|ts|tsx)",
-        "./UtilizedUSWDSComponents/*.stories.@(js|jsx|ts|tsx)",
     ],
     addons: [
-        "storybook-addon-react-router-v6",
+        "storybook-addon-remix-react-router",
         "@storybook/addon-links",
         "@storybook/addon-essentials",
         "@storybook/addon-interactions",
@@ -30,22 +28,11 @@ const config: StorybookConfig = {
         options: {},
     },
     core: {},
-    features: {
-        buildStoriesJson: true,
-    },
     async viteFinal(config, { configType }) {
         // Exclude our mdx plugin from vite config in favor of storybook's
         config.plugins = config.plugins?.filter(
             (x: any, i) => x.name !== "@mdx-js/rollup",
         );
-
-        if (configType === "PRODUCTION") {
-            config.plugins?.push(
-                turbosnap({
-                    rootDir: config.root ?? process.cwd(),
-                }),
-            );
-        }
 
         return {
             ...config,
@@ -59,6 +46,12 @@ const config: StorybookConfig = {
     },
     docs: {
         autodocs: "tag",
+    },
+    refs: {
+        "react-uswds": {
+            title: "React USWDS",
+            url: "https://trussworks.github.io/react-uswds",
+        },
     },
 };
 

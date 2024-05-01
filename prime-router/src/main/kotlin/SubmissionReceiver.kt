@@ -15,6 +15,7 @@ import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
 import ca.uhn.hl7v2.model.v27.segment.MSH as v27_MSH
+import fhirengine.translation.hl7.structures.nistelr251.segment.MSH as NIST_MSH
 
 /**
  * The base class for a 'receiver' type, currently just for COVID or full ELR submissions. This allows us a fan out
@@ -364,6 +365,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
     enum class MessageType {
         ORU_R01,
         ORM_O01,
+        OML_O21,
     }
 
     /**
@@ -372,6 +374,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
      */
     internal fun checkValidMessageType(message: Message, actionLogs: ActionLogger, itemIndex: Int) {
         val messageType = when (val msh = message.get("MSH")) {
+            is NIST_MSH -> msh.messageType.messageStructure.toString()
             is v251_MSH -> msh.messageType.messageStructure.toString()
             is v27_MSH -> msh.messageType.messageStructure.toString()
             else -> ""
