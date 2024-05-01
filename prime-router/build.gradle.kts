@@ -112,7 +112,6 @@ val env = mutableMapOf<String, Any>(
     "VAULT_API_ADDR" to "http://localhost:8200",
     "SFTP_HOST_OVERRIDE" to "localhost",
     "SFTP_PORT_OVERRIDE" to "2222",
-    "ETOR_TI_baseurl" to "http://host.docker.internal:8080",
     "RS_OKTA_baseUrl" to "reportstream.oktapreview.com"
 )
 

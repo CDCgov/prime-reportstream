@@ -33,7 +33,6 @@ services:
       - RS_OKTA_redirect=http://localhost:7071/api/download
       - VAULT_API_ADDR=http://vault:8200
       - FHIR_ENGINE_TEST_PIPELINE=enabled
-      - ETOR_TI_baseurl=http://host.docker.internal:8080
     depends_on:
       - azurite
       - vault
