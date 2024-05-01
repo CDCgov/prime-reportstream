@@ -252,7 +252,7 @@ abstract class ReportFileFunction(
         runBlocking {
             launch {
                 response = client.get("${System.getenv("ETOR_TI_baseurl")}/v1/etor/metadata/" + lookupId) {
-                    authPair.first?.forEach { entry ->
+                    authPair.first.forEach { entry ->
                         headers.append(entry.key, entry.value)
                     }
 
