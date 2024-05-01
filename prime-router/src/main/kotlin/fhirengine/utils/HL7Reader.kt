@@ -275,8 +275,11 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             rawHL7: String,
             parseConfiguration: HL7MessageParseAndConvertConfiguration?,
         ): Message {
-            val hl7MessageType = getMessageType(rawHL7)
-            return getHL7ParsingContext(hl7MessageType, parseConfiguration).pipeParser.parse(rawHL7)
+            // A carriage return if the official segment delimiter and a new line is not recognized so we replace
+            // them
+            val carriageReturnFixedHL7 = rawHL7.replace("\n", "\r")
+            val hl7MessageType = getMessageType(carriageReturnFixedHL7)
+            return getHL7ParsingContext(hl7MessageType, parseConfiguration).pipeParser.parse(carriageReturnFixedHL7)
         }
 
         /**
