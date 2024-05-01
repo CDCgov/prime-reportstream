@@ -575,7 +575,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 // installs logging into the call to post to the server
                 install(Logging) {
                     logger = io.ktor.client.plugins.logging.Logger.Companion.SIMPLE
-                    level = LogLevel.ALL // LogLevel.INFO for prod, LogLevel.ALL to view full request
+                    level = LogLevel.INFO // LogLevel.INFO for prod, LogLevel.ALL to view full request
                 }
 
                 // not using Bearer Auth handler due to refresh token behavior
