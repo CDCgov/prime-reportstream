@@ -871,6 +871,12 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $fullELRSenderName for organization ${org1.name}")
         }
 
+        const val fullELRE2ESenderName = "ignore-full-elr-e2e"
+        val fullELRE2ESender by lazy {
+            settings.findSender("$org1Name.$fullELRE2ESenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $fullELRE2ESenderName for organization ${org1.name}")
+        }
+
         const val fhirSenderName = "ignore-fhir-e2e"
         val fhirSender by lazy {
             settings.findSender("$org1Name.$fhirSenderName") as? UniversalPipelineSender
@@ -955,7 +961,7 @@ abstract class CoolTest {
             testData.add(
                 E2EData(
                     File("src/test/resources/fhirengine/smoketest/valid_hl7.hl7"),
-                    fullELRSender,
+                    fullELRE2ESender,
                     listOf(fhirFullELRE2EReceiverB, hl7FullELRReceiver)
                 )
             )

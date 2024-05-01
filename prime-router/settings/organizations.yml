@@ -111,6 +111,12 @@
       topic: mars-otc-elr
       customerStatus: active
       format: HL7
+    - name: ignore-full-elr-e2e  # For the E2E UP test
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      schemaName: classpath:/metadata/fhir_transforms/senders/baseline-sender-transform.yml
+      format: HL7
     - name: dev-simple-report      # Use this to test full-elr
       organizationName: ignore
       topic: full-elr
@@ -140,7 +146,7 @@
       customerStatus: active
       schemaName: classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml
       format: FHIR
-    - name: ignore-fhir-e2e
+    - name: ignore-fhir-e2e   # For the E2E UP test
       organizationName: ignore
       topic: full-elr
       customerStatus: active
@@ -249,7 +255,7 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
-    - name: FULL_ELR_E2E
+    - name: FULL_ELR_E2E      # For the E2E UP test
       externalName: Ignore FULL_ELR_E2E
       organizationName: ignore
       topic: full-elr
@@ -270,19 +276,19 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CO/CO.yml"
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
         type: "HL7"
-        receivingApplicationName: "CO-ELR"
-        receivingFacilityName: "CO"
+        receivingApplicationName: "IG-ELR"
+        receivingFacilityName: "IG"
       transport:
         type: SFTP
         host: sftp
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
-    - name: FULL_ELR_FHIR_A_E2E
+    - name: FULL_ELR_FHIR_A_E2E     # For the E2E UP test
       externalName: Ignore FULL_ELR_FHIR_A_E2E
       organizationName: ignore
       topic: full-elr
@@ -300,7 +306,7 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
-    - name: FULL_ELR_FHIR_B_E2E
+    - name: FULL_ELR_FHIR_B_E2E     # For the E2E UP test
       externalName: Ignore FULL_ELR_FHIR_B_E2E
       organizationName: ignore
       topic: full-elr

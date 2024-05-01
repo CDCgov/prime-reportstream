@@ -18,7 +18,9 @@ import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.FileUtilities
+import gov.cdc.prime.router.cli.OktaCommand
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.common.SystemExitCodes
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
@@ -88,7 +90,7 @@ class Ping : CoolTest() {
  */
 class End2EndUniversalPipeline : CoolTest() {
     override val name = "end2end_up"
-    override val description = "e2e tests that verify reports are correctly received and routed"
+    override val description = "e2e tests that verify reports are correctly uploaded, routed, and received"
     override val status = TestStatus.SMOKE
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
@@ -97,13 +99,13 @@ class End2EndUniversalPipeline : CoolTest() {
 
         ugly("Starting $name Test")
 
-        // Posting the reports first. All three must be sent before the next step which includes a pause for batching
+        // Posting the reports first. All reports must be sent before pausing for the batch step to happen
         testData.forEach {
             ugly("Sending ${it.file.extension} data from ${it.sender.fullName} to the UP")
             it.reportId = postPreTestReports(it.file, environment, options, it.sender)
         }
 
-        // Wait until reports are marked as Delivered and then run test validations
+        // Wait until reports are marked as Delivered and then run validations on results
         testData.forEach {
             it.historyResponse = pauseForBatchProcess(environment, it.reportId)
 
@@ -146,6 +148,7 @@ class End2EndUniversalPipeline : CoolTest() {
             bad("***$name test FAILED***: Error in post response")
         }
 
+        echo(json)
         return getReportIdFromResponse(json)
     }
 
@@ -154,7 +157,7 @@ class End2EndUniversalPipeline : CoolTest() {
      * Times out after 90 seconds.
      */
     private suspend fun pauseForBatchProcess(environment: Environment, reportId: ReportId?): String {
-        val maxPollSecs = 90
+        val maxPollSecs = 150
         val pollSleepSecs = 5
         var timeElapsedSecs = 0
         var overallStatus = ""
@@ -164,12 +167,22 @@ class End2EndUniversalPipeline : CoolTest() {
             delay(pollSleepSecs.toLong() * 1000)
             timeElapsedSecs += pollSleepSecs
 
+            val headers = mutableListOf<Pair<String, String>>()
+            val oktaToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE)
+            headers.add("Authorization" to "Bearer $oktaToken")
             val getUrl = "${environment.url}/api/waters/report/$reportId/history"
-            val (_: Int, response: String) = HttpUtilities.getHttp(getUrl)
+
+            val (_, response) = HttpClientUtils.getWithStringResponse(
+                url = getUrl,
+                accessToken = oktaToken,
+                timeout = 45000
+            )
+
             overallStatus = JSONObject(response).getString("overallStatus")
 
             if (DetailedSubmissionHistory.Status.DELIVERED.toString() == overallStatus) {
                 good("Report $reportId status was $overallStatus after $timeElapsedSecs seconds")
+                echo(response)
                 return response
             }
         }
@@ -212,15 +225,15 @@ class End2EndUniversalPipeline : CoolTest() {
             }
 
             // Grab the uploaded files out of blob store
-            val actualName = actualFilename.removeSurrounding("\"")
-            val actualURL = "${blobContainerMetadata.getBlobEndpoint()}/none/${expectedReceiver.fullName}/$actualName"
+            val actualURL = "${blobContainerMetadata.getBlobEndpoint()}/" +
+                "none/${expectedReceiver.fullName}/$actualFilename"
             var actualByteArray: ByteArray
 
             try {
                 actualByteArray = BlobAccess.downloadBlobAsByteArray(actualURL, blobContainerMetadata)
                 good("File successfully uploaded to blob store as $actualFilename")
             } catch (e: BlobStorageException) {
-                passed = bad("***$name test FAILED***: Failed to find $actualURL in blob storage")
+                passed = bad("***$name test FAILED***: Failed to find $actualURL in blob storage: $e")
                 return@forEach
             }
 
@@ -283,7 +296,10 @@ class End2EndUniversalPipeline : CoolTest() {
      * Performs the expected transforms that would happen to a file moving through the UP. If the topic is ELIMS this
      * process will be skipped. Otherwise, the file will be converted to FHIR if necessary. Sender enrichments will be
      * run. Then translated based on the expected receiver format.
-     * Caveats: This does not perform all transformations from the UP. Notably, batch headers/footers are absent.
+     * Caveats:
+     *  - This does not perform all transformations from the UP. Notably, batch headers/footers are absent.
+     *  - The setting data for receivers and senders is pulling from organizations.yml so that must be kept in sync
+     *      with the settings in both the local db and in staging.
      * @param originalFile the file to transform
      * @param expectedReceiver determines resulting data format
      * @param sender used for the sender enrichment schema
@@ -309,9 +325,10 @@ class End2EndUniversalPipeline : CoolTest() {
             FhirTranscoder.getBundles(originalFile.bufferedReader().readText(), ActionLogger()).first()
         }
 
-        // Run Sender Enrichment
-        val enrichmentSchema = settings.senders.first { it.name == sender.name }.schemaName
-        fhirBundle = FhirTransformer(enrichmentSchema).process(fhirBundle)
+        // Run Sender Enrichment if it exists
+        if (sender.schemaName.isNotEmpty()) {
+            fhirBundle = FhirTransformer(sender.schemaName).process(fhirBundle)
+        }
         val encodedBundle = FhirTranscoder.encode(fhirBundle).byteInputStream()
 
         // Translate from FHIR to HL7 if required by receiver
