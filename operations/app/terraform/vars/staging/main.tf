@@ -112,7 +112,6 @@ module "storage" {
   dns_zones                     = module.network.dns_zones
   delete_pii_storage_after_days = local.security.delete_pii_storage_after_days
   storage_queue_name            = local.init.storage_queue_name
-  law_id                        = module.log_analytics_workspace.law_id
 }
 
 
