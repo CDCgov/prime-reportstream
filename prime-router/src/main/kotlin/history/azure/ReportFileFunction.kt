@@ -233,7 +233,17 @@ abstract class ReportFileFunction(
 
         var responseBody = ""
 
-        runBlocking {
+         val authPair = runBlocking {
+            async {
+                authPair = RESTTransport().getOAuthToken(
+                    restTransportInfo,
+                    reportId.toString(),
+                    jksCredential,
+                    credential,
+                    logger
+                )
+            }.await()
+        }
             launch {
                 authPair = RESTTransport().getOAuthToken(
                     restTransportInfo,
