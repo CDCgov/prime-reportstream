@@ -52,11 +52,11 @@ import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.spyk
+import io.mockk.unmockkAll
 import io.mockk.verify
 import org.jooq.impl.DSL
 import org.junit.jupiter.api.AfterEach
@@ -338,12 +338,12 @@ class FhirFunctionIntegrationTests() {
 
     @BeforeEach
     fun beforeEach() {
-        clearAllMocks()
+        unmockkAll()
     }
 
     @AfterEach
     fun afterEach() {
-        clearAllMocks()
+        unmockkAll()
     }
 
     @Test
