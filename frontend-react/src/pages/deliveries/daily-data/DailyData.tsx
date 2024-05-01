@@ -13,23 +13,21 @@ import TableFilters, {
 } from "../../../components/Table/TableFilters";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import { RSReceiver } from "../../../config/endpoints/settings";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../../contexts/AppInsights";
-import { useSessionContext } from "../../../contexts/Session";
+import useSessionContext from "../../../contexts/Session/useSessionContext";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import {
     DeliveriesDataAttr,
     useOrgDeliveries,
 } from "../../../hooks/network/History/DeliveryHooks";
+import useAppInsightsContext from "../../../hooks/UseAppInsightsContext";
 import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceivers";
 import usePagination, {
     getSlots,
     ResultsFetcher,
 } from "../../../hooks/UsePagination";
 import { Table } from "../../../shared";
+import { EventName } from "../../../utils/AppInsights";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
 
@@ -174,7 +172,7 @@ const DeliveriesFilterAndTable = ({
     services: RSReceiver[];
     setService?: Dispatch<SetStateAction<string>>;
 }) => {
-    const { appInsights } = useAppInsightsContext();
+    const appInsights = useAppInsightsContext();
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
     const pageSize = filterManager.pageSettings.size;
     const sortOrder = filterManager.sortSettings.order;

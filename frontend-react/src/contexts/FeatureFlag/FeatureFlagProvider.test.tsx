@@ -1,14 +1,15 @@
+import FeatureFlagProvider, {
+    FeatureFlagActionType,
+    featureFlagReducer,
+} from "./FeatureFlagProvider";
+import useFeatureFlags from "./useFeatureFlags";
 import {
     mockGetSavedFeatureFlags,
     mockStoreFeatureFlags,
 } from "../../utils/__mocks__/SessionStorageTools";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-import FeatureFlagProvider, {
-    FeatureFlagActionType,
-    featureFlagReducer,
-    useFeatureFlags,
-} from "./";
+vi.unmock("./useFeatureFlags");
 
 vi.mock("../../config", async (importActual) => {
     const originalModule = await importActual<typeof import("../../config")>();
@@ -48,7 +49,7 @@ describe("featureFlagReducer", () => {
         expect(mockStoreFeatureFlags).toHaveBeenCalledWith(["new-flag"]);
     });
 
-    test("does not duplciate feature flag if already present", () => {
+    test("does not duplicate feature flag if already present", () => {
         const result = featureFlagReducer(
             { featureFlags: ["new-flag"] },
             { type: FeatureFlagActionType.ADD, payload: "new-FLAG    " },
