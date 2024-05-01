@@ -40,19 +40,21 @@ import ca.uhn.hl7v2.model.Structure;
 import ca.uhn.hl7v2.model.v27.segment.DSC;
 import ca.uhn.hl7v2.model.v27.segment.MSH;
 import ca.uhn.hl7v2.model.v27.segment.SFT;
+import ca.uhn.hl7v2.model.v27.segment.UAC;
 import ca.uhn.hl7v2.parser.DefaultModelClassFactory;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
 import fhirengine.translation.hl7.structures.radxmars251.group.ORU_R01_PATIENT_RESULT;
 
 
 /**
- * <p>Represents a ORU_R01 message structure (see chapter ). This structure contains the
+ * <p>Represents a ORU_R01 message structure (see chapter 7.3.1). This structure contains the
  * following elements: </p>
  * <ul>
  * <li>1: MSH (Message Header) <b> </b> </li>
- * <li>2: SFT (Software Segment) <b> repeating</b> </li>
- * <li>3: ORU_R01_PATIENT_RESULT (PATIENT_RESULT) <b> repeating</b> </li>
- * <li>4: DSC (Continuation Pointer) <b>optional </b> </li>
+ * <li>2: SFT (Software Segment) <b>optional repeating</b> </li>
+ * <li>3: UAC (User Authentication Credential Segment) <b>optional </b> </li>
+ * <li>4: ORU_R01_PATIENT_RESULT (a Group object) <b> repeating</b> </li>
+ * <li>5: DSC (Continuation Pointer) <b>optional </b> </li>
  * </ul>
  */
 //@SuppressWarnings("unused")
@@ -76,7 +78,8 @@ public class ORU_R01 extends AbstractMessage {
   private void init(ModelClassFactory factory) {
     try {
       this.add(MSH.class, true, false);
-      this.add(SFT.class, true, true);
+      this.add(SFT.class, false, true);
+      this.add(UAC.class, false, false);
       this.add(ORU_R01_PATIENT_RESULT.class, true, true);
       this.add(DSC.class, false, false);
     } catch (HL7Exception e) {
@@ -86,10 +89,10 @@ public class ORU_R01 extends AbstractMessage {
 
 
   /**
-   * Returns "2.5.1"
+   * Returns "2.7"
    */
   public String getVersion() {
-    return "2.5.1";
+    return "2.7";
   }
 
 
@@ -191,8 +194,19 @@ public class ORU_R01 extends AbstractMessage {
   /**
    * <p>
    * Returns
+   * UAC (User Authentication Credential Segment) - creates it if necessary
+   * </p>
+   */
+  public UAC getUAC() {
+    return getTyped("UAC", UAC.class);
+  }
+
+
+  /**
+   * <p>
+   * Returns
    * the first repetition of
-   * PATIENT_RESULT (PATIENT_RESULT) - creates it if necessary
+   * PATIENT_RESULT (a Group object) - creates it if necessary
    * </p>
    */
   public ORU_R01_PATIENT_RESULT getPATIENT_RESULT() {
@@ -203,7 +217,7 @@ public class ORU_R01 extends AbstractMessage {
   /**
    * <p>
    * Returns a specific repetition of
-   * PATIENT_RESULT (PATIENT_RESULT) - creates it if necessary
+   * PATIENT_RESULT (a Group object) - creates it if necessary
    * </p>
    *
    * @param rep The repetition index (0-indexed, i.e. the first repetition is at index 0)
@@ -238,7 +252,7 @@ public class ORU_R01 extends AbstractMessage {
 
   /**
    * <p>
-   * Inserts a specific repetition of PATIENT_RESULT (PATIENT_RESULT)
+   * Inserts a specific repetition of PATIENT_RESULT (a Group object)
    * </p>
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
@@ -250,7 +264,7 @@ public class ORU_R01 extends AbstractMessage {
 
   /**
    * <p>
-   * Inserts a specific repetition of PATIENT_RESULT (PATIENT_RESULT)
+   * Inserts a specific repetition of PATIENT_RESULT (a Group object)
    * </p>
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
@@ -262,7 +276,7 @@ public class ORU_R01 extends AbstractMessage {
 
   /**
    * <p>
-   * Removes a specific repetition of PATIENT_RESULT (PATIENT_RESULT)
+   * Removes a specific repetition of PATIENT_RESULT (a Group object)
    * </p>
    *
    * @see AbstractGroup#removeRepetition(String, int)

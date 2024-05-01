@@ -23,7 +23,7 @@ ORC|RE||^MMTC.PROD^2.16.840.1.113883.3.8589.4.2.106.1^ISO||||||||||||||||||SA.OT
 OBR|1||^MMTC.PROD^2.16.840.1.113883.3.8589.4.2.106.1^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.71|||20240404120000-0400|||||||||||||||20240404120000-0400|||F
 OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.71||260415000^Not detected^SCT^^^^20200901||||||F||||00Z0000042||BinaxNOW COVID-19 Antigen Self Test_Abbott Diagnostics Scarborough, Inc._EUA^^99ELR^^^^Vunknown||20240404120000||||SA.OTCSelfReport^^^^^&2.16.840.1.113883.3.8589.4.1.152&ISO^XX^^^00Z0000042
 NTE|1||note
-OBX|2|NM|35659-2^Age at specimen collection^LN^^^^2.71||39|a^year^UCUM^^^^2.1|||||F||||00Z0000042||||||||SA.OTCSelfReport^^^^^&2.16.840.1.113883.3.8589.4.1.152&ISO^XX^^^00Z0000042||||||QST
+OBX|2|NM|35659-2^Age at specimen collection^LN^^^^2.71||39|a^year^UCUM^^^^2.1|||||F||||00Z0000042||||||||SA.OTCSelfReport^^^^^&2.16.840.1.113883.3.8589.4.1.152&ISO^XX^^^00Z0000042|4861&20TH AVE&1^Other Designation^THUNDER MOUNTAIN^IG^99999^USA^B^Other Geographic Designation^County^6059^A^^20220501102531-0400^20230501102531-0400^^^^^Adressee|1^BEETHOVEN&VAN&Medical Director&VAL&ROGER^LUDWIG^B^2ND^DR^MD^SRC^Namespace&AssigningSystem&UUID^B^A^NPI^DL^^A^NameContext^^G^20220501102531-0400^20230501102531-0400^MD^AssignJ^AssignA|Release|1^Cause^LN|1^Local^LN|QST
 SPM|1|^433848dc33ca4ce89ff4773fed48e8f6&MMTC.PROD&2.16.840.1.113883.3.8589.4.2.106.1&ISO||697989009^Anterior nares swab^SCT^^^^20200901|||||||||||||20240404120000-0400|20240404120000-0400    
     """.trimIndent()
         val messages: MutableList<Message> = mutableListOf()

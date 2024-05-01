@@ -38,17 +38,16 @@ import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Structure;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import ca.uhn.hl7v2.model.v27.segment.OBX;
 import ca.uhn.hl7v2.model.v27.segment.SPM;
 
 /**
- * <p>Represents a ORU_R01_SPECIMEN group structure (PATIENT_RESULT.ORDER_OBSERVATION.SPECIMEN).
+ * <p>Represents a ORU_R01_SPECIMEN group structure (a Group object).
  * A Group is an ordered collection of message segments that can repeat together or be optionally in/excluded together.
  * This Group contains the following elements:
  * </p>
  * <ul>
  * <li>1: SPM (Specimen) <b>  </b></li>
- * <li>2: OBX (Observation/Result) <b>optional repeating </b></li>
+ * <li>2: ORU_R01_SPECIMEN_OBSERVATION (a Group object) <b>optional repeating </b></li>
  * </ul>
  */
 //@SuppressWarnings("unused")
@@ -65,17 +64,17 @@ public class ORU_R01_SPECIMEN extends AbstractGroup {
   private void init(ModelClassFactory factory) {
     try {
       this.add(SPM.class, true, false, false);
-      this.add(OBX.class, false, true, false);
+      this.add(ORU_R01_SPECIMEN_OBSERVATION.class, false, true, false);
     } catch (HL7Exception e) {
       log.error("Unexpected error creating ORU_R01_SPECIMEN - this is probably a bug in the source code generator.", e);
     }
   }
 
   /**
-   * Returns "2.5.1"
+   * Returns "2.7"
    */
   public String getVersion() {
-    return "2.5.1";
+    return "2.7";
   }
 
 
@@ -92,74 +91,74 @@ public class ORU_R01_SPECIMEN extends AbstractGroup {
   /**
    * Returns
    * the first repetition of
-   * OBX (Observation/Result) - creates it if necessary
+   * SPECIMEN_OBSERVATION (a Group object) - creates it if necessary
    */
-  public OBX getOBX() {
-    OBX retVal = getTyped("OBX", OBX.class);
+  public ORU_R01_SPECIMEN_OBSERVATION getSPECIMEN_OBSERVATION() {
+    ORU_R01_SPECIMEN_OBSERVATION retVal = getTyped("SPECIMEN_OBSERVATION", ORU_R01_SPECIMEN_OBSERVATION.class);
     return retVal;
   }
 
 
   /**
    * Returns a specific repetition of
-   * OBX (Observation/Result) - creates it if necessary
+   * SPECIMEN_OBSERVATION (a Group object) - creates it if necessary
    *
    * @param rep The repetition index (0-indexed, i.e. the first repetition is at index 0)
    * @throws HL7Exception if the repetition requested is more than one
    *                      greater than the number of existing repetitions.
    */
-  public OBX getOBX(int rep) {
-    OBX retVal = getTyped("OBX", rep, OBX.class);
+  public ORU_R01_SPECIMEN_OBSERVATION getSPECIMEN_OBSERVATION(int rep) {
+    ORU_R01_SPECIMEN_OBSERVATION retVal = getTyped("SPECIMEN_OBSERVATION", rep, ORU_R01_SPECIMEN_OBSERVATION.class);
     return retVal;
   }
 
   /**
-   * Returns the number of existing repetitions of OBX
+   * Returns the number of existing repetitions of SPECIMEN_OBSERVATION
    */
-  public int getOBXReps() {
-    return getReps("OBX");
+  public int getSPECIMEN_OBSERVATIONReps() {
+    return getReps("SPECIMEN_OBSERVATION");
   }
 
   /**
    * <p>
-   * Returns a non-modifiable List containing all current existing repetitions of OBX.
+   * Returns a non-modifiable List containing all current existing repetitions of SPECIMEN_OBSERVATION.
    * <p>
    * <p>
-   * Note that unlike {@link #getOBX()}, this method will not create any reps
+   * Note that unlike {@link #getSPECIMEN_OBSERVATION()}, this method will not create any reps
    * if none are already present, so an empty list may be returned.
    * </p>
    */
-  public java.util.List<OBX> getOBXAll() throws HL7Exception {
-    return getAllAsList("OBX", OBX.class);
+  public java.util.List<ORU_R01_SPECIMEN_OBSERVATION> getSPECIMEN_OBSERVATIONAll() throws HL7Exception {
+    return getAllAsList("SPECIMEN_OBSERVATION", ORU_R01_SPECIMEN_OBSERVATION.class);
   }
 
   /**
-   * Inserts a specific repetition of OBX (Observation/Result)
+   * Inserts a specific repetition of SPECIMEN_OBSERVATION (a Group object)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
-  public void insertOBX(OBX structure, int rep) throws HL7Exception {
-    super.insertRepetition("OBX", structure, rep);
+  public void insertSPECIMEN_OBSERVATION(ORU_R01_SPECIMEN_OBSERVATION structure, int rep) throws HL7Exception {
+    super.insertRepetition("SPECIMEN_OBSERVATION", structure, rep);
   }
 
 
   /**
-   * Inserts a specific repetition of OBX (Observation/Result)
+   * Inserts a specific repetition of SPECIMEN_OBSERVATION (a Group object)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
-  public OBX insertOBX(int rep) throws HL7Exception {
-    return (OBX) super.insertRepetition("OBX", rep);
+  public ORU_R01_SPECIMEN_OBSERVATION insertSPECIMEN_OBSERVATION(int rep) throws HL7Exception {
+    return (ORU_R01_SPECIMEN_OBSERVATION) super.insertRepetition("SPECIMEN_OBSERVATION", rep);
   }
 
 
   /**
-   * Removes a specific repetition of OBX (Observation/Result)
+   * Removes a specific repetition of SPECIMEN_OBSERVATION (a Group object)
    *
    * @see AbstractGroup#removeRepetition(String, int)
    */
-  public OBX removeOBX(int rep) throws HL7Exception {
-    return (OBX) super.removeRepetition("OBX", rep);
+  public ORU_R01_SPECIMEN_OBSERVATION removeSPECIMEN_OBSERVATION(int rep) throws HL7Exception {
+    return (ORU_R01_SPECIMEN_OBSERVATION) super.removeRepetition("SPECIMEN_OBSERVATION", rep);
   }
 
 

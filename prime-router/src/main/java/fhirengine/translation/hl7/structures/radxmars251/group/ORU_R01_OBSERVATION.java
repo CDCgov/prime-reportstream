@@ -37,19 +37,21 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Structure;
-import ca.uhn.hl7v2.parser.ModelClassFactory;
 import ca.uhn.hl7v2.model.v27.segment.NTE;
+import ca.uhn.hl7v2.model.v27.segment.PRT;
+import ca.uhn.hl7v2.parser.ModelClassFactory;
 import fhirengine.translation.hl7.structures.radxmars251.segment.OBX;
 
 
 /**
- * <p>Represents a ORU_R01_OBSERVATION group structure (PATIENT_RESULT.ORDER_OBSERVATION.OBSERVATION).
+ * <p>Represents a ORU_R01_OBSERVATION group structure (a Group object).
  * A Group is an ordered collection of message segments that can repeat together or be optionally in/excluded together.
  * This Group contains the following elements:
  * </p>
  * <ul>
  * <li>1: OBX (Observation/Result) <b>  </b></li>
- * <li>2: NTE (Notes and Comments for OBX) <b>optional repeating </b></li>
+ * <li>2: PRT (Participation Information) <b>optional repeating </b></li>
+ * <li>3: NTE (Notes and Comments) <b>optional repeating </b></li>
  * </ul>
  */
 //@SuppressWarnings("unused")
@@ -66,6 +68,7 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
   private void init(ModelClassFactory factory) {
     try {
       this.add(OBX.class, true, false, false);
+      this.add(PRT.class, false, true, false);
       this.add(NTE.class, false, true, false);
     } catch (HL7Exception e) {
       log.error("Unexpected error creating ORU_R01_OBSERVATION - this is probably a bug in the source code generator.", e);
@@ -73,10 +76,10 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
   }
 
   /**
-   * Returns "2.5.1"
+   * Returns "2.7"
    */
   public String getVersion() {
-    return "2.5.1";
+    return "2.7";
   }
 
 
@@ -93,7 +96,81 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
   /**
    * Returns
    * the first repetition of
-   * NTE (Notes and Comments for OBX) - creates it if necessary
+   * PRT (Participation Information) - creates it if necessary
+   */
+  public PRT getPRT() {
+    PRT retVal = getTyped("PRT", PRT.class);
+    return retVal;
+  }
+
+
+  /**
+   * Returns a specific repetition of
+   * PRT (Participation Information) - creates it if necessary
+   *
+   * @param rep The repetition index (0-indexed, i.e. the first repetition is at index 0)
+   * @throws HL7Exception if the repetition requested is more than one
+   *                      greater than the number of existing repetitions.
+   */
+  public PRT getPRT(int rep) {
+    PRT retVal = getTyped("PRT", rep, PRT.class);
+    return retVal;
+  }
+
+  /**
+   * Returns the number of existing repetitions of PRT
+   */
+  public int getPRTReps() {
+    return getReps("PRT");
+  }
+
+  /**
+   * <p>
+   * Returns a non-modifiable List containing all current existing repetitions of PRT.
+   * <p>
+   * <p>
+   * Note that unlike {@link #getPRT()}, this method will not create any reps
+   * if none are already present, so an empty list may be returned.
+   * </p>
+   */
+  public java.util.List<PRT> getPRTAll() throws HL7Exception {
+    return getAllAsList("PRT", PRT.class);
+  }
+
+  /**
+   * Inserts a specific repetition of PRT (Participation Information)
+   *
+   * @see AbstractGroup#insertRepetition(Structure, int)
+   */
+  public void insertPRT(PRT structure, int rep) throws HL7Exception {
+    super.insertRepetition("PRT", structure, rep);
+  }
+
+
+  /**
+   * Inserts a specific repetition of PRT (Participation Information)
+   *
+   * @see AbstractGroup#insertRepetition(Structure, int)
+   */
+  public PRT insertPRT(int rep) throws HL7Exception {
+    return (PRT) super.insertRepetition("PRT", rep);
+  }
+
+
+  /**
+   * Removes a specific repetition of PRT (Participation Information)
+   *
+   * @see AbstractGroup#removeRepetition(String, int)
+   */
+  public PRT removePRT(int rep) throws HL7Exception {
+    return (PRT) super.removeRepetition("PRT", rep);
+  }
+
+
+  /**
+   * Returns
+   * the first repetition of
+   * NTE (Notes and Comments) - creates it if necessary
    */
   public NTE getNTE() {
     NTE retVal = getTyped("NTE", NTE.class);
@@ -103,7 +180,7 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
 
   /**
    * Returns a specific repetition of
-   * NTE (Notes and Comments for OBX) - creates it if necessary
+   * NTE (Notes and Comments) - creates it if necessary
    *
    * @param rep The repetition index (0-indexed, i.e. the first repetition is at index 0)
    * @throws HL7Exception if the repetition requested is more than one
@@ -135,7 +212,7 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
   }
 
   /**
-   * Inserts a specific repetition of NTE (Notes and Comments for OBX)
+   * Inserts a specific repetition of NTE (Notes and Comments)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
@@ -145,7 +222,7 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
 
 
   /**
-   * Inserts a specific repetition of NTE (Notes and Comments for OBX)
+   * Inserts a specific repetition of NTE (Notes and Comments)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
@@ -155,7 +232,7 @@ public class ORU_R01_OBSERVATION extends AbstractGroup {
 
 
   /**
-   * Removes a specific repetition of NTE (Notes and Comments for OBX)
+   * Removes a specific repetition of NTE (Notes and Comments)
    *
    * @see AbstractGroup#removeRepetition(String, int)
    */

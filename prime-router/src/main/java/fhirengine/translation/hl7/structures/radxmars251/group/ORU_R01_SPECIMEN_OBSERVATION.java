@@ -33,57 +33,57 @@
 
 package fhirengine.translation.hl7.structures.radxmars251.group;
 
+import ca.uhn.hl7v2.model.v27.segment.*;
+
 import ca.uhn.hl7v2.HL7Exception;
-import ca.uhn.hl7v2.model.AbstractGroup;
-import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import ca.uhn.hl7v2.model.v27.segment.TQ1;
-import ca.uhn.hl7v2.model.v27.segment.TQ2;
+import ca.uhn.hl7v2.model.*;
+import fhirengine.translation.hl7.structures.radxmars251.segment.OBX;
 
 /**
- * <p>Represents a ORU_R01_TIMING_QTY group structure (PATIENT_RESULT.ORDER_OBSERVATION.TIMING_QTY).
+ * <p>Represents a ORU_R01_SPECIMEN_OBSERVATION group structure (a Group object).
  * A Group is an ordered collection of message segments that can repeat together or be optionally in/excluded together.
  * This Group contains the following elements:
  * </p>
  * <ul>
- * <li>1: TQ1 (Timing/Quantity) <b>  </b></li>
- * <li>2: TQ2 (Timing/Quantity Relationship) <b>optional repeating </b></li>
+ * <li>1: OBX (Observation/Result) <b>  </b></li>
+ * <li>2: PRT (Participation Information) <b>optional repeating </b></li>
  * </ul>
  */
 //@SuppressWarnings("unused")
-public class ORU_R01_TIMING_QTY extends AbstractGroup {
+public class ORU_R01_SPECIMEN_OBSERVATION extends AbstractGroup {
 
   /**
-   * Creates a new ORU_R01_TIMING_QTY group
+   * Creates a new ORU_R01_SPECIMEN_OBSERVATION group
    */
-  public ORU_R01_TIMING_QTY(Group parent, ModelClassFactory factory) {
+  public ORU_R01_SPECIMEN_OBSERVATION(Group parent, ModelClassFactory factory) {
     super(parent, factory);
     init(factory);
   }
 
   private void init(ModelClassFactory factory) {
     try {
-      this.add(TQ1.class, true, false, false);
-      this.add(TQ2.class, false, true, false);
+      this.add(OBX.class, true, false, false);
+      this.add(PRT.class, false, true, false);
     } catch (HL7Exception e) {
-      log.error("Unexpected error creating ORU_R01_TIMING_QTY - this is probably a bug in the source code generator.", e);
+      log.error("Unexpected error creating ORU_R01_SPECIMEN_OBSERVATION - this is probably a bug in the source code generator.", e);
     }
   }
 
   /**
-   * Returns "2.5.1"
+   * Returns "2.7"
    */
   public String getVersion() {
-    return "2.5.1";
+    return "2.7";
   }
 
 
   /**
    * Returns
-   * TQ1 (Timing/Quantity) - creates it if necessary
+   * OBX (Observation/Result) - creates it if necessary
    */
-  public TQ1 getTQ1() {
-    TQ1 retVal = getTyped("TQ1", TQ1.class);
+  public OBX getOBX() {
+    OBX retVal = getTyped("OBX", OBX.class);
     return retVal;
   }
 
@@ -91,74 +91,74 @@ public class ORU_R01_TIMING_QTY extends AbstractGroup {
   /**
    * Returns
    * the first repetition of
-   * TQ2 (Timing/Quantity Relationship) - creates it if necessary
+   * PRT (Participation Information) - creates it if necessary
    */
-  public TQ2 getTQ2() {
-    TQ2 retVal = getTyped("TQ2", TQ2.class);
+  public PRT getPRT() {
+    PRT retVal = getTyped("PRT", PRT.class);
     return retVal;
   }
 
 
   /**
    * Returns a specific repetition of
-   * TQ2 (Timing/Quantity Relationship) - creates it if necessary
+   * PRT (Participation Information) - creates it if necessary
    *
    * @param rep The repetition index (0-indexed, i.e. the first repetition is at index 0)
    * @throws HL7Exception if the repetition requested is more than one
    *                      greater than the number of existing repetitions.
    */
-  public TQ2 getTQ2(int rep) {
-    TQ2 retVal = getTyped("TQ2", rep, TQ2.class);
+  public PRT getPRT(int rep) {
+    PRT retVal = getTyped("PRT", rep, PRT.class);
     return retVal;
   }
 
   /**
-   * Returns the number of existing repetitions of TQ2
+   * Returns the number of existing repetitions of PRT
    */
-  public int getTQ2Reps() {
-    return getReps("TQ2");
+  public int getPRTReps() {
+    return getReps("PRT");
   }
 
   /**
    * <p>
-   * Returns a non-modifiable List containing all current existing repetitions of TQ2.
+   * Returns a non-modifiable List containing all current existing repetitions of PRT.
    * <p>
    * <p>
-   * Note that unlike {@link #getTQ2()}, this method will not create any reps
+   * Note that unlike {@link #getPRT()}, this method will not create any reps
    * if none are already present, so an empty list may be returned.
    * </p>
    */
-  public java.util.List<TQ2> getTQ2All() throws HL7Exception {
-    return getAllAsList("TQ2", TQ2.class);
+  public java.util.List<PRT> getPRTAll() throws HL7Exception {
+    return getAllAsList("PRT", PRT.class);
   }
 
   /**
-   * Inserts a specific repetition of TQ2 (Timing/Quantity Relationship)
+   * Inserts a specific repetition of PRT (Participation Information)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
-  public void insertTQ2(TQ2 structure, int rep) throws HL7Exception {
-    super.insertRepetition("TQ2", structure, rep);
+  public void insertPRT(PRT structure, int rep) throws HL7Exception {
+    super.insertRepetition("PRT", structure, rep);
   }
 
 
   /**
-   * Inserts a specific repetition of TQ2 (Timing/Quantity Relationship)
+   * Inserts a specific repetition of PRT (Participation Information)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
-  public TQ2 insertTQ2(int rep) throws HL7Exception {
-    return (TQ2) super.insertRepetition("TQ2", rep);
+  public PRT insertPRT(int rep) throws HL7Exception {
+    return (PRT) super.insertRepetition("PRT", rep);
   }
 
 
   /**
-   * Removes a specific repetition of TQ2 (Timing/Quantity Relationship)
+   * Removes a specific repetition of PRT (Participation Information)
    *
    * @see AbstractGroup#removeRepetition(String, int)
    */
-  public TQ2 removeTQ2(int rep) throws HL7Exception {
-    return (TQ2) super.removeRepetition("TQ2", rep);
+  public PRT removePRT(int rep) throws HL7Exception {
+    return (PRT) super.removeRepetition("PRT", rep);
   }
 
 

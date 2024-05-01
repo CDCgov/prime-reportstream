@@ -37,16 +37,17 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Structure;
+import ca.uhn.hl7v2.model.v27.group.ORU_R01_PATIENT;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
 
 /**
- * <p>Represents a ORU_R01_PATIENT_RESULT group structure (PATIENT_RESULT).
+ * <p>Represents a ORU_R01_PATIENT_RESULT group structure (a Group object).
  * A Group is an ordered collection of message segments that can repeat together or be optionally in/excluded together.
  * This Group contains the following elements:
  * </p>
  * <ul>
- * <li>1: ORU_R01_PATIENT (PATIENT_RESULT.PATIENT) <b>  </b></li>
- * <li>2: ORU_R01_ORDER_OBSERVATION (PATIENT_RESULT.ORDER_OBSERVATION) <b> repeating </b></li>
+ * <li>1: ORU_R01_PATIENT (a Group object) <b>optional  </b></li>
+ * <li>2: ORU_R01_ORDER_OBSERVATION (a Group object) <b> repeating </b></li>
  * </ul>
  */
 //@SuppressWarnings("unused")
@@ -62,7 +63,7 @@ public class ORU_R01_PATIENT_RESULT extends AbstractGroup {
 
   private void init(ModelClassFactory factory) {
     try {
-      this.add(ORU_R01_PATIENT.class, true, false, false);
+      this.add(ORU_R01_PATIENT.class, false, false, false);
       this.add(ORU_R01_ORDER_OBSERVATION.class, true, true, false);
     } catch (HL7Exception e) {
       log.error("Unexpected error creating ORU_R01_PATIENT_RESULT - this is probably a bug in the source code generator.", e);
@@ -70,10 +71,10 @@ public class ORU_R01_PATIENT_RESULT extends AbstractGroup {
   }
 
   /**
-   * Returns "2.5.1"
+   * Returns "2.7"
    */
   public String getVersion() {
-    return "2.5.1";
+    return "2.7";
   }
 
 

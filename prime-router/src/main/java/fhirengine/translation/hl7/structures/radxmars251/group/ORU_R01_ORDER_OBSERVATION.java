@@ -37,29 +37,26 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Structure;
-import ca.uhn.hl7v2.model.v27.segment.CTD;
-import ca.uhn.hl7v2.model.v27.segment.CTI;
-import ca.uhn.hl7v2.model.v27.segment.FT1;
-import ca.uhn.hl7v2.model.v27.segment.NTE;
-import ca.uhn.hl7v2.model.v27.segment.OBR;
-import ca.uhn.hl7v2.model.v27.segment.ORC;
+import ca.uhn.hl7v2.model.v27.group.ORU_R01_TIMING_QTY;
+import ca.uhn.hl7v2.model.v27.segment.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
 
 /**
- * <p>Represents a ORU_R01_ORDER_OBSERVATION group structure (PATIENT_RESULT.ORDER_OBSERVATION).
+ * <p>Represents a ORU_R01_ORDER_OBSERVATION group structure (a Group object).
  * A Group is an ordered collection of message segments that can repeat together or be optionally in/excluded together.
  * This Group contains the following elements:
  * </p>
  * <ul>
- * <li>1: ORC (Common Order) <b>  </b></li>
+ * <li>1: ORC (Common Order) <b>optional  </b></li>
  * <li>2: OBR (Observation Request) <b>  </b></li>
- * <li>3: NTE (Notes and Comments for OBR) <b>optional repeating </b></li>
- * <li>4: ORU_R01_TIMING_QTY (PATIENT_RESULT.ORDER_OBSERVATION.TIMING_QTY) <b>optional repeating </b></li>
- * <li>5: CTD (Contact Data) <b>optional  </b></li>
- * <li>6: ORU_R01_OBSERVATION (PATIENT_RESULT.ORDER_OBSERVATION.OBSERVATION) <b> repeating </b></li>
- * <li>7: FT1 (Financial Transaction) <b>optional repeating </b></li>
- * <li>8: CTI (Clinical Trial Identification) <b>optional repeating </b></li>
- * <li>9: ORU_R01_SPECIMEN (PATIENT_RESULT.ORDER_OBSERVATION.SPECIMEN) <b>  </b></li>
+ * <li>3: NTE (Notes and Comments) <b>optional repeating </b></li>
+ * <li>4: PRT (Participation Information) <b>optional repeating </b></li>
+ * <li>5: ORU_R01_TIMING_QTY (a Group object) <b>optional repeating </b></li>
+ * <li>6: CTD (Contact Data) <b>optional  </b></li>
+ * <li>7: ORU_R01_OBSERVATION (a Group object) <b>optional repeating </b></li>
+ * <li>8: FT1 (Financial Transaction) <b>optional repeating </b></li>
+ * <li>9: CTI (Clinical Trial Identification) <b>optional repeating </b></li>
+ * <li>10: ORU_R01_SPECIMEN (a Group object) <b>optional repeating </b></li>
  * </ul>
  */
 //@SuppressWarnings("unused")
@@ -75,25 +72,26 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
 
   private void init(ModelClassFactory factory) {
     try {
-      this.add(ORC.class, true, false, false);
+      this.add(ORC.class, false, false, false);
       this.add(OBR.class, true, false, false);
       this.add(NTE.class, false, true, false);
+      this.add(PRT.class, false, true, false);
       this.add(ORU_R01_TIMING_QTY.class, false, true, false);
       this.add(CTD.class, false, false, false);
-      this.add(ORU_R01_OBSERVATION.class, true, true, false);
+      this.add(ORU_R01_OBSERVATION.class, false, true, false);
       this.add(FT1.class, false, true, false);
       this.add(CTI.class, false, true, false);
-      this.add(ORU_R01_SPECIMEN.class, true, true, false);
+      this.add(ORU_R01_SPECIMEN.class, false, true, false);
     } catch (HL7Exception e) {
       log.error("Unexpected error creating ORU_R01_ORDER_OBSERVATION - this is probably a bug in the source code generator.", e);
     }
   }
 
   /**
-   * Returns "2.5.1"
+   * Returns "2.7"
    */
   public String getVersion() {
-    return "2.5.1";
+    return "2.7";
   }
 
 
@@ -120,7 +118,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
   /**
    * Returns
    * the first repetition of
-   * NTE (Notes and Comments for OBR) - creates it if necessary
+   * NTE (Notes and Comments) - creates it if necessary
    */
   public NTE getNTE() {
     NTE retVal = getTyped("NTE", NTE.class);
@@ -130,7 +128,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
 
   /**
    * Returns a specific repetition of
-   * NTE (Notes and Comments for OBR) - creates it if necessary
+   * NTE (Notes and Comments) - creates it if necessary
    *
    * @param rep The repetition index (0-indexed, i.e. the first repetition is at index 0)
    * @throws HL7Exception if the repetition requested is more than one
@@ -162,7 +160,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
   }
 
   /**
-   * Inserts a specific repetition of NTE (Notes and Comments for OBR)
+   * Inserts a specific repetition of NTE (Notes and Comments)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
@@ -172,7 +170,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
 
 
   /**
-   * Inserts a specific repetition of NTE (Notes and Comments for OBR)
+   * Inserts a specific repetition of NTE (Notes and Comments)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
@@ -182,7 +180,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
 
 
   /**
-   * Removes a specific repetition of NTE (Notes and Comments for OBR)
+   * Removes a specific repetition of NTE (Notes and Comments)
    *
    * @see AbstractGroup#removeRepetition(String, int)
    */
@@ -194,7 +192,81 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
   /**
    * Returns
    * the first repetition of
-   * TIMING_QTY (PATIENT_RESULT.ORDER_OBSERVATION.TIMING_QTY) - creates it if necessary
+   * PRT (Participation Information) - creates it if necessary
+   */
+  public PRT getPRT() {
+    PRT retVal = getTyped("PRT", PRT.class);
+    return retVal;
+  }
+
+
+  /**
+   * Returns a specific repetition of
+   * PRT (Participation Information) - creates it if necessary
+   *
+   * @param rep The repetition index (0-indexed, i.e. the first repetition is at index 0)
+   * @throws HL7Exception if the repetition requested is more than one
+   *                      greater than the number of existing repetitions.
+   */
+  public PRT getPRT(int rep) {
+    PRT retVal = getTyped("PRT", rep, PRT.class);
+    return retVal;
+  }
+
+  /**
+   * Returns the number of existing repetitions of PRT
+   */
+  public int getPRTReps() {
+    return getReps("PRT");
+  }
+
+  /**
+   * <p>
+   * Returns a non-modifiable List containing all current existing repetitions of PRT.
+   * <p>
+   * <p>
+   * Note that unlike {@link #getPRT()}, this method will not create any reps
+   * if none are already present, so an empty list may be returned.
+   * </p>
+   */
+  public java.util.List<PRT> getPRTAll() throws HL7Exception {
+    return getAllAsList("PRT", PRT.class);
+  }
+
+  /**
+   * Inserts a specific repetition of PRT (Participation Information)
+   *
+   * @see AbstractGroup#insertRepetition(Structure, int)
+   */
+  public void insertPRT(PRT structure, int rep) throws HL7Exception {
+    super.insertRepetition("PRT", structure, rep);
+  }
+
+
+  /**
+   * Inserts a specific repetition of PRT (Participation Information)
+   *
+   * @see AbstractGroup#insertRepetition(Structure, int)
+   */
+  public PRT insertPRT(int rep) throws HL7Exception {
+    return (PRT) super.insertRepetition("PRT", rep);
+  }
+
+
+  /**
+   * Removes a specific repetition of PRT (Participation Information)
+   *
+   * @see AbstractGroup#removeRepetition(String, int)
+   */
+  public PRT removePRT(int rep) throws HL7Exception {
+    return (PRT) super.removeRepetition("PRT", rep);
+  }
+
+
+  /**
+   * Returns
+   * the first repetition of
+   * TIMING_QTY (a Group object) - creates it if necessary
    */
   public ORU_R01_TIMING_QTY getTIMING_QTY() {
     ORU_R01_TIMING_QTY retVal = getTyped("TIMING_QTY", ORU_R01_TIMING_QTY.class);
@@ -204,7 +276,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
 
   /**
    * Returns a specific repetition of
-   * TIMING_QTY (PATIENT_RESULT.ORDER_OBSERVATION.TIMING_QTY) - creates it if necessary
+   * TIMING_QTY (a Group object) - creates it if necessary
    *
    * @param rep The repetition index (0-indexed, i.e. the first repetition is at index 0)
    * @throws HL7Exception if the repetition requested is more than one
@@ -236,7 +308,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
   }
 
   /**
-   * Inserts a specific repetition of TIMING_QTY (PATIENT_RESULT.ORDER_OBSERVATION.TIMING_QTY)
+   * Inserts a specific repetition of TIMING_QTY (a Group object)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
@@ -246,7 +318,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
 
 
   /**
-   * Inserts a specific repetition of TIMING_QTY (PATIENT_RESULT.ORDER_OBSERVATION.TIMING_QTY)
+   * Inserts a specific repetition of TIMING_QTY (a Group object)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
@@ -256,7 +328,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
 
 
   /**
-   * Removes a specific repetition of TIMING_QTY (PATIENT_RESULT.ORDER_OBSERVATION.TIMING_QTY)
+   * Removes a specific repetition of TIMING_QTY (a Group object)
    *
    * @see AbstractGroup#removeRepetition(String, int)
    */
@@ -278,7 +350,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
   /**
    * Returns
    * the first repetition of
-   * OBSERVATION (PATIENT_RESULT.ORDER_OBSERVATION.OBSERVATION) - creates it if necessary
+   * OBSERVATION (a Group object) - creates it if necessary
    */
   public ORU_R01_OBSERVATION getOBSERVATION() {
     ORU_R01_OBSERVATION retVal = getTyped("OBSERVATION", ORU_R01_OBSERVATION.class);
@@ -288,7 +360,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
 
   /**
    * Returns a specific repetition of
-   * OBSERVATION (PATIENT_RESULT.ORDER_OBSERVATION.OBSERVATION) - creates it if necessary
+   * OBSERVATION (a Group object) - creates it if necessary
    *
    * @param rep The repetition index (0-indexed, i.e. the first repetition is at index 0)
    * @throws HL7Exception if the repetition requested is more than one
@@ -320,7 +392,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
   }
 
   /**
-   * Inserts a specific repetition of OBSERVATION (PATIENT_RESULT.ORDER_OBSERVATION.OBSERVATION)
+   * Inserts a specific repetition of OBSERVATION (a Group object)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
@@ -330,7 +402,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
 
 
   /**
-   * Inserts a specific repetition of OBSERVATION (PATIENT_RESULT.ORDER_OBSERVATION.OBSERVATION)
+   * Inserts a specific repetition of OBSERVATION (a Group object)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
@@ -340,7 +412,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
 
 
   /**
-   * Removes a specific repetition of OBSERVATION (PATIENT_RESULT.ORDER_OBSERVATION.OBSERVATION)
+   * Removes a specific repetition of OBSERVATION (a Group object)
    *
    * @see AbstractGroup#removeRepetition(String, int)
    */
@@ -500,7 +572,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
   /**
    * Returns
    * the first repetition of
-   * SPECIMEN (PATIENT_RESULT.ORDER_OBSERVATION.SPECIMEN) - creates it if necessary
+   * SPECIMEN (a Group object) - creates it if necessary
    */
   public ORU_R01_SPECIMEN getSPECIMEN() {
     ORU_R01_SPECIMEN retVal = getTyped("SPECIMEN", ORU_R01_SPECIMEN.class);
@@ -510,7 +582,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
 
   /**
    * Returns a specific repetition of
-   * SPECIMEN (PATIENT_RESULT.ORDER_OBSERVATION.SPECIMEN) - creates it if necessary
+   * SPECIMEN (a Group object) - creates it if necessary
    *
    * @param rep The repetition index (0-indexed, i.e. the first repetition is at index 0)
    * @throws HL7Exception if the repetition requested is more than one
@@ -522,7 +594,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
   }
 
   /**
-   * Returns the number of existing repetitions of ORU_R01_SPECIMEN
+   * Returns the number of existing repetitions of SPECIMEN
    */
   public int getSPECIMENReps() {
     return getReps("SPECIMEN");
@@ -530,7 +602,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
 
   /**
    * <p>
-   * Returns a non-modifiable List containing all current existing repetitions of ORU_R01_SPECIMEN.
+   * Returns a non-modifiable List containing all current existing repetitions of SPECIMEN.
    * <p>
    * <p>
    * Note that unlike {@link #getSPECIMEN()}, this method will not create any reps
@@ -542,7 +614,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
   }
 
   /**
-   * Inserts a specific repetition of SPECIMEN (PATIENT_RESULT.ORDER_OBSERVATION.SPECIMEN)
+   * Inserts a specific repetition of SPECIMEN (a Group object)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
@@ -552,7 +624,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
 
 
   /**
-   * Inserts a specific repetition of SPECIMEN (PATIENT_RESULT.ORDER_OBSERVATION.SPECIMEN)
+   * Inserts a specific repetition of SPECIMEN (a Group object)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
@@ -562,7 +634,7 @@ public class ORU_R01_ORDER_OBSERVATION extends AbstractGroup {
 
 
   /**
-   * Removes a specific repetition of SPECIMEN (PATIENT_RESULT.ORDER_OBSERVATION.SPECIMEN)
+   * Removes a specific repetition of SPECIMEN (a Group object)
    *
    * @see AbstractGroup#removeRepetition(String, int)
    */
