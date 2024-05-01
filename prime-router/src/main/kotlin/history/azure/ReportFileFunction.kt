@@ -20,7 +20,7 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
@@ -228,14 +228,10 @@ abstract class ReportFileFunction(
         val restTransportInfo = receiver?.transport as RESTTransportType
         val (credential, jksCredential) = RESTTransport().getCredential(restTransportInfo, receiver)
         val logger: Logger = context.logger
-        var authPair: Pair<Map<String, String>?, String?> =
-            Pair(null, null)
 
-        var responseBody = ""
-
-         val authPair = runBlocking {
+        val authPair = runBlocking {
             async {
-                authPair = RESTTransport().getOAuthToken(
+                RESTTransport().getOAuthToken(
                     restTransportInfo,
                     reportId.toString(),
                     jksCredential,
@@ -244,23 +240,12 @@ abstract class ReportFileFunction(
                 )
             }.await()
         }
-            launch {
-                authPair = RESTTransport().getOAuthToken(
-                    restTransportInfo,
-                    reportId.toString(),
-                    jksCredential,
-                    credential,
-                    logger
-                )
-            }
-        }
 
         val lookupId = this.getLookupId(reportId)
             ?: return HttpUtilities.notFoundResponse(request, "lookup Id not found")
 
-        var status: HttpStatusCode = HttpStatusCode.NotFound
-        runBlocking {
-            launch {
+        val (status, responseBody) = runBlocking {
+            async {
                 response = client.get("${System.getenv("ETOR_TI_baseurl")}/v1/etor/metadata/" + lookupId) {
                     authPair.first.forEach { entry ->
                         headers.append(entry.key, entry.value)
@@ -268,9 +253,9 @@ abstract class ReportFileFunction(
 
                     headers.append(HttpHeaders.Authorization, "Bearer " + authPair.second!!)
                 }
-                responseBody = response!!.body()
-                status = response!!.status
-            }
+
+                Pair<HttpStatusCode, String>(response!!.status, response!!.body())
+            }.await()
         }
 
         if (status == HttpStatusCode.NotFound) {
