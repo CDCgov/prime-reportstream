@@ -3,6 +3,7 @@ package gov.cdc.prime.router.history.azure
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
+import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.azure.HttpUtilities
@@ -215,7 +216,16 @@ abstract class ReportFileFunction(
         reportId: UUID,
         context: ExecutionContext,
         engine: HttpClientEngine?,
+        etorTiBaseUrl: String? = System.getenv("ETOR_TI_baseurl"),
     ): HttpResponseMessage {
+        if (etorTiBaseUrl == null) {
+            return HttpUtilities.httpResponse(
+                request,
+                "Environment variable ETOR_TI_baseurl is not set. Set this variable and run the TI service.",
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
+        }
+
         val authResult = this.authSingleBlocks(request, reportId.toString())
 
         if (authResult != null) {
@@ -246,7 +256,7 @@ abstract class ReportFileFunction(
 
         val (status, responseBody) = runBlocking {
             async {
-                response = client.get("${System.getenv("ETOR_TI_baseurl")}/v1/etor/metadata/" + lookupId) {
+                response = client.get("$etorTiBaseUrl/v1/etor/metadata/" + lookupId) {
                     authPair.first.forEach { entry ->
                         headers.append(entry.key, entry.value)
                     }

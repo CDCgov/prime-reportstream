@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.history.azure
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -743,7 +744,7 @@ class DeliveryFunctionTests : Logging {
         every { customContext.logger } returns mockk<Logger>()
 
         val response = function.retrieveETORIntermediaryMetadata(
-            mockRequest, goodUuid, customContext, mock
+            mockRequest, goodUuid, customContext, mock, "etor_base_url"
         )
 
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -764,11 +765,28 @@ class DeliveryFunctionTests : Logging {
         every { customContext.logger } returns mockk<Logger>()
 
         val response = function.retrieveETORIntermediaryMetadata(
-            mockRequest, UUID.fromString(badUuid), customContext, null
+            mockRequest, UUID.fromString(badUuid), customContext, null, "etor_base_url"
         )
 
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
         assertThat(response.body.toString()).isEqualTo("{\"error\": \"Authentication Failed\"}")
+    }
+
+    @Test
+    fun `test getEtorMetadata returns 500 when the ETOR TI base URL is not set`() {
+        val mockRequest = MockHttpRequestMessage()
+        val mockDeliveryFacade = mockk<DeliveryFacade>()
+        val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade)
+
+        val customContext = mockk<ExecutionContext>()
+        every { customContext.logger } returns mockk<Logger>()
+
+        val response = function.retrieveETORIntermediaryMetadata(
+            mockRequest, UUID.randomUUID(), customContext, null, null
+        )
+
+        assertThat(response.status).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+        assertThat(response.body.toString()).contains("ETOR_TI_baseurl")
     }
 
     @Test
@@ -818,7 +836,7 @@ class DeliveryFunctionTests : Logging {
         every { customContext.logger } returns mockk<Logger>()
 
         val response = function.retrieveETORIntermediaryMetadata(
-            mockRequest, UUID.fromString(badUuid), customContext, null
+            mockRequest, UUID.fromString(badUuid), customContext, null, "etor_base_url"
         )
 
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
