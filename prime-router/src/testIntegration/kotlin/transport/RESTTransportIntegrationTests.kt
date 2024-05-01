@@ -15,9 +15,6 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserAssertionCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.security.Keys
 import io.ktor.client.HttpClient
 import io.ktor.client.call.HttpClientCall
 import io.ktor.client.engine.mock.MockEngine
@@ -46,9 +43,7 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.assertDoesNotThrow
 import java.time.format.DateTimeFormatter
-import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
@@ -595,6 +590,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         authHeaders = mapOf(
             "ExpectSuccess" to "true",
             "Content-Type" to "application/json",
+            "Content-Length" to "108",
             "Subscription" to "23edf66e1fe14685bb9dfa2cbb14eb3b",
             "Host" to "api.neometrics.com",
             "Authorization-Type" to "username/password"
@@ -701,26 +697,97 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         assertThat(retryItems).isNull()
     }
 
-    // at some point "Authorization: " was being prepended so this test makes sure that doesn't happen again
-    @Test
-    fun `test getting auth token with UserPassCredential returns valid token`() {
-        val key = Keys.secretKeyFor(SignatureAlgorithm.HS256)
-        val token = Jwts.builder()
-            .setSubject("subject")
-            .signWith(key, SignatureAlgorithm.HS256)
-            .compact()
-        val mockClient = mockJsonResponseWithSuccess(token)
-        val mockRestTransport = RESTTransport(mockClient)
-        val credential = UserPassCredential("user", "pass")
-        val logger = Logger.getLogger(this.toString())
+    // ========== Localhost testing =====
+    private fun makeNatusHeader(): WorkflowEngine.Header {
+        val content = """
+MSH|^~\&|CDC Trusted Intermediary^https://reportstream.cdc.gov/||||20230331131841-0500||OML^O21^OML_O21|7cd2c933-cfe6-4249-8e9d-b4b9fa0a9142|P|2.5.1|||||USA|UNICODE UTF-8
+PID|1||S99955754^^^^MR||Solo^Jaina^^^^^L||20170515111100-0500|F||^Asian^HL70005|||||||||||||||1
+NK1|1|Organa^Leia^^^^^L|N^^http://terminology.hl7.org/CodeSystem/v2-0131||^^PH^^31^201^234567^^^^^+31201234567
+ORC|NW||||IP||||20230331131841-0500
+OBR||||54089-8^Newborn Screening Panel^LN
+MSH|^~\&|CDC Trusted Intermediary^https://reportstream.cdc.gov/||||20230331131910-0500||OML^O21^OML_O21|ed80a9db-2fba-4fb3-a117-300e0f7f55d8|P|2.5.1|||||USA|UNICODE UTF-8
+PID|1||S99955754^^^^MR||Solo^Jaina^^^^^L||20170515111100-0500|F||^Asian^HL70005|||||||||||||||1
+NK1|1|Organa^Leia^^^^^L|N^^http://terminology.hl7.org/CodeSystem/v2-0131||^^PH^^31^201^234567^^^^^+31201234567
+ORC|NW||||IP||||20230331131910-0500
+OBR||||54089-8^Newborn Screening Panel^LN
+"""
+        return WorkflowEngine.Header(
+            task,
+            reportFile,
+            null,
+            settings.findOrganization("la-phl"),
+            settings.findReceiver("la-phl.etor-nbs-orders"),
+            metadata.findSchema("metadata/hl7_mapping/receivers/Flexion/TILabOrder"),
+            content = content.toByteArray(),
+            true
+        )
+    }
 
-        runBlocking {
-            mockRestTransport.getAuthTokenWithUserPass(transportType, credential, logger, mockClient).also {
-                val parser = Jwts.parserBuilder().setSigningKey(key).build()
-                assertDoesNotThrow {
-                    parser.parse(it.accessToken) // will throw errors if not a valid signed jwt
-                }
-            }
-        }
+    @Test
+    fun `test LA PHL with localhost Natus`() {
+        val header = makeNatusHeader()
+        val mockRestTransport = spyk(RESTTransport())
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            // Return the credential for NBS
+            UserPassCredential("CDC", "qyrOlIweWPzGUT0BbaDm3sPFTxtM1gf7L7Xo2TsUHvI0J0Z8Umqw7paOI3bYJcOe")
+        )
+
+        val retryItems = mockRestTransport.send(
+            natusRestTransportTypeLive, header, reportId, null,
+            context, actionHistory
+        )
+        assertThat(retryItems).isNull()
+    }
+
+    private val okRestTransportTypeLive = RESTTransportType(
+        "http://localhost:3001/report",
+        "http://localhost:3001/token",
+        authHeaders = mapOf(
+            "ExpectSuccess" to "true",
+            "Content-Type" to "application/json",
+            "Authorization-Type" to "email/password"
+        ),
+        headers = mapOf(
+            "RecordId" to "header.reportFile.reportId",
+            "Content-Length" to "<calculated when request is sent>",
+            "Content-Type" to "text/plain",
+            "BearerToken" to "",
+        )
+    )
+
+    private fun makeOKHeader(): WorkflowEngine.Header {
+        val content = """
+MSH|^~\&|CDC Trusted Intermediary^https://reportstream.cdc.gov/||||20230331131841-0500||OML
+PID|1||S99955754^^^^MR||Solo^Jaina^^^^^L||20170515111100-0500|F||^Asian^HL70005|||||||||||||||1
+ORC|NW||||IP||||20230331131841-0500
+OBR||||54089-8^Newborn Screening Panel^LN
+"""
+        return WorkflowEngine.Header(
+            task,
+            reportFile,
+            null,
+            settings.findOrganization("ok-phd"),
+            settings.findReceiver("ok-phd.elr"),
+            metadata.findSchema("metadata/hl7_mapping/receivers/Flexion/TILabOrder"),
+            content = content.toByteArray(),
+            true
+        )
+    }
+
+    @Test
+    fun `test with localhost OK PHD`() {
+        val header = makeOKHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserPassCredential("mock-user", "mock-pass")
+        )
+        every { runBlocking { mockRestTransport.getAuthTokenWithUserPass(any(), any(), any(), any()) } }.returns(
+            TokenInfo(accessToken = "MockToken", tokenType = "bearer")
+        )
+        val retryItems = mockRestTransport.send(
+            okRestTransportTypeLive, header, reportId, null,
+            context, actionHistory
+        )
+        assertThat(retryItems).isNull()
     }
 }
