@@ -3,7 +3,6 @@ package fhirengine.engine
 import ca.uhn.hl7v2.model.Message
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
-import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.hl7.fhir.r4.model.Bundle
 
 interface IProcessedItem<ParsedType> {
@@ -68,7 +67,6 @@ data class ProcessedHL7Item(
     override val parseError: FHIRConverter.InvalidItemActionLogDetail? = null,
     override val validationError: FHIRConverter.InvalidItemActionLogDetail? = null,
     val conversionError: FHIRConverter.InvalidItemActionLogDetail? = null,
-    val parseConfiguration: HL7Reader.Companion.HL7MessageParseAndConvertConfiguration? = null,
     override val bundle: Bundle? = null,
 ) : IProcessedItem<Message> {
     override fun updateParsed(error: FHIRConverter.InvalidItemActionLogDetail): ProcessedHL7Item {
@@ -91,12 +89,6 @@ data class ProcessedHL7Item(
             return this.copy(bundle = bundle)
         }
         throw RuntimeException("Bundle should not be set if the item was not parseable or valid")
-    }
-
-    fun setParseConfiguration(
-        parseConfiguration: HL7Reader.Companion.HL7MessageParseAndConvertConfiguration?,
-    ): ProcessedHL7Item {
-        return this.copy(parseConfiguration = parseConfiguration)
     }
 
     fun setConversionError(error: FHIRConverter.InvalidItemActionLogDetail): ProcessedHL7Item {

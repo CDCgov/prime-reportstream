@@ -303,7 +303,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     logger,
                     tokenClient
                 )
-                // if successful, add the token returned to the token storage
             }
             is UserPassCredential -> {
                 tokenInfo = getAuthTokenWithUserPass(
@@ -312,8 +311,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     logger,
                     tokenClient
                 )
-                // if successful, add token as "Authorization:" header
-                httpHeaders = httpHeaders + Pair("Authorization", tokenInfo.accessToken)
             }
             is UserAssertionCredential -> {
                 tokenInfo = getAuthTokenWithAssertion(
@@ -322,7 +319,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     logger,
                     tokenClient
                 )
-                // if successful, add token as "Authorization:" header
             }
             else -> error("UserApiKey or UserPass credential required")
         }
@@ -470,7 +466,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             val idTokenInfoAccessToken: String = try {
                 Json.decodeFromString<IdToken>(idTokenInfoString).idToken
             } catch (e: Exception) {
-                "Bearer " + idTokenInfoString
+                idTokenInfoString
             }
 
             return TokenInfo(accessToken = idTokenInfoAccessToken, expiresIn = 3600)
