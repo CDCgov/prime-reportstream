@@ -6,10 +6,7 @@ package gov.cdc.prime.router.fhirengine.azure
 // import assertk.assertions.hasSize
 // import assertk.assertions.matchesPredicate
 // import gov.cdc.prime.router.*
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Options
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.*
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
@@ -21,6 +18,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.common.*
 // import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransform
@@ -53,6 +51,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import java.time.OffsetDateTime
 import java.util.*
 
 private const val ORGANIZATION_NAME = "co-phd"
@@ -191,73 +190,66 @@ class FHIRRouterIntegrationTests : Logging {
         )
     }
 
-    private fun setupRouteStep(
-        format: Report.Format,
-        sender: Sender,
-        convertReportBlobUrl: String,
-        itemCount: Int,
+    private fun seedTask(
+        fileFormat: Report.Format,
+        currentAction: TaskAction,
+        nextAction: TaskAction,
+        nextEventAction: Event.EventAction,
+        topic: Topic,
+        taskIndex: Long = 0,
+        childReport: Report? = null,
+        bodyURL: String? = null,
     ): Report {
-        return ReportStreamTestDatabaseContainer.testDatabaseAccess.transactReturning { txn ->
 
-            // create reports that have the correct lineage.
-            // this feels like the stupid way to do this but I'm not seeing how else to establish a chain of
-            // item lineage without creating three distinct messages. I can't alter the value of ${report}.id
-
-            val receivedReport = Report(
-                format,
-                emptyList(),
-                itemCount,
-                metadata = UnitTestUtils.simpleMetadata,
-                nextAction = TaskAction.convert,
-                topic = sender.topic,
-            )
-            receivedReport.bodyURL = convertReportBlobUrl
-
-            val convertedReport = Report(
-                format,
-                emptyList(),
-                itemCount,
-                metadata = UnitTestUtils.simpleMetadata,
-                nextAction = TaskAction.route,
-                topic = sender.topic,
-            )
-            convertedReport.bodyURL = convertReportBlobUrl
-            convertedReport.itemLineages = Report.createOneToOneItemLineages(receivedReport, convertedReport);
-
-            //
-
-            val convertAction = Action().setActionName(TaskAction.convert)
-            val convertActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, convertAction)
-            val reportFile = ReportFile()
-                .setSchemaTopic(sender.topic)
-                .setReportId(convertedReport.id)
-                .setActionId(convertActionId)
-                .setSchemaName("")
-                .setBodyFormat(sender.format.toString())
-                .setItemCount(itemCount)
+        val report = Report(
+            fileFormat,
+            listOf(ClientSource(organization = universalPipelineOrganization.name, client = "Test Sender")),
+            1,
+            metadata = UnitTestUtils.simpleMetadata,
+            nextAction = nextAction,
+            topic = topic
+        )
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val action = Action().setActionName(currentAction)
+            val actionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
+            report.bodyURL = bodyURL ?: "http://${report.id}.${fileFormat.toString().lowercase()}"
+            val reportFile = ReportFile().setSchemaTopic(topic).setReportId(report.id)
+                .setActionId(actionId).setSchemaName("").setBodyFormat(fileFormat.toString()).setItemCount(1)
                 .setExternalName("test-external-name")
-                .setBodyUrl(convertReportBlobUrl)
+                .setBodyUrl(report.bodyURL)
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
-                reportFile, txn, convertAction
+                reportFile, txn, action
             )
+            if (childReport != null) {
+                ReportStreamTestDatabaseContainer.testDatabaseAccess
+                    .insertReportLineage(
+                        ReportLineage(
+                            taskIndex,
+                            actionId,
+                            report.id,
+                            childReport.id,
+                            OffsetDateTime.now()
+                        ),
+                        txn
+                    )
+            }
 
-            // next task
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertTask(
-                convertedReport,
-                format.toString().lowercase(),
-                convertedReport.bodyURL,
+                report,
+                fileFormat.toString().lowercase(),
+                report.bodyURL,
                 nextAction = ProcessEvent(
-                    Event.EventAction.ROUTE,
-                    convertedReport.id,
+                    nextEventAction,
+                    report.id,
                     Options.None,
                     emptyMap(),
                     emptyList()
                 ),
                 txn
             )
-
-            convertedReport
         }
+
+        return report
     }
 
     @BeforeEach
@@ -278,25 +270,38 @@ class FHIRRouterIntegrationTests : Logging {
 
     @Test
     fun `should tralalalalala down the happiest of happy paths`() {
-        val convertReportContents =
+        val reportContents =
             listOf(
                 validFHIRRecord1
             ).joinToString()
 
-        val convertBlobUrl = BlobAccess.uploadBlob(
+        val convertedBlobUrl = BlobAccess.uploadBlob(
             "convert/tralalalalala.fhir",
-            convertReportContents.toByteArray(),
+            reportContents.toByteArray(),
             getBlobContainerMetadata()
         )
 
-        val convertReport = setupRouteStep(
+        // Seed the steps backwards so report lineage can be correctly generated
+        val translateReport = seedTask(
             Report.Format.FHIR,
-            fhirSenderWithNoTransform,
-            convertBlobUrl,
-            1
+            TaskAction.translate,
+            TaskAction.send,
+            Event.EventAction.SEND,
+            Topic.ELR_ELIMS,
+            100
+        )
+        val routeReport = seedTask(
+            Report.Format.FHIR,
+            TaskAction.route,
+            TaskAction.translate,
+            Event.EventAction.TRANSLATE,
+            Topic.ELR_ELIMS,
+            99,
+            translateReport,
+            convertedBlobUrl
         )
 
-        val queueMessage = generateQueueMessage(convertReport, convertReportContents, fhirSenderWithNoTransform)
+        val queueMessage = generateQueueMessage(routeReport, reportContents, fhirSenderWithNoTransform)
         val fhirFunctions = createFHIRFunctionsInstance()
         fhirFunctions.doRoute(queueMessage, 1, createFHIRRouter())
     }
