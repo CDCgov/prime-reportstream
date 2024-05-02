@@ -2,12 +2,13 @@ import { chunk, range } from "lodash";
 import { useCallback, useEffect, useReducer, useState } from "react";
 import useDeepCompareEffect from "use-deep-compare-effect";
 import { validate as uuidValidate } from "uuid";
+import useAppInsightsContext from "./UseAppInsightsContext";
+
 import {
     OVERFLOW_INDICATOR,
     PaginationProps,
     SlotItem,
 } from "../components/Table/Pagination";
-import { useAppInsightsContext } from "../contexts/AppInsights";
 
 // A function that will return a cursor value for a resource in the paginated
 // set.
@@ -366,7 +367,7 @@ function usePagination<T>({
     extractCursor,
     analyticsEventName,
 }: UsePaginationProps<T>): UsePaginationState<T> {
-    const { appInsights } = useAppInsightsContext();
+    const appInsights = useAppInsightsContext();
     const [state, dispatch] = useReducer<
         PaginationReducer<PaginationState<T>, PaginationAction<T>>
     >(

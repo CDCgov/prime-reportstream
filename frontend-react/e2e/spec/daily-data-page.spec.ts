@@ -88,6 +88,39 @@ test.describe.skip("Daily Data page", () => {
                 await expect(page).toHaveTitle(/Daily Data - ReportStream/);
             });
 
+            test("has receiver services dropdown", async ({ page }) => {
+                await expect(page.locator("#receiver-dropdown")).toBeAttached();
+            });
+
+            test("has filter", async ({ page }) => {
+                await expect(page.getByTestId("filter-form")).toBeAttached();
+            });
+
+            test("table has correct headers", async ({ page }) => {
+                await expect(page.locator(".usa-table th").nth(0)).toHaveText(
+                    /Report ID/,
+                );
+                await expect(page.locator(".usa-table th").nth(1)).toHaveText(
+                    /Time received/,
+                );
+                await expect(page.locator(".usa-table th").nth(2)).toHaveText(
+                    /File available until/,
+                );
+                await expect(page.locator(".usa-table th").nth(3)).toHaveText(
+                    /Items/,
+                );
+                await expect(page.locator(".usa-table th").nth(4)).toHaveText(
+                    /Filename/,
+                );
+                await expect(page.locator(".usa-table th").nth(5)).toHaveText(
+                    /Receiver/,
+                );
+            });
+
+            test("table has pagination", async ({ page }) => {
+                await expect(page.getByTestId("Pagination")).toBeAttached();
+            });
+
             test("has footer", async ({ page }) => {
                 await expect(page.locator("footer")).toBeAttached();
             });
@@ -848,6 +881,35 @@ test.describe.skip("Daily Data page", () => {
 
         test("has correct title", async ({ page }) => {
             await expect(page).toHaveTitle(/Daily Data - ReportStream/);
+        });
+
+        test("has filter", async ({ page }) => {
+            await expect(page.getByTestId("filter-form")).toBeAttached();
+        });
+
+        test("table has correct headers", async ({ page }) => {
+            await expect(page.locator(".usa-table th").nth(0)).toHaveText(
+                /Report ID/,
+            );
+            await expect(page.locator(".usa-table th").nth(1)).toHaveText(
+                /Time received/,
+            );
+            await expect(page.locator(".usa-table th").nth(2)).toHaveText(
+                /File available until/,
+            );
+            await expect(page.locator(".usa-table th").nth(3)).toHaveText(
+                /Items/,
+            );
+            await expect(page.locator(".usa-table th").nth(4)).toHaveText(
+                /Filename/,
+            );
+            await expect(page.locator(".usa-table th").nth(5)).toHaveText(
+                /Receiver/,
+            );
+        });
+
+        test("table has pagination", async ({ page }) => {
+            await expect(page.getByTestId("Pagination")).toBeAttached();
         });
 
         test("has footer", async ({ page }) => {

@@ -6,7 +6,7 @@ import { HeroWrapper } from "../../../shared";
 import { FeatureName } from "../../../utils/FeatureName";
 import Crumbs, { CrumbsProps } from "../../Crumbs";
 import HipaaNotice from "../../HipaaNotice";
-import { withCatchAndSuspense } from "../../RSErrorBoundary";
+import { withCatchAndSuspense } from "../../RSErrorBoundary/RSErrorBoundary";
 
 export function FacilitiesProvidersPage() {
     const crumbProps: CrumbsProps = {
