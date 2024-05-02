@@ -149,7 +149,7 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
         with:
-          languages: javascript-typescript
+          languages: javascript
           source-root: frontend-react
 
       - name: Perform CodeQL Analysis
