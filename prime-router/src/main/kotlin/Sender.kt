@@ -43,6 +43,7 @@ import java.time.OffsetDateTime
     JsonSubTypes.Type(value = UniversalPipelineSender::class, name = "full-elr"),
     JsonSubTypes.Type(value = UniversalPipelineSender::class, name = "etor-ti"),
     JsonSubTypes.Type(value = UniversalPipelineSender::class, name = "elr-elims"),
+    JsonSubTypes.Type(value = UniversalPipelineSender::class, name = "mars-otc-elr"),
     JsonSubTypes.Type(value = CovidSender::class, name = "covid-19"),
     JsonSubTypes.Type(value = MonkeypoxSender::class, name = "monkeypox")
 )
