@@ -43,6 +43,7 @@ jobs:
             method: slack
             title: Metabase upgrade Notification 
             message: |
+              "Upgrade Required": "${{ env.Schedules_UpgradeDetails_0_UpgradeRequired  }}"
               "Staging Metabase Version": "${{ env.Schedules_UpgradeDetails_0_StgVersion }}"
               "Production Metabase Version": "${{ env.Schedules_UpgradeDetails_0_PrdVersion }}"
             icon-emoji: ':bell:'
