@@ -247,6 +247,7 @@ jobs:
       - name: Create New Comment
         uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
         with:
+          issue-number: ${{ github.event.pull_request.number }}
           body: |
             Branch deployed to Chromatic. Detected ${{ steps.chromatic.outputs.changeCount }} changed components.
             ${{ steps.chromatic.outputs.errorCount > 0 && '❌ Encountered ${{ steps.chromatic.outputs.errorCount }} errors!' || '✅ No errors found.' }}
