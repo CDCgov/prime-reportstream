@@ -7,6 +7,8 @@ package gov.cdc.prime.router.fhirengine.azure
 // import assertk.assertions.matchesPredicate
 // import gov.cdc.prime.router.*
 import gov.cdc.prime.router.*
+import gov.cdc.prime.router.report.ReportService
+import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
@@ -107,7 +109,7 @@ class FHIRRouterIntegrationTests : Logging {
         return FHIRRouter(
             metadata,
             settings,
-            ReportStreamTestDatabaseContainer.testDatabaseAccess,
+            reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess)),
         )
     }
 
@@ -213,10 +215,18 @@ class FHIRRouterIntegrationTests : Logging {
             val action = Action().setActionName(currentAction)
             val actionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
             report.bodyURL = bodyURL ?: "http://${report.id}.${fileFormat.toString().lowercase()}"
-            val reportFile = ReportFile().setSchemaTopic(topic).setReportId(report.id)
-                .setActionId(actionId).setSchemaName("").setBodyFormat(fileFormat.toString()).setItemCount(1)
-                .setExternalName("test-external-name")
-                .setBodyUrl(report.bodyURL)
+
+            val reportFile = ReportFile().setSchemaTopic(topic)
+                                         .setReportId(report.id)
+                                         .setActionId(actionId)
+                                         .setSchemaName("")
+                                         .setBodyFormat(fileFormat.toString())
+                                         .setItemCount(1)
+                                         .setExternalName("test-external-name")
+                                         .setBodyUrl(report.bodyURL)
+                                         .setSendingOrg(universalPipelineOrganization.name)
+                                         .setSendingOrgClient("Test Sender")
+
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
                 reportFile, txn, action
             )
