@@ -741,28 +741,9 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
     )
 
-    private fun makeOKHeader(): WorkflowEngine.Header {
-        val content = """
-MSH|^~\&|CDC Trusted Intermediary^https://reportstream.cdc.gov/||||20230331131841-0500||OML
-PID|1||S99955754^^^^MR||Solo^Jaina^^^^^L||20170515111100-0500|F||^Asian^HL70005|||||||||||||||1
-ORC|NW||||IP||||20230331131841-0500
-OBR||||54089-8^Newborn Screening Panel^LN
-"""
-        return WorkflowEngine.Header(
-            task,
-            reportFile,
-            null,
-            settings.findOrganization("ok-phd"),
-            settings.findReceiver("ok-phd.elr"),
-            metadata.findSchema("metadata/hl7_mapping/receivers/Flexion/TILabOrder"),
-            content = content.toByteArray(),
-            true
-        )
-    }
-
     @Test
     fun `test with localhost OK PHD`() {
-        val header = makeOKHeader()
+        val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserPassCredential("mock-user", "mock-pass")

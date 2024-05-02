@@ -569,7 +569,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         private fun createDefaultHttpClient(
             jks: UserJksCredential?,
             accessToken: String?,
-                                            restTransportInfo: RESTTransportType?,
+            restTransportInfo: RESTTransportType?,
         ): HttpClient {
             return HttpClient(Apache) {
                 // installs logging into the call to post to the server
