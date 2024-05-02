@@ -3,10 +3,7 @@ name: Alert if upgrade is necessary
 on:
   workflow_dispatch:
   schedule:
-    - cron: "7 13 * * Mon" 
-  push:
-    branches:
-      - dkrylov/metabase-checker-13962
+    - cron: "7 13 * * Mon"
 jobs:
   alert_version_upgrade:
     name: Alert on Version upgrade
@@ -47,7 +44,7 @@ jobs:
               "Staging Metabase Version": "${{ env.Schedules_UpgradeDetails_0_StgVersion }}"
               "Production Metabase Version": "${{ env.Schedules_UpgradeDetails_0_PrdVersion }}"
             icon-emoji: ':bell:'
-            channel:  p-cdc-prime
+            channel: prime-devops
             webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
             color: warning
         
