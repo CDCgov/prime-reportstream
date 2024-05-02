@@ -41,7 +41,7 @@ jobs:
             cache-dependency-path: frontend-react/yarn.lock
       - name: Yarn install
         run: yarn install --immutable
-        
+
       - name: Run linting
         run: yarn run lint
 
@@ -276,5 +276,12 @@ jobs:
 
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@b98d498629f1c368650224d6d212bf7dfa89e4bf
+        continue-on-error: true # To make sure that SARIF upload gets called
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --sarif-file-output=snyk.sarif --file frontend-react/package.json
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
+        with:
+          sarif_file: snyk.sarif
