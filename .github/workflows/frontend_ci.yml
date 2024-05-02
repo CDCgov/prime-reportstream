@@ -100,6 +100,7 @@ jobs:
 
   # Merge reports after playwright-tests, even if some shards have failed
   merge_e2e_data:
+      name: Merge E2E Data
       if: ${{ !cancelled() }}
       needs: [e2e_tests]
       runs-on: ubuntu-latest
@@ -192,11 +193,10 @@ jobs:
           -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
 
   chromatic:
+    name: Chromatic Analysis
     runs-on: ubuntu-latest
     # Don't run on deployment-based branches
     if: ${{ ! contains(fromJSON('["deployment","production"]'),github.head_ref) }}
-    permissions: 
-      issues: write
 
     steps:
       - name: Checkout - On Pull Request
