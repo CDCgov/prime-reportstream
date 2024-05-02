@@ -46,7 +46,7 @@ jobs:
               "Staging Metabase Version": "${{ env.Schedules_UpgradeDetails_0_StgVersion }}"
               "Production Metabase Version": "${{ env.Schedules_UpgradeDetails_0_PrdVersion }}"
             icon-emoji: ':bell:'
-            channel:  prime-devops
+            channel:  p-cdc-prime
             webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
             color: warning
         
