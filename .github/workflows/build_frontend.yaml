@@ -1,6 +1,9 @@
 name: Frontend
 
 on:
+  pull_request:
+    branches:
+      - production
   push:
     branches:
       - master
