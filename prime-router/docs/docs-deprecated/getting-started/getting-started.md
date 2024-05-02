@@ -305,6 +305,11 @@ When building the ReportStream container, you can set this value to `true` to en
 PRIME_DATA_HUB_INSECURE_SSL=true docker compose build
 ```
 
+## `ETOR_TI_baseurl` service setup
+
+To run the service associated with this environment variable locally, please visit the instructions located 
+[at the intermediary project](https://github.com/CDCgov/trusted-intermediary/blob/main/README.md)
+
 # Troubleshooting
 ## Local SFTP Issues
 1. SFTP Upload Permission denied - If you get a Permission Denied exception in the logs then it is most likely the atmoz/sftp
