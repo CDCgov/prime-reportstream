@@ -9,6 +9,7 @@ on:
     paths-ignore: 
       - frontend-react/**
     types: 
+      - opened
       - synchronize
   push:
     branches:

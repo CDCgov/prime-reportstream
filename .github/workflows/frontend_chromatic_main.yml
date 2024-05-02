@@ -17,8 +17,6 @@ jobs:
         shell: bash
         working-directory: frontend-react
     runs-on: ubuntu-latest
-    # Don't run on deployment-based branches
-    if: ${{ ! contains(fromJSON('["deployment","production"]'),github.head_ref) }}
     steps:
       - name: Checkout - On Push Event
         uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b
