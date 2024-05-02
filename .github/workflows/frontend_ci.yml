@@ -114,8 +114,6 @@ jobs:
             node-version-file: "frontend-react/.nvmrc"
             cache: yarn
             cache-dependency-path: frontend-react/yarn.lock
-        - name: Yarn install
-          run: yarn install --immutable
 
         - name: Download blob reports from GitHub Actions Artifacts
           uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
@@ -123,10 +121,8 @@ jobs:
             path: frontend-react/e2e-data
             pattern: frontend-e2e-data--shard-*
             merge-multiple: true
-
         - name: Merge reports
           run: npx playwright merge-reports --reporter html,github ./e2e-data/report
-
         - name: Upload final e2e-data
           uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
           with:
