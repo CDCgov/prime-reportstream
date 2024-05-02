@@ -2,18 +2,16 @@ import { useState } from "react";
 
 import DataDashboardTableFilters from "./DataDashboardTableFilters/DataDashboardTableFilters";
 import { RSReceiver } from "../../../config/endpoints/settings";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../../contexts/AppInsights";
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import useReceiverDeliveries, {
     DeliveriesAttr,
 } from "../../../hooks/network/DataDashboard/UseReceiverDeliveries";
+import useAppInsightsContext from "../../../hooks/UseAppInsightsContext";
 import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceivers";
 import { getSlots } from "../../../hooks/UsePagination";
 import Table from "../../../shared/Table/Table";
+import { EventName } from "../../../utils/AppInsights";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
 import AdminFetchAlert from "../../alerts/AdminFetchAlert";
@@ -32,7 +30,7 @@ function DashboardFilterAndTable({
     activeReceiver: RSReceiver;
     setActiveReceiver: (receiver: RSReceiver) => void;
 }) {
-    const { appInsights } = useAppInsightsContext();
+    const appInsights = useAppInsightsContext();
     const featureEvent = `${FeatureName.DATA_DASHBOARD} | ${EventName.TABLE_FILTER}`;
 
     const handleSetActive = (name: string) => {

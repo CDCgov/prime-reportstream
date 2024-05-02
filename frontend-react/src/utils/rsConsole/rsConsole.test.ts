@@ -4,10 +4,9 @@ import {
     SeverityLevel,
 } from "@microsoft/applicationinsights-web";
 
-import { mockAppInsights } from "../../__mocks__/ApplicationInsights";
-import { mockConsole } from "../../__mocks__/console";
-
-import { ConsoleLevel, RSConsole } from "./index";
+import { ConsoleLevel, RSConsole } from "./rsConsole";
+import { mockConsole } from "../../__fixtures__/console";
+import { appInsightsFixture } from "../TelemetryService/TelemetryService.fixtures";
 
 const message = "hello there";
 const obj = { hello: "there" };
@@ -42,13 +41,13 @@ describe("RSConsole", () => {
     describe("when calling info", () => {
         test("calls console.info and trackTrace with the correct message and severity level", () => {
             const rsConsole = new RSConsole({
-                ai: mockAppInsights as any,
-                consoleSeverityLevels,
-                reportableConsoleLevels,
+                ai: appInsightsFixture as any,
+                severityLevels: consoleSeverityLevels,
+                reportableLevels: reportableConsoleLevels,
             });
             rsConsole.info(message, obj);
 
-            expect(mockAppInsights.trackTrace).toHaveBeenCalledWith<
+            expect(appInsightsFixture.trackTrace).toHaveBeenCalledWith<
                 [ITraceTelemetry]
             >({
                 message,
@@ -67,15 +66,15 @@ describe("RSConsole", () => {
         describe("when assertion fails", () => {
             test("calls console.assert and trackTrace with the correct message and severity level", () => {
                 const rsConsole = new RSConsole({
-                    ai: mockAppInsights as any,
-                    consoleSeverityLevels,
-                    reportableConsoleLevels,
+                    ai: appInsightsFixture as any,
+                    severityLevels: consoleSeverityLevels,
+                    reportableLevels: reportableConsoleLevels,
                 });
                 const msg = `Assertion failed: ${message}`;
 
                 rsConsole.assert(false, message, obj);
 
-                expect(mockAppInsights.trackException).toHaveBeenCalledWith<
+                expect(appInsightsFixture.trackException).toHaveBeenCalledWith<
                     [IExceptionTelemetry]
                 >({
                     id: msg,
@@ -98,13 +97,15 @@ describe("RSConsole", () => {
         describe("when assertion passes", () => {
             test("only calls console.assert", () => {
                 const rsConsole = new RSConsole({
-                    ai: mockAppInsights as any,
-                    consoleSeverityLevels,
-                    reportableConsoleLevels,
+                    ai: appInsightsFixture as any,
+                    severityLevels: consoleSeverityLevels,
+                    reportableLevels: reportableConsoleLevels,
                 });
                 rsConsole.assert(true, message, obj);
 
-                expect(mockAppInsights.trackException).not.toHaveBeenCalled();
+                expect(
+                    appInsightsFixture.trackException,
+                ).not.toHaveBeenCalled();
                 expect(mockConsole.assert).toHaveBeenCalledWith(
                     true,
                     message,
@@ -117,14 +118,14 @@ describe("RSConsole", () => {
     describe("when calling debug", () => {
         test("calls console.debug and trackTrace with the correct message and severity level", () => {
             const rsConsole = new RSConsole({
-                ai: mockAppInsights as any,
-                consoleSeverityLevels,
-                reportableConsoleLevels,
+                ai: appInsightsFixture as any,
+                severityLevels: consoleSeverityLevels,
+                reportableLevels: reportableConsoleLevels,
             });
             // eslint-disable-next-line testing-library/no-debugging-utils
             rsConsole.debug(message, obj);
 
-            expect(mockAppInsights.trackTrace).toHaveBeenCalledWith<
+            expect(appInsightsFixture.trackTrace).toHaveBeenCalledWith<
                 [ITraceTelemetry]
             >({
                 message,
@@ -140,14 +141,14 @@ describe("RSConsole", () => {
     describe("when calling error", () => {
         test("calls console.error and trackException with the correct message and severity level", () => {
             const rsConsole = new RSConsole({
-                ai: mockAppInsights as any,
-                consoleSeverityLevels,
-                reportableConsoleLevels,
+                ai: appInsightsFixture as any,
+                severityLevels: consoleSeverityLevels,
+                reportableLevels: reportableConsoleLevels,
             });
             const err = new Error(message);
             rsConsole.error(err, obj);
 
-            expect(mockAppInsights.trackException).toHaveBeenCalledWith<
+            expect(appInsightsFixture.trackException).toHaveBeenCalledWith<
                 [IExceptionTelemetry]
             >({
                 exception: err,
@@ -164,13 +165,13 @@ describe("RSConsole", () => {
     describe("when calling trace", () => {
         test("calls console.trace and trackTrace with the correct message and severity level", () => {
             const rsConsole = new RSConsole({
-                ai: mockAppInsights as any,
-                consoleSeverityLevels,
-                reportableConsoleLevels,
+                ai: appInsightsFixture as any,
+                severityLevels: consoleSeverityLevels,
+                reportableLevels: reportableConsoleLevels,
             });
             rsConsole.trace(message, obj);
 
-            expect(mockAppInsights.trackTrace).toHaveBeenCalledWith<
+            expect(appInsightsFixture.trackTrace).toHaveBeenCalledWith<
                 [ITraceTelemetry]
             >({
                 message,
@@ -186,13 +187,13 @@ describe("RSConsole", () => {
     describe("when calling warn", () => {
         test("calls console.warn and trackTrace with the correct message and severity level", () => {
             const rsConsole = new RSConsole({
-                ai: mockAppInsights as any,
-                consoleSeverityLevels,
-                reportableConsoleLevels,
+                ai: appInsightsFixture as any,
+                severityLevels: consoleSeverityLevels,
+                reportableLevels: reportableConsoleLevels,
             });
             rsConsole.warn(message, obj);
 
-            expect(mockAppInsights.trackTrace).toHaveBeenCalledWith<
+            expect(appInsightsFixture.trackTrace).toHaveBeenCalledWith<
                 [ITraceTelemetry]
             >({
                 message,
@@ -208,18 +209,18 @@ describe("RSConsole", () => {
     describe("when calling dev", () => {
         test("does not call console if non-dev env", () => {
             const rsConsole = new RSConsole({
-                ai: mockAppInsights as any,
-                consoleSeverityLevels,
-                reportableConsoleLevels,
+                ai: appInsightsFixture as any,
+                severityLevels: consoleSeverityLevels,
+                reportableLevels: reportableConsoleLevels,
             });
             rsConsole.dev("test");
             expect(mockConsole.log).not.toHaveBeenCalledWith("test");
         });
         test("does call console if dev env", () => {
             const rsConsole = new RSConsole({
-                ai: mockAppInsights as any,
-                consoleSeverityLevels,
-                reportableConsoleLevels,
+                ai: appInsightsFixture as any,
+                severityLevels: consoleSeverityLevels,
+                reportableLevels: reportableConsoleLevels,
                 env: "development",
             });
             rsConsole.dev("test");
