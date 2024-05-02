@@ -12,12 +12,8 @@ import {
     mockSendValidFile,
 } from "../../__mocks__/validation";
 import { RSSender } from "../../config/endpoints/settings";
-import {
-    mockAppInsights,
-    mockAppInsightsContextReturnValue,
-} from "../../contexts/__mocks__/AppInsightsContext";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
 import { INITIAL_STATE } from "../../hooks/UseFileHandler";
 import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
 import * as useSenderResourceExports from "../../hooks/UseSenderResource";
@@ -28,6 +24,12 @@ import {
     FileType,
     Format,
 } from "../../utils/TemporarySettingsAPITypes";
+
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
+const mockUseAppInsightsContext = vi.mocked(useAppInsightsContext);
+const mockAppInsights = mockUseAppInsightsContext();
 
 describe("FileHandlerFileUploadStep", () => {
     const DEFAULT_PROPS = {
@@ -58,7 +60,6 @@ describe("FileHandlerFileUploadStep", () => {
                 isLoading: false,
             });
             mockSessionContentReturnValue();
-            mockAppInsightsContextReturnValue();
         });
 
         describe("when a CSV schema is chosen", () => {

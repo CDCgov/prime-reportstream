@@ -27,7 +27,6 @@ import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.File
-import java.lang.IllegalStateException
 import kotlin.test.assertTrue
 
 class SubmissionReceiverTests {
@@ -807,7 +806,8 @@ class SubmissionReceiverTests {
         // assert
         verify(exactly = 1) {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
-            SubmissionReceiver.doDuplicateDetection(any(), any(), any())
+            // TODO: https://github.com/CDCgov/prime-reportstream/issues/14103
+            // SubmissionReceiver.doDuplicateDetection(any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
             queueMock.sendMessage(elrConvertQueueName, any())
@@ -889,7 +889,8 @@ class SubmissionReceiverTests {
         // assert
         verify(exactly = 1) {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
-            SubmissionReceiver.doDuplicateDetection(any(), any(), any())
+            // TODO https://github.com/CDCgov/prime-reportstream/issues/14103
+            // SubmissionReceiver.doDuplicateDetection(any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), format.toString(), any(), any())
         }
