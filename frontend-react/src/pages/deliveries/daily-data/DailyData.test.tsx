@@ -151,9 +151,8 @@ describe("DeliveriesTableWithNumbered", () => {
 
             test("renders with no error", async () => {
                 setup();
-                const pagination = await screen.findByLabelText(
-                    /Deliveries pagination/i,
-                );
+                const pagination = await screen.findByLabelText("Pagination");
+
                 expect(pagination).toBeInTheDocument();
                 // Column headers render
                 expect(screen.getByText("Report ID")).toBeInTheDocument();
