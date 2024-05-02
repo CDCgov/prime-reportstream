@@ -59,7 +59,10 @@ export default defineConfig<TestOptions>({
     forbidOnly: isCi,
     retries: isCi ? 2 : 0,
     workers: isCi ? "100%" : undefined,
-    reporter: [["html", { outputFolder: "e2e-data/report" }]],
+    // Tests sharded in CI runner and reported as blobs that are later turned into html report
+    reporter: process.env.CI
+        ? [["blob", { outputFolder: "e2e-data/report" }]]
+        : [["html", { outputFolder: "e2e-data/report" }]],
     outputDir: "e2e-data/results",
     use: {
         timezoneId: "UTC",

@@ -97,7 +97,7 @@ jobs:
           uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
           with:
             name: blob-report-${{ matrix.shardIndex }}
-            path: blob-report
+            path: frontend-react/e2e-data/report
             retention-days: 1
 
   merge_e2e_reports:
@@ -121,17 +121,17 @@ jobs:
         - name: Download blob reports from GitHub Actions Artifacts
           uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
           with:
-            path: frontend-react/all-blob-reports
+            path: frontend-react/e2e-data/report
             pattern: blob-report-*
             merge-multiple: true
 
         - name: Merge into HTML Report
-          run: npx playwright merge-reports --reporter html ./all-blob-reports 
+          run: npx playwright merge-reports --reporter html,github ./e2e-data/report
 
         - name: Upload HTML report
           uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
           with:
-            name: html-report--attempt-${{ github.run_attempt }}
+            name: e2e-html-report--attempt-${{ github.run_attempt }}
             path: playwright-report
             retention-days: 14
   
@@ -249,7 +249,10 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            Branch deployed to Chromatic. Detected ${{ steps.chromatic.outputs.changeCount }} changed components.
-            ${{ steps.chromatic.outputs.errorCount > 0 && '❌ Encountered ${{ steps.chromatic.outputs.errorCount }} errors!' || '✅ No errors found.' }}
+            Branch deployed to Chromatic 🚀. 
+            ${{ steps.chromatic.outputs.changeCount && '⚠️ Detected ${{ steps.chromatic.outputs.changeCount }} tests with visual changes.' }}
+            ${{ steps.chromatic.outputs.errorCount > 0 && '❌ ${{ steps.chromatic.outputs.errorCount }} tests failed!' || '✅ All tests passed.' }}
+
+            View via:
             - Chromatic: ${{ steps.chromatic.outputs.url }}
             - Storybook: ${{ steps.chromatic.outputs.storybookUrl }}
