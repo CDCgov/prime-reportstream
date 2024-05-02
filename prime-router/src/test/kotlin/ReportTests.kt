@@ -21,10 +21,10 @@ import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
+import io.mockk.unmockkAll
 import io.mockk.unmockkObject
 import org.junit.jupiter.api.AfterEach
 import java.io.ByteArrayInputStream
@@ -44,7 +44,7 @@ class ReportTests {
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
         customImageName = "azurite_report",
         customEnv = mapOf(
-        "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
+            "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
         )
     )
 
@@ -94,7 +94,7 @@ class ReportTests {
 
     @AfterEach
     fun afterEach() {
-        clearAllMocks()
+        unmockkAll()
     }
 
     @Test

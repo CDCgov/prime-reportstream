@@ -106,6 +106,11 @@
       customerStatus: active
       schemaName: classpath:/metadata/fhir_transforms/senders/original-pipeline-transforms.yml
       format: HL7
+    - name: ignore-mars-otc
+      organizationName: ignore
+      topic: mars-otc-elr
+      customerStatus: active
+      format: HL7
     - name: dev-simple-report      # Use this to test full-elr
       organizationName: ignore
       topic: full-elr
