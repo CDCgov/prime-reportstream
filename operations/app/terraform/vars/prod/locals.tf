@@ -15,6 +15,7 @@ locals {
     RS_OKTA_scope         = "reportstream_prod"
     storage_queue_name    = ["process"]
     sftp_container_module = false
+    etor_ti_base_url      = "https://cdcti-prd-api.azurewebsites.net"
 
   }
   key_vault = {
