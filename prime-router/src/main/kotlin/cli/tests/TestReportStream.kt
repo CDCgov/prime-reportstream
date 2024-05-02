@@ -961,7 +961,7 @@ abstract class CoolTest {
 
             testData = arrayListOf(
                 E2EData(
-                    File("$smoketestDir/valid_hl7.hl7"),
+                    File("$smoketestDir/valid_hl7_e2e.hl7"),
                     fullELRE2ESender,
                     arrayListOf(
                         Pair(hl7FullELRReceiver, File("$smoketestDir/Expected_HL7_to_HL7_FULLELR.hl7")),
@@ -969,7 +969,7 @@ abstract class CoolTest {
                     )
                 ),
                 E2EData(
-                    File("$smoketestDir/valid_hl7.hl7"),
+                    File("$smoketestDir/valid_hl7_e2e.hl7"),
                     elrElimsSender,
                     arrayListOf(
                         Pair(elimsReceiver, File("$smoketestDir/Expected_HL7_to_HL7_ELIMS.hl7"))

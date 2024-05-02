@@ -293,7 +293,7 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      jurisdictionalFilter: [ "Bundle.entry.resource.ofType(Location).address[0].state.exists() and Bundle.entry.resource.ofType(Location).address[0].state = 'TX'" ]
+      jurisdictionalFilter: [ "Bundle.entry.resource.ofType(Location).address[0].state.exists() and Bundle.entry.resource.ofType(Location).address[0].state = 'CX'" ]
       timing:
         operation: NONE
         numberPerDay: 1440 # Every minute
