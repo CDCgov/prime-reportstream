@@ -143,7 +143,7 @@ class ReportGraphTest {
             .setExternalName("batch-name")
             .setBodyUrl("batch-url")
 
-        val sendAction = Action().setActionId(6)
+        val sendAction = Action().setActionId(6).setActionName(TaskAction.send)
         val sendReportId = UUID.randomUUID()
         val sendReportFile = ReportFile()
             .setSchemaTopic(Topic.ELR_ELIMS)
@@ -211,7 +211,7 @@ class ReportGraphTest {
                     .insertReportLineage(
                         ReportLineage(
                             0,
-                            receiveAction.actionId,
+                            convertAction.actionId,
                             receivedReportFile.reportId,
                             convertReportFile.reportId,
                             OffsetDateTime.now()
@@ -222,7 +222,7 @@ class ReportGraphTest {
                     .insertReportLineage(
                         ReportLineage(
                             1,
-                            convertAction.actionId,
+                            routeAction.actionId,
                             convertReportFile.reportId,
                             routeReportFile.reportId,
                             OffsetDateTime.now()
@@ -233,7 +233,7 @@ class ReportGraphTest {
                     .insertReportLineage(
                         ReportLineage(
                             2,
-                            routeAction.actionId,
+                            translateAction.actionId,
                             routeReportFile.reportId,
                             translateReportFile.reportId,
                             OffsetDateTime.now()
@@ -245,7 +245,7 @@ class ReportGraphTest {
                     .insertReportLineage(
                         ReportLineage(
                             3,
-                            translateAction.actionId,
+                            batchAction.actionId,
                             translateReportFile.reportId,
                             batchReportFile.reportId,
                             OffsetDateTime.now()
@@ -257,7 +257,7 @@ class ReportGraphTest {
                     .insertReportLineage(
                         ReportLineage(
                             5,
-                            receiveAction2.actionId,
+                            convertAction2.actionId,
                             receivedReportFile2.reportId,
                             convertReportFile2.reportId,
                             OffsetDateTime.now()
@@ -268,7 +268,7 @@ class ReportGraphTest {
                     .insertReportLineage(
                         ReportLineage(
                             6,
-                            convertAction2.actionId,
+                            routeAction2.actionId,
                             convertReportFile2.reportId,
                             routeReportFile2.reportId,
                             OffsetDateTime.now()
@@ -279,7 +279,7 @@ class ReportGraphTest {
                     .insertReportLineage(
                         ReportLineage(
                             7,
-                            routeAction2.actionId,
+                            translateAction2.actionId,
                             routeReportFile2.reportId,
                             translateReportFile2.reportId,
                             OffsetDateTime.now()
@@ -291,7 +291,7 @@ class ReportGraphTest {
                     .insertReportLineage(
                         ReportLineage(
                             8,
-                            translateAction2.actionId,
+                            batchAction.actionId,
                             translateReportFile2.reportId,
                             batchReportFile.reportId,
                             OffsetDateTime.now()
@@ -303,7 +303,7 @@ class ReportGraphTest {
                     .insertReportLineage(
                         ReportLineage(
                             4,
-                            batchAction.actionId,
+                            sendAction.actionId,
                             batchReportFile.reportId,
                             sendReportFile.reportId,
                             OffsetDateTime.now()
@@ -353,6 +353,20 @@ class ReportGraphTest {
                 .hasSize(2)
             assertThat(roots[0].reportId).isEqualTo(receivedReportId)
             assertThat(roots[1].reportId).isEqualTo(receivedReportId2)
+        }
+
+        @Test
+        fun `find descendant reports from receive parent report`() {
+            var descendants: List<ReportFile> = emptyList()
+
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+                descendants = reportGraph.getDescendantReports(txn, receivedReportId, setOf(TaskAction.send))
+            }
+
+            assertThat(descendants)
+                .isNotNull()
+                .hasSize(1)
+            assertThat(descendants[0].reportId).isEqualTo(sendReportId)
         }
     }
 }
