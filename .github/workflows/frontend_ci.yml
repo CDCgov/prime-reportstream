@@ -41,6 +41,7 @@ jobs:
             cache-dependency-path: frontend-react/yarn.lock
       - name: Yarn install
         run: yarn install --immutable
+        
       - name: Run linting
         run: yarn run lint
 
@@ -60,6 +61,7 @@ jobs:
             cache-dependency-path: frontend-react/yarn.lock
         - name: Yarn install
           run: yarn install --immutable
+
         - name: Unit tests
           run: yarn run test:ci
 
@@ -88,6 +90,7 @@ jobs:
           run: yarn install --immutable
         - name: Install Playwright
           run: npx playwright install --with-deps
+
         - name: Run E2E tests
           run: yarn run test:e2e --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         - name: Upload blob report to GitHub Actions Artifacts
@@ -148,6 +151,7 @@ jobs:
         with:
           languages: javascript-typescript
           source-root: frontend-react
+
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
         with:
@@ -172,6 +176,7 @@ jobs:
           cache-dependency-path: frontend-react/yarn.lock
       - name: Yarn install
         run: yarn install --immutable
+
       - name: Collect coverage
         run: yarn run test:ci
       - name: Run SonarCloud Scan
@@ -255,3 +260,21 @@ jobs:
             View via: 
             - Chromatic: ${{ steps.chromatic.outputs.url }}
             - Storybook: ${{ steps.chromatic.outputs.storybookUrl }}
+
+  snyk:
+    name: Snyk Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Use Node.js with yarn
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        with:
+          node-version-file: "frontend-react/.nvmrc"
+          cache: yarn
+          cache-dependency-path: frontend-react/yarn.lock
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@b98d498629f1c368650224d6d212bf7dfa89e4bf
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
