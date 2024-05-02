@@ -1,8 +1,5 @@
 name: Frontend CI
 
-#permissions: 
-#  issues: write
-
 on:
   pull_request:
     paths: 
@@ -70,13 +67,14 @@ jobs:
     name: E2E tests
     needs: lint
     runs-on: ubuntu-latest
-
-    timeout-minutes: 60
+    # Keep shards under 5 minutes
+    timeout-minutes: 5
     strategy:
       fail-fast: false
       matrix:
-        shardIndex: [1, 2, 3, 4]
-        shardTotal: [4]
+        shardIndex: [1, 2, 3, 4, 5]
+        shardTotal: [5]
+
     steps:
         - name: Check out changes
           uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
@@ -96,16 +94,16 @@ jobs:
           if: ${{ !cancelled() }}
           uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
           with:
-            name: blob-report-${{ matrix.shardIndex }}
-            path: frontend-react/e2e-data/report
+            name: frontend-e2e-data-${{ matrix.shardIndex }}
+            path: frontend-react/e2e-data
             retention-days: 1
 
-  merge_e2e_reports:
-      # Merge reports after playwright-tests, even if some shards have failed
+  # Merge reports after playwright-tests, even if some shards have failed
+  merge_e2e_data:
       if: ${{ !cancelled() }}
       needs: [e2e_tests]
-
       runs-on: ubuntu-latest
+
       steps:
         - name: Check out changes
           uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
@@ -121,8 +119,8 @@ jobs:
         - name: Download blob reports from GitHub Actions Artifacts
           uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
           with:
-            path: frontend-react/e2e-data/report
-            pattern: blob-report-*
+            path: frontend-react/e2e-data
+            pattern: frontend-e2e-data-*
             merge-multiple: true
 
         - name: Merge into HTML Report
@@ -131,7 +129,7 @@ jobs:
         - name: Upload HTML report
           uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
           with:
-            name: e2e-html-report--attempt-${{ github.run_attempt }}
+            name: frontend-e2e-html-report--attempt-${{ github.run_attempt }}
             path: playwright-report
             retention-days: 14
   
@@ -188,7 +186,7 @@ jobs:
           -Dsonar.coverage.exclusions=prime-router/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
           -Dsonar.cpd.exclusions=prime-router/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
           -Dsonar.sources=frontend-react/src,prime-router/src
-          -DSonar.exclusions=prime-router/src/**/*
+          -Dsonar.exclusions=prime-router/src/**/*
           -Dsonar.projectKey=CDCgov_prime-data-hub
           -Dsonar.organization=cdcgov
           -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info

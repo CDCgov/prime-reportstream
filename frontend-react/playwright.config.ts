@@ -49,7 +49,7 @@ function createLogins<const T extends Array<string>>(
 }
 
 const logins = createLogins(["admin", "receiver", "sender"]);
-console.log(`isCi? ${isCi}`);
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -61,7 +61,7 @@ export default defineConfig<TestOptions>({
     workers: isCi ? "100%" : undefined,
     // Tests sharded in CI runner and reported as blobs that are later turned into html report
     reporter: isCi
-        ? [["blob", { outputFolder: "e2e-data/report" }]]
+        ? [["blob", { outputDir: "e2e-data/report" }]]
         : [["html", { outputFolder: "e2e-data/report" }]],
     outputDir: "e2e-data/results",
     use: {
