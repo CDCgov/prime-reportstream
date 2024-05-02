@@ -274,6 +274,8 @@ jobs:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
           cache-dependency-path: frontend-react/yarn.lock
+      - name: Yarn install
+        run: yarn install --immutable
 
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@b98d498629f1c368650224d6d212bf7dfa89e4bf
