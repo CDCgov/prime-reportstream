@@ -294,26 +294,26 @@ class FHIRRouterIntegrationTests : Logging {
 
         val convertReport = seedTask(
             Report.Format.FHIR,
-            TaskAction.receive,
             TaskAction.convert,
-            Event.EventAction.SEND,
+            TaskAction.route,
+            Event.EventAction.ROUTE,
             Topic.ELR_ELIMS,
             98,
-            receiveReport
+            receiveReport, convertedBlobUrl
         )
 
-        val routeReport = seedTask(
-            Report.Format.FHIR,
-            TaskAction.route,
-            TaskAction.translate,
-            Event.EventAction.TRANSLATE,
-            Topic.ELR_ELIMS,
-            99,
-            convertReport,
-            convertedBlobUrl
-        )
+//        val routeReport = seedTask(
+//            Report.Format.FHIR,
+//            TaskAction.route,
+//            TaskAction.translate,
+//            Event.EventAction.TRANSLATE,
+//            Topic.ELR_ELIMS,
+//            99,
+//            convertReport,
+//            convertedBlobUrl
+//        )
 
-        val queueMessage = generateQueueMessage(routeReport, reportContents, fhirSenderWithNoTransform)
+        val queueMessage = generateQueueMessage(convertReport, reportContents, fhirSenderWithNoTransform)
         val fhirFunctions = createFHIRFunctionsInstance()
         fhirFunctions.doRoute(queueMessage, 1, createFHIRRouter())
     }
