@@ -1869,10 +1869,7 @@
               "code": "P"
             }
           ]
-        },
-        "identifier": [
-          {}
-        ]
+        }
       }
     },
     {
@@ -2396,10 +2393,7 @@
               "code": "P"
             }
           ]
-        },
-        "identifier": [
-          {}
-        ]
+        }
       }
     },
     {
@@ -2905,10 +2899,7 @@
               "code": "P"
             }
           ]
-        },
-        "identifier": [
-          {}
-        ]
+        }
       }
     },
     {
@@ -3804,15 +3795,7 @@
           }
         ],
         "status": "active",
-        "name": "full-elr-hl7",
-        "extension": [
-          {
-            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition",
-            "valueReference": {
-              "reference": "Observation/1671741861219479500.1e349936-127c-4edc-8d77-39fb231f4391"
-            }
-          }
-        ]
+        "name": "full-elr-hl7"
       }
     }
   ]
@@ -5688,10 +5671,7 @@
               "code": "P"
             }
           ]
-        },
-        "identifier": [
-          {}
-        ]
+        }
       }
     },
     {
@@ -6215,10 +6195,7 @@
               "code": "P"
             }
           ]
-        },
-        "identifier": [
-          {}
-        ]
+        }
       }
     },
     {
@@ -6724,10 +6701,7 @@
               "code": "P"
             }
           ]
-        },
-        "identifier": [
-          {}
-        ]
+        }
       }
     },
     {
@@ -7623,15 +7597,7 @@
           }
         ],
         "status": "active",
-        "name": "full-elr-hl7",
-        "extension": [
-          {
-            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition",
-            "valueReference": {
-              "reference": "Observation/1671741861219479500.1e349936-127c-4edc-8d77-39fb231f4391"
-            }
-          }
-        ]
+        "name": "full-elr-hl7"
       }
     }
   ]
