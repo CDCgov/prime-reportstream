@@ -263,6 +263,7 @@ jobs:
 
   snyk:
     name: Snyk Analysis
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
@@ -280,7 +281,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --sarif-file-output=snyk.sarif --file frontend-react/package.json
+          args: --sarif-file-output=snyk.sarif --file=frontend-react/package.json
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
         with:
