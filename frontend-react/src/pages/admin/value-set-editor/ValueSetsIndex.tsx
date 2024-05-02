@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 
-import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
+import { withCatchAndSuspense } from "../../../components/RSErrorBoundary/RSErrorBoundary";
 import Table, {
     ColumnConfig,
     LegendItem,
