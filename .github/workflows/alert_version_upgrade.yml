@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "7 13 * * Mon"
+
 jobs:
   alert_version_upgrade:
     name: Alert on Version upgrade
@@ -39,12 +40,11 @@ jobs:
         with:
             method: slack
             title: Metabase upgrade Notification 
-            message: |
-              "Upgrade Required": "${{ env.Schedules_UpgradeDetails_0_UpgradeRequired  }}"
+            message: |              
               "Staging Metabase Version": "${{ env.Schedules_UpgradeDetails_0_StgVersion }}"
               "Production Metabase Version": "${{ env.Schedules_UpgradeDetails_0_PrdVersion }}"
             icon-emoji: ':bell:'
-            channel: prime-devops
+            channel:  prime-devops
             webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
             color: warning
         
