@@ -15,6 +15,9 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserAssertionCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
+import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.security.Keys
 import io.ktor.client.HttpClient
 import io.ktor.client.call.HttpClientCall
 import io.ktor.client.engine.mock.MockEngine
@@ -43,7 +46,9 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertDoesNotThrow
 import java.time.format.DateTimeFormatter
+import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
@@ -695,6 +700,29 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             context, actionHistory
         )
         assertThat(retryItems).isNull()
+    }
+
+    // at some point "Authorization: " was being prepended so this test makes sure that doesn't happen again
+    @Test
+    fun `test getting auth token with UserPassCredential returns valid token`() {
+        val key = Keys.secretKeyFor(SignatureAlgorithm.HS256)
+        val token = Jwts.builder()
+            .setSubject("subject")
+            .signWith(key, SignatureAlgorithm.HS256)
+            .compact()
+        val mockClient = mockJsonResponseWithSuccess(token)
+        val mockRestTransport = RESTTransport(mockClient)
+        val credential = UserPassCredential("user", "pass")
+        val logger = Logger.getLogger(this.toString())
+
+        runBlocking {
+            mockRestTransport.getAuthTokenWithUserPass(transportType, credential, logger, mockClient).also {
+                val parser = Jwts.parserBuilder().setSigningKey(key).build()
+                assertDoesNotThrow {
+                    parser.parse(it.accessToken) // will throw errors if not a valid signed jwt
+                }
+            }
+        }
     }
 
     private val okRestTransportTypeLive = RESTTransportType(
