@@ -188,6 +188,7 @@ jobs:
           -Dsonar.coverage.exclusions=prime-router/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
           -Dsonar.cpd.exclusions=prime-router/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
           -Dsonar.sources=frontend-react/src,prime-router/src
+          -DSonar.exclusions=prime-router/src/**/*
           -Dsonar.projectKey=CDCgov_prime-data-hub
           -Dsonar.organization=cdcgov
           -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
@@ -250,9 +251,9 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             Branch deployed to Chromatic 🚀. 
-            ${{ steps.chromatic.outputs.changeCount && '⚠️ Detected ${{ steps.chromatic.outputs.changeCount }} tests with visual changes.' }}
-            ${{ steps.chromatic.outputs.errorCount > 0 && '❌ ${{ steps.chromatic.outputs.errorCount }} tests failed!' || '✅ All tests passed.' }}
+            - ${{ steps.chromatic.outputs.changeCount && format('⚠️ Detected {0} tests with visual changes.', steps.chromatic.outputs.changeCount) }}
+            - ${{ steps.chromatic.outputs.errorCount > 0 && format('❌ {0} tests failed!', steps.chromatic.outputs.errorCount) || '✅ All tests passed.' }}
 
-            View via:
+            View via: 
             - Chromatic: ${{ steps.chromatic.outputs.url }}
             - Storybook: ${{ steps.chromatic.outputs.storybookUrl }}
