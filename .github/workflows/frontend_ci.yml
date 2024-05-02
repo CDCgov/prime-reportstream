@@ -233,7 +233,7 @@ jobs:
       - name: Create or Update comment
         uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
         with:
-          comment-id: ${{ steps.comment_find.outputs.comment-id || steps.comment_create.outputs.comment-id }}
+          comment-id: ${{ steps.comment_find.outputs.comment-id }}
           body: |
             Branch deployed to Chromatic. ${{ steps.chromatic.outputs.changeCount }} / ${{ steps.chromatic.outputs.errorCount }} ${{ steps.chromatic.outputs.errorCount > 0 && '❌' || '✅' }}
             - Chromatic: ${{ steps.chromatic.outputs.url }}
