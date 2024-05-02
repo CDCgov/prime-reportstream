@@ -2,110 +2,42 @@
 # Any file that has a comment on THE FIRST LINE that says "AutoUpdateFileChromatic"
 # And is checked into git, will trigger a Chromatic update.
 
-name: Build Branch Chromatic
+name: Chromatic Main Branch
 
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
+  push:
+    branches: [master]
     paths:
       - "frontend-react/**"
-    branches-ignore:
-      - deployment
-      - production
-
 jobs:
-  chromatic-deployment:
-    name: Chromatic
+  chromatic:
+    defaults:
+      run:
+        shell: bash
+        working-directory: frontend-react
     runs-on: ubuntu-latest
+    # Don't run on deployment-based branches
+    if: ${{ ! contains(fromJSON('["deployment","production"]'),github.head_ref) }}
     steps:
-      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b
+      - name: Checkout - On Push Event
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b
         with:
           fetch-depth: 0
-
-      - name: Get changed files
-        id: changed_files
-        uses: tj-actions/changed-files@0874344d6ebbaa00a27da73276ae7162fadcaf69
-
-      - name: List all changed files
-        id: set_vars
-        run: |
-          for file in ${{ steps.changed_files.outputs.all_changed_files }}; do
-            if [[ -n $file ]]; then 
-              echo "File event: $file"
-              
-              full_path="$GITHUB_WORKSPACE/$file"
-              if [[ -f $full_path ]]; then
-                first_line=$(head -n 1 "$full_path")
-                
-                if [[ $first_line == *AutoUpdateFileChromatic* ]]; then
-                  export chromatic=true
-                  break
-                fi
-              fi
-            fi
-          done
-
-          if [[ $chromatic == 'true' ]]; then
-            echo "chromatic=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Find Comment
-        id: comment_find
-        if: steps.set_vars.outputs.chromatic == 'true'
-        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: "github-actions[bot]"
-          body-regex: '\.*Chromatic.*\gi'
-
-      - name: Create comment
-        id: comment_create
-        if: steps.set_vars.outputs.chromatic == 'true'
-        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
-        with:
-          comment-id: ${{ steps.comment_find.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            Deploying branch Storybook to Chromatic...
-          edit-mode: replace
-          reactions: rocket
-          reactions-edit-mode: replace
-
-      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b
-        with:
-          fetch-depth: 0 # need commit history for Chromatic
-
-      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+      - name: Use Node.js with yarn
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
           node-version-file: "frontend-react/.nvmrc"
+          cache: yarn
+          cache-dependency-path: frontend-react/yarn.lock
+      - name: Yarn install
+        run: yarn install --immutable
 
-      - name: Install dependencies
-        run: yarn
-        working-directory: frontend-react
-        shell: bash
-
-      - name: Publish to Chromatic
-        id: chromatic_publish
-        if: steps.set_vars.outputs.chromatic == 'true'
-        uses: chromaui/action@v11
+      - name: Run Chromatic
+        uses: chromaui/action@ea1eee60c663ccb7e5d4cfd7a05fcc3a25b7c494
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-          ignoreLastBuildOnBranch: "**"
-          onlyChanged: true
-          exitZeroOnChanges: true
+          # Accept all changes in main
+          autoAcceptChanges: true
           exitOnceUploaded: true
-
-      - name: Update comment
-        if: steps.comment_find.outputs.comment-id != '' || steps.comment_create.outputs.comment-id != ''
-        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
-        with:
-          comment-id: ${{ steps.comment_find.outputs.comment-id || steps.comment_create.outputs.comment-id }}
-          body: |
-            Branch Storybook deployed to Chromatic: ${{ steps.chromatic_publish.outputs.url }}
-          edit-mode: replace
-          reactions: hooray
-          reactions-edit-mode: replace
