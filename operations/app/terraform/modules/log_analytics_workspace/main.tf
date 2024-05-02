@@ -17,7 +17,7 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
   log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
 
   dynamic "log" {
-    for_each = each.value.logs
+    for_each = setsubtract(each.value.logs, ["StorageRead"])
     content {
       category = log.value
 

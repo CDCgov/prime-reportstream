@@ -10,7 +10,7 @@ import {
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 
-import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
+import { withCatchAndSuspense } from "../../../components/RSErrorBoundary/RSErrorBoundary";
 import Spinner from "../../../components/Spinner";
 import { StaticAlert, StaticAlertType } from "../../../components/StaticAlert";
 import Table, {
@@ -23,7 +23,7 @@ import {
     LookupTable,
     ValueSetRow,
 } from "../../../config/endpoints/lookupTables";
-import { useSessionContext } from "../../../contexts/Session";
+import useSessionContext from "../../../contexts/Session/useSessionContext";
 import {
     useValueSetActivation,
     useValueSetsMeta,
