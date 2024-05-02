@@ -94,7 +94,7 @@ jobs:
           if: ${{ !cancelled() }}
           uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
           with:
-            name: frontend-e2e-data-${{ matrix.shardIndex }}
+            name: frontend-e2e-data--shard-${{ matrix.shardIndex }}
             path: frontend-react/e2e-data
             retention-days: 1
 
@@ -120,18 +120,18 @@ jobs:
           uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
           with:
             path: frontend-react/e2e-data
-            pattern: frontend-e2e-data-*
+            pattern: frontend-e2e-data--shard-*
             merge-multiple: true
 
-        - name: Merge into HTML Report
+        - name: Merge reports
           run: npx playwright merge-reports --reporter html,github ./e2e-data/report
 
-        - name: Upload HTML report
+        - name: Upload final e2e-data
           uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
           with:
-            name: frontend-e2e-html-report--attempt-${{ github.run_attempt }}
-            path: playwright-report
-            retention-days: 14
+            name: frontend-e2e-data--attempt-${{ github.run_attempt }}
+            path: frontend-react/e2e-data
+            retention-days: 7
   
   codeql:
     name: CodeQL Analysis
