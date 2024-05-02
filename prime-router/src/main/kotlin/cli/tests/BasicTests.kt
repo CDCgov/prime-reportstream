@@ -272,6 +272,73 @@ class End2EndUniversalPipeline : CoolTest() {
 
         return filename
     }
+
+    /**
+     * NOTE: This method is not currently being used. It is being kept for intended later usage. This method allows the
+     * e2e test to generate the expected final sent report from the original file that is posted to the UP.
+     * The e2e test is now using expected data files saved in the repo. Using saved files allows for another layer of
+     * test coverage on the classes used below. Using this method would allow another layer of test coverage on
+     * the translation schemas.
+     *
+     * Performs the expected transforms that would happen to a file moving through the UP. If the topic is ELI`MS this
+     * process will be skipped. Otherwise, the file will be converted to FHIR if necessary. Sender enrichments will be
+     * run. Then translated based on the expected receiver format.
+     * Caveats:
+     *  - This does not perform all transformations from the UP. Notably, batch headers/footers are absent.
+     *  - The setting data for receivers and senders is pulling from organizations.yml so that must be kept in sync
+     *      with the settings in both the local db and in staging.
+     *
+     * Example Usage:
+     * // Mimic the UP transformations to get the expected file contents
+     *    val expectedByteArray = performFileTransforms(
+     *        originalFile.inputStream(),
+     *        expectedReceiver,
+     *        sender,
+     *        blobContainerMetadata
+     *    )
+     *
+     * @param originalFile the file to transform
+     * @param expectedReceiver determines resulting data format
+     * @param sender used for the sender enrichment schema
+     * @param blobMetadata necessary for the FhirTransformer
+     * @return the transformed ByteArray in the proper data format of HL7 or FHIR
+     */
+//    private fun performFileTransforms(
+//        originalFile: FileInputStream,
+//        expectedReceiver: Receiver,
+//        sender: Sender,
+//        blobMetadata: BlobAccess.BlobContainerMetadata,
+//    ): ByteArray {
+//        // If topic is set to send original then we do not need to perform any transformations
+//        if (expectedReceiver.topic.isSendOriginal) {
+//            return originalFile.readBytes()
+//        }
+//
+//        // Create FHIR Bundle, translate to FHIR if originally in HL7
+//        var fhirBundle = if (sender.format.toString() == "HL7") {
+//            val hl7messages = HL7Reader(ActionLogger()).getMessages(originalFile.bufferedReader().readText())
+//            hl7messages.map { message -> HL7toFhirTranslator().translate(message) }.first()
+//        } else {
+//            FhirTranscoder.getBundles(originalFile.bufferedReader().readText(), ActionLogger()).first()
+//        }
+//
+//        // Run Sender Enrichment if it exists
+//        if (sender.schemaName.isNotEmpty()) {
+//            fhirBundle = FhirTransformer(sender.schemaName).process(fhirBundle)
+//        }
+//        val encodedBundle = FhirTranscoder.encode(fhirBundle).byteInputStream()
+//
+//        // Translate from FHIR to HL7 if required by receiver
+//        val translatedFile = if (expectedReceiver.translation.type == "HL7") {
+//            fhirBundle = FhirTranscoder.decode(encodedBundle.bufferedReader().readText())
+//            FhirToHl7Converter(expectedReceiver.translation.schemaName, blobMetadata)
+//                .process(fhirBundle).encodePreserveEncodingChars().byteInputStream().readBytes()
+//        } else {
+//            FhirTranscoder.encode(fhirBundle).encodeToByteArray()
+//        }
+//
+//        return translatedFile
+//    }
 }
 
 class End2End : CoolTest() {
