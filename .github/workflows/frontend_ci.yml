@@ -241,8 +241,8 @@ jobs:
           script: |
             github.rest.issues.deleteComment({
               issue_number: ${{ steps.comment_find.outputs.comment-id }},
-              owner: ${{ github.repository_owner }},
-              repo: ${{ github.repository }},
+              owner: '${{ github.repository_owner }}',
+              repo: '${{ github.repository }}',
             })
       - name: Create New Comment
         uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
