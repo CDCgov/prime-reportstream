@@ -195,6 +195,9 @@ jobs:
     runs-on: ubuntu-latest
     # Don't run on deployment-based branches
     if: ${{ ! contains(fromJSON('["deployment","production"]'),github.head_ref) }}
+    permissions: 
+      issues: write
+
     steps:
       - name: Checkout - On Pull Request
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
