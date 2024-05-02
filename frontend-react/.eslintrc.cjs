@@ -59,7 +59,7 @@ module.exports = {
             ],
             extends: [
                 "plugin:testing-library/react",
-                "plugin:vitest/recommended",
+                "plugin:vitest/legacy-recommended",
                 "plugin:jest-dom/recommended",
             ],
             rules: {
