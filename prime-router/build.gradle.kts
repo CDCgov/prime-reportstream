@@ -512,6 +512,8 @@ tasks.register("reloadCredentials") {
  */
 tasks.azureFunctionsPackage {
     dependsOn("test")
+    finalizedBy("copyAzureResources")
+    finalizedBy("copyAzureScripts")
 }
 
 val azureResourcesTmpDir = File(buildDir, "$azureFunctionsDir-resources/$azureAppName")
@@ -558,11 +560,6 @@ tasks.register("copyAzureScripts") {
         File(azureScriptsFinalDir.path, startFuncScriptName).setExecutable(true)
         File(azureScriptsFinalDir.path, apiDocsSetupScriptName).setExecutable(true)
     }
-}
-
-tasks.azureFunctionsPackage {
-    finalizedBy("copyAzureResources")
-    finalizedBy("copyAzureScripts")
 }
 
 tasks.register("package") {
