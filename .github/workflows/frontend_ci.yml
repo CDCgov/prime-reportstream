@@ -194,13 +194,6 @@ jobs:
     # Don't run on deployment-based branches
     if: ${{ ! contains(fromJSON('["deployment","production"]'),github.head_ref) }}
     steps:
-      - name: Find Comment
-        id: comment_find
-        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: "github-actions[bot]"
-          body-regex: '\.*Chromatic.*\gi'
       - name: Checkout - On Pull Request
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
@@ -230,12 +223,28 @@ jobs:
           exitZeroOnChanges: true
           exitOnceUploaded: true
 
-      - name: Create or Update comment
+      - name: Find Previous Comment
+        id: comment_find
+        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: "github-actions[bot]"
+          body-regex: '\.*Chromatic.*\gi'
+      - name: Delete Previous Comment
+        if: ${{ steps.comment_find.outputs.comment-id }}
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.deleteComment({
+              issue_number: ${{ steps.comment_find.outputs.comment-id }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+      - name: Create New Comment
         uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
         with:
-          comment-id: ${{ steps.comment_find.outputs.comment-id }}
           body: |
-            Branch deployed to Chromatic. ${{ steps.chromatic.outputs.changeCount }} / ${{ steps.chromatic.outputs.errorCount }} ${{ steps.chromatic.outputs.errorCount > 0 && '❌' || '✅' }}
+            Branch deployed to Chromatic. Detected ${{ steps.chromatic.outputs.changeCount }} changed components. ${{ steps.chromatic.outputs.errorCount > 0 && '❌ Encountered ${{ steps.chromatic.outputs.errorCount }} errors!' || '✅ No errors found.' }}
             - Chromatic: ${{ steps.chromatic.outputs.url }}
             - Storybook: ${{ steps.chromatic.outputs.storybookUrl }}
-          edit-mode: replace
