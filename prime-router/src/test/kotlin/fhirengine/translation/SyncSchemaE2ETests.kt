@@ -9,10 +9,11 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.ValidateSchemasFunctions
 import gov.cdc.prime.router.cli.SyncTranslationSchemaCommand
 import gov.cdc.prime.router.common.TestcontainersUtils
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkObject
+import io.mockk.unmockkAll
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -36,9 +37,14 @@ class SyncSchemaE2ETests {
         )
     )
 
+    @BeforeEach
+    fun beforeEach() {
+        unmockkAll()
+    }
+
     @AfterEach
     fun afterEach() {
-        clearAllMocks()
+        unmockkAll()
     }
 
     @Test
