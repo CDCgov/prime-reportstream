@@ -74,7 +74,7 @@
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
-        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('6142004' | '541131000124102 | 840539006')).exists())"
+        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists()) or (Bundle.entry.resource.ofType(Practitioner).address.state = 'KS' and %resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('86406008')).exists())"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
