@@ -91,7 +91,7 @@ class End2EndUniversalPipeline : CoolTest() {
 
         ugly("Starting $name Test")
 
-        // Posting the reports first. All reports must be sent pausing in the second step
+        // Posting the reports first. Batching the sending of all reports before pausing in the second step
         testData.forEach {
             ugly("Sending ${it.baseFile.extension} data from ${it.sender.fullName} to the UP")
             it.reportId = postPreTestReports(it.baseFile, environment, options, it.sender)
@@ -191,7 +191,7 @@ class End2EndUniversalPipeline : CoolTest() {
      * For all expected receivers this will validate:
      * - An external filename matching that receiver is present in the history endpoint response
      * - Download the file from BlobStorage
-     * - Compare the resulting expected data with the actual data returned from BlobStorage
+     * - Compare the expected data with the actual data returned from BlobStorage
      */
     private fun end2EndUP(
         historyResponse: String,
