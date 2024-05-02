@@ -190,6 +190,7 @@ jobs:
 
   chromatic:
     name: Chromatic Analysis
+    needs: lint
     runs-on: ubuntu-latest
     # Don't run on deployment-based branches
     if: ${{ ! contains(fromJSON('["deployment","production"]'),github.head_ref) }}
