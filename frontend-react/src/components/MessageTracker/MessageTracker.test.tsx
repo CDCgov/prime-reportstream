@@ -79,13 +79,13 @@ describe("MessageTracker component", () => {
         const rows = await screen.findAllByRole("row");
         expect(rows).toHaveLength(4); // 2 warnings + header
 
-        const firstCells = await within(rows[1]).findAllByRole("cell");
+        const firstCells = await within(rows[1]).findAllByRole("link");
         expect(firstCells[0]).toHaveTextContent("12-234567");
 
-        const secondCells = await within(rows[2]).findAllByRole("cell");
+        const secondCells = await within(rows[2]).findAllByRole("link");
         expect(secondCells[0]).toHaveTextContent("12-234567");
 
-        const thirdCells = await within(rows[3]).findAllByRole("cell");
+        const thirdCells = await within(rows[3]).findAllByRole("link");
         expect(thirdCells[0]).toHaveTextContent("12-234567");
     });
 

@@ -31,7 +31,9 @@ import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.ReportCreatedEvent
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
 import gov.cdc.prime.router.fhirengine.utils.addMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getObservations
@@ -100,6 +102,17 @@ class FHIRConverter(
         actionHistory.trackExistingInputReport(queueMessage.reportId)
         val format = Report.getFormatFromBlobURL(queueMessage.blobURL)
         logger.trace("Processing $format data for FHIR conversion.")
+
+        // This line is a workaround for a defect in the hapi-fhir library
+        // Specifically https://github.com/hapifhir/hapi-fhir/blob/b555498c9b7824af67b219e5b7b85f7992aec991/hapi-fhir-serviceloaders/hapi-fhir-caching-api/src/main/java/ca/uhn/fhir/sl/cache/CacheFactory.java#L32
+        // which creates a static instance of ServiceLoader which the documentation indicates is not safe to use in a
+        // concurrent setting https://arc.net/l/quote/hauavetq.  See also this closed issue https://github.com/jakartaee/jsonp-api/issues/26#issuecomment-364844610
+        // for someone requesting a similar change in another library and the reasoning why it can't be done that way
+        //
+        // This line exists so that FhirPathUtils (an object) is instantiated before any of the multi-threaded code run
+        // (kotlin objects are instantiated at first access https://arc.net/l/quote/tbvpqnlh)
+        // TODO: https://github.com/CDCgov/prime-reportstream/issues/14287
+        FhirPathUtils
 
         val fhirBundles = process(format, queueMessage, actionLogger)
 
@@ -245,7 +258,7 @@ class FHIRConverter(
                                 "format" to format.name
                             )
                         ) {
-                            getBundlesFromRawHL7(rawReport, validator)
+                            getBundlesFromRawHL7(rawReport, validator, queueMessage.topic.hl7ParseConfiguration)
                         }
                     } catch (ex: ParseFailureError) {
                         actionLogger.error(
@@ -312,6 +325,7 @@ class FHIRConverter(
     private fun getBundlesFromRawHL7(
         rawReport: String,
         validator: IItemValidator,
+        hL7MessageParseAndConvertConfiguration: HL7Reader.Companion.HL7MessageParseAndConvertConfiguration?,
     ): List<IProcessedItem<Message>> {
         val itemStream =
             Hl7InputStreamMessageStringIterator(rawReport.byteInputStream()).asSequence()
@@ -320,18 +334,18 @@ class FHIRConverter(
                 }.toList()
 
         return maybeParallelize(itemStream.size, itemStream.stream(), "Generating FHIR bundles in").map { item ->
-            parseHL7Item(item)
+            parseHL7Item(item, hL7MessageParseAndConvertConfiguration)
         }.map { item ->
-            validateAndConvertHL7Item(item, validator)
+            validateAndConvertHL7Item(item, validator, hL7MessageParseAndConvertConfiguration)
         }.collect(Collectors.toList())
     }
 
-    private fun parseHL7Item(item: ProcessedHL7Item) = try {
-        val (
-            message,
-            parseConfiguration,
-        ) = parseHL7Message(item.rawItem)
-        item.updateParsed(message).setParseConfiguration(parseConfiguration)
+    private fun parseHL7Item(
+        item: ProcessedHL7Item,
+        hL7MessageParseAndConvertConfiguration: HL7Reader.Companion.HL7MessageParseAndConvertConfiguration?,
+    ) = try {
+        val message = parseHL7Message(item.rawItem, hL7MessageParseAndConvertConfiguration)
+        item.updateParsed(message)
     } catch (e: HL7Exception) {
         item.updateParsed(
             InvalidItemActionLogDetail(
@@ -345,15 +359,18 @@ class FHIRConverter(
     private fun validateAndConvertHL7Item(
         item: ProcessedHL7Item,
         validator: IItemValidator,
+        hL7MessageParseAndConvertConfiguration: HL7Reader.Companion.HL7MessageParseAndConvertConfiguration?,
     ): ProcessedHL7Item = if (item.parsedItem != null) {
         val validationResult = validator.validate(item.parsedItem)
         if (validationResult.isValid()) {
             try {
-                val bundle = when (val parseConfiguration = item.parseConfiguration) {
+                val bundle = when (hL7MessageParseAndConvertConfiguration) {
                     null -> HL7toFhirTranslator.getHL7ToFhirTranslatorInstance().translate(item.parsedItem)
                     else ->
                         HL7toFhirTranslator
-                            .getHL7ToFhirTranslatorInstance(parseConfiguration.hl7toFHIRMappingLocation)
+                            .getHL7ToFhirTranslatorInstance(
+                                hL7MessageParseAndConvertConfiguration.hl7toFHIRMappingLocation
+                            )
                             .translate(item.parsedItem)
                 }
                 item.setBundle(bundle)

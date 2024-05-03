@@ -39,7 +39,7 @@ paths:
       description: Return a list of all basic info on all receive actions and associated reports.
       security:
         - OAuth2: [ user ]
-        - ApiKeyAuth: []
+        - ApiKeyAuth: [ ]
       parameters:
         - in: query
           name: cursor
@@ -145,7 +145,7 @@ paths:
     get:
       description: Return a single receive action, and its received report(s), or an error report.
       security:
-        - ApiKeyAuth: []
+        - ApiKeyAuth: [ ]
       parameters:
         - in: path
           name: actionid
@@ -166,7 +166,29 @@ paths:
           description: Unauthorized
         '500':
           description: Internal Server Error
-
+  /waters/report/{reportId}/history/etorMetadata:
+    get:
+      summary: Retrieves ETOR metadata for a sender's report
+      description: Fetches the ETOR intermediary's metadata given the sender's report ID.
+      operationId: getEtorMetadataForHistory
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          description: The unique identifier of the report.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful retrieval of ETOR metadata.
+          content:
+            application/json:
+              schema:
+                $ref: 'https://github.com/LinuxForHealth/FHIR/blob/main/fhir-openapi/src/main/webapp/META-INF/openapi.json?raw=true#/components/schemas/OperationOutcome'
+        '404':
+          description: lookup Id not found
+        '500':
+          description: Internal server error.
 # Building
 components:
   schemas:
