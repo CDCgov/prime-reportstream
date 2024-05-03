@@ -305,7 +305,9 @@ class CompareFhirData(
         referenceTypePath: String,
     ): CompareData.Result {
         require(expectedReference is Reference)
-        logger.debug("REFERENCE: Comparing reference from $referenceIdPath $referenceTypePath ...")
+        logger.info("REFERENCE: Comparing reference from $referenceIdPath $referenceTypePath ...")
+logger.info(expectedReference)
+logger.info(expectedReference.id)
         val expectedResource = expectedReference.resource as Base
         val actualResources = actualReferences.mapNotNull { if (it is Reference) it.resource as Base else null }
         val result = compareResource(

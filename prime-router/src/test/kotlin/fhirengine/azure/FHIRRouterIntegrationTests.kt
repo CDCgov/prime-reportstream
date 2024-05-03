@@ -330,32 +330,42 @@ class FHIRRouterIntegrationTests : Logging {
             convertReport,
             receivedBlobUrl
         )
-
+logger.info("receiveReport: ${receiveReport.id}")
+logger.info("convertReport: ${convertReport.id}")
         val queueMessage = generateQueueMessage(convertReport, reportContents, fhirSenderWithNoTransform)
         val fhirFunctions = createFHIRFunctionsInstance()
         fhirFunctions.doRoute(queueMessage, 1, createFHIRRouter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReports = verifyLineageAndFetchCreatedReportFiles(convertReport, receiveReport, txn, 1)
-            // Verify that the expected FHIR bundles were uploaded
+logger.info("number of routedReports: ${routedReports.size}")
+logger.info("routed report index zero id: ${routedReports.get(0).reportId}")
+
+
+logger.info("routedReports is: ${routedReports}")
+
             val reportAndBundles =
                 routedReports.map {
+                    logger.info("it.bodyUrl is: ${it.bodyUrl}")
+                    logger.info("BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata()).toString(Charsets.UTF_8)")
                     Pair(
                         it,
                         BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata())
                     )
                 }
+logger.info("reportAndBundles is: ${reportAndBundles}")
 
             assertThat(reportAndBundles).transform { pairs -> pairs.map { it.second } }.each {
                 it.matchesPredicate { bytes ->
-
-                    val cleanHL7Result = CompareData().compare(
+logger.info("bytes as str: ${bytes.toString(Charsets.UTF_8)}")
+logger.info("validFHIRRecord1 as str: $validFHIRRecord1")
+                    val result = CompareData().compare(
                         bytes.inputStream(),
                         validFHIRRecord1.byteInputStream(),
                         Report.Format.FHIR,
                         null
                     )
-                    cleanHL7Result.passed
+                    result.passed
                 }
             }
 
@@ -364,29 +374,20 @@ class FHIRRouterIntegrationTests : Logging {
 //                    report.reportId,
 //                    report.bodyUrl,
 //                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
-//                    hl7SenderWithNoTransform.fullName,
-//                    hl7SenderWithNoTransform.topic
+//                    fhirSenderWithNoTransform.fullName,
+//                    fhirSenderWithNoTransform.topic
 //                )
 //            }.map { it.serialize() }
 //
-//            verify(exactly = 2) {
-//                QueueAccess.sendMessage("elr-fhir-route", match { expectedRouteQueueMessages.contains(it) })
+//            verify(exactly = 1) {
+//                QueueAccess.sendMessage("elr-fhir-translate", match {
+//                    logger.info("it is: ${it}")
+//                    logger.info("expectedRouteQueueMessages: $expectedRouteQueueMessages")
+//                    expectedRouteQueueMessages.contains(it)
+//                })
 //            }
-//
-//            val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk()).from(Tables.ACTION_LOG)
-//                .where(Tables.ACTION_LOG.REPORT_ID.eq(receiveReport.id))
-//                .and(Tables.ACTION_LOG.TYPE.eq(ActionLogType.error))
-//                .fetchInto(
-//                    DetailedActionLog::class.java
-//                )
-//
-//            assertThat(actionLogs).hasSize(2)
-//            @Suppress("ktlint:standard:max-line-length")
-//            assertThat(actionLogs).transform { logs -> logs.map { it.detail.message } }
-//                .containsOnly(
-//                    "Item 3 in the report was not parseable. Reason: exception while parsing HL7: Determine encoding for message. The following is the first 50 chars of the message for reference, although this may not be where the issue is: MSH^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16",
-//                    "Item 4 in the report was not parseable. Reason: exception while parsing HL7: Invalid or incomplete encoding characters - MSH-2 is ^~\\&#!"
-//                )
+
+
         }
     }
 }
