@@ -46,6 +46,8 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import gov.cdc.prime.router.history.DetailedActionLog
 // import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
 // import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -355,37 +357,42 @@ logger.info("routedReports is: ${routedReports}")
                 }
 logger.info("reportAndBundles is: ${reportAndBundles}")
 
-            assertThat(reportAndBundles).transform { pairs -> pairs.map { it.second } }.each {
-                it.matchesPredicate { bytes ->
-logger.info("bytes as str: ${bytes.toString(Charsets.UTF_8)}")
-logger.info("validFHIRRecord1 as str: $validFHIRRecord1")
-                    val result = CompareData().compare(
-                        bytes.inputStream(),
-                        validFHIRRecord1.byteInputStream(),
-                        Report.Format.FHIR,
-                        null
-                    )
-                    result.passed
+
+            assertThat(reportAndBundles).transform {
+                pairs -> pairs.map {
+                    it.second.toString(Charsets.UTF_8)
                 }
+            }.containsOnly(validFHIRRecord1)
+
+
+            val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
+                logger.info("fireBundle is: ${fhirBundle}")
+                logger.info("bytes fhir bundle to str is: ${fhirBundle.toString(Charsets.UTF_8)}")
+                FhirTranslateQueueMessage(
+                    report.reportId,
+                    report.bodyUrl,
+                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                    "phd.fhir-elr-no-transform",
+                    fhirSenderWithNoTransform.topic,
+                    "phd.elr2"
+                )
+            }.map {
+                logger.info("it is ---> $it")
+                logger.info("it serialized is --> ${it.serialize()}")
+                it.serialize()
             }
 
-//            val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
-//                FhirRouteQueueMessage(
-//                    report.reportId,
-//                    report.bodyUrl,
-//                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
-//                    fhirSenderWithNoTransform.fullName,
-//                    fhirSenderWithNoTransform.topic
-//                )
-//            }.map { it.serialize() }
-//
 //            verify(exactly = 1) {
-//                QueueAccess.sendMessage("elr-fhir-translate", match {
-//                    logger.info("it is: ${it}")
-//                    logger.info("expectedRouteQueueMessages: $expectedRouteQueueMessages")
-//                    expectedRouteQueueMessages.contains(it)
-//                })
+//                QueueAccess.sendMessage(elrTranslationQueueName, any())
 //            }
+
+            verify(exactly = 1) {
+                QueueAccess.sendMessage(elrTranslationQueueName, match {
+                    logger.info("expectedRouteQueueMessages: ${expectedRouteQueueMessages}")
+                    logger.info("it is ~~~ $it")
+                    expectedRouteQueueMessages.contains(it) }
+                )
+            }
 
 
         }

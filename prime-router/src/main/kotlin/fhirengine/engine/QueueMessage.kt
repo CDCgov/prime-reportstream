@@ -10,6 +10,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.ReportStreamFilterDefinition.Companion.logger
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
@@ -36,7 +37,9 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
 )
 abstract class QueueMessage {
     fun serialize(): String {
+        logger.info("this is: ${this}")
         val bytes = mapper.writeValueAsBytes(this)
+        logger.info("this bytes to string is: ${bytes.toString(Charsets.UTF_8)}")
         check(bytes.size < MESSAGE_SIZE_LIMIT) { "Message is too big for the queue." }
         return String(Base64.getEncoder().encode(bytes))
     }
