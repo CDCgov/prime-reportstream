@@ -1,0 +1,41 @@
+sortDir:
+  name: sortdir
+  in: query
+  description: direction in which to sort reports
+  schema:
+    type: string
+    enum: [ASC, DESC]
+    default: DESC
+sortCol:
+  name: sortcol
+  in: query
+  description: column used as the basis for sorting
+  schema:
+    type: string
+cursor:
+  name: cursor
+  in: query
+  description: used by cursor-based pagination to determine the position on the results
+  schema:
+    type: string
+    format: date-time
+since:
+  name: since
+  in: query
+  description: only return results from after the given date
+  schema:
+    type: string
+    format: date-time
+until:
+  name: until
+  in: query
+  description: only return results from before the given date
+  schema:
+    type: string
+    format: date-time
+pagesize:
+  name: pagesize
+  in: query
+  description: number of results per page
+  schema:
+    type: integer

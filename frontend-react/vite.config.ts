@@ -2,7 +2,7 @@
 
 import { resolve } from "path";
 
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig, loadEnv, searchForWorkspaceRoot } from "vite";
 import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
 import mdx from "@mdx-js/rollup";
@@ -103,6 +103,12 @@ export default defineConfig(async ({ mode }) => {
                     target: proxyUrl,
                     changeOrigin: true,
                 },
+            },
+            fs: {
+                allow: [
+                    searchForWorkspaceRoot(process.cwd()),
+                    '../prime-router/docs/api'
+                ]
             },
             headers: {
                 "content-security-policy": isCsp

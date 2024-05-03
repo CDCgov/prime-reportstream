@@ -186,6 +186,8 @@ const NewSettingPage = lazy(() => import("./components/Admin/NewSetting"));
 
 const MainLayout = lazy(() => import("./layouts/Main/MainLayout"));
 
+const OpenApiPage = lazy(() => import("./pages/OpenApi"))
+
 export const appRoutes: RouteObject[] = [
     /* Public Site */
     {
@@ -201,6 +203,13 @@ export const appRoutes: RouteObject[] = [
                     isContentPage: true,
                     isFullWidth: true,
                 },
+            },
+            {
+                path: "openapi",
+                element: <OpenApiPage />,
+                handle: {
+                    isFullWidth: true,
+                }
             },
             {
                 path: "terms-of-service",

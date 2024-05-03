@@ -1,15 +1,5 @@
-openapi: "3.0.2"
-info:
-  title: ReportStream Lookup Table Management API
-  description: Fetches and manipulates lookup tables in ReportStream
-  version: "1.0"
-  contact:
-    name: USDS at Centers for Disease Control and Prevention
-    url: https://open.cdc.gov
-    email: usds@cdc.gov
-
 paths:
-  /api/lookuptables/list:
+  /lookuptables/list:
     get:
       description: Fetch the list lookup tables
       security:
@@ -34,7 +24,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorMsg'
 
-  /api/lookuptables/{tableName}:
+  /lookuptables/{tableName}:
     post:
       description: Create a new version of a lookup table.  First versions of a table
         are automatically activated.
@@ -68,7 +58,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorMsg'
 
-  /api/lookuptables/{tableName}/{tableVersion}/content:
+  /lookuptables/{tableName}/{tableVersion}/content:
     get:
       description: Fetch the contents of a specific version of a table
       security:
@@ -106,7 +96,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorMsg'
 
-  /api/lookuptables/{tableName}/content:
+  /lookuptables/{tableName}/content:
     get:
       description: Fetch the contents of the active version of a table
       security:
@@ -138,7 +128,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorMsg'
 
-  /api/lookuptables/{tableName}/{tableVersion}/info:
+  /lookuptables/{tableName}/{tableVersion}/info:
     get:
       description: Fetch the version information of a specific version of a table
       security:
@@ -176,7 +166,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorMsg'
 
-  /api/lookuptables/{tableName}/{tableVersion}/activate:
+  /lookuptables/{tableName}/{tableVersion}/activate:
     put:
       description: Activate a specific version of a table.  This endpoint does not take a request body.
       security:
@@ -251,7 +241,3 @@ components:
       properties:
         error:
           type: string
-
-  securitySchemes:
-    OAuth2:
-      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'

@@ -1,0 +1,75 @@
+openapi: 3.1.0
+info:
+  title: Prime ReportStream
+  description: A router of public health data
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://reportstream.cdc.gov
+    email: reportstream@cdc.gov
+  version: 0.2.0-oas3
+  license:
+    name: Creative Commons Zero v1.0 Universal
+    url: https://github.com/CDCgov/prime-reportstream/blob/master/LICENSE
+externalDocs:
+  description: ReportStream API Programmer Guide
+  url: https://staging.reportstream.cdc.gov/resources/api/getting-started
+servers:
+- url: http://localhost:7071/api/
+  description: Local Server (Local Development Use)
+- url: https://staging.prime.cdc.gov/api/
+  description: Staging Server
+- url: https://prime.cdc.gov/api
+  description: Production server (uses live data)
+security:
+- OAuth2: []
+- PreviewOAuth2: []
+- ServerToServer: []
+components:
+  schemas:
+    HttpResponseMessage:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+        body:
+          type: object
+        status:
+          $ref: '#/components/schemas/HttpStatusType'
+    HttpStatusType:
+      type: object
+    HttpRequestMessageString:
+      type: object
+      properties:
+        queryParameters:
+          type: object
+          additionalProperties:
+            type: string
+        body:
+          type: string
+        httpMethod:
+          type: string
+          enum:
+          - GET
+          - HEAD
+          - POST
+          - PUT
+          - DELETE
+          - CONNECT
+          - OPTIONS
+          - TRACE
+          - PATCH
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        uri:
+          type: string
+          format: uri
+  securitySchemes:
+    ServerToServer:
+      $ref: components/security_schemes.yaml#/ServerToServer
+    OAuth2:
+      $ref: components/security_schemes.yaml#/OAuth2
+    PreviewOAuth2:
+      $ref: components/security_schemes.yaml#/PreviewOAuth2

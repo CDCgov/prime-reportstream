@@ -66,3 +66,5 @@ declare module "*.mdx" {
 
     export const toc: TocEntry[];
 }
+
+declare module 'openapi-explorer/dist/es/react';

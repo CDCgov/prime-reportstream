@@ -1,0 +1,9 @@
+paths:
+  /email-registered:
+    post:
+      description: send a registration email to an organization
+      security:
+        - OAuth2: [ user ]
+      responses:
+        '200':
+          description: success call

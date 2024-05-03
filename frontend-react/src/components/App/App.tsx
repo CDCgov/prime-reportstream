@@ -25,9 +25,9 @@ import { permissionCheck } from "../../utils/PermissionsUtils";
 import { RSConsole } from "../../utils/rsConsole/rsConsole";
 import { createTelemetryService } from "../../utils/TelemetryService/TelemetryService";
 import { PERMISSIONS } from "../../utils/UsefulTypes";
+import RSErrorBoundary from "../RSErrorBoundary/RSErrorBoundary";
 
 import "react-toastify/dist/ReactToastify.css";
-import RSErrorBoundary from "../RSErrorBoundary/RSErrorBoundary";
 
 export interface AppProps {
     routes: RouteObject[];

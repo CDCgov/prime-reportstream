@@ -1,0 +1,10 @@
+# Covid result metadata
+paths:
+  /saveTestData:
+    get:
+      description: test data extraction api
+      security:
+        - OAuth2: [ user ]
+      responses:
+        '200':
+          description: success call

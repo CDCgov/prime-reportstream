@@ -1,0 +1,17 @@
+paths:
+  /email-schedule:
+    post:
+      description: create email schedule
+      security:
+        - OAuth2: [ user ]
+      responses:
+        '200':
+          description: success call
+  /email-schedule/{scheduleId}:
+    delete:
+      description: delete an inactive email schedule
+      security:
+        - OAuth2: [ user ]
+      responses:
+        '200':
+          description: success call
