@@ -111,9 +111,8 @@ class FHIRConverter(
         //
         // This line exists so that FhirPathUtils (an object) is instantiated before any of the multi-threaded code run
         // (kotlin objects are instantiated at first access https://arc.net/l/quote/tbvpqnlh)
-        // TODO: ticket to create a more permanent fix or upgrade the HAPI FHIR library if they fix it
+        // TODO: https://github.com/CDCgov/prime-reportstream/issues/14287
         FhirPathUtils
-
 
         val fhirBundles = process(format, queueMessage, actionLogger)
 
