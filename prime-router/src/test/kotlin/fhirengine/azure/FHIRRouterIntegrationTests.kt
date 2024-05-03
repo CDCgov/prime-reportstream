@@ -6,6 +6,11 @@ package gov.cdc.prime.router.fhirengine.azure
 // import assertk.assertions.hasSize
 // import assertk.assertions.matchesPredicate
 // import gov.cdc.prime.router.*
+import assertk.assertThat
+import assertk.assertions.containsOnly
+import assertk.assertions.each
+import assertk.assertions.hasSize
+import assertk.assertions.matchesPredicate
 import gov.cdc.prime.router.*
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.history.db.ReportGraph
@@ -15,16 +20,21 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.enums.ActionLogType
 // import gov.cdc.prime.router.azure.db.Tables
 // import gov.cdc.prime.router.azure.db.enums.ActionLogType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
+import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.*
 // import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransform
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils.hl7SenderWithNoTransform
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.universalPipelineOrganization
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles
 // import gov.cdc.prime.router.common.UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles
 // import gov.cdc.prime.router.common.badEncodingHL7Record
 // import gov.cdc.prime.router.common.cleanHL7Record
@@ -35,16 +45,16 @@ import gov.cdc.prime.router.common.UniversalPipelineTestUtils.universalPipelineO
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
+import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
+import gov.cdc.prime.router.history.DetailedActionLog
 // import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
 // import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 // import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
-import io.mockk.clearAllMocks
-import io.mockk.every
-import io.mockk.mockkConstructor
-import io.mockk.mockkObject
+import io.mockk.*
 import org.apache.logging.log4j.kotlin.Logging
+import org.jooq.impl.DSL
 // import io.mockk.verify
 // import org.jooq.impl.DSL
 import org.junit.jupiter.api.AfterEach
@@ -285,6 +295,12 @@ class FHIRRouterIntegrationTests : Logging {
                 validFHIRRecord1
             ).joinToString()
 
+        val receivedBlobUrl = BlobAccess.uploadBlob(
+            "receive/tralalalalala.fhir",
+            reportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
+
         val convertedBlobUrl = BlobAccess.uploadBlob(
             "convert/tralalalalala.fhir",
             reportContents.toByteArray(),
@@ -311,26 +327,66 @@ class FHIRRouterIntegrationTests : Logging {
             Event.EventAction.CONVERT,
             Topic.FULL_ELR,
             0,
-            convertReport
+            convertReport,
+            receivedBlobUrl
         )
-
-        logger.info("receive report id is: ${receiveReport.id}")
-
-        logger.info("convert report id is: ${convertReport.id}")
-
-//        val routeReport = seedTask(
-//            Report.Format.FHIR,
-//            TaskAction.route,
-//            TaskAction.translate,
-//            Event.EventAction.TRANSLATE,
-//            Topic.ELR_ELIMS,
-//            99,
-//            convertReport,
-//            convertedBlobUrl
-//        )
 
         val queueMessage = generateQueueMessage(convertReport, reportContents, fhirSenderWithNoTransform)
         val fhirFunctions = createFHIRFunctionsInstance()
         fhirFunctions.doRoute(queueMessage, 1, createFHIRRouter())
+
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val routedReports = verifyLineageAndFetchCreatedReportFiles(convertReport, receiveReport, txn, 1)
+            // Verify that the expected FHIR bundles were uploaded
+            val reportAndBundles =
+                routedReports.map {
+                    Pair(
+                        it,
+                        BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata())
+                    )
+                }
+
+            assertThat(reportAndBundles).transform { pairs -> pairs.map { it.second } }.each {
+                it.matchesPredicate { bytes ->
+
+                    val cleanHL7Result = CompareData().compare(
+                        bytes.inputStream(),
+                        validFHIRRecord1.byteInputStream(),
+                        Report.Format.FHIR,
+                        null
+                    )
+                    cleanHL7Result.passed
+                }
+            }
+
+//            val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
+//                FhirRouteQueueMessage(
+//                    report.reportId,
+//                    report.bodyUrl,
+//                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+//                    hl7SenderWithNoTransform.fullName,
+//                    hl7SenderWithNoTransform.topic
+//                )
+//            }.map { it.serialize() }
+//
+//            verify(exactly = 2) {
+//                QueueAccess.sendMessage("elr-fhir-route", match { expectedRouteQueueMessages.contains(it) })
+//            }
+//
+//            val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk()).from(Tables.ACTION_LOG)
+//                .where(Tables.ACTION_LOG.REPORT_ID.eq(receiveReport.id))
+//                .and(Tables.ACTION_LOG.TYPE.eq(ActionLogType.error))
+//                .fetchInto(
+//                    DetailedActionLog::class.java
+//                )
+//
+//            assertThat(actionLogs).hasSize(2)
+//            @Suppress("ktlint:standard:max-line-length")
+//            assertThat(actionLogs).transform { logs -> logs.map { it.detail.message } }
+//                .containsOnly(
+//                    "Item 3 in the report was not parseable. Reason: exception while parsing HL7: Determine encoding for message. The following is the first 50 chars of the message for reference, although this may not be where the issue is: MSH^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16",
+//                    "Item 4 in the report was not parseable. Reason: exception while parsing HL7: Invalid or incomplete encoding characters - MSH-2 is ^~\\&#!"
+//                )
+        }
     }
 }
