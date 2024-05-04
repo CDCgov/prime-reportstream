@@ -1,12 +1,16 @@
 paths:
   /settings/organizations:
     get:
+      tags:
+       - default
+       - UserTypeAdmin
+      operationId: getSettingsOrganizationss
+      summary: >-
+        The settings for all organizations of the system. Must have admin
+        access.
       description: >-
         The settings for all organizations of the system. Must have admin
         access.
-      security:
-        - OAuth2: [system_admin]
-        - Server2Server: []
       responses:
         "200":
           description: OK
@@ -23,13 +27,22 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Organization"
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+          
     head:
+      tags:
+        - default
+        - UserTypeAdmin
+      operationId: headSettingsOrganizations
+      summary: >-
+        Retrieved the last modified for all settings of the system. Must have
+        admin access.
       description: >-
         Retrieved the last modified for all settings of the system. Must have
         admin access.
-      security:
-        - OAuth2: [system_admin]
-        - Server2Server: []
       responses:
         "200":
           description: OK
@@ -42,12 +55,16 @@ paths:
               required: false
               schema:
                 type: string
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
   /settings/organizations/{organizationName}:
     get:
+      operationId: getSettingsOrganizations
+      summary: A single organization settings
       description: A single organization settings
-      security:
-        - OAuth2: [user]
-        - Server2Server: []
       parameters:
         - in: path
           schema:
@@ -62,11 +79,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Organization"
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
     put:
+      tags:
+       - default
+       - UserTypeAdmin
+      operationId: putSettingsOrganizations
+      summary: Create or update the direct settings associated with an organization
       description: Create or update the direct settings associated with an organization
-      security:
-        - OAuth2: [system_admin]
-        - Server2Server: []
       parameters:
         - in: path
           required: true
@@ -92,15 +116,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Organization"
-        "400":
-          description: Bad Request
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
         "401":
           description: Unauthorized
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
     delete:
+      tags:
+       - default
+       - UserTypeAdmin
+      operationId: deleteSettingsOrganizations
+      summary: Delete an organization (and the associated receivers and senders)
       description: Delete an organization (and the associated receivers and senders)
-      security:
-        - OAuth2: [system_admin]
-        - Server2Server: []
       parameters:
         - in: path
           required: true
@@ -115,16 +144,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Organization"
-        "400":
-          description: Bad Request
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
         "401":
           description: Unauthorized
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
   /settings/organizations/{organizationName}/receivers:
     get:
+      operationId: getSettingsOrganizationsReceiverss
+      summary: A list of receivers and their current settings
       description: A list of receivers and their current settings
-      security:
-        - OAuth2: [user]
-        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -142,16 +173,18 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Receiver"
-        "400":
-          description: Bad Request
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
         "401":
           description: Unauthorized
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
   /settings/organizations/{organizationName}/receivers/{receiverName}:
     get:
+      operationId: getSettingsOrganizationsReceivers
+      summary: The settings of a single of receiver
       description: The settings of a single of receiver
-      security:
-        - OAuth2: [user]
-        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -174,15 +207,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Receiver"
-        "400":
-          description: Bad Request
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
         "401":
           description: Unauthorized
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
     put:
+      tags:
+       - default
+       - UserTypeOrganizationAdmin
+      operationId: putSettingsOrganizationReceiver
+      summary: Update a single receiver
       description: Update a single receiver
-      security:
-        - OAuth2: [org_admin]
-        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -216,15 +254,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Receiver"
-        "400":
-          description: Bad Request
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
         "401":
           description: Unauthorized
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
     delete:
+      tags:
+       - default
+       - UserTypeOrganizationAdmin
+      operationId: deleteSettingsOrganizationsReceivers
+      summary: Delete a receiver
       description: Delete a receiver
-      security:
-        - OAuth2: [org_admin]
-        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -247,16 +290,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Receiver"
-        "400":
-          description: Bad Request
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
         "401":
           description: Unauthorized
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
   /settings/organizations/{organizationName}/senders:
     get:
+      operationId: getSettingsOrganizationsSenderss
+      summary: A list of senders
       description: A list of senders
-      security:
-        - OAuth2: [user]
-        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -274,16 +319,18 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Sender"
-        "400":
-          description: Bad Request
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
         "401":
           description: Unauthorized
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
   /settings/organizations/{organizationName}/senders/{senderName}:
     get:
+      operationId: getSettingsOrganizationsSenders
+      summary: The settings of a single of sender
       description: The settings of a single of sender
-      security:
-        - OAuth2: [user]
-        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -306,15 +353,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Sender"
-        "400":
-          description: Bad Request
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
         "401":
           description: Unauthorized
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
     put:
+      tags:
+       - default
+       - UserTypeOrganizationAdmin
+      operationId: putSettingsOrganizationsSenders
+      summary: Update a single sender
       description: Update a single sender
-      security:
-        - OAuth2: [org_admin]
-        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -352,15 +404,20 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Sender"
-        "400":
-          description: Bad Request
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
         "401":
           description: Unauthorized
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
     delete:
+      tags:
+       - default
+       - UserTypeOrganizationAdmin
+      operationId: deleteSettingsOrganizationsSenders
+      summary: Delete a sender
       description: Delete a sender
-      security:
-        - OAuth2: [org_admin]
-        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -383,20 +440,22 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Sender"
-        "400":
-          description: Bad Request
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
         "401":
           description: Unauthorized
-  /waters/org/{organizationName}/senders/revs/{settingType}:
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
+  /waters/org/{organizationName}/settings/revs/{settingType}:
     get:
+      operationId: getWatersOrgSettingsRevisions
+      summary: The full history of setting revisions for all settings of a given type.
       description: The full history of setting revisions for all settings of a given type.
-      security:
-        - OAuth2: [user]
-        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
-          description: Fetch senders with this organization name
+          description: Fetch settings with this organization name
           schema:
             type: string
           required: true
@@ -419,10 +478,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SettingRevisions"
-        "400":
-          description: Bad Request
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
         "401":
           description: Unauthorized
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
 components:
   schemas:
     SettingMetadata:

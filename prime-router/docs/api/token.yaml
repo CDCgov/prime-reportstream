@@ -1,9 +1,9 @@
 paths:
-  token:
+  /token:
     post:
+      operationId: postToken
+      summary: Generate and return a new token for the requested scope
       description: Generate and return a new token for the requested scope
-      security:
-        - OAuth2: [ user ]
       requestBody:
         description: Parameters should be sent in the request body.
         required: true
@@ -32,7 +32,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/TableVersionInfo'
         '400':
-          description: bad request
+          $ref: 'components/responses.yaml#/BadRequest'
         '401':
           description: unauthorized
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
 

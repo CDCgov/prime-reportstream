@@ -5,6 +5,7 @@ import {
     UserClaims,
 } from "@okta/okta-auth-js";
 import { useOktaAuth } from "@okta/okta-react";
+import { AxiosRequestConfig } from "axios";
 import {
     createContext,
     PropsWithChildren,
@@ -20,6 +21,7 @@ import type { AppConfig } from "../../config";
 import site from "../../content/site.json";
 import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
 import { updateApiSessions } from "../../network/Apis";
+import { OpenAPI } from "../../utils/Api";
 import { EventName } from "../../utils/AppInsights";
 import { isUseragentPreferred } from "../../utils/BrowserUtils";
 import {
@@ -63,6 +65,7 @@ function SessionProvider({
     config,
     rsConsole,
 }: SessionProviderProps) {
+    OpenAPI.BASE = config.API_ROOT
     const { authState, oktaAuth } = useOktaAuth();
     const aiReactPlugin = useAppInsightsContext();
 
@@ -84,6 +87,28 @@ function SessionProvider({
 
         return { ...actualMembership, ...(_activeMembership ?? {}) };
     }, [authState, _activeMembership]);
+
+    /**
+     * Keep our auth header middleware up-to-date
+     */
+    useEffect(() => {
+        const authInterceptorFn = (req: AxiosRequestConfig<any>) => {
+            req.headers = {
+                ...req.headers,
+                "x-ms-session-id": aiReactPlugin.properties.context.getSessionId(),
+                "authentication-type": "okta",
+                authorization: `Bearer ${
+                    authState?.accessToken?.accessToken ?? ""
+                }`,
+                organization: `${activeMembership?.parsedName ?? ""}`,
+            }
+
+            return req;
+        }
+        OpenAPI.interceptors.request.use(authInterceptorFn);
+
+        return () => OpenAPI.interceptors.request.eject(authInterceptorFn)
+    }, [activeMembership?.parsedName, aiReactPlugin.properties.context, authState?.accessToken?.accessToken])
 
     const logout = useCallback(async () => {
         try {
@@ -111,7 +136,6 @@ function SessionProvider({
         },
         [logout, aiReactPlugin, oktaAuth],
     );
-
     useIdleTimer({
         onIdle: () => void handleIdle(),
         ...config.IDLE_TIMERS,

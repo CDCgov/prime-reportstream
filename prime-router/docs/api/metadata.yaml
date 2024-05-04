@@ -1,6 +1,8 @@
 paths:
   /metadata/livd:
     get:
+      operationId: getMetadataLivd
+      summary: get data from LIVD tables
       description: get data from LIVD tables
       responses:
         '200':
@@ -85,3 +87,7 @@ paths:
                     loincVersionId:
                       type: string
                       example: "2.68"
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'

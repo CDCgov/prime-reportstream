@@ -1,0 +1,6 @@
+ErrorMsg:
+  description: The error message
+  type: object
+  properties:
+    error:
+      type: string

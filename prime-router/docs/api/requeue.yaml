@@ -1,9 +1,9 @@
 paths:
   /requeue/send:
     post:
+      operationId: postRequeueSend
+      summary: manually queue up a report to be sent again to one receiver
       description: manually queue up a report to be sent again to one receiver
-      security:
-        - OAuth2: [ system_admin ]
       parameters:
         - name: reportId
           in: query
@@ -23,6 +23,8 @@ paths:
           description: if given, includes additional debug messages
           schema:
             type: boolean
+      security:
+        - ApiKeyAuth: []
       requestBody:
         description: Empty body due to the POST format
         required: true
@@ -38,11 +40,112 @@ paths:
               schema:
                 $ref: '#/components/schemas/RequeueResponse'
         '400':
-          description: bad request
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
+  /adm/resend:
+    post:
+      tags:
+       - default
+       - UserTypeAdmin
+      operationId: postAdmResend
+      summary: Used to resend failures. Prime admin only.
+      description: Used to resend failures. Prime admin only.
+      parameters:
+        - in: query
+          name: days_to_show
+          description: Number of days back from today include in results
+          schema:
+            type: integer
+          required: false
+          example: "days_to_show=3"
+      responses:
+        '200':
+          description: OK
+          headers:
+            Last-Modified:
+              description: The date and time any setting was modified in GMT.
+              example: "Wed, 21 Oct 2015 07:28:00 GMT"
+              required: false
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ListResends'
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
 components:
   schemas:
     EmptyBody:
       type: string
+
     RequeueResponse:
       type: string
 
+    ListResends:
+      summary: An organization connected to data hub
+      description: An organization connected to data hub
+      type: object
+      required: [ "actionId", "actionName", "description", "createdAt", "httpStatus", "actionResult" ]
+      properties:
+        actionId:
+          description: the unique id for the action
+          type: integer
+          example: 287
+        actionName:
+          description: For this selector it's always "resend"
+          type: string
+          example: "resend"
+        createdAt:
+          description: The time at which this action was created
+          type: string
+          format: time-date
+          example: "2022-07-01T18:52:06.919Z"
+        httpStatus:
+          description: The http result code from this action running
+          type: integer
+          example: 200
+        actionParams:
+          description: Parameters originally passed to this action. Formatted Json including Headers and QueryParameters
+          type: string
+        actionResult:
+          description: Result for this action.
+          type: string
+          format: application/json
+          example: "OK: Will resend all (5) items in be6ad9cd-180c-4496-aa82-e0016ee75674\nbe6ad9cd-180c-4496-aa82-e0016ee75674 has been queued to resend immediately to ignore.HL7_BATCH_PPK"
+        username:
+          description: Login email of account initiating request
+          type: string
+          format: email
+          example: "bob@example.com"
+        sender_ip:
+          description: IP address of account initiating request
+          type: string
+          example: "127.0.0.1"
+        actionResponse:
+          description: Not currently used, may be in the future
+          type: string
+          example: "null"
+        contentLength:
+          description: Not currently used, always zero
+          type: integer
+          example: 0
+        sendingOrg:
+          description: not currently used
+          type: string
+          example: "null"
+        sendingOrgClient:
+          description: not currently used
+          type: string
+          example: "null"
+        externalName:
+          description: not currently used
+          type: string
+          example: "null"

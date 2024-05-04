@@ -1,9 +1,12 @@
 paths:
   /sender-files:
     get:
+      tags:
+       - default
+       - UserTypeAdmin
+      operationId: getSenderFiles
+      summary: For a specified report, trace each item's ancestry and retrieve the source files submitted by senders.
       description: For a specified report, trace each item's ancestry and retrieve the source files submitted by senders.
-      security:
-        - OAuth2: [ system_admin ]
       parameters:
         - in: query
           name: report-id
@@ -44,6 +47,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ReportFileMessage'
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
 
 components:
   schemas:

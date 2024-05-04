@@ -1,9 +1,13 @@
 paths:
   /email-registered:
     post:
+      operationId: postEmailRegistered
+      summary: send a registration email to an organization
       description: send a registration email to an organization
-      security:
-        - OAuth2: [ user ]
       responses:
         '200':
           description: success call
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'

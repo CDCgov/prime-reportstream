@@ -1,17 +1,32 @@
 paths:
   /email-schedule:
     post:
+      operationId: postEmailSchedule
+      summary: create email schedule
       description: create email schedule
-      security:
-        - OAuth2: [ user ]
       responses:
         '200':
           description: success call
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
   /email-schedule/{scheduleId}:
     delete:
+      operationId: deleteEmailSchedule
+      summary: delete an inactive email schedule
       description: delete an inactive email schedule
-      security:
-        - OAuth2: [ user ]
+      parameters:
+        - name: scheduleId
+          in: path
+          schema:
+            type: string
+          required: true
       responses:
         '200':
           description: success call
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'

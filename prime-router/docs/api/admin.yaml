@@ -3,10 +3,12 @@ paths:
   #
   /adm/getsendfailures:
     get:
-      operationId: getSendFailures
+      tags:
+       - default
+       - UserTypeAdmin
+      operationId: getAdmGetSendFailures
+      summary: Returns list of recent failed report-forwarding sends. Used to resend failures. Prime admin only.
       description: Returns list of recent failed report-forwarding sends. Used to resend failures. Prime admin only.
-      security:
-        - OAuth2: [ system_admin ]
       parameters:
         - in: query
           name: days_to_show
@@ -31,13 +33,19 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ListSendFailures'
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
 
   /adm/getresend:
     get:
-      operationId: getResend
+      tags:
+       - default
+       - UserTypeAdmin
+      operationId: getAdmGetResend
+      summary: Returns list of recent failed report-forwarding sends. Used to resend failures. Prime admin only.
       description: Returns list of recent failed report-forwarding sends. Used to resend failures. Prime admin only.
-      security:
-        - OAuth2: [ system_admin ]
       parameters:
         - in: query
           name: days_to_show
@@ -62,14 +70,20 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ListResends'
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
 
 # Building
   /adm/listreceiversconnstatus:
     get:
-      operationId: getListReceiversConnStatus
+      tags:
+       - default
+       - UserTypeAdmin
+      operationId: getAdmListReceiversConnStatus
+      summary: Get recent report-forward sends across all orgs. Prime admin only.
       description: Get recent report-forward sends across all orgs. Prime admin only.
-      security:
-        - OAuth2: [ system_admin ]
       parameters:
         - name: start_date
           in: query
@@ -96,9 +110,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ReceiversConnStatusResponse'
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
 components:
   schemas:
     ListSendFailures:
+      summary: An organization connected to data hub
       description: An organization connected to data hub
       type: object
       required: [ "name", "description", "jurisdiction" ]
@@ -143,6 +163,7 @@ components:
           example: "ignore.HL7_BATCH_OFFSET_TIME_UTC"
 
     ListResends:
+      summary: An organization connected to data hub
       description: An organization connected to data hub
       type: object
       required: [ "actionId", "actionName", "description", "createdAt", "httpStatus", "actionResult" ]
@@ -204,6 +225,7 @@ components:
 
     ReceiversConnStatusResponse:
       type: object
+      summary: An organization connected to data hub
       description: An organization connected to data hub
       properties:
         receiverConnectionCheckResultId:

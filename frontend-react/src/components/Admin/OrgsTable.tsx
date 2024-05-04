@@ -2,19 +2,16 @@ import { Button, ButtonGroup, Label, TextInput } from "@trussworks/react-uswds";
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
-import { useResource } from "rest-hooks";
 
 import useSessionContext from "../../contexts/Session/useSessionContext";
-import OrgSettingsResource from "../../resources/OrgSettingsResource";
+import useSettingsOrganizations from "../../hooks/UseSettingsOrganizations";
 import Table from "../../shared/Table/Table";
+import filterSettingsOrganizations from "../../utils/filters/filterSettingsOrganizations";
 import { MembershipSettings, MemberType } from "../../utils/OrganizationUtils";
 import { USNavLink } from "../USLink";
 
 export function OrgsTable() {
-    const orgs: OrgSettingsResource[] = useResource(
-        OrgSettingsResource.list(),
-        {},
-    ).sort((a, b) => a.name.localeCompare(b.name));
+    const {data: orgs} = useSettingsOrganizations();
     const [filter, setFilter] = useState("");
     const navigate = useNavigate();
     const { activeMembership, setActiveMembership } = useSessionContext();
@@ -43,7 +40,7 @@ export function OrgsTable() {
 
     const saveListToCSVFile = () => {
         const csvbody = orgs
-            .filter((eachOrg) => eachOrg.filterMatch(filter))
+            .filter((eachOrg) => filterSettingsOrganizations(eachOrg, filter))
             .map((eachOrg) =>
                 [
                     `"`,
@@ -73,7 +70,7 @@ export function OrgsTable() {
 
     const formattedTableData = () => {
         return orgs
-            .filter((eachOrg) => eachOrg.filterMatch(filter))
+            .filter((eachOrg) => filterSettingsOrganizations(eachOrg, filter))
             .map((eachOrg) => [
                 {
                     columnKey: "Name",

@@ -4,12 +4,16 @@ tags:
 paths:
   /messages:
     get:
+      tags:
+       - default
+       - UserTypeAdmin
+      operationId: getMessages
+      summary: Fetch a list of COVID result entries from the `covid_result_metadata` table based on a `messageId`, 
+        called `message_id` on the backend. This endpoint will typically return one result but 
+        `message_id` is not guaranteed to be unique, so multiple results can be returned.
       description: Fetch a list of COVID result entries from the `covid_result_metadata` table based on a `messageId`, 
         called `message_id` on the backend. This endpoint will typically return one result but 
         `message_id` is not guaranteed to be unique, so multiple results can be returned.
-      security:
-        - OAuth2: [ system_admin ]
-        - PreviewOAuth2: [ system_admin ]
       parameters:
         - name: messageId
           in: query
@@ -26,15 +30,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/Message'
         '400':
-          description: missing messageId parameter or a bad request
+          $ref: 'components/responses.yaml#/BadRequest'
         '401':
           description: unauthorized
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
   /message/{id}:
     get:
+      operationId: getMessage
+      summary: Return details about a particular COVID test result message from the covid_result_metadata table.
       description: Return details about a particular COVID test result message from the covid_result_metadata table.
-      security:
-        - OAuth2: [ user ]
-        - PreviewOAuth2: [ user ]
       parameters:
         - name: id
           in: path
@@ -52,9 +58,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Message'
         '400':
-          description: bad request
+          $ref: 'components/responses.yaml#/BadRequest'
         '401':
           description: unauthorized
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
 components:
   schemas:
     Message:

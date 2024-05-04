@@ -1,0 +1,17 @@
+OAuth2:
+  description: OAUTH2 Authorization for Report Stream API Access.
+  type: openIdConnect
+  openIdConnectUrl: https://reportstream.okta.com/oauth2/default/.well-known/openid-configuration
+PreviewOAuth2:
+  description: OAUTH2 Authorization for Report Stream Staging/Dev API Access.
+  type: openIdConnect
+  openIdConnectUrl: https://reportstream.oktapreview.com/oauth2/default/.well-known/openid-configuration
+ServerToServer: # aka two-legged aka fhirauth
+  type: http
+  description: HTTP Bearer Token Authorization for Report Stream API Access.
+  scheme: bearer
+  bearerFormat: JWT
+ApiKeyAuth:
+  type: apiKey
+  in: header
+  name: x-functions-key

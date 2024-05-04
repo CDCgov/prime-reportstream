@@ -1,9 +1,9 @@
 paths:
   /lookuptables/list:
     get:
+      operationId: getLookupTablesList
+      summary: Fetch the list lookup tables
       description: Fetch the list lookup tables
-      security:
-        - OAuth2: [ user ]
       parameters:
         - name: showInactive
           in: query
@@ -22,14 +22,41 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorMsg'
+                $ref: 'components/response_schemas.yaml#/ErrorMsg'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
+    head:
+      operationId: headLookupTablesList
+      summary: Retrieved the last modified for all lookup tables of the system.
+      description: Retrieved the last modified for all lookup tables of the system.
+      responses:
+        "200":
+          description: OK
+          headers:
+            Last-Modified:
+              description: >-
+                The Last-Modified response HTTP header contains the date and
+                time any lookup tables were modified.
+              example: "Wed, 21 Oct 2015 07:28:00 GMT"
+              required: false
+              schema:
+                type: string
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
 
   /lookuptables/{tableName}:
     post:
+      tags:
+       - default
+       - UserTypeAdmin
+      operationId: postLookupTables
+      summary: Create a new version of a lookup table.  First versions of a table
+        are automatically activated.
       description: Create a new version of a lookup table.  First versions of a table
         are automatically activated.
-      security:
-        - OAuth2: [ system_admin ]
       parameters:
         - name: tableName
           in: path
@@ -56,13 +83,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorMsg'
+                $ref: 'components/response_schemas.yaml#/ErrorMsg'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
 
   /lookuptables/{tableName}/{tableVersion}/content:
     get:
+      operationId: getLookupTablesVersionContent
+      summary: Fetch the contents of a specific version of a table
       description: Fetch the contents of a specific version of a table
-      security:
-        - OAuth2: [ user ]
       parameters:
         - name: tableName
           in: path
@@ -88,19 +117,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorMsg'
+                $ref: 'components/response_schemas.yaml#/ErrorMsg'
         '400':
           description: if there was an error fetching the table data
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorMsg'
+                $ref: 'components/response_schemas.yaml#/ErrorMsg'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
 
   /lookuptables/{tableName}/content:
     get:
+      operationId: getLookupTablesContent
+      summary: Fetch the contents of the active version of a table
       description: Fetch the contents of the active version of a table
-      security:
-        - OAuth2: [ user ]
       parameters:
         - name: tableName
           in: path
@@ -120,19 +151,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorMsg'
+                $ref: 'components/response_schemas.yaml#/ErrorMsg'
         '400':
           description: if there was an error fetching the table data
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorMsg'
+                $ref: 'components/response_schemas.yaml#/ErrorMsg'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
 
   /lookuptables/{tableName}/{tableVersion}/info:
     get:
+      operationId: getLookupTablesVersionInfo
+      summary: Fetch the version information of a specific version of a table
       description: Fetch the version information of a specific version of a table
-      security:
-        - OAuth2: [ user ]
       parameters:
         - name: tableName
           in: path
@@ -158,19 +191,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorMsg'
+                $ref: 'components/response_schemas.yaml#/ErrorMsg'
         '400':
           description: if there was an error fetching the table data
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorMsg'
+                $ref: 'components/response_schemas.yaml#/ErrorMsg'
 
   /lookuptables/{tableName}/{tableVersion}/activate:
     put:
+      tags:
+       - default
+       - UserTypeAdmin
+      operationId: putLookupTablesVersionActivate
+      summary: Activate a specific version of a table.  This endpoint does not take a request body.
       description: Activate a specific version of a table.  This endpoint does not take a request body.
-      security:
-        - OAuth2: [ system_admin ]
       parameters:
         - name: tableName
           in: path
@@ -196,15 +232,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorMsg'
+                $ref: 'components/response_schemas.yaml#/ErrorMsg'
         '400':
-          description: if there was an error fetching the table data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorMsg'
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
 
 components:
+  pathItems:
+    LookupTablesList:
+
   schemas:
     DynamicTableRows:
       description: An ordered array with the table rows
@@ -233,11 +270,4 @@ components:
         createdBy:
           type: string
         createdAt:
-          type: string
-
-    ErrorMsg:
-      description: The error message
-      type: object
-      properties:
-        error:
           type: string

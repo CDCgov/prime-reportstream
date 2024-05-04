@@ -1,18 +1,42 @@
 paths:
   /check:
     get:
+      operationId: getCheck
+      summary: checks a single remote connection
       description: checks a single remote connection
       security:
-        - OAuth2: [ user ]
+        - ApiKeyAuth: []
       responses:
         '200':
           description: success call
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
+    post:
+      operationId: postCheck
+      summary: checks a single remote connection
+      description: checks a single remote connection
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: success call
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
 
   /checkreceiver/org/{orgName}/receiver/{receiverName}:
     post:
+      tags:
+       - default
+       - UserTypeAdmin
+       - UserTypeOrganizationAdmin
+      operationId: postCheckReceiverOrgReceiver
+      summary: Load Receiver Settings and verifies connecting to the external server works.
       description: Load Receiver Settings and verifies connecting to the external server works.
-      security:
-        - OAuth2: [ org_admin, system_admin ]
       parameters:
         - name: orgName
           in: path
@@ -33,6 +57,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CheckReceiverResponse'
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
         '404':
           description: The orgName or receiverName  was not found
           content:
@@ -40,6 +66,8 @@ paths:
               schema:
                 type: string
                 example: User FAILED authorized for endpoint
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
 
 components:
   schemas:

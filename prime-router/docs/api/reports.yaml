@@ -3,7 +3,9 @@ paths:
   #
   /reports:
     post:
+      operationId: postReports
       summary: Post a report to the data hub
+      description: Post a report to the data hub
       security:
         - ApiKeyAuth: []
       parameters:
@@ -85,13 +87,51 @@ paths:
               schema:
                 $ref: '#/components/schemas/Report'
         '400':
-          description: Invalid request. No report created.
+          $ref: 'components/responses.yaml#/BadRequest'
+        '500':
+          description: Internal Server Error
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
+  /waters:
+    post:
+      tags:
+       - default
+       - UserTypeAdmin
+      operationId: postWatersReports
+      summary: submit a report to be routed
+      description: submit a report to be routed
+      parameters:
+        - name: processing
+          in: query
+          description: flag for processing the report in a different manner
+          schema:
+            type: string
+            enum: [ async ]
+      requestBody:
+        description: The public health information being routed
+        required: true
+        content:
+          text/csv:
+            schema:
+              type: string
+              format: hl7
+              example:
+                Patient_last_name,Patient_first_name
+                tests,Jordan
+      responses:
+        '200':
+          description: the detailed report history object
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Report'
-        '500':
-          description: Internal Server Error
+                $ref: 'components/submission.yaml#/schemas/DetailedSubmissionHistory'
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        '401':
+          description: unknown or invalid sender
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
 
 # Building
 components:
@@ -117,7 +157,7 @@ components:
           description: where the report is being sent to
           type: array
           items:
-            $ref: '#/components/schemas/Destination'
+            $ref: 'components/submission.yaml#/schemas/Destination'
         destinationCount:
           description: total destinations recieving the report(s)
           type: integer
@@ -154,28 +194,3 @@ components:
         detail:
           type: string
           description: The details of the error
-
-    Destination:
-      type: object
-      properties:
-        organization:
-          type: string
-          description: The name of the organization reciving the report
-        organization_id:
-          type: string
-          description: The organization id (i.e. {state abbreviation}-phd)
-        service:
-          type: string
-          description: The service used for delivering the report
-        filteredReportRows:
-          type: array
-          description: "Information about the rows filtered from the report due to quality."
-          items:
-            type: string
-        sending_at:
-          type: string
-          format: date-time
-          description: The time at which the report will be sent
-        itemCount:
-          type: integer
-          description: The number of reports being sent to this destination

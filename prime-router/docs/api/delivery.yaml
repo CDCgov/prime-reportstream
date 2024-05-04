@@ -1,14 +1,14 @@
 paths:
-  /v1/receivers/{receiverFullName}/deliveries:
+  /v1/receivers/{receiverName}/deliveries:
     post:
-      operationId: searchReceiverDeliveries
+      operationId: postV1ReceiversDeliveries
+      summary: Returns a list of reports that have been delivered to the receiver
       description: Returns a list of reports that have been delivered to the receiver
       security:
-        - OAuth2: [ user ]
         - ApiKeyAuth: [ ]
       parameters:
         - in: path
-          name: receiverFullName
+          name: receiverName
           schema:
             type: string
           required: true
@@ -28,16 +28,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/DeliveryApiSearchResults'
         '401':
-          description: Unauthorized
+          description: Unauthorized        
         '400':
-          description: The search request could not be parsed
+          $ref: 'components/responses.yaml#/BadRequest'
         '404':
           description: The receiver could not be found
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
   /waters/report/{reportId}/delivery/etorMetadata:
     get:
+      operationId: getWatersReportDeliveryEtorMetadata
       summary: Retrieves ETOR metadata for a recipient's report
       description: Fetches the ETOR intermediary's metadata given the recipient's report ID.
-      operationId: getDeliveryEtorMetadata
       parameters:
         - name: reportId
           in: path
@@ -52,16 +55,21 @@ paths:
             application/json:
               schema:
                 $ref: 'components/fhir.yaml#/components/schemas/OperationOutcome'
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
         '404':
           description: lookup Id not found
         '500':
           description: Internal server error.
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
   /v1/receivers/{receiverFullName}/deliveries/submitters/search:
     post:
-      operationId: searchReceiverSubmitters
+      operationId: postV1ReceiversDeliveriesSubmittersSearch
+      summary: Return a list of all the providers, facilities and senders that have sent results to a receiver
       description: Return a list of all the providers, facilities and senders that have sent results to a receiver
       security:
-        - OAuth2: [ user ]
         - ApiKeyAuth: [ ]
       parameters:
         - in: path
@@ -85,11 +93,189 @@ paths:
               schema:
                 $ref: '#/components/schemas/SubmitterApiSearchResults'
         '401':
-          description: Unauthorized
+          description: Unauthorized        
         '400':
-          description: The search request could not be parsed
+          $ref: 'components/responses.yaml#/BadRequest'
         '404':
           description: The receiver could not be found
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
+  /waters/org/{organization}/deliveries:
+    get:
+      operationId: getWatersOrgDeliveries
+      summary: Get available reports for all org STLTs
+      description: Retrieve a list of reports available for download by a STLT
+      parameters:
+        - name: organization
+          in: path
+          description: receiver whose deliveries we want to see
+          required: true
+          schema:
+            type: string
+        - name: reportId
+          in: query
+          description: the reportId within the deliveries of the organization and client
+          schema:
+            type: string
+        - name: fileName
+          in: query
+          description: the fileName within the deliveries of the organization and client
+          schema:
+            type: string
+        - name: receivingOrgSvcStatus
+          in: query
+          description: "Customer status of the service used by the organization. Can append the parameter multiple times for more than one status."
+          example: "ACTIVE"
+          schema:
+            type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+              - TESTING
+        - $ref: 'components/sort_and_filter.yaml#/sortDir'
+        - $ref: 'components/sort_and_filter.yaml#/sortCol'
+        - $ref: 'components/sort_and_filter.yaml#/cursor'
+        - $ref: 'components/sort_and_filter.yaml#/since'
+        - $ref: 'components/sort_and_filter.yaml#/until'
+        - $ref: 'components/sort_and_filter.yaml#/pagesize'
+      responses:
+        '200':
+          description: a list of AvailableReport objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deliveries'
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        '401':
+          description: unauthorized
+        '404':
+          description: organization does not exist
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
+  /waters/org/{organization}.{client}/deliveries:
+    get:
+      operationId: getWatersOrgClientDeliveries
+      summary: Get available reports for a STLT
+      description: Retrieve a list of reports available for download by a STLT
+      parameters:
+        - name: organization
+          in: path
+          description: receiver whose deliveries we want to see
+          required: true
+          schema:
+            type: string
+        - name: client
+          in: path
+          description: client of the receiver to get deliveries for
+          required: true
+          schema:
+            type: string
+        - name: reportId
+          in: query
+          description: the reportId within the deliveries of the organization and client
+          schema:
+            type: string
+        - name: fileName
+          in: query
+          description: the fileName within the deliveries of the organization and client
+          schema:
+            type: string
+        - name: receivingOrgSvcStatus
+          in: query
+          description: "Customer status of the service used by the organization. Can append the parameter multiple times for more than one status."
+          example: "ACTIVE"
+          schema:
+            type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+              - TESTING
+        - $ref: 'components/sort_and_filter.yaml#/sortDir'
+        - $ref: 'components/sort_and_filter.yaml#/sortCol'
+        - $ref: 'components/sort_and_filter.yaml#/cursor'
+        - $ref: 'components/sort_and_filter.yaml#/since'
+        - $ref: 'components/sort_and_filter.yaml#/until'
+        - $ref: 'components/sort_and_filter.yaml#/pagesize'
+      responses:
+        '200':
+          description: a list of AvailableReport objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deliveries'
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        '401':
+          description: unauthorized
+        '404':
+          description: organization does not exist
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
+  /waters/report/{id}/delivery:
+    get:
+      operationId: getWatersReportDelivery
+      summary: Get expanded details for a single report
+      description: Retrieve the details for a report, including easily fetched relations
+      parameters:
+        - name: id
+          in: path
+          description: ActionID or ReportId of report whose details we want to see
+          required: true
+          schema:
+            type: string
+            format: uuid or int
+      responses:
+        '200':
+          description: a report detail object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        '401':
+          description: unauthorized
+        '404':
+          description: report does not exist
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
+  /waters/report/{id}/facilities:
+    get:
+      operationId: getWatersReportFacilities
+      summary: Get facilities for a single report
+      description: Retrieve the list of facilities for a report
+      parameters:
+        - name: id
+          in: path
+          description: ActionID or ReportId of report whose facilities we want to see
+          required: true
+          schema:
+            type: string
+            format: uuid or int
+        - $ref: 'components/sort_and_filter.yaml#/sortDir'
+        - $ref: 'components/sort_and_filter.yaml#/sortCol'
+          enum: [ NAME, CITY, STATE, CLIA, POSITIVE, TOTAL ]
+      responses:
+        '200':
+          description: an array of facilities in the report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacilitiesList'
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        '401':
+          description: unauthorized
+        '404':
+          description: report does not exist
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
 components:
   schemas:
     DeliveryApiSearch:
@@ -144,6 +330,7 @@ components:
                   > filter type the value will be parsed to the data type that underlying filter expects
                   > i.e. the SINCE filter will parse it to an LocalDateTime
                 type: string
+
     SubmitterApiSearch:
       type: object
       properties:
@@ -193,6 +380,7 @@ components:
                   > filter type the value will be parsed to the data type that underlying filter expects
                   > i.e. the SINCE filter will parse it to an LocalDateTime
                 type: string
+
     DeliveryApiSearchResults:
       type: object
       description: Results from running a search for submitters to a specific receiver
@@ -248,6 +436,7 @@ components:
                 type: string
                 format: uuid
                 description: The ID for the sent report
+
     SubmitterApiSearchResults:
       type: object
       description: Results from running a search for submitters to a specific receiver
@@ -302,3 +491,74 @@ components:
               location:
                 type: string
                 description: The location for the submitter
+
+    Deliveries:
+      type: array
+      items:
+        $ref: '#/components/schemas/Delivery'
+
+    Delivery:
+      type: object
+      properties:
+        deliveryId:
+          description: the action_id from this report's action log entry
+          type: integer
+        sent:
+          description: when this report was sent
+          type: string
+          format: date-time
+        expires:
+          description: expiration date for the report file
+          type: string
+          format: date-time
+        receivingOrg:
+          description: the name of the organization receiving the report
+          type: string
+        receivingOrgSvc:
+          description: service used by the organization
+          type: string
+        reportId:
+          description: the uuid for this report
+          type: string
+          format: uuid
+        topic:
+          description: the schema topic (e.g. COVID-19, Flu)
+          type: string
+        reportItemCount:
+          description: number of tests in the report
+          type: integer
+        fileName:
+          description: the filename for the delivered report
+          type: string
+        fileType:
+          description: format in which the report was originally sent
+          type: string
+          enum: [ INTERNAL, CSV, CSV_SINGLE, HL7, HL7_BATCH, FHIR ]
+
+    FacilitiesList:
+      type: array
+      items:
+        $ref: '#/components/schemas/DeliveryFacility'
+
+    DeliveryFacility:
+      type: object
+      properties:
+        reportId:
+          description: the uuid for the referenced report
+          type: string
+          format: uuid
+        facility:
+          description: the full name of the facility
+          type: string
+        location:
+          description: city and state of the facility
+          type: string
+        CLIA:
+          description: The CLIA number (10-digit alphanumeric) of the facility
+          type: string
+        positive:
+          description: the result (conclusion) of the test. 0 = negative (good usually)
+          type: integer
+        total:
+          description: number of facilities included in the object
+          type: integer

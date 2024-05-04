@@ -2,9 +2,15 @@
 paths:
   /saveTestData:
     get:
+      operationId: getSaveTestData
+      summary: test data extraction api
       description: test data extraction api
       security:
-        - OAuth2: [ user ]
+        - ApiKeyAuth: []
       responses:
         '200':
           description: success call
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'

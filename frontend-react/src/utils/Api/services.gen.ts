@@ -4,385 +4,108 @@ import type { CancelablePromise } from "./core/CancelablePromise";
 import { OpenAPI } from "./core/OpenAPI";
 import { request as __request } from "./core/request";
 import type {
-    DeleteEmailScheduleByScheduleIdResponse,
-    DeleteSettingsOrganizationsByOrganizationNameData,
-    DeleteSettingsOrganizationsByOrganizationNamePublicKeysByScopeByKidData,
-    DeleteSettingsOrganizationsByOrganizationNamePublicKeysByScopeByKidResponse,
-    DeleteSettingsOrganizationsByOrganizationNameReceiversByReceiverNameData,
-    DeleteSettingsOrganizationsByOrganizationNameReceiversByReceiverNameResponse,
-    DeleteSettingsOrganizationsByOrganizationNameResponse,
-    DeleteSettingsOrganizationsByOrganizationNameSendersBySenderNameData,
-    DeleteSettingsOrganizationsByOrganizationNameSendersBySenderNameResponse,
+    DeleteEmailScheduleData,
+    DeleteEmailScheduleResponse,
+    DeleteSettingsOrganizationsData,
+    DeleteSettingsOrganizationsPublicKeysData,
+    DeleteSettingsOrganizationsPublicKeysResponse,
+    DeleteSettingsOrganizationsReceiversData,
+    DeleteSettingsOrganizationsReceiversResponse,
+    DeleteSettingsOrganizationsResponse,
+    DeleteSettingsOrganizationsSendersData,
+    DeleteSettingsOrganizationsSendersResponse,
+    GetAdmGetResendData,
+    GetAdmGetResendResponse,
+    GetAdmGetSendFailuresData,
+    GetAdmGetSendFailuresResponse,
+    GetAdmListReceiversConnStatusData,
+    GetAdmListReceiversConnStatusResponse,
     GetCheckResponse,
-    GetDeliveriesData,
-    GetDeliveriesResponse,
-    GetDeliveryDetailsData,
-    GetDeliveryDetailsResponse,
-    GetDeliveryEtorMetadataData,
-    GetDeliveryEtorMetadataResponse,
-    GetDeliveryFacilitiesData,
-    GetDeliveryFacilitiesResponse,
-    GetEtorMetadataForHistoryData,
-    GetEtorMetadataForHistoryResponse,
-    GetListReceiversConnStatusData,
-    GetListReceiversConnStatusResponse,
-    GetLookuptablesByTableNameByTableVersionContentData,
-    GetLookuptablesByTableNameByTableVersionContentResponse,
-    GetLookuptablesByTableNameByTableVersionInfoData,
-    GetLookuptablesByTableNameByTableVersionInfoResponse,
-    GetLookuptablesByTableNameContentData,
-    GetLookuptablesByTableNameContentResponse,
-    GetLookuptablesListData,
-    GetLookuptablesListResponse,
-    GetMessageByIdData,
-    GetMessageByIdResponse,
+    GetLookupTablesContentData,
+    GetLookupTablesContentResponse,
+    GetLookupTablesListData,
+    GetLookupTablesListResponse,
+    GetLookupTablesVersionContentData,
+    GetLookupTablesVersionContentResponse,
+    GetLookupTablesVersionInfoData,
+    GetLookupTablesVersionInfoResponse,
+    GetMessageData,
+    GetMessageResponse,
     GetMessagesData,
     GetMessagesResponse,
     GetMetadataLivdResponse,
-    GetResendData,
-    GetResendResponse,
     GetSaveTestDataResponse,
     GetSenderFilesData,
     GetSenderFilesResponse,
-    GetSendFailuresData,
-    GetSendFailuresResponse,
-    GetSettingsOrganizationsByOrganizationNameData,
-    GetSettingsOrganizationsByOrganizationNamePublicKeysData,
-    GetSettingsOrganizationsByOrganizationNamePublicKeysResponse,
-    GetSettingsOrganizationsByOrganizationNameReceiversByReceiverNameData,
-    GetSettingsOrganizationsByOrganizationNameReceiversByReceiverNameResponse,
-    GetSettingsOrganizationsByOrganizationNameReceiversData,
-    GetSettingsOrganizationsByOrganizationNameReceiversResponse,
-    GetSettingsOrganizationsByOrganizationNameResponse,
-    GetSettingsOrganizationsByOrganizationNameSendersBySenderNameData,
-    GetSettingsOrganizationsByOrganizationNameSendersBySenderNameResponse,
-    GetSettingsOrganizationsByOrganizationNameSendersData,
-    GetSettingsOrganizationsByOrganizationNameSendersResponse,
+    GetSettingsOrganizationsData,
+    GetSettingsOrganizationsReceiversData,
+    GetSettingsOrganizationsReceiversResponse,
+    GetSettingsOrganizationsReceiverssData,
+    GetSettingsOrganizationsReceiverssResponse,
     GetSettingsOrganizationsResponse,
-    GetSubmissionsData,
-    GetSubmissionsResponse,
-    GetSubmissionsSubmissionByActionidData,
-    GetSubmissionsSubmissionByActionidResponse,
-    GetWatersOrgByOrganizationBySenderChannelSubmissionsData,
-    GetWatersOrgByOrganizationBySenderChannelSubmissionsResponse,
-    GetWatersOrgByOrganizationDeliveriesData,
-    GetWatersOrgByOrganizationDeliveriesResponse,
-    GetWatersOrgByOrganizationNameSendersRevsBySettingTypeData,
-    GetWatersOrgByOrganizationNameSendersRevsBySettingTypeResponse,
-    GetWatersOrgByOrganizationSubmissionsData,
-    GetWatersOrgByOrganizationSubmissionsResponse,
-    GetWatersReportByIdHistoryData,
-    GetWatersReportByIdHistoryResponse,
+    GetSettingsOrganizationsSendersData,
+    GetSettingsOrganizationsSendersResponse,
+    GetSettingsOrganizationsSenderssData,
+    GetSettingsOrganizationsSenderssResponse,
+    GetSettingsOrganizationssResponse,
+    GetWatersOrgClientDeliveriesData,
+    GetWatersOrgClientDeliveriesResponse,
+    GetWatersOrgDeliveriesData,
+    GetWatersOrgDeliveriesResponse,
+    GetWatersOrgSenderSubmissionsData,
+    GetWatersOrgSenderSubmissionsResponse,
+    GetWatersOrgSettingsRevisionsData,
+    GetWatersOrgSettingsRevisionsResponse,
+    GetWatersOrgSubmissionsData,
+    GetWatersOrgSubmissionsResponse,
+    GetWatersReportDeliveryData,
+    GetWatersReportDeliveryEtorMetadataData,
+    GetWatersReportDeliveryEtorMetadataResponse,
+    GetWatersReportDeliveryResponse,
+    GetWatersReportFacilitiesData,
+    GetWatersReportFacilitiesResponse,
+    GetWatersReportHistoryData,
+    GetWatersReportHistoryEtorMetadataData,
+    GetWatersReportHistoryEtorMetadataResponse,
+    GetWatersReportHistoryResponse,
+    HeadLookupTablesListResponse,
     HeadSettingsOrganizationsResponse,
-    PostCheckreceiverOrgByOrgNameReceiverByReceiverNameData,
-    PostCheckreceiverOrgByOrgNameReceiverByReceiverNameResponse,
+    PostAdmResendData,
+    PostAdmResendResponse,
+    PostCheckReceiverOrgReceiverData,
+    PostCheckReceiverOrgReceiverResponse,
+    PostCheckResponse,
     PostEmailRegisteredResponse,
     PostEmailScheduleResponse,
-    PostLookuptablesByTableNameData,
-    PostLookuptablesByTableNameResponse,
+    PostLookupTablesData,
+    PostLookupTablesResponse,
     PostReportsData,
     PostReportsResponse,
     PostRequeueSendData,
     PostRequeueSendResponse,
-    PostSettingsOrganizationsByOrganizationNamePublicKeysData,
-    PostSettingsOrganizationsByOrganizationNamePublicKeysResponse,
     PostTokenData,
     PostTokenResponse,
+    PostV1ReceiversDeliveriesData,
+    PostV1ReceiversDeliveriesResponse,
+    PostV1ReceiversDeliveriesSubmittersSearchData,
+    PostV1ReceiversDeliveriesSubmittersSearchResponse,
     PostValidateData,
     PostValidateResponse,
     PostWatersReportsData,
     PostWatersReportsResponse,
-    PutLookuptablesByTableNameByTableVersionActivateData,
-    PutLookuptablesByTableNameByTableVersionActivateResponse,
-    PutSettingsOrganizationsByOrganizationNameData,
-    PutSettingsOrganizationsByOrganizationNameReceiversByReceiverNameData,
-    PutSettingsOrganizationsByOrganizationNameReceiversByReceiverNameResponse,
-    PutSettingsOrganizationsByOrganizationNameResponse,
-    PutSettingsOrganizationsByOrganizationNameSendersBySenderNameData,
-    PutSettingsOrganizationsByOrganizationNameSendersBySenderNameResponse,
-    SearchReceiverDeliveriesData,
-    SearchReceiverDeliveriesResponse,
-    SearchReceiverSubmittersData,
-    SearchReceiverSubmittersResponse,
+    PutLookupTablesVersionActivateData,
+    PutLookupTablesVersionActivateResponse,
+    PutSettingsOrganizationReceiverData,
+    PutSettingsOrganizationReceiverResponse,
+    PutSettingsOrganizationsData,
+    PutSettingsOrganizationsResponse,
+    PutSettingsOrganizationsSendersData,
+    PutSettingsOrganizationsSendersResponse,
 } from "./types.gen";
 
 export class DefaultService {
     /**
-     * returns a list of simple submissions for a specific sender
-     * @param data The data for the request.
-     * @param data.organization sender of the report history we want to look at
-     * @param data.sortdir direction in which to sort reports
-     * @param data.sortcol column used as the basis for sorting
-     * @param data.cursor used by cursor-based pagination to determine the position on the results
-     * @param data.since only return results from after the given date
-     * @param data.until only return results from before the given date
-     * @param data.pagesize number of results per page
-     * @param data.showFailed whether or not to show submissions that failed delivery
-     * @returns SubmissionHistoryList a list of submission history objects
-     * @throws ApiError
-     */
-    public static getWatersOrgByOrganizationSubmissions(
-        data: GetWatersOrgByOrganizationSubmissionsData,
-    ): CancelablePromise<GetWatersOrgByOrganizationSubmissionsResponse> {
-        return __request(OpenAPI, {
-            method: "GET",
-            url: "/waters/org/{organization}/submissions",
-            path: {
-                organization: data.organization,
-            },
-            query: {
-                sortdir: data.sortdir,
-                sortcol: data.sortcol,
-                cursor: data.cursor,
-                since: data.since,
-                until: data.until,
-                pagesize: data.pagesize,
-                showFailed: data.showFailed,
-            },
-            errors: {
-                400: "bad request",
-            },
-        });
-    }
-
-    /**
-     * returns a list of simple submissions for a specific sender and sender channel
-     * @param data The data for the request.
-     * @param data.organization sender of the report history we want to look at
-     * @param data.senderChannel sender channel of the report history we want to look at
-     * @param data.sortdir direction in which to sort reports
-     * @param data.sortcol column used as the basis for sorting
-     * @param data.cursor used by cursor-based pagination to determine the position on the results
-     * @param data.since only return results from after the given date
-     * @param data.until only return results from before the given date
-     * @param data.pagesize number of results per page
-     * @param data.showFailed whether or not to show submissions that failed delivery
-     * @returns SubmissionHistoryList a list of submission history objects
-     * @throws ApiError
-     */
-    public static getWatersOrgByOrganizationBySenderChannelSubmissions(
-        data: GetWatersOrgByOrganizationBySenderChannelSubmissionsData,
-    ): CancelablePromise<GetWatersOrgByOrganizationBySenderChannelSubmissionsResponse> {
-        return __request(OpenAPI, {
-            method: "GET",
-            url: "/waters/org/{organization}.{senderChannel}/submissions",
-            path: {
-                organization: data.organization,
-                senderChannel: data.senderChannel,
-            },
-            query: {
-                sortdir: data.sortdir,
-                sortcol: data.sortcol,
-                cursor: data.cursor,
-                since: data.since,
-                until: data.until,
-                pagesize: data.pagesize,
-                showFailed: data.showFailed,
-            },
-            errors: {
-                400: "bad request",
-            },
-        });
-    }
-
-    /**
-     * submit a report to be routed
-     * @param data The data for the request.
-     * @param data.requestBody The public health information being routed
-     * @param data.processing flag for processing the report in a different manner
-     * @returns DetailedSubmissionHistory the detailed report history object
-     * @throws ApiError
-     */
-    public static postWatersReports(
-        data: PostWatersReportsData,
-    ): CancelablePromise<PostWatersReportsResponse> {
-        return __request(OpenAPI, {
-            method: "POST",
-            url: "/waters/reports",
-            query: {
-                processing: data.processing,
-            },
-            body: data.requestBody,
-            mediaType: "text/csv",
-            errors: {
-                401: "unknown or invalid sender",
-            },
-        });
-    }
-
-    /**
-     * return detailed history of a single submitted report
-     * @param data The data for the request.
-     * @param data.id a valid UUID or actionId (aka submissionId)
-     * @returns DetailedSubmissionHistory the detailed report history object
-     * @throws ApiError
-     */
-    public static getWatersReportByIdHistory(
-        data: GetWatersReportByIdHistoryData,
-    ): CancelablePromise<GetWatersReportByIdHistoryResponse> {
-        return __request(OpenAPI, {
-            method: "GET",
-            url: "/waters/report/{id}/history",
-            path: {
-                id: data.id,
-            },
-            errors: {
-                401: "unauthorized",
-                404: "either there is no report with the given id or the report is not a submission",
-                500: "unable to fetch history due to Data Access Exception",
-            },
-        });
-    }
-
-    /**
-     * Get available reports for all org STLTs
-     * Retrieve a list of reports available for download by a STLT
-     * @param data The data for the request.
-     * @param data.organization receiver whose deliveries we want to see
-     * @param data.reportId the reportId within the deliveries of the organization and client
-     * @param data.fileName the fileName within the deliveries of the organization and client
-     * @param data.receivingOrgSvcStatus Customer status of the service used by the organization. Can append the parameter multiple times for more than one status.
-     * @param data.sortdir direction in which to sort reports
-     * @param data.sortcol column used as the basis for sorting
-     * @param data.cursor used by cursor-based pagination to determine the position on the results
-     * @param data.since only return results from after the given date
-     * @param data.until only return results from before the given date
-     * @param data.pagesize number of results per page
-     * @returns Deliveries a list of AvailableReport objects
-     * @throws ApiError
-     */
-    public static getWatersOrgByOrganizationDeliveries(
-        data: GetWatersOrgByOrganizationDeliveriesData,
-    ): CancelablePromise<GetWatersOrgByOrganizationDeliveriesResponse> {
-        return __request(OpenAPI, {
-            method: "GET",
-            url: "/waters/org/{organization}/deliveries",
-            path: {
-                organization: data.organization,
-            },
-            query: {
-                reportId: data.reportId,
-                fileName: data.fileName,
-                receivingOrgSvcStatus: data.receivingOrgSvcStatus,
-                sortdir: data.sortdir,
-                sortcol: data.sortcol,
-                cursor: data.cursor,
-                since: data.since,
-                until: data.until,
-                pagesize: data.pagesize,
-            },
-            errors: {
-                400: "bad request",
-                401: "unauthorized",
-                404: "organization does not exist",
-            },
-        });
-    }
-
-    /**
-     * Get available reports for a STLT
-     * Retrieve a list of reports available for download by a STLT
-     * @param data The data for the request.
-     * @param data.organization receiver whose deliveries we want to see
-     * @param data.client client of the receiver to get deliveries for
-     * @param data.reportId the reportId within the deliveries of the organization and client
-     * @param data.fileName the fileName within the deliveries of the organization and client
-     * @param data.receivingOrgSvcStatus Customer status of the service used by the organization. Can append the parameter multiple times for more than one status.
-     * @param data.sortdir direction in which to sort reports
-     * @param data.sortcol column used as the basis for sorting
-     * @param data.cursor used by cursor-based pagination to determine the position on the results
-     * @param data.since only return results from after the given date
-     * @param data.until only return results from before the given date
-     * @param data.pagesize number of results per page
-     * @returns Deliveries a list of AvailableReport objects
-     * @throws ApiError
-     */
-    public static getDeliveries(
-        data: GetDeliveriesData,
-    ): CancelablePromise<GetDeliveriesResponse> {
-        return __request(OpenAPI, {
-            method: "GET",
-            url: "/waters/org/{organization}.{client}/deliveries",
-            path: {
-                organization: data.organization,
-                client: data.client,
-            },
-            query: {
-                reportId: data.reportId,
-                fileName: data.fileName,
-                receivingOrgSvcStatus: data.receivingOrgSvcStatus,
-                sortdir: data.sortdir,
-                sortcol: data.sortcol,
-                cursor: data.cursor,
-                since: data.since,
-                until: data.until,
-                pagesize: data.pagesize,
-            },
-            errors: {
-                400: "bad request",
-                401: "unauthorized",
-                404: "organization does not exist",
-            },
-        });
-    }
-
-    /**
-     * Get expanded details for a single report
-     * Retrieve the details for a report, including easily fetched relations
-     * @param data The data for the request.
-     * @param data.id ActionID or ReportId of report whose details we want to see
-     * @returns Delivery a report detail object
-     * @throws ApiError
-     */
-    public static getDeliveryDetails(
-        data: GetDeliveryDetailsData,
-    ): CancelablePromise<GetDeliveryDetailsResponse> {
-        return __request(OpenAPI, {
-            method: "GET",
-            url: "/waters/report/{id}/delivery",
-            path: {
-                id: data.id,
-            },
-            errors: {
-                400: "bad request",
-                401: "unauthorized",
-                404: "report does not exist",
-            },
-        });
-    }
-
-    /**
-     * Get facilities for a single report
-     * Retrieve the list of facilities for a report
-     * @param data The data for the request.
-     * @param data.id ActionID or ReportId of report whose facilities we want to see
-     * @param data.sortdir direction in which to sort reports
-     * @param data.sortcol column used as the basis for sorting
-     * @returns FacilitiesList an array of facilities in the report
-     * @throws ApiError
-     */
-    public static getDeliveryFacilities(
-        data: GetDeliveryFacilitiesData,
-    ): CancelablePromise<GetDeliveryFacilitiesResponse> {
-        return __request(OpenAPI, {
-            method: "GET",
-            url: "/waters/report/{id}/facilities",
-            path: {
-                id: data.id,
-            },
-            query: {
-                sortdir: data.sortdir,
-                sortcol: data.sortcol,
-            },
-            errors: {
-                400: "bad request",
-                401: "unauthorized",
-                404: "report does not exist",
-            },
-        });
-    }
-
-    /**
+     * Validate a message using client information. Validation errors and warnings are reported in the response json.
      * Validate a message using client information. Validation errors and warnings are reported in the response json.
      * @param data The data for the request.
      * @param data.requestBody The message to validate
@@ -392,6 +115,7 @@ export class DefaultService {
      * @param data.format The format of the message. must be used with `schema`.  This parameter is incompatible with `client`.
      *
      * @returns Report OK
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
     public static postValidate(
@@ -417,9 +141,11 @@ export class DefaultService {
 
     /**
      * Generate and return a new token for the requested scope
+     * Generate and return a new token for the requested scope
      * @param data The data for the request.
      * @param data.formData Parameters should be sent in the request body.
      * @returns TableVersionInfo the token was created and returned
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
     public static postToken(
@@ -427,83 +153,12 @@ export class DefaultService {
     ): CancelablePromise<PostTokenResponse> {
         return __request(OpenAPI, {
             method: "POST",
-            url: "token",
+            url: "/token",
             formData: data.formData,
             mediaType: "application/x-www-form-urlencoded",
             errors: {
-                400: "bad request",
+                400: "Bad Request",
                 401: "unauthorized",
-            },
-        });
-    }
-
-    /**
-     * Return a list of all basic info on all receive actions and associated reports.
-     * @param data The data for the request.
-     * @param data.pagesize The number of items to return (default `10`).
-     * @param data.sort Orders by created date time, this controls if it is asc or desc (default 'desc')
-     * @param data.cursor The cursor pointing to the next portion of results. If you don't pass a `cursor` parameter, but **do** pass a `limit` parameter, the default value retrieves the first portion of results. Paginated responses include a `response_metadata` object that includes a `next_cursor` *when there are additional results to be retrieved.* On your next call to the same method, set the `cursor` parameter equal to the `next_cursor` value you received on the last request to retrieve the next portion of the collection. An empty, null, or non-existent `next_cursor` in the response indicates no further results.
-     * @param data.dateStart (`YYYY-MM-DD`) Start date to get results for.
-     * @param data.dateEnd (`YYYY-MM-DD') End date to get results for.
-     * @param data.year (`YYYY` - default `ALL`) Return results from specific Year, overriden by start/end
-     * @param data.month (`MM` - default `ALL`) Return results from specific Month. Requires `year` being set. Overriden by start/end
-     * @param data.organizations (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Organization or array of Organizations. Must have admin access.
-     * @param data.recipients (`{INT, INT, INT}` || `INT` - default `ALL`) Return results from specific Recipient or array of Recipients.
-     * @param data.senders (`{INT, INT, INT}`  || `INT` - default `ALL`) Return results from specific Sender or array of Senders.
-     * @param data.warnings (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Warning(s). If `WITHOUT` only results without Warning(s).
-     * @param data.errors (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Error(s). If `WITHOUT` only results without Error(s).
-     * @param data.receipts (`ALL` || `WITH` || `WITHOUT` - default `ALL`) If `WITH` only return results with Receipt(s). If `WITHOUT` only results without Receipt(s).
-     * @returns History OK
-     * @throws ApiError
-     */
-    public static getSubmissions(
-        data: GetSubmissionsData,
-    ): CancelablePromise<GetSubmissionsResponse> {
-        return __request(OpenAPI, {
-            method: "GET",
-            url: "/submissions",
-            query: {
-                cursor: data.cursor,
-                pagesize: data.pagesize,
-                sort: data.sort,
-                dateStart: data.dateStart,
-                dateEnd: data.dateEnd,
-                year: data.year,
-                month: data.month,
-                organizations: data.organizations,
-                recipients: data.recipients,
-                senders: data.senders,
-                warnings: data.warnings,
-                errors: data.errors,
-                receipts: data.receipts,
-            },
-            errors: {
-                400: "Bad Request",
-                401: "Unauthorized",
-            },
-        });
-    }
-
-    /**
-     * Return a single receive action, and its received report(s), or an error report.
-     * @param data The data for the request.
-     * @param data.actionid The `actionID` for a single receiver action.
-     * @returns Submission OK
-     * @throws ApiError
-     */
-    public static getSubmissionsSubmissionByActionid(
-        data: GetSubmissionsSubmissionByActionidData,
-    ): CancelablePromise<GetSubmissionsSubmissionByActionidResponse> {
-        return __request(OpenAPI, {
-            method: "GET",
-            url: "/submissions/submission/{actionid}",
-            path: {
-                actionid: data.actionid,
-            },
-            errors: {
-                400: "Bad Request",
-                401: "Unauthorized",
-                500: "Internal Server Error",
             },
         });
     }
@@ -513,12 +168,13 @@ export class DefaultService {
      * Fetches the ETOR intermediary's metadata given the sender's report ID.
      * @param data The data for the request.
      * @param data.reportId The unique identifier of the report.
-     * @returns OperationOutcome Successful retrieval of ETOR metadata.
+     * @returns FhirOperationOutcome Successful retrieval of ETOR metadata.
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static getEtorMetadataForHistory(
-        data: GetEtorMetadataForHistoryData,
-    ): CancelablePromise<GetEtorMetadataForHistoryResponse> {
+    public static getWatersReportHistoryEtorMetadata(
+        data: GetWatersReportHistoryEtorMetadataData,
+    ): CancelablePromise<GetWatersReportHistoryEtorMetadataResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/waters/report/{reportId}/history/etorMetadata",
@@ -526,6 +182,7 @@ export class DefaultService {
                 reportId: data.reportId,
             },
             errors: {
+                400: "Bad Request",
                 404: "lookup Id not found",
                 500: "Internal server error.",
             },
@@ -533,20 +190,136 @@ export class DefaultService {
     }
 
     /**
-     * The settings for all organizations of the system. Must have admin access.
-     * @returns Organization1 OK
+     * returns a list of simple submissions for a specific sender
+     * returns a list of simple submissions for a specific sender
+     * @param data The data for the request.
+     * @param data.organization sender of the report history we want to look at
+     * @param data.sortdir direction in which to sort reports
+     * @param data.sortcol column used as the basis for sorting
+     * @param data.cursor used by cursor-based pagination to determine the position on the results
+     * @param data.since only return results from after the given date
+     * @param data.until only return results from before the given date
+     * @param data.pagesize number of results per page
+     * @param data.showFailed whether or not to show submissions that failed delivery
+     * @returns SubmissionHistoryList a list of submission history objects
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static getSettingsOrganizations(): CancelablePromise<GetSettingsOrganizationsResponse> {
+    public static getWatersOrgSubmissions(
+        data: GetWatersOrgSubmissionsData,
+    ): CancelablePromise<GetWatersOrgSubmissionsResponse> {
+        return __request(OpenAPI, {
+            method: "GET",
+            url: "/waters/org/{organization}/submissions",
+            path: {
+                organization: data.organization,
+            },
+            query: {
+                sortdir: data.sortdir,
+                sortcol: data.sortcol,
+                cursor: data.cursor,
+                since: data.since,
+                until: data.until,
+                pagesize: data.pagesize,
+                showFailed: data.showFailed,
+            },
+            errors: {
+                400: "Bad Request",
+            },
+        });
+    }
+
+    /**
+     * returns a list of simple submissions for a specific sender and sender channel
+     * returns a list of simple submissions for a specific sender and sender channel
+     * @param data The data for the request.
+     * @param data.organization sender of the report history we want to look at
+     * @param data.sender sender channel of the report history we want to look at
+     * @param data.sortdir direction in which to sort reports
+     * @param data.sortcol column used as the basis for sorting
+     * @param data.cursor used by cursor-based pagination to determine the position on the results
+     * @param data.since only return results from after the given date
+     * @param data.until only return results from before the given date
+     * @param data.pagesize number of results per page
+     * @param data.showFailed whether or not to show submissions that failed delivery
+     * @returns SubmissionHistoryList a list of submission history objects
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static getWatersOrgSenderSubmissions(
+        data: GetWatersOrgSenderSubmissionsData,
+    ): CancelablePromise<GetWatersOrgSenderSubmissionsResponse> {
+        return __request(OpenAPI, {
+            method: "GET",
+            url: "/waters/org/{organization}.{sender}/submissions",
+            path: {
+                organization: data.organization,
+                sender: data.sender,
+            },
+            query: {
+                sortdir: data.sortdir,
+                sortcol: data.sortcol,
+                cursor: data.cursor,
+                since: data.since,
+                until: data.until,
+                pagesize: data.pagesize,
+                showFailed: data.showFailed,
+            },
+            errors: {
+                400: "Bad Request",
+            },
+        });
+    }
+
+    /**
+     * return detailed history of a single submitted report
+     * return detailed history of a single submitted report
+     * @param data The data for the request.
+     * @param data.id a valid UUID or actionId (aka submissionId)
+     * @returns DetailedSubmissionHistory the detailed report history object
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static getWatersReportHistory(
+        data: GetWatersReportHistoryData,
+    ): CancelablePromise<GetWatersReportHistoryResponse> {
+        return __request(OpenAPI, {
+            method: "GET",
+            url: "/waters/report/{id}/history",
+            path: {
+                id: data.id,
+            },
+            errors: {
+                400: "Bad Request",
+                401: "unauthorized",
+                404: "either there is no report with the given id or the report is not a submission",
+                500: "unable to fetch history due to Data Access Exception",
+            },
+        });
+    }
+
+    /**
+     * The settings for all organizations of the system. Must have admin access.
+     * The settings for all organizations of the system. Must have admin access.
+     * @returns Organization OK
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static getSettingsOrganizationss(): CancelablePromise<GetSettingsOrganizationssResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/settings/organizations",
+            errors: {
+                400: "Bad Request",
+            },
         });
     }
 
     /**
      * Retrieved the last modified for all settings of the system. Must have admin access.
+     * Retrieved the last modified for all settings of the system. Must have admin access.
      * @returns string OK
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
     public static headSettingsOrganizations(): CancelablePromise<HeadSettingsOrganizationsResponse> {
@@ -554,39 +327,49 @@ export class DefaultService {
             method: "HEAD",
             url: "/settings/organizations",
             responseHeader: "Last-Modified",
+            errors: {
+                400: "Bad Request",
+            },
         });
     }
 
     /**
      * A single organization settings
+     * A single organization settings
      * @param data The data for the request.
      * @param data.organizationName The name of the organization
-     * @returns Organization1 OK
+     * @returns Organization OK
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static getSettingsOrganizationsByOrganizationName(
-        data: GetSettingsOrganizationsByOrganizationNameData,
-    ): CancelablePromise<GetSettingsOrganizationsByOrganizationNameResponse> {
+    public static getSettingsOrganizations(
+        data: GetSettingsOrganizationsData,
+    ): CancelablePromise<GetSettingsOrganizationsResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/settings/organizations/{organizationName}",
             path: {
                 organizationName: data.organizationName,
             },
+            errors: {
+                400: "Bad Request",
+            },
         });
     }
 
     /**
      * Create or update the direct settings associated with an organization
+     * Create or update the direct settings associated with an organization
      * @param data The data for the request.
      * @param data.organizationName The name of the organization
      * @param data.requestBody
-     * @returns Organization1 OK, the organization setting was updated
+     * @returns Organization OK, the organization setting was updated
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static putSettingsOrganizationsByOrganizationName(
-        data: PutSettingsOrganizationsByOrganizationNameData,
-    ): CancelablePromise<PutSettingsOrganizationsByOrganizationNameResponse> {
+    public static putSettingsOrganizations(
+        data: PutSettingsOrganizationsData,
+    ): CancelablePromise<PutSettingsOrganizationsResponse> {
         return __request(OpenAPI, {
             method: "PUT",
             url: "/settings/organizations/{organizationName}",
@@ -604,14 +387,16 @@ export class DefaultService {
 
     /**
      * Delete an organization (and the associated receivers and senders)
+     * Delete an organization (and the associated receivers and senders)
      * @param data The data for the request.
      * @param data.organizationName The name of the organization
-     * @returns Organization1 OK, the organization setting was deleted
+     * @returns Organization OK, the organization setting was deleted
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static deleteSettingsOrganizationsByOrganizationName(
-        data: DeleteSettingsOrganizationsByOrganizationNameData,
-    ): CancelablePromise<DeleteSettingsOrganizationsByOrganizationNameResponse> {
+    public static deleteSettingsOrganizations(
+        data: DeleteSettingsOrganizationsData,
+    ): CancelablePromise<DeleteSettingsOrganizationsResponse> {
         return __request(OpenAPI, {
             method: "DELETE",
             url: "/settings/organizations/{organizationName}",
@@ -627,14 +412,16 @@ export class DefaultService {
 
     /**
      * A list of receivers and their current settings
+     * A list of receivers and their current settings
      * @param data The data for the request.
      * @param data.organizationName Fetch receivers with this organization name
      * @returns Receiver OK
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static getSettingsOrganizationsByOrganizationNameReceivers(
-        data: GetSettingsOrganizationsByOrganizationNameReceiversData,
-    ): CancelablePromise<GetSettingsOrganizationsByOrganizationNameReceiversResponse> {
+    public static getSettingsOrganizationsReceiverss(
+        data: GetSettingsOrganizationsReceiverssData,
+    ): CancelablePromise<GetSettingsOrganizationsReceiverssResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/settings/organizations/{organizationName}/receivers",
@@ -650,15 +437,17 @@ export class DefaultService {
 
     /**
      * The settings of a single of receiver
+     * The settings of a single of receiver
      * @param data The data for the request.
      * @param data.organizationName Create receivers under this organization name
      * @param data.receiverName The name of the receiver
      * @returns Receiver OK
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static getSettingsOrganizationsByOrganizationNameReceiversByReceiverName(
-        data: GetSettingsOrganizationsByOrganizationNameReceiversByReceiverNameData,
-    ): CancelablePromise<GetSettingsOrganizationsByOrganizationNameReceiversByReceiverNameResponse> {
+    public static getSettingsOrganizationsReceivers(
+        data: GetSettingsOrganizationsReceiversData,
+    ): CancelablePromise<GetSettingsOrganizationsReceiversResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/settings/organizations/{organizationName}/receivers/{receiverName}",
@@ -675,16 +464,18 @@ export class DefaultService {
 
     /**
      * Update a single receiver
+     * Update a single receiver
      * @param data The data for the request.
      * @param data.organizationName Create receivers under this organization name
      * @param data.receiverName The name of the receiver
      * @param data.requestBody
      * @returns Receiver OK, the receiver setting was updated
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static putSettingsOrganizationsByOrganizationNameReceiversByReceiverName(
-        data: PutSettingsOrganizationsByOrganizationNameReceiversByReceiverNameData,
-    ): CancelablePromise<PutSettingsOrganizationsByOrganizationNameReceiversByReceiverNameResponse> {
+    public static putSettingsOrganizationReceiver(
+        data: PutSettingsOrganizationReceiverData,
+    ): CancelablePromise<PutSettingsOrganizationReceiverResponse> {
         return __request(OpenAPI, {
             method: "PUT",
             url: "/settings/organizations/{organizationName}/receivers/{receiverName}",
@@ -703,15 +494,17 @@ export class DefaultService {
 
     /**
      * Delete a receiver
+     * Delete a receiver
      * @param data The data for the request.
      * @param data.organizationName the organization name
      * @param data.receiverName The name of the receiver
      * @returns Receiver OK, the receiver was deleted
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static deleteSettingsOrganizationsByOrganizationNameReceiversByReceiverName(
-        data: DeleteSettingsOrganizationsByOrganizationNameReceiversByReceiverNameData,
-    ): CancelablePromise<DeleteSettingsOrganizationsByOrganizationNameReceiversByReceiverNameResponse> {
+    public static deleteSettingsOrganizationsReceivers(
+        data: DeleteSettingsOrganizationsReceiversData,
+    ): CancelablePromise<DeleteSettingsOrganizationsReceiversResponse> {
         return __request(OpenAPI, {
             method: "DELETE",
             url: "/settings/organizations/{organizationName}/receivers/{receiverName}",
@@ -728,14 +521,16 @@ export class DefaultService {
 
     /**
      * A list of senders
+     * A list of senders
      * @param data The data for the request.
      * @param data.organizationName Fetch senders with this organization name
      * @returns Sender OK
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static getSettingsOrganizationsByOrganizationNameSenders(
-        data: GetSettingsOrganizationsByOrganizationNameSendersData,
-    ): CancelablePromise<GetSettingsOrganizationsByOrganizationNameSendersResponse> {
+    public static getSettingsOrganizationsSenderss(
+        data: GetSettingsOrganizationsSenderssData,
+    ): CancelablePromise<GetSettingsOrganizationsSenderssResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/settings/organizations/{organizationName}/senders",
@@ -751,15 +546,17 @@ export class DefaultService {
 
     /**
      * The settings of a single of sender
+     * The settings of a single of sender
      * @param data The data for the request.
      * @param data.organizationName Fetch senders with this organization name
      * @param data.senderName The name of a sender to the data hub
      * @returns Sender OK
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static getSettingsOrganizationsByOrganizationNameSendersBySenderName(
-        data: GetSettingsOrganizationsByOrganizationNameSendersBySenderNameData,
-    ): CancelablePromise<GetSettingsOrganizationsByOrganizationNameSendersBySenderNameResponse> {
+    public static getSettingsOrganizationsSenders(
+        data: GetSettingsOrganizationsSendersData,
+    ): CancelablePromise<GetSettingsOrganizationsSendersResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/settings/organizations/{organizationName}/senders/{senderName}",
@@ -776,16 +573,18 @@ export class DefaultService {
 
     /**
      * Update a single sender
+     * Update a single sender
      * @param data The data for the request.
      * @param data.organizationName Fetch senders with this organization name
      * @param data.senderName The name of a sender to the data hub
      * @param data.requestBody
      * @returns Sender OK
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static putSettingsOrganizationsByOrganizationNameSendersBySenderName(
-        data: PutSettingsOrganizationsByOrganizationNameSendersBySenderNameData,
-    ): CancelablePromise<PutSettingsOrganizationsByOrganizationNameSendersBySenderNameResponse> {
+    public static putSettingsOrganizationsSenders(
+        data: PutSettingsOrganizationsSendersData,
+    ): CancelablePromise<PutSettingsOrganizationsSendersResponse> {
         return __request(OpenAPI, {
             method: "PUT",
             url: "/settings/organizations/{organizationName}/senders/{senderName}",
@@ -804,15 +603,17 @@ export class DefaultService {
 
     /**
      * Delete a sender
+     * Delete a sender
      * @param data The data for the request.
      * @param data.organizationName the organization name
      * @param data.senderName The name of a sender to the data hub
      * @returns Sender OK, the sender was deleted
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static deleteSettingsOrganizationsByOrganizationNameSendersBySenderName(
-        data: DeleteSettingsOrganizationsByOrganizationNameSendersBySenderNameData,
-    ): CancelablePromise<DeleteSettingsOrganizationsByOrganizationNameSendersBySenderNameResponse> {
+    public static deleteSettingsOrganizationsSenders(
+        data: DeleteSettingsOrganizationsSendersData,
+    ): CancelablePromise<DeleteSettingsOrganizationsSendersResponse> {
         return __request(OpenAPI, {
             method: "DELETE",
             url: "/settings/organizations/{organizationName}/senders/{senderName}",
@@ -829,18 +630,20 @@ export class DefaultService {
 
     /**
      * The full history of setting revisions for all settings of a given type.
+     * The full history of setting revisions for all settings of a given type.
      * @param data The data for the request.
-     * @param data.organizationName Fetch senders with this organization name
+     * @param data.organizationName Fetch settings with this organization name
      * @param data.settingType Type of setting
      * @returns SettingRevisions OK
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static getWatersOrgByOrganizationNameSendersRevsBySettingType(
-        data: GetWatersOrgByOrganizationNameSendersRevsBySettingTypeData,
-    ): CancelablePromise<GetWatersOrgByOrganizationNameSendersRevsBySettingTypeResponse> {
+    public static getWatersOrgSettingsRevisions(
+        data: GetWatersOrgSettingsRevisionsData,
+    ): CancelablePromise<GetWatersOrgSettingsRevisionsResponse> {
         return __request(OpenAPI, {
             method: "GET",
-            url: "/waters/org/{organizationName}/senders/revs/{settingType}",
+            url: "/waters/org/{organizationName}/settings/revs/{settingType}",
             path: {
                 organizationName: data.organizationName,
                 settingType: data.settingType,
@@ -854,6 +657,7 @@ export class DefaultService {
 
     /**
      * For a specified report, trace each item's ancestry and retrieve the source files submitted by senders.
+     * For a specified report, trace each item's ancestry and retrieve the source files submitted by senders.
      * @param data The data for the request.
      * @param data.reportId Report-id (uuid format) of the receiver report
      * @param data.reportFileName File name of the receiver report
@@ -861,6 +665,7 @@ export class DefaultService {
      * @param data.limit The maximum number of receiver items to retrieve
      * @param data.onlyReportItems Only include items in the sender file that route to the receiver report
      * @returns ReportFileMessage A list of the sender files associated with the specified receiver report.
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
     public static getSenderFiles(
@@ -876,10 +681,14 @@ export class DefaultService {
                 limit: data.limit,
                 "only-report-items": data.onlyReportItems,
             },
+            errors: {
+                400: "Bad Request",
+            },
         });
     }
 
     /**
+     * manually queue up a report to be sent again to one receiver
      * manually queue up a report to be sent again to one receiver
      * @param data The data for the request.
      * @param data.reportId UUID for the report to resend
@@ -887,6 +696,7 @@ export class DefaultService {
      * @param data.requestBody Empty body due to the POST format
      * @param data.test if given, includes additional debug messages
      * @returns RequeueResponse text stating how many items in the report will be resent
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
     public static postRequeueSend(
@@ -903,12 +713,37 @@ export class DefaultService {
             body: data.requestBody,
             mediaType: "application/json",
             errors: {
-                400: "bad request",
+                400: "Bad Request",
             },
         });
     }
 
     /**
+     * Used to resend failures. Prime admin only.
+     * Used to resend failures. Prime admin only.
+     * @param data The data for the request.
+     * @param data.daysToShow Number of days back from today include in results
+     * @returns ListResends OK
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static postAdmResend(
+        data: PostAdmResendData = {},
+    ): CancelablePromise<PostAdmResendResponse> {
+        return __request(OpenAPI, {
+            method: "POST",
+            url: "/adm/resend",
+            query: {
+                days_to_show: data.daysToShow,
+            },
+            errors: {
+                400: "Bad Request",
+            },
+        });
+    }
+
+    /**
+     * Post a report to the data hub
      * Post a report to the data hub
      * @param data The data for the request.
      * @param data.client The client's name that matches the client name in metadata
@@ -919,6 +754,7 @@ export class DefaultService {
      * @param data.processing 'sync' or 'async'. defaults to 'sync'. Determines if the incoming message will follow the sync or async process
      * @param data.payloadName Optional string name for the data payload submitted.   Typically a filename or other name useful to the sender's record-keeping.  Tracked, but not used, by ReportStream.  Must never include PII/PHI.
      * @returns Report OK
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
     public static postReports(
@@ -938,29 +774,64 @@ export class DefaultService {
             body: data.requestBody,
             mediaType: "text/csv",
             errors: {
-                400: "Invalid request. No report created.",
+                400: "Bad Request",
                 500: "Internal Server Error",
             },
         });
     }
 
     /**
+     * submit a report to be routed
+     * submit a report to be routed
+     * @param data The data for the request.
+     * @param data.requestBody The public health information being routed
+     * @param data.processing flag for processing the report in a different manner
+     * @returns DetailedSubmissionHistory the detailed report history object
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static postWatersReports(
+        data: PostWatersReportsData,
+    ): CancelablePromise<PostWatersReportsResponse> {
+        return __request(OpenAPI, {
+            method: "POST",
+            url: "/waters",
+            query: {
+                processing: data.processing,
+            },
+            body: data.requestBody,
+            mediaType: "text/csv",
+            errors: {
+                400: "Bad Request",
+                401: "unknown or invalid sender",
+            },
+        });
+    }
+
+    /**
+     * get data from LIVD tables
      * get data from LIVD tables
      * @returns unknown success
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
     public static getMetadataLivd(): CancelablePromise<GetMetadataLivdResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/metadata/livd",
+            errors: {
+                400: "Bad Request",
+            },
         });
     }
 
     /**
      * Fetch a list of COVID result entries from the `covid_result_metadata` table based on a `messageId`, called `message_id` on the backend. This endpoint will typically return one result but `message_id` is not guaranteed to be unique, so multiple results can be returned.
+     * Fetch a list of COVID result entries from the `covid_result_metadata` table based on a `messageId`, called `message_id` on the backend. This endpoint will typically return one result but `message_id` is not guaranteed to be unique, so multiple results can be returned.
      * @param data The data for the request.
      * @param data.messageId The `message_id` of a COVID result message.
      * @returns Message a list of messages
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
     public static getMessages(
@@ -973,7 +844,7 @@ export class DefaultService {
                 messageId: data.messageId,
             },
             errors: {
-                400: "missing messageId parameter or a bad request",
+                400: "Bad Request",
                 401: "unauthorized",
             },
         });
@@ -981,14 +852,16 @@ export class DefaultService {
 
     /**
      * Return details about a particular COVID test result message from the covid_result_metadata table.
+     * Return details about a particular COVID test result message from the covid_result_metadata table.
      * @param data The data for the request.
      * @param data.id The unique identifier of a COVID test result message, that being the `covid_results_metadata_id` PK of the `covid_result_metadata` table.
      * @returns Message The message details related to COVID test result message.
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static getMessageById(
-        data: GetMessageByIdData,
-    ): CancelablePromise<GetMessageByIdResponse> {
+    public static getMessage(
+        data: GetMessageData,
+    ): CancelablePromise<GetMessageResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/message/{id}",
@@ -996,7 +869,7 @@ export class DefaultService {
                 id: data.id,
             },
             errors: {
-                400: "bad request",
+                400: "Bad Request",
                 401: "unauthorized",
             },
         });
@@ -1004,14 +877,16 @@ export class DefaultService {
 
     /**
      * Fetch the list lookup tables
+     * Fetch the list lookup tables
      * @param data The data for the request.
      * @param data.showInactive Set to true to include inactive tables
      * @returns TableVersionArray The list of tables with version information
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static getLookuptablesList(
-        data: GetLookuptablesListData = {},
-    ): CancelablePromise<GetLookuptablesListResponse> {
+    public static getLookupTablesList(
+        data: GetLookupTablesListData = {},
+    ): CancelablePromise<GetLookupTablesListResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/lookuptables/list",
@@ -1025,16 +900,36 @@ export class DefaultService {
     }
 
     /**
+     * Retrieved the last modified for all lookup tables of the system.
+     * Retrieved the last modified for all lookup tables of the system.
+     * @returns string OK
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static headLookupTablesList(): CancelablePromise<HeadLookupTablesListResponse> {
+        return __request(OpenAPI, {
+            method: "HEAD",
+            url: "/lookuptables/list",
+            responseHeader: "Last-Modified",
+            errors: {
+                400: "Bad Request",
+            },
+        });
+    }
+
+    /**
+     * Create a new version of a lookup table.  First versions of a table are automatically activated.
      * Create a new version of a lookup table.  First versions of a table are automatically activated.
      * @param data The data for the request.
      * @param data.tableName Name of new lookup table
      * @param data.requestBody An array of objects that list the table's rows.
      * @returns TableVersionInfo The table was created
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static postLookuptablesByTableName(
-        data: PostLookuptablesByTableNameData,
-    ): CancelablePromise<PostLookuptablesByTableNameResponse> {
+    public static postLookupTables(
+        data: PostLookupTablesData,
+    ): CancelablePromise<PostLookupTablesResponse> {
         return __request(OpenAPI, {
             method: "POST",
             url: "/lookuptables/{tableName}",
@@ -1051,15 +946,17 @@ export class DefaultService {
 
     /**
      * Fetch the contents of a specific version of a table
+     * Fetch the contents of a specific version of a table
      * @param data The data for the request.
      * @param data.tableName Name of lookup table
      * @param data.tableVersion Version of specified table
      * @returns DynamicTableRows The table contents
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static getLookuptablesByTableNameByTableVersionContent(
-        data: GetLookuptablesByTableNameByTableVersionContentData,
-    ): CancelablePromise<GetLookuptablesByTableNameByTableVersionContentResponse> {
+    public static getLookupTablesVersionContent(
+        data: GetLookupTablesVersionContentData,
+    ): CancelablePromise<GetLookupTablesVersionContentResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/lookuptables/{tableName}/{tableVersion}/content",
@@ -1076,14 +973,16 @@ export class DefaultService {
 
     /**
      * Fetch the contents of the active version of a table
+     * Fetch the contents of the active version of a table
      * @param data The data for the request.
      * @param data.tableName Name of lookup table
      * @returns DynamicTableRows The table contents
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static getLookuptablesByTableNameContent(
-        data: GetLookuptablesByTableNameContentData,
-    ): CancelablePromise<GetLookuptablesByTableNameContentResponse> {
+    public static getLookupTablesContent(
+        data: GetLookupTablesContentData,
+    ): CancelablePromise<GetLookupTablesContentResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/lookuptables/{tableName}/content",
@@ -1099,15 +998,16 @@ export class DefaultService {
 
     /**
      * Fetch the version information of a specific version of a table
+     * Fetch the version information of a specific version of a table
      * @param data The data for the request.
      * @param data.tableName Name of lookup table
      * @param data.tableVersion Version of specified table
      * @returns TableVersionInfo The table version information
      * @throws ApiError
      */
-    public static getLookuptablesByTableNameByTableVersionInfo(
-        data: GetLookuptablesByTableNameByTableVersionInfoData,
-    ): CancelablePromise<GetLookuptablesByTableNameByTableVersionInfoResponse> {
+    public static getLookupTablesVersionInfo(
+        data: GetLookupTablesVersionInfoData,
+    ): CancelablePromise<GetLookupTablesVersionInfoResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/lookuptables/{tableName}/{tableVersion}/info",
@@ -1124,15 +1024,17 @@ export class DefaultService {
 
     /**
      * Activate a specific version of a table.  This endpoint does not take a request body.
+     * Activate a specific version of a table.  This endpoint does not take a request body.
      * @param data The data for the request.
      * @param data.tableName Name of lookup table
      * @param data.tableVersion Version of specified table
      * @returns TableVersionInfo The table version information
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static putLookuptablesByTableNameByTableVersionActivate(
-        data: PutLookuptablesByTableNameByTableVersionActivateData,
-    ): CancelablePromise<PutLookuptablesByTableNameByTableVersionActivateResponse> {
+    public static putLookupTablesVersionActivate(
+        data: PutLookupTablesVersionActivateData,
+    ): CancelablePromise<PutLookupTablesVersionActivateResponse> {
         return __request(OpenAPI, {
             method: "PUT",
             url: "/lookuptables/{tableName}/{tableVersion}/activate",
@@ -1141,7 +1043,7 @@ export class DefaultService {
                 tableVersion: data.tableVersion,
             },
             errors: {
-                400: "if there was an error fetching the table data",
+                400: "Bad Request",
                 404: "The table name and/or version was not found",
             },
         });
@@ -1149,61 +1051,85 @@ export class DefaultService {
 
     /**
      * send a registration email to an organization
+     * send a registration email to an organization
      * @returns unknown success call
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
     public static postEmailRegistered(): CancelablePromise<PostEmailRegisteredResponse> {
         return __request(OpenAPI, {
             method: "POST",
             url: "/email-registered",
+            errors: {
+                400: "Bad Request",
+            },
         });
     }
 
     /**
      * create email schedule
+     * create email schedule
      * @returns unknown success call
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
     public static postEmailSchedule(): CancelablePromise<PostEmailScheduleResponse> {
         return __request(OpenAPI, {
             method: "POST",
             url: "/email-schedule",
+            errors: {
+                400: "Bad Request",
+            },
         });
     }
 
     /**
      * delete an inactive email schedule
+     * delete an inactive email schedule
+     * @param data The data for the request.
+     * @param data.scheduleId
      * @returns unknown success call
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static deleteEmailScheduleByScheduleId(): CancelablePromise<DeleteEmailScheduleByScheduleIdResponse> {
+    public static deleteEmailSchedule(
+        data: DeleteEmailScheduleData,
+    ): CancelablePromise<DeleteEmailScheduleResponse> {
         return __request(OpenAPI, {
             method: "DELETE",
             url: "/email-schedule/{scheduleId}",
+            path: {
+                scheduleId: data.scheduleId,
+            },
+            errors: {
+                400: "Bad Request",
+            },
         });
     }
 
     /**
      * Returns a list of reports that have been delivered to the receiver
+     * Returns a list of reports that have been delivered to the receiver
      * @param data The data for the request.
-     * @param data.receiverFullName The full name of the receiver to fetch submitters for
+     * @param data.receiverName The full name of the receiver to fetch submitters for
      * @param data.requestBody The search parameters for the request
      * @returns DeliveryApiSearchResults The results from running the search
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static searchReceiverDeliveries(
-        data: SearchReceiverDeliveriesData,
-    ): CancelablePromise<SearchReceiverDeliveriesResponse> {
+    public static postV1ReceiversDeliveries(
+        data: PostV1ReceiversDeliveriesData,
+    ): CancelablePromise<PostV1ReceiversDeliveriesResponse> {
         return __request(OpenAPI, {
             method: "POST",
-            url: "/v1/receivers/{receiverFullName}/deliveries",
+            url: "/v1/receivers/{receiverName}/deliveries",
             path: {
-                receiverFullName: data.receiverFullName,
+                receiverName: data.receiverName,
             },
             body: data.requestBody,
             mediaType: "application/json",
             errors: {
-                400: "The search request could not be parsed",
+                400: "Bad Request",
                 401: "Unauthorized",
                 404: "The receiver could not be found",
             },
@@ -1215,12 +1141,13 @@ export class DefaultService {
      * Fetches the ETOR intermediary's metadata given the recipient's report ID.
      * @param data The data for the request.
      * @param data.reportId The unique identifier of the report.
-     * @returns OperationOutcome Successful retrieval of ETOR metadata.
+     * @returns FhirOperationOutcome Successful retrieval of ETOR metadata.
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static getDeliveryEtorMetadata(
-        data: GetDeliveryEtorMetadataData,
-    ): CancelablePromise<GetDeliveryEtorMetadataResponse> {
+    public static getWatersReportDeliveryEtorMetadata(
+        data: GetWatersReportDeliveryEtorMetadataData,
+    ): CancelablePromise<GetWatersReportDeliveryEtorMetadataResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/waters/report/{reportId}/delivery/etorMetadata",
@@ -1228,6 +1155,7 @@ export class DefaultService {
                 reportId: data.reportId,
             },
             errors: {
+                400: "Bad Request",
                 404: "lookup Id not found",
                 500: "Internal server error.",
             },
@@ -1236,15 +1164,17 @@ export class DefaultService {
 
     /**
      * Return a list of all the providers, facilities and senders that have sent results to a receiver
+     * Return a list of all the providers, facilities and senders that have sent results to a receiver
      * @param data The data for the request.
      * @param data.receiverFullName The full name of the receiver to fetch submitters for
      * @param data.requestBody The search parameters for the request
      * @returns SubmitterApiSearchResults The results from running the search
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static searchReceiverSubmitters(
-        data: SearchReceiverSubmittersData,
-    ): CancelablePromise<SearchReceiverSubmittersResponse> {
+    public static postV1ReceiversDeliveriesSubmittersSearch(
+        data: PostV1ReceiversDeliveriesSubmittersSearchData,
+    ): CancelablePromise<PostV1ReceiversDeliveriesSubmittersSearchResponse> {
         return __request(OpenAPI, {
             method: "POST",
             url: "/v1/receivers/{receiverFullName}/deliveries/submitters/search",
@@ -1254,7 +1184,7 @@ export class DefaultService {
             body: data.requestBody,
             mediaType: "application/json",
             errors: {
-                400: "The search request could not be parsed",
+                400: "Bad Request",
                 401: "Unauthorized",
                 404: "The receiver could not be found",
             },
@@ -1262,40 +1192,221 @@ export class DefaultService {
     }
 
     /**
+     * Get available reports for all org STLTs
+     * Retrieve a list of reports available for download by a STLT
+     * @param data The data for the request.
+     * @param data.organization receiver whose deliveries we want to see
+     * @param data.reportId the reportId within the deliveries of the organization and client
+     * @param data.fileName the fileName within the deliveries of the organization and client
+     * @param data.receivingOrgSvcStatus Customer status of the service used by the organization. Can append the parameter multiple times for more than one status.
+     * @param data.sortdir direction in which to sort reports
+     * @param data.sortcol column used as the basis for sorting
+     * @param data.cursor used by cursor-based pagination to determine the position on the results
+     * @param data.since only return results from after the given date
+     * @param data.until only return results from before the given date
+     * @param data.pagesize number of results per page
+     * @returns Deliveries a list of AvailableReport objects
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static getWatersOrgDeliveries(
+        data: GetWatersOrgDeliveriesData,
+    ): CancelablePromise<GetWatersOrgDeliveriesResponse> {
+        return __request(OpenAPI, {
+            method: "GET",
+            url: "/waters/org/{organization}/deliveries",
+            path: {
+                organization: data.organization,
+            },
+            query: {
+                reportId: data.reportId,
+                fileName: data.fileName,
+                receivingOrgSvcStatus: data.receivingOrgSvcStatus,
+                sortdir: data.sortdir,
+                sortcol: data.sortcol,
+                cursor: data.cursor,
+                since: data.since,
+                until: data.until,
+                pagesize: data.pagesize,
+            },
+            errors: {
+                400: "Bad Request",
+                401: "unauthorized",
+                404: "organization does not exist",
+            },
+        });
+    }
+
+    /**
+     * Get available reports for a STLT
+     * Retrieve a list of reports available for download by a STLT
+     * @param data The data for the request.
+     * @param data.organization receiver whose deliveries we want to see
+     * @param data.client client of the receiver to get deliveries for
+     * @param data.reportId the reportId within the deliveries of the organization and client
+     * @param data.fileName the fileName within the deliveries of the organization and client
+     * @param data.receivingOrgSvcStatus Customer status of the service used by the organization. Can append the parameter multiple times for more than one status.
+     * @param data.sortdir direction in which to sort reports
+     * @param data.sortcol column used as the basis for sorting
+     * @param data.cursor used by cursor-based pagination to determine the position on the results
+     * @param data.since only return results from after the given date
+     * @param data.until only return results from before the given date
+     * @param data.pagesize number of results per page
+     * @returns Deliveries a list of AvailableReport objects
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static getWatersOrgClientDeliveries(
+        data: GetWatersOrgClientDeliveriesData,
+    ): CancelablePromise<GetWatersOrgClientDeliveriesResponse> {
+        return __request(OpenAPI, {
+            method: "GET",
+            url: "/waters/org/{organization}.{client}/deliveries",
+            path: {
+                organization: data.organization,
+                client: data.client,
+            },
+            query: {
+                reportId: data.reportId,
+                fileName: data.fileName,
+                receivingOrgSvcStatus: data.receivingOrgSvcStatus,
+                sortdir: data.sortdir,
+                sortcol: data.sortcol,
+                cursor: data.cursor,
+                since: data.since,
+                until: data.until,
+                pagesize: data.pagesize,
+            },
+            errors: {
+                400: "Bad Request",
+                401: "unauthorized",
+                404: "organization does not exist",
+            },
+        });
+    }
+
+    /**
+     * Get expanded details for a single report
+     * Retrieve the details for a report, including easily fetched relations
+     * @param data The data for the request.
+     * @param data.id ActionID or ReportId of report whose details we want to see
+     * @returns Delivery a report detail object
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static getWatersReportDelivery(
+        data: GetWatersReportDeliveryData,
+    ): CancelablePromise<GetWatersReportDeliveryResponse> {
+        return __request(OpenAPI, {
+            method: "GET",
+            url: "/waters/report/{id}/delivery",
+            path: {
+                id: data.id,
+            },
+            errors: {
+                400: "Bad Request",
+                401: "unauthorized",
+                404: "report does not exist",
+            },
+        });
+    }
+
+    /**
+     * Get facilities for a single report
+     * Retrieve the list of facilities for a report
+     * @param data The data for the request.
+     * @param data.id ActionID or ReportId of report whose facilities we want to see
+     * @param data.sortdir direction in which to sort reports
+     * @param data.sortcol column used as the basis for sorting
+     * @returns FacilitiesList an array of facilities in the report
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static getWatersReportFacilities(
+        data: GetWatersReportFacilitiesData,
+    ): CancelablePromise<GetWatersReportFacilitiesResponse> {
+        return __request(OpenAPI, {
+            method: "GET",
+            url: "/waters/report/{id}/facilities",
+            path: {
+                id: data.id,
+            },
+            query: {
+                sortdir: data.sortdir,
+                sortcol: data.sortcol,
+            },
+            errors: {
+                400: "Bad Request",
+                401: "unauthorized",
+                404: "report does not exist",
+            },
+        });
+    }
+
+    /**
+     * test data extraction api
      * test data extraction api
      * @returns unknown success call
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
     public static getSaveTestData(): CancelablePromise<GetSaveTestDataResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/saveTestData",
+            errors: {
+                400: "Bad Request",
+            },
         });
     }
 
     /**
      * checks a single remote connection
+     * checks a single remote connection
      * @returns unknown success call
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
     public static getCheck(): CancelablePromise<GetCheckResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/check",
+            errors: {
+                400: "Bad Request",
+            },
+        });
+    }
+
+    /**
+     * checks a single remote connection
+     * checks a single remote connection
+     * @returns unknown success call
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static postCheck(): CancelablePromise<PostCheckResponse> {
+        return __request(OpenAPI, {
+            method: "POST",
+            url: "/check",
+            errors: {
+                400: "Bad Request",
+            },
         });
     }
 
     /**
      * Load Receiver Settings and verifies connecting to the external server works.
+     * Load Receiver Settings and verifies connecting to the external server works.
      * @param data The data for the request.
      * @param data.orgName Name of Organization.
      * @param data.receiverName Logical name of the Receiver Setting
      * @returns CheckReceiverResponse The table contents
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static postCheckreceiverOrgByOrgNameReceiverByReceiverName(
-        data: PostCheckreceiverOrgByOrgNameReceiverByReceiverNameData,
-    ): CancelablePromise<PostCheckreceiverOrgByOrgNameReceiverByReceiverNameResponse> {
+    public static postCheckReceiverOrgReceiver(
+        data: PostCheckReceiverOrgReceiverData,
+    ): CancelablePromise<PostCheckReceiverOrgReceiverResponse> {
         return __request(OpenAPI, {
             method: "POST",
             url: "/checkreceiver/org/{orgName}/receiver/{receiverName}",
@@ -1304,6 +1415,7 @@ export class DefaultService {
                 receiverName: data.receiverName,
             },
             errors: {
+                400: "Bad Request",
                 404: "The orgName or receiverName  was not found",
             },
         });
@@ -1311,16 +1423,18 @@ export class DefaultService {
 
     /**
      * Deletes a key
+     * Deletes a key
      * @param data The data for the request.
      * @param data.organizationName The name of the organization
      * @param data.scope The scope the key to be deleted is associated with
      * @param data.kid The unique identifier of the key to be deleted
      * @returns ApiKeysResponse OK
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static deleteSettingsOrganizationsByOrganizationNamePublicKeysByScopeByKid(
-        data: DeleteSettingsOrganizationsByOrganizationNamePublicKeysByScopeByKidData,
-    ): CancelablePromise<DeleteSettingsOrganizationsByOrganizationNamePublicKeysByScopeByKidResponse> {
+    public static deleteSettingsOrganizationsPublicKeys(
+        data: DeleteSettingsOrganizationsPublicKeysData,
+    ): CancelablePromise<DeleteSettingsOrganizationsPublicKeysResponse> {
         return __request(OpenAPI, {
             method: "DELETE",
             url: "/settings/organizations/{organizationName}/public-keys/{scope}/{kid}",
@@ -1337,108 +1451,66 @@ export class DefaultService {
     }
 
     /**
-     * Retrieves all of the API public keys for the organization
-     * @param data The data for the request.
-     * @param data.organizationName The name of the organization
-     * @returns ApiKeysResponse OK
-     * @throws ApiError
-     */
-    public static getSettingsOrganizationsByOrganizationNamePublicKeys(
-        data: GetSettingsOrganizationsByOrganizationNamePublicKeysData,
-    ): CancelablePromise<GetSettingsOrganizationsByOrganizationNamePublicKeysResponse> {
-        return __request(OpenAPI, {
-            method: "GET",
-            url: "/settings/organizations/{organizationName}/public-keys",
-            path: {
-                organizationName: data.organizationName,
-            },
-            errors: {
-                400: "Bad Request",
-                401: "Unauthorized",
-                404: "Not Found",
-            },
-        });
-    }
-
-    /**
-     * Adds a key for a specific scope.
-     * @param data The data for the request.
-     * @param data.organizationName The name of the organization storing this key
-     * @param data.scope The scope for this key (currently only orgName.*.report)
-     * @param data.kid The key id identifying the public key; must be unique for the keys already added for the scope
-     * @returns ApiKeysResponse OK
-     * @throws ApiError
-     */
-    public static postSettingsOrganizationsByOrganizationNamePublicKeys(
-        data: PostSettingsOrganizationsByOrganizationNamePublicKeysData,
-    ): CancelablePromise<PostSettingsOrganizationsByOrganizationNamePublicKeysResponse> {
-        return __request(OpenAPI, {
-            method: "POST",
-            url: "/settings/organizations/{organizationName}/public-keys",
-            path: {
-                organizationName: data.organizationName,
-            },
-            query: {
-                scope: data.scope,
-                kid: data.kid,
-            },
-            errors: {
-                400: "Bad Request. Returned if the scope is not valid, the kid already exists for the scope or the POST body was empty",
-                401: "Unauthorized",
-                404: "Not Found",
-            },
-        });
-    }
-
-    /**
+     * Returns list of recent failed report-forwarding sends. Used to resend failures. Prime admin only.
      * Returns list of recent failed report-forwarding sends. Used to resend failures. Prime admin only.
      * @param data The data for the request.
      * @param data.daysToShow Number of days back from today include in results
      * @returns ListSendFailures OK
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static getSendFailures(
-        data: GetSendFailuresData = {},
-    ): CancelablePromise<GetSendFailuresResponse> {
+    public static getAdmGetSendFailures(
+        data: GetAdmGetSendFailuresData = {},
+    ): CancelablePromise<GetAdmGetSendFailuresResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/adm/getsendfailures",
             query: {
                 days_to_show: data.daysToShow,
             },
+            errors: {
+                400: "Bad Request",
+            },
         });
     }
 
     /**
      * Returns list of recent failed report-forwarding sends. Used to resend failures. Prime admin only.
+     * Returns list of recent failed report-forwarding sends. Used to resend failures. Prime admin only.
      * @param data The data for the request.
      * @param data.daysToShow Number of days back from today include in results
      * @returns ListResends OK
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static getResend(
-        data: GetResendData = {},
-    ): CancelablePromise<GetResendResponse> {
+    public static getAdmGetResend(
+        data: GetAdmGetResendData = {},
+    ): CancelablePromise<GetAdmGetResendResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/adm/getresend",
             query: {
                 days_to_show: data.daysToShow,
             },
+            errors: {
+                400: "Bad Request",
+            },
         });
     }
 
     /**
      * Get recent report-forward sends across all orgs. Prime admin only.
+     * Get recent report-forward sends across all orgs. Prime admin only.
      * @param data The data for the request.
      * @param data.startDate Date/time for the start range of matches
      * @param data.endDate Optional date/time for the end range of matches
      * @returns ReceiversConnStatusResponse OK
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static getListReceiversConnStatus(
-        data: GetListReceiversConnStatusData,
-    ): CancelablePromise<GetListReceiversConnStatusResponse> {
+    public static getAdmListReceiversConnStatus(
+        data: GetAdmListReceiversConnStatusData,
+    ): CancelablePromise<GetAdmListReceiversConnStatusResponse> {
         return __request(OpenAPI, {
             method: "GET",
             url: "/adm/listreceiversconnstatus",
@@ -1446,40 +1518,505 @@ export class DefaultService {
                 start_date: data.startDate,
                 end_date: data.endDate,
             },
+            errors: {
+                400: "Bad Request",
+            },
         });
     }
 }
 
-export class ValidateService {
+export class UserTypeAdminService {
     /**
-     * Validate a message using client information. Validation errors and warnings are reported in the response json.
-     * @param data The data for the request.
-     * @param data.requestBody The message to validate
-     * @param data.client The client.sender to validate against. If client is not known, use `schema` and `format` instead.
-     * @param data.schema The schema path to validate the message against. Must be use with `format`. This parameter is incompatible with `client`.
-     *
-     * @param data.format The format of the message. must be used with `schema`.  This parameter is incompatible with `client`.
-     *
-     * @returns Report OK
+     * The settings for all organizations of the system. Must have admin access.
+     * The settings for all organizations of the system. Must have admin access.
+     * @returns Organization OK
+     * @returns ErrorMsg Bad Request
      * @throws ApiError
      */
-    public static postValidate(
-        data: PostValidateData,
-    ): CancelablePromise<PostValidateResponse> {
+    public static getSettingsOrganizationss(): CancelablePromise<GetSettingsOrganizationssResponse> {
+        return __request(OpenAPI, {
+            method: "GET",
+            url: "/settings/organizations",
+            errors: {
+                400: "Bad Request",
+            },
+        });
+    }
+
+    /**
+     * Retrieved the last modified for all settings of the system. Must have admin access.
+     * Retrieved the last modified for all settings of the system. Must have admin access.
+     * @returns string OK
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static headSettingsOrganizations(): CancelablePromise<HeadSettingsOrganizationsResponse> {
+        return __request(OpenAPI, {
+            method: "HEAD",
+            url: "/settings/organizations",
+            responseHeader: "Last-Modified",
+            errors: {
+                400: "Bad Request",
+            },
+        });
+    }
+
+    /**
+     * Create or update the direct settings associated with an organization
+     * Create or update the direct settings associated with an organization
+     * @param data The data for the request.
+     * @param data.organizationName The name of the organization
+     * @param data.requestBody
+     * @returns Organization OK, the organization setting was updated
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static putSettingsOrganizations(
+        data: PutSettingsOrganizationsData,
+    ): CancelablePromise<PutSettingsOrganizationsResponse> {
+        return __request(OpenAPI, {
+            method: "PUT",
+            url: "/settings/organizations/{organizationName}",
+            path: {
+                organizationName: data.organizationName,
+            },
+            body: data.requestBody,
+            mediaType: "application/json",
+            errors: {
+                400: "Bad Request",
+                401: "Unauthorized",
+            },
+        });
+    }
+
+    /**
+     * Delete an organization (and the associated receivers and senders)
+     * Delete an organization (and the associated receivers and senders)
+     * @param data The data for the request.
+     * @param data.organizationName The name of the organization
+     * @returns Organization OK, the organization setting was deleted
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static deleteSettingsOrganizations(
+        data: DeleteSettingsOrganizationsData,
+    ): CancelablePromise<DeleteSettingsOrganizationsResponse> {
+        return __request(OpenAPI, {
+            method: "DELETE",
+            url: "/settings/organizations/{organizationName}",
+            path: {
+                organizationName: data.organizationName,
+            },
+            errors: {
+                400: "Bad Request",
+                401: "Unauthorized",
+            },
+        });
+    }
+
+    /**
+     * For a specified report, trace each item's ancestry and retrieve the source files submitted by senders.
+     * For a specified report, trace each item's ancestry and retrieve the source files submitted by senders.
+     * @param data The data for the request.
+     * @param data.reportId Report-id (uuid format) of the receiver report
+     * @param data.reportFileName File name of the receiver report
+     * @param data.offset The offset into the receiver report for the first item
+     * @param data.limit The maximum number of receiver items to retrieve
+     * @param data.onlyReportItems Only include items in the sender file that route to the receiver report
+     * @returns ReportFileMessage A list of the sender files associated with the specified receiver report.
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static getSenderFiles(
+        data: GetSenderFilesData = {},
+    ): CancelablePromise<GetSenderFilesResponse> {
+        return __request(OpenAPI, {
+            method: "GET",
+            url: "/sender-files",
+            query: {
+                "report-id": data.reportId,
+                "report-file-name": data.reportFileName,
+                offset: data.offset,
+                limit: data.limit,
+                "only-report-items": data.onlyReportItems,
+            },
+            errors: {
+                400: "Bad Request",
+            },
+        });
+    }
+
+    /**
+     * Used to resend failures. Prime admin only.
+     * Used to resend failures. Prime admin only.
+     * @param data The data for the request.
+     * @param data.daysToShow Number of days back from today include in results
+     * @returns ListResends OK
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static postAdmResend(
+        data: PostAdmResendData = {},
+    ): CancelablePromise<PostAdmResendResponse> {
         return __request(OpenAPI, {
             method: "POST",
-            url: "/validate",
-            headers: {
-                client: data.client,
-            },
+            url: "/adm/resend",
             query: {
-                schema: data.schema,
-                format: data.format,
+                days_to_show: data.daysToShow,
+            },
+            errors: {
+                400: "Bad Request",
+            },
+        });
+    }
+
+    /**
+     * submit a report to be routed
+     * submit a report to be routed
+     * @param data The data for the request.
+     * @param data.requestBody The public health information being routed
+     * @param data.processing flag for processing the report in a different manner
+     * @returns DetailedSubmissionHistory the detailed report history object
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static postWatersReports(
+        data: PostWatersReportsData,
+    ): CancelablePromise<PostWatersReportsResponse> {
+        return __request(OpenAPI, {
+            method: "POST",
+            url: "/waters",
+            query: {
+                processing: data.processing,
             },
             body: data.requestBody,
             mediaType: "text/csv",
             errors: {
                 400: "Bad Request",
+                401: "unknown or invalid sender",
+            },
+        });
+    }
+
+    /**
+     * Fetch a list of COVID result entries from the `covid_result_metadata` table based on a `messageId`, called `message_id` on the backend. This endpoint will typically return one result but `message_id` is not guaranteed to be unique, so multiple results can be returned.
+     * Fetch a list of COVID result entries from the `covid_result_metadata` table based on a `messageId`, called `message_id` on the backend. This endpoint will typically return one result but `message_id` is not guaranteed to be unique, so multiple results can be returned.
+     * @param data The data for the request.
+     * @param data.messageId The `message_id` of a COVID result message.
+     * @returns Message a list of messages
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static getMessages(
+        data: GetMessagesData,
+    ): CancelablePromise<GetMessagesResponse> {
+        return __request(OpenAPI, {
+            method: "GET",
+            url: "/messages",
+            query: {
+                messageId: data.messageId,
+            },
+            errors: {
+                400: "Bad Request",
+                401: "unauthorized",
+            },
+        });
+    }
+
+    /**
+     * Create a new version of a lookup table.  First versions of a table are automatically activated.
+     * Create a new version of a lookup table.  First versions of a table are automatically activated.
+     * @param data The data for the request.
+     * @param data.tableName Name of new lookup table
+     * @param data.requestBody An array of objects that list the table's rows.
+     * @returns TableVersionInfo The table was created
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static postLookupTables(
+        data: PostLookupTablesData,
+    ): CancelablePromise<PostLookupTablesResponse> {
+        return __request(OpenAPI, {
+            method: "POST",
+            url: "/lookuptables/{tableName}",
+            path: {
+                tableName: data.tableName,
+            },
+            body: data.requestBody,
+            mediaType: "application/json",
+            errors: {
+                400: "if there was an error creating the table",
+            },
+        });
+    }
+
+    /**
+     * Activate a specific version of a table.  This endpoint does not take a request body.
+     * Activate a specific version of a table.  This endpoint does not take a request body.
+     * @param data The data for the request.
+     * @param data.tableName Name of lookup table
+     * @param data.tableVersion Version of specified table
+     * @returns TableVersionInfo The table version information
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static putLookupTablesVersionActivate(
+        data: PutLookupTablesVersionActivateData,
+    ): CancelablePromise<PutLookupTablesVersionActivateResponse> {
+        return __request(OpenAPI, {
+            method: "PUT",
+            url: "/lookuptables/{tableName}/{tableVersion}/activate",
+            path: {
+                tableName: data.tableName,
+                tableVersion: data.tableVersion,
+            },
+            errors: {
+                400: "Bad Request",
+                404: "The table name and/or version was not found",
+            },
+        });
+    }
+
+    /**
+     * Load Receiver Settings and verifies connecting to the external server works.
+     * Load Receiver Settings and verifies connecting to the external server works.
+     * @param data The data for the request.
+     * @param data.orgName Name of Organization.
+     * @param data.receiverName Logical name of the Receiver Setting
+     * @returns CheckReceiverResponse The table contents
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static postCheckReceiverOrgReceiver(
+        data: PostCheckReceiverOrgReceiverData,
+    ): CancelablePromise<PostCheckReceiverOrgReceiverResponse> {
+        return __request(OpenAPI, {
+            method: "POST",
+            url: "/checkreceiver/org/{orgName}/receiver/{receiverName}",
+            path: {
+                orgName: data.orgName,
+                receiverName: data.receiverName,
+            },
+            errors: {
+                400: "Bad Request",
+                404: "The orgName or receiverName  was not found",
+            },
+        });
+    }
+
+    /**
+     * Returns list of recent failed report-forwarding sends. Used to resend failures. Prime admin only.
+     * Returns list of recent failed report-forwarding sends. Used to resend failures. Prime admin only.
+     * @param data The data for the request.
+     * @param data.daysToShow Number of days back from today include in results
+     * @returns ListSendFailures OK
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static getAdmGetSendFailures(
+        data: GetAdmGetSendFailuresData = {},
+    ): CancelablePromise<GetAdmGetSendFailuresResponse> {
+        return __request(OpenAPI, {
+            method: "GET",
+            url: "/adm/getsendfailures",
+            query: {
+                days_to_show: data.daysToShow,
+            },
+            errors: {
+                400: "Bad Request",
+            },
+        });
+    }
+
+    /**
+     * Returns list of recent failed report-forwarding sends. Used to resend failures. Prime admin only.
+     * Returns list of recent failed report-forwarding sends. Used to resend failures. Prime admin only.
+     * @param data The data for the request.
+     * @param data.daysToShow Number of days back from today include in results
+     * @returns ListResends OK
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static getAdmGetResend(
+        data: GetAdmGetResendData = {},
+    ): CancelablePromise<GetAdmGetResendResponse> {
+        return __request(OpenAPI, {
+            method: "GET",
+            url: "/adm/getresend",
+            query: {
+                days_to_show: data.daysToShow,
+            },
+            errors: {
+                400: "Bad Request",
+            },
+        });
+    }
+
+    /**
+     * Get recent report-forward sends across all orgs. Prime admin only.
+     * Get recent report-forward sends across all orgs. Prime admin only.
+     * @param data The data for the request.
+     * @param data.startDate Date/time for the start range of matches
+     * @param data.endDate Optional date/time for the end range of matches
+     * @returns ReceiversConnStatusResponse OK
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static getAdmListReceiversConnStatus(
+        data: GetAdmListReceiversConnStatusData,
+    ): CancelablePromise<GetAdmListReceiversConnStatusResponse> {
+        return __request(OpenAPI, {
+            method: "GET",
+            url: "/adm/listreceiversconnstatus",
+            query: {
+                start_date: data.startDate,
+                end_date: data.endDate,
+            },
+            errors: {
+                400: "Bad Request",
+            },
+        });
+    }
+}
+
+export class UserTypeOrganizationAdminService {
+    /**
+     * Update a single receiver
+     * Update a single receiver
+     * @param data The data for the request.
+     * @param data.organizationName Create receivers under this organization name
+     * @param data.receiverName The name of the receiver
+     * @param data.requestBody
+     * @returns Receiver OK, the receiver setting was updated
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static putSettingsOrganizationReceiver(
+        data: PutSettingsOrganizationReceiverData,
+    ): CancelablePromise<PutSettingsOrganizationReceiverResponse> {
+        return __request(OpenAPI, {
+            method: "PUT",
+            url: "/settings/organizations/{organizationName}/receivers/{receiverName}",
+            path: {
+                organizationName: data.organizationName,
+                receiverName: data.receiverName,
+            },
+            body: data.requestBody,
+            mediaType: "application/json",
+            errors: {
+                400: "Bad Request",
+                401: "Unauthorized",
+            },
+        });
+    }
+
+    /**
+     * Delete a receiver
+     * Delete a receiver
+     * @param data The data for the request.
+     * @param data.organizationName the organization name
+     * @param data.receiverName The name of the receiver
+     * @returns Receiver OK, the receiver was deleted
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static deleteSettingsOrganizationsReceivers(
+        data: DeleteSettingsOrganizationsReceiversData,
+    ): CancelablePromise<DeleteSettingsOrganizationsReceiversResponse> {
+        return __request(OpenAPI, {
+            method: "DELETE",
+            url: "/settings/organizations/{organizationName}/receivers/{receiverName}",
+            path: {
+                organizationName: data.organizationName,
+                receiverName: data.receiverName,
+            },
+            errors: {
+                400: "Bad Request",
+                401: "Unauthorized",
+            },
+        });
+    }
+
+    /**
+     * Update a single sender
+     * Update a single sender
+     * @param data The data for the request.
+     * @param data.organizationName Fetch senders with this organization name
+     * @param data.senderName The name of a sender to the data hub
+     * @param data.requestBody
+     * @returns Sender OK
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static putSettingsOrganizationsSenders(
+        data: PutSettingsOrganizationsSendersData,
+    ): CancelablePromise<PutSettingsOrganizationsSendersResponse> {
+        return __request(OpenAPI, {
+            method: "PUT",
+            url: "/settings/organizations/{organizationName}/senders/{senderName}",
+            path: {
+                organizationName: data.organizationName,
+                senderName: data.senderName,
+            },
+            body: data.requestBody,
+            mediaType: "application/json",
+            errors: {
+                400: "Bad Request",
+                401: "Unauthorized",
+            },
+        });
+    }
+
+    /**
+     * Delete a sender
+     * Delete a sender
+     * @param data The data for the request.
+     * @param data.organizationName the organization name
+     * @param data.senderName The name of a sender to the data hub
+     * @returns Sender OK, the sender was deleted
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static deleteSettingsOrganizationsSenders(
+        data: DeleteSettingsOrganizationsSendersData,
+    ): CancelablePromise<DeleteSettingsOrganizationsSendersResponse> {
+        return __request(OpenAPI, {
+            method: "DELETE",
+            url: "/settings/organizations/{organizationName}/senders/{senderName}",
+            path: {
+                organizationName: data.organizationName,
+                senderName: data.senderName,
+            },
+            errors: {
+                400: "Bad Request",
+                401: "Unauthorized",
+            },
+        });
+    }
+
+    /**
+     * Load Receiver Settings and verifies connecting to the external server works.
+     * Load Receiver Settings and verifies connecting to the external server works.
+     * @param data The data for the request.
+     * @param data.orgName Name of Organization.
+     * @param data.receiverName Logical name of the Receiver Setting
+     * @returns CheckReceiverResponse The table contents
+     * @returns ErrorMsg Bad Request
+     * @throws ApiError
+     */
+    public static postCheckReceiverOrgReceiver(
+        data: PostCheckReceiverOrgReceiverData,
+    ): CancelablePromise<PostCheckReceiverOrgReceiverResponse> {
+        return __request(OpenAPI, {
+            method: "POST",
+            url: "/checkreceiver/org/{orgName}/receiver/{receiverName}",
+            path: {
+                orgName: data.orgName,
+                receiverName: data.receiverName,
+            },
+            errors: {
+                400: "Bad Request",
+                404: "The orgName or receiverName  was not found",
             },
         });
     }

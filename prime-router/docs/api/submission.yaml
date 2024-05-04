@@ -1,9 +1,37 @@
-paths:
+paths:          
+  /waters/report/{reportId}/history/etorMetadata:
+    get:
+      operationId: getWatersReportHistoryEtorMetadata
+      summary: Retrieves ETOR metadata for a sender's report
+      description: Fetches the ETOR intermediary's metadata given the sender's report ID.
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          description: The unique identifier of the report.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful retrieval of ETOR metadata.
+          content:
+            application/json:
+              schema:
+                $ref: 'components/fhir.yaml#/components/schemas/OperationOutcome'
+        '400':
+          $ref: 'components/responses.yaml#/BadRequest'
+        '404':
+          description: lookup Id not found
+        '500':
+          description: Internal server error.
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
   /waters/org/{organization}/submissions:
     get:
+      operationId: getWatersOrgSubmissions
+      summary: returns a list of simple submissions for a specific sender
       description: returns a list of simple submissions for a specific sender
-      security:
-        - OAuth2: [ user ]
       parameters:
         - name: organization
           in: path
@@ -30,12 +58,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/SubmissionHistoryList'
         '400':
-          description: bad request
-  /waters/org/{organization}.{senderChannel}/submissions:
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+
+  /waters/org/{organization}.{sender}/submissions:
     get:
+      operationId: getWatersOrgSenderSubmissions
+      summary: returns a list of simple submissions for a specific sender and sender channel
       description: returns a list of simple submissions for a specific sender and sender channel
-      security:
-        - OAuth2: [ user ]
       parameters:
         - name: organization
           in: path
@@ -43,7 +74,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: senderChannel
+        - name: sender
           in: path
           description: sender channel of the report history we want to look at
           required: true
@@ -68,7 +99,39 @@ paths:
               schema:
                 $ref: '#/components/schemas/SubmissionHistoryList'
         '400':
-          description: bad request
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'
+          
+  /waters/report/{id}/history:
+      get:
+        operationId: getWatersReportHistory
+        summary: return detailed history of a single submitted report
+        description: return detailed history of a single submitted report
+        parameters:
+          - name: id
+            in: path
+            description: a valid UUID or actionId (aka submissionId)
+            required: true
+            schema:
+              type: string
+        responses:
+          '200':
+            description: the detailed report history object
+            content:
+              application/json:
+                schema:
+                  $ref: 'components/submission.yaml#/schemas/DetailedSubmissionHistory'
+          '400':
+            $ref: 'components/responses.yaml#/BadRequest'
+          '401':
+            description: unauthorized
+          '404':
+            description: either there is no report with the given id or the report is not a submission
+          '500':
+            description: unable to fetch history due to Data Access Exception
+          default:
+            $ref: 'components/responses.yaml#/BadRequest'
 
 components:
   schemas:

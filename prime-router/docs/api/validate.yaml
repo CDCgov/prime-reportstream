@@ -6,10 +6,9 @@ paths:
   # The validation endpoints are public endpoints for validating payloads of various formats.
   /validate:
     post:
-      tags:
-        - default
-        - validate
+      operationId: postValidate
       summary: Validate a message using client information. Validation errors and warnings are reported in the response json.
+      description: Validate a message using client information. Validation errors and warnings are reported in the response json.
       parameters:
         - in: header
           name: client
@@ -56,4 +55,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Report'
         '400':
-          description: Bad Request
+          $ref: 'components/responses.yaml#/BadRequest'
+        default:
+          $ref: 'components/responses.yaml#/BadRequest'

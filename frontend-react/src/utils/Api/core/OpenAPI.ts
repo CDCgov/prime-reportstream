@@ -44,7 +44,7 @@ export interface OpenAPIConfig {
 }
 
 export const OpenAPI: OpenAPIConfig = {
-    BASE: "http://localhost:7071/api",
+    BASE: "https://prime.cdc.gov/api",
     CREDENTIALS: "include",
     ENCODE_PATH: undefined,
     HEADERS: undefined,

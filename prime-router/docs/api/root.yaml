@@ -14,16 +14,21 @@ externalDocs:
   description: ReportStream API Programmer Guide
   url: https://staging.reportstream.cdc.gov/resources/api/getting-started
 servers:
-- url: http://localhost:7071/api/
-  description: Local Server (Local Development Use)
-- url: https://staging.prime.cdc.gov/api/
-  description: Staging Server
 - url: https://prime.cdc.gov/api
   description: Production server (uses live data)
+- url: https://staging.prime.cdc.gov/api
+  description: Staging Server
 security:
-- OAuth2: []
-- PreviewOAuth2: []
+- OAuth2:
+  - "openid"
+  - "email"
+- PreviewOAuth2: 
+  - "openid"
+  - "email"
 - ServerToServer: []
+tags:
+ - name: UserTypeOrganizationAdmin
+ - name: UserTypeAdmin
 components:
   schemas:
     HttpResponseMessage:
@@ -68,8 +73,10 @@ components:
           format: uri
   securitySchemes:
     ServerToServer:
-      $ref: components/security_schemes.yaml#/ServerToServer
+      $ref: components/security_schemas.yaml#/ServerToServer
     OAuth2:
-      $ref: components/security_schemes.yaml#/OAuth2
+      $ref: components/security_schemas.yaml#/OAuth2
     PreviewOAuth2:
-      $ref: components/security_schemes.yaml#/PreviewOAuth2
+      $ref: components/security_schemas.yaml#/PreviewOAuth2
+    ApiKeyAuth:
+      $ref: components/security_schemas.yaml#/ApiKeyAuth
