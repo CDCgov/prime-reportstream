@@ -293,4 +293,34 @@ class FHIRRouterIntegrationTests : Logging {
             }
         }
     }
+
+    @Test
+    fun `when message is sent to both receiver topics two messages should be sent`() {
+        // noop
+    }
+
+    @Test
+    fun `should respect Jurisdictional Filter`() {
+        // noop
+    }
+
+    @Test
+    fun `should respect quality filter`() {
+        // noop
+    }
+
+    @Test
+    fun `should respect routing filter`() {
+        // noop
+    }
+
+    @Test
+    fun `should respect Processing Mode Code Filter`() {
+
+    }
+
+    @Test
+    fun `should respect Condition Filter`() {
+
+    }
 }
