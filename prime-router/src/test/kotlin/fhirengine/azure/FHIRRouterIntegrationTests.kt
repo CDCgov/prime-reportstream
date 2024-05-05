@@ -1,17 +1,10 @@
 package gov.cdc.prime.router.fhirengine.azure
 
-// import assertk.assertThat
-// import assertk.assertions.containsOnly
-// import assertk.assertions.each
-// import assertk.assertions.hasSize
-// import assertk.assertions.matchesPredicate
-// import gov.cdc.prime.router.*
 import assertk.assertThat
 import assertk.assertions.containsOnly
-import assertk.assertions.each
-import assertk.assertions.hasSize
-import assertk.assertions.matchesPredicate
+import com.google.common.base.Verify.verify
 import gov.cdc.prime.router.*
+
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.azure.BlobAccess
@@ -20,45 +13,24 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
-import gov.cdc.prime.router.azure.db.Tables
-import gov.cdc.prime.router.azure.db.enums.ActionLogType
-// import gov.cdc.prime.router.azure.db.Tables
-// import gov.cdc.prime.router.azure.db.enums.ActionLogType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
-import gov.cdc.prime.router.cli.tests.CompareData
-import gov.cdc.prime.router.common.*
-// import gov.cdc.prime.router.cli.tests.CompareData
+import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransform
-import gov.cdc.prime.router.common.UniversalPipelineTestUtils.hl7SenderWithNoTransform
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.universalPipelineOrganization
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles
-// import gov.cdc.prime.router.common.UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles
-// import gov.cdc.prime.router.common.badEncodingHL7Record
-// import gov.cdc.prime.router.common.cleanHL7Record
-// import gov.cdc.prime.router.common.cleanHL7RecordConverted
-// import gov.cdc.prime.router.common.invalidHL7Record
-// import gov.cdc.prime.router.common.invalidHL7RecordConverted
-// import gov.cdc.prime.router.common.unparseableHL7Record
+import gov.cdc.prime.router.common.validFHIRRecord1
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
-import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
-import gov.cdc.prime.router.history.DetailedActionLog
-// import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
-// import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-// import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.*
 import org.apache.logging.log4j.kotlin.Logging
-import org.jooq.impl.DSL
-// import io.mockk.verify
-// import org.jooq.impl.DSL
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -332,20 +304,13 @@ class FHIRRouterIntegrationTests : Logging {
             convertReport,
             receivedBlobUrl
         )
-logger.info("receiveReport: ${receiveReport.id}")
-logger.info("convertReport: ${convertReport.id}")
+
         val queueMessage = generateQueueMessage(convertReport, reportContents, fhirSenderWithNoTransform)
         val fhirFunctions = createFHIRFunctionsInstance()
         fhirFunctions.doRoute(queueMessage, 1, createFHIRRouter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReports = verifyLineageAndFetchCreatedReportFiles(convertReport, receiveReport, txn, 1)
-logger.info("number of routedReports: ${routedReports.size}")
-logger.info("routed report index zero id: ${routedReports.get(0).reportId}")
-
-
-logger.info("routedReports is: ${routedReports}")
-
             val reportAndBundles =
                 routedReports.map {
                     logger.info("it.bodyUrl is: ${it.bodyUrl}")
@@ -355,8 +320,6 @@ logger.info("routedReports is: ${routedReports}")
                         BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata())
                     )
                 }
-logger.info("reportAndBundles is: ${reportAndBundles}")
-
 
             assertThat(reportAndBundles).transform {
                 pairs -> pairs.map {
@@ -381,10 +344,6 @@ logger.info("reportAndBundles is: ${reportAndBundles}")
                 logger.info("it serialized is --> ${it.serialize()}")
                 it.serialize()
             }
-
-//            verify(exactly = 1) {
-//                QueueAccess.sendMessage(elrTranslationQueueName, any())
-//            }
 
             verify(exactly = 1) {
                 QueueAccess.sendMessage(elrTranslationQueueName, match {
