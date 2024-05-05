@@ -2,9 +2,13 @@ package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
 import assertk.assertions.containsOnly
-import com.google.common.base.Verify.verify
-import gov.cdc.prime.router.*
 
+import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.azure.BlobAccess
@@ -29,33 +33,25 @@ import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
-import io.mockk.*
+
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockkConstructor
+import io.mockk.mockkObject
+import io.mockk.verify
+
 import org.apache.logging.log4j.kotlin.Logging
+
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import java.time.OffsetDateTime
-import java.util.*
 
-private const val ORGANIZATION_NAME = "co-phd"
-private const val RECEIVER_NAME = "full-elr-hl7"
-private const val TOPIC_TEST_ORG_NAME = "topic-test"
-private const val QUALITY_TEST_URL = "src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir"
-private const val OBSERVATION_COUNT_GREATER_THAN_ZERO = "Bundle.entry.resource.ofType(Observation).count() > 0"
-private const val PROVENANCE_COUNT_GREATER_THAN_ZERO = "Bundle.entry.resource.ofType(Provenance).count() > 0"
-private const val PROVENANCE_COUNT_EQUAL_TO_TEN = "Bundle.entry.resource.ofType(Provenance).count() = 10"
-private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/routing/valid.fhir"
-private const val BLOB_URL = "https://blob.url"
-private const val BLOB_SUB_FOLDER_NAME = "test-sender"
-private const val BODY_URL = "https://anyblob.com"
-private const val PERFORMER_OR_PATIENT_CA = "(%performerState.exists() and %performerState = 'CA') " +
-    "or (%patientState.exists() and %patientState = 'CA')"
-private const val PROVENANCE_COUNT_GREATER_THAN_10 = "Bundle.entry.resource.ofType(Provenance).count() > 10"
-private const val EXCEPTION_FOUND = "exception found"
-private const val CONDITION_FILTER = "%resource.code.coding.code = '95418-0'"
+import java.time.OffsetDateTime
+
 
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
@@ -95,54 +91,6 @@ class FHIRRouterIntegrationTests : Logging {
             settings,
             reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess)),
         )
-    }
-
-    private fun createReport(
-        format: Report.Format,
-        sender: Sender,
-        receiveReportBlobUrl: String,
-        itemCount: Int,
-    ): Report {
-        return ReportStreamTestDatabaseContainer.testDatabaseAccess.transactReturning { txn ->
-            val report = Report(
-                format,
-                emptyList(),
-                itemCount,
-                metadata = UnitTestUtils.simpleMetadata,
-                nextAction = TaskAction.convert,
-                topic = sender.topic,
-            )
-            report.bodyURL = receiveReportBlobUrl
-            val receiveAction = Action().setActionName(TaskAction.receive)
-            val receiveActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, receiveAction)
-            val reportFile = ReportFile()
-                .setSchemaTopic(sender.topic)
-                .setReportId(report.id)
-                .setActionId(receiveActionId)
-                .setSchemaName("")
-                .setBodyFormat(sender.format.toString())
-                .setItemCount(itemCount)
-                .setExternalName("test-external-name")
-                .setBodyUrl(receiveReportBlobUrl)
-            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
-                reportFile, txn, receiveAction
-            )
-            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertTask(
-                report,
-                format.toString().lowercase(),
-                report.bodyURL,
-                nextAction = ProcessEvent(
-                    Event.EventAction.ROUTE,
-                    report.id,
-                    Options.None,
-                    emptyMap(),
-                    emptyList()
-                ),
-                txn
-            )
-
-            report
-        }
     }
 
     private fun generateQueueMessage(report: Report, blobContents: String, sender: Sender): String {
@@ -313,8 +261,6 @@ class FHIRRouterIntegrationTests : Logging {
             val routedReports = verifyLineageAndFetchCreatedReportFiles(convertReport, receiveReport, txn, 1)
             val reportAndBundles =
                 routedReports.map {
-                    logger.info("it.bodyUrl is: ${it.bodyUrl}")
-                    logger.info("BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata()).toString(Charsets.UTF_8)")
                     Pair(
                         it,
                         BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata())
@@ -327,10 +273,7 @@ class FHIRRouterIntegrationTests : Logging {
                 }
             }.containsOnly(validFHIRRecord1)
 
-
             val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
-                logger.info("fireBundle is: ${fhirBundle}")
-                logger.info("bytes fhir bundle to str is: ${fhirBundle.toString(Charsets.UTF_8)}")
                 FhirTranslateQueueMessage(
                     report.reportId,
                     report.bodyUrl,
@@ -340,20 +283,14 @@ class FHIRRouterIntegrationTests : Logging {
                     "phd.elr2"
                 )
             }.map {
-                logger.info("it is ---> $it")
-                logger.info("it serialized is --> ${it.serialize()}")
                 it.serialize()
             }
 
             verify(exactly = 1) {
                 QueueAccess.sendMessage(elrTranslationQueueName, match {
-                    logger.info("expectedRouteQueueMessages: ${expectedRouteQueueMessages}")
-                    logger.info("it is ~~~ $it")
                     expectedRouteQueueMessages.contains(it) }
                 )
             }
-
-
         }
     }
 }
