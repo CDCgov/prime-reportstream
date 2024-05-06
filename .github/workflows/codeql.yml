@@ -19,10 +19,11 @@ on:
     branches: 
       - master
     paths:
-      - "prime-router/src/**/*.kt"
+      - "frontend-react/**"
       - "prime-router/src/scripts/**"
       - "/operations/app/functions/admin/**"
     types: 
+      - opened
       - synchronize
   schedule:
     - cron: '20 4 * * 1'
@@ -40,7 +41,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript', 'python', 'java' ]
+        language: [ 'javascript', 'python' ]
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
 

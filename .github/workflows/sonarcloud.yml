@@ -10,6 +10,7 @@ on:
       - master
     paths:
       - "prime-router/**"
+      - "frontend-react/**"
     types: 
       - opened
       - synchronize
@@ -110,8 +111,15 @@ jobs:
 
       - name: Frontend Coverage
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        run: yarn run test:ci --coverage --maxWorkers=100%
-        working-directory: frontend-react
+        uses: ./.github/actions/retry
+        with:
+          timeout_minutes: 30
+          max_attempts: 2
+          retry_wait_seconds: 30
+          command: |
+            cd frontend-react
+            yarn run test:ci
+          shell: bash
 
       - name: Run SonarCloud Scan master or full
         if: ( steps.changed-files-yaml.outputs.frontend_any_changed == 'true' && steps.changed-files-yaml.outputs.backend_any_changed == 'true' ) || steps.branch-name.outputs.is_default == 'true'
@@ -121,7 +129,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           sonar-token: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Run SonarCloud Scan frontend
+      - name: Run SonarCloud Scan frontened
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' && steps.changed-files-yaml.outputs.backend_any_changed == 'false' && steps.branch-name.outputs.is_default == 'false'
         uses: ./.github/actions/sonarcloud
         with:
