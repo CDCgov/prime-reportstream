@@ -339,12 +339,12 @@ class FHIRConverterIntegrationTests {
 
             val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk()).from(Tables.ACTION_LOG)
                 .where(Tables.ACTION_LOG.REPORT_ID.eq(receiveReport.id))
-                .and(Tables.ACTION_LOG.TYPE.eq(ActionLogType.error))
+                .and(Tables.ACTION_LOG.TYPE.`in`(ActionLogType.error, ActionLogType.warning))
                 .fetchInto(
                     DetailedActionLog::class.java
                 )
 
-            assertThat(actionLogs).hasSize(2)
+            assertThat(actionLogs).hasSize(6)
             @Suppress("ktlint:standard:max-line-length")
             assertThat(actionLogs).transform {
                 it.map { log ->
@@ -352,7 +352,11 @@ class FHIRConverterIntegrationTests {
                 }
             }
                 .containsOnly(
+                    "Missing mapping for code(s): 80382-5",
+                    "Missing mapping for code(s): 260373001",
                     "Item 2 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1838: Invalid JSON content detected, missing required element: 'resourceType'",
+                    "Missing mapping for code(s): 80382-5",
+                    "Missing mapping for code(s): 260373001",
                     "Item 4 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected end-of-input: was expecting closing quote for a string value\n" +
                         " at [line: 1, column: 23]"
                 )
