@@ -2,6 +2,7 @@ package gov.cdc.prime.router.transport
 
 import com.google.common.base.Preconditions
 import com.microsoft.azure.functions.ExecutionContext
+import gov.cdc.prime.router.Cryptography
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Receiver
@@ -35,6 +36,7 @@ import io.ktor.client.request.accept
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -54,11 +56,19 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
 import java.io.InputStream
+import java.security.KeyManagementException
 import java.security.KeyStore
+import java.security.NoSuchAlgorithmException
+import java.security.SecureRandom
+import java.security.cert.CertificateException
+import java.security.cert.X509Certificate
 import java.util.Base64
 import java.util.logging.Logger
+import javax.crypto.spec.IvParameterSpec
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 /**
  * A REST transport that will get an authentication token from the authTokenUrl
@@ -87,7 +97,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         val restTransportInfo = transportType as RESTTransportType
         val reportId = "${header.reportFile.reportId}"
         val receiver = header.receiver ?: error("No receiver defined for report $reportId")
-        val reportContent: ByteArray = header.content ?: error("No content for report $reportId")
+        var reportContentOrg: ByteArray = header.content ?: error("No content for report $reportId")
         // get the file name from blob url, or create one from the report metadata
         val fileName = if (header.receiver.topic.isSendOriginal) {
             Report.formExternalFilename(header)
@@ -119,9 +129,27 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         logger.info("Token successfully added!")
 
                         // post the report
-                        val reportClient = httpClient ?: createDefaultHttpClient(
-                            jksCredential,
-                            accessToken,
+                        // If encryption is needed.
+                        val encryptClient = httpClient ?: createDefaultHttpClient(
+                            jksCredential, accessToken,
+                            restTransportInfo
+                        )
+                        val reportContent = if (restTransportInfo.encryptionKeyUrl.isNotEmpty()) {
+                            encryptTheReport(
+                                reportContentOrg,
+                                fileName,
+                                restTransportInfo.encryptionKeyUrl,
+                                httpHeaders,
+                                logger,
+                                encryptClient
+                            )
+                        } else {
+                            reportContentOrg
+                        }
+
+                        // post the report
+                        val postClient = httpClient ?: createDefaultHttpClient(
+                            jksCredential, accessToken,
                             restTransportInfo
                         )
                         val response = postReport(
@@ -130,7 +158,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             restTransportInfo.reportUrl,
                             httpHeaders,
                             logger,
-                            reportClient
+                            postClient
                         )
                         val responseBody = response.bodyAsText()
                         // update the action history
@@ -478,6 +506,51 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     }
 
     /**
+     * Encrypt the report to the REST service. This is a suspend function, meaning it can get called as an
+     * async method, though we call it a blocking way.
+     *
+     * @param message The report we want to send as a ByteArray
+     * @param encryptionKeyUrl The URL to extract the encryption key
+     * @param context Really just here to get logging injected
+     */
+    suspend fun encryptTheReport(
+        message: ByteArray,
+        fileName: String,
+        encryptionKeyUrl: String,
+        headers: Map<String, String>,
+        logger: Logger,
+        httpClient: HttpClient,
+    ): ByteArray {
+        logger.info(fileName)
+        httpClient.use { client ->
+            val encryptionKey = client.get(encryptionKeyUrl) {
+                postHeaders(
+                    // Calculate Content-Length if needed.
+                    headers.map { (key, value) ->
+                        if (key == "Content-Length" && value == "<calculated when request is sent>") {
+                            Pair(key, message.size.toString())
+                        } else {
+                            Pair(key, value)
+                        }
+                    }.toMap()
+                )
+            }.body<String>()
+
+            val jsonEncryptionKey = JSONObject(encryptionKey)
+            val aesKey = Base64.getDecoder().decode(jsonEncryptionKey.get("aesKey").toString())
+            val aesIV = Base64.getDecoder().decode(jsonEncryptionKey.get("aesIV").toString())
+
+            val iv = IvParameterSpec(aesIV)
+            val crypto = Cryptography()
+            val algorithm = "AES/CBC/PKCS5Padding"
+
+            val enKey = crypto.getAESKeyFromPassword(aesKey)
+            val encryptedMsg = crypto.encrypt(algorithm, message, enKey, iv)
+            return encryptedMsg
+        }
+    }
+
+    /**
      * Post the report as HL7 to the REST service. This is based on SoapTransport connectToSoapService
      * This is a suspend function, meaning it can get called as an async method, though we call it
      * a blocking way.
@@ -528,6 +601,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             contentType(ContentType.Application.Json)
                             // create JSON object for the BODY. This encodes "/" character as "//", needed for WA to accept as valid JSON
                             JSONObject().put("body", message.toString(Charsets.UTF_8)).toString()
+                        }
+                        "application/hl7-v2" -> {
+                            // The following line doesn't work. It shows one seg on their server
+                            val filteredMsg = message.toString(Charsets.UTF_8).replace("\n", "\r").dropLast(1) + "\r"
+                            TextContent(filteredMsg, ContentType("application", "hl7-v2"))
                         }
                         // NY Content-Type: multipart/form-data
                         "multipart/form-data" -> {
@@ -603,7 +681,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 // configures the Apache client with our specified timeouts
                 // if we have a JKS, create an SSL context with it
                 engine {
-                    jks?.let { sslContext = getSslContext(jks) }
+                    sslContext = if (jks != null) {
+                        getSslContext(jks)
+                    } else {
+                        disableSSLCertificateChecking()
+                    }
                     followRedirects = true
                     socketTimeout = TIMEOUT
                     connectTimeout = TIMEOUT
@@ -633,6 +715,38 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             val sslContext = SSLContext.getInstance("TLSv1.3")
             sslContext.init(keyManagerFactory.keyManagers, null, null)
             return sslContext
+        }
+
+        /**
+         * Disables the SSL certificate checking for new instances of [HttpsURLConnection] This has been created to
+         * aid testing on a local box, not for use on production.
+         */
+        private fun disableSSLCertificateChecking(): SSLContext? {
+            val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+                override fun getAcceptedIssuers(): Array<X509Certificate> {
+                    return emptyArray()
+                }
+
+                @Throws(CertificateException::class)
+                override fun checkClientTrusted(arg0: Array<X509Certificate?>?, arg1: String?) {
+                    // Not implemented
+                }
+
+                @Throws(CertificateException::class)
+                override fun checkServerTrusted(arg0: Array<X509Certificate?>?, arg1: String?) {
+                    // Not implemented
+                }
+            })
+            try {
+                val sc = SSLContext.getInstance("TLSv1.3")
+                sc.init(null, trustAllCerts, SecureRandom())
+                return sc
+            } catch (e: KeyManagementException) {
+                e.printStackTrace()
+            } catch (e: NoSuchAlgorithmException) {
+                e.printStackTrace()
+            }
+            return null
         }
 
         /***

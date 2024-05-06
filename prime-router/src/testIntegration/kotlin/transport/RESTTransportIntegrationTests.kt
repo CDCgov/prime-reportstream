@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.transport
 
 import assertk.assertThat
-import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import gov.cdc.prime.router.FileSettings
@@ -16,9 +15,6 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserAssertionCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.security.Keys
 import io.ktor.client.HttpClient
 import io.ktor.client.call.HttpClientCall
 import io.ktor.client.engine.mock.MockEngine
@@ -47,9 +43,7 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.assertDoesNotThrow
 import java.time.format.DateTimeFormatter
-import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
@@ -154,6 +148,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     private val transportType = RESTTransportType(
         "mock-api",
         "mock-tokenUrl",
+        "",
         null,
         headers = mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
     )
@@ -161,6 +156,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         "v1/etor/orders",
         "v1/auth/token",
         "two-legged",
+        "",
         null,
         mapOf("mock-p1" to "value-p1", "mock-p2" to "value-p2"),
         headers = mapOf(
@@ -593,6 +589,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
     private val natusRestTransportTypeLive = RESTTransportType(
         "https://api.neometrics.com/natusAPI/api/v2/HL7",
         "https://api.neometrics.com/natusAPI/api/v2/AUTH/Login",
+        "https://api.neometrics.com/natusAPI/api/v2/HL7/GetFileEncryptionKey",
         authHeaders = mapOf(
             "ExpectSuccess" to "true",
             "Content-Type" to "application/json",
@@ -703,75 +700,45 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         assertThat(retryItems).isNull()
     }
 
-    // at some point "Authorization: " was being prepended so this test makes sure that doesn't happen again
-    @Test
-    fun `test getting auth token with UserPassCredential returns valid token`() {
-        val key = Keys.secretKeyFor(SignatureAlgorithm.HS256)
-        val token = Jwts.builder()
-            .setSubject("subject")
-            .signWith(key, SignatureAlgorithm.HS256)
-            .compact()
-        val mockClient = mockJsonResponseWithSuccess(token)
-        val mockRestTransport = RESTTransport(mockClient)
-        val credential = UserPassCredential("user", "pass")
-        val logger = Logger.getLogger(this.toString())
-
-        runBlocking {
-            mockRestTransport.getAuthTokenWithUserPass(transportType, credential, logger, mockClient).also {
-                val parser = Jwts.parserBuilder().setSigningKey(key).build()
-                assertDoesNotThrow {
-                    parser.parse(it.accessToken) // will throw errors if not a valid signed jwt
-                }
-            }
-        }
+    // ========== Localhost testing =====
+    private fun makeNatusHeader(): WorkflowEngine.Header {
+        val content = """
+MSH|^~\&|CDC Trusted Intermediary^https://reportstream.cdc.gov/||||20230331131841-0500||OML^O21^OML_O21|7cd2c933-cfe6-4249-8e9d-b4b9fa0a9142|P|2.5.1|||||USA|UNICODE UTF-8
+PID|1||S99955754^^^^MR||Solo^Jaina^^^^^L||20170515111100-0500|F||^Asian^HL70005|||||||||||||||1
+NK1|1|Organa^Leia^^^^^L|N^^http://terminology.hl7.org/CodeSystem/v2-0131||^^PH^^31^201^234567^^^^^+31201234567
+ORC|NW||||IP||||20230331131841-0500
+OBR||||54089-8^Newborn Screening Panel^LN
+MSH|^~\&|CDC Trusted Intermediary^https://reportstream.cdc.gov/||||20230331131910-0500||OML^O21^OML_O21|ed80a9db-2fba-4fb3-a117-300e0f7f55d8|P|2.5.1|||||USA|UNICODE UTF-8
+PID|1||S99955754^^^^MR||Solo^Jaina^^^^^L||20170515111100-0500|F||^Asian^HL70005|||||||||||||||1
+NK1|1|Organa^Leia^^^^^L|N^^http://terminology.hl7.org/CodeSystem/v2-0131||^^PH^^31^201^234567^^^^^+31201234567
+ORC|NW||||IP||||20230331131910-0500
+OBR||||54089-8^Newborn Screening Panel^LN
+"""
+        return WorkflowEngine.Header(
+            task,
+            reportFile,
+            null,
+            settings.findOrganization("la-phl"),
+            settings.findReceiver("la-phl.etor-nbs-orders"),
+            metadata.findSchema("metadata/hl7_mapping/receivers/Flexion/TILabOrder"),
+            content = content.toByteArray(),
+            true
+        )
     }
 
-    private var okRestTransportTypeLive = RESTTransportType(
-        "http://localhost:3001/report",
-        "http://localhost:3001/token",
-        authHeaders = mapOf(
-            "ExpectSuccess" to "true",
-            "Content-Type" to "application/json",
-            "Authorization-Type" to "email/password"
-        ),
-        headers = mapOf(
-            "RecordId" to "header.reportFile.reportId",
-            "Content-Length" to "<calculated when request is sent>",
-            "Content-Type" to "text/plain",
-            "BearerToken" to "",
-        )
-    )
-
     @Test
-    fun `test OK PHD`() {
-        val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
+    fun `test LA PHL with localhost Natus`() {
+        val header = makeNatusHeader()
+        val mockRestTransport = spyk(RESTTransport())
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
-            UserPassCredential("mock-user", "mock-pass")
-        )
-        every { runBlocking { mockRestTransport.getAuthTokenWithUserPass(any(), any(), any(), any()) } }.returns(
-            TokenInfo(accessToken = "MockToken", tokenType = "bearer")
+            // Return the credential for NBS
+            UserPassCredential("CDC", "Ask Ott for THis value")
         )
 
         val retryItems = mockRestTransport.send(
-            okRestTransportTypeLive, header, reportId, null,
-            context, actionHistory
+            natusRestTransportTypeLive, header, reportId, null, context,
+            actionHistory
         )
         assertThat(retryItems).isNull()
-    }
-
-    @Test
-    fun `test OK PHD BearerToken Setting`() {
-        // Test with null BearerToken, it should return "Bearer"
-        var restTransport = RESTTransportType("", "", headers = mapOf("Content-Type" to "text/plain"))
-        assertThat(RESTTransport.getAuthorizationHeader(restTransport)).isEqualTo("Bearer")
-
-        // Test with emplty BearerToken, it should return ""
-        restTransport = RESTTransportType("", "", headers = mapOf("BearerToken" to ""))
-        assertThat(RESTTransport.getAuthorizationHeader(restTransport)).isEqualTo("")
-
-        // Test with "Testing" BearerToken, it should return "Testing"
-        restTransport = RESTTransportType("", "", headers = mapOf("BearerToken" to "Testing"))
-        assertThat(RESTTransport.getAuthorizationHeader(restTransport)).isEqualTo("Testing")
     }
 }
