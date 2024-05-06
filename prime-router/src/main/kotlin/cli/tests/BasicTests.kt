@@ -86,7 +86,7 @@ class End2EndUniversalPipeline : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initTestDataForUniversalPipeline()
+        val testData = testDataForUniversalPipeline()
         var passed = true
 
         ugly("Starting $name Test")

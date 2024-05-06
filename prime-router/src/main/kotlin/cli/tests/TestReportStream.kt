@@ -937,7 +937,7 @@ abstract class CoolTest {
 
         lateinit var allGoodReceivers: MutableList<Receiver>
         lateinit var allGoodCounties: String
-        lateinit var testData: ArrayList<E2EData>
+
         const val historyTestOrgName = "historytest"
         val historyTestSender = (
             settings.findSender("$historyTestOrgName.default")
@@ -956,10 +956,10 @@ abstract class CoolTest {
             allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
         }
 
-        fun initTestDataForUniversalPipeline() {
+        fun testDataForUniversalPipeline(): ArrayList<E2EData> {
             val smoketestDir = "src/test/resources/fhirengine/smoketest"
 
-            testData = arrayListOf(
+            return arrayListOf(
                 E2EData(
                     File("$smoketestDir/valid_hl7_e2e.hl7"),
                     fullELRE2ESender,
