@@ -12,7 +12,6 @@ on:
   push:
     branches:
       - master
-    paths: prime-router/**
   merge_group:
     types:
       - checks_requested
