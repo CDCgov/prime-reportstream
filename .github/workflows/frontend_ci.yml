@@ -175,7 +175,7 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: "github-actions[bot]"
-          body-regex: '\.*Chromatic.*\gi'
+          body-regex: '\.*deployed to Chromatic.*\gi'
       - name: Delete Previous Comment
         if: ${{ steps.comment_find.outputs.comment-id }}
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
