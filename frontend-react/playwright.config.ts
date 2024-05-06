@@ -58,7 +58,6 @@ export default defineConfig<TestOptions>({
     fullyParallel: true,
     forbidOnly: isCi,
     retries: isCi ? 2 : 0,
-    workers: isCi ? "100%" : undefined,
     // Tests sharded in CI runner and reported as blobs that are later turned into html report
     reporter: isCi
         ? [["blob", { outputDir: "e2e-data/report" }]]
