@@ -2,6 +2,8 @@ name: Frontend CI
 
 on:
   pull_request:
+    branches-ignore:
+      - production
     paths: 
       - frontend-react/**
 
