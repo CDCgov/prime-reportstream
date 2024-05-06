@@ -102,7 +102,8 @@ class End2EndUniversalPipeline : CoolTest() {
             it.historyResponse = pauseForBatchProcess(environment, it.reportId)
 
             if (it.historyResponse.isEmpty()) {
-                return bad("***$name test FAILED***: One or more reports failed batch step.")
+                passed = bad("***$name test FAILED***: One or more reports failed batch step.")
+                return@forEach
             }
 
             ugly("Examining sent reports for the posted report ID ${it.reportId}")
