@@ -129,7 +129,7 @@ jobs:
           uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
           with:
             name: frontend-e2e-data--attempt-${{ github.run_attempt }}
-            path: frontend-react/e2e-data
+            path: playwright-report
             retention-days: 7
   
   chromatic:
