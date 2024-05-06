@@ -216,6 +216,9 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
 
     companion object {
 
+        // This regex is used to replace \n with \r while not replacing \r\n
+        val newLineRegex = Regex("(?<!\r)\n")
+
         /**
          * Class captures the details from the MSH segment and can be used to map
          * to which instance of a Message and which HL7 -> FHIR mappings should be used
@@ -277,7 +280,8 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
         ): Message {
             // A carriage return if the official segment delimiter and a new line is not recognized so we replace
             // them
-            val carriageReturnFixedHL7 = rawHL7.replace("\n", "\r")
+
+            val carriageReturnFixedHL7 = rawHL7.replace(newLineRegex, "\r")
             val hl7MessageType = getMessageType(carriageReturnFixedHL7)
             return getHL7ParsingContext(hl7MessageType, parseConfiguration).pipeParser.parse(carriageReturnFixedHL7)
         }
