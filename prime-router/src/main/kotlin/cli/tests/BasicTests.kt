@@ -77,7 +77,7 @@ class Ping : CoolTest() {
  * This test runs through four scenarios:
  * - A report that is submitted as HL7 and is sent as HL7 (Topic: FULL-ELR).
  * - A report that is submitted as HL7 and is sent as FHIR (Topic: FULL-ELR).
- * - A report that is submitted as HL7 and is sent as HL7 but has the send original flag (Topic: ELIMS).
+ * - A report that is submitted as HL7 and is sent as HL7 but has isSendOriginal set to true (Topic: ELIMS).
  * - A report that is submitted as FHIR and is sent as FHIR (Topic: FULL-ELR).
  */
 class End2EndUniversalPipeline : CoolTest() {
