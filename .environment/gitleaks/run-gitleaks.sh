@@ -42,7 +42,7 @@ function note() {
 }
 
 # Use a well known, stable version
-GITLEAKS_IMG_NAME="zricethezav/gitleaks:v8.2.0"
+GITLEAKS_IMG_NAME="zricethezav/gitleaks:v8.18.2"
 REPO_ROOT=$(git rev-parse --show-toplevel)
 CONTAINER_SOURCE_LOCATION="/repo"
 CONTAINER_LOCATION="repo"
