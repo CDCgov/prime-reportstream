@@ -125,6 +125,10 @@ jobs:
             merge-multiple: true
         - name: Merge reports
           run: npx playwright merge-reports --reporter html,github ./e2e-data/report
+        # merge-reports command has no cli option to change default output dir (playwright-report),
+        # so merge it into the e2e-data/report manually and do clean up before uploading
+        - name: Merge folders
+          run: mv ./playwright-report/* ./e2e-data/report && rmdir ./playwright-report && rm ./e2e-data/report/*.zip && rm -rf ./e2e-data/report/resources
         - name: Upload final e2e-data
           uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
           with:
