@@ -58,6 +58,7 @@ export default defineConfig<TestOptions>({
     fullyParallel: true,
     forbidOnly: isCi,
     retries: isCi ? 2 : 0,
+    // Do not consume 100% cpu, as this will cause instability
     workers: isCi ? "75%" : undefined,
     // Tests sharded in CI runner and reported as blobs that are later turned into html report
     reporter: isCi

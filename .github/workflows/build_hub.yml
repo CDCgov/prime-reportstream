@@ -6,9 +6,6 @@ on:
       - master
     paths: 
       - prime-router/**
-    types: 
-      - opened
-      - synchronize
   push:
     branches:
       - master

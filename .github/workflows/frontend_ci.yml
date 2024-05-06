@@ -4,9 +4,6 @@ on:
   pull_request:
     paths: 
       - frontend-react/**
-    types: 
-      - opened
-      - synchronize
 
 concurrency:
   group: ${{ github.ref }}
@@ -69,8 +66,8 @@ jobs:
     name: E2E tests
     needs: lint
     runs-on: ubuntu-latest
-    # Keep shards under 5 minutes
-    timeout-minutes: 5
+    # Keep shards under 6 minutes (1 minute dedicated to playwright install, 5 to tests)
+    timeout-minutes: 6
     strategy:
       fail-fast: false
       matrix:

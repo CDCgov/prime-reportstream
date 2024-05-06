@@ -22,9 +22,6 @@ on:
       - "frontend-react/**"
       - "prime-router/src/scripts/**"
       - "/operations/app/functions/admin/**"
-    types: 
-      - opened
-      - synchronize
   schedule:
     - cron: '20 4 * * 1'
 
