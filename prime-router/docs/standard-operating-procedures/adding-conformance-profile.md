@@ -1,20 +1,19 @@
 # Adding support for a new HL7v2 conformance profile in ReportStream
 
 This document outlines the process of integrating a HL7v2 conformance profile so that a new data model can be
-processed  
-by ReportStream.
+processed by ReportStream.
 
 ## Background
 
 ReportStream uses FHIR R4 as the internal data model. Data coming into the system is converted to FHIR then data  
-output can be transformed into a variety of formats dependent on the requirements on the receiver. This design  
+output can be transformed into a variety of formats dependent on the requirements of the receiver. This design  
 intentionally decouples the input from the output so that the formats of the two can be different.
 
 ### Editing existing vs Creating New
 
-Integrating a new conformance profile involves editing existing data structures and mappings or creating new. Modifying
-an existing structures and mappings is preferred. But that option depends on the differences present in the new   
-conformance profile. Here are a few example scenarios:
+Integrating a new conformance profile involves editing existing data structures and mappings or creating new ones.
+Modifying an existing structures and mappings is preferred, but that option depends on the differences present in the
+new conformance profile. Here are a few example scenarios:
 
 - **The new profile only deprecates fields**
     - No changes are needed to structures or mappings.
