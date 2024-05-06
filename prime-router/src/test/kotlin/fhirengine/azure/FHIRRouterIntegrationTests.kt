@@ -2,13 +2,8 @@ package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
 import assertk.assertions.containsOnly
+import gov.cdc.prime.router.*
 
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Options
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.azure.BlobAccess
@@ -22,7 +17,11 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.common.TestcontainersUtils
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSender
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransform
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils.hl7Sender
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils.hl7SenderWithNoTransform
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils.senderWithValidation
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.universalPipelineOrganization
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles
 import gov.cdc.prime.router.common.validFHIRRecord1
@@ -57,6 +56,29 @@ import java.time.OffsetDateTime
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
 class FHIRRouterIntegrationTests : Logging {
 
+    /**
+     *   Quality filter sample for receivers on FULL_ELR topic:
+     *   Must have message ID, patient last name, patient first name, DOB, specimen type
+     *   At least one of patient street, patient zip code, patient phone number, patient email
+     *   At least one of order test date, specimen collection date/time, test result date
+     */
+    val fullElrQualityFilterSample: ReportStreamFilter = listOf(
+        "%messageId.exists()",
+        "%patient.name.family.exists()",
+        "%patient.name.given.count() > 0",
+        "%patient.birthDate.exists()",
+        "%specimen.type.exists()",
+        "(%patient.address.line.exists() or " +
+                "%patient.address.postalCode.exists() or " +
+                "%patient.telecom.exists())",
+        "(" +
+                "(%specimen.collection.collectedPeriod.exists() or " +
+                "%specimen.collection.collected.exists()" +
+                ") or " +
+                "%serviceRequest.occurrence.exists() or " +
+                "%observation.effective.exists())",
+    )
+
     @Container
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
         customImageName = "azurite_fhirfunctionintegration1",
@@ -64,6 +86,37 @@ class FHIRRouterIntegrationTests : Logging {
             "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
         )
     )
+
+    private fun createOrganizationWithFilter (
+        jurisdictionalFilter: List<String> = listOf("true"),
+        qualityFilter: List<String> = listOf("true"),
+        processingModeFilter: List<String> = listOf("true"),
+    ): DeepOrganization {
+        return DeepOrganization(
+            "phd", "test", Organization.Jurisdiction.FEDERAL,
+            senders = listOf(
+                hl7Sender,
+                fhirSender,
+                hl7SenderWithNoTransform,
+                fhirSenderWithNoTransform,
+                senderWithValidation
+            ),
+            receivers = listOf(
+                Receiver(
+                    "elr2",
+                    "phd",
+                    Topic.FULL_ELR,
+                    CustomerStatus.ACTIVE,
+                    "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml",
+                    timing = Receiver.Timing(numberPerDay = 1, maxReportCount = 1, whenEmpty = Receiver.WhenEmpty()),
+                    jurisdictionalFilter = jurisdictionalFilter,
+                    qualityFilter = qualityFilter,
+                    processingModeFilter = processingModeFilter,
+                    format = Report.Format.HL7,
+                )
+            ),
+        )
+    }
 
     private fun createFHIRFunctionsInstance(): FHIRFunctions {
         val settings = FileSettings().loadOrganizations(universalPipelineOrganization)
@@ -80,8 +133,10 @@ class FHIRRouterIntegrationTests : Logging {
         return FHIRFunctions(workflowEngine, databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess)
     }
 
-    private fun createFHIRRouter(): FHIRRouter {
-        val settings = FileSettings().loadOrganizations(universalPipelineOrganization)
+    private fun createFHIRRouter(
+        org: DeepOrganization? = null
+    ): FHIRRouter {
+        val settings = FileSettings().loadOrganizations(org?:universalPipelineOrganization)
         val metadata = UnitTestUtils.simpleMetadata
         metadata.lookupTableStore += mapOf(
             "observation-mapping" to LookupTable("observation-mapping", emptyList())
@@ -211,20 +266,20 @@ class FHIRRouterIntegrationTests : Logging {
     }
 
     @Test
-    fun `should tralalalalala down the happiest of happy paths`() {
+    fun `should send valid FHIR item only to receiver listening to full-elr`() {
         val reportContents =
             listOf(
                 validFHIRRecord1
             ).joinToString()
 
         val receivedBlobUrl = BlobAccess.uploadBlob(
-            "receive/tralalalalala.fhir",
+            "receive/mr_fhir_face.fhir",
             reportContents.toByteArray(),
             getBlobContainerMetadata()
         )
 
         val convertedBlobUrl = BlobAccess.uploadBlob(
-            "convert/tralalalalala.fhir",
+            "convert/mr_fhir_face.fhir",
             reportContents.toByteArray(),
             getBlobContainerMetadata()
         )
@@ -295,18 +350,57 @@ class FHIRRouterIntegrationTests : Logging {
     }
 
     @Test
-    fun `when message is sent to both receiver topics two messages should be sent`() {
-        // noop
-    }
-
-    @Test
-    fun `should respect Jurisdictional Filter`() {
-        // noop
-    }
-
-    @Test
     fun `should respect quality filter`() {
-        // noop
+        val reportContents =
+            listOf(
+                validFHIRRecord1
+            ).joinToString()
+
+        val receivedBlobUrl = BlobAccess.uploadBlob(
+            "receive/mr_fhir_face.fhir",
+            reportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
+
+        val convertedBlobUrl = BlobAccess.uploadBlob(
+            "convert/mr_fhir_face.fhir",
+            reportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
+
+        // Seed the steps backwards so report lineage can be correctly generated
+
+        val convertReport = seedTask(
+            Report.Format.FHIR,
+            TaskAction.convert,
+            TaskAction.route,
+            Event.EventAction.ROUTE,
+            Topic.FULL_ELR,
+            0,
+            null,
+            convertedBlobUrl
+        )
+
+        val receiveReport = seedTask(
+            Report.Format.FHIR,
+            TaskAction.receive,
+            TaskAction.convert,
+            Event.EventAction.CONVERT,
+            Topic.FULL_ELR,
+            0,
+            convertReport,
+            receivedBlobUrl
+        )
+
+        logger.info("receiveReport is: ${receiveReport}")
+
+        val queueMessage = generateQueueMessage(convertReport, reportContents, fhirSenderWithNoTransform)
+        val fhirFunctions = createFHIRFunctionsInstance()
+        val fhirRouter = createFHIRRouter(createOrganizationWithFilter(fullElrQualityFilterSample))
+        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        verify(exactly = 0) {
+            QueueAccess.sendMessage(elrTranslationQueueName, any())
+        }
     }
 
     @Test
