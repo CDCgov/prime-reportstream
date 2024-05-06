@@ -767,11 +767,11 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         assertThat(RESTTransport.getAuthorizationHeader(restTransport)).isEqualTo("Bearer")
 
         // Test with emplty BearerToken, it should return ""
-        okRestTransportTypeLive = RESTTransportType("", "", headers = mapOf("BearerToken" to ""))
+        restTransport = RESTTransportType("", "", headers = mapOf("BearerToken" to ""))
         assertThat(RESTTransport.getAuthorizationHeader(restTransport)).isEqualTo("")
 
         // Test with "Testing" BearerToken, it should return "Testing"
-        okRestTransportTypeLive = RESTTransportType("", "", headers = mapOf("BearerToken" to "Testing"))
+        restTransport = RESTTransportType("", "", headers = mapOf("BearerToken" to "Testing"))
         assertThat(RESTTransport.getAuthorizationHeader(restTransport)).isEqualTo("Testing")
     }
 }
