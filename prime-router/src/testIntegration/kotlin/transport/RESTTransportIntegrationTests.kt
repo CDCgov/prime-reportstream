@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.transport
 
 import assertk.assertThat
+import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import gov.cdc.prime.router.FileSettings
@@ -725,7 +726,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         }
     }
 
-    private val okRestTransportTypeLive = RESTTransportType(
+    private var okRestTransportTypeLive = RESTTransportType(
         "http://localhost:3001/report",
         "http://localhost:3001/token",
         authHeaders = mapOf(
@@ -742,7 +743,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
     )
 
     @Test
-    fun `test with localhost OK PHD`() {
+    fun `test OK PHD`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
@@ -751,10 +752,26 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         every { runBlocking { mockRestTransport.getAuthTokenWithUserPass(any(), any(), any(), any()) } }.returns(
             TokenInfo(accessToken = "MockToken", tokenType = "bearer")
         )
+
         val retryItems = mockRestTransport.send(
             okRestTransportTypeLive, header, reportId, null,
             context, actionHistory
         )
         assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test OK PHD BearerToken Setting`() {
+        // Test with null BearerToken, it should return "Bearer"
+        var restTransport = RESTTransportType("", "", headers = mapOf("Content-Type" to "text/plain"))
+        assertThat(RESTTransport.getAuthorizationHeader(restTransport)).isEqualTo("Bearer")
+
+        // Test with emplty BearerToken, it should return ""
+        okRestTransportTypeLive = RESTTransportType("", "", headers = mapOf("BearerToken" to ""))
+        assertThat(RESTTransport.getAuthorizationHeader(restTransport)).isEqualTo("")
+
+        // Test with "Testing" BearerToken, it should return "Testing"
+        okRestTransportTypeLive = RESTTransportType("", "", headers = mapOf("BearerToken" to "Testing"))
+        assertThat(RESTTransport.getAuthorizationHeader(restTransport)).isEqualTo("Testing")
     }
 }

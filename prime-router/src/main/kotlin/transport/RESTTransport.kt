@@ -565,6 +565,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         /** A default value for the timeouts to connect and send messages */
         private const val TIMEOUT = 120_000
 
+        /** Get Authentication header.  It is hear to ease Unit Test */
+        fun getAuthorizationHeader(restTransportInfo: RESTTransportType?): String {
+            return restTransportInfo?.headers?.get("BearerToken") ?: "Bearer"
+        }
+
         /** Our default Http Client, with an optional SSL context, and optional auth token */
         private fun createDefaultHttpClient(
             jks: UserJksCredential?,
@@ -581,9 +586,8 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 // not using Bearer Auth handler due to refresh token behavior
                 accessToken?.let {
                     // Default to set Bearer prefix
-                    val authPrefix = restTransportInfo!!.headers["BearerToken"] ?: "Bearer"
                     defaultRequest {
-                        header("Authorization", "$authPrefix $it")
+                        header("Authorization", getAuthorizationHeader(restTransportInfo) + " $it")
                     }
                 }
                 // install contentNegotiation to handle json response
