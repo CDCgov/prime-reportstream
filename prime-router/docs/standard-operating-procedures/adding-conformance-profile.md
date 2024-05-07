@@ -64,6 +64,8 @@ Once the new structure is created the ReportStream code needs to be updated to u
    then `profileID`  
    is looked up via `oidProfileMap`. The key for that map is the OID found in `MSH-21-3`. The expected OID needs to be  
    added to that map and paired with string value to be used as the profileID.
+    - Note: This strategy may change as the values that can be received via `MSH-21-3` are not under our control. An
+      alternate proposed solution is to add a property to the topic or sender.
 2. The structure used to parse a given HL7 message is determined in `HL7Reader.getMessageModelClasses()`. Review that  
    function to ensure the combination of `typeID` and `profileID` will return the appropriate structure.
 
