@@ -19,104 +19,139 @@
           "$ref": "#/definitions/Jurisdiction"
         },
         "stateCode": {
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
-        "countryCode": {
-          "type": "string"
+        "countyName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "filters": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Filter"
-          }
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Filter"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "featureFlags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "keys" : {
-          "type" : "array",
-          "items" : {
-            "type" : "object",
-            "properties" : {
-              "keys" : {
-                "type" : "array",
-                "items" : {
-                  "type" : "object",
-                  "properties" : {
-                    "alg" : {
-                      "type" : "string"
-                    },
-                    "crv" : {
-                      "type" : "string"
-                    },
-                    "d" : {
-                      "type" : "string"
-                    },
-                    "dp" : {
-                      "type" : "string"
-                    },
-                    "dq" : {
-                      "type" : "string"
-                    },
-                    "e" : {
-                      "type" : "string"
-                    },
-                    "k" : {
-                      "type" : "string"
-                    },
-                    "keyOps" : {
-                      "type" : "string"
-                    },
-                    "kid" : {
-                      "type" : "string"
-                    },
-                    "kty" : {
-                      "type" : "string"
-                    },
-                    "n" : {
-                      "type" : "string"
-                    },
-                    "p" : {
-                      "type" : "string"
-                    },
-                    "q" : {
-                      "type" : "string"
-                    },
-                    "qi" : {
-                      "type" : "string"
-                    },
-                    "use" : {
-                      "type" : "string"
-                    },
-                    "x" : {
-                      "type" : "string"
-                    },
-                    "x5c" : {
-                      "type" : "array",
-                      "items" : {
-                        "type" : "string"
+          "anyOf": [
+            {
+              "type" : "array",
+              "items" : {
+                "type" : "object",
+                "properties" : {
+                  "keys" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "alg" : {
+                          "type" : "string"
+                        },
+                        "crv" : {
+                          "type" : "string"
+                        },
+                        "d" : {
+                          "type" : "string"
+                        },
+                        "dp" : {
+                          "type" : "string"
+                        },
+                        "dq" : {
+                          "type" : "string"
+                        },
+                        "e" : {
+                          "type" : "string"
+                        },
+                        "k" : {
+                          "type" : "string"
+                        },
+                        "keyOps" : {
+                          "type" : "string"
+                        },
+                        "kid" : {
+                          "type" : "string"
+                        },
+                        "kty" : {
+                          "type" : "string"
+                        },
+                        "n" : {
+                          "type" : "string"
+                        },
+                        "p" : {
+                          "type" : "string"
+                        },
+                        "q" : {
+                          "type" : "string"
+                        },
+                        "qi" : {
+                          "type" : "string"
+                        },
+                        "use" : {
+                          "type" : "string"
+                        },
+                        "x" : {
+                          "type" : "string"
+                        },
+                        "x5c" : {
+                          "type" : "array",
+                          "items" : {
+                            "type" : "string"
+                          }
+                        },
+                        "x5t" : {
+                          "type" : "string"
+                        },
+                        "x5u" : {
+                          "type" : "string"
+                        },
+                        "y" : {
+                          "type" : "string"
+                        }
                       }
-                    },
-                    "x5t" : {
-                      "type" : "string"
-                    },
-                    "x5u" : {
-                      "type" : "string"
-                    },
-                    "y" : {
-                      "type" : "string"
                     }
+                  },
+                  "scope" : {
+                    "type" : "string"
                   }
                 }
-              },
-              "scope" : {
-                "type" : "string"
               }
+            },
+            {
+              "type": "null"
             }
-          }
+          ]
         },
         "senders": {
           "type": "array",
@@ -146,11 +181,25 @@
           "type" : "boolean"
         },
         "createdAt" : {
-          "type" : "string",
-          "format" : "date-time"
+          "anyOf": [
+            {
+              "type" : "string",
+              "format" : "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "createdBy" : {
-          "type" : "string"
+          "anyOf": [
+            {
+              "type" : "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "customerStatus" : {
           "$ref" : "#/definitions/CustomerStatus"
@@ -166,8 +215,15 @@
           "type" : "string"
         },
         "primarySubmissionMethod" : {
-          "type" : "string",
-          "enum" : [ "automated", "manual" ]
+          "anyOf": [
+            {
+              "type" : "string",
+              "enum" : [ "automated", "manual" ]
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "processingType" : {
           "type" : "string",
@@ -177,14 +233,28 @@
           "type" : "string"
         },
         "senderType" : {
-          "type" : "string",
-          "enum" : [ "testManufacturer", "dataAggregator", "facility", "hospitalSystem" ]
+          "anyOf": [
+            {
+              "type" : "string",
+              "enum" : [ "testManufacturer", "dataAggregator", "facility", "hospitalSystem" ]
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "topic" : {
           "$ref" : "#/definitions/Topic"
         },
         "version" : {
-          "type" : "integer"
+          "anyOf": [
+            {
+              "type" : "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
@@ -215,16 +285,30 @@
           "$ref": "#/definitions/Translation"
         },
         "jurisdictionalFilter": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "qualityFilter": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "reverseTheQualityFilter": {
           "type": "boolean"
@@ -246,7 +330,14 @@
           "type": "string"
         },
         "transport": {
-          "$ref": "#/definitions/Transport"
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Transport"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "externalName": {
           "anyOf": [
@@ -259,35 +350,70 @@
           ]
         },
         "processingModeFilter": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "routingFilter": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "timeZone" : {
-          "$ref" : "#/definitions/USTimeZone"
+          "anyOf": [
+            {
+              "$ref" : "#/definitions/USTimeZone"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "dateTimeFormat" : {
           "type" : "string",
           "enum" : [ "OFFSET", "LOCAL", "HIGH_PRECISION_OFFSET", "DATE_ONLY" ]
         },
         "conditionFilter": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "mappedConditionFilter": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MappedConditionFilter"
-          }
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref" : "#/definitions/MappedConditionFilter"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "deidentifiedValue" : {
           "type" : "string"
@@ -416,40 +542,82 @@
       "additionalProperties": false,
       "properties": {
         "conditionFilter" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          }
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "jurisdictionalFilter" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          }
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "mappedConditionFilter" : {
-          "type" : "array",
-          "items" : {
-            "$ref" : "#/definitions/MappedConditionFilter"
-          }
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref" : "#/definitions/MappedConditionFilter"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "processingModeFilter" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          }
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "qualityFilter" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          }
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "routingFilter" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          }
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "topic" : {
           "$ref" : "#/definitions/Topic"
@@ -542,7 +710,24 @@
           "type": "string"
         },
         "receivingOrganization": {
-          "type": "null"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dummy": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "type": {
           "$ref": "#/definitions/TranslationType"
@@ -554,10 +739,24 @@
           "type": "boolean"
         },
         "receivingApplicationName": {
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "receivingFacilityName": {
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "convertDateTimesToReceiverLocalTime": {
           "type": "boolean"
@@ -566,25 +765,126 @@
           "type": "boolean"
         },
         "receivingApplicationOID": {
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "receivingFacilityOID": {
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "messageProfileId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "reportingFacilityName": {
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "reportingFacilityId": {
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reportingFacilityIdType": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "suppressHl7Fields": {
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "suppressAoe": {
+          "type": "boolean"
+        },
+        "defaultAoeToUnknown": {
+          "type": "boolean"
+        },
+        "replaceUnicodeWithAscii": {
+          "type": "boolean"
+        },
+        "truncateHDNamespaceIds": {
+          "type": "boolean"
         },
         "useBlankInsteadOfUnknown": {
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "replaceValue": {
-          "type": "object"
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "replaceValueAwithB": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "truncateHl7Fields": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "convertPositiveDateTimeOffsetToNegative": {
           "type": "boolean"
@@ -594,9 +894,107 @@
         },
         "useBatching": {
           "type": "boolean"
+        },
+        "usePid14ForPatientEmail": {
+          "type": "boolean"
+        },
+        "convertTimestampToDateTime": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cliaForOutOfStateTesting": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cliaForSender": {
+          "type": "object"
+        },
+        "phoneNumberFormatting": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum" : [ "STANDARD", "ONLY_DIGITS_IN_COMPONENT_ONE", "AREA_LOCAL_IN_COMPONENT_ONE" ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "suppressNonNPI": {
+          "type": "boolean"
+        },
+        "processingModeCode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "replaceDiiWithOid": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "applyOTCDefault": {
+          "type": "boolean"
+        },
+        "useOrderingFacilityName": {
+          "type": "string",
+          "enum": [ "STANDARD", "NCES", "ORGANIZATION_NAME" ]
+        },
+        "valueSetOverrides": {
+          "type": "object"
+        },
+        "stripInvalidCharsRegex": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "truncationConfig": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "truncateHDNamespaceIds": {
+              "type": "boolean"
+            },
+            "truncateHl7Fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "customLengthHl7Fields": {
+              "type": "object"
+          }
         }
-      },
-      "required": [
+      }
+    },
+    "required": [
         "type"
       ],
       "title": "Translation"
@@ -612,8 +1010,15 @@
           "type": "string"
         },
         "port": {
-          "type": "integer",
-          "minimum": 0
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "string"
+            }
+          ]
         },
         "filePath": {
           "type": "string"
@@ -652,6 +1057,16 @@
         "soapAction": {
           "type": "string"
         },
+        "soapVersion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "uuidFormat": {
           "type": "string"
         },
@@ -660,6 +1075,45 @@
         },
         "apiUrl": {
           "type": "string"
+        },
+        "namespaces": {
+          "type": "object"
+        },
+        "tlsKeystore": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "authType": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "authHeaders": {
+          "type": "object"
+        },
+        "dummy": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [

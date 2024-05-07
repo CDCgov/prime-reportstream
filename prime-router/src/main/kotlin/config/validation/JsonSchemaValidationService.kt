@@ -7,21 +7,21 @@ import java.io.InputStream
 
 class JsonSchemaValidationService {
 
-    fun validateYAMLFileStructure(
+    fun validateYAMLStructure(
         configType: ConfigurationType,
         file: File,
     ): Set<ValidationMessage> {
-        return validateYAMLFileStructure(configType, file.inputStream())
+        return validateYAMLStructure(configType, file.inputStream())
     }
 
-    fun validateYAMLFileStructure(
+    fun validateYAMLStructure(
         configType: ConfigurationType,
-        yaml: String,
+        yamlString: String,
     ): Set<ValidationMessage> {
-        return validateYAMLFileStructure(configType, yaml.byteInputStream())
+        return validateYAMLStructure(configType, yamlString.byteInputStream())
     }
 
-    fun validateYAMLFileStructure(
+    fun validateYAMLStructure(
         configType: ConfigurationType,
         inputStream: InputStream,
     ): Set<ValidationMessage> {
