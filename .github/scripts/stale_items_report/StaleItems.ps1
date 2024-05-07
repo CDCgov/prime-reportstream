@@ -24,6 +24,8 @@ function Get-StaleItems {
     {
         if($obj.updated_at -lt $limit)
         {
+            $title = $obj.title -replace '`', ''
+
             if($ItemType -eq "Branch" -and $obj.name -notin $ExcludeList)
             {
                 $BranchName = $obj.name
@@ -32,14 +34,14 @@ function Get-StaleItems {
                 $Branch = Invoke-WebRequest -Uri $endpoint1 -Headers @{"Authorization"="Basic $BasicCreds1"}
                 $jsonBranch = $Branch | ConvertFrom-JSON
             
-                if($obj.commit.commit.author.date -lt $limit -and $jsonBranch.name -notin $ExcludeBranchesList)
+                if($obj.commit.commit.author.date -lt $limit)
                 {
-                    $bulletPointList += "- ...**" + $jsonBranch.name.Substring([math]::max(0, $jsonBranch.name.Length - 40)) + "** ($($jsonBranch.commit.commit.author.date.ToString("MM/dd/yy")) ~ $($jsonBranch.commit.commit.author.name))`n"
+                    $bulletPointList += "- [" + $jsonBranch.name.SubString(0,[math]::min(10,$jsonBranch.name.length)) + "..." + $jsonBranch.name.Substring([math]::max(0,$jsonBranch.name.Length - 10)) + "]($($jsonBranch._links.html)): | $($jsonBranch.commit.commit.author.name)`n"
                 }
             }
             elseif($ItemType -ne "Branch")
             {
-                $bulletPointList += "- [#$($obj.number)]($($obj.html_url)): " + $obj.title.SubString(0,[math]::min(20,$obj.title.length)) + "..." + $obj.title.Substring($obj.title.Length - 20) + " | $($obj.user.login)`n"
+                $bulletPointList += "- [#$($obj.number)]($($obj.html_url)): " + $title.SubString(0,[math]::min(10,$title.length)) + "..." + $title.Substring([math]::max(0,$title.Length - 10)) + " | $($obj.user.login)`n"
             }
         }
     }
@@ -51,11 +53,11 @@ function Get-StaleItems {
 }
 
 # Stale Pull Requests
-Get-StaleItems -ItemType "Pull Request" -Endpoint "https://api.github.com/repos/CDCgov/prime-reportstream/pulls?state=open" -StaleDays 90
+Get-StaleItems -ItemType "Pull Request" -Endpoint "https://api.github.com/repos/CDCgov/prime-reportstream/pulls?direction=asc&sort=updated&state=open" -StaleDays 90
 
 # Stale Branches
 $ExcludeBranchesList = @(Get-Content .\.github\scripts\stale_items_report\excludebrancheslist.txt)
-Get-StaleItems -ItemType "Branch" -Endpoint "https://api.github.com/repos/CDCgov/prime-reportstream/branches" -StaleDays 90 -ExcludeList $ExcludeBranchesList
+Get-StaleItems -ItemType "Branch" -Endpoint "https://api.github.com/repos/CDCgov/prime-reportstream/branches?direction=asc&sort=updated" -StaleDays 90 -ExcludeList $ExcludeBranchesList
 
 # Stale Issues
-Get-StaleItems -ItemType "Issue" -Endpoint "https://api.github.com/repos/CDCgov/prime-reportstream/issues?state=open" -StaleDays 90
+Get-StaleItems -ItemType "Issue" -Endpoint "https://api.github.com/repos/CDCgov/prime-reportstream/issues?state=open&per_page=100&direction=asc&sort=updated" -StaleDays 90

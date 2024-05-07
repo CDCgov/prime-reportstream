@@ -21,6 +21,8 @@ inputs:
     description: URL for webhook delivery
   color:
     description: Notification highlighting if applicable
+  slackify-markdown:
+    default: false
 
 runs:
   using: "composite"
@@ -49,4 +51,4 @@ runs:
         SLACK_WEBHOOK: ${{ inputs.webhook-url }}
         SLACK_ICON_EMOJI: ${{ inputs.icon-emoji }}
         MSG_MINIMAL: actions url
-        SLACKIFY_MARKDOWN: true
+        SLACKIFY_MARKDOWN: ${{ inputs.slackify-markdown }}

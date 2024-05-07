@@ -62,105 +62,41 @@ jobs:
         uses: ./.github/actions/notifications
         with:
           method: slack
-          title: Stale Pull Requests
+          title: Stale Pull Requests (>90 days)
           message: |
             ${{ steps.stale_out.outputs.MULTI_PR_RESPONSE }}
           icon-emoji: ':bell:'
-          channel: temp_branch_dump
+          channel: pagerduty-alert-dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           color: warning
+          slackify-markdown: true
 
       - name: Slack Notification
         if: steps.stale_out.outputs.MULTI_BRANCH_RESPONSE != ''
         uses: ./.github/actions/notifications
         with:
           method: slack
-          title: Stale Branches
+          title: Stale Branches (>90 days)
           message: |
             [GitHub Link](https://github.com/CDCgov/prime-reportstream/branches/stale)
             ${{ steps.stale_out.outputs.MULTI_BRANCH_RESPONSE }}
           icon-emoji: ':bell:'
-          channel: temp_branch_dump
+          channel: pagerduty-alert-dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           color: warning
+          slackify-markdown: true
 
       - name: Slack Notification
         if: steps.stale_out.outputs.MULTI_ISSUE_RESPONSE != ''
         uses: ./.github/actions/notifications
         with:
           method: slack
-          title: Stale Issues
+          title: Stale Issues (>90 days)
           message: |
+            [GitHub Link](https://github.com/CDCgov/prime-reportstream/issues?q=is%3Aissue+is%3Aopen+sort%3Acreated-asc)
             ${{ steps.stale_out.outputs.MULTI_ISSUE_RESPONSE }}
           icon-emoji: ':bell:'
-          channel: temp_branch_dump
+          channel: pagerduty-alert-dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           color: warning
-
-      # - name: Get Stale prs
-      #   id: PullRequests
-      #   shell: pwsh
-      #   run: |
-      #     ./.github/scripts/stale_items_report/StalePullRequests.ps1
-
-      # - name: Decode Stale Pull Requests Markdown
-      #   id: PullRequestsShow
-      #   shell: bash
-      #   run: |
-      #     echo "${{ env.STALE_PULL_REQUESTS_MARKDOWN }}" | base64 --decode > stale_pull_requests.md
-      #     cat stale_pull_requests.md >> $GITHUB_STEP_SUMMARY
-        
-      # - name: Get Stale branches
-      #   id: Branches
-      #   shell: pwsh
-      #   run: |
-      #     ./.github/scripts/stale_items_report/Stale_Branches.ps1
-
-      # - name: Decode Stale Branches Markdown
-      #   id: BranchesShow
-      #   shell: bash
-      #   run: |
-      #     echo "${{ env.STALE_BRANCHES_MARKDOWN }}" | base64 --decode > stale_branches.md
-      #     cat stale_branches.md >> $GITHUB_STEP_SUMMARY
-
-      # - name: Get Stale Issues
-      #   id: Issues
-      #   shell: pwsh
-      #   run: |
-      #     ./.github/scripts/stale_items_report/StaleIssues.ps1
-
-      # - name: Decode Stale Issues Markdown
-      #   id: IssuesShow
-      #   shell: bash
-      #   run: |
-      #     echo "${{ env.STALE_ISSUES_MARKDOWN }}" | base64 --decode > stale_issues.md
-      #     cat stale_issues.md >> $GITHUB_STEP_SUMMARY
-
-      # - uses: MeilCli/slack-upload-file@44b8c5399b7fc13ac6220637a38b8df1634c3560
-      #   id: message
-      #   continue-on-error: true
-      #   with:
-      #     slack_token: ${{ secrets.SLACK_TOKEN }}
-      #     channel_id: 'C04UBN6R9EF'
-      #     file_path: 'PullRequests.txt'
-      #     initial_comment: 'Stale pull requests report'
-
-      # - uses: MeilCli/slack-upload-file@44b8c5399b7fc13ac6220637a38b8df1634c3560
-      #   id: Branchesmessage
-      #   continue-on-error: true
-      #   with:
-      #     slack_token: ${{ secrets.SLACK_TOKEN }}
-      #     channel_id: 'C04UBN6R9EF'
-      #     file_path: 'Branches.txt'
-      #     initial_comment: 'Stale branches report'
-
-      # - uses: MeilCli/slack-upload-file@44b8c5399b7fc13ac6220637a38b8df1634c3560
-      #   id: Issuesmessage
-      #   continue-on-error: true
-      #   with:
-      #     slack_token: ${{ secrets.SLACK_TOKEN }}
-      #     channel_id: 'C04UBN6R9EF'
-      #     file_path: 'StaleIssues.txt'
-      #     initial_comment: 'Stale Issues report'
-
-     
+          slackify-markdown: true
