@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.transport
 
 import assertk.assertThat
+import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import gov.cdc.prime.router.FileSettings
@@ -595,6 +596,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         authHeaders = mapOf(
             "ExpectSuccess" to "true",
             "Content-Type" to "application/json",
+            "Content-Length" to "108",
             "Subscription" to "23edf66e1fe14685bb9dfa2cbb14eb3b",
             "Host" to "api.neometrics.com",
             "Authorization-Type" to "username/password"
@@ -722,5 +724,54 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
                 }
             }
         }
+    }
+
+    private var okRestTransportTypeLive = RESTTransportType(
+        "http://localhost:3001/report",
+        "http://localhost:3001/token",
+        authHeaders = mapOf(
+            "ExpectSuccess" to "true",
+            "Content-Type" to "application/json",
+            "Authorization-Type" to "email/password"
+        ),
+        headers = mapOf(
+            "RecordId" to "header.reportFile.reportId",
+            "Content-Length" to "<calculated when request is sent>",
+            "Content-Type" to "text/plain",
+            "BearerToken" to "",
+        )
+    )
+
+    @Test
+    fun `test OK PHD`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserPassCredential("mock-user", "mock-pass")
+        )
+        every { runBlocking { mockRestTransport.getAuthTokenWithUserPass(any(), any(), any(), any()) } }.returns(
+            TokenInfo(accessToken = "MockToken", tokenType = "bearer")
+        )
+
+        val retryItems = mockRestTransport.send(
+            okRestTransportTypeLive, header, reportId, null,
+            context, actionHistory
+        )
+        assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test OK PHD BearerToken Setting`() {
+        // Test with null BearerToken, it should return "Bearer"
+        var restTransport = RESTTransportType("", "", headers = mapOf("Content-Type" to "text/plain"))
+        assertThat(RESTTransport.getAuthorizationHeader(restTransport)).isEqualTo("Bearer")
+
+        // Test with emplty BearerToken, it should return ""
+        restTransport = RESTTransportType("", "", headers = mapOf("BearerToken" to ""))
+        assertThat(RESTTransport.getAuthorizationHeader(restTransport)).isEqualTo("")
+
+        // Test with "Testing" BearerToken, it should return "Testing"
+        restTransport = RESTTransportType("", "", headers = mapOf("BearerToken" to "Testing"))
+        assertThat(RESTTransport.getAuthorizationHeader(restTransport)).isEqualTo("Testing")
     }
 }
