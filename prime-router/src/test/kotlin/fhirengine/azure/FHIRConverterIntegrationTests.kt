@@ -22,6 +22,7 @@ import gov.cdc.prime.router.azure.db.enums.ActionLogType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransform
@@ -34,6 +35,7 @@ import gov.cdc.prime.router.common.badEncodingHL7Record
 import gov.cdc.prime.router.common.cleanHL7Record
 import gov.cdc.prime.router.common.cleanHL7RecordConverted
 import gov.cdc.prime.router.common.cleanHL7RecordConvertedAndTransformed
+import gov.cdc.prime.router.common.conditionCodedValidFHIRRecord1
 import gov.cdc.prime.router.common.invalidEmptyFHIRRecord
 import gov.cdc.prime.router.common.invalidHL7Record
 import gov.cdc.prime.router.common.invalidHL7RecordConverted
@@ -64,7 +66,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import java.io.ByteArrayInputStream
+import tech.tablesaw.api.StringColumn
+import tech.tablesaw.api.Table
 import java.nio.charset.Charset
 
 @Testcontainers
@@ -285,13 +288,16 @@ class FHIRConverterIntegrationTests {
 
     @Test
     fun `should successfully convert FHIR messages`() {
-        val observationMappingTable = """
-            TEST_CODE_KEY,CONDITION_CODE_KEY,CONDITION_CODE_SYSTEM_KEY,CONDITION_NAME_KEY
-            80382-5,6142004,SNOMEDCT,Influenza (disorder)
-            """.trimIndent()
-        val observationMappingLookupTable = LookupTable.read(
+        val observationMappingTable = Table.create(
             "observation-mapping",
-            inputStream = ByteArrayInputStream(observationMappingTable.toByteArray())
+            StringColumn.create(ObservationMappingConstants.TEST_CODE_KEY, "80382-5"),
+            StringColumn.create(ObservationMappingConstants.CONDITION_CODE_KEY, "6142004"),
+            StringColumn.create(ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY, "SNOMEDCT"),
+            StringColumn.create(ObservationMappingConstants.CONDITION_NAME_KEY, "Influenza (disorder)")
+        )
+        val observationMappingLookupTable = LookupTable(
+            name = "observation-mapping",
+            table = observationMappingTable
         )
 
         mockkConstructor(Metadata::class)
@@ -339,7 +345,7 @@ class FHIRConverterIntegrationTests {
                 }
                     .map { Pair(it.first, it.second.toString(Charset.defaultCharset())) }
             assertThat(reportAndBundles).transform { pairs -> pairs.map { it.second } }
-                .containsOnly(validFHIRRecord1, validFHIRRecord2)
+                .containsOnly(conditionCodedValidFHIRRecord1, validFHIRRecord2)
             val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
                 FhirRouteQueueMessage(
                     report.reportId,
@@ -360,13 +366,11 @@ class FHIRConverterIntegrationTests {
                     DetailedActionLog::class.java
                 )
 
-            assertThat(actionLogs).hasSize(6)
+            assertThat(actionLogs).hasSize(4)
             @Suppress("ktlint:standard:max-line-length")
             val expectedDetailedActions = listOf(
-                1 to "Missing mapping for code(s): 80382-5",
-                1 to "Missing mapping for code(s): 260373001",
                 2 to "Item 2 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1838: Invalid JSON content detected, missing required element: 'resourceType'",
-                3 to "Missing mapping for code(s): 80382-5",
+                3 to "Missing mapping for code(s): 41458-1",
                 3 to "Missing mapping for code(s): 260373001",
                 4 to "Item 4 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected end-of-input: was expecting closing quote for a string value\n" +
                     " at [line: 1, column: 23]"
@@ -374,8 +378,7 @@ class FHIRConverterIntegrationTests {
 
             val actualDetailedActions = actionLogs.map { log -> log.index to log.detail.message }
 
-            assertThat(actualDetailedActions)
-                .containsOnly(expectedDetailedActions)
+            assertThat(actualDetailedActions).isEqualTo(expectedDetailedActions)
         }
     }
 
