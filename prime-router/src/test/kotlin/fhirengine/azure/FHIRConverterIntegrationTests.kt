@@ -7,6 +7,7 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.matchesPredicate
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
@@ -63,6 +64,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import java.io.ByteArrayInputStream
 import java.nio.charset.Charset
 
 @Testcontainers
@@ -283,6 +285,20 @@ class FHIRConverterIntegrationTests {
 
     @Test
     fun `should successfully convert FHIR messages`() {
+        val observationMappingTable = """
+            TEST_CODE_KEY,CONDITION_CODE_KEY,CONDITION_CODE_SYSTEM_KEY,CONDITION_NAME_KEY
+            80382-5,6142004,SNOMEDCT,Influenza (disorder)
+            """.trimIndent()
+        val observationMappingLookupTable = LookupTable.read(
+            "observation-mapping",
+            inputStream = ByteArrayInputStream(observationMappingTable.toByteArray())
+        )
+
+        mockkConstructor(Metadata::class)
+        every {
+            anyConstructed<Metadata>().findLookupTable("observation-mapping")
+        } returns observationMappingLookupTable
+
         val receivedReportContents =
             listOf(
                 validFHIRRecord1,
@@ -346,20 +362,20 @@ class FHIRConverterIntegrationTests {
 
             assertThat(actionLogs).hasSize(6)
             @Suppress("ktlint:standard:max-line-length")
-            assertThat(actionLogs).transform {
-                it.map { log ->
-                    log.detail.message
-                }
-            }
-                .containsOnly(
-                    "Missing mapping for code(s): 80382-5",
-                    "Missing mapping for code(s): 260373001",
-                    "Item 2 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1838: Invalid JSON content detected, missing required element: 'resourceType'",
-                    "Missing mapping for code(s): 80382-5",
-                    "Missing mapping for code(s): 260373001",
-                    "Item 4 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected end-of-input: was expecting closing quote for a string value\n" +
-                        " at [line: 1, column: 23]"
-                )
+            val expectedDetailedActions = listOf(
+                1 to "Missing mapping for code(s): 80382-5",
+                1 to "Missing mapping for code(s): 260373001",
+                2 to "Item 2 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1838: Invalid JSON content detected, missing required element: 'resourceType'",
+                3 to "Missing mapping for code(s): 80382-5",
+                3 to "Missing mapping for code(s): 260373001",
+                4 to "Item 4 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected end-of-input: was expecting closing quote for a string value\n" +
+                    " at [line: 1, column: 23]"
+            )
+
+            val actualDetailedActions = actionLogs.map { log -> log.index to log.detail.message }
+
+            assertThat(actualDetailedActions)
+                .containsOnly(expectedDetailedActions)
         }
     }
 
