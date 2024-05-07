@@ -298,7 +298,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         // get the credential and use it to request an OAuth token
         // Usually credential is a UserApiKey, with an apiKey field (NY)
         // if not, try as UserPass with pass field (OK)
-        val tokenInfo: TokenInfo
+        val tokenInfo: TokenInfo?
         when (credential) {
             is UserApiKeyCredential -> {
                 tokenInfo = getAuthTokenWithUserApiKey(
@@ -324,9 +324,10 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     tokenClient
                 )
             }
+            is UserJksCredential -> { tokenInfo = null}
             else -> error("UserApiKey or UserPass credential required")
         }
-        return Pair(httpHeaders, tokenInfo.accessToken)
+        return Pair(httpHeaders, tokenInfo?.accessToken)
     }
 
     /**
@@ -581,7 +582,9 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 install(Logging) {
                     logger = io.ktor.client.plugins.logging.Logger.Companion.SIMPLE
                     level = LogLevel.INFO // LogLevel.INFO for prod, LogLevel.ALL to view full request
+
                 }
+
 
                 // not using Bearer Auth handler due to refresh token behavior
                 accessToken?.let {
