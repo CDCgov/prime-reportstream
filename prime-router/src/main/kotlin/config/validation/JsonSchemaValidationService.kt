@@ -33,7 +33,6 @@ class JsonSchemaValidationService {
     /**
      * Validate the YAML structure of an input stream
      */
-
     fun validateYAMLStructure(
         configType: ConfigurationType,
         inputStream: InputStream,
