@@ -71,6 +71,7 @@ private const val BLOB_URL = "http://blobstore.example/file.hl7"
 private const val BLOB_SUB_FOLDER_NAME = "test-sender"
 private const val SCHEMA_NAME = "classpath:/test-schema.yml"
 private const val VALID_DATA_URL = "src/test/resources/fhirengine/engine/valid_data.fhir"
+private const val BATCH_VALID_DATA_URL = "src/test/resources/fhirengine/engine/batch_valid_data.fhir"
 private const val BLOB_FHIR_URL = "http://blobstore.example/file.fhir"
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -466,7 +467,7 @@ class FhirConverterTests {
 
     @Test
     fun `test fully unmapped condition code stamping logs errors`() {
-        val fhirData = File(VALID_DATA_URL).readText()
+        val fhirData = File(BATCH_VALID_DATA_URL).readText()
 
         mockkObject(BlobAccess)
         mockkObject(Report)
@@ -530,12 +531,15 @@ class FhirConverterTests {
 
         // assert
         verify(exactly = 1) {
-// TODO clean up assertions
-            //            engine.getContentFromFHIR(any(), any())
-            actionHistory.trackExistingInputReport(any())
-            transformer.process(any())
-            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), fhirData.toByteArray(), any())
+            actionLogger.getItemLogger(1, "Observation/1671741861219479500.1e349936-127c-4edc-8d77-39fb231f4391")
+            actionLogger.getItemLogger(2, "Observation/1671741861219479500.1e349936-127c-4edc-8d77-39fb231f4391")
+            actionLogger.getItemLogger(1, "Observation/1671741861243115100.885296c7-ac1c-4af2-83e4-140a220669c1")
+            actionLogger.getItemLogger(2, "Observation/1671741861243115100.885296c7-ac1c-4af2-83e4-140a220669c1")
+            actionLogger.getItemLogger(1, "Observation/1671741861265113600.62f588e5-4e72-43b6-aa97-59766a9c83b0")
+            actionLogger.getItemLogger(2, "Observation/1671741861265113600.62f588e5-4e72-43b6-aa97-59766a9c83b0")
+        }
+
+        verify(exactly = 2) {
             actionLogger.warn(
                 match<List<ActionLogDetail>> {
                     it.size == 2 &&

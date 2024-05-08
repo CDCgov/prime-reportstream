@@ -119,7 +119,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         logger.info("Token successfully added!")
 
                         // post the report
-                        val reportClient = httpClient ?: createDefaultHttpClient(jksCredential, accessToken)
+                        val reportClient = httpClient ?: createDefaultHttpClient(
+                            jksCredential,
+                            accessToken,
+                            restTransportInfo
+                        )
                         val response = postReport(
                             reportContent,
                             fileName,
@@ -290,7 +294,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 it.value
             }
         }
-        val tokenClient = httpClient ?: createDefaultHttpClient(jksCredential, null)
+        val tokenClient = httpClient ?: createDefaultHttpClient(jksCredential, null, null)
         // get the credential and use it to request an OAuth token
         // Usually credential is a UserApiKey, with an apiKey field (NY)
         // if not, try as UserPass with pass field (OK)
@@ -303,7 +307,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     logger,
                     tokenClient
                 )
-                // if successful, add the token returned to the token storage
             }
             is UserPassCredential -> {
                 tokenInfo = getAuthTokenWithUserPass(
@@ -312,8 +315,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     logger,
                     tokenClient
                 )
-                // if successful, add token as "Authorization:" header
-                httpHeaders = httpHeaders + Pair("Authorization", tokenInfo.accessToken)
             }
             is UserAssertionCredential -> {
                 tokenInfo = getAuthTokenWithAssertion(
@@ -322,7 +323,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     logger,
                     tokenClient
                 )
-                // if successful, add token as "Authorization:" header
             }
             else -> error("UserApiKey or UserPass credential required")
         }
@@ -470,7 +470,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             val idTokenInfoAccessToken: String = try {
                 Json.decodeFromString<IdToken>(idTokenInfoString).idToken
             } catch (e: Exception) {
-                "Bearer " + idTokenInfoString
+                idTokenInfoString
             }
 
             return TokenInfo(accessToken = idTokenInfoAccessToken, expiresIn = 3600)
@@ -565,18 +565,29 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         /** A default value for the timeouts to connect and send messages */
         private const val TIMEOUT = 120_000
 
+        /** Get Authentication header.  It is hear to ease Unit Test */
+        fun getAuthorizationHeader(restTransportInfo: RESTTransportType?): String {
+            return restTransportInfo?.headers?.get("BearerToken") ?: "Bearer"
+        }
+
         /** Our default Http Client, with an optional SSL context, and optional auth token */
-        private fun createDefaultHttpClient(jks: UserJksCredential?, accessToken: String?): HttpClient {
+        private fun createDefaultHttpClient(
+            jks: UserJksCredential?,
+            accessToken: String?,
+            restTransportInfo: RESTTransportType?,
+        ): HttpClient {
             return HttpClient(Apache) {
                 // installs logging into the call to post to the server
                 install(Logging) {
                     logger = io.ktor.client.plugins.logging.Logger.Companion.SIMPLE
                     level = LogLevel.INFO // LogLevel.INFO for prod, LogLevel.ALL to view full request
                 }
+
                 // not using Bearer Auth handler due to refresh token behavior
                 accessToken?.let {
+                    // Default to set Bearer prefix
                     defaultRequest {
-                        header("Authorization", "Bearer $it")
+                        header("Authorization", getAuthorizationHeader(restTransportInfo) + " $it")
                     }
                 }
                 // install contentNegotiation to handle json response

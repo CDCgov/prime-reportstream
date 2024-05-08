@@ -270,11 +270,12 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          *
          * @return a [Pair<Message, HL7MessageParseAndConvertConfiguration?>] with parsed message and optional type
          */
-        fun parseHL7Message(rawHL7: String): Pair<Message, HL7MessageParseAndConvertConfiguration?> {
+        fun parseHL7Message(
+            rawHL7: String,
+            parseConfiguration: HL7MessageParseAndConvertConfiguration?,
+        ): Message {
             val hl7MessageType = getMessageType(rawHL7)
-            val parseConfiguration = messageToConfigMap[hl7MessageType]
-            val message = getHL7ParsingContext(hl7MessageType, parseConfiguration).pipeParser.parse(rawHL7)
-            return Pair(message, parseConfiguration)
+            return getHL7ParsingContext(hl7MessageType, parseConfiguration).pipeParser.parse(rawHL7)
         }
 
         /**
