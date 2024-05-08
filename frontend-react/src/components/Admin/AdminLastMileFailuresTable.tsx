@@ -23,7 +23,7 @@ import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import config from "../../config";
 import useSessionContext from "../../contexts/Session/useSessionContext";
 import { showToast } from "../../contexts/Toast";
-import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import AdmAction from "../../resources/AdmActionResource";
 import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
