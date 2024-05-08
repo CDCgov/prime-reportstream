@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.datatype.jsr310.ser.OffsetDateTimeSerializer
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
@@ -79,14 +80,19 @@ object JacksonMapperUtilities {
      * Default YAML mapper
      */
     val yamlMapper: ObjectMapper by lazy {
-        ObjectMapper(YAMLFactory()).registerModule(
-            KotlinModule.Builder()
-                .withReflectionCacheSize(512)
-                .configure(KotlinFeature.NullToEmptyCollection, false)
-                .configure(KotlinFeature.NullToEmptyMap, false)
-                .configure(KotlinFeature.NullIsSameAsDefault, false)
-                .configure(KotlinFeature.StrictNullChecks, false)
-                .build()
-        )
+        val yamlFactory = YAMLFactory()
+            .disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID) // omits type tags from output
+        ObjectMapper(yamlFactory)
+            .registerModule(
+                KotlinModule.Builder()
+                    .withReflectionCacheSize(512)
+                    .configure(KotlinFeature.NullToEmptyCollection, false)
+                    .configure(KotlinFeature.NullToEmptyMap, false)
+                    .configure(KotlinFeature.NullIsSameAsDefault, false)
+                    .configure(KotlinFeature.StrictNullChecks, false)
+                    .build()
+            )
+            .registerModule(JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     }
 }

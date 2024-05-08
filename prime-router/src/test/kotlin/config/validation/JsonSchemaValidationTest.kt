@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.validation
+package gov.cdc.prime.router.config.validation
 
 import assertk.assertThat
 import assertk.assertions.contains
