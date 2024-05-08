@@ -15,13 +15,10 @@ import {
 import { endOfDay, startOfDay, subDays } from "date-fns";
 import { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
-import { NetworkErrorBoundary, useResource } from "rest-hooks";
 
-import { ErrorPage } from "../../pages/error/ErrorPage";
-import {
-    AdmConnStatusDataType,
-    AdmConnStatusResource,
-} from "../../resources/AdmConnStatusResource";
+import useReceiversConnectionStatus, {
+    RSReceiverStatus,
+} from "../../hooks/api/UseReceiversConnectionStatus/UseReceiversConnectionStatus";
 import { formatDate } from "../../utils/misc";
 import Spinner from "../Spinner";
 import { StyleClass, TableFilterDateLabel } from "../Table/TableFilters";
@@ -311,15 +308,13 @@ class TimeSlots implements IterateTimeSlots {
  * build the dictionary with a special path+key
  * @param dataIn
  */
-const sortStatusData = (
-    dataIn: AdmConnStatusDataType[],
-): AdmConnStatusDataType[] => {
+const sortStatusData = (dataIn: RSReceiverStatus[]): RSReceiverStatus[] => {
     // empty case
     if (dataIn.length === 0) {
         return [];
     }
 
-    dataIn.sort((d1: AdmConnStatusDataType, d2: AdmConnStatusDataType) => {
+    dataIn.sort((d1: RSReceiverStatus, d2: RSReceiverStatus) => {
         // sorting by organizationName, then receiverName, then connectionCheckStartedAt
         const orgNameCmp = strcmp(d1.organizationName, d2.organizationName);
         // orgNameCmp === 0 means same
@@ -338,11 +333,11 @@ const sortStatusData = (
 // PreRenderedRowComponents breaks out row status and org+receiver name into props
 // so parent can more quickly filter at a higher level without changing the whole DOM
 function renderAllReceiverRows(props: {
-    data: AdmConnStatusDataType[];
+    data: RSReceiverStatus[];
     startDate: Date;
     endDate: Date;
     filterErrorText: string;
-    onClick: (dataItems: AdmConnStatusDataType[]) => void;
+    onClick: (dataItems: RSReceiverStatus[]) => void;
 }): JSX.Element[] {
     const filterErrorText = props.filterErrorText.trim().toLowerCase();
     const perReceiverRowElements: JSX.Element[] = [];
@@ -574,7 +569,7 @@ function FilterRenderedRows(props: {
     filterRowStatus: SuccessRate;
     filterRowReceiver: string;
     filterErrorText: string;
-    onClick: (dataItem: AdmConnStatusDataType[]) => void;
+    onClick: (dataItem: RSReceiverStatus[]) => void;
 }) {
     const renderedRows = props.renderedRows;
 
@@ -618,18 +613,18 @@ function MainRender(props: {
     filterRowStatus: SuccessRate;
     filterErrorText: string;
     filterRowReceiver: string;
-    onDetailsClick: (subData: AdmConnStatusDataType[]) => void;
+    onDetailsClick: (subData: RSReceiverStatus[]) => void;
 }) {
     const startDate = props.datesRange[0];
     const endDate = props.datesRange[1];
-    const results = useResource(AdmConnStatusResource.list(), {
+    const { data: results } = useReceiversConnectionStatus({
         startDate: startOfDayIso(startDate),
         endDate: endOfDayIso(endDate),
     });
     const data = useMemo(() => sortStatusData(results), [results]);
 
     const onClick = useCallback(
-        (dataItems: AdmConnStatusDataType[]) => {
+        (dataItems: RSReceiverStatus[]) => {
             // in theory, there might be multiple events for the block, but we're only handling one for now.
             props.onDetailsClick(dataItems);
         },
@@ -673,12 +668,12 @@ function MainRender(props: {
     );
 }
 
-function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
+function ModalInfoRender(props: { subData: RSReceiverStatus[] }) {
     if (!props?.subData.length) {
         return <>No Data Found</>;
     }
 
-    const duration = (dataItem: AdmConnStatusDataType) => {
+    const duration = (dataItem: RSReceiverStatus) => {
         return durationFormatShort(
             new Date(dataItem.connectionCheckCompletedAt),
             new Date(dataItem.connectionCheckStartedAt),
@@ -864,10 +859,10 @@ export function AdminReceiverDashboard() {
     // used to show hide the modal
     const modalShowInfoRef = useRef<ModalRef>(null);
     const [currentDataForModal, setCurrentDataForModal] = useState<
-        AdmConnStatusDataType[]
+        RSReceiverStatus[]
     >([]);
 
-    const showDetailsModal = useCallback((subData: AdmConnStatusDataType[]) => {
+    const showDetailsModal = useCallback((subData: RSReceiverStatus[]) => {
         if (subData.length) {
             setCurrentDataForModal(subData);
             modalShowInfoRef?.current?.toggleModal(undefined, true);
@@ -988,24 +983,18 @@ export function AdminReceiverDashboard() {
                 </div>
             </form>
             <Suspense fallback={<Spinner />}>
-                <NetworkErrorBoundary
-                    fallbackComponent={() => <ErrorPage type="message" />}
-                >
-                    <MainRender
-                        datesRange={[
-                            new Date(startDate),
-                            endDate
-                                ? new Date(endOfDayIso(new Date(endDate)))
-                                : new Date(endOfDayIso(new Date())),
-                        ]}
-                        filterRowStatus={filterRowSuccessState}
-                        filterErrorText={filterErrorResults
-                            .trim()
-                            .toLowerCase()}
-                        filterRowReceiver={filterReceivers.trim().toLowerCase()}
-                        onDetailsClick={showDetailsModal}
-                    />
-                </NetworkErrorBoundary>
+                <MainRender
+                    datesRange={[
+                        new Date(startDate),
+                        endDate
+                            ? new Date(endOfDayIso(new Date(endDate)))
+                            : new Date(endOfDayIso(new Date())),
+                    ]}
+                    filterRowStatus={filterRowSuccessState}
+                    filterErrorText={filterErrorResults.trim().toLowerCase()}
+                    filterRowReceiver={filterReceivers.trim().toLowerCase()}
+                    onDetailsClick={showDetailsModal}
+                />
             </Suspense>
             <Modal
                 isLarge={true}
