@@ -26,7 +26,6 @@ import useResends, { RSResend } from "../../hooks/api/UseResends/UseResends";
 import useSendFailures, {
     RSSendFailure,
 } from "../../hooks/api/UseSendFailures/UseSendFailures";
-import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
 import Table from "../../shared/Table/Table";
 import { searchResends } from "../../utils/filters/resendFilters";
 import { searchSendFailures } from "../../utils/filters/sendFailuresFilters";
@@ -314,7 +313,7 @@ export function AdminLastMileFailuresTable() {
     // all the data is serialized to a json string as a cheap clone.
     const handleRetrySendClick = useCallback(
         (jsonRowData: string) => {
-            const data = JSON.parse(jsonRowData) as AdmSendFailuresResource;
+            const data = JSON.parse(jsonRowData) as RSSendFailure;
 
             // the content has line feeds, etc. so the formatted content isn't tabbed here in the code
             const formatted = `Report ID:
