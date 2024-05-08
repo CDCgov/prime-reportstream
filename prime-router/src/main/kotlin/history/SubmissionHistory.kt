@@ -358,6 +358,9 @@ class DetailedSubmissionHistory(
             descendants.filter { it.actionName == TaskAction.route }.forEach { descendant ->
                 enrichWithRouteAction(descendant)
             }
+            descendants.filter { it.actionName == TaskAction.convert }.forEach { descendant ->
+                enrichWithConvertAction(descendant)
+            }
         } else {
             descendants.filter {
                 it.actionName == TaskAction.process
@@ -408,6 +411,26 @@ class DetailedSubmissionHistory(
                 destinations += descendantDest
             }
         }
+    }
+
+    /**
+     * Enrich a parent detailed history with details from the route action.
+     * Add destinations, errors, and warnings, to the history details.
+     * Note: Route/Translate is exclusive to the Universal pipeline
+     * See enrichWithProcessAction for the TopicReceiver pipeline counterpart
+     *
+     * @param descendant route action that will be used to enrich
+     */
+    private fun enrichWithConvertAction(descendant: DetailedSubmissionHistory) {
+        require(
+            topic?.isUniversalPipeline == true &&
+                descendant.actionName == TaskAction.convert
+        ) {
+            "Must be route action. Enrichment is only available for the Universal Pipeline"
+        }
+        // Grab the filter logs generated during the "route" action, as well as errors and warnings
+        errors += descendant.errors
+        warnings += descendant.warnings
     }
 
     /**

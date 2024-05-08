@@ -25,6 +25,7 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
@@ -196,8 +197,41 @@ class FHIRConverter(
                         )
                     }.collect(Collectors.toList())
                 }
+            } else {
+                val nextEvent = ProcessEvent(
+                    Event.EventAction.NONE,
+                    queueMessage.reportId,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                )
+                val report = Report(
+                    Report.Format.FHIR,
+                    emptyList(),
+                    1,
+                    metadata = this.metadata,
+                    topic = queueMessage.topic
+                )
+
+                // create item lineage
+                report.itemLineages = listOf(
+                    ItemLineage(
+                        null,
+                        queueMessage.reportId,
+                        1,
+                        report.id,
+                        1,
+                        null,
+                        null,
+                        null,
+                        report.getItemHashForRow(1)
+                    )
+                )
+
+                // ensure tracking is set
+                actionHistory.trackCreatedReport(nextEvent, report)
+                return emptyList()
             }
-            return emptyList()
         }
     }
 
@@ -480,7 +514,7 @@ class FHIRConverter(
         val errorDetail: String,
     ) : ActionLogDetail {
 
-        override val scope: ActionLogScope = ActionLogScope.report
+        override val scope: ActionLogScope = ActionLogScope.item
 
         override val message: String =
             """Item ${index + 1} in the report was not ${
