@@ -26,6 +26,7 @@ import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import java.net.URLEncoder
+import java.nio.charset.Charset
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
 import java.util.UUID
@@ -423,7 +424,7 @@ abstract class ReportFileFunction(
              */
             fun extractFileName(query: Map<String, String>): String? {
                 return if (query["fileName"] != null) {
-                    URLEncoder.encode(query["fileName"], "utf-8")
+                    URLEncoder.encode(query["fileName"], Charset.defaultCharset())
                 } else {
                     null
                 }

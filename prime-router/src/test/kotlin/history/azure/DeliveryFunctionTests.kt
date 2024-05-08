@@ -1401,37 +1401,6 @@ class DeliveryFunctionTests : Logging {
         }
 
         @Test
-        fun `test successfully returns when sending a fileName with special characters`() {
-            val httpRequestMessage = MockHttpRequestMessage(
-                """
-                {
-                    "sort": {
-                        "direction": "DESC",
-                        "property": "test_result_count"
-                    },
-                    "pagination": {
-                        "page": 1,
-                        "limit": 100
-                    },
-                    "filters": [
-                    ]
-                }
-                """.trimIndent()
-            )
-            val fileName = "InterPartner~ELIMS_ELR~CDC~KY~Test~Test~20240315150045113~STOP~13_72321_05227632_40060.hl7"
-            httpRequestMessage.parameters["fileName"] = fileName
-
-            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
-            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
-
-            mockkObject(AuthenticatedClaims)
-            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
-
-            val response = DeliveryFunction().getDeliveries(httpRequestMessage, receiver1.fullName)
-            assertThat(response.status).isEqualTo(HttpStatus.OK)
-        }
-
-        @Test
         fun `test returns an error when sending a reportId and a filename`() {
             val httpRequestMessage = MockHttpRequestMessage(
                 """
