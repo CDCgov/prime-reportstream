@@ -23,6 +23,7 @@ module.exports = {
         "jest.config.ts",
         "coverage",
         "storybook-static",
+        "e2e-data",
     ],
     parser: "@typescript-eslint/parser",
     parserOptions: {
@@ -58,7 +59,7 @@ module.exports = {
             ],
             extends: [
                 "plugin:testing-library/react",
-                "plugin:vitest/recommended",
+                "plugin:vitest/legacy-recommended",
                 "plugin:jest-dom/recommended",
             ],
             rules: {

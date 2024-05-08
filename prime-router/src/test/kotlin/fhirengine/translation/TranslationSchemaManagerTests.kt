@@ -15,11 +15,11 @@ import com.azure.storage.blob.models.BlobStorageException
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
+import io.mockk.unmockkAll
 import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
@@ -53,7 +53,7 @@ class TranslationSchemaManagerTests {
 
     @AfterEach
     fun afterEach() {
-        clearAllMocks()
+        unmockkAll()
     }
 
     companion object {

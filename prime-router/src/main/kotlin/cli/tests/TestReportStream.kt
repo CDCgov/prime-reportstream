@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.max
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.OffsetDateTime
@@ -870,10 +871,16 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $fullELRSenderName for organization ${org1.name}")
         }
 
-        const val etorTISenderName = "ignore-etor-ti"
-        val etorTISender by lazy {
-            settings.findSender("$org1Name.$etorTISenderName") as? UniversalPipelineSender
-                ?: error("Unable to find sender $etorTISenderName for organization ${org1.name}")
+        const val fullELRE2ESenderName = "ignore-full-elr-e2e"
+        val fullELRE2ESender by lazy {
+            settings.findSender("$org1Name.$fullELRE2ESenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $fullELRE2ESenderName for organization ${org1.name}")
+        }
+
+        const val fhirSenderName = "ignore-fhir-e2e"
+        val fhirSender by lazy {
+            settings.findSender("$org1Name.$fhirSenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $fhirSenderName for organization ${org1.name}")
         }
 
         const val elrElimsSenderName = "ignore-elr-elims"
@@ -912,34 +919,25 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $hl7SenderName for organization ${org1.name}")
         }
 
-        const val hl7MonkeypoxSenderName = "ignore-monkeypox"
-        val hl7MonkeypoxSender by lazy {
-            settings.findSender("$org1Name.$hl7MonkeypoxSenderName") as? LegacyPipelineSender
-                ?: error("Unable to find sender $hl7MonkeypoxSenderName for organization ${org1.name}")
-        }
-
-        val universalPipelineReceiver1 = settings.receivers.filter {
-            it.organizationName == org1Name && it.name == "FULL_ELR"
+        val hl7FullELRReceiver = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "FULL_ELR_E2E"
         }[0]
-        val universalPipelineReceiver2 = settings.receivers.filter {
-            it.organizationName == org1Name && it.name == "FULL_ELR_FHIR"
+        val fhirFullELRE2EReceiverA = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "FULL_ELR_FHIR_A_E2E"
         }[0]
-        val etorReceiver = settings.receivers.first { it.topic == Topic.ETOR_TI }
+        val fhirFullELRE2EReceiverB = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "FULL_ELR_FHIR_B_E2E"
+        }[0]
         val elimsReceiver = settings.receivers.first { it.topic == Topic.ELR_ELIMS }
         val csvReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "CSV" }[0]
         val hl7Receiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7" }[0]
         val hl7BatchReceiver =
             settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7_BATCH" }[0]
         val hl7NullReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7_NULL" }[0]
-        val hl7PpkReceiver = settings.receivers.filter {
-            it.organizationName == org1Name && it.name == "HL7_BATCH_PPK"
-        }[0]
-        val hl7PemReceiver = settings.receivers.filter {
-            it.organizationName == org1Name && it.name == "HL7_BATCH_PEM"
-        }[0]
 
         lateinit var allGoodReceivers: MutableList<Receiver>
         lateinit var allGoodCounties: String
+
         const val historyTestOrgName = "historytest"
         val historyTestSender = (
             settings.findSender("$historyTestOrgName.default")
@@ -958,10 +956,42 @@ abstract class CoolTest {
             allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
         }
 
-        fun initListOfGoodReceiversAndCountiesForUniversalPipeline() {
-            allGoodReceivers = mutableListOf(universalPipelineReceiver1)
-            allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
+        fun testDataForUniversalPipeline(): ArrayList<E2EData> {
+            val smoketestDir = "src/test/resources/fhirengine/smoketest"
+
+            return arrayListOf(
+                E2EData(
+                    File("$smoketestDir/valid_hl7_e2e.hl7"),
+                    fullELRE2ESender,
+                    arrayListOf(
+                        Pair(hl7FullELRReceiver, File("$smoketestDir/Expected_HL7_to_HL7_FULLELR.hl7")),
+                        Pair(fhirFullELRE2EReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_FULLELR.fhir"))
+                    )
+                ),
+                E2EData(
+                    File("$smoketestDir/valid_hl7_e2e.hl7"),
+                    elrElimsSender,
+                    arrayListOf(
+                        Pair(elimsReceiver, File("$smoketestDir/Expected_HL7_to_HL7_ELIMS.hl7"))
+                    )
+                ),
+                E2EData(
+                    File("$smoketestDir/valid_fhir.fhir"),
+                    fhirSender,
+                    arrayListOf(
+                        Pair(fhirFullELRE2EReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_FULLELR.fhir"))
+                    )
+                )
+            )
         }
+
+        data class E2EData(
+            val baseFile: File,
+            val sender: UniversalPipelineSender,
+            val expectedResults: List<Pair<Receiver, File>>,
+            var reportId: ReportId? = null,
+            var historyResponse: String = "",
+        )
 
         val blobstoreReceiver = settings.receivers.filter {
             it.organizationName == org1Name && it.name == "BLOBSTORE"
