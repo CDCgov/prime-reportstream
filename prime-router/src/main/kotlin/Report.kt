@@ -415,6 +415,53 @@ class Report : Logging {
         this.nextAction = nextAction
     }
 
+    data class ParentItemLineageData(val parentReportId: UUID, val parentReportIndex: Int)
+
+    /**
+     * Full ELR Report constructor for ingest
+     * [bodyFormat] is the format for this report. Should be HL7
+     * [sources] is the ClientSource or TestSource, where this data came from
+     * [numberOfMessages] how many incoming messages does this Report represent
+     * [metadata] is the metadata to use, mocked meta is passed in for testing
+     * [itemLineage] itemlineages for this report to track parent/child reports
+     */
+    constructor(
+        bodyFormat: Format,
+        sources: List<Source>,
+        metadata: Metadata? = null,
+        parentItemLineageData: List<ParentItemLineageData>,
+        destination: Receiver? = null,
+        nextAction: TaskAction = TaskAction.process,
+        topic: Topic,
+    ) {
+        this.id = UUID.randomUUID()
+        // UP submissions do not need a schema, but it is required by the database to maintain legacy functionality
+        this.schema = Schema("None", topic)
+        this.sources = sources
+        this.bodyFormat = bodyFormat
+        this.destination = destination
+        this.createdDateTime = OffsetDateTime.now()
+        this.itemLineages = parentItemLineageData.mapIndexed { index, parentItemLineage ->
+            ItemLineage(
+                null,
+                parentItemLineage.parentReportId,
+                parentItemLineage.parentReportIndex,
+                this.id,
+                index + 1,
+                null,
+                null,
+                null,
+                UUID.randomUUID().toString()
+            )
+        }
+        // we do not need the 'table' representation in this instance
+        this.table = createTable(emptyMap<String, List<String>>())
+        this.itemCount = parentItemLineageData.size
+        this.metadata = metadata ?: Metadata.getInstance()
+        this.itemCountBeforeQualFilter = parentItemLineageData.size
+        this.nextAction = nextAction
+    }
+
     private constructor(
         schema: Schema,
         table: Table,
