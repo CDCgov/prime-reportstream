@@ -818,7 +818,8 @@ abstract class CoolTest {
                         Topic.COVID_19.jsonVal,
                         Topic.FULL_ELR.jsonVal,
                         Topic.ETOR_TI.jsonVal,
-                        Topic.ELR_ELIMS.jsonVal
+                        Topic.ELR_ELIMS.jsonVal,
+                        Topic.MARS_OTC_ELR.jsonVal
                     ).contains(topic.textValue())
                     )
             ) {
@@ -889,6 +890,12 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $elrElimsSenderName for organization ${org1.name}")
         }
 
+        const val marsOTCELRSenderName = "ignore-mars-otc"
+        val marsOTCELRSender by lazy {
+            settings.findSender("$org1Name.$marsOTCELRSenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $marsOTCELRSenderName for organization ${org1.name}")
+        }
+
         const val simpleReportSenderName = "ignore-simple-report"
         val simpleRepSender by lazy {
             settings.findSender("$org1Name.$simpleReportSenderName") as? LegacyPipelineSender
@@ -929,6 +936,7 @@ abstract class CoolTest {
             it.organizationName == org1Name && it.name == "FULL_ELR_FHIR_B_E2E"
         }[0]
         val elimsReceiver = settings.receivers.first { it.topic == Topic.ELR_ELIMS }
+        val marsReceiver = settings.receivers.first { it.topic == Topic.MARS_OTC_ELR }
         val csvReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "CSV" }[0]
         val hl7Receiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7" }[0]
         val hl7BatchReceiver =
@@ -980,6 +988,14 @@ abstract class CoolTest {
                     fhirSender,
                     arrayListOf(
                         Pair(fhirFullELRE2EReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_FULLELR.fhir"))
+                    )
+                ),
+                E2EData(
+                    File("$smoketestDir/valid_mars.hl7"),
+                    marsOTCELRSender,
+                    arrayListOf(
+                        Pair(marsReceiver, File("$smoketestDir/Expected_HL7_to_HL7_MARSOTC.hl7")),
+                        Pair(fhirMarsReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_MARSOTC.fhir"))
                     )
                 )
             )
