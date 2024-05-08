@@ -239,6 +239,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             throw e
         }
         val actionId = actionRecord.actionId
+
         logger.info(
             "Inserted row into ACTION: action_name=${action.actionName}" +
                 // The action_params value is huge and low value for receive actions, so skip it.
