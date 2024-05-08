@@ -24,7 +24,7 @@ import TableFilterStatus, { TableFilterData } from "./TableFilterStatus";
 import {
     CursorActionType,
     CursorManager,
-} from "../../hooks/filters/UseCursorManager";
+} from "../../hooks/filters/UseCursorManager/UseCursorManager";
 import {
     DEFAULT_FROM_TIME_STRING,
     DEFAULT_TO_TIME_STRING,
@@ -32,8 +32,8 @@ import {
     FALLBACK_TO_STRING,
     getEndOfDay,
     RangeSettingsActionType,
-} from "../../hooks/filters/UseDateRange";
-import { FilterManager } from "../../hooks/filters/UseFilterManager";
+} from "../../hooks/filters/UseDateRange/UseDateRange";
+import { FilterManager } from "../../hooks/filters/UseFilterManager/UseFilterManager";
 
 export enum StyleClass {
     DATE_CONTAINER = "date-picker-container tablet:grid-col",
