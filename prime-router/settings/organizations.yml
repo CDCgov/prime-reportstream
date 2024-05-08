@@ -1,3 +1,4 @@
+# $schema: ./../metadata/json_schema/organizations/organizations.json
 ---
 #
 # This file runs in environments (ie. your desktop) where the 'localhost' host name resolves
@@ -242,7 +243,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<HL7>
+      translation:
         schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CO/CO.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
@@ -340,7 +341,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<HL7>
+      translation:
         schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CO/CO.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
@@ -365,7 +366,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<HL7>
+      translation:
         schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
         useBatchHeaders: true
         type: "HL7"
@@ -395,7 +396,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<FHIR>
+      translation:
         type: "FHIR"
       transport:
         type: SFTP
@@ -1072,7 +1073,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<HL7>
+      translation:
         schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
@@ -1100,7 +1101,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<HL7>
+      translation:
         schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
@@ -1125,7 +1126,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<HL7>
+      translation:
         schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base-deidentified.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
@@ -1151,7 +1152,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<HL7>
+      translation:
         schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
@@ -1180,7 +1181,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<FHIR>
+      translation:
         useBatching: false
         type: "FHIR"
       transport:
