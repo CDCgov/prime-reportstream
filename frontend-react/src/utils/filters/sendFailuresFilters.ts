@@ -6,7 +6,7 @@ import { formatDate } from "../misc";
  * Allows some data to be excluded or cleaned up
  * @param search {string}
  */
-export function filterMatch(
+export function searchSendFailures(
     obj: RSSendFailure,
     search: string | null,
 ): boolean {
