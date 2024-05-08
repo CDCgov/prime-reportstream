@@ -3,11 +3,11 @@ import { Suspense } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
+import { RSReceiverStatus } from "../../hooks/api/UseReceiversConnectionStatus/UseReceiversConnectionStatus";
 import { ErrorPage } from "../../pages/error/ErrorPage";
-import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-const mockData: AdmConnStatusDataType[] = [
+const mockData: RSReceiverStatus[] = [
     {
         receiverConnectionCheckResultId: 2397,
         organizationId: 61,
@@ -250,7 +250,7 @@ describe("AdminReceiverDashboard tests", () => {
                         }
                         filterErrorText={" "}
                         filterRowReceiver={"-"}
-                        onDetailsClick={(_subdata: AdmConnStatusDataType[]) =>
+                        onDetailsClick={(_subdata: RSReceiverStatus[]) =>
                             void 0
                         }
                     />
