@@ -25,6 +25,7 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
@@ -153,6 +154,7 @@ class FHIRConverter(
                             ),
                             metadata = this.metadata,
                             topic = queueMessage.topic,
+                            nextAction = TaskAction.route
                         )
 
                         // create route event
@@ -212,7 +214,8 @@ class FHIRConverter(
                     emptyList(),
                     1,
                     metadata = this.metadata,
-                    topic = queueMessage.topic
+                    topic = queueMessage.topic,
+                    nextAction = TaskAction.none
                 )
 
                 // create item lineage
@@ -306,7 +309,7 @@ class FHIRConverter(
             val bundles = processedItems.mapNotNull { item ->
                 val error = item.getError()
                 if (error != null) {
-                    actionLogger.getItemLogger(error.index + 1).error(error)
+                    actionLogger.getItemLogger(error.index + 1, item.getTrackingId()).error(error)
                 }
                 // 'stamp' observations with their condition code
                 item.bundle?.getObservations()?.forEach {
@@ -411,7 +414,7 @@ class FHIRConverter(
                 InvalidItemActionLogDetail(
                     ErrorCode.INVALID_MSG_VALIDATION,
                     item.index,
-                    validationResult.getErrorsMessage()
+                    validationResult.getErrorsMessage(validator)
                 )
             )
         }
@@ -456,7 +459,7 @@ class FHIRConverter(
                 InvalidItemActionLogDetail(
                     ErrorCode.INVALID_MSG_VALIDATION,
                     item.index,
-                    validationResult.getErrorsMessage()
+                    validationResult.getErrorsMessage(validator)
                 )
             )
         }

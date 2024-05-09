@@ -418,12 +418,15 @@ class Report : Logging {
     data class ParentItemLineageData(val parentReportId: UUID, val parentReportIndex: Int)
 
     /**
-     * Full ELR Report constructor for ingest
-     * [bodyFormat] is the format for this report. Should be HL7
-     * [sources] is the ClientSource or TestSource, where this data came from
-     * [numberOfMessages] how many incoming messages does this Report represent
-     * [metadata] is the metadata to use, mocked meta is passed in for testing
-     * [itemLineage] itemlineages for this report to track parent/child reports
+     * This constructor can be used to generate a report with its item lineage constructed as
+     * well by passing in a list of [ParentItemLineageData] which includes the parent report id and parent report indes
+     *
+     * @param bodyFormat is the format for this report. Should be HL7
+     * @param sources is the ClientSource or TestSource, where this data came from
+     * @param metadata the metadata used with the report
+     * @param parentItemLineageData lineage data for the parent that is used to construct item lineage
+     * @param destination where this report is going
+     * @param nextAction the next action to be performed on this report
      */
     constructor(
         bodyFormat: Format,
@@ -431,7 +434,7 @@ class Report : Logging {
         metadata: Metadata? = null,
         parentItemLineageData: List<ParentItemLineageData>,
         destination: Receiver? = null,
-        nextAction: TaskAction = TaskAction.process,
+        nextAction: TaskAction,
         topic: Topic,
     ) {
         this.id = UUID.randomUUID()

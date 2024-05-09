@@ -603,7 +603,10 @@ class DetailedSubmissionHistory(
              * The most likely scenario for that is when the item does not pass the jurisdictional filter for any of
              * the receivers.
              */
-            return if (actionsPerformed.contains(TaskAction.route) && !nextActionScheduled) {
+            return if (
+                (actionsPerformed.contains(TaskAction.route) || actionsPerformed.contains(TaskAction.convert)) &&
+                !nextActionScheduled
+            ) {
                 Status.NOT_DELIVERING
             } else {
                 Status.RECEIVED

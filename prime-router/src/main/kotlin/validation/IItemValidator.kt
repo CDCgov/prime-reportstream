@@ -14,12 +14,14 @@ import org.hl7.fhir.r4.model.Bundle
 interface IItemValidator {
 
     fun validate(message: Any): IItemValidationResult
+
+    val validatorProfileName: String
 }
 
 interface IItemValidationResult {
     fun isValid(): Boolean
 
-    fun getErrorsMessage(): String
+    fun getErrorsMessage(validator: IItemValidator): String
 }
 
 data class HL7ValidationResult(val rawReport: Report) : IItemValidationResult {
@@ -35,9 +37,10 @@ data class HL7ValidationResult(val rawReport: Report) : IItemValidationResult {
         return errors
     }
 
-    override fun getErrorsMessage(): String {
+    override fun getErrorsMessage(validator: IItemValidator): String {
         // The path gets returned here because the description can contain PII
-        return getErrors().joinToString { "HL7 was not valid at ${it.path}" }
+        return getErrors()
+            .joinToString { "HL7 was not valid at ${it.path} for validator: ${validator.validatorProfileName}" }
     }
 }
 
@@ -46,7 +49,7 @@ data class FHIRValidationResult(val rawValidationResult: ValidationResult) : IIt
         return rawValidationResult.isSuccessful
     }
 
-    override fun getErrorsMessage(): String {
+    override fun getErrorsMessage(validator: IItemValidator): String {
         return rawValidationResult
             .messages
             .filter { it.severity == ResultSeverityEnum.ERROR || it.severity == ResultSeverityEnum.FATAL }

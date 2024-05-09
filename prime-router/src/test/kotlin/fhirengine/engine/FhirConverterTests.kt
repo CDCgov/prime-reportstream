@@ -671,6 +671,7 @@ class FhirConverterTests {
             every { mockValidation.entries } returns mapOf("ORU" to listOf(mockEntry))
             val mockValidator = mockk<IItemValidator>()
             every { mockValidator.validate(any()) } returns HL7ValidationResult(mockValidation)
+            every { mockValidator.validatorProfileName } returns "MockValidator"
             mockkObject(Topic.FULL_ELR)
             every { Topic.FULL_ELR.validator } returns mockValidator
 
@@ -684,11 +685,14 @@ class FhirConverterTests {
             } returns simpleHL7
             val bundles = engine.process(Report.Format.HL7, mockMessage, actionLogger)
             assertThat(bundles).isEmpty()
+            @Suppress("ktlint:standard:max-line-length")
             assertThat(
                 actionLogger.errors.map {
                     it.detail.message
                 }
-            ).contains("Item 1 in the report was not valid. Reason: HL7 was not valid at PID[1]-13[1].7")
+            ).contains(
+                "Item 1 in the report was not valid. Reason: HL7 was not valid at PID[1]-13[1].7 for validator: MockValidator"
+            )
         }
 
         @Test
