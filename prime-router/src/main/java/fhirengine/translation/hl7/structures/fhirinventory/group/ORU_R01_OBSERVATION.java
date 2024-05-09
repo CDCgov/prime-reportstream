@@ -31,16 +31,16 @@
  */
 
 
-package fhirengine.translation.hl7.structures.radxmars251.group;
+package fhirengine.translation.hl7.structures.fhirinventory.group;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Structure;
-import ca.uhn.hl7v2.model.v27.segment.NTE;
-import ca.uhn.hl7v2.model.v27.segment.PRT;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.radxmars251.segment.OBX;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.NTE;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.OBX;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.PRT;
 
 
 /**
