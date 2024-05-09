@@ -46,7 +46,7 @@ test.describe("Admin Organization Settings Page", () => {
 
         test.describe("When there is no error", () => {
             test.beforeEach(async ({ page }) => {
-                await page.route("/api/settings/organizations", (route) =>
+                await page.route(organization.API_ORGANIZATIONS, (route) =>
                     route.fulfill({
                         status: 200,
                         json: mockOrganizationSettingsList,
