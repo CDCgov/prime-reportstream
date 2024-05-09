@@ -23,7 +23,6 @@ import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
-import gov.cdc.prime.router.azure.db.enums.ActionLogType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -96,9 +95,15 @@ class FHIRRouterIntegrationTests : Logging {
                 "%observation.effective.exists())",
     )
 
-    // this doesn't work for some reason...
-    // also - what's the correct way to apply a filter?
-    val jurisdictionalFilter: ReportStreamFilter = listOf("%patientState.exists() and %patientState = 'CA'")
+    val simpleElrQualifyFilter: ReportStreamFilter = listOf(
+        "Bundle.entry.resource.ofType(MessageHeader).id.exists()"
+    )
+
+    val jurisdictionalFilterTx: ReportStreamFilter =
+        listOf("Bundle.entry.resource.ofType(Patient).address.state='TX'")
+
+    val jurisdictionalFilterIl: ReportStreamFilter =
+        listOf("Bundle.entry.resource.ofType(Patient).address.state='IL'")
 
     @Container
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
@@ -108,7 +113,10 @@ class FHIRRouterIntegrationTests : Logging {
         )
     )
 
-    private fun createOrganizationWithFilter (filter: List<String> = listOf("true")): DeepOrganization {
+    private fun createOrganizationWithFilter (
+        filter: List<String> = listOf("true"),
+        reverseQuality: Boolean = false
+    ): DeepOrganization {
         return DeepOrganization(
             "phd", "test", Organization.Jurisdiction.FEDERAL,
             senders = listOf(
@@ -126,8 +134,10 @@ class FHIRRouterIntegrationTests : Logging {
                     CustomerStatus.ACTIVE,
                     "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml",
                     timing = Receiver.Timing(numberPerDay = 1, maxReportCount = 1, whenEmpty = Receiver.WhenEmpty()),
-                    jurisdictionalFilter = filter, // it doesn't matter to the engine how the filter gets applied
-                    format = Report.Format.HL7,
+                    jurisdictionalFilter = listOf("true"),
+                    processingModeFilter = listOf("true"),
+                    qualityFilter = filter, // it doesn't matter to the engine how the filter gets applied,
+                    reverseTheQualityFilter = reverseQuality
                 )
             ),
         )
@@ -318,9 +328,7 @@ class FHIRRouterIntegrationTests : Logging {
             for (i in 0 until actionRecords.size) {
                 assertEquals(expectedTaskActions.get(i), actionRecords.get(i).actionName)
             }
-
         }
-
     }
 
     @BeforeEach
@@ -340,7 +348,7 @@ class FHIRRouterIntegrationTests : Logging {
     }
 
     @Test
-    fun `should send valid FHIR item only to receiver listening to full-elr`() {
+    fun `should send valid FHIR report only to receiver listening to full-elr`() {
         // set up
         val reportContents =
             listOf(
@@ -403,7 +411,7 @@ class FHIRRouterIntegrationTests : Logging {
     }
 
     @Test
-    fun `should respect jurisdictional filter`() {
+    fun `should respect jurisdictional filter and send message`() {
         // set up
         val reportContents =
             listOf(
@@ -419,7 +427,36 @@ class FHIRRouterIntegrationTests : Logging {
         checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
 
         // execute
-        val fhirRouter = createFHIRRouter(createOrganizationWithFilter(jurisdictionalFilter))
+        val fhirRouter = createFHIRRouter(createOrganizationWithFilter(jurisdictionalFilterTx))
+        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+
+        // no messages should have been routed due to filter
+        verify(exactly = 1) {
+            QueueAccess.sendMessage(elrTranslationQueueName, any())
+        }
+
+        // make sure action table has a new entry
+        checkActionTable(listOf(TaskAction.convert, TaskAction.receive, TaskAction.route))
+    }
+
+    @Test
+    fun `should respect jurisdictional filter and not message`() {
+        // set up
+        val reportContents =
+            listOf(
+                File(VALID_FHIR_URL).readText()
+            ).joinToString()
+
+        val reportPair = createReportsWithLineage(reportContents)
+        val convertReport = reportPair.second
+        val queueMessage = generateQueueMessage(convertReport, reportContents, fhirSenderWithNoTransform)
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        // make sure action table has only what we put in there
+        checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
+
+        // execute
+        val fhirRouter = createFHIRRouter(createOrganizationWithFilter(jurisdictionalFilterIl))
         fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
 
         // no messages should have been routed due to filter
@@ -432,7 +469,7 @@ class FHIRRouterIntegrationTests : Logging {
     }
 
     @Test
-    fun `should respect quality filter`() {
+    fun `should respect full quality filter and not send message`() {
         // set up
         val reportContents =
             listOf(
@@ -460,4 +497,61 @@ class FHIRRouterIntegrationTests : Logging {
         checkActionTable(listOf(TaskAction.convert, TaskAction.receive, TaskAction.route))
     }
 
+    @Test
+    fun `should respect simple quality filter and send message`() {
+        // set up
+        val reportContents =
+            listOf(
+                File(VALID_FHIR_URL).readText()
+            ).joinToString()
+
+        val reportPair = createReportsWithLineage(reportContents)
+        val convertReport = reportPair.second
+        val queueMessage = generateQueueMessage(convertReport, reportContents, fhirSenderWithNoTransform)
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        // make sure action table has only what we put in there
+        checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
+
+        // execute
+        val fhirRouter = createFHIRRouter(createOrganizationWithFilter(simpleElrQualifyFilter))
+        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+
+        // no messages should have been routed due to filter
+        verify(exactly = 1) {
+            QueueAccess.sendMessage(elrTranslationQueueName, any())
+        }
+
+        // make sure action table has a new entry
+        checkActionTable(listOf(TaskAction.convert, TaskAction.receive, TaskAction.route))
+    }
+
+    @Test
+    fun `should respect reversed simple quality filter and not send message`() {
+        // set up
+        val reportContents =
+            listOf(
+                File(VALID_FHIR_URL).readText()
+            ).joinToString()
+
+        val reportPair = createReportsWithLineage(reportContents)
+        val convertReport = reportPair.second
+        val queueMessage = generateQueueMessage(convertReport, reportContents, fhirSenderWithNoTransform)
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        // make sure action table has only what we put in there
+        checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
+
+        // execute
+        val fhirRouter = createFHIRRouter(createOrganizationWithFilter(simpleElrQualifyFilter, true))
+        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+
+        // no messages should have been routed due to filter
+        verify(exactly = 0) {
+            QueueAccess.sendMessage(elrTranslationQueueName, any())
+        }
+
+        // make sure action table has a new entry
+        checkActionTable(listOf(TaskAction.convert, TaskAction.receive, TaskAction.route))
+    }
 }
