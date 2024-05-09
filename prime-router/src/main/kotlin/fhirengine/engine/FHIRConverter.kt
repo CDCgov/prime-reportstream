@@ -205,6 +205,8 @@ class FHIRConverter(
                     emptyMap(),
                     emptyList()
                 )
+
+                // TODO: https://github.com/CDCgov/prime-reportstream/issues/14349
                 val report = Report(
                     Report.Format.FHIR,
                     emptyList(),

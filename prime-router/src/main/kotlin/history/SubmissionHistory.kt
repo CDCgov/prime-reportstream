@@ -338,6 +338,7 @@ class DetailedSubmissionHistory(
         return consolidatedList
     }
 
+    // TODO: https://github.com/CDCgov/prime-reportstream/issues/14350
     /**
      * Enrich the submission history with various other related bits of history.
      *
@@ -414,10 +415,8 @@ class DetailedSubmissionHistory(
     }
 
     /**
-     * Enrich a parent detailed history with details from the route action.
-     * Add destinations, errors, and warnings, to the history details.
-     * Note: Route/Translate is exclusive to the Universal pipeline
-     * See enrichWithProcessAction for the TopicReceiver pipeline counterpart
+     * Enrich a parent detailed history with details from the convert action.
+     * Add errors, and warnings, to the history details.
      *
      * @param descendant route action that will be used to enrich
      */
@@ -428,7 +427,6 @@ class DetailedSubmissionHistory(
         ) {
             "Must be route action. Enrichment is only available for the Universal Pipeline"
         }
-        // Grab the filter logs generated during the "route" action, as well as errors and warnings
         errors += descendant.errors
         warnings += descendant.warnings
     }

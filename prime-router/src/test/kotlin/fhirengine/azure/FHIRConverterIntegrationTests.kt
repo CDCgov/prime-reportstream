@@ -536,5 +536,8 @@ class FHIRConverterIntegrationTests {
         verify(exactly = 0) {
             QueueAccess.sendMessage(any(), any())
         }
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            verifyLineageAndFetchCreatedReportFiles(receiveReport, receiveReport, txn, 1)
+        }
     }
 }
