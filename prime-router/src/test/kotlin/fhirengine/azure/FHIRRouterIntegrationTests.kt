@@ -4,7 +4,6 @@ import assertk.assertThat
 import assertk.assertions.containsOnly
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
-
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Options
@@ -14,8 +13,6 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.report.ReportService
-import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
@@ -41,30 +38,26 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
+import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
-
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.verify
-
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.DSL
-
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.File
-
 import java.time.OffsetDateTime
 import kotlin.test.assertEquals
-
 
 private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/fhir_without_birth_time.fhir"
 
@@ -113,9 +106,9 @@ class FHIRRouterIntegrationTests : Logging {
         )
     )
 
-    private fun createOrganizationWithFilter (
+    private fun createOrganizationWithFilter(
         filter: List<String> = listOf("true"),
-        reverseQuality: Boolean = false
+        reverseQuality: Boolean = false,
     ): DeepOrganization {
         return DeepOrganization(
             "phd", "test", Organization.Jurisdiction.FEDERAL,
@@ -159,9 +152,9 @@ class FHIRRouterIntegrationTests : Logging {
     }
 
     private fun createFHIRRouter(
-        org: DeepOrganization? = null
+        org: DeepOrganization? = null,
     ): FHIRRouter {
-        val settings = FileSettings().loadOrganizations(org?:universalPipelineOrganization)
+        val settings = FileSettings().loadOrganizations(org ?: universalPipelineOrganization)
         val metadata = UnitTestUtils.simpleMetadata
         metadata.lookupTableStore += mapOf(
             "observation-mapping" to LookupTable("observation-mapping", emptyList())
@@ -214,7 +207,6 @@ class FHIRRouterIntegrationTests : Logging {
         childReport: Report? = null,
         bodyURL: String? = null,
     ): Report {
-
         val report = Report(
             fileFormat,
             listOf(ClientSource(organization = universalPipelineOrganization.name, client = "Test Sender")),
@@ -276,9 +268,8 @@ class FHIRRouterIntegrationTests : Logging {
 
     private fun createReportsWithLineage(
         reportContents: String,
-        topic: Topic = Topic.FULL_ELR
+        topic: Topic = Topic.FULL_ELR,
     ): Pair<Report, Report> {
-
         val receivedBlobUrl = BlobAccess.uploadBlob(
             "receive/mr_fhir_face.fhir",
             reportContents.toByteArray(),
@@ -380,7 +371,8 @@ class FHIRRouterIntegrationTests : Logging {
                 }
 
             assertThat(reportAndBundles).transform {
-                pairs -> pairs.map {
+                pairs ->
+                pairs.map {
                     it.second.toString(Charsets.UTF_8)
                 }
             }.containsOnly(validFHIRRecord1)
@@ -400,8 +392,11 @@ class FHIRRouterIntegrationTests : Logging {
             }
 
             verify(exactly = 1) {
-                QueueAccess.sendMessage(elrTranslationQueueName, match {
-                    expectedRouteQueueMessages.contains(it) }
+                QueueAccess.sendMessage(
+                    elrTranslationQueueName,
+                    match {
+                    expectedRouteQueueMessages.contains(it)
+                }
                 )
             }
 
