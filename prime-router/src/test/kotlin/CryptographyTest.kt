@@ -3,17 +3,20 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
+import java.util.Base64
+import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 import kotlin.test.Test
 
 class CryptographyTest {
 
     val algorithm = "AES/CBC/PKCS5Padding"
 
-//    val iv = IvParameterSpec(ByteArray(16))
+    // Given AES Key
+    val aesKey = Base64.getDecoder().decode("BWHh9VPSzgjxwDeB52zFkSGQONBoOUqujMjsqzqur2I=")
     val iv = IvParameterSpec("E5q3I26Jtp3NTLUF".toByteArray())
 
-//    val iv = "E5q3I26Jtp3NTLUFiDu3yA==".toByteArray()
     val crypto = Cryptography()
     val testPlainText = """
 MSH|^~\&|EPICSTND|MB003480|PSC|MB|20230927071047|265108|ORM^O01^ORM_O01|550162|T|2.5.1||||||8859/1
@@ -25,16 +28,13 @@ OBX|1|CWE|67704-7^Feeding types^LN||LA16915-3^Lactose formula^LN||||||F|||202311
 
     @Test
     fun `cryptography test`() {
-        // Given password
-        val passw = "123".toByteArray()
-
         // Encrypt the testPlainText to cipherText and check to make sure they are not equal
-        val enKey = crypto.getAESKeyFromPassword(passw)
+        val enKey: SecretKey = SecretKeySpec(aesKey, "AES")
         val cipherText = crypto.encrypt(algorithm, testPlainText, enKey, iv)
         assertThat(cipherText).isNotEqualTo(testPlainText)
 
         // Decrypt the cipherText and check to make sure they are equal to the original testPlainText
-        val deKey = crypto.getAESKeyFromPassword(passw)
+        val deKey: SecretKey = SecretKeySpec(aesKey, "AES")
         val plainText = crypto.decrypt(algorithm, cipherText, deKey, iv)
         assertThat(plainText).isEqualTo(testPlainText)
     }

@@ -699,46 +699,4 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
         assertThat(retryItems).isNull()
     }
-
-    // ========== Localhost testing =====
-    private fun makeNatusHeader(): WorkflowEngine.Header {
-        val content = """
-MSH|^~\&|CDC Trusted Intermediary^https://reportstream.cdc.gov/||||20230331131841-0500||OML^O21^OML_O21|7cd2c933-cfe6-4249-8e9d-b4b9fa0a9142|P|2.5.1|||||USA|UNICODE UTF-8
-PID|1||S99955754^^^^MR||Solo^Jaina^^^^^L||20170515111100-0500|F||^Asian^HL70005|||||||||||||||1
-NK1|1|Organa^Leia^^^^^L|N^^http://terminology.hl7.org/CodeSystem/v2-0131||^^PH^^31^201^234567^^^^^+31201234567
-ORC|NW||||IP||||20230331131841-0500
-OBR||||54089-8^Newborn Screening Panel^LN
-MSH|^~\&|CDC Trusted Intermediary^https://reportstream.cdc.gov/||||20230331131910-0500||OML^O21^OML_O21|ed80a9db-2fba-4fb3-a117-300e0f7f55d8|P|2.5.1|||||USA|UNICODE UTF-8
-PID|1||S99955754^^^^MR||Solo^Jaina^^^^^L||20170515111100-0500|F||^Asian^HL70005|||||||||||||||1
-NK1|1|Organa^Leia^^^^^L|N^^http://terminology.hl7.org/CodeSystem/v2-0131||^^PH^^31^201^234567^^^^^+31201234567
-ORC|NW||||IP||||20230331131910-0500
-OBR||||54089-8^Newborn Screening Panel^LN
-"""
-        return WorkflowEngine.Header(
-            task,
-            reportFile,
-            null,
-            settings.findOrganization("la-phl"),
-            settings.findReceiver("la-phl.etor-nbs-orders"),
-            metadata.findSchema("metadata/hl7_mapping/receivers/Flexion/TILabOrder"),
-            content = content.toByteArray(),
-            true
-        )
-    }
-
-    @Test
-    fun `test LA PHL with localhost Natus`() {
-        val header = makeNatusHeader()
-        val mockRestTransport = spyk(RESTTransport())
-        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
-            // Return the credential for NBS
-            UserPassCredential("CDC", "Ask Ott for THis value")
-        )
-
-        val retryItems = mockRestTransport.send(
-            natusRestTransportTypeLive, header, reportId, null, context,
-            actionHistory
-        )
-        assertThat(retryItems).isNull()
-    }
 }

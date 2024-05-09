@@ -64,7 +64,9 @@ import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 import java.util.Base64
 import java.util.logging.Logger
+import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
@@ -544,7 +546,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             val crypto = Cryptography()
             val algorithm = "AES/CBC/PKCS5Padding"
 
-            val enKey = crypto.getAESKeyFromPassword(aesKey)
+            val enKey: SecretKey = SecretKeySpec(aesKey, "AES")
             val encryptedMsg = crypto.encrypt(algorithm, message, enKey, iv)
             return encryptedMsg
         }
@@ -601,11 +603,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             contentType(ContentType.Application.Json)
                             // create JSON object for the BODY. This encodes "/" character as "//", needed for WA to accept as valid JSON
                             JSONObject().put("body", message.toString(Charsets.UTF_8)).toString()
-                        }
-                        "application/hl7-v2" -> {
-                            // The following line doesn't work. It shows one seg on their server
-                            val filteredMsg = message.toString(Charsets.UTF_8).replace("\n", "\r").dropLast(1) + "\r"
-                            TextContent(filteredMsg, ContentType("application", "hl7-v2"))
                         }
                         // NY Content-Type: multipart/form-data
                         "multipart/form-data" -> {
