@@ -8,5 +8,5 @@
 *
 */
 
-create index report_file_receiving_org_svc_receiving_org_index
+CREATE INDEX CONCURRENTLY IF NOT EXISTS report_file_receiving_org_svc_receiving_org_index
     on report_file (receiving_org_svc,receiving_org);
