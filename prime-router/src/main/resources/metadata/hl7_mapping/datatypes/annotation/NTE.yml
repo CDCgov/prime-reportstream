@@ -35,3 +35,17 @@ elements:
     constants:
       hl7XCNField: '%{hl7NotePath}/NTE(%{noteIndex})-5'
       contactIndex: '0'
+
+  - name: note-start-date
+    value: [ '%resource.extension(%`rsext-note-start-date`).value' ]
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-7' ]
+
+  - name: note-expiration-date
+    value: [ '%resource.extension(%`rsext-note-expiration-date`).value' ]
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-8' ]
+
+  - name: note-coded-comment
+    resource: '%resource.extension(%`rsext-note-coded-comment`).value'
+    constants:
+      cweField: '%{hl7NotePath}/NTE(%{noteIndex})-9'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
