@@ -879,7 +879,7 @@ abstract class CoolTest {
         }
 
         const val fhirSenderName = "ignore-fhir-e2e"
-        val fhirSender by lazy {
+        val fhirFULLELRSender by lazy {
             settings.findSender("$org1Name.$fhirSenderName") as? UniversalPipelineSender
                 ?: error("Unable to find sender $fhirSenderName for organization ${org1.name}")
         }
@@ -985,6 +985,7 @@ abstract class CoolTest {
 
             return arrayListOf(
                 E2EData(
+                    "Sending HL7 Report, Receiving HL7/FHIR (full-elr)",
                     File("$smoketestDir/valid_hl7_e2e.hl7"),
                     fullELRE2ESender,
                     arrayListOf(
@@ -993,6 +994,7 @@ abstract class CoolTest {
                     )
                 ),
                 E2EData(
+                    "Sending HL7 Report, Receiving HL7 (elr-elims)",
                     File("$smoketestDir/valid_hl7_e2e.hl7"),
                     elrElimsSender,
                     arrayListOf(
@@ -1000,13 +1002,15 @@ abstract class CoolTest {
                     )
                 ),
                 E2EData(
+                    "Sending FHIR Report, Receiving FHIR (full-elr)",
                     File("$smoketestDir/valid_fhir.fhir"),
-                    fhirSender,
+                    fhirFULLELRSender,
                     arrayListOf(
                         Pair(fhirFullELRE2EReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_FULLELR.fhir"))
                     )
                 ),
                 E2EData(
+                    "Sending HL7 Report, Receiving HL7/FHIR (mars-otc-elr)",
                     File("$smoketestDir/valid_mars.hl7"),
                     marsOTCELRSender,
                     arrayListOf(
@@ -1026,6 +1030,7 @@ abstract class CoolTest {
         }
 
         data class E2EData(
+            val name: String,
             val baseFile: File,
             val sender: UniversalPipelineSender,
             val expectedResults: List<Pair<Receiver, File>>,
