@@ -28,6 +28,7 @@ import ca.uhn.hl7v2.model.v27.message.ORU_R01 as v27_ORU_R01
 import ca.uhn.hl7v2.model.v27.segment.MSH as v27_MSH
 import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01 as NIST_ELR_ORU_R01
 import fhirengine.translation.hl7.structures.nistelr251.segment.MSH as NIST_MSH
+import fhirengine.translation.hl7.structures.radxmars251.message.ORU_R01 as RadxMarsORU_R01
 
 private const val MSH_SEGMENT_NAME = "MSH"
 
@@ -218,6 +219,9 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
 
     companion object {
 
+        // This regex is used to replace \n with \r while not replacing \r\n
+        val newLineRegex = Regex("(?<!\r)\n")
+
         /**
          * Class captures the details from the MSH segment and can be used to map
          * to which instance of a Message and which HL7 -> FHIR mappings should be used
@@ -277,8 +281,12 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             rawHL7: String,
             parseConfiguration: HL7MessageParseAndConvertConfiguration?,
         ): Message {
-            val hl7MessageType = getMessageType(rawHL7)
-            return getHL7ParsingContext(hl7MessageType, parseConfiguration).pipeParser.parse(rawHL7)
+            // A carriage return is the official segment delimiter; a newline is not recognized so we replace
+            // them
+
+            val carriageReturnFixedHL7 = rawHL7.replace(newLineRegex, "\r")
+            val hl7MessageType = getMessageType(carriageReturnFixedHL7)
+            return getHL7ParsingContext(hl7MessageType, parseConfiguration).pipeParser.parse(carriageReturnFixedHL7)
         }
 
         /**
@@ -296,7 +304,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                     DefaultHapiContext(
                         ParserConfiguration(),
                         ValidationContextFactory.noValidation(),
-                        ReportStreamCanonicalModelClassFactory(ORU_R01::class.java),
+                        ReportStreamCanonicalModelClassFactory(RadxMarsORU_R01::class.java),
                     )
                 } else {
                     DefaultHapiContext(ValidationContextFactory.noValidation())

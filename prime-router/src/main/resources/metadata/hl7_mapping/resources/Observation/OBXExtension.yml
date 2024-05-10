@@ -25,3 +25,23 @@ elements:
   - name: OBX.13
     value: [ '%resource.extension.where(url = "OBX.13").value' ]
     hl7Spec: [ '%{hl7OBXField}-13' ]
+
+  - name: OBX.26
+    value: [ '%resource.extension.where(url = "OBX.26").value' ]
+    hl7Spec: [ '%{hl7OBXField}-26' ]
+
+  - name: OBX.27
+    resource: '%resource.extension.where(url = "OBX.27").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7OBXField}-27'
+
+  - name: OBX.28
+    resource: '%resource.extension.where(url = "OBX.28").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7OBXField}-28'
+
+  - name: OBX.29
+    value: [ '%resource.extension.where(url = "OBX.29").value' ]
+    hl7Spec: [ '%{hl7OBXField}-29' ]

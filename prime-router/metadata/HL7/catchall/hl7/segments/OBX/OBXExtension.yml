@@ -117,8 +117,54 @@ extension:
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
-
-
+    - expressionType: nested
+      vars:
+        obx26: STRING, OBX.26
+      condition: $obx26 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.26
+        valueId:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBX.26
+    - expressionType: nested
+      vars:
+        obx27: STRING_ALL, OBX.27
+      condition: $obx27 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.27
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: OBX.27
+    - expressionType: nested
+      vars:
+        obx28: STRING_ALL, OBX.28
+      condition: $obx28 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.28
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: OBX.28
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        obx29: STRING, OBX.29
+      condition: $obx29 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.29
+        valueId:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBX.29
 
 
 
