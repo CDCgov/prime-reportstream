@@ -9,10 +9,25 @@ import org.hl7.fhir.r4.model.Bundle
 interface IProcessedItem<ParsedType> {
 
     companion object {
+
+        /**
+         * Extracts a tracking id from an HL7 message (MSH-10) which serves as a unique identifier for the item
+         * that can be referenced throughout the pipeline
+         *
+         *
+         * @param hl7Message the message to get the tracking ID
+         */
         fun extractTrackingId(hl7Message: Message): String {
             return Terser(hl7Message).get("MSH-10") ?: ""
         }
 
+        /**
+         * Extracts a tracking id from an FHIR Bundle (Bundle.identifier) which
+         * serves as a unique identifier for the item that can be referenced throughout the pipeline
+         *
+         *
+         * @param bundle the message to get the tracking ID
+         */
         fun extractTrackingId(bundle: Bundle): String {
             return bundle.identifier?.value ?: ""
         }

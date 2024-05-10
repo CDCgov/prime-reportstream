@@ -15,6 +15,9 @@ interface IItemValidator {
 
     fun validate(message: Any): IItemValidationResult
 
+    /**
+     * The name of the profile that this validator instance uses
+     */
     val validatorProfileName: String
 }
 
