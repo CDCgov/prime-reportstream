@@ -5,7 +5,6 @@ import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
@@ -13,6 +12,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.report.Report
 import gov.cdc.prime.router.settings.FileSettings
 import io.ktor.http.HttpStatusCode
 import io.mockk.every

@@ -3,7 +3,6 @@ package gov.cdc.prime.router.transport
 import assertk.assertThat
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
@@ -11,6 +10,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.report.Report
 import gov.cdc.prime.router.settings.FileSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine

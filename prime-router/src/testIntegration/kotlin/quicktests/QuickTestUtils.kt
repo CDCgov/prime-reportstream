@@ -3,9 +3,9 @@ package quicktests
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isGreaterThan
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.cli.ProcessData
 import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.report.Report
 import gov.cdc.prime.router.settings.FileSettings
 import org.apache.commons.io.FilenameUtils
 import kotlin.test.assertTrue
