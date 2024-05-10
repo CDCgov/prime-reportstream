@@ -7,7 +7,7 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNull
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.api.azure.v0.ApiKeysFunctions
-import gov.cdc.prime.router.api.azure.v0.ApiKeysFunctionsV1
+import gov.cdc.prime.router.api.azure.v1.ApiKeysFunctionsV1
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.settings.Organization
