@@ -155,6 +155,12 @@
       customerStatus: active
       schemaName: classpath:/metadata/fhir_transforms/senders/baseline-sender-transform.yml
       format: FHIR
+    - name: ignore-fhir-mars-otc-e2e   # For the E2E UP test
+      organizationName: ignore
+      topic: mars-otc-elr
+      customerStatus: active
+      schemaName: classpath:/metadata/fhir_transforms/senders/baseline-sender-transform.yml
+      format: FHIR
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
       topic: covid-19
@@ -416,6 +422,42 @@
         schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
         useBatchHeaders: false
         type: "HL7"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: MARS_OTC_ELR_FHIR_A_E2E     # For the E2E UP test
+      externalName: Ignore MARS_OTC_ELR_FHIR_A_E2E
+      organizationName: ignore
+      topic: mars-otc-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "Bundle.entry.resource.ofType(Organization).address[0].state.exists() and Bundle.entry.resource.ofType(Organization).address[0].state = 'JX'" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: "FHIR"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: MARS_OTC_ELR_FHIR_B_E2E     # For the E2E UP test
+      externalName: Ignore MARS_OTC_ELR_FHIR_B_E2E
+      organizationName: ignore
+      topic: mars-otc-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "Bundle.entry.resource.ofType(Patient).address.city.exists() and Bundle.entry.resource.ofType(Patient).address.city = 'ROCINANTE'" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: "FHIR"
       transport:
         type: SFTP
         host: sftp

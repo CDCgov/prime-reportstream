@@ -74,11 +74,13 @@ class Ping : CoolTest() {
 /**
  * An End-to-End test for the Universal Pipeline. This test posts a report and verifies that the file was sent to
  * the expected receiver(s), then verifies the contents of the file match the expected contents.
- * This test runs through four scenarios:
- * - A report that is submitted as HL7 and is sent as HL7 (Topic: FULL-ELR).
- * - A report that is submitted as HL7 and is sent as FHIR (Topic: FULL-ELR).
- * - A report that is submitted as HL7 and is sent as HL7 but has isSendOriginal set to true (Topic: ELIMS).
+ * This test runs through the following scenarios:
+ * - A report that is submitted as HL7 and is sent as HL7 and FHIR (Topic: FULL-ELR).
+ * - A report that is submitted as HL7 and is sent as HL7 and FHIR (Topic: MARS-OTC-ELR). // todo FHIR
+ *     - This report contains multiple items, one of which is filtered out during validation
+ * - A report that is submitted as HL7 and is sent as HL7 but has isSendOriginal set to true (Topic: ELR-ELIMS).
  * - A report that is submitted as FHIR and is sent as FHIR (Topic: FULL-ELR).
+ * - A report that is submitted as FHIR and is sent as FHIR (Topic: MARS-OTC-ELR). // todo, filtering for fhir?
  */
 class End2EndUniversalPipeline : CoolTest() {
     override val name = "end2end_up"
