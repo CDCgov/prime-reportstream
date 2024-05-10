@@ -17,9 +17,8 @@ import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
-import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.actions.ActionLogger
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.common.Environment
@@ -35,6 +34,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import gov.cdc.prime.router.report.Report
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Extension

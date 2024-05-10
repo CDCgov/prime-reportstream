@@ -6,9 +6,13 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNull
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.api.azure.v0.ApiKeysFunctions
+import gov.cdc.prime.router.api.azure.v0.ApiKeysFunctionsV1
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.settings.Organization
+import gov.cdc.prime.router.settings.OrganizationAPI
+import gov.cdc.prime.router.settings.db.SettingsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.tokens.Jwk
@@ -29,7 +33,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import java.io.StringWriter
 import java.security.interfaces.RSAPublicKey
-import java.util.Base64
+import java.util.*
 import kotlin.test.Test
 
 class ApiKeysFunctionsTest {
@@ -806,7 +810,7 @@ class ApiKeysFunctionsTest {
                 mockkObject(AuthenticatedClaims)
                 every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
-                val response = ApiKeysFunctions().getV1(httpRequestMessage, organization.name)
+                val response = ApiKeysFunctionsV1().getV1(httpRequestMessage, organization.name)
                 assertThat(response.status).isEqualTo(HttpStatus.OK)
                 val jsonResponse = JSONObject(response.body.toString())
                 assertThat(jsonResponse.getJSONArray("data").length()).isEqualTo(2)
@@ -836,7 +840,7 @@ class ApiKeysFunctionsTest {
                 mockkObject(AuthenticatedClaims)
                 every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
-                val response = ApiKeysFunctions().getV1(httpRequestMessage, "missing_org")
+                val response = ApiKeysFunctionsV1().getV1(httpRequestMessage, "missing_org")
                 assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
             }
 
@@ -855,7 +859,7 @@ class ApiKeysFunctionsTest {
                 mockkObject(AuthenticatedClaims)
                 every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
-                val response = ApiKeysFunctions().getV1(httpRequestMessage, organization.name)
+                val response = ApiKeysFunctionsV1().getV1(httpRequestMessage, organization.name)
                 assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
             }
 
@@ -876,7 +880,7 @@ class ApiKeysFunctionsTest {
                 mockkObject(AuthenticatedClaims)
                 every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
-                val response = ApiKeysFunctions().getV1(httpRequestMessage, organization.name)
+                val response = ApiKeysFunctionsV1().getV1(httpRequestMessage, organization.name)
                 assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
                 val jsonResponse = JSONObject(response.body.toString())
                 assertThat(jsonResponse.getJSONArray("data").length()).isEqualTo(2)
@@ -903,7 +907,7 @@ class ApiKeysFunctionsTest {
                 mockkObject(AuthenticatedClaims)
                 every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
-                val response = ApiKeysFunctions().getV1(httpRequestMessage, organization.name)
+                val response = ApiKeysFunctionsV1().getV1(httpRequestMessage, organization.name)
                 assertThat(response.status).isEqualTo(HttpStatus.OK)
                 val jsonResponse = JSONObject(response.body.toString())
                 assertThat(jsonResponse.getJSONArray("data")).isNotEmpty()

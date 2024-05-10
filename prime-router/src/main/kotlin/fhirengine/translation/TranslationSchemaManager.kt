@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation
 
 import com.azure.storage.blob.models.BlobItem
-import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.actions.ActionLogger
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
@@ -414,6 +414,7 @@ class TranslationSchemaManager : Logging {
                             blobContainerInfo
                         ).validate(inputBundle, FhirTranscoder.decode(rawValidationInput.output))
                     }
+
                     SchemaType.HL7 -> {
                         FhirToHl7Converter(
                             rawValidationInput.schemaUri,

@@ -15,6 +15,8 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import assertk.assertions.size
 import assertk.assertions.startsWith
+import gov.cdc.prime.router.actions.InvalidDateMessage
+import gov.cdc.prime.router.actions.InvalidEquipmentMessage
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.metadata.ConcatenateMapper
 import gov.cdc.prime.router.metadata.ElementAndValue
@@ -24,6 +26,13 @@ import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
 import gov.cdc.prime.router.metadata.NullMapper
 import gov.cdc.prime.router.metadata.TrimBlanksMapper
+import gov.cdc.prime.router.report.Element
+import gov.cdc.prime.router.report.ElementNormalizeException
+import gov.cdc.prime.router.report.ElementResult
+import gov.cdc.prime.router.report.Schema
+import gov.cdc.prime.router.report.ValueSet
+import gov.cdc.prime.router.settings.Sender
+import gov.cdc.prime.router.settings.Topic
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -1147,11 +1156,14 @@ internal class ElementTests {
                         "1warning" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
                         "2warnings" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
                             .warning(InvalidEquipmentMessage(element.fieldMapping))
+
                         "1error" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
                         "2errors" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
                             .error(InvalidEquipmentMessage(element.fieldMapping))
+
                         "mixed" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
                             .warning(InvalidEquipmentMessage(element.fieldMapping))
+
                         else -> throw UnsupportedOperationException()
                     }
                 }

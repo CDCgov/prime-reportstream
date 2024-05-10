@@ -13,8 +13,8 @@ import assertk.assertions.isNull
 import assertk.assertions.isSameInstanceAs
 import assertk.assertions.isTrue
 import fhirengine.engine.CustomFhirPathFunctions
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.metadata.Metadata
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockkObject
@@ -27,7 +27,7 @@ import org.hl7.fhir.r4.model.Organization
 import org.hl7.fhir.r4.model.StringType
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.util.UUID
+import java.util.*
 
 class ConstantResolverTests {
 

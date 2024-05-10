@@ -10,8 +10,8 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
+import gov.cdc.prime.router.metadata.db.DatabaseLookupTableAccess
 import io.mockk.every
 import io.mockk.mockk
 import org.jooq.JSONB

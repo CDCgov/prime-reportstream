@@ -2,8 +2,7 @@ package gov.cdc.prime.router.transport
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import gov.cdc.prime.router.GAENUUIDFormat
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 class GAENTransportTests {

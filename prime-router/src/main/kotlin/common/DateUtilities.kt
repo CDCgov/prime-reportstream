@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.common
 
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
+import gov.cdc.prime.router.report.Report
 import java.time.DateTimeException
 import java.time.Duration
 import java.time.Instant
@@ -214,6 +214,7 @@ object DateUtilities {
             is LocalDate -> LocalDate.from(temporalAccessor)
                 .atStartOfDay()
                 .format(outputFormatter)
+
             is LocalDateTime -> LocalDateTime.from(temporalAccessor).format(outputFormatter)
             is OffsetDateTime -> OffsetDateTime.from(temporalAccessor).format(outputFormatter)
             is ZonedDateTime -> ZonedDateTime.from(temporalAccessor).format(outputFormatter)
@@ -437,10 +438,12 @@ object DateUtilities {
                 OffsetDateTime
                     .from(this.atStartOfDay().atZone(zoneId ?: utcZone))
                     .toOffsetDateTime()
+
             is LocalDateTime ->
                 OffsetDateTime
                     .from(this.atZone(zoneId ?: utcZone))
                     .toOffsetDateTime()
+
             is Instant -> OffsetDateTime.from(this.atZone(zoneId ?: utcZone)).toOffsetDateTime()
             is OffsetDateTime, is ZonedDateTime -> OffsetDateTime.from(this)
             else -> error("Unsupported format!")
@@ -496,6 +499,7 @@ object DateUtilities {
                     this
                 }
             }
+
             is OffsetDateTime, is Instant -> {
                 if (zoneId != null && isTimeGreaterThanZero(this)) {
                     ZonedDateTime.from(this).withZoneSameInstant(zoneId)
@@ -503,14 +507,17 @@ object DateUtilities {
                     ZonedDateTime.from(this)
                 }
             }
+
             is LocalDateTime -> {
                 if (zoneId == null) error("Cannot determine time zone to use for conversion")
                 ZonedDateTime.from(this.atZone(zoneId))
             }
+
             is LocalDate -> {
                 if (zoneId == null) error("Cannot determine time zone to use for conversion")
                 ZonedDateTime.from(this.atStartOfDay().atZone(zoneId))
             }
+
             else -> error("Unsupported format for converting to ZonedDateTime")
         }
     }

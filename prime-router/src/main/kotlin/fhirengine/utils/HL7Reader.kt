@@ -15,12 +15,12 @@ import ca.uhn.hl7v2.util.Terser
 import ca.uhn.hl7v2.validation.ValidationException
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
 import fhirengine.utils.ReportStreamCanonicalModelClassFactory
-import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.actions.ActionLogger
+import gov.cdc.prime.router.actions.InvalidReportMessage
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.kotlin.Logging
-import java.util.Date
+import java.util.*
 import ca.uhn.hl7v2.model.v251.message.OML_O21 as v251_OML_O21
 import ca.uhn.hl7v2.model.v251.message.ORU_R01 as v251_ORU_R01
 import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
@@ -133,17 +133,20 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                             "NIST_ELR_TEST" -> listOf(
                                 NIST_ELR_ORU_R01::class.java
                             )
+
                             else -> listOf(
                                 v27_ORU_R01::class.java,
                                 v251_ORU_R01::class.java
                             )
                         }
                     }
+
                     "OML" -> {
                         return listOf(
                             v251_OML_O21::class.java
                         )
                     }
+
                     else -> {
                         logger.warn(
                             "${messageProfile.typeID} did not have any mapped message model classes, " +

@@ -4,8 +4,6 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BatchEvent
 import gov.cdc.prime.router.azure.Event
@@ -13,6 +11,8 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.settings.Receiver
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.Configuration
 import java.time.OffsetDateTime

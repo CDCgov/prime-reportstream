@@ -3,10 +3,10 @@ package gov.cdc.prime.router.tokens
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.nimbusds.jose.Algorithm
 import com.nimbusds.jose.jwk.KeyType
-import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.settings.Organization
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
@@ -17,8 +17,7 @@ import tokens.Server2ServerAuthenticationException
 import tokens.Server2ServerError
 import java.security.Key
 import java.security.SignatureException
-import java.util.Date
-import java.util.UUID
+import java.util.*
 
 /**
  * Implementation of two-legged auth, using a sender's public key pre-authorized

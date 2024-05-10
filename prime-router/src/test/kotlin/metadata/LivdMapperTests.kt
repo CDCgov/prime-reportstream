@@ -8,8 +8,8 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNull
 import assertk.assertions.isNullOrEmpty
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.metadata.LivdLookup.testProcessingModeCode
+import gov.cdc.prime.router.report.Element
 import kotlin.test.Test
 
 class LivdMapperTests {

@@ -4,10 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import assertk.assertions.startsWith
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
@@ -20,6 +17,8 @@ import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.credentials.UserPemCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
+import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.settings.FileSettings
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -40,7 +39,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.TimeoutException
 
 class SftpTransportIntegrationTests : TransportIntegrationTests() {

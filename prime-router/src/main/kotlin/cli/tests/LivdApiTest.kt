@@ -2,7 +2,7 @@ package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import gov.cdc.prime.router.azure.LivdData
+import gov.cdc.prime.router.api.azure.v0.LivdData
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper

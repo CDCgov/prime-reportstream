@@ -1,7 +1,9 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.databind.node.TextNode
+import gov.cdc.prime.router.actions.ActionLogDetail
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.settings.Topic
 import org.jooq.BindingGetResultSetContext
 import org.jooq.BindingSQLContext
 import org.jooq.BindingSetStatementContext
@@ -9,7 +11,7 @@ import org.jooq.Converter
 import org.jooq.JSONB
 import org.jooq.impl.AbstractBinding
 import org.jooq.impl.DSL
-import java.util.Objects
+import java.util.*
 
 /**
  * Provides a converter for POJOs into JSONB and back using the jackson library

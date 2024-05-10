@@ -8,9 +8,11 @@ import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.api.azure.v0.LookupTableFunctions
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.metadata.db.DatabaseLookupTableAccess
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import io.mockk.clearMocks
 import io.mockk.every

@@ -5,7 +5,7 @@ import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
-import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.actions.ActionLogger
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 

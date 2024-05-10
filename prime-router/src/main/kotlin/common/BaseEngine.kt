@@ -1,14 +1,14 @@
 package gov.cdc.prime.router.common
 
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
-import gov.cdc.prime.router.azure.SettingsFacade
+import gov.cdc.prime.router.db.DatabaseAccess
+import gov.cdc.prime.router.metadata.Metadata
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
+import gov.cdc.prime.router.settings.FileSettings
+import gov.cdc.prime.router.settings.Receiver
+import gov.cdc.prime.router.settings.SettingsProvider
+import gov.cdc.prime.router.settings.db.SettingsFacade
 import org.apache.logging.log4j.kotlin.Logging
 
 /**

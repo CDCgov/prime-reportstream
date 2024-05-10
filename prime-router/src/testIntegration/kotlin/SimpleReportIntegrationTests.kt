@@ -4,7 +4,9 @@ import assertk.assertThat
 import assertk.assertions.exists
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.metadata.Metadata
 import gov.cdc.prime.router.serializers.CsvSerializer
+import gov.cdc.prime.router.settings.FileSettings
 import org.apache.commons.io.FileUtils
 import java.io.File
 import kotlin.test.Test

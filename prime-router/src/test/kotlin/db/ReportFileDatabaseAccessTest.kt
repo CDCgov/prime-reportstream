@@ -5,14 +5,16 @@ import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.report.db.ReportFileApiSearch
+import gov.cdc.prime.router.report.db.ReportFileDatabaseAccess
+import gov.cdc.prime.router.settings.Topic
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.util.UUID
+import java.util.*
 
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
 class ReportFileDatabaseAccessTest {

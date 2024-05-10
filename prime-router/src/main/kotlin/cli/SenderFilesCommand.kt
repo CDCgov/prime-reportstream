@@ -7,7 +7,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
-import gov.cdc.prime.router.azure.SenderFilesFunction
+import gov.cdc.prime.router.api.azure.v0.SenderFilesFunction
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities

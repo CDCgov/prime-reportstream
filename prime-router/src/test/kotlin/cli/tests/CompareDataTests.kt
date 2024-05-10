@@ -5,9 +5,9 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.report.Element
+import gov.cdc.prime.router.report.Schema
+import gov.cdc.prime.router.settings.Topic
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.Test
 

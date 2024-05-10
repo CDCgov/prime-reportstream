@@ -9,7 +9,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.history.db.ReportGraph
 import io.mockk.every
 import io.mockk.mockk
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 class ReportServiceTests {

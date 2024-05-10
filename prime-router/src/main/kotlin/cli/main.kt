@@ -9,12 +9,7 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
-import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CsvComparer
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.TestReportStream
 import gov.cdc.prime.router.docgenerators.CsvDocumentationFactory
@@ -22,6 +17,11 @@ import gov.cdc.prime.router.docgenerators.DocumentationFactory
 import gov.cdc.prime.router.docgenerators.ExcelDocumentationFactory
 import gov.cdc.prime.router.docgenerators.HtmlDocumentationFactory
 import gov.cdc.prime.router.docgenerators.MarkdownDocumentationFactory
+import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.report.Schema
+import gov.cdc.prime.router.settings.CovidSender
+import gov.cdc.prime.router.settings.FileSettings
+import gov.cdc.prime.router.settings.SettingsProvider
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths

@@ -5,7 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.settings.Organization
 import kotlin.test.Test
 
 class ScopeTests {

@@ -1,7 +1,7 @@
 package fhirengine.engine
 
 import ca.uhn.hl7v2.model.Message
-import gov.cdc.prime.router.ActionLogDetail
+import gov.cdc.prime.router.actions.ActionLogDetail
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import org.hl7.fhir.r4.model.Bundle
 

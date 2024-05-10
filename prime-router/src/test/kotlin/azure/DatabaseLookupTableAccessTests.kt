@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import gov.cdc.prime.router.metadata.db.DatabaseLookupTableAccess
 import org.jooq.JSONB
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith

@@ -6,9 +6,12 @@ import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.api.azure.v0.BaseHistoryFunction
+import gov.cdc.prime.router.api.azure.v0.ReportView
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.db.DatabaseAccess
+import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.report.Report
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -24,7 +27,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 class HistoryFunctionsTests {
 

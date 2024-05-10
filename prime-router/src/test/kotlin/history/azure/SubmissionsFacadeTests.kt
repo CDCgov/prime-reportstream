@@ -7,17 +7,20 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import com.google.common.net.HttpHeaders
-import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.api.SubmissionsFacade
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.db.DatabaseAccess
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
+import gov.cdc.prime.router.history.db.DatabaseSubmissionsAccess
+import gov.cdc.prime.router.history.db.HistoryDatabaseAccess
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import io.mockk.every
 import io.mockk.mockk
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 class SubmissionsFacadeTests {

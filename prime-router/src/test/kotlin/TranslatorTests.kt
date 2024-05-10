@@ -5,6 +5,12 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.report.Element
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.report.ReportStreamFilterResult
+import gov.cdc.prime.router.report.Schema
+import gov.cdc.prime.router.settings.FileSettings
+import gov.cdc.prime.router.settings.Topic
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import java.io.ByteArrayInputStream
 import kotlin.test.Test

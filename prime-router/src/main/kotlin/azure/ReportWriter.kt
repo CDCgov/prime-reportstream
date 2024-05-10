@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.azure
 
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.report.Report
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import java.io.ByteArrayOutputStream
@@ -33,6 +33,7 @@ object ReportWriter {
                 receivingApplicationReport,
                 receivingFacilityReport
             )
+
             Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer.write(report, outputStream)
             else -> throw UnsupportedOperationException("Unsupported ${report.bodyFormat}")
         }

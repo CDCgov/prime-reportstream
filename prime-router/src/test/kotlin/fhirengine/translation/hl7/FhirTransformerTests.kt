@@ -9,7 +9,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNotSameInstanceAs
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.actions.ActionLogger
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
@@ -40,7 +40,7 @@ import org.hl7.fhir.r4.model.ServiceRequest
 import org.hl7.fhir.r4.model.StringType
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 

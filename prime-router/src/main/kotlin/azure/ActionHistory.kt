@@ -4,14 +4,9 @@ import com.fasterxml.jackson.core.JsonFactory
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatusType
-import gov.cdc.prime.router.ActionLog
-import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.actions.ActionLog
+import gov.cdc.prime.router.actions.ActionLogLevel
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -21,6 +16,11 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.report.ReportId
+import gov.cdc.prime.router.settings.Receiver
+import gov.cdc.prime.router.settings.Sender
+import gov.cdc.prime.router.settings.Topic
 import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.SQLDataType
@@ -28,7 +28,7 @@ import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.net.URISyntaxException
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 /**
  * This is a container class that holds information to be stored, about a single action,

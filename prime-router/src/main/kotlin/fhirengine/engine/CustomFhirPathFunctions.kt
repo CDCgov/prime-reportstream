@@ -1,9 +1,9 @@
 package fhirengine.engine
 
 import fhirengine.translation.hl7.utils.FhirPathFunctions
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.metadata.LivdLookup
+import gov.cdc.prime.router.metadata.Metadata
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.Observation

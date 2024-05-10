@@ -2,10 +2,10 @@ package gov.cdc.prime.router.tokens
 
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.api.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.settings.Sender
 import org.apache.logging.log4j.kotlin.Logging
 
 const val subjectClaim = "sub"

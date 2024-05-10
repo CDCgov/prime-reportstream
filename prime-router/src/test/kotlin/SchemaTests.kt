@@ -11,6 +11,9 @@ import gov.cdc.prime.router.metadata.ElementNames
 import gov.cdc.prime.router.metadata.LIVDLookupMapper
 import gov.cdc.prime.router.metadata.NullMapper
 import gov.cdc.prime.router.metadata.TrimBlanksMapper
+import gov.cdc.prime.router.report.Element
+import gov.cdc.prime.router.report.Schema
+import gov.cdc.prime.router.settings.Topic
 import kotlin.test.Test
 
 class SchemaTests {

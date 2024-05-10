@@ -1,13 +1,13 @@
 package gov.cdc.prime.router.cli.tests
 
-import gov.cdc.prime.router.CovidSender
-import gov.cdc.prime.router.Options
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.api.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.report.Options
+import gov.cdc.prime.router.settings.CovidSender
+import gov.cdc.prime.router.settings.Sender
 import kotlinx.coroutines.delay
 import org.jooq.impl.DSL
 import java.io.File

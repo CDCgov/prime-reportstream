@@ -1,10 +1,11 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.router.report.ReportId
+import gov.cdc.prime.router.report.Schema
 import org.apache.commons.lang3.StringUtils
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Random
-import java.util.UUID
+import java.util.*
 
 // a file name element should be a pure function, which does not modify
 // its inputs, and has a minimum amount of side effects (and by minimum) we
@@ -152,9 +153,11 @@ open class FileNameTemplate(
                     }
                     fileName.append(e.getElementValue(args, translatorConfig))
                 }
+
                 is String -> {
                     fileName.append(it.first)
                 }
+
                 else -> {
                 }
             }

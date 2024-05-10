@@ -2,7 +2,7 @@ package gov.cdc.prime.router.azure.observability
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 class AzureCustomDimensionsSerializableTest {

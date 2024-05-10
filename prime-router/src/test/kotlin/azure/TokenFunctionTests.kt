@@ -3,12 +3,15 @@ package gov.cdc.prime.router.azure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.CovidSender
-import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.api.azure.v0.OAUTH_ERROR_BASE_LOCATION
+import gov.cdc.prime.router.api.azure.v0.TokenFunction
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
+import gov.cdc.prime.router.db.DatabaseAccess
+import gov.cdc.prime.router.settings.CovidSender
+import gov.cdc.prime.router.settings.CustomerStatus
+import gov.cdc.prime.router.settings.Organization
+import gov.cdc.prime.router.settings.Sender
 import gov.cdc.prime.router.tokens.AccessToken
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.Jwk
@@ -31,9 +34,7 @@ import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import java.security.interfaces.RSAPublicKey
-import java.util.Base64
-import java.util.Date
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 class TokenFunctionTests {

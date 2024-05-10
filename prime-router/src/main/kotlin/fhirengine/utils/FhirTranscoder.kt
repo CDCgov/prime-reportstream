@@ -2,8 +2,8 @@ package gov.cdc.prime.router.fhirengine.utils
 
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.parser.IParser
-import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.actions.ActionLogger
+import gov.cdc.prime.router.actions.InvalidReportMessage
 import io.github.linuxforhealth.fhir.FHIRContext
 import io.github.linuxforhealth.hl7.ConverterOptions
 import io.github.linuxforhealth.hl7.message.HL7MessageEngine

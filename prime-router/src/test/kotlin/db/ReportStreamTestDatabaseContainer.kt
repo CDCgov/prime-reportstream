@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.db
 
 import com.zaxxer.hikari.HikariDataSource
-import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.common.TestcontainersUtils
 import org.flywaydb.core.Flyway
 import org.testcontainers.containers.PostgreSQLContainer

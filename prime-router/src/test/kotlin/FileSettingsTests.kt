@@ -7,6 +7,12 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.settings.CustomerStatus
+import gov.cdc.prime.router.settings.DeepOrganization
+import gov.cdc.prime.router.settings.FileSettings
+import gov.cdc.prime.router.settings.Organization
+import gov.cdc.prime.router.settings.Receiver
+import gov.cdc.prime.router.settings.Topic
 import java.io.ByteArrayInputStream
 import java.time.ZoneId
 import java.time.ZonedDateTime

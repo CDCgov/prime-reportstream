@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.azure.observability.context
 
-import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.report.ReportId
 
 /**
  * Fields added to the MDC during Send function calls

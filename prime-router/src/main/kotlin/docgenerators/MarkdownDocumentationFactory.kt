@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.docgenerators
 
-import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.ValueSet
+import gov.cdc.prime.router.report.Element
+import gov.cdc.prime.router.report.Schema
+import gov.cdc.prime.router.report.ValueSet
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 
@@ -43,6 +43,7 @@ object MarkdownDocumentationFactory : StringBasedDocumentationFactory(), Logging
                 "\$alt",
                 ->
                     appendLabelAndData(sb, "Format", "use value found in the Display column")
+
                 else ->
                     appendLabelAndData(sb, "Format", "use value found in the Code column")
             }

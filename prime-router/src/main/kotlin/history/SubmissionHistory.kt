@@ -8,16 +8,16 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.fasterxml.jackson.annotation.JsonValue
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.ActionLogLevel
-import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.ReportStreamFilterResult
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.actions.ActionLogLevel
+import gov.cdc.prime.router.actions.ActionLogScope
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.report.ReportId
+import gov.cdc.prime.router.report.ReportStreamFilterResult
+import gov.cdc.prime.router.settings.Sender
+import gov.cdc.prime.router.settings.Topic
 import java.time.OffsetDateTime
 
 /**

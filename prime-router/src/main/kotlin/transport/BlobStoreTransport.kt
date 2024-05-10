@@ -1,14 +1,12 @@
 package gov.cdc.prime.router.transport
 
 import com.microsoft.azure.functions.ExecutionContext
-import gov.cdc.prime.router.BlobStoreTransportType
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.report.ReportId
 
 class BlobStoreTransport() : ITransport {
     override fun send(

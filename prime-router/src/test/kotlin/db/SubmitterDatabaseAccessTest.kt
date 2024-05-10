@@ -3,8 +3,8 @@ package gov.cdc.prime.router.db
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isNotNull
+import gov.cdc.prime.router.api.SubmitterApiSearch
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
-import gov.cdc.prime.router.history.db.SubmitterApiSearch
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 

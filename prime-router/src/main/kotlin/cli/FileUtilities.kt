@@ -1,16 +1,16 @@
 package gov.cdc.prime.router.cli
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
-import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSource
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.report.FakeReport
+import gov.cdc.prime.router.report.Report
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
+import gov.cdc.prime.router.settings.SettingsProvider
 import java.io.File
 import java.io.OutputStream
-import java.util.Locale
+import java.util.*
 
 /**
  * A collection of file utilities for running tests

@@ -6,16 +6,10 @@ import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
-import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.actions.ActionLogger
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
@@ -23,6 +17,7 @@ import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.db.DatabaseAccess
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
@@ -30,7 +25,12 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.report.Report
 import gov.cdc.prime.router.report.ReportService
+import gov.cdc.prime.router.settings.CustomerStatus
+import gov.cdc.prime.router.settings.Receiver
+import gov.cdc.prime.router.settings.SettingsProvider
 import org.hl7.fhir.r4.model.Bundle
 import org.jooq.Field
 import java.time.OffsetDateTime
@@ -83,6 +83,7 @@ class FHIRTranslator(
                         listOf(sendTranslated(message, receiver, actionHistory))
                     }
                 }
+
                 else -> {
                     throw RuntimeException(
                         "Message was not a FhirTranslateQueueMessage and cannot be " +

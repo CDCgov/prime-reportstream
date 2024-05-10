@@ -6,9 +6,9 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isNull
 import com.github.ajalt.clikt.testing.test
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.ValidateSchemasFunctions
 import gov.cdc.prime.router.cli.SyncTranslationSchemaCommand
 import gov.cdc.prime.router.common.TestcontainersUtils
+import gov.cdc.prime.router.validation.azure.ValidateSchemasFunctions
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkAll

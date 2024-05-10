@@ -2,6 +2,8 @@ package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import gov.cdc.prime.router.settings.Receiver
+import gov.cdc.prime.router.settings.Topic
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 

@@ -6,8 +6,8 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import fhirengine.engine.CustomFhirPathFunctions
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.metadata.LivdLookup
+import gov.cdc.prime.router.metadata.Metadata
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockkObject

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.base.Preconditions
-import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
+import gov.cdc.prime.router.metadata.db.DatabaseLookupTableAccess
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
@@ -15,7 +15,6 @@ import tech.tablesaw.api.Table
 import tech.tablesaw.io.csv.CsvReadOptions
 import tech.tablesaw.selection.Selection
 import java.io.InputStream
-import java.lang.IllegalStateException
 import java.util.function.BiPredicate
 
 /**

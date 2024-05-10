@@ -27,7 +27,7 @@ import org.jooq.meta.jaxb.ForcedType
 import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Properties
+import java.util.*
 
 plugins {
     val kotlinVersion by System.getProperties()
@@ -331,6 +331,7 @@ tasks.register<ResolveTask>("generateOpenApi") {
     buildClasspath = classpath
     resourcePackages = setOf("gov.cdc.prime.router.azure")
     outputDir = apiDocsSpecDir
+    openAPI31 = true
     dependsOn("compileKotlin")
 }
 
@@ -681,7 +682,7 @@ jooq {
                             arrayOf(
                                 ForcedType()
                                     // Specify the Java type of your custom type. This corresponds to the Binding's <U> type.
-                                    .withUserType("gov.cdc.prime.router.ActionLogDetail")
+                                    .withUserType("gov.cdc.prime.router.actions.ActionLogDetail")
                                     // Associate that custom type with your binding.
                                     .withBinding("gov.cdc.prime.router.ActionLogDetailBinding")
                                     // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
@@ -690,7 +691,7 @@ jooq {
                                     .withIncludeTypes("JSONB"),
                                 ForcedType()
                                     // Specify the Java type of your custom type. This corresponds to the Binding's <U> type.
-                                    .withUserType("gov.cdc.prime.router.Topic")
+                                    .withUserType("gov.cdc.prime.router.settings.Topic")
                                     // Associate that custom type with your binding.
                                     .withBinding("gov.cdc.prime.router.TopicBinding")
                                     // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.

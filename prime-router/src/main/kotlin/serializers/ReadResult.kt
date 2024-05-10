@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.serializers
 
-import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.actions.ActionLogger
+import gov.cdc.prime.router.report.Report
 
 /**
  * Used by converter/formatters to return results

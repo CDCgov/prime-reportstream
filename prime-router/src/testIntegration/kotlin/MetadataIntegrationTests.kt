@@ -4,6 +4,8 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
+import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.settings.FileSettings
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 

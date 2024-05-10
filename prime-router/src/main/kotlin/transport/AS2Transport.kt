@@ -10,22 +10,20 @@ import com.helger.as2lib.processor.sender.AS2HttpResponseException
 import com.helger.security.keystore.EKeyStoreType
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.AS2TransportType
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserJksCredential
+import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.report.ReportId
 import org.apache.hc.core5.util.Timeout
 import org.apache.http.conn.ConnectTimeoutException
 import org.apache.logging.log4j.kotlin.Logging
 import java.net.ConnectException
-import java.util.Base64
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**

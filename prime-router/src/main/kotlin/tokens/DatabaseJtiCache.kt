@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.tokens
 
-import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.db.DatabaseAccess
 import java.time.OffsetDateTime
 
 class DatabaseJtiCache(val db: DatabaseAccess) : JtiCache() {

@@ -5,14 +5,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.annotation.JsonProperty
-import gov.cdc.prime.router.ActionLogDetail
-import gov.cdc.prime.router.ActionLogLevel
-import gov.cdc.prime.router.ActionLogScope
-import gov.cdc.prime.router.ErrorCode
-import gov.cdc.prime.router.ItemActionLogDetail
-import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.actions.ActionLogDetail
+import gov.cdc.prime.router.actions.ActionLogLevel
+import gov.cdc.prime.router.actions.ActionLogScope
+import gov.cdc.prime.router.actions.ErrorCode
+import gov.cdc.prime.router.actions.ItemActionLogDetail
+import gov.cdc.prime.router.settings.Topic
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 /**
  * This class provides a base structure for data reflected in the `report_file` table.

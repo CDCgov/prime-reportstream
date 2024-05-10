@@ -17,17 +17,17 @@ import com.github.ajalt.clikt.parameters.types.outputStream
 import com.github.ajalt.mordant.terminal.YesNoPrompt
 import de.m3y.kformat.Table
 import de.m3y.kformat.table
-import gov.cdc.prime.router.DeepOrganization
-import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.SFTPTransportType
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.azure.OrganizationAPI
-import gov.cdc.prime.router.azure.ReceiverAPI
+import gov.cdc.prime.router.api.HttpUtilities
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.settings.DeepOrganization
+import gov.cdc.prime.router.settings.Organization
+import gov.cdc.prime.router.settings.OrganizationAPI
+import gov.cdc.prime.router.settings.Receiver
+import gov.cdc.prime.router.settings.ReceiverAPI
+import gov.cdc.prime.router.settings.Sender
+import gov.cdc.prime.router.transport.SFTPTransportType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.lastModified
 import org.json.JSONArray
@@ -198,7 +198,7 @@ abstract class SettingCommand(
             if (abortOnError) {
                 abort(
                     "Error getting $settingName in the $env environment:" +
-                            " HTTP status code: ${response.status.value} response body: $respStr"
+                        " HTTP status code: ${response.status.value} response body: $respStr"
                 )
             } else {
                 respStr
@@ -408,9 +408,9 @@ abstract class SettingCommand(
     ): Nothing {
         abort(
             "Error: \n" +
-                    "  Setting Name: $settingName\n" +
-                    "  HTTP Status Code: ${httpStatusCode}\n" +
-                    "  HTTP Response Data: $respStr"
+                "  Setting Name: $settingName\n" +
+                "  HTTP Status Code: ${httpStatusCode}\n" +
+                "  HTTP Response Data: $respStr"
         )
     }
 
@@ -952,11 +952,11 @@ class GetMultipleSettings : SettingCommand(
     private val loadToLocal by option(
         "-l", "--load-to-local",
         help = "Load settings to local database with transport modified to use SFTP. " +
-                "You will have the chance to approve or decline a diff. " +
-                "If the -a (--append-to-orgs) option is used in conjunction with the " +
-                "load option, the modified results " +
-                "are used when appending to the organizations.yml file. If the -o (--output) option is used, the " +
-                "original, unmodified settings will be output to that file."
+            "You will have the chance to approve or decline a diff. " +
+            "If the -a (--append-to-orgs) option is used in conjunction with the " +
+            "load option, the modified results " +
+            "are used when appending to the organizations.yml file. If the -o (--output) option is used, the " +
+            "original, unmodified settings will be output to that file."
     ).flag(default = false)
 
     private val json by option(

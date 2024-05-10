@@ -3,17 +3,20 @@ package gov.cdc.prime.router.azure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.ActionLogLevel
-import gov.cdc.prime.router.ActionLogScope
-import gov.cdc.prime.router.InvalidCodeMessage
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.actions.ActionLogLevel
+import gov.cdc.prime.router.actions.ActionLogScope
+import gov.cdc.prime.router.actions.InvalidCodeMessage
+import gov.cdc.prime.router.api.HttpUtilities
+import gov.cdc.prime.router.api.azure.v0.MessagesFunctions
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.db.DatabaseAccess
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.messageTracker.MessageActionLog
+import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.report.ReportId
+import gov.cdc.prime.router.settings.Topic
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -27,7 +30,7 @@ import org.json.JSONObject
 import org.junit.jupiter.api.BeforeEach
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 class MessagesFunctionsTests {

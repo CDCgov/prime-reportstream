@@ -3,16 +3,15 @@ package gov.cdc.prime.router.transport
 import assertk.assertThat
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.SoapTransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.credentials.UserPassCredential
+import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.settings.FileSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -24,7 +23,7 @@ import io.mockk.mockkObject
 import io.mockk.spyk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

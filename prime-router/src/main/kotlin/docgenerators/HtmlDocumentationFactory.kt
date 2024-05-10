@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.docgenerators
 
-import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.report.Schema
 import org.apache.logging.log4j.kotlin.Logging
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer

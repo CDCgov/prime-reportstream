@@ -1,18 +1,18 @@
 package gov.cdc.prime.router.metadata
 
-import gov.cdc.prime.router.ActionLogDetail
-import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.ElementResult
-import gov.cdc.prime.router.InvalidParamMessage
-import gov.cdc.prime.router.InvalidReportMessage
-import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.actions.ActionLogDetail
+import gov.cdc.prime.router.actions.InvalidParamMessage
+import gov.cdc.prime.router.actions.InvalidReportMessage
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.DateUtilities.toYears
 import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
+import gov.cdc.prime.router.report.Element
+import gov.cdc.prime.router.report.ElementResult
 import gov.cdc.prime.router.serializers.Hl7Serializer
+import gov.cdc.prime.router.settings.Sender
 import java.security.MessageDigest
 import java.time.Duration
 import java.time.OffsetDateTime
@@ -241,6 +241,7 @@ class UseMapper : Mapper {
                     element.type == Element.Type.DATE && fromElement.type == Element.Type.DATETIME -> {
                         DateUtilities.parseDate(fromValue).asFormattedString(DateUtilities.datePattern)
                     }
+
                     element.type == Element.Type.TEXT -> fromValue
                     // TODO: Unchecked conversions should probably be removed, but the PIMA schema relies on this, right now.
                     else -> fromValue
@@ -499,6 +500,7 @@ class IfNotPresentMapper : Mapper {
                     val lookupValue = values.find { v -> v.element.name == modeOperator }
                     lookupValue?.value.toString()
                 }
+
                 else -> null
             }
         )
@@ -1113,6 +1115,7 @@ class CountryMapper : Mapper {
                         USA
                     }
                 }
+
                 else -> patientCountry
             }
         )

@@ -5,7 +5,14 @@ import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import gov.cdc.prime.router.db.ReportFileApiSearch
+import gov.cdc.prime.router.api.ApiFilter
+import gov.cdc.prime.router.api.ApiFilterNames
+import gov.cdc.prime.router.api.ApiFilters
+import gov.cdc.prime.router.api.ApiSearch
+import gov.cdc.prime.router.api.ApiSearchParser
+import gov.cdc.prime.router.api.RawApiSearch
+import gov.cdc.prime.router.api.SortDirection
+import gov.cdc.prime.router.report.db.ReportFileApiSearch
 import org.jooq.Condition
 import org.jooq.Field
 import org.jooq.SortOrder

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import gov.cdc.prime.router.fhirengine.translation.hl7.config.TruncationConfig
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.report.ValueSet
 
 // Schemas used
 const val HL7_SCHEMA = "covid-19"
@@ -176,24 +178,31 @@ data class Hl7Configuration
             val receivingApplication = when {
                 receivingApplicationName != null && receivingApplicationOID != null ->
                     "$receivingApplicationName^$receivingApplicationOID^ISO"
+
                 receivingApplicationName != null && receivingApplicationOID == null ->
                     receivingApplicationName
+
                 else -> ""
             }
             val receivingFacility = when {
                 receivingFacilityName != null && receivingFacilityOID != null ->
                     "$receivingFacilityName^$receivingFacilityOID^ISO"
+
                 receivingFacilityName != null && receivingFacilityOID == null ->
                     receivingFacilityName
+
                 else -> ""
             }
             val reportingFacility = when {
                 reportingFacilityName != null && reportingFacilityId != null && reportingFacilityIdType == null ->
                     "$reportingFacilityName^$reportingFacilityId^CLIA"
+
                 reportingFacilityName != null && reportingFacilityId != null && reportingFacilityIdType != null ->
                     "$reportingFacilityName^$reportingFacilityId^$reportingFacilityIdType"
+
                 reportingFacilityName != null && reportingFacilityId == null ->
                     reportingFacilityName
+
                 else -> ""
             }
             return mapOf(

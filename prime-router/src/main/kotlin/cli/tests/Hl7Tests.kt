@@ -1,11 +1,11 @@
 package gov.cdc.prime.router.cli.tests
 
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.api.HttpUtilities
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
+import gov.cdc.prime.router.report.Report
 import java.io.IOException
 import java.net.HttpURLConnection
 

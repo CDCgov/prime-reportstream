@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.docgenerators
 
-import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.report.Schema
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import org.apache.logging.log4j.kotlin.Logging

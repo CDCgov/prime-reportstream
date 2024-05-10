@@ -4,6 +4,10 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import gov.cdc.prime.router.docgenerators.DocumentationFactory
 import gov.cdc.prime.router.docgenerators.MarkdownDocumentationFactory
+import gov.cdc.prime.router.report.Element
+import gov.cdc.prime.router.report.Schema
+import gov.cdc.prime.router.report.ValueSet
+import gov.cdc.prime.router.settings.Topic
 import java.time.LocalDate
 import kotlin.test.Ignore
 import kotlin.test.Test

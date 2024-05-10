@@ -6,13 +6,13 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.actions.ActionLogger
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Patient
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
-import java.util.Date
+import java.util.*
 import kotlin.test.Test
 
 class FhirTranscoderTests {

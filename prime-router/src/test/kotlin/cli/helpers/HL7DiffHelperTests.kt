@@ -12,7 +12,7 @@ import ca.uhn.hl7v2.model.v27.datatype.ID
 import ca.uhn.hl7v2.model.v27.datatype.NM
 import ca.uhn.hl7v2.model.v27.datatype.ST
 import ca.uhn.hl7v2.model.v27.message.ORU_R01
-import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.actions.ActionLogger
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import kotlin.test.Test
 

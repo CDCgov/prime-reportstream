@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isNotNull
+import gov.cdc.prime.router.metadata.Metadata
 import org.junit.jupiter.api.Test
 
 class FakeReportIntegrationTests {

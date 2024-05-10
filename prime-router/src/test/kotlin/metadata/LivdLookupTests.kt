@@ -5,8 +5,8 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isNullOrEmpty
-import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.metadata.LivdLookup.find
+import gov.cdc.prime.router.report.Element
 import org.junit.jupiter.api.Test
 
 class LivdLookupTests {

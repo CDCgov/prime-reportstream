@@ -8,17 +8,15 @@ import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Content
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
-import gov.cdc.prime.router.EmailTransportType
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.report.ReportId
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.StringTemplateResolver
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.Calendar
+import java.util.*
 import java.util.logging.Level
 
 class EmailTransport : ITransport {

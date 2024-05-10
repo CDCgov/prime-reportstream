@@ -1,7 +1,8 @@
 package gov.cdc.prime.router.history.azure
 
-import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.history.db.DatabaseDeliveryAccess
+import gov.cdc.prime.router.settings.Organization
 import io.mockk.every
 import io.mockk.mockkObject
 import kotlin.test.Test
@@ -26,6 +27,7 @@ val mockElimsTestOrg = Organization(
     null,
     listOf("ELIMS_DATA"),
 )
+
 class HistoryDatabaseAccessTests {
     @Test
     fun `test organizationFilter`() {
