@@ -2,6 +2,7 @@ package gov.cdc.prime.router.history.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import gov.cdc.prime.router.api.azure.v0.ReportFileFunction
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import org.junit.jupiter.api.Nested
 import java.net.URLEncoder
