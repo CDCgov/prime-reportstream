@@ -32,7 +32,7 @@ import java.util.Properties
 plugins {
     val kotlinVersion by System.getProperties()
     kotlin("jvm") version "$kotlinVersion"
-    id("org.flywaydb.flyway") version "10.11.0"
+    id("org.flywaydb.flyway") version "10.12.0"
     id("nu.studer.jooq") version "9.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.14.0"
@@ -801,7 +801,7 @@ buildscript {
         // will need to be removed once this issue is resolved in Maven.
         classpath("net.minidev:json-smart:2.5.1")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
-        classpath("org.flywaydb:flyway-database-postgresql:10.11.0")
+        classpath("org.flywaydb:flyway-database-postgresql:10.12.0")
     }
 }
 
@@ -884,8 +884,8 @@ dependencies {
     implementation("commons-io:commons-io:2.16.0")
     implementation("org.postgresql:postgresql:42.7.3")
     implementation("com.zaxxer:HikariCP:5.1.0")
-    implementation("org.flywaydb:flyway-core:10.11.0")
-    implementation("org.flywaydb:flyway-database-postgresql:10.11.0")
+    implementation("org.flywaydb:flyway-core:10.12.0")
+    implementation("org.flywaydb:flyway-database-postgresql:10.12.0")
     implementation("org.commonmark:commonmark:0.22.0")
     implementation("com.google.guava:guava:33.1.0-jre")
     implementation("com.helger.as2:as2-lib:5.1.2")
