@@ -406,7 +406,7 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
-    - name: MARS_OTC_ELR_E2E
+    - name: MARS_OTC_ELR_E2E      # For the E2E UP test
       externalName: Ignore MARS_OTC_ELR_E2E
       organizationName: ignore
       topic: mars-otc-elr

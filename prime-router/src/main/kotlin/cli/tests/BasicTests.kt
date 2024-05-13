@@ -76,11 +76,11 @@ class Ping : CoolTest() {
  * the expected receiver(s), then verifies the contents of the file match the expected contents.
  * This test runs through the following scenarios:
  * - A report that is submitted as HL7 and is sent as HL7 and FHIR (Topic: FULL-ELR).
- * - A report that is submitted as HL7 and is sent as HL7 and FHIR (Topic: MARS-OTC-ELR). // todo FHIR
- *     - This report contains multiple items, one of which is filtered out during validation
+ * - A report that is submitted as HL7 and is sent as HL7 and FHIR (Topic: MARS-OTC-ELR).
+ *     - This report contains multiple items, one of which is invalid and filtered out during validation
  * - A report that is submitted as HL7 and is sent as HL7 but has isSendOriginal set to true (Topic: ELR-ELIMS).
  * - A report that is submitted as FHIR and is sent as FHIR (Topic: FULL-ELR).
- * - A report that is submitted as FHIR and is sent as FHIR (Topic: MARS-OTC-ELR). // todo, filtering for fhir?
+ * - A report that is submitted as FHIR and is sent as FHIR (Topic: MARS-OTC-ELR).
  */
 class End2EndUniversalPipeline : CoolTest() {
     override val name = "end2end_up"
@@ -104,6 +104,7 @@ class End2EndUniversalPipeline : CoolTest() {
             echo("\nStarting validation for scenario: ${it.name}")
 
             it.historyResponse = pauseForBatchProcess(environment, it.reportId)
+            echo(it.historyResponse)
 
             if (it.historyResponse.isEmpty()) {
                 passed = bad("***$name test FAILED***: One or more reports failed batch step.")
@@ -158,6 +159,7 @@ class End2EndUniversalPipeline : CoolTest() {
         val pollSleepSecs = 5
         var timeElapsedSecs = 0
         var overallStatus = ""
+        var finalResponse = ""
 
         echo("Polling for history endpoint for report ID: $reportId. (Max poll time $maxPollSecs seconds)")
         while (timeElapsedSecs <= maxPollSecs) {
@@ -179,16 +181,17 @@ class End2EndUniversalPipeline : CoolTest() {
 
             if (DetailedSubmissionHistory.Status.DELIVERED.toString() == overallStatus) {
                 good("Report $reportId status was $overallStatus after $timeElapsedSecs seconds")
-                echo(response)
                 return response
             }
+
+            finalResponse = response
         }
 
         bad(
             "***$name test FAILED***: Batch step polling for report $reportId failed. " +
                 "After $timeElapsedSecs seconds the report status is $overallStatus."
         )
-        return ""
+        return finalResponse
     }
 
     /**

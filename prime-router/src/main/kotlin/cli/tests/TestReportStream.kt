@@ -950,8 +950,8 @@ abstract class CoolTest {
         val elimsReceiver = settings.receivers.filter {
             it.organizationName == org1Name && it.name == "ELR_ELIMS"
         }[0]
-        val marsReceiver = settings.receivers.filter {
-            it.organizationName == org1Name && it.name == "MARS_OTC_ELR"
+        val hl7MarsOTCReceiver = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "MARS_OTC_ELR_E2E"
         }[0]
         val csvReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "CSV" }[0]
         val hl7Receiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7" }[0]
@@ -1010,11 +1010,11 @@ abstract class CoolTest {
                     )
                 ),
                 E2EData(
-                    "Sending HL7 Report, Receiving HL7/FHIR (mars-otc-elr)",
+                    "Sending HL7 Report, Receiving HL7/FHIR (mars-otc-elr); Invalid HL7 Items Filtered Out",
                     File("$smoketestDir/valid_mars.hl7"),
                     marsOTCELRSender,
                     arrayListOf(
-                        Pair(marsReceiver, File("$smoketestDir/Expected_HL7_to_HL7_MARSOTC.hl7")),
+                        Pair(hl7MarsOTCReceiver, File("$smoketestDir/Expected_HL7_to_HL7_MARSOTC.hl7")),
                         Pair(fhirMarsReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_MARSOTC.fhir"))
                     )
                 ),
