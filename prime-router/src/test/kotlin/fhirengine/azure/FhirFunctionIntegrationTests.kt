@@ -1392,7 +1392,7 @@ class FhirFunctionIntegrationTests() {
             @Suppress("ktlint:standard:max-line-length")
             assertThat(actionLogs.first()).transform { it.detail.message }
                 .isEqualTo(
-                    "Item 1 in the report was not valid. Reason: HL7 was not valid at OBX[1]-19[1].1"
+                    "Item 1 in the report was not valid. Reason: HL7 was not valid at OBX[1]-19[1].1 for validator: RADx MARS"
                 )
         }
     }
