@@ -27,7 +27,7 @@ import org.jooq.meta.jaxb.ForcedType
 import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Properties
+import java.util.*
 
 plugins {
     val kotlinVersion by System.getProperties()
@@ -602,6 +602,7 @@ dockerCompose {
     // Starting in version 0.17 the plugin changed the default to true, meaning our docker compose yaml files
     // get run with `docker compose` rather than `docker-compose`
     useDockerComposeV2.set(true)
+    composeAdditionalArgs = listOf("--env-file", ".env.development", "--env-file", ".env.development.local")
 }
 
 tasks.azureFunctionsRun {
@@ -946,6 +947,9 @@ dependencies {
     runtimeOnly("com.squareup.okio:okio:3.9.0")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
+
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:2.4.1")
+    implementation("io.github.jan-tennert.supabase:serializer-jackson:2.4.1")
 
     testImplementation(kotlin("test-junit5"))
     testImplementation("io.mockk:mockk:1.13.10")

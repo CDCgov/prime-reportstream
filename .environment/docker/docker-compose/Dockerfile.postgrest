@@ -1,0 +1,1 @@
+FROM postgrest/postgrest:v12.0.3

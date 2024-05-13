@@ -15,7 +15,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.db.ReportGraph
-import java.util.UUID
+import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
 /**
@@ -83,6 +83,10 @@ class SubmissionFunction(
         )
     }
 
+    override suspend fun _historyAsJson(queryParams: MutableMap<String, String>, userOrgName: String): String {
+        TODO("Not yet implemented")
+    }
+
     /**
      * Get expanded details for a single report
      *
@@ -103,7 +107,7 @@ class SubmissionFunction(
      * the organization in the URL path, after first confirming authorization to access that organization.
      */
     @FunctionName("getOrgSubmissionsList")
-    fun getOrgSubmissionsList(
+    suspend fun getOrgSubmissionsList(
         @HttpTrigger(
             name = "getOrgSubmissionsList",
             methods = [HttpMethod.GET],

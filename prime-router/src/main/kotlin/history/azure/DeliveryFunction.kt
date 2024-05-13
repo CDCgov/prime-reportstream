@@ -18,15 +18,19 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryHistory
+import gov.cdc.prime.router.history.SDeliveryHistory
 import gov.cdc.prime.router.history.db.DeliveryApiSearch
 import gov.cdc.prime.router.history.db.DeliveryDatabaseAccess
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.history.db.SubmitterApiSearch
 import gov.cdc.prime.router.history.db.SubmitterDatabaseAccess
 import gov.cdc.prime.router.report.ReportService
+import gov.cdc.prime.router.supabase
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
-import java.util.UUID
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.runBlocking
+import java.util.*
 
 /**
  * Deliveries API
@@ -108,6 +112,20 @@ class DeliveryFunction(
         return mapper.writeValueAsString(deliveries)
     }
 
+    override suspend fun _historyAsJson(queryParams: MutableMap<String, String>, userOrgName: String): String {
+        // val params = HistoryApiParameters(queryParams)
+
+        val deliveriesList = supabase.from("delivery").select {
+            filter {
+                eq("receiving_org", userOrgName)
+            }
+        }
+        logger.warn("DEBUG ${deliveriesList.data}")
+        val deliveries = deliveriesList.decodeList<SDeliveryHistory>()
+
+        return mapper.writeValueAsString(deliveries)
+    }
+
     /**
      * Get expanded details for a single report
      *
@@ -168,8 +186,8 @@ class DeliveryFunction(
             route = "waters/org/{organization}/deliveries"
         ) request: HttpRequestMessage<String?>,
         @BindingName("organization") organization: String,
-    ): HttpResponseMessage {
-        return this.getListByOrg(request, organization)
+    ) = runBlocking<HttpResponseMessage> {
+        return@runBlocking getListByOrg(request, organization)
     }
 
     /**

@@ -29,7 +29,7 @@ import java.net.URLEncoder
 import java.nio.charset.Charset
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
-import java.util.UUID
+import java.util.*
 import java.util.logging.Logger
 
 /**
@@ -69,6 +69,15 @@ abstract class ReportFileFunction(
     abstract fun historyAsJson(queryParams: MutableMap<String, String>, userOrgName: String): String
 
     /**
+     * Get history entries as a list
+     *
+     * @param queryParams Parameters extracted from the HTTP Request
+     * @param userOrgName Name of the organization
+     * @return json list of history
+     */
+    abstract suspend fun _historyAsJson(queryParams: MutableMap<String, String>, userOrgName: String): String
+
+    /**
      * Get expanded details for a single report
      *
      * @param queryParams Parameters extracted from the HTTP Request
@@ -93,7 +102,7 @@ abstract class ReportFileFunction(
      * @param organization Name of the organization sending or receiving this report.
      * @return JSON of the report list or errors.
      */
-    fun getListByOrg(
+    suspend fun getListByOrg(
         request: HttpRequestMessage<String?>,
         organization: String,
     ): HttpResponseMessage {
@@ -127,7 +136,7 @@ abstract class ReportFileFunction(
                 return HttpUtilities.badRequestResponse(request, "Either reportId or fileName can be provided")
             }
 
-            return HttpUtilities.okResponse(request, this.historyAsJson(request.queryParameters, userOrgName))
+            return HttpUtilities.okResponse(request, this._historyAsJson(request.queryParameters, userOrgName))
         } catch (e: IllegalArgumentException) {
             return HttpUtilities.badRequestResponse(request, HttpUtilities.errorJson(e.message ?: "Invalid Request"))
         }

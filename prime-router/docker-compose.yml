@@ -1,38 +1,40 @@
 # This docker compose file is intended to set up a developer environment
-version: "3.3"
 services:
   # This container runs our Azure function code.
   prime_dev:
+    env_file:
+      # On first run of docker compose create this file, it will get populated, but docker compose doesn't allow optional env_file
+      # Example: touch .vault/env/.env.local
+      # https://github.com/docker/compose/pull/3955
+      - ./.vault/env/.env.local
+    hostname: $PRIME_RS_API_ENDPOINT_HOST
     build:
       context: .
       dockerfile: Dockerfile.dev
       args:
-        INSECURE_SSL: "${PRIME_DATA_HUB_INSECURE_SSL:-true}"
+        INSECURE_SSL: $PRIME_DATA_HUB_INSECURE_SSL
     volumes: # Attach the PWD into the image
       - type: bind
         source: ./build
         target: /prime-data-hub-router
     # start server regardless of apidocs setup
     command: bash -c "/prime-data-hub-router/upload_swaggerui.sh ; /prime-data-hub-router/start_func.sh"
-    env_file:
-      # On first run of docker compose create this file, it will get populated, but docker compose doesn't allow optional env_file
-      # Example: touch .vault/env/.env.local
-      # https://github.com/docker/compose/pull/3955
-      - ./.vault/env/.env.local
     environment:
       # this storage account key is not a secret. It just looks like one.
-      - AzureWebJobsStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
-      - PartnerStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
-      - POSTGRES_USER=prime
-      - POSTGRES_PASSWORD=changeIT!
+      AzureWebJobsStorage:
+      PartnerStorage:
+      POSTGRES_USER:
+      POSTGRES_PASSWORD:
       # postgresql comes from the build environment; it is accessible because we are connected to the build network (see "networks")
-      - POSTGRES_URL=jdbc:postgresql://postgresql:5432/prime_data_hub
-      - PRIME_ENVIRONMENT=local
-      - RS_OKTA_baseUrl=reportstream.oktapreview.com
-      - RS_OKTA_clientId=0oa8uvan2i07YXJLk1d7
-      - RS_OKTA_redirect=http://localhost:7071/api/download
-      - VAULT_API_ADDR=http://vault:8200
-      - FHIR_ENGINE_TEST_PIPELINE=enabled
+      POSTGRES_URL:
+      PRIME_ENVIRONMENT:
+      RS_OKTA_baseUrl:
+      RS_OKTA_clientId:
+      RS_OKTA_redirect:
+      VAULT_API_ADDR:
+      FHIR_ENGINE_TEST_PIPELINE:
+      PRIME_DATA_HUB_INSECURE_SSL:
+      PRIME_RS_API_ENDPOINT_HOST:
     depends_on:
       - azurite
       - vault
@@ -139,6 +141,29 @@ services:
     command: "/vault/config/init.sh"
     networks:
       - prime-router_build
+
+  postgrest:
+    build:
+      context: ../.environment/docker/docker-compose/
+      dockerfile: Dockerfile.postgrest
+    ports:
+      - 3002:3002
+    # Available environment variables documented here:
+    # https://postgrest.org/en/latest/configuration.html#environment-variables
+    environment:
+      # The standard connection URI format, documented at
+      # https://www.postgresql.org/docs/current/static/libpq-connect.html#LIBPQ-CONNSTRING
+      - PGRST_DB_URI=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgresql:5432/${DB_SCHEMA}
+      # The name of which database schema to expose to REST clients
+      - PGRST_DB_SCHEMA=public
+      # The database role to use when no client authentication is provided
+      - PGRST_DB_ANON_ROLE=${POSTGRES_USER}
+      # Overrides the base URL used within the OpenAPI self-documentation hosted at the API root path
+      - PGRST_OPENAPI_SERVER_PROXY_URI=http://localhost:3002
+      - PGRST_SERVER_PORT=3002
+    networks:
+      - prime-router_build
+    restart: always
 
 volumes:
   # For storing a local encrypted secrets database

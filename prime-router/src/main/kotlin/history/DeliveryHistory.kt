@@ -9,6 +9,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
+import kotlinx.serialization.Serializable
 import java.time.OffsetDateTime
 
 /**
@@ -35,6 +36,73 @@ import java.time.OffsetDateTime
         "reportId", "topic", "reportItemCount", "fileName", "fileType", "originalIngestion"
     ]
 )
+@Serializable
+data class SDeliveryHistory(
+    @JsonProperty("deliveryId")
+    val action_id: Long,
+    @JsonProperty("batchReadyAt")
+    val created_at: String,
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("externalName")
+    val external_name: String? = "",
+    @JsonProperty("reportId")
+    val report_id: String? = null,
+    @JsonProperty("topic")
+    val schema_topic: String? = null,
+    @JsonProperty("reportItemCount")
+    val item_count: Int? = null,
+    @JsonIgnore // Instead, use receiver, defined below.
+    val receiving_org: String,
+    @JsonIgnore // Instead, use receiver, defined below.
+    val receiving_org_svc: String?,
+    @JsonIgnore
+    val body_url: String? = null,
+    @JsonIgnore
+    val schema_name: String,
+    @JsonProperty("fileType")
+    val body_format: String,
+    @JsonProperty("receivingOrgSvcStatus")
+    val receiving_org_svc_status: String? = null,
+) {
+    @JsonIgnore
+    private val DAYS_TO_SHOW = 30L
+
+    /**
+     * The time that the report is expected to no longer be available.
+     */
+    val expires: OffsetDateTime
+        get() {
+            return OffsetDateTime.parse(this.created_at).plusDays(DAYS_TO_SHOW)
+        }
+
+    /**
+     * The actual download path for the file.
+     */
+    val fileName: String
+        get() {
+            return Report.formExternalFilename(
+                this.body_url,
+                ReportId.fromString(this.report_id),
+                this.schema_name,
+                Report.Format.safeValueOf(this.body_format),
+                OffsetDateTime.parse(this.created_at)
+            )
+        }
+
+    /**
+     * The fullName of the recipient of the input report, or less, if missing some fields.
+     */
+    var receiver: String? = ""
+
+    init {
+        receiver = when {
+            receiving_org.isNullOrBlank() -> ""
+            receiving_org_svc.isNullOrBlank() -> receiving_org
+            else -> Receiver.createFullName(receiving_org, receiving_org_svc)
+        }
+    }
+}
+
 class DeliveryHistory(
     @JsonProperty("deliveryId")
     actionId: Long,
