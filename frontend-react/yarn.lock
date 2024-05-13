@@ -11611,12 +11611,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"otpauth@npm:^9.2.3":
-  version: 9.2.3
-  resolution: "otpauth@npm:9.2.3"
+"otpauth@npm:^9.2.4":
+  version: 9.2.4
+  resolution: "otpauth@npm:9.2.4"
   dependencies:
     jssha: ~3.3.1
-  checksum: 5022ebc3edb90dc3a46bc105c6cdc28c157e1351f5491efc00e5ea38c4c24fd7819ec5b5c8d6069ec3ab49e5ce036f14890b57ecfdd9e7c85767676582c266e0
+  checksum: c9cdd82f5cea4484c0a9304fe5308376976ee991e5118886ff7d741d11196e6c5c8d3fba7232b97e8cbd20289b570120c64c2a05c529bcbe4846067dc6fa00c2
   languageName: node
   linkType: hard
 
@@ -12574,7 +12574,7 @@ __metadata:
     msw: ^2.2.14
     msw-storybook-addon: beta
     npm-run-all: ^4.1.5
-    otpauth: ^9.2.3
+    otpauth: ^9.2.4
     patch-package: ^8.0.0
     postcss: ^8.4.38
     prettier: ^3.2.5
