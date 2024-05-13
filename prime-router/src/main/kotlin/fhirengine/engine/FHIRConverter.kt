@@ -31,6 +31,7 @@ import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.ReportCreatedEvent
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
@@ -83,6 +84,7 @@ class FHIRConverter(
             is FhirConvertQueueMessage -> {
                 fhirEngineRunResults(message, message.schemaName, actionLogger, actionHistory)
             }
+
             else -> {
                 throw RuntimeException(
                     "Message was not a FhirConvert and cannot be processed: $message"
@@ -101,6 +103,17 @@ class FHIRConverter(
         actionHistory.trackExistingInputReport(queueMessage.reportId)
         val format = Report.getFormatFromBlobURL(queueMessage.blobURL)
         logger.trace("Processing $format data for FHIR conversion.")
+
+        // This line is a workaround for a defect in the hapi-fhir library
+        // Specifically https://github.com/hapifhir/hapi-fhir/blob/b555498c9b7824af67b219e5b7b85f7992aec991/hapi-fhir-serviceloaders/hapi-fhir-caching-api/src/main/java/ca/uhn/fhir/sl/cache/CacheFactory.java#L32
+        // which creates a static instance of ServiceLoader which the documentation indicates is not safe to use in a
+        // concurrent setting https://arc.net/l/quote/hauavetq.  See also this closed issue https://github.com/jakartaee/jsonp-api/issues/26#issuecomment-364844610
+        // for someone requesting a similar change in another library and the reasoning why it can't be done that way
+        //
+        // This line exists so that FhirPathUtils (an object) is instantiated before any of the multi-threaded code run
+        // (kotlin objects are instantiated at first access https://arc.net/l/quote/tbvpqnlh)
+        // TODO: https://github.com/CDCgov/prime-reportstream/issues/14287
+        FhirPathUtils
 
         val fhirBundles = process(format, queueMessage, actionLogger)
 
@@ -122,15 +135,6 @@ class FHIRConverter(
                 ).map { (bundle, bundleIndex) ->
                     // conduct FHIR Transform
                     transformer?.process(bundle)
-
-                    // 'stamp' observations with their condition code
-                    bundle.getObservations().forEach {
-                        // TODO: https://github.com/CDCgov/prime-reportstream/issues/14114
-                        it.addMappedConditions(metadata).run {
-                            actionLogger.getItemLogger(bundleIndex.toInt() + 1, it.id)
-                                .warn(this)
-                        }
-                    }
 
                     // TODO: https://github.com/CDCgov/prime-reportstream/issues/14115
                     // make a 'report'
@@ -255,6 +259,7 @@ class FHIRConverter(
                         emptyList()
                     }
                 }
+
                 Report.Format.FHIR -> {
                     LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                         "Processed raw message into items",
@@ -266,6 +271,7 @@ class FHIRConverter(
                         getBundlesFromRawFHIR(rawReport, validator)
                     }
                 }
+
                 else -> {
                     logger.error("Received unsupported report format: $format")
                     actionLogger.error(InvalidReportMessage("Received unsupported report format: $format"))
@@ -278,6 +284,13 @@ class FHIRConverter(
                 val error = item.getError()
                 if (error != null) {
                     actionLogger.getItemLogger(error.index + 1).error(error)
+                }
+                // 'stamp' observations with their condition code
+                item.bundle?.getObservations()?.forEach {
+                    it.addMappedConditions(metadata).run {
+                        actionLogger.getItemLogger(item.index + 1, it.id)
+                            .warn(this)
+                    }
                 }
                 item.bundle
             }
