@@ -2,13 +2,12 @@ package gov.cdc.prime.router.tokens
 
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.KeyType
-import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
+import gov.cdc.prime.router.settings.Organization
 import io.jsonwebtoken.Jwts
 import java.io.File
 import java.security.PrivateKey
-import java.util.Date
-import java.util.UUID
+import java.util.*
 
 class AuthUtils {
 
@@ -155,6 +154,7 @@ class AuthUtils {
                     }
                     return ecPrivateKey
                 }
+
                 KeyType.RSA -> {
                     val prefix = "Cannot convert pemFile to RSA Key. "
                     if (jwk.d == null) error("$prefix This looks like a public key.  Key must be a private key.")
@@ -167,6 +167,7 @@ class AuthUtils {
                     }
                     return rsaPrivateKey
                 }
+
                 else -> {
                     error("keyType is ${nimbusdsJwk.keyType}.  Expecting 'EC or RSA'.")
                 }

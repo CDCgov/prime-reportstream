@@ -8,26 +8,26 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
-import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.CustomConfiguration
-import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.DefaultValues
-import gov.cdc.prime.router.FakeReport
-import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.LegacyPipelineSender
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.actions.ActionLog
+import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.report.DefaultValues
+import gov.cdc.prime.router.report.FakeReport
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.report.Schema
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
+import gov.cdc.prime.router.settings.CustomerStatus
+import gov.cdc.prime.router.settings.FileSettings
+import gov.cdc.prime.router.settings.LegacyPipelineSender
+import gov.cdc.prime.router.settings.Receiver
+import gov.cdc.prime.router.settings.Sender
+import gov.cdc.prime.router.settings.SettingsProvider
+import gov.cdc.prime.router.settings.Topic
 import java.io.File
 import java.io.OutputStream
 import java.net.HttpURLConnection
@@ -279,6 +279,7 @@ class ProcessData(
                 )
                 handleReadResult(result)
             }
+
             else -> {
                 val csvSerializer = CsvSerializer(metadata)
                 return if (FileUtilities.isInternalFile(file)) {
@@ -407,6 +408,7 @@ class ProcessData(
                     )
                 }
             }
+
             is InputClientInfo.InputSchema -> {
                 val inputSchema = (inputClientInfo as InputClientInfo.InputSchema).schemaName
                 val schName = inputSchema.lowercase()
@@ -417,6 +419,7 @@ class ProcessData(
                 }.randomOrNull()
                 Pair(metadata.findSchema(schName), sender)
             }
+
             else -> {
                 error("input schema or client's name must be specified")
             }
@@ -429,13 +432,16 @@ class ProcessData(
                     metadata, schema, sender, fileSettings,
                     (inputSource as InputSource.ListOfFilesSource).commaSeparatedList
                 )
+
             is InputSource.FileSource ->
                 readReportFromFile(
                     metadata, schema, sender, fileSettings,
                     (inputSource as InputSource.FileSource).fileName
                 )
+
             is InputSource.DirSource ->
                 TODO("Dir source is not implemented")
+
             is InputSource.FakeSource -> {
                 FakeReport(metadata).build(
                     schema as Schema,
@@ -446,6 +452,7 @@ class ProcessData(
                     includeNcesFacilities
                 )
             }
+
             else -> {
                 error("input source must be specified")
             }
@@ -494,6 +501,7 @@ class ProcessData(
                 reports.filter { it.report.itemCount > 0 }
                     .map { it.report to getOutputFormat(it.receiver.format) }
             }
+
             routeTo != null -> {
                 val pair = translator.translate(
                     input = inputReport,
@@ -506,6 +514,7 @@ class ProcessData(
                     emptyList()
                 }
             }
+
             outputSchema != null -> {
                 val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
                 val mapping = translator.buildMapping(
@@ -522,6 +531,7 @@ class ProcessData(
                 val toReport = inputReport.applyMapping(mapping)
                 listOf(Pair(toReport, getOutputFormat(Report.Format.CSV)))
             }
+
             else -> listOf(Pair(inputReport, getOutputFormat(Report.Format.CSV)))
         }
 
@@ -568,6 +578,7 @@ class ProcessData(
                     }
                     hl7Serializer.write(reportWithTranslation, stream)
                 }
+
                 Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream)
                 else -> throw UnsupportedOperationException("Unsupported ${report.bodyFormat}")
             }

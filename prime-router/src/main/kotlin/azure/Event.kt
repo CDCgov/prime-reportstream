@@ -1,17 +1,17 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.engine.BatchEventQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ProcessEventQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportEventQueueMessage
+import gov.cdc.prime.router.report.Options
 import gov.cdc.prime.router.transport.RetryToken
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
-import java.util.UUID
+import java.util.*
 
 /**
  * An event represents a function call, either one that has just happened or one that will happen in the future.
@@ -73,6 +73,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 SEND,
                 WIPE,
                 -> this.toString().lowercase()
+
                 else -> null
             }
         }
@@ -114,6 +115,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                         at
                     )
                 }
+
                 is BatchEventQueueMessage -> {
                     val at = if (message.at.isNotEmpty()) {
                         OffsetDateTime.parse(message.at)
@@ -127,6 +129,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                         at
                     )
                 }
+
                 is ProcessEventQueueMessage -> {
                     val at = if (message.at.isNotEmpty()) {
                         OffsetDateTime.parse(message.at)
@@ -142,6 +145,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                         at
                     )
                 }
+
                 else -> error("Internal Error: invalid event type: $event")
             }
         }

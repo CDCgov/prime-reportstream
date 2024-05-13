@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.db
 
-import gov.cdc.prime.router.azure.DatabaseAccess
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtensionContext

@@ -2,6 +2,10 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import gov.cdc.prime.router.api.ApiResponse
+import gov.cdc.prime.router.api.ApiSearchResult
+import gov.cdc.prime.router.api.MetaApiResponse
+import gov.cdc.prime.router.api.PaginationApiResponse
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
 

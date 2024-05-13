@@ -3,30 +3,30 @@ package gov.cdc.prime.router.azure.batch
 import assertk.assertFailure
 import assertk.assertions.hasClass
 import gov.cdc.prime.router.CustomConfiguration
-import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.DeepOrganization
-import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FHIRConfiguration
-import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BatchEvent
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.db.DatabaseAccess
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
+import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.report.Element
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.report.Schema
+import gov.cdc.prime.router.settings.CustomerStatus
+import gov.cdc.prime.router.settings.DeepOrganization
+import gov.cdc.prime.router.settings.FileSettings
+import gov.cdc.prime.router.settings.Organization
+import gov.cdc.prime.router.settings.Receiver
+import gov.cdc.prime.router.settings.SettingsProvider
+import gov.cdc.prime.router.settings.Topic
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.clearMocks
@@ -45,7 +45,7 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 
 class UniversalBatchFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }

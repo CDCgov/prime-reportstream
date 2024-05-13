@@ -1,7 +1,5 @@
 package gov.cdc.prime.router.metadata
 
-import gov.cdc.prime.router.Metadata
-
 object LivdLookup {
     val livdTableName = "LIVD-SARS-CoV-2"
 
@@ -54,16 +52,19 @@ object LivdLookup {
                 deviceId,
                 filtersCopy
             )
+
             !equipmentModelId.isNullOrEmpty() -> lookupByEquipmentUid(
                 tableColumn,
                 equipmentModelId,
                 filtersCopy
             )
+
             !testKitNameId.isNullOrEmpty() -> lookupByTestkitId(
                 tableColumn,
                 testKitNameId,
                 filtersCopy
             )
+
             !equipmentModelName.isNullOrEmpty() -> lookupByEquipmentModelName(
                 tableColumn, equipmentModelName, filtersCopy
             )

@@ -2,11 +2,6 @@ package gov.cdc.prime.router.transport
 
 import com.google.common.base.Preconditions
 import com.microsoft.azure.functions.ExecutionContext
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.SoapTransportType
-import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -14,8 +9,11 @@ import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.SoapCredential
 import gov.cdc.prime.router.credentials.UserJksCredential
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.report.ReportId
 import gov.cdc.prime.router.serializers.SoapEnvelope
 import gov.cdc.prime.router.serializers.SoapObjectService
+import gov.cdc.prime.router.settings.Receiver
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
@@ -39,7 +37,7 @@ import java.io.InputStream
 import java.io.StringReader
 import java.io.StringWriter
 import java.security.KeyStore
-import java.util.Base64
+import java.util.*
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.xml.transform.OutputKeys
@@ -111,6 +109,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                     // return just the body of the message
                     return prettyPrintXmlResponse(body)
                 }
+
                 else -> {
                     // default to this if we don't get SOAP12 in the receiver settings.
                     val response: HttpResponse = client.post(soapEndpoint) {
@@ -238,6 +237,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                     actionHistory.trackActionResult(msg)
                     null
                 }
+
                 is ServerResponseException -> {
                     // this is largely duplicated code as below, but we may want to add additional
                     // instrumentation based on the specific error type we're getting. One benefit
@@ -253,6 +253,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                     actionHistory.trackActionResult(msg)
                     RetryToken.allItems
                 }
+
                 else -> {
                     // this is an unknown exception, and maybe not one related to ktor, so we should
                     // track, but try again

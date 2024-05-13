@@ -2,7 +2,7 @@ package gov.cdc.prime.router.validation
 
 import assertk.assertThat
 import assertk.assertions.isFalse
-import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.actions.ActionLogger
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.junit.jupiter.api.Test
 

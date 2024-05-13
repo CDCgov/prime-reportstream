@@ -23,24 +23,16 @@ import ca.uhn.hl7v2.util.Terser
 import com.anyascii.AnyAscii
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.google.i18n.phonenumbers.Phonenumber
-import gov.cdc.prime.router.ActionError
-import gov.cdc.prime.router.ActionLogDetail
-import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.ElementNormalizeException
-import gov.cdc.prime.router.ErrorCode
-import gov.cdc.prime.router.FieldPrecisionMessage
-import gov.cdc.prime.router.FieldProcessingMessage
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.InvalidHL7Message
-import gov.cdc.prime.router.ItemActionLogDetail
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
-import gov.cdc.prime.router.ValueSet
+import gov.cdc.prime.router.actions.ActionError
+import gov.cdc.prime.router.actions.ActionLogDetail
+import gov.cdc.prime.router.actions.ActionLogger
+import gov.cdc.prime.router.actions.ErrorCode
+import gov.cdc.prime.router.actions.FieldPrecisionMessage
+import gov.cdc.prime.router.actions.FieldProcessingMessage
+import gov.cdc.prime.router.actions.InvalidHL7Message
+import gov.cdc.prime.router.actions.ItemActionLogDetail
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.formatDateTimeForReceiver
 import gov.cdc.prime.router.common.Hl7Utilities
@@ -56,10 +48,17 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.getHL7
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.formPathSpec
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mapper
+import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.report.Element
+import gov.cdc.prime.router.report.ElementNormalizeException
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.report.Schema
+import gov.cdc.prime.router.report.ValueSet
+import gov.cdc.prime.router.settings.Sender
+import gov.cdc.prime.router.settings.SettingsProvider
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
-import java.lang.IllegalArgumentException
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -1203,6 +1202,7 @@ class Hl7Serializer(
                 element.valueSet,
                 element.valueSetRef
             )
+
             Element.Type.TELEPHONE -> setTelephoneComponent(
                 terser,
                 trimmedValue,
@@ -1210,6 +1210,7 @@ class Hl7Serializer(
                 element,
                 phoneNumberFormatting
             )
+
             Element.Type.EMAIL -> setEmailComponent(terser, trimmedValue, element, hl7Config)
             Element.Type.POSTAL_CODE -> setPostalComponent(terser, trimmedValue, pathSpec, element)
             Element.Type.DATE, Element.Type.DATETIME -> setDateTimeComponent(
@@ -1220,6 +1221,7 @@ class Hl7Serializer(
                 report,
                 element
             )
+
             else -> {
                 val truncatedValue = trimAndTruncateValue(trimmedValue, hl7Field, hl7Config, terser)
                 terser.set(pathSpec, truncatedValue)
@@ -1359,6 +1361,7 @@ class Hl7Serializer(
                     terser.set(pathSpec, value)
                 }
             }
+
             else -> {
                 terser.set(pathSpec, value)
             }
@@ -1387,6 +1390,7 @@ class Hl7Serializer(
                 val nextComponent = nextComponent(pathSpec)
                 terser.set(nextComponent, "CLIA")
             }
+
             in CE_FIELDS -> {
                 // HD and CE don't have the same format. for the CE field, we have
                 // something that sits in the middle between the CLIA and the field
@@ -1462,10 +1466,12 @@ class Hl7Serializer(
                     terser.set(buildComponent(pathSpec, 1), phoneNumber)
                     terser.set(buildComponent(pathSpec, 2), component1)
                 }
+
                 Hl7Configuration.PhoneNumberFormatting.ONLY_DIGITS_IN_COMPONENT_ONE -> {
                     terser.set(buildComponent(pathSpec, 1), "$areaCode$local")
                     terser.set(buildComponent(pathSpec, 2), component1)
                 }
+
                 Hl7Configuration.PhoneNumberFormatting.AREA_LOCAL_IN_COMPONENT_ONE -> {
                     // Added for backward compatibility
                     terser.set(buildComponent(pathSpec, 1), "($areaCode)$local")
@@ -1571,6 +1577,7 @@ class Hl7Serializer(
         val element = when {
             value == "UNK" && elementOrg.name == "pregnant" ->
                 elementOrg.copy(type = Element.Type.CODE, valueSet = "covid-19/pregnant_aoe")
+
             value == "UNK" -> elementOrg.copy(type = Element.Type.CODE, valueSet = "hl70136")
             else -> elementOrg
         }
@@ -1594,12 +1601,14 @@ class Hl7Serializer(
             } else {
                 setCodeComponent(terser, value, formPathSpec("OBX-5", aoeRep), element.valueSet)
             }
+
             Element.Type.NUMBER -> {
                 if (element.name != "patient_age") TODO("support other types of AOE numbers")
                 if (units == null) error("Schema Error: expected age units")
                 setComponent(terser, element, "OBX-5", aoeRep, value, report)
                 setCodeComponent(terser, units, formPathSpec("OBX-6", aoeRep), "patient_age_units")
             }
+
             else -> setComponent(terser, element, "OBX-5", aoeRep, value, report)
         }
         // convert to local date time if that's what the receiver wants
@@ -1926,6 +1935,7 @@ class Hl7Serializer(
                             }
                         }
                     }
+
                     Element.Type.EMAIL -> {
                         if (xtnValue.telecommunicationEquipmentType.isEmpty ||
                             xtnValue.telecommunicationEquipmentType.valueOrEmpty == "Internet"
@@ -1933,6 +1943,7 @@ class Hl7Serializer(
                             strValue = element.toNormalized(xtnValue.emailAddress.valueOrEmpty)
                         }
                     }
+
                     else -> error("${element.type} is unsupported to decode telecom data.")
                 }
             }
@@ -2007,6 +2018,7 @@ class Hl7Serializer(
                         }
                         rawValue = value.toString()
                     }
+
                     is DT -> {
                         dtm = LocalDate.of(value.year, value.month, value.day)
                             .atStartOfDay(ZoneId.systemDefault()).toInstant()
@@ -2032,6 +2044,7 @@ class Hl7Serializer(
                                 )
                             }
                         }
+
                         Element.Type.DATE -> {
                             valueString = DateTimeFormatter.ofPattern(DateUtilities.datePattern)
                                 .format(OffsetDateTime.ofInstant(dtm, ZoneId.of("Z")))
@@ -2048,6 +2061,7 @@ class Hl7Serializer(
                                 )
                             }
                         }
+
                         else -> throw IllegalStateException("${element.type} not supported by decodeHl7DateTime")
                     }
                 }
@@ -2348,6 +2362,7 @@ class HL7HapiErrorProcessor : Logging {
                         "refer to the HL7 specification and resubmit.",
                     ErrorCode.INVALID_HL7_MSG_FORMAT_INVALID
                 )
+
             else -> // try to handle an HL7 field error
                 if (exception.location != null) {
                     val cleanedFieldName = getCleanedField(exception.location.toString())

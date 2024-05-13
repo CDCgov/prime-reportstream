@@ -5,14 +5,14 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
-import gov.cdc.prime.router.CovidSender
-import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.NPIUtilities
+import gov.cdc.prime.router.report.Element
+import gov.cdc.prime.router.report.Schema
+import gov.cdc.prime.router.settings.CovidSender
+import gov.cdc.prime.router.settings.CustomerStatus
+import gov.cdc.prime.router.settings.Sender
+import gov.cdc.prime.router.settings.Sender.ProcessingType
+import gov.cdc.prime.router.settings.Topic
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.assertFails
@@ -308,7 +308,7 @@ class MapperTests {
             format = Sender.Format.CSV,
             CustomerStatus.ACTIVE,
             "mySchemaName",
-            processingType = Sender.ProcessingType.async
+            processingType = ProcessingType.async
         )
         val elementA = Element("a")
         val mapper = UseSenderSettingMapper()

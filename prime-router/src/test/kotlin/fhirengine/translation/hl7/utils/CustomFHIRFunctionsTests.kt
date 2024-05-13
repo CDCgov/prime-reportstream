@@ -23,9 +23,7 @@ import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.TimeType
 import org.junit.jupiter.api.Test
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.TimeZone
-import java.util.UUID
+import java.util.*
 
 class CustomFHIRFunctionsTests {
 

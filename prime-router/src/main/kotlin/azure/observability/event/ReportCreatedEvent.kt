@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.azure.observability.event
 
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.report.ReportId
+import gov.cdc.prime.router.settings.Topic
 
 /**
  * An event emitted during every report created

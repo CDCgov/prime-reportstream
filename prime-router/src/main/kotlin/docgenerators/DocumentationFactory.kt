@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.docgenerators
 
-import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.report.Schema
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDate

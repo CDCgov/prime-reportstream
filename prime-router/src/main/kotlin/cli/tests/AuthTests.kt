@@ -1,13 +1,7 @@
 package gov.cdc.prime.router.cli.tests
 
 import com.github.ajalt.clikt.core.PrintMessage
-import gov.cdc.prime.router.CovidSender
-import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.api.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.cli.DeleteSenderSetting
@@ -22,6 +16,12 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.report.ReportId
+import gov.cdc.prime.router.settings.CovidSender
+import gov.cdc.prime.router.settings.CustomerStatus
+import gov.cdc.prime.router.settings.Organization
+import gov.cdc.prime.router.settings.Sender
 import gov.cdc.prime.router.tokens.AuthUtils
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.Scope
@@ -35,7 +35,7 @@ import java.io.File
 import java.io.IOException
 import java.net.URLEncoder
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 /**
  *  Test a variety of waters endpoints across all our various authorization techniques
@@ -1195,7 +1195,7 @@ class Server2ServerAuthTests : CoolTest() {
         if (response.status != HttpStatusCode.Unauthorized) {
             bad(
                 "***$name Test settings/organizations Unhappy Path (user-GET All Orgs) FAILED:" +
-                        " Expected HttpStatus ${HttpStatusCode.Unauthorized}. Got ${response.status.value}"
+                    " Expected HttpStatus ${HttpStatusCode.Unauthorized}. Got ${response.status.value}"
             )
             return false
         }
@@ -1214,7 +1214,7 @@ class Server2ServerAuthTests : CoolTest() {
         if (response2.status != HttpStatusCode.OK) {
             bad(
                 "***$name Test settings/organizations Happy Path (admin-GET All Orgs) FAILED:" +
-                        " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response2.status.value}"
+                    " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response2.status.value}"
             )
             return false
         }
@@ -1234,7 +1234,7 @@ class Server2ServerAuthTests : CoolTest() {
         if (response3.status != HttpStatusCode.OK) {
             bad(
                 "***$name Test settings/organizations Happy Path (user-GET Org Receivers) FAILED:" +
-                        " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response3.status.value}"
+                    " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response3.status.value}"
             )
             return false
         }
@@ -1253,7 +1253,7 @@ class Server2ServerAuthTests : CoolTest() {
         if (response4.status != HttpStatusCode.OK) {
             bad(
                 "***$name Test settings/organizations Happy Path (admin-GET Org Receivers) FAILED:" +
-                        " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response4.status.value}"
+                    " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response4.status.value}"
             )
             return false
         }
@@ -1272,7 +1272,7 @@ class Server2ServerAuthTests : CoolTest() {
         if (response5.status != HttpStatusCode.Unauthorized) {
             bad(
                 "***$name Test settings/organizations Unhappy Path (user-GET Unauthorized Org Receivers) FAILED:" +
-                        " Expected HttpStatus ${HttpStatusCode.Unauthorized}. Got ${response5.status.value}"
+                    " Expected HttpStatus ${HttpStatusCode.Unauthorized}. Got ${response5.status.value}"
             )
             return false
         }

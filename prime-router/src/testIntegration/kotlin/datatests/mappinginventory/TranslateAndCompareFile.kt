@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.datatests.mappinginventory
 
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.datatests.TranslationTests
+import gov.cdc.prime.router.report.Report
 
 fun translateAndCompareFHIRToHL7(inputFile: String, expectedOutputFile: String): CompareData.Result {
     val outputSchemaPath = "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-test.yml"

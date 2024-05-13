@@ -8,13 +8,12 @@ import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
-import gov.cdc.prime.router.Options
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
-import java.util.Base64
-import java.util.UUID
+import gov.cdc.prime.router.report.Options
+import gov.cdc.prime.router.report.ReportId
+import gov.cdc.prime.router.settings.Topic
+import java.util.*
 
 // This is a size limit dictated by our infrastructure in azure
 // https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-azure-and-service-bus-queues-compared-contrasted

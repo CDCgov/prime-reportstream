@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.report
 
-import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.history.db.ReportGraph
 

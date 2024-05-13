@@ -6,8 +6,8 @@ import com.microsoft.azure.functions.HttpResponseMessage
 import com.okta.jwt.Jwt
 import com.okta.jwt.JwtVerificationException
 import com.okta.jwt.JwtVerifiers
+import gov.cdc.prime.router.api.HttpUtilities
 import gov.cdc.prime.router.azure.ActionHistory
-import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -108,6 +108,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
                         oktaSystemAdminGroup
                     )
                 }
+
                 PrincipalLevel.USER ->
                     listOfNotNull(
                         if (!requireSenderClaim) "$oktaGroupPrefix$requiredOrganizationName" else null,

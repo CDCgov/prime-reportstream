@@ -8,10 +8,10 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import assertk.assertions.startsWith
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.actions.ActionLogger
+import gov.cdc.prime.router.settings.Receiver
+import gov.cdc.prime.router.settings.Topic
 import kotlin.test.Test
 
 class HL7QueueMessageHelpersTests {
@@ -170,6 +170,7 @@ OBX|1|ST|MLI-4000.15^TEMPERATURE||97.7|deg f|||||R|||19980601184619
                 2 -> {
                     assertThat(s).startsWith("MSH")
                 }
+
                 else -> assertThat(s).isEmpty()
             }
         }

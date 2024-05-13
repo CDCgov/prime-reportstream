@@ -3,21 +3,21 @@ package gov.cdc.prime.router.common
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
-import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.DeepOrganization
-import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.UniversalPipelineSender
-import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.db.tables.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.db.DataAccessTransaction
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.history.db.ReportGraph
+import gov.cdc.prime.router.report.Report
 import gov.cdc.prime.router.report.ReportService
+import gov.cdc.prime.router.settings.CustomerStatus
+import gov.cdc.prime.router.settings.DeepOrganization
+import gov.cdc.prime.router.settings.Organization
+import gov.cdc.prime.router.settings.Receiver
+import gov.cdc.prime.router.settings.Sender
+import gov.cdc.prime.router.settings.Topic
+import gov.cdc.prime.router.settings.UniversalPipelineSender
 import org.jooq.impl.DSL
 
 @Suppress("ktlint:standard:max-line-length")

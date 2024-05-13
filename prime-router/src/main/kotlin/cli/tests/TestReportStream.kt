@@ -8,16 +8,6 @@ import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.int
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.CovidSender
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.LegacyPipelineSender
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.UniversalPipelineSender
-import gov.cdc.prime.router.azure.DataAccessTransaction
-import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
@@ -29,9 +19,19 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.common.SystemExitCodes
+import gov.cdc.prime.router.db.DataAccessTransaction
+import gov.cdc.prime.router.db.DatabaseAccess
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
-import gov.cdc.prime.router.history.azure.DatabaseSubmissionsAccess
+import gov.cdc.prime.router.history.db.DatabaseSubmissionsAccess
+import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.report.ReportId
+import gov.cdc.prime.router.settings.CovidSender
+import gov.cdc.prime.router.settings.FileSettings
+import gov.cdc.prime.router.settings.LegacyPipelineSender
+import gov.cdc.prime.router.settings.Receiver
+import gov.cdc.prime.router.settings.Topic
+import gov.cdc.prime.router.settings.UniversalPipelineSender
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -41,7 +41,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
 

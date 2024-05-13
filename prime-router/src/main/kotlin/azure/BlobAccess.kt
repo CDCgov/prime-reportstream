@@ -11,9 +11,9 @@ import com.azure.storage.blob.models.BlobListDetails
 import com.azure.storage.blob.models.BlobStorageException
 import com.azure.storage.blob.models.DownloadRetryOptions
 import com.azure.storage.blob.models.ListBlobsOptions
-import gov.cdc.prime.router.BlobStoreTransportType
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.transport.BlobStoreTransportType
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging

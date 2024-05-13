@@ -13,7 +13,7 @@ import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v27.datatype.CWE
 import ca.uhn.hl7v2.model.v27.segment.OBX
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.actions.ActionLogger
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk

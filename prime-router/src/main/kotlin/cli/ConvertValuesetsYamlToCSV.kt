@@ -11,7 +11,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
-import gov.cdc.prime.router.ValueSet
+import gov.cdc.prime.router.report.ValueSet
 import java.io.File
 import java.io.FileOutputStream
 

@@ -6,12 +6,6 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.microsoft.azure.functions.ExecutionContext
-import gov.cdc.prime.router.GAENTransportType
-import gov.cdc.prime.router.GAENUUIDFormat
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -19,6 +13,9 @@ import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.report.ReportId
+import gov.cdc.prime.router.settings.Receiver
 import io.ktor.client.HttpClient
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
@@ -169,8 +166,8 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
         gaenTransportInfo: GAENTransportType,
     ) {
         val msg = "FAILED GAEN notification of inputReportId $reportId to $gaenTransportInfo " +
-                "(receiver = $receiverFullName);" +
-                "No retry; Exception: ${ex.javaClass.canonicalName} ${ex.localizedMessage}"
+            "(receiver = $receiverFullName);" +
+            "No retry; Exception: ${ex.javaClass.canonicalName} ${ex.localizedMessage}"
         // Dev note: Expecting severe level to trigger monitoring alerts
         context.logger.severe(msg)
         actionHistory.setActionType(TaskAction.send_error)
@@ -256,7 +253,7 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
             }
             if (postResult != PostResult.SUCCESS) {
                 val warning = "${params.receiver.fullName}: Error from GAEN server for ${notification.uuid}:" +
-                        ", response status: ${response.status.value} body: $respStr"
+                    ", response status: ${response.status.value} body: $respStr"
                 params.context.logger.warning(warning)
                 params.actionHistory.trackActionResult(warning)
             }

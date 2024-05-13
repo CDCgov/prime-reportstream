@@ -3,6 +3,8 @@ package gov.cdc.prime.router
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.settings.LegacyPipelineSender
+import gov.cdc.prime.router.settings.Sender
 
 /**
  * Receiver for validation requests with a specific topic, contains all logic to parse and validate

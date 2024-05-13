@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.report.ReportId
+import gov.cdc.prime.router.settings.Receiver
+import gov.cdc.prime.router.settings.Topic
 import java.time.OffsetDateTime
 
 /**

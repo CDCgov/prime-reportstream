@@ -6,6 +6,12 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.report.Element
+import gov.cdc.prime.router.report.FakeReport
+import gov.cdc.prime.router.report.Schema
+import gov.cdc.prime.router.report.ValueSet
+import gov.cdc.prime.router.settings.Topic
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockkClass

@@ -2,7 +2,6 @@ package gov.cdc.prime.router.history
 
 import assertk.assertFailure
 import assertk.assertThat
-import assertk.assertions.contains
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
@@ -11,20 +10,20 @@ import assertk.assertions.isNull
 import assertk.assertions.isNullOrEmpty
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.ActionLogLevel
-import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.FieldPrecisionMessage
-import gov.cdc.prime.router.InvalidEquipmentMessage
-import gov.cdc.prime.router.InvalidReportMessage
-import gov.cdc.prime.router.InvalidTranslationMessage
-import gov.cdc.prime.router.MissingFieldMessage
-import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ReportStreamFilterType
-import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.actions.ActionLogLevel
+import gov.cdc.prime.router.actions.ActionLogScope
+import gov.cdc.prime.router.actions.FieldPrecisionMessage
+import gov.cdc.prime.router.actions.InvalidEquipmentMessage
+import gov.cdc.prime.router.actions.InvalidReportMessage
+import gov.cdc.prime.router.actions.InvalidTranslationMessage
+import gov.cdc.prime.router.actions.MissingFieldMessage
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.report.ReportStreamFilterResult
+import gov.cdc.prime.router.settings.Topic
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 class SubmissionHistoryTests {

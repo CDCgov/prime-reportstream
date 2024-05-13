@@ -3,10 +3,10 @@ package gov.cdc.prime.router.cli
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.api.HttpUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.settings.FileSettings
+import gov.cdc.prime.router.settings.Organization
 import gov.cdc.prime.router.tokens.AuthUtils
 import gov.cdc.prime.router.tokens.JwkSet
 import gov.cdc.prime.router.tokens.Scope

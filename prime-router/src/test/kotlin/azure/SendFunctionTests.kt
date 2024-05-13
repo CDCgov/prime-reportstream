@@ -6,10 +6,10 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.ExecutionContext
-import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.settings.FileSettings
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -21,7 +21,7 @@ import io.mockk.verify
 import org.jooq.Configuration
 import org.junit.jupiter.api.BeforeEach
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 import java.util.logging.Logger
 import kotlin.test.Test
 

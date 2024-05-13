@@ -3,11 +3,6 @@ package gov.cdc.prime.router.transport
 import com.google.common.base.Preconditions
 import com.hierynomus.sshj.key.KeyAlgorithms
 import com.microsoft.azure.functions.ExecutionContext
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.SFTPTransportType
-import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -18,6 +13,9 @@ import gov.cdc.prime.router.credentials.SftpCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.credentials.UserPemCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.report.ReportId
+import gov.cdc.prime.router.settings.Receiver
 import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.sftp.RemoteResourceFilter
@@ -159,6 +157,7 @@ class SftpTransport : ITransport, Logging {
                         }
                         sshClient.auth(credential.user, authProviders)
                     }
+
                     is UserPpkCredential -> {
                         val key = PuTTYKeyFile()
                         val keyContents = StringReader(credential.key)
@@ -172,6 +171,7 @@ class SftpTransport : ITransport, Logging {
                         }
                         sshClient.auth(credential.user, authProviders)
                     }
+
                     else -> error("Unknown SftpCredential ${credential::class.simpleName}")
                 }
                 return sshClient

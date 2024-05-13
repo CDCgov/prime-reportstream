@@ -7,7 +7,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 import org.junit.jupiter.api.TestInstance
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 @JacksonXmlRootElement(localName = "elr:TestPayload")
@@ -108,7 +108,7 @@ class SoapSerializerTests {
         val textFileContents = UUID.randomUUID().toString()
         val testSoap12Message = TestSoap12Payload(textFileContents = textFileContents)
         val soapVersion = "SOAP12"
-        val timestampId = "TS-" + (java.util.UUID.randomUUID())
+        val timestampId = "TS-" + (UUID.randomUUID())
         val timeCreated = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now())
         val timeExpired = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().plusSeconds(180))
         val envelope = SoapEnvelope(testSoap12Message, soap12namespaces, soapVersion)

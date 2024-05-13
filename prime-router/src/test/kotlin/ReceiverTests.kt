@@ -5,6 +5,10 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.settings.CustomerStatus
+import gov.cdc.prime.router.settings.Receiver
+import gov.cdc.prime.router.settings.Topic
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.mockkClass
 import java.time.ZoneId

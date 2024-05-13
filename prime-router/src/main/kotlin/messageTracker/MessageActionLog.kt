@@ -2,7 +2,7 @@ package gov.cdc.prime.router.messageTracker
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import gov.cdc.prime.router.ActionLogDetail
+import gov.cdc.prime.router.actions.ActionLogDetail
 
 /**
  * Detail action log class used to read the data from the database.

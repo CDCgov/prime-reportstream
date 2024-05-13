@@ -9,18 +9,18 @@ import ca.uhn.hl7v2.util.Terser
 import com.github.difflib.text.DiffRow
 import com.github.difflib.text.DiffRowGenerator
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.api.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.utils.CompareFhirData
+import gov.cdc.prime.router.report.Element
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.report.ReportId
+import gov.cdc.prime.router.report.Schema
+import gov.cdc.prime.router.settings.Receiver
 import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -371,6 +371,7 @@ warnings: ${warnings.joinToString()}
         val compareResult = when (format) {
             Report.Format.CSV, Report.Format.CSV_SINGLE, Report.Format.INTERNAL ->
                 CompareCsvData().compare(expected, actual, schema!!, fieldsToIgnore)
+
             Report.Format.HL7, Report.Format.HL7_BATCH -> CompareHl7Data().compare(expected, actual)
             Report.Format.FHIR -> CompareFhirData().compare(expected, actual)
             else -> CompareFile().compare(expected, actual)

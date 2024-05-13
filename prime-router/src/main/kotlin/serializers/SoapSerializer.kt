@@ -10,18 +10,18 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 import com.microsoft.azure.functions.ExecutionContext
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.SoapTransportType
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.credentials.SoapCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
+import gov.cdc.prime.router.report.Report
 import gov.cdc.prime.router.serializers.soapimpl.Credentials
 import gov.cdc.prime.router.serializers.soapimpl.LabFile
 import gov.cdc.prime.router.serializers.soapimpl.Soap12Message
 import gov.cdc.prime.router.serializers.soapimpl.UploadFiles
+import gov.cdc.prime.router.transport.SoapTransportType
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Base64
+import java.util.*
 import javax.xml.stream.XMLOutputFactory
 import kotlin.reflect.full.findAnnotation
 
@@ -92,6 +92,7 @@ class SoapSerializer(
                 "SOAP12" -> {
                     writeSoap12Header(xmlGen)
                 }
+
                 else -> {
                     xmlGen.writeNullField("$soapNamespaceAlias:Header")
                 }
@@ -114,7 +115,7 @@ class SoapSerializer(
         // write out the SOAP namespace into the header
         xmlGen.writeFieldName("xmlns:$soapNamespaceAlias")
         // and the namespace as well
-         if (value.soapVersion == "SOAP12") {
+        if (value.soapVersion == "SOAP12") {
             xmlGen.writeString(soap12Namespace)
         } else {
             xmlGen.writeString(soapNamespace)
@@ -132,7 +133,7 @@ class SoapSerializer(
      */
     private fun writeSoap12Header(xmlGen: ToXmlGenerator) {
         // this timestamp id just needs to be a random unique identifier
-        val timestampId = "TS-" + (java.util.UUID.randomUUID())
+        val timestampId = "TS-" + (UUID.randomUUID())
         val timeCreated = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now())
         val timeExpires = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().plusSeconds(180))
 
@@ -164,6 +165,7 @@ class SoapSerializer(
         // close the objects for the wsu:timestamp, wsse:Security and soapenv:Header elements
         repeat(3) { xmlGen.writeEndObject() }
     }
+
     companion object {
         /** our default SOAP namespace */
         private const val soapNamespace = "http://schemas.xmlsoap.org/soap/envelope/"

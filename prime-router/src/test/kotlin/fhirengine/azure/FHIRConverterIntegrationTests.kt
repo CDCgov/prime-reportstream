@@ -6,13 +6,7 @@ import assertk.assertions.each
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.matchesPredicate
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Options
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
@@ -53,6 +47,12 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.Metadata
+import gov.cdc.prime.router.metadata.db.DatabaseLookupTableAccess
+import gov.cdc.prime.router.report.Options
+import gov.cdc.prime.router.report.Report
+import gov.cdc.prime.router.settings.FileSettings
+import gov.cdc.prime.router.settings.Sender
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockkConstructor

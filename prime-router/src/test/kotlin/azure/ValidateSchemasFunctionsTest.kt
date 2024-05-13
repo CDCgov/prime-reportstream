@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.fhirengine.translation.TranslationSchemaManager
+import gov.cdc.prime.router.validation.azure.ValidateSchemasFunctions
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkConstructor

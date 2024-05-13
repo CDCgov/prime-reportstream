@@ -2,15 +2,15 @@ package gov.cdc.prime.router.azure
 
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
-import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.DEFAULT_SEPARATOR
-import gov.cdc.prime.router.InvalidParamMessage
-import gov.cdc.prime.router.LegacyPipelineSender
-import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Sender
-import java.lang.IllegalArgumentException
+import gov.cdc.prime.router.actions.ActionLogger
+import gov.cdc.prime.router.actions.InvalidParamMessage
+import gov.cdc.prime.router.api.HttpUtilities
+import gov.cdc.prime.router.report.DEFAULT_SEPARATOR
+import gov.cdc.prime.router.report.ROUTE_TO_SEPARATOR
+import gov.cdc.prime.router.report.Schema
+import gov.cdc.prime.router.settings.CustomerStatus
+import gov.cdc.prime.router.settings.LegacyPipelineSender
+import gov.cdc.prime.router.settings.Sender
 import java.security.InvalidParameterException
 
 const val CLIENT_PARAMETER = "client"
@@ -127,6 +127,7 @@ abstract class RequestFunction(
                             "Blank message(s) found within file. Blank messages cannot be processed."
                         )
                     )
+
                 else -> actionLogs.error(InvalidParamMessage("Expecting a post message with content"))
             }
         }

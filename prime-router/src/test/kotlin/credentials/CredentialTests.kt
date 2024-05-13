@@ -6,7 +6,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 

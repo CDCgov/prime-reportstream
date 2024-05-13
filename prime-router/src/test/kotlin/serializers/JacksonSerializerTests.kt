@@ -5,8 +5,8 @@ import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import gov.cdc.prime.router.CovidSender
-import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.settings.CovidSender
+import gov.cdc.prime.router.settings.Sender
 import kotlin.test.Test
 
 /**

@@ -18,8 +18,7 @@ import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.StringType
 import java.time.Instant
-import java.util.Date
-import java.util.UUID
+import java.util.*
 import kotlin.random.Random
 import kotlin.test.Test
 

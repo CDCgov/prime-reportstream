@@ -23,7 +23,7 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.google.common.base.Preconditions
 import de.m3y.kformat.Table
 import de.m3y.kformat.table
-import gov.cdc.prime.router.azure.LookupTableFunctions
+import gov.cdc.prime.router.api.azure.v0.LookupTableFunctions
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.cli.FileUtilities.saveTableAsCSV
 import gov.cdc.prime.router.common.Environment

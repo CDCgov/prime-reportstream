@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.cli.tests
 
-import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.api.HttpUtilities
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.common.Environment
@@ -109,7 +109,7 @@ class SettingsTest : CoolTest() {
                 else ->
                     return bad(
                         settingErrorMessage +
-                                "Failed Dummy organization - del response: $delRespStr, get response: $respStr."
+                            "Failed Dummy organization - del response: $delRespStr, get response: $respStr."
                     )
             }
         }
@@ -128,8 +128,8 @@ class SettingsTest : CoolTest() {
             else -> {
                 return bad(
                     settingErrorMessage +
-                            "Failed on create new dummy organization, put response status: " +
-                            "${putResponse.status.value}, put response body: $putRespStr"
+                        "Failed on create new dummy organization, put response status: " +
+                        "${putResponse.status.value}, put response body: $putRespStr"
                 )
             }
         }
@@ -146,7 +146,7 @@ class SettingsTest : CoolTest() {
         if (getResponse.status == HttpStatusCode.NotFound) {
             return bad(
                 settingErrorMessage + " get response status: ${getResponse.status.value}" +
-                        ", response body: $getRespStr"
+                    ", response body: $getRespStr"
             )
         }
 
@@ -172,7 +172,7 @@ class SettingsTest : CoolTest() {
             else ->
                 return bad(
                     settingErrorMessage + "Failed on can't create update dummy organization," +
-                            " put response status: ${updResponse.status.value}, body: $updRespStr"
+                        " put response status: ${updResponse.status.value}, body: $updRespStr"
                 )
         }
 
@@ -187,7 +187,7 @@ class SettingsTest : CoolTest() {
         if (newDummyResponse.status == HttpStatusCode.NotFound) {
             return bad(
                 settingErrorMessage + "Failed on verify the new dummy organization," +
-                        " get response status: ${newDummyResponse.status.value}, body: $newDummyRespStr"
+                    " get response status: ${newDummyResponse.status.value}, body: $newDummyRespStr"
             )
         }
 
@@ -198,7 +198,7 @@ class SettingsTest : CoolTest() {
         if (!newDummyRespStr.contains("UPDATEDUMMYORG")) {
             return bad(
                 settingErrorMessage + "It is not the updated dummy organization, " +
-                        " get response status: ${newDummyResponse.status.value}, body: $newDummyRespStr"
+                    " get response status: ${newDummyResponse.status.value}, body: $newDummyRespStr"
             )
         }
 
@@ -215,8 +215,8 @@ class SettingsTest : CoolTest() {
         if (delNewDummyResponse.status == HttpStatusCode.NotFound) {
             return bad(
                 settingErrorMessage + "Failed on delete - " +
-                        "delete response status: ${delNewDummyResponse.status.value}, " +
-                        " body: $delNewDummyRespStr"
+                    "delete response status: ${delNewDummyResponse.status.value}, " +
+                    " body: $delNewDummyRespStr"
             )
         }
 
@@ -232,8 +232,8 @@ class SettingsTest : CoolTest() {
         if (getNewDummyDelResp.status != HttpStatusCode.NotFound) {
             return bad(
                 settingErrorMessage + "Failed cleaned up - " +
-                        " get response status: ${getNewDummyDelResp.status.value}, " +
-                        "body: $getNewDummyDelRespStr"
+                    " get response status: ${getNewDummyDelResp.status.value}, " +
+                    "body: $getNewDummyDelRespStr"
             )
         }
 

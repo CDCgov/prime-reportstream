@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.router.report.ReportId
+
 /**
  * A Source can either be a client, a test, or a local file or another report.
  * It is useful for debugging and auditing

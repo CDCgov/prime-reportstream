@@ -1,10 +1,10 @@
 package gov.cdc.prime.router.metadata
 
-import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.ElementResult
-import gov.cdc.prime.router.InvalidEquipmentMessage
-import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.actions.InvalidEquipmentMessage
 import gov.cdc.prime.router.metadata.LivdLookup.find
+import gov.cdc.prime.router.report.Element
+import gov.cdc.prime.router.report.ElementResult
+import gov.cdc.prime.router.settings.Sender
 
 /**
  * Column names in the LIVD table.
@@ -100,6 +100,7 @@ class LIVDLookupMapper : Mapper {
                     tableColumn = element.tableColumn!!,
                     tableRef = element.tableRef
                 )
+
                 ElementNames.DEVICE_ID.elementName -> find(
                     testPerformedCode = testPerformedCode,
                     processingModeCode = processingModeCode,
@@ -107,6 +108,7 @@ class LIVDLookupMapper : Mapper {
                     tableColumn = element.tableColumn!!,
                     tableRef = element.tableRef
                 )
+
                 ElementNames.EQUIPMENT_MODEL_ID.elementName -> find(
                     testPerformedCode = testPerformedCode,
                     processingModeCode = processingModeCode,
@@ -114,6 +116,7 @@ class LIVDLookupMapper : Mapper {
                     tableColumn = element.tableColumn!!,
                     tableRef = element.tableRef
                 )
+
                 ElementNames.TEST_KIT_NAME_ID.elementName -> find(
                     testPerformedCode = testPerformedCode,
                     processingModeCode = processingModeCode,
@@ -121,6 +124,7 @@ class LIVDLookupMapper : Mapper {
                     tableColumn = element.tableColumn!!,
                     tableRef = element.tableRef
                 )
+
                 else -> null
             }
 

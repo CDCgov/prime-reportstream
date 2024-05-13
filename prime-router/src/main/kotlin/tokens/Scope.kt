@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.tokens
 
-import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.settings.Organization
 import org.apache.logging.log4j.kotlin.Logging
 
 /**
@@ -184,16 +184,19 @@ class Scope {
                         if (org.isBlank()) return@forEach
                         tmpScopes.add("$org.*.${Scope.Companion.DetailedScope.Admin.strRep}") // eg, md-phd.*.admin
                     }
+
                     (it.startsWith(oktaGroupPrefix) && it.endsWith(oktaAdminGroupSuffix)) -> {
                         val org = it.removePrefix(oktaGroupPrefix).removeSuffix(oktaAdminGroupSuffix)
                         if (org.isBlank()) return@forEach
                         tmpScopes.add("$org.*.${Scope.Companion.DetailedScope.Admin.strRep}") // eg, md-phd.*.admin
                     }
+
                     (it.startsWith(oktaSenderGroupPrefix)) -> {
                         val org = it.removePrefix(oktaSenderGroupPrefix)
                         if (org.isBlank()) return@forEach
                         tmpScopes.add("$org.*.${Scope.Companion.DetailedScope.User.strRep}") // eg, md-phd.*.user
                     }
+
                     (it.startsWith(oktaGroupPrefix)) -> {
                         val org = it.removePrefix(oktaGroupPrefix)
                         if (org.isBlank()) return@forEach
