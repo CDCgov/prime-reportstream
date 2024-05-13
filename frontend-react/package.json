@@ -133,7 +133,7 @@
         "@types/lodash": "^4.17.1",
         "@types/mdx": "^2.0.13",
         "@types/node": "^20.12.5",
-        "@types/react": "18.3.1",
+        "@types/react": "18.3.2",
         "@types/react-dom": "^18.3.0",
         "@types/react-router-dom": "^5.3.3",
         "@types/react-scroll-sync": "^0.9.0",
@@ -190,7 +190,7 @@
         "vitest": "^1.6.0"
     },
     "resolutions": {
-        "@types/react": "18.3.1",
+        "@types/react": "18.3.2",
         "tocbot": "^4.25.0"
     },
     "engines": {
