@@ -393,6 +393,8 @@ class FHIRConverterIntegrationTests {
                 }
             }.containsOnly(
                 "",
+                "Observation/d683b42a-bf50-45e8-9fce-6c0531994f09",
+                "Observation/d683b42a-bf50-45e8-9fce-6c0531994f09",
                 ""
             )
         }
