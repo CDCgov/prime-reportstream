@@ -88,7 +88,7 @@ runs:
           bsc=$(az storage account show-connection-string --name pdhstagingstorageaccount --resource-group prime-data-hub-staging \
           --subscription 7d1e3999-6577-4cd5-b296-f518e5c8e677 -o tsv)
           ./gradlew primecli --args='validateSchemas --schema-type="HL7" --blob-store-connect="$bsc" --blob-store-container="metadata"'
-          ./gradlew primecli --args='validateSchemas --schema-type="FHIR" --blob-store-connect="$bsc" --blob-store-container="metadata"''
+          ./gradlew primecli --args='validateSchemas --schema-type="FHIR" --blob-store-connect="$bsc" --blob-store-container="metadata"'
           az storage account network-rule remove -g prime-data-hub-staging --account-name pdhstagingstorageaccount \
           --ip-address ${{ steps.runner_ip.outputs.ip-address }} --output none;
         shell: bash
