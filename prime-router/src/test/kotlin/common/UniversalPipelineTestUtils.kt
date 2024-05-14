@@ -142,7 +142,7 @@ object UniversalPipelineTestUtils {
         Sender.Format.HL7,
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
-        schemaName = "classpath:/metadata/fhir_transforms/senders/original-pipeline-transforms.yml"
+        schemaName = "classpath:/metadata/fhir_transforms/senders/test-sender-transform.yml"
     )
     val fhirSender = UniversalPipelineSender(
         "elr-fhir-sender",
@@ -150,7 +150,7 @@ object UniversalPipelineTestUtils {
         Sender.Format.FHIR,
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
-        schemaName = "classpath:/metadata/fhir_transforms/senders/original-pipeline-transforms.yml"
+        schemaName = "classpath:/metadata/fhir_transforms/senders/test-sender-transform.yml"
     )
     val hl7SenderWithNoTransform = UniversalPipelineSender(
         "hl7-elr-no-transform",
