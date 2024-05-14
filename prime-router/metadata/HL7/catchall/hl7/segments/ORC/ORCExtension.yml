@@ -231,3 +231,15 @@ extension:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: ORC.31
+    - expressionType: nested
+      vars:
+        orc34: STRING_ALL, ORC.34
+      condition: $orc34 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.34
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: ORC.34
