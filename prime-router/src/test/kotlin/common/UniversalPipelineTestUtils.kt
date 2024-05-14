@@ -249,8 +249,8 @@ object UniversalPipelineTestUtils {
             )
             .fetchInto(ReportFile::class.java)
         assertThat(reportFiles).hasSize(expectedNumberOfItems)
-        assertThat(itemLineages).transform { lineages -> lineages.map { it.childReportId } }
-            .isEqualTo(reportFiles.map { it.reportId })
+        assertThat(itemLineages).transform { lineages -> lineages.map { it.childReportId }.sorted() }
+            .isEqualTo(reportFiles.map { it.reportId }.sorted())
         childReportIds.forEach {
             val rootReport = reportService.getRootReport(it)
             assertThat(rootReport.reportId).isEqualTo(expectedRootReport.id)
