@@ -102,6 +102,12 @@ fun loadDotEnv(): Map<String, String> {
     val properties = project.properties.entries.associate { Pair(it.key, it.value?.toString() ?: "") }
         .toMutableMap()
 
+    // ensure .local exists for docker command
+    val dotEnvLocal = File(project.projectDir, ".env.local")
+    if (!dotEnvLocal.exists()) {
+        dotEnvLocal.createNewFile()
+    }
+
     // dotenv library will ensure host environment takes precedence
     val dotEnv = (
         dotenv().entries() + dotenv {
@@ -596,7 +602,9 @@ dockerCompose {
     // Starting in version 0.17 the plugin changed the default to true, meaning our docker compose yaml files
     // get run with `docker compose` rather than `docker-compose`
     useDockerComposeV2.set(true)
-    environment = dotEnv
+
+    // use dotenv files directly with docker commands instead of passing environment
+    composeAdditionalArgs = listOf("--env-file", ".env", "--env-file", ".env.local")
 }
 
 tasks.azureFunctionsRun {
