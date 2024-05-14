@@ -90,17 +90,17 @@ start is run on a non-Apple processor:
 - soap-webservice - SOAP web service emulator
 
 ```bash
-docker compose -f docker-compose.build.yml up --detach
+docker compose --env-file .env -f docker-compose.build.yml up --detach
 ```
 
 Additionally, to ensure that Vault is running and the credentials are stored correctly, run the following (which is
 normally covered by `cleanslate.sh` on non-Apple processors):
 
 ```bash
-docker compose up --detach vault 1>/dev/null 2>/dev/null
+docker compose --env-file .env up --detach vault 1>/dev/null 2>/dev/null
 ```
 
-You can take down these services by running `./gradlew composeDown` or `docker compose down` command.
+You can take down these services by running `./gradlew composeDown` or `docker compose --env-file .env down` command.
 For now, leave these services running and open up a new terminal session.
 </details>
 
@@ -127,7 +127,7 @@ Building and running ReportStream requires a locally accessible PostgreSQL datab
 
 ```bash
 cd ./prime-router
-docker compose --file "docker-compose.build.yml" up --detach
+docker compose --env-file .env --file "docker-compose.build.yml" up --detach
 ```
 
 <details>

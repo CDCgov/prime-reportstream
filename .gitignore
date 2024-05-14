@@ -1,19 +1,8 @@
-# Compiled class file
-*.class
-
 # Log file
 *.log
 
 # BlueJ files
 *.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-!gradle-wrapper.jar
-*.war
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
@@ -24,42 +13,16 @@ hs_err_pid*
 **/log/**
 **/dependency-reduced-pom.xml
 
-# Frontend build output
-**/node_modules/**
-**/_site/**
-**/dist/**
-/yarn.lock
-
 # IDEA files
 **/.idea/**
 **/*.iml
 **/.run/**
-!prime-router/.idea/codeStyles/
-!prime-router/.idea/codeStyles/Project.xml
-!prime-router/.idea/codeStyles/codeStyleConfig.xml
-
-# Play files
-**/result_files/*.csv
-**/routed_files/*.csv
-**/result_files/*.hl7
-**/routed_files/*.hl7
-Test*.csv
-Test*.json
-**/Xperiment.kt
-**/junk
 
 # Mac files
 .DS_Store
 
 # Emacs files
 *~
-
-prime-router/fake-pdi-covid-19.csv
-prime-router/id_file
-prime-router/.classpath
-prime-router/.project
-# Not to check in the open api spec for now
-prime-router/docs/api/generated
 
 # VS Code
 **/.vscode/**
@@ -71,21 +34,8 @@ workspace.code-workspace
 # Eclipse
 **/.settings/**
 
-# Azurite (Win)
-**/__azurite_*
-**/__blobstorage__/*
-**/__queuestorage__/*
-prime-router/.factorypath
-prime-router/metadata/organizations-mry.yml
-prime-router/pdi-covid-19.csv
-prime-router/source.mry
-
 # Azure
 **/.azure/*
-
-# PRIME test files
-prime-router/result_files/*
-prime-router/routed_files/*
 
 # Terraform files
 operations/app/src/**/.terraform*
@@ -96,9 +46,6 @@ operations/app/src/environments/configurations/dev.*
 terraform-fmt.log
 **.tfstate
 **.bin
-
-# Hashicorp Vault Secrets
-prime-router/.vault/env/**
 
 # Python virtualenv files
 **/venv/**
@@ -117,10 +64,3 @@ gitleaks.log
 
 # Archived functions
 *function*.zip
-
-# Cypress
-**/cypress/screenshots/
-**/cypress/videos/
-
-# Storybook
-storybook-static

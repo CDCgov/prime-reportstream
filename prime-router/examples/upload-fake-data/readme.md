@@ -14,10 +14,10 @@
 bash devenv-infrastructure.sh
 
 # build and run PRIME ReportStream
-docker compose up -d
+docker compose --env-file .env up -d
 
 # optionally, follow logs of `prime_dev` container
-docker compose logs -f prime_dev
+docker compose --env-file .env logs -f prime_dev
 ```
 
 ### Generate fake data
