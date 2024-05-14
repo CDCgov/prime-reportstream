@@ -678,11 +678,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 // configures the Apache client with our specified timeouts
                 // if we have a JKS, create an SSL context with it
                 engine {
-                    sslContext = if (jks != null) {
-                        getSslContext(jks)
-                    } else {
-                        disableSSLCertificateChecking()
-                    }
+                    jks?.let { sslContext = getSslContext(jks) }
                     followRedirects = true
                     socketTimeout = TIMEOUT
                     connectTimeout = TIMEOUT
