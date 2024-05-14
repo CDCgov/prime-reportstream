@@ -56,12 +56,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
 import java.io.InputStream
-import java.security.KeyManagementException
 import java.security.KeyStore
-import java.security.NoSuchAlgorithmException
-import java.security.SecureRandom
-import java.security.cert.CertificateException
-import java.security.cert.X509Certificate
 import java.util.Base64
 import java.util.logging.Logger
 import javax.crypto.SecretKey
@@ -69,8 +64,6 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
 
 /**
  * A REST transport that will get an authentication token from the authTokenUrl
@@ -708,38 +701,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             val sslContext = SSLContext.getInstance("TLSv1.3")
             sslContext.init(keyManagerFactory.keyManagers, null, null)
             return sslContext
-        }
-
-        /**
-         * Disables the SSL certificate checking for new instances of [HttpsURLConnection] This has been created to
-         * aid testing on a local box, not for use on production.
-         */
-        private fun disableSSLCertificateChecking(): SSLContext? {
-            val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
-                override fun getAcceptedIssuers(): Array<X509Certificate> {
-                    return emptyArray()
-                }
-
-                @Throws(CertificateException::class)
-                override fun checkClientTrusted(arg0: Array<X509Certificate?>?, arg1: String?) {
-                    // Not implemented
-                }
-
-                @Throws(CertificateException::class)
-                override fun checkServerTrusted(arg0: Array<X509Certificate?>?, arg1: String?) {
-                    // Not implemented
-                }
-            })
-            try {
-                val sc = SSLContext.getInstance("TLSv1.3")
-                sc.init(null, trustAllCerts, SecureRandom())
-                return sc
-            } catch (e: KeyManagementException) {
-                e.printStackTrace()
-            } catch (e: NoSuchAlgorithmException) {
-                e.printStackTrace()
-            }
-            return null
         }
 
         /***
