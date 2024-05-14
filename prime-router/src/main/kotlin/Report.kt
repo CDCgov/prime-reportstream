@@ -415,6 +415,56 @@ class Report : Logging {
         this.nextAction = nextAction
     }
 
+    data class ParentItemLineageData(val parentReportId: UUID, val parentReportIndex: Int)
+
+    /**
+     * This constructor can be used to generate a report with its item lineage constructed as
+     * well by passing in a list of [ParentItemLineageData] which includes the parent report id and parent report indes
+     *
+     * @param bodyFormat is the format for this report. Should be HL7
+     * @param sources is the ClientSource or TestSource, where this data came from
+     * @param metadata the metadata used with the report
+     * @param parentItemLineageData lineage data for the parent that is used to construct item lineage
+     * @param destination where this report is going
+     * @param nextAction the next action to be performed on this report
+     */
+    constructor(
+        bodyFormat: Format,
+        sources: List<Source>,
+        metadata: Metadata? = null,
+        parentItemLineageData: List<ParentItemLineageData>,
+        destination: Receiver? = null,
+        nextAction: TaskAction,
+        topic: Topic,
+    ) {
+        this.id = UUID.randomUUID()
+        // UP submissions do not need a schema, but it is required by the database to maintain legacy functionality
+        this.schema = Schema("None", topic)
+        this.sources = sources
+        this.bodyFormat = bodyFormat
+        this.destination = destination
+        this.createdDateTime = OffsetDateTime.now()
+        this.itemLineages = parentItemLineageData.mapIndexed { index, parentItemLineage ->
+            ItemLineage(
+                null,
+                parentItemLineage.parentReportId,
+                parentItemLineage.parentReportIndex,
+                this.id,
+                index + 1,
+                null,
+                null,
+                null,
+                UUID.randomUUID().toString()
+            )
+        }
+        // we do not need the 'table' representation in this instance
+        this.table = createTable(emptyMap<String, List<String>>())
+        this.itemCount = parentItemLineageData.size
+        this.metadata = metadata ?: Metadata.getInstance()
+        this.itemCountBeforeQualFilter = parentItemLineageData.size
+        this.nextAction = nextAction
+    }
+
     private constructor(
         schema: Schema,
         table: Table,

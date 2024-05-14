@@ -9,4 +9,6 @@ class MarsOtcElrValidator : AbstractItemValidator() {
     override fun validateFHIR(bundle: Bundle): IItemValidationResult {
         return NoopItemValidationResult()
     }
+
+    override val validatorProfileName: String = "RADx MARS"
 }

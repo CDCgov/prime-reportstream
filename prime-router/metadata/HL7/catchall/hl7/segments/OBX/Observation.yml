@@ -386,9 +386,9 @@ performer:
     - expressionType: reference
       vars:
         obx25: STRING_ALL, OBX.25
-        obx23: STRING_ALL, obx23
+        obx23: STRING_ALL, OBX.23
         XADAddress: OBX.24
-      condition: $obx25 NULL && ($obx23 NOT_NULL || XADAddress NOT_NULL)
+      condition: $obx25 NULL && ($obx23 NOT_NULL || $XADAddress NOT_NULL)
       valueOf: datatypes/XON/Organization
       specs: OBX.23
       constants:
