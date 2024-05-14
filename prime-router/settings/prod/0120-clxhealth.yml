@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0120-clxhealth.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0120-clxhealth.yml'
 ---
 - name: clxhealth
   description: CLX Health

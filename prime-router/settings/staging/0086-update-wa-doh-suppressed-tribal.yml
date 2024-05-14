@@ -1,5 +1,5 @@
 # Changing WA Suppress PID-39-1, PID-39-2, PID-39-3
-# ./prime multiple-settings set --env staging --input ./settings/staging/0086-update-wa-doh-suppressed-tribal.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0086-update-wa-doh-suppressed-tribal.yml'
 ---
 - name: "wa-phd"
   description: "Washington Department of Health"

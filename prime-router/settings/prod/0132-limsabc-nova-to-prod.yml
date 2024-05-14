@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0132-limsabc-nova-to-prod.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0132-limsabc-nova-to-prod.yml'
 # NOTE: Updated from UI
 ---
 - name: limsabc-nova

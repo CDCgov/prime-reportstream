@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0144-CA-TruncateOBR-16-1andORC-12-1.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0144-CA-TruncateOBR-16-1andORC-12-1.yml'
 ---
 - name: "ca-dph"
   description: "California Department of Public Health"

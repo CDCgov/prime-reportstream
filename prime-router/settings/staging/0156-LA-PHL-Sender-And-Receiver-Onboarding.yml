@@ -1,5 +1,5 @@
 # To submit this to Staging, run:
-# ./prime multiple-settings set --env staging --input ./settings/staging/0156-LA-PHL-Sender-And-Receiver-Onboarding.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0156-LA-PHL-Sender-And-Receiver-Onboarding.yml'
 #
 # Description:
 #   These following setting are for Louisiana Public Health Lab (la-phl) sender and receivers

@@ -1,4 +1,4 @@
-# Run this:  ./prime receiver set --input ./settings/staging/0039-hhsprotect.yml --env staging
+# Run this:  ./gradlew primecli --args='receiver set --input ./settings/staging/0039-hhsprotect.yml --env staging'
 ---
 name: "elr"
 organizationName: "hhsprotect"

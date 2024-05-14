@@ -1,6 +1,6 @@
 # The first two are schema location changes.  The next two are new senders.
 # Need to run this in production asap after the deployment!
-# Run this:  ./prime multiple-settings set --input ./settings/prod/0029-direct.yml --env prod
+# Run this:  ./gradlew primecli --args='multiple-settings set --input ./settings/prod/0029-direct.yml --env prod'
 ---
 - name: "cue"
   description: "Cue"

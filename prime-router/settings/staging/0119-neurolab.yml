@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0119-neurolab.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0119-neurolab.yml'
 ---
 - name: neurolab
   description: Neurolab

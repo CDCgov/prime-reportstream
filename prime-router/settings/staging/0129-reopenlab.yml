@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0119-reopenlab.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0119-reopenlab.yml'
 ---
 - name: reopenlab
   description: reopenlab

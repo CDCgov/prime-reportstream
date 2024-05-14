@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0136-RI-Added-MSH-3.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0136-RI-Added-MSH-3.yml'
 ---
 - name: "ri-phd"
   description: "Rhode Island Public Health Department"

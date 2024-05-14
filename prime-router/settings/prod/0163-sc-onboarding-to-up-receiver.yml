@@ -1,6 +1,6 @@
 # To submit this to localhost, run:
 #
-# ./prime multiple-settings set --env prod --input ./settings/prod/0163-sc-onboarding-to-up-receiver.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0163-sc-onboarding-to-up-receiver.yml'
 ---
 - name: "sc-phd"
   description: "South Carolina Public Health Department"

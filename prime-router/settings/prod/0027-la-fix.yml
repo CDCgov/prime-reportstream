@@ -1,4 +1,4 @@
-# Run this with ./prime receiver set --env prod --input ./settings/prod/0027-la-fix.yml
+# Run this with ./gradlew primecli --args='receiver set --env prod --input ./settings/prod/0027-la-fix.yml'
 ---
 name: "elr"
 organizationName: "la-doh"

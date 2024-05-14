@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0101-update-wa-phd-remove-obx-2-obx-11-obr-25.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0101-update-wa-phd-remove-obx-2-obx-11-obr-25.yml'
 ---
 - name: "wa-phd"
   description: "Washington Department of Health"

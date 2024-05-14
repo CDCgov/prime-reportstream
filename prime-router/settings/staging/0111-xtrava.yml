@@ -1,4 +1,4 @@
-# Run this:  ./prime multiple-settings set --input ./settings/staging/0111-xtrava.yml --env staging
+# Run this:  ./gradlew primecli --args='multiple-settings set --input ./settings/staging/0111-xtrava.yml --env staging'
 ---
 - name: xtrava
   description: Xtrava Health

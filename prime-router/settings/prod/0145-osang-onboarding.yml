@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0145-osang-onboarding.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0145-osang-onboarding.yml'
 ---
 - name: osang-otc
   description: Osang Healthcare - OTC Testing

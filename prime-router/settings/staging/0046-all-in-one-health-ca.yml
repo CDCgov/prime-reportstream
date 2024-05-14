@@ -1,4 +1,4 @@
-# Run this:  ./prime multiple-settings set --input ./settings/staging/0046-all-in-one-health-ca.yml --env staging
+# Run this:  ./gradlew primecli --args='multiple-settings set --input ./settings/staging/0046-all-in-one-health-ca.yml --env staging'
 ---
 - name: all-in-one-health-ca
   description: All-In-One Health CSV lab report schema, California

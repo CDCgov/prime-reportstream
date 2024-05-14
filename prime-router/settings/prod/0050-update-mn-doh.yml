@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0050-update-mn-doh.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0050-update-mn-doh.yml'
 ---
 
 - name: "mn-doh"

@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0126-update-nj-obx17-truncation.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0126-update-nj-obx17-truncation.yml'
 
 ---
 - name: "nj-doh"

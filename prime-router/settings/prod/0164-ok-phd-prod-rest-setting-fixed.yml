@@ -1,6 +1,6 @@
 # To submit this to localhost, run:
 #
-# ./prime multiple-settings set --env prod --input ./settings/prod/0164-ok-phd-prod-new-rest-setting.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0164-ok-phd-prod-new-rest-setting.yml'
 ---
 - name: "ok-phd"
   description: "Oklahoma Public Health Department"

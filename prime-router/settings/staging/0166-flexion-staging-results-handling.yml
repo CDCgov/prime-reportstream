@@ -1,14 +1,14 @@
 # To submit this to localhost, run:
-# ./prime multiple-settings set --input ./settings/staging/0166-flexion-staging-results-handling.yml
+# ./gradlew primecli --args='multiple-settings set --input ./settings/staging/0166-flexion-staging-results-handling.yml'
 #
 # To submit this to staging, run:
-# ./prime login --env staging
-# ./prime multiple-settings set --env staging --input ./settings/staging/0166-flexion-staging-results-handling.yml
+# ./gradlew primecli --args='login --env staging'
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0166-flexion-staging-results-handling.yml'
 #
 # Then add keys to it, as needed, like this:
-#  ./prime organization addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-hospital --doit
-#  ./prime organization addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.etor-service-sender --doit
-#  ./prime organization addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-lab --doit
+#  ./gradlew primecli --args='organization addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-hospital --doit'
+#  ./gradlew primecli --args='organization addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.etor-service-sender --doit'
+#  ./gradlew primecli --args='organization addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-lab --doit'
 #
 #
 # This FHIR ndjson (aka 'FHIR all on one line') data submission curl works for me, with a valid token in `TOK` env var:

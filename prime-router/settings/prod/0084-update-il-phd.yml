@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0084-update-il-phd.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0084-update-il-phd.yml'
 ---
 - name: "il-phd"
   description: "Illinois Public Health Department"

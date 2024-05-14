@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0047-setup-sbc-ca.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0047-setup-sbc-ca.yml'
 ---
 - name: ca-sbc-phd
   description: "San Benito County Public Health Services"

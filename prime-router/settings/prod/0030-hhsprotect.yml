@@ -1,4 +1,4 @@
-# Run ./prime receiver set --input ./settings/prod/0030-hhsprotect.yml --env prod
+# Run ./gradlew primecli --args='receiver set --input ./settings/prod/0030-hhsprotect.yml --env prod'
 # The change is additions to the juris filter.
 # Note that the processing_mode_code filter is still set to allow "T" data, for now, in Prod.
 ---

@@ -1,5 +1,5 @@
 # Changing IL doesn't need Observation Status
-# ./prime multiple-settings set --env prod --input ./settings/prod/0086-update-il-not-receive-observation-status.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0086-update-il-not-receive-observation-status.yml'
 ---
 - name: "il-phd"
   description: "Illinois Public Health Department"

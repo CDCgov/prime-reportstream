@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0148-CA-Add-SaphireStage-Receiver.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0148-CA-Add-SaphireStage-Receiver.yml'
 ---
 - name: "ca-dph"
   description: "California Department of Public Health"

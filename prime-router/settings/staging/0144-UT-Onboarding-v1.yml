@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0144-UT-Onboarding-v1.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0144-UT-Onboarding-v1.yml'
 
 - name: "ut-phd"
   description: "Utah Public Health Department"

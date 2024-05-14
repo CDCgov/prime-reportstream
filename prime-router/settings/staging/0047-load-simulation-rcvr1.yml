@@ -1,5 +1,5 @@
 ---
-# Run ./prime receiver set --input ./settings/staging/0047-load-simulation-rcvr1.yml --env staging
+# Run ./gradlew primecli --args='receiver set --input ./settings/staging/0047-load-simulation-rcvr1.yml --env staging'
 name: EVERY_5_MINS
 externalName: Batches and Sends every 5 minutes.  For Load testing.
 organizationName: ignore

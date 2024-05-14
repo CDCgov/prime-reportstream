@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0128-Mo-Revert-ORC-2_OBR-2.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0128-Mo-Revert-ORC-2_OBR-2.yml'
 ---
 - name: "mo-phd"
   description: "Missouri Public Health Department"

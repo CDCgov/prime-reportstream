@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0135-update-tx-hostname.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0135-update-tx-hostname.yml'
 ---
 - name: "tx-doh"
   description: "Texas Department of Health"

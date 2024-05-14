@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0121-Mo-Fixed-PID-15-3_ORC-21-1_OBX-23-1.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0121-Mo-Fixed-PID-15-3_ORC-21-1_OBX-23-1.yml'
 ---
 - name: "mo-phd"
   description: "Missouri Public Health Department"

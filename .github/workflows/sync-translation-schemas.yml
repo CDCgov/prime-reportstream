@@ -52,7 +52,7 @@ jobs:
             --subscription 7d1e3999-6577-4cd5-b296-f518e5c8e677 -o tsv)
             prodbsc=$(az storage account show-connection-string --name pdhprodstorageaccount --resource-group prime-data-hub-prod \
             --subscription 7d1e3999-6577-4cd5-b296-f518e5c8e677 -o tsv)
-            ./prime syncSchemas --schema-type="${{ github.event.inputs.translationType }}" -sb="$stagebsc" -sc="metadata" -db="$prodbsc" -dc="metadata"
+            ./gradlew primecli --args='syncSchemas --schema-type="${{ github.event.inputs.translationType }}" -sb="$stagebsc" -sc="metadata" -db="$prodbsc" -dc="metadata"'
             az storage account network-rule remove -g prime-data-hub-staging --account-name pdhstagingstorageaccount \
             --ip-address ${{ steps.runner_ip.outputs.ip-address }} --output none;
             az storage account network-rule remove -g prime-data-hub-prod --account-name pdhprodstorageaccount \

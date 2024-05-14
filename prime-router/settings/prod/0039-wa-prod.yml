@@ -1,6 +1,6 @@
 # Connect WA-PHD to their PROD environment.
 # Note: the JKS secret must be set for this connection to complete
-# ./prime multiple-settings set --input settings/prod/0039-wa-prod.yml --env prod
+# ./gradlew primecli --args='multiple-settings set --input settings/prod/0039-wa-prod.yml --env prod'
 ---
 - name: wa-phd
   description: Washington Department of Health

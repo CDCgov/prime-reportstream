@@ -1,6 +1,6 @@
 # To submit this to localhost, run:
 #
-# ./prime multiple-settings set --env staging --input ./settings/staging/0161-flexion-staging-new-rest-setting.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0161-flexion-staging-new-rest-setting.yml'
 ---
 - name: "flexion"
   description: "Flexion, Inc."

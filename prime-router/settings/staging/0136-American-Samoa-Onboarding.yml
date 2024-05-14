@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging-download/0136-American-Samoa-Onboarding.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging-download/0136-American-Samoa-Onboarding.yml'
 ---
 - name: as-phd
   description: "American Samoa Public Health Department"

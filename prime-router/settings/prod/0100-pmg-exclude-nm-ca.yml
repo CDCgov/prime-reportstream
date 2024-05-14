@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0100-pmg-exclude-nm-ca.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0100-pmg-exclude-nm-ca.yml'
 ---
 - name: "ca-dph"
   description: "California Department of Public Health"

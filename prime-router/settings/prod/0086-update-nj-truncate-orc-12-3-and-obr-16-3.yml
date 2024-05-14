@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0086-update-nj-truncate-orc-12-3-and-obr-16-3.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0086-update-nj-truncate-orc-12-3-and-obr-16-3.yml'
 ---
 - name: "nj-doh"
   description: "New Jersey Department of Health"

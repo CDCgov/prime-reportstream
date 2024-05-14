@@ -1,5 +1,5 @@
 # To submit this to localhost, run:
-# ./prime multiple-settings set --env staging --input ./junk/flexion/AL/Settings/0168-al-phl-staging-sender-receiver.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./junk/flexion/AL/Settings/0168-al-phl-staging-sender-receiver.yml'
 #
 # Description:
 #   These following setting are for Louisiana Public Health Lab (al-phl) sender and receivers

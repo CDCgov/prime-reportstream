@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0134-bzdlabs.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0134-bzdlabs.yml'
 ---
 - name: bzdlabs
   description: BZD labs

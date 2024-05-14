@@ -1,7 +1,7 @@
 #  Run these
-# ./prime receiver set --input ./settings/staging/0014-quality-tests.yml 
-# ./prime receiver set --input ./settings/staging/0014-quality-tests2.yml 
-# ./prime receiver set --input ./settings/staging/0014-quality-tests3.yml 
+# ./gradlew primecli --args='receiver set --input ./settings/staging/0014-quality-tests.yml '
+# ./gradlew primecli --args='receiver set --input ./settings/staging/0014-quality-tests2.yml '
+# ./gradlew primecli --args='receiver set --input ./settings/staging/0014-quality-tests3.yml '
 
 ---
 name: QUALITY_PASS

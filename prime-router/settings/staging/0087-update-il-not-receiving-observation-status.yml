@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0087-update-il-not-receiving-observation-status.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0087-update-il-not-receiving-observation-status.yml'
 ---
 - name: "il-phd"
   description: "Illinois Public Health Department"
