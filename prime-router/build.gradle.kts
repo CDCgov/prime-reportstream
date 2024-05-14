@@ -124,7 +124,8 @@ fun loadDotEnv(): Map<String, String> {
         Pair("POSTGRES_URL", "HOST_POSTGRES_URL"),
         Pair("AzureWebJobsStorage", "HostAzureWebJobsStorage"),
         Pair("PartnerStorage", "HostPartnerStorage"),
-        Pair("VAULT_API_ADDR", "HOST_VAULT_API_ADDR")
+        Pair("VAULT_API_ADDR", "HOST_VAULT_API_ADDR"),
+        Pair("PRIME_RS_API_ENDPOINT_HOST", "HOST_PRIME_RS_API_ENDPOINT_HOST")
     )
     overrides.forEach {
         if (properties[it.first] == null && System.getenv(it.first) == null) {
