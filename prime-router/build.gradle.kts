@@ -125,6 +125,7 @@ fun loadDotEnv(): Map<String, String> {
         Pair("AzureWebJobsStorage", "HostAzureWebJobsStorage"),
         Pair("PartnerStorage", "HostPartnerStorage"),
         Pair("VAULT_API_ADDR", "HOST_VAULT_API_ADDR"),
+        Pair("PRIME_RS_API_ENDPOINT_HOST", "HOST_PRIME_RS_API_ENDPOINT_HOST")
     )
     overrides.forEach {
         if (properties[it.first] == null && System.getenv(it.first) == null) {
@@ -138,15 +139,19 @@ fun loadDotEnv(): Map<String, String> {
         Pair("environment", System.getenv()),
         Pair("final", finalEnv)
     ).forEach {
-        project.logger.debug("${it.first.uppercase()} MAP")
-        project.logger.debug("--------------")
-        it.second.entries.sortedBy { it.key }.forEach {
-            project.logger.lifecycle("${it.key}: ${it.value}")
-        }
-        project.logger.debug("------------")
+        logMap(it)
     }*/
 
     return finalEnv.toMap()
+}
+
+fun logMap(it: Pair<String, Map<String, String>>) {
+    project.logger.debug("[DOTENV] ${it.first.uppercase()} MAP")
+    project.logger.debug("[DOTENV] --------------")
+    it.second.entries.sortedBy { it.key }.forEach {
+        project.logger.debug("[DOTENV] ${it.key}: ${it.value}")
+    }
+    project.logger.debug("[DOTENV] ------------")
 }
 
 val dotEnv = loadDotEnv()
@@ -427,6 +432,9 @@ tasks.register<JavaExec>("primeCLI") {
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
     doFirst {
+        project.logger.lifecycle("------DEBUG--------")
+        project.logger.lifecycle(environment["PRIME_RS_API_ENDPOINT_HOST"].toString())
+        project.logger.lifecycle("-------------------")
         if (project.extra.has("cliArgs") && project.extra["cliArgs"] is List<*>) {
             args = (project.extra["cliArgs"] as List<*>).filterIsInstance(String::class.java)
         } else if (args.isNullOrEmpty()) {
