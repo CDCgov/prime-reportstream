@@ -117,13 +117,28 @@ fun loadDotEnv(): Map<String, String> {
     val overrides = listOf(
         Pair("POSTGRES_URL", "HOST_POSTGRES_URL"),
         Pair("AzureWebJobsStorage", "HostAzureWebJobsStorage"),
-        Pair("PartnerStorage", "HostPartnerStorage")
+        Pair("PartnerStorage", "HostPartnerStorage"),
+        Pair("VAULT_API_ADDR", "HOST_VAULT_API_ADDR")
     )
     overrides.forEach {
         if (properties[it.first] == null && System.getenv(it.first) == null) {
             finalEnv[it.first] = finalEnv[it.second]
         }
     }
+
+    /*listOf(
+        Pair("properties", properties),
+        Pair("dotenv", dotEnv),
+        Pair("environment", System.getenv()),
+        Pair("final", finalEnv)
+    ).forEach {
+        project.logger.debug("${it.first.uppercase()} MAP")
+        project.logger.debug("--------------")
+        it.second.entries.sortedBy { it.key }.forEach {
+            project.logger.lifecycle("${it.key}: ${it.value}")
+        }
+        project.logger.debug("------------")
+    }*/
 
     return finalEnv.toMap()
 }
@@ -632,7 +647,7 @@ tasks.register("quickRun") {
  */
 // Configuration for Flyway migration tool
 flyway {
-    url = dotEnv["HOST_POSTGRES_URL"]
+    url = dotEnv["POSTGRES_URL"]
     user = dotEnv["POSTGRES_USER"]
     password = dotEnv["POSTGRES_PASSWORD"]
 }
@@ -646,7 +661,7 @@ jooq {
                 logging = org.jooq.meta.jaxb.Logging.INFO
                 jdbc.apply {
                     driver = "org.postgresql.Driver"
-                    url = dotEnv["HOST_POSTGRES_URL"]
+                    url = dotEnv["POSTGRES_URL"]
                     user = dotEnv["POSTGRES_USER"]
                     password = dotEnv["POSTGRES_PASSWORD"]
                 }
@@ -735,7 +750,7 @@ task<RunSQL>("clearDB") {
     config {
         username = dotEnv["POSTGRES_USER"]
         password = dotEnv["POSTGRES_PASSWORD"]
-        url = dotEnv["HOST_POSTGRES_URL"]
+        url = dotEnv["POSTGRES_URL"]
         driverClassName = "org.postgresql.Driver"
         script = """
             TRUNCATE TABLE public.action CASCADE;
