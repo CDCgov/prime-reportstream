@@ -17,7 +17,6 @@ Properties to control the execution and output using the Gradle -P arguments:
   E.g. ./gradlew clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
  */
 
-import io.github.cdimascio.dotenv.Dotenv
 import io.github.cdimascio.dotenv.dotenv
 import io.swagger.v3.plugins.gradle.tasks.ResolveTask
 import org.apache.commons.io.FileUtils
@@ -71,20 +70,23 @@ val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
 val buildDir = project.layout.buildDirectory.asFile.get()
 
-fun getVaultDotEnv(): Dotenv {
+fun addVaultDotEnv(dotEnv: Map<String, String>): Map<String, String> {
     val vaultFile = File(project.projectDir, ".vault/env/.env.local")
     if (!vaultFile.exists()) {
         vaultFile.createNewFile()
         throw GradleException("Your vault configuration has not been initialized. Start/Restart your vault container.")
     }
-    val dotEnv = dotenv {
+    val vaultDotenv = dotenv {
         filename = ".vault/env/.env.local"
-    }
-    if (dotEnv["CREDENTIAL_STORAGE_METHOD"] == null || dotEnv["CREDENTIAL_STORAGE_METHOD"] != "HASHICORP_VAULT") {
+    }.entries().associate { Pair(it.key, it.value) }
+    if (vaultDotenv["CREDENTIAL_STORAGE_METHOD"] == null ||
+        vaultDotenv["CREDENTIAL_STORAGE_METHOD"] != "HASHICORP_VAULT"
+    ) {
         throw GradleException("Your vault configuration is incorrect.  Check your ${vaultFile.absolutePath} file.")
     }
 
-    return dotEnv
+    val test = dotEnv.entries
+    return dotEnv + vaultDotenv
 }
 
 /**
@@ -104,8 +106,7 @@ fun loadDotEnv(): Map<String, String> {
         dotenv().entries() + dotenv {
             filename = ".env.local"
             ignoreIfMissing = true
-        }.entries() +
-            getVaultDotEnv().entries()
+        }.entries()
         ).associate { Pair(it.key, it.value) }
 
     // project properties added AFTER
@@ -399,7 +400,8 @@ tasks.register<JavaExec>("primeCLI") {
     classpath = sourceSets["main"].runtimeClasspath
     standardInput = System.`in`
 
-    environment = dotEnv
+    val finalDotenv = addVaultDotEnv(dotEnv)
+    environment = finalDotenv
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
     doFirst {
@@ -585,7 +587,8 @@ tasks.azureFunctionsRun {
     dependsOn("composeUp")
     dependsOn("uploadSwaggerUI").mustRunAfter("composeUp")
 
-    environment = dotEnv
+    val finalDotenv = addVaultDotEnv(dotEnv)
+    environment = finalDotenv
 
     azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
 }
