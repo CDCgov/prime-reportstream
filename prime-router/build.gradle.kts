@@ -70,6 +70,9 @@ val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
 val buildDir = project.layout.buildDirectory.asFile.get()
 
+/**
+ * Add vault map (.vault/env/.env.local) to provided one
+ */
 fun addVaultDotEnv(dotEnv: Map<String, String>): Map<String, String> {
     val vaultFile = File(project.projectDir, ".vault/env/.env.local")
     if (!vaultFile.exists()) {
@@ -85,7 +88,6 @@ fun addVaultDotEnv(dotEnv: Map<String, String>): Map<String, String> {
         throw GradleException("Your vault configuration is incorrect.  Check your ${vaultFile.absolutePath} file.")
     }
 
-    val test = dotEnv.entries
     return dotEnv + vaultDotenv
 }
 
@@ -93,7 +95,6 @@ fun addVaultDotEnv(dotEnv: Map<String, String>): Map<String, String> {
  * Collect variables from the following locations, with each following location overriding the priors:
  * - .env
  * - .env.local
- * - .vault/env/.env.local
  * - host environment
  * - project properties (-P<VAR>=<VALUE> flag)
  */
