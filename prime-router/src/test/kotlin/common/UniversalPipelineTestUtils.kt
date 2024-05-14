@@ -226,6 +226,8 @@ object UniversalPipelineTestUtils {
             .where(ItemLineage.ITEM_LINEAGE.PARENT_REPORT_ID.eq(previousStepReport.id))
             .fetchInto(gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage::class.java)
         assertThat(itemLineages).hasSize(expectedNumberOfItems)
+        assertThat(itemLineages.map { it.childIndex }).isEqualTo(MutableList(expectedNumberOfItems) { 1 })
+        assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expectedNumberOfItems).toList())
         val reportLineages = DSL
             .using(txn)
             .select(ReportLineage.REPORT_LINEAGE.asterisk())
