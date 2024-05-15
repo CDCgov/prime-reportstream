@@ -69,6 +69,7 @@ val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
 val buildDir = project.layout.buildDirectory.asFile.get()
+var userDir = System.getProperty("user.dir").toString()
 
 /**
  * Add vault map (.vault/env/.env.local) to provided one
@@ -80,7 +81,7 @@ fun addVaultDotEnv(dotEnv: Map<String, String>): Map<String, String> {
         throw GradleException("Your vault configuration has not been initialized. Start/Restart your vault container.")
     }
     val vaultDotenv = dotenv {
-        filename = vaultFile.absolutePath
+        filename = vaultFile.relativeTo(File(userDir)).toString()
     }.entries().associate { Pair(it.key, it.value) }
     if (vaultDotenv["CREDENTIAL_STORAGE_METHOD"] == null ||
         vaultDotenv["CREDENTIAL_STORAGE_METHOD"] != "HASHICORP_VAULT"
@@ -102,6 +103,7 @@ fun loadDotEnv(): Map<String, String> {
     val properties = project.properties.entries.associate { Pair(it.key, it.value?.toString() ?: "") }
         .toMutableMap()
 
+    val dotEnvPath = File(project.projectDir, ".env")
     // ensure .local exists for docker command
     val dotEnvLocal = File(project.projectDir, ".env.local")
     if (!dotEnvLocal.exists()) {
@@ -110,8 +112,10 @@ fun loadDotEnv(): Map<String, String> {
 
     // dotenv library will ensure host environment takes precedence
     val dotEnv = (
-        dotenv().entries() + dotenv {
-            filename = ".env.local"
+        dotenv {
+            filename = dotEnvPath.relativeTo(File(userDir)).toString()
+        }.entries() + dotenv {
+            filename = dotEnvLocal.relativeTo(File(userDir)).toString()
             ignoreIfMissing = true
         }.entries()
         ).associate { Pair(it.key, it.value) }
