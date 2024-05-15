@@ -23,78 +23,31 @@ jobs:
         run: |
           ./.github/scripts/stale_items_report/StaleItems.ps1
 
-      - name: Decode Stale Items Markdown
+      - name: Decode Slack Message
         shell: pwsh
         run: |
-          $pullRequestsMarkdown = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:STALE_PULL_REQUEST_LIST))
-          $branchesMarkdown = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:STALE_BRANCH_LIST))
-          $issuesMarkdown = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:STALE_ISSUE_LIST))
-          echo $pullRequestsMarkdown > stale_pull_requests.md
-          echo $branchesMarkdown > stale_branches.md
-          echo $issuesMarkdown > stale_issues.md
+          $slackMessage = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:SLACK_MESSAGE))
+          echo $slackMessage > slack_message.md
 
-          echo "## Stale Pull Requests`n$pullRequestsMarkdown`n`n## Stale Branches`n$branchesMarkdown`n`n## Stale Issues`n$issuesMarkdown" >> $env:GITHUB_STEP_SUMMARY
+          echo "## Stale Items`n$slackMessage" >> $env:GITHUB_STEP_SUMMARY
 
       - name: Get Stale items
         id: stale_out
         shell: bash
         run: |
-          message=$(cat stale_pull_requests.md)
+          message=$(cat slack_message.md)
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "MULTI_PR_RESPONSE<<$EOF" >> $GITHUB_OUTPUT
-          echo -e "$message" >> $GITHUB_OUTPUT
-          echo "$EOF" >> $GITHUB_OUTPUT
-
-          message=$(cat stale_branches.md)
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "MULTI_BRANCH_RESPONSE<<$EOF" >> $GITHUB_OUTPUT
-          echo -e "$message" >> $GITHUB_OUTPUT
-          echo "$EOF" >> $GITHUB_OUTPUT
-
-          message=$(cat stale_issues.md)
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "MULTI_ISSUE_RESPONSE<<$EOF" >> $GITHUB_OUTPUT
+          echo "MESSAGE_RESPONSE<<$EOF" >> $GITHUB_OUTPUT
           echo -e "$message" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
 
       - name: Slack Notification
-        if: steps.stale_out.outputs.MULTI_PR_RESPONSE != ''
         uses: ./.github/actions/notifications
         with:
           method: slack
-          title: Stale Pull Requests (>90 days)
+          title: Stale GitHub Items Summary
           message: |
-            ${{ steps.stale_out.outputs.MULTI_PR_RESPONSE }}
-          icon-emoji: ':bell:'
-          channel: pagerduty-alert-dump
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          color: warning
-          slackify-markdown: true
-
-      - name: Slack Notification
-        if: steps.stale_out.outputs.MULTI_BRANCH_RESPONSE != ''
-        uses: ./.github/actions/notifications
-        with:
-          method: slack
-          title: Stale Branches (>90 days)
-          message: |
-            [GitHub Link](https://github.com/CDCgov/prime-reportstream/branches/stale)
-            ${{ steps.stale_out.outputs.MULTI_BRANCH_RESPONSE }}
-          icon-emoji: ':bell:'
-          channel: pagerduty-alert-dump
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          color: warning
-          slackify-markdown: true
-
-      - name: Slack Notification
-        if: steps.stale_out.outputs.MULTI_ISSUE_RESPONSE != ''
-        uses: ./.github/actions/notifications
-        with:
-          method: slack
-          title: Stale Issues (>90 days)
-          message: |
-            [GitHub Link](https://github.com/CDCgov/prime-reportstream/issues?q=is%3Aissue+is%3Aopen+sort%3Acreated-asc)
-            ${{ steps.stale_out.outputs.MULTI_ISSUE_RESPONSE }}
+            ${{ steps.stale_out.outputs.MESSAGE_RESPONSE }}
           icon-emoji: ':bell:'
           channel: pagerduty-alert-dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
