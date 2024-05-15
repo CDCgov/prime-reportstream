@@ -112,11 +112,6 @@ elements:
     constants:
       hl7XCNField: '%{hl7OBXField}-25'
 
-  - name: observation-aoe-identifier
-    condition: '%resource.meta.tag.code="AOE"'
-    value: [ '"QST"' ]
-    hl7Spec: [ '%{hl7OBXField}-29' ]
-
   - name: obx-observation-sub-type
     value: [ '%resource.extension(%`rsext-observation-sub-type`).value' ]
     hl7Spec: [ '%{hl7OBXField}-30' ]

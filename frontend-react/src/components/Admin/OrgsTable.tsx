@@ -64,11 +64,21 @@ export function OrgsTable() {
         // should be added back whenever this API handler is adjusted to send back metadata - DWS
         const csvheader = `Name,Description,Jurisdiction,State,County\n`;
         const filecontent = [
-            "data:text/csv;charset=utf-8,", // this makes it a csv file
+            // this makes it a csv file
             csvheader,
             csvbody,
         ].join("");
-        window.open(encodeURI(filecontent), "prime-orgs.csv", "noopener");
+
+        // Create a temp link to initiate a download of our in-memory file
+        const blob = new Blob([filecontent], { type: "text/csv" });
+        const ele = document.createElement("a");
+        const dataUrl = URL.createObjectURL(blob);
+        ele.setAttribute("href", dataUrl);
+        ele.setAttribute("download", "prime-orgs.csv");
+        document.body.appendChild(ele);
+        ele.click();
+        document.body.removeChild(ele);
+        URL.revokeObjectURL(dataUrl);
     };
 
     const formattedTableData = () => {

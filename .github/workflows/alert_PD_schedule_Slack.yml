@@ -13,7 +13,7 @@ jobs:
       
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b
+        uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b
       - name: IsMonday
         id: IsMonday
         if: github.event_name == 'schedule' && github.event.schedule == '7 13 * * Mon'
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Check Out Changes
-      uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b
+      uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b
       with:
         fetch-depth: 0
       
@@ -50,7 +50,7 @@ jobs:
         echo  "${env:PDSchedules}" >> PDSchedules.json
 
     - name: JSON to variables
-      uses: antifree/json-to-variables@fceea3105eb6687f377bf24fc8e6e8e0e4d2945a
+      uses: antifree/json-to-variables@8de3c6b94715a24fe65f29640b4e292a4add22a3
       with:
         filename: 'PDSchedules.json'
         prefix: Schedules  
@@ -130,7 +130,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Check Out Changes
-      uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b
+      uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b
       with:
         fetch-depth: 0
       
@@ -147,7 +147,7 @@ jobs:
         echo  "${env:PDSchedules}" >> PDSchedules.json
 
     - name: JSON to variables
-      uses: antifree/json-to-variables@fceea3105eb6687f377bf24fc8e6e8e0e4d2945a
+      uses: antifree/json-to-variables@8de3c6b94715a24fe65f29640b4e292a4add22a3
       with:
         filename: 'PDSchedules.json'
         prefix: Schedules  
