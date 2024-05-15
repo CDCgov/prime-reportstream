@@ -51,8 +51,10 @@ runs:
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
+          echo "::group::Build"
           cd prime-router
           ./gradlew package -x fatjar -Pshowtests
+          echo "::endgroup::"
         shell: bash
 
     - name: Tar router files
@@ -87,8 +89,8 @@ runs:
           cd prime-router
           bsc=$(az storage account show-connection-string --name pdhstagingstorageaccount --resource-group prime-data-hub-staging \
           --subscription 7d1e3999-6577-4cd5-b296-f518e5c8e677 -o tsv)
-          ./gradlew primecli --args='validateSchemas --schema-type="HL7" --blob-store-connect="$bsc" --blob-store-container="metadata"'
-          ./gradlew primecli --args='validateSchemas --schema-type="FHIR" --blob-store-connect="$bsc" --blob-store-container="metadata"'
+          ./gradlew primecli --args="validateSchemas --schema-type=\"HL7\" --blob-store-connect=\"$bsc\" --blob-store-container=\"metadata\""
+          ./gradlew primecli --args="validateSchemas --schema-type=\"FHIR\" --blob-store-connect=\"$bsc\" --blob-store-container=\"metadata\""
           az storage account network-rule remove -g prime-data-hub-staging --account-name pdhstagingstorageaccount \
           --ip-address ${{ steps.runner_ip.outputs.ip-address }} --output none;
         shell: bash
@@ -143,7 +145,10 @@ runs:
     - name: Run Integration Tests
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
-      run: ./gradlew testIntegration -Pshowtests
+      run: |
+        echo "::group::Integration Tests"
+        ./gradlew testIntegration -Pshowtests
+        echo "::endgroup::"
       shell: bash
 
     - name: Publish Integration Test Results
@@ -172,10 +177,12 @@ runs:
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
+          echo "::group::Smoke Tests"
           cd prime-router
           export $(xargs < .vault/env/.env.local)
           ./gradlew primecli --args='create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass'
           ./gradlew testSmoke
+          echo "::endgroup::"
         shell: bash
 
     - name: Dump docker logs

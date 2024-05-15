@@ -48,7 +48,7 @@ arm64.run: docker setPermissions
 setPermissions: ## Set permissions needed for smoke tests to run successfully
 setPermissions: 
 	export $$(xargs < .vault/env/.env.local); \
-	./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass; \
+	./gradlew primecli --args='create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass'; \
 	docker compose --env-file .env exec sftp chmod 777 /home/foo/upload;
 
 .PHONY: reloadState

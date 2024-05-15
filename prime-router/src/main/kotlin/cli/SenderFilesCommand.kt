@@ -86,7 +86,8 @@ class SenderFilesCommand : CliktCommand(
             OktaCommand.fetchAccessToken(environment.value.oktaApp)
                 ?: abort(
                     "Invalid access token. " +
-                            "Run ./prime login to fetch/refresh your access token for the $env environment."
+                        "Run ./gradlew primecli --args='login'" +
+                        "to fetch/refresh your access token for the $env environment."
                 )
         }
     }

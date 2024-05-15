@@ -115,7 +115,8 @@ abstract class SettingCommand(
             OktaCommand.fetchAccessToken(environment.oktaApp)
                 ?: abort(
                     "Invalid access token. " +
-                        "Run ./prime login to fetch/refresh your access token for the $env environment."
+                        "Run ./gradlew primecli --args='login'" +
+                        "to fetch/refresh your access token for the $env environment."
                 )
         }
     }
@@ -198,7 +199,7 @@ abstract class SettingCommand(
             if (abortOnError) {
                 abort(
                     "Error getting $settingName in the $env environment:" +
-                            " HTTP status code: ${response.status.value} response body: $respStr"
+                        " HTTP status code: ${response.status.value} response body: $respStr"
                 )
             } else {
                 respStr
@@ -408,9 +409,9 @@ abstract class SettingCommand(
     ): Nothing {
         abort(
             "Error: \n" +
-                    "  Setting Name: $settingName\n" +
-                    "  HTTP Status Code: ${httpStatusCode}\n" +
-                    "  HTTP Response Data: $respStr"
+                "  Setting Name: $settingName\n" +
+                "  HTTP Status Code: ${httpStatusCode}\n" +
+                "  HTTP Response Data: $respStr"
         )
     }
 
@@ -952,11 +953,11 @@ class GetMultipleSettings : SettingCommand(
     private val loadToLocal by option(
         "-l", "--load-to-local",
         help = "Load settings to local database with transport modified to use SFTP. " +
-                "You will have the chance to approve or decline a diff. " +
-                "If the -a (--append-to-orgs) option is used in conjunction with the " +
-                "load option, the modified results " +
-                "are used when appending to the organizations.yml file. If the -o (--output) option is used, the " +
-                "original, unmodified settings will be output to that file."
+            "You will have the chance to approve or decline a diff. " +
+            "If the -a (--append-to-orgs) option is used in conjunction with the " +
+            "load option, the modified results " +
+            "are used when appending to the organizations.yml file. If the -o (--output) option is used, the " +
+            "original, unmodified settings will be output to that file."
     ).flag(default = false)
 
     private val json by option(

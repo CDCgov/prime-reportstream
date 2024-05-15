@@ -88,7 +88,7 @@ class OktaAuthTests : CoolTest() {
                 OktaCommand.fetchAccessToken(environment.oktaApp)
                     ?: CommandUtilities.abort(
                         "Cannot run test $testName. Invalid access token. " +
-                            "Run ./prime login to fetch/refresh a PrimeAdmin access token for " +
+                            "Run ./gradlew primecli --args='login' to fetch/refresh a PrimeAdmin access token for " +
                             "the $environment environment."
 
                     )
@@ -235,7 +235,7 @@ class OktaAuthTests : CoolTest() {
     ): Boolean {
         ugly("Starting $name Test: try various API paths using a bad token")
         var passed = true
-        val advice = "Run   ./prime login --env staging    " +
+        val advice = "Run   ./gradlew primecli --args='login --env staging'    " +
             "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
         val oktaToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: abort(
             "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
@@ -311,7 +311,7 @@ class OktaAuthTests : CoolTest() {
         orgName2: String,
     ): Boolean {
         ugly("Starting $name Test: test list-of-submissions queries using Okta PrimeAdmin token")
-        val advice = "Run   ./prime login --env staging    " +
+        val advice = "Run   ./gradlew primecli --args='login --env staging'    " +
             "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
         val oktaToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: abort(
             "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
@@ -380,7 +380,7 @@ class OktaAuthTests : CoolTest() {
         reportId2: ReportId?,
     ): Boolean {
         ugly("Starting $name Test: test report-details-history queries using Okta auth.")
-        val advice = "Run   ./prime login --env staging    " +
+        val advice = "Run   ./gradlew primecli --args='login --env staging'    " +
             "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
         val oktaToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: abort(
             "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
@@ -1165,7 +1165,7 @@ class Server2ServerAuthTests : CoolTest() {
         unauthorizedOrg: Organization,
     ): Boolean {
         ugly("Starting $name Test: test settings/organizations queries using server2server auth.")
-        val advice = "Run   ./prime login --env staging    " +
+        val advice = "Run   ./gradlew primecli --args='login --env staging'    " +
             "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
         val adminToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: OktaAuthTests.abort(
             "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"

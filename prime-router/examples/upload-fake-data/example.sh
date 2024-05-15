@@ -10,7 +10,7 @@ PRIME_RS_API_ENDPOINT_HOST=${PRIME_RS_API_ENDPOINT_HOST:-localhost}
 
 echo
 echo "Generating fake data"
-./prime data --input-fake 23 \
+./gradlew primecli --args='data --input-fake 23' \
   --input-schema primedatainput/pdi-covid-19 \
   --output examples/upload-fake-data/Test.csv
 echo

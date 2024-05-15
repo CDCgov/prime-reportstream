@@ -53,7 +53,7 @@ enum class TestStatus(val description: String) {
 }
 
 /**
- * This class implements the `./prime test` commands, which runs one or more [CoolTest]
+ * This class implements the `./gradlew primecli --args='test'` commands, which runs one or more [CoolTest]
  * Each individual Test then implements [CoolTest].
  *
  */
@@ -81,9 +81,9 @@ export POSTGRES_PASSWORD=<SECRET>
 ```
 Examples:
 ```
- ./prime test --list        List detailed information about available tests
- ./prime test               Runs the set of tests labelled as '${TestStatus.SMOKE.description}'
- ./prime test --run ping,end2end --env staging --key xxxxxxx       Runs the ping and end2end tests in azure Staging
+ ./gradlew primecli --args='test --list'        List detailed information about available tests
+ ./gradlew primecli --args='test'               Runs the set of tests labelled as '${TestStatus.SMOKE.description}'
+ ./gradlew primecli --args='test --run ping,end2end --env staging --key xxxxxxx'       Runs the ping and end2end tests in azure Staging
 ```
 
     """,

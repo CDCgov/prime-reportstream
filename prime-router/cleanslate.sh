@@ -326,8 +326,8 @@ function populate_vault() {
   # Make sure we have vault credentials loaded
   wait_for_vault_creds
 
-  ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass 1>>${LOG?} 2>&1
-  ./prime multiple-settings set --silent --input settings/organizations.yml 1>>${LOG?} 2>&1
+  ./gradlew primecli --args='create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass' 1>>${LOG?} 2>&1
+  ./gradlew primecli --args='multiple-settings set --silent --input settings/organizations.yml' 1>>${LOG?} 2>&1
 }
 
 # Orchestration for any clean-up-related activity
