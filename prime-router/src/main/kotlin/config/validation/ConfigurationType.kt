@@ -50,11 +50,13 @@ sealed class ConfigurationType<T> {
         }
     }
 
+//    TODO: #14168
 //    data object FhirTransforms : ConfigurationType<...>() {
-
+//
 //    }
 //
+//    TODO: #14169
 //    data object FhirMappings : ConfigurationType<...>() {
-
+//
 //    }
 }
