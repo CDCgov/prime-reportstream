@@ -13,6 +13,7 @@ import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChildProperties
+import gov.cdc.prime.router.logging.LogMeasuredTime
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -47,15 +48,19 @@ private fun lookupConditionCodings(code: Coding, metadata: Metadata): List<Codin
             throw IllegalStateException("Unable to load lookup table 'observation-mapping' for condition stamping")
         }
     }!!
-    return mappingTable.caseSensitiveDataRowsMap.filter { // find codes
-        it[ObservationMappingConstants.TEST_CODE_KEY] == code.code
-    }.map { condition ->
-        Coding(
-            condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
-            condition[ObservationMappingConstants.CONDITION_CODE_KEY],
-            condition[ObservationMappingConstants.CONDITION_NAME_KEY]
-        )
-    }.toList()
+    return LogMeasuredTime.measureAndLogDurationWithReturnedValue(
+        "Tag observation with condition"
+    ) {
+        mappingTable.caseSensitiveDataRowsMap.filter { // find codes
+            it[ObservationMappingConstants.TEST_CODE_KEY] == code.code
+        }.map { condition ->
+            Coding(
+                condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
+                condition[ObservationMappingConstants.CONDITION_CODE_KEY],
+                condition[ObservationMappingConstants.CONDITION_NAME_KEY]
+            )
+        }.toList()
+    }
 }
 
 /**
@@ -84,24 +89,28 @@ fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
  * @return a list of ActionLogDetail objects with information on any mapping failures
  */
 fun Observation.addMappedConditions(metadata: Metadata): List<ActionLogDetail> {
-    val codeSourcesMap = this.getCodeSourcesMap().filterValues { it.isNotEmpty() }
-    var mappedSomething = false
-    if (codeSourcesMap.values.flatten().isEmpty()) return listOf(UnmappableConditionMessage()) // no codes found
+    return LogMeasuredTime.measureAndLogDurationWithReturnedValue(
+        "Add mapped conditions"
+    ) {
+        val codeSourcesMap = this.getCodeSourcesMap().filterValues { it.isNotEmpty() }
+        var mappedSomething = false
+        if (codeSourcesMap.values.flatten().isEmpty()) listOf(UnmappableConditionMessage()) // no codes found
 
-    return codeSourcesMap.mapNotNull { codeSourceEntry ->
-        codeSourceEntry.value.mapNotNull { code ->
-            lookupConditionCodings(code, metadata).let { conditions ->
-                if (conditions.isEmpty()) { // no codes found, track this unmapped code
-                    code.code
-                } else { // codes found; add extensions and return null to avoid mapping this as an error
-                    conditions.forEach { code.addExtension(conditionCodeExtensionURL, it) }
-                    mappedSomething = true
-                    null
+        codeSourcesMap.mapNotNull { codeSourceEntry ->
+            codeSourceEntry.value.mapNotNull { code ->
+                lookupConditionCodings(code, metadata).let { conditions ->
+                    if (conditions.isEmpty()) { // no codes found, track this unmapped code
+                        code.code
+                    } else { // codes found; add extensions and return null to avoid mapping this as an error
+                        conditions.forEach { code.addExtension(conditionCodeExtensionURL, it) }
+                        mappedSomething = true
+                        null
+                    }
                 }
+            }.let {
+                // create log message for any unmapped codes
+                if (it.isEmpty() || mappedSomething) null else UnmappableConditionMessage(it, codeSourceEntry.key)
             }
-        }.let {
-            // create log message for any unmapped codes
-            if (it.isEmpty() || mappedSomething) null else UnmappableConditionMessage(it, codeSourceEntry.key)
         }
     }
 }

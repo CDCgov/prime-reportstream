@@ -16,11 +16,12 @@ object LogMeasuredTime : Logging {
 
         val finalLoggingContext = when (items is Collection<*>) {
             true -> mapOf(
-                "durationInSecs" to timeTaken.inWholeSeconds.toString(),
+                "durationInMilliSecs" to timeTaken.inWholeMilliseconds.toString(),
                 "size" to items.size.toString()
             ) + loggingContext
+
             false -> mapOf(
-                "durationInSecs" to timeTaken.inWholeSeconds.toString()
+                "durationInMilliSecs" to timeTaken.inWholeMilliseconds.toString()
             ) + loggingContext
         }
 

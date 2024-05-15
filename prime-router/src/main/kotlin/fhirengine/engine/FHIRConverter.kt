@@ -115,7 +115,11 @@ class FHIRConverter(
         // TODO: https://github.com/CDCgov/prime-reportstream/issues/14287
         FhirPathUtils
 
-        val fhirBundles = process(format, queueMessage, actionLogger)
+        val fhirBundles =
+            LogMeasuredTime.measureAndLogDurationWithReturnedValue(
+                "Process queue message",
+                mapOf("reportId" to queueMessage.reportId.toString(), "topic" to queueMessage.topic.name)
+            ) { process(format, queueMessage, actionLogger) }
 
         if (fhirBundles.isNotEmpty()) {
             return LogMeasuredTime.measureAndLogDurationWithReturnedValue(
@@ -280,20 +284,29 @@ class FHIRConverter(
             }
 
             val areAllItemsParsedAndValid = processedItems.all { it.getError() == null }
-            val bundles = processedItems.mapNotNull { item ->
-                val error = item.getError()
-                if (error != null) {
-                    actionLogger.getItemLogger(error.index + 1).error(error)
-                }
-                // 'stamp' observations with their condition code
-                item.bundle?.getObservations()?.forEach {
-                    it.addMappedConditions(metadata).run {
-                        actionLogger.getItemLogger(item.index + 1, it.id)
-                            .warn(this)
+            val bundles =
+                LogMeasuredTime.measureAndLogDurationWithReturnedValue(
+                    "Log errors and map conditions",
+                    mapOf(
+                        "reportId" to queueMessage.reportId.toString(),
+                        "format" to format.name
+                    )
+                ) {
+                    processedItems.mapNotNull { item ->
+                        val error = item.getError()
+                        if (error != null) {
+                            actionLogger.getItemLogger(error.index + 1).error(error)
+                        }
+                        // 'stamp' observations with their condition code
+                        item.bundle?.getObservations()?.forEach {
+                            it.addMappedConditions(metadata).run {
+                                actionLogger.getItemLogger(item.index + 1, it.id)
+                                    .warn(this)
+                            }
+                        }
+                        item.bundle
                     }
                 }
-                item.bundle
-            }
 
             withLoggingContext(
                 mapOf(
