@@ -155,8 +155,8 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     private val flexionRestTransportType = RESTTransportType(
         "v1/etor/orders",
         "v1/auth/token",
-        "two-legged",
         "",
+        "two-legged",
         null,
         mapOf("mock-p1" to "value-p1", "mock-p2" to "value-p2"),
         headers = mapOf(
@@ -589,7 +589,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
     private val natusRestTransportTypeLive = RESTTransportType(
         "https://api.neometrics.com/natusAPI/api/v2/HL7",
         "https://api.neometrics.com/natusAPI/api/v2/AUTH/Login",
-        "https://api.neometrics.com/natusAPI/api/v2/HL7/GetFileEncryptionKey",
+        "",
         authHeaders = mapOf(
             "ExpectSuccess" to "true",
             "Content-Type" to "application/json",
