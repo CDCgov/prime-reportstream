@@ -1759,7 +1759,7 @@ class Report : Logging {
             val blobInfo = BlobAccess.uploadBody(
                 reportFormat,
                 messageBody,
-                if (!externalName.isNullOrEmpty()) "$externalName-${report.name}" else report.name,
+                if (!externalName.isNullOrEmpty()) "${report.id}-$externalName" else report.name,
                 receiver.fullName,
                 event.eventAction
             )
