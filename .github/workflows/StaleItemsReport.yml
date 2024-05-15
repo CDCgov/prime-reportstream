@@ -49,7 +49,7 @@ jobs:
           message: |
             ${{ steps.stale_out.outputs.MESSAGE_RESPONSE }}
           icon-emoji: ':bell:'
-          channel: pagerduty-alert-dump
+          channel: temp_branch_dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           color: warning
           slackify-markdown: true

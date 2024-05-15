@@ -12,7 +12,7 @@ function Get-StaleItems {
         [int]$StaleDays
     )
 
-    $BasicCreds = Get-BasicAuthCreds -Username "repo" -Password ${ secrets.GITHUB_TOKEN }
+    $BasicCreds = Get-BasicAuthCreds -Username "repo" -Password ${ secrets.RUNLEAKS_TOKEN }
     $val = Invoke-WebRequest -Uri $Endpoint -Headers @{"Authorization"="Basic $BasicCreds"}
     $json = $val | ConvertFrom-JSON
     $limit = [datetime]::Now.AddDays(-$StaleDays)
@@ -20,6 +20,26 @@ function Get-StaleItems {
     $staleItems = $json | Where-Object { $_.updated_at -lt $limit }
 
     return $staleItems
+}
+
+function Get-AllStaleIssues {
+    param(
+        [string]$Endpoint,
+        [int]$StaleDays
+    )
+
+    $staleIssues = @()
+    $page = 1
+    $perPage = 100
+
+    do {
+        $url = "$Endpoint&page=$page&per_page=$perPage"
+        $issues = Get-StaleItems -ItemType "Issue" -Endpoint $url -StaleDays $StaleDays
+        $staleIssues += $issues
+        $page++
+    } while ($issues.Count -eq $perPage)
+
+    return $staleIssues
 }
 
 # Get stale pull requests
@@ -31,12 +51,14 @@ $ExcludeBranchesList = @(Get-Content .\.github\scripts\stale_items_report\exclud
 $staleBranches = Get-StaleItems -ItemType "Branch" -Endpoint "https://api.github.com/repos/CDCgov/prime-reportstream/branches?direction=asc&sort=updated" -StaleDays 90 | Where-Object { $_.name -notin $ExcludeBranchesList }
 $staleBranchCount = $staleBranches.Count
 
-# Get stale issues
-$staleIssues = Get-StaleItems -ItemType "Issue" -Endpoint "https://api.github.com/repos/CDCgov/prime-reportstream/issues?state=open&per_page=100&direction=asc&sort=updated" -StaleDays 90
+# Get all stale issues using pagination
+$staleIssues = Get-AllStaleIssues -Endpoint "https://api.github.com/repos/CDCgov/prime-reportstream/issues?state=open&direction=asc&sort=updated" -StaleDays 90
 $staleIssueCount = $staleIssues.Count
 
 # Count issues older than 90 days for each issue author
-$issueAuthorCounts = $staleIssues | Group-Object -Property user.login | Select-Object Name, Count
+$issueAuthorCounts = $staleIssues | Group-Object -Property user.login | Select-Object Name, Count | Where-Object { $_.Name -ne $null }
+
+$issueAuthorCountsFormatted = $issueAuthorCounts | ForEach-Object { "- $($_.Name): $($_.Count)" }
 
 $slackMessage = @"
 *Stale GitHub Items Summary*
@@ -46,7 +68,7 @@ $slackMessage = @"
 - Stale Issues (>90 days): $staleIssueCount
 
 *Stale Issues by Author*
-$($issueAuthorCounts | ForEach-Object { "- $($_.Name): $($_.Count)" })
+$($issueAuthorCountsFormatted -join "`n")
 "@
 
 $encodedSlackMessage = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($slackMessage))
