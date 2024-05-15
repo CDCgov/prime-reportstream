@@ -80,7 +80,7 @@ fun addVaultDotEnv(dotEnv: Map<String, String>): Map<String, String> {
         throw GradleException("Your vault configuration has not been initialized. Start/Restart your vault container.")
     }
     val vaultDotenv = dotenv {
-        filename = ".vault/env/.env.local"
+        filename = vaultFile.absolutePath
     }.entries().associate { Pair(it.key, it.value) }
     if (vaultDotenv["CREDENTIAL_STORAGE_METHOD"] == null ||
         vaultDotenv["CREDENTIAL_STORAGE_METHOD"] != "HASHICORP_VAULT"
@@ -432,9 +432,6 @@ tasks.register<JavaExec>("primeCLI") {
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
     doFirst {
-        project.logger.lifecycle("------DEBUG--------")
-        project.logger.lifecycle(environment["PRIME_RS_API_ENDPOINT_HOST"].toString())
-        project.logger.lifecycle("-------------------")
         if (project.extra.has("cliArgs") && project.extra["cliArgs"] is List<*>) {
             args = (project.extra["cliArgs"] as List<*>).filterIsInstance(String::class.java)
         } else if (args.isNullOrEmpty()) {
