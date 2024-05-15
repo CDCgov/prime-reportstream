@@ -197,7 +197,7 @@ regexes = [
     'useResource } from \"rest-hooks\"', # not a useR
     'authority","extension"',
     'author"}]},"who":{"reference"',
-    'author"} ]},"who" : {"reference"'
+    'author"} ]},"who" : {"reference"'                                             # not a useR
 ]
 paths = [
     '.terraform/modules/',
