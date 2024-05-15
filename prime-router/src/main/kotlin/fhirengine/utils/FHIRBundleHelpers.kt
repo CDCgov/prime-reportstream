@@ -94,7 +94,9 @@ fun Observation.addMappedConditions(metadata: Metadata): List<ActionLogDetail> {
     ) {
         val codeSourcesMap = this.getCodeSourcesMap().filterValues { it.isNotEmpty() }
         var mappedSomething = false
-        if (codeSourcesMap.values.flatten().isEmpty()) listOf(UnmappableConditionMessage()) // no codes found
+        if (codeSourcesMap.values.flatten().isEmpty()) {
+            return@measureAndLogDurationWithReturnedValue listOf(UnmappableConditionMessage()) // no codes found
+        }
 
         codeSourcesMap.mapNotNull { codeSourceEntry ->
             codeSourceEntry.value.mapNotNull { code ->

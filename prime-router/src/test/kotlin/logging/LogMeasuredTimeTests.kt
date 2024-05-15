@@ -37,7 +37,7 @@ class LogMeasuredTimeTests {
         assertThat(value).isEqualTo("returned value")
         verify(exactly = 1) {
             mockLogger.info("test")
-            MDC.put("durationInSecs", any(String::class))
+            MDC.put("durationInMilliSecs", any(String::class))
         }
     }
 
@@ -58,7 +58,7 @@ class LogMeasuredTimeTests {
         verify(exactly = 1) {
             mockLogger.info("test")
             MDC.put("foo", "bar")
-            MDC.put("durationInSecs", any(String::class))
+            MDC.put("durationInMilliSecs", any(String::class))
         }
     }
 
@@ -79,7 +79,7 @@ class LogMeasuredTimeTests {
         verify(exactly = 1) {
             mockLogger.info("test")
             MDC.put("foo", "bar")
-            MDC.put("durationInSecs", any(String::class))
+            MDC.put("durationInMilliSecs", any(String::class))
             MDC.put("size", "1")
         }
     }
