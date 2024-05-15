@@ -454,15 +454,15 @@ class FHIRConverterIntegrationTests {
             assertThat(reportAndBundles).transform { pairs -> pairs.map { it.second } }.each {
                 it.matchesPredicate { bytes ->
                     val invalidHL7Result = CompareData().compare(
-                        bytes.inputStream(),
                         cleanHL7RecordConvertedAndTransformed.byteInputStream(),
+                        bytes.inputStream(),
 
                         Report.Format.FHIR,
                         null
                     )
                     val cleanHL7Result = CompareData().compare(
-                        bytes.inputStream(),
                         invalidHL7RecordConvertedAndTransformed.byteInputStream(),
+                        bytes.inputStream(),
                         Report.Format.FHIR,
                         null
                     )
