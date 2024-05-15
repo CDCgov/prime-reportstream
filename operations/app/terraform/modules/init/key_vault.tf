@@ -81,7 +81,8 @@ resource "azurerm_key_vault_access_policy" "init" {
     "Get",
     "List",
     "Delete",
-    "Purge"
+    "Purge",
+    "GetRotationPolicy"
   ]
 
   secret_permissions = [
@@ -113,7 +114,8 @@ resource "azurerm_key_vault_access_policy" "init_tf" {
     "Get",
     "List",
     "Delete",
-    "Purge"
+    "Purge",
+    "GetRotationPolicy"
   ]
 
   secret_permissions = [

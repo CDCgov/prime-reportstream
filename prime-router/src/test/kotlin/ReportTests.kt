@@ -1105,7 +1105,7 @@ class ReportTests {
         )
 
         val reportIds = listOf(ReportId.randomUUID())
-        val externalReportName = "TestExternalName"
+        val externalReportName = "TestExternalName.hl7"
         val (report, _, blobInfo) = Report.generateReportAndUploadBlob(
             Event.EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
             topic = Topic.FULL_ELR, externalReportName
@@ -1114,7 +1114,7 @@ class ReportTests {
         assertThat(report.bodyFormat).isEqualTo(Report.Format.HL7)
         assertThat(Regex("None-${report.id}-\\d*.hl7").matches(report.name)).isTrue()
         assertThat(blobInfo.blobUrl).endsWith(
-            "/devstoreaccount1/container1/process%2Forg.name%2F$externalReportName-${report.name}"
+            "/devstoreaccount1/container1/process%2Forg.name%2F${report.id}-$externalReportName"
         )
     }
 
