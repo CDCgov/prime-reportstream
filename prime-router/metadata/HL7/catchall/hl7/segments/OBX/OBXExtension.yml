@@ -181,13 +181,14 @@ extension:
       vars:
         obx32: STRING_ALL, OBX.32
       condition: $obx32 NOT_NULL
+      generateList: true
+      specs: OBX.32 *
       expressionsMap:
         url:
           type: STRING
-          value: OBX.32 *
+          value: OBX.32
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
-          specs: OBX.32
           expressionType: resource
 
 

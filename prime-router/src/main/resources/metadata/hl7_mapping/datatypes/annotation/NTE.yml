@@ -36,6 +36,10 @@ elements:
       hl7XCNField: '%{hl7NotePath}/NTE(%{noteIndex})-5'
       contactIndex: '0'
 
+  - name: note-entered-date
+    value: [ '%resource.time.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-6' ]
+
   - name: note-start-date
     value: [ '%resource.extension(%`rsext-note-start-date`).value' ]
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-7' ]

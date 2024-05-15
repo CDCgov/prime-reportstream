@@ -104,8 +104,12 @@ extension_5-expirationDate:
       type: STRING
 
 extension_6-noteCodedComment:
+  vars:
+    nte9: STRING_ALL, NTE.9
+  condition: $nte9 NOT_NULL
   generateList: true
   expressionType: nested
+  specs: NTE.9 *
   expressionsMap:
     url:
       type: SYSTEM_URL
@@ -113,4 +117,3 @@ extension_6-noteCodedComment:
     valueCodeableConcept:
       valueOf: datatypes/CWE/CodeableConcept
       expressionType: resource
-      specs: NTE.9 *
