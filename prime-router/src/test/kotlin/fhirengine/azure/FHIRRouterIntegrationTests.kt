@@ -27,7 +27,6 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
-import gov.cdc.prime.router.azure.db.tables.records.ActionLogRecord
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSender
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransform
@@ -61,6 +60,7 @@ import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.File
 import java.time.OffsetDateTime
+import java.util.UUID
 import kotlin.test.assertEquals
 
 private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/fhir_without_birth_time.fhir"
@@ -375,22 +375,39 @@ class FHIRRouterIntegrationTests : Logging {
         }
     }
 
-    private fun checkActionLogTable(reportId: String? = null) {
+    private data class ActionLogRecordContent (
+        val index: Int,
+        val reportId: UUID?,
+        val type: ActionLogLevel?,
+        val scope: ActionLogScope?
+    )
+
+    private val expectedButStrangeObservationFilterEntry = listOf(
+        ActionLogRecordContent(
+            0,
+            reportId = null,
+            scope=ActionLogScope.report,
+            type=ActionLogLevel.info
+        )
+    )
+
+    private fun checkActionLogTable(expectedContentList: List<ActionLogRecordContent>) {
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val actionLogRecords = DSL.using(txn)
                                       .select(Tables.ACTION_LOG.asterisk())
                                       .from(Tables.ACTION_LOG)
                                       .fetchInto(ActionLog::class.java)
 
-            if (reportId.isNullOrBlank()) {
-                assert(actionLogRecords.size == 0)
-            } else {
-                assert(actionLogRecords.size == 1)
-                val actionLogRecord = actionLogRecords[0]
-                assertEquals(actionLogRecord.reportId.toString(), reportId)
-                assertEquals(actionLogRecord.type, ActionLogLevel.filter)
-                assertEquals(actionLogRecord.scope, ActionLogScope.translation)
+            assert(actionLogRecords.size >= expectedContentList.size)
+
+            for (expectedActionLogRecordContent in expectedContentList) {
+                val actualActionLogRecord = actionLogRecords[expectedActionLogRecordContent.index]
+
+                assertEquals(expectedActionLogRecordContent.reportId, actualActionLogRecord.reportId)
+                assertEquals(expectedActionLogRecordContent.type, actualActionLogRecord.type)
+                assertEquals(expectedActionLogRecordContent.scope, actualActionLogRecord.scope)
             }
+
         }
     }
 
@@ -410,78 +427,75 @@ class FHIRRouterIntegrationTests : Logging {
         unmockkAll()
     }
 
-    /*
-    this test fails because an observation is recorded removed despite no filter in place mandating it be removed. also
-    the resultant record in the ACTION_LOG table appears to be missing necessary fields like "report_id"
-    */
-//    @Test
-//    fun `should send valid FHIR report only to receiver listening to full-elr`() {
-//        // set up
-//        val reportContents =
-//            listOf(
-//                validFHIRRecord1
-//            ).joinToString()
-//
-//        val reportPair = createReportsWithLineage(reportContents)
-//        val receiveReport = reportPair.first
-//        val convertReport = reportPair.second
-//        val queueMessage = generateQueueMessage(convertReport, reportContents, fhirSenderWithNoTransform)
-//        val fhirFunctions = createFHIRFunctionsInstance()
-//
-//        // make sure action table has only what we put in there
-//        checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
-//
-//        // execute
-//        fhirFunctions.doRoute(queueMessage, 1, createFHIRRouter())
-//
-//        // check results
-//        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-//            // did the report get pushed to blob store correctly and intact?
-//            val routedReports = verifyLineageAndFetchCreatedReportFiles(convertReport, receiveReport, txn, 1)
-//            val reportAndBundles =
-//                routedReports.map {
-//                    Pair(
-//                        it,
-//                        BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata())
-//                    )
-//                }
-//
-//            assertThat(reportAndBundles).transform { pairs ->
-//                pairs.map {
-//                    it.second.toString(Charsets.UTF_8)
-//                }
-//            }.containsOnly(validFHIRRecord1)
-//
-//            // is the queue messaging what we expect it to be?
-//            val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
-//                FhirTranslateQueueMessage(
-//                    report.reportId,
-//                    report.bodyUrl,
-//                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
-//                    "phd.fhir-elr-no-transform",
-//                    fhirSenderWithNoTransform.topic,
-//                    "phd.elr2"
-//                )
-//            }.map {
-//                it.serialize()
-//            }
-//
-//            verify(exactly = 1) {
-//                QueueAccess.sendMessage(
-//                    elrTranslationQueueName,
-//                    match {
-//                        expectedRouteQueueMessages.contains(it)
-//                    }
-//                )
-//            }
-//
-//            // make sure action table has a new entry
-//            checkActionTable(listOf(TaskAction.convert, TaskAction.receive, TaskAction.route))
-//
-//            // ACTION_LOG table should be empty
-//            checkActionLogTable()
-//        }
-//    }
+    @Test
+    fun `should send valid FHIR report only to receiver listening to full-elr`() {
+        // set up
+        val reportContents =
+            listOf(
+                validFHIRRecord1
+            ).joinToString()
+
+        val reportPair = createReportsWithLineage(reportContents)
+        val receiveReport = reportPair.first
+        val convertReport = reportPair.second
+        val queueMessage = generateQueueMessage(convertReport, reportContents, fhirSenderWithNoTransform)
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        // make sure action table has only what we put in there
+        checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
+
+        // execute
+        fhirFunctions.doRoute(queueMessage, 1, createFHIRRouter())
+
+        // check results
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            // did the report get pushed to blob store correctly and intact?
+            val routedReports = verifyLineageAndFetchCreatedReportFiles(convertReport, receiveReport, txn, 1)
+            val reportAndBundles =
+                routedReports.map {
+                    Pair(
+                        it,
+                        BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata())
+                    )
+                }
+
+            assertThat(reportAndBundles).transform { pairs ->
+                pairs.map {
+                    it.second.toString(Charsets.UTF_8)
+                }
+            }.containsOnly(validFHIRRecord1)
+
+            // is the queue messaging what we expect it to be?
+            val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
+                FhirTranslateQueueMessage(
+                    report.reportId,
+                    report.bodyUrl,
+                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                    "phd.fhir-elr-no-transform",
+                    fhirSenderWithNoTransform.topic,
+                    "phd.elr2"
+                )
+            }.map {
+                it.serialize()
+            }
+
+            verify(exactly = 1) {
+                QueueAccess.sendMessage(
+                    elrTranslationQueueName,
+                    match {
+                        expectedRouteQueueMessages.contains(it)
+                    }
+                )
+            }
+
+            // make sure action table has a new entry
+            checkActionTable(listOf(TaskAction.convert, TaskAction.receive, TaskAction.route))
+
+            // ACTION_LOG table is expected to have a record with no record_id identifying an observation filter action
+            // that may or may not have happened.
+            checkActionLogTable(expectedButStrangeObservationFilterEntry)
+        }
+    }
 
     @Test
     fun `should send valid FHIR report only to receivers listening to full-elr`() {
@@ -567,13 +581,17 @@ class FHIRRouterIntegrationTests : Logging {
 
             // make sure action table has a new entry
             checkActionTable(listOf(TaskAction.convert, TaskAction.receive, TaskAction.route))
+
+            // ACTION_LOG table is expected to have a record with no record_id identifying an observation filter action
+            // that may or may not have happened.
+            checkActionLogTable(expectedButStrangeObservationFilterEntry)
         }
     }
 
     /*
-    this test fails because an observation is recorded removed despite no filter in place mandating it be removed. also
-    the resultant record in the ACTION_LOG table appears to be missing necessary fields like "report_id"
-    */
+    This causes an error on attempt to serialize an ACTION_LOG record that has a value of "tracking_id" that is larger
+    than the size constraint on the db table.
+     */
 //    @Test
 //    fun `should send valid FHIR report filtered by condition code 94558-4`() {
 //        // set up
@@ -592,7 +610,7 @@ class FHIRRouterIntegrationTests : Logging {
 //        checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
 //
 //        // execute
-//        var receivers = createReceivers(listOf(ReceiverSetupData("x", filter = observationFilter)))
+//        var receivers = createReceivers(listOf(ReceiverSetupData("x", conditionFilter = observationFilter)))
 //        val org = createOrganizationWithReceivers(receivers)
 //        val fhirRouter = createFHIRRouter(org)
 //        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
@@ -653,76 +671,72 @@ class FHIRRouterIntegrationTests : Logging {
 //        }
 //    }
 
-    /*
-    this test fails because an observation is recorded removed despite no filter in place mandating it be removed. also
-    the resultant record in the ACTION_LOG table appears to be missing necessary fields like "report_id"
-    */
-//    @Test
-//    fun `should respect jurisdictional filter and send message`() {
-//        // set up
-//        val reportContents =
-//            listOf(
-//                File(VALID_FHIR_URL).readText()
-//            ).joinToString()
-//
-//        val reportPair = createReportsWithLineage(reportContents)
-//        val receiveReport = reportPair.first
-//        val convertReport = reportPair.second
-//        val queueMessage = generateQueueMessage(convertReport, reportContents, fhirSenderWithNoTransform)
-//        val fhirFunctions = createFHIRFunctionsInstance()
-//
-//        // make sure action table has only what we put in there
-//        checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
-//
-//        // execute
-//        val receivers = createReceivers(listOf(ReceiverSetupData("x", jurisdictionalFilter = jurisdictionalFilterTx)))
-//        val org = createOrganizationWithReceivers(receivers)
-//        val fhirRouter = createFHIRRouter(org)
-//        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
-//
-//        // check results
-//        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-//
-//            // did the report get pushed to blob store correctly and intact?
-//            val routedReports = verifyLineageAndFetchCreatedReportFiles(convertReport, receiveReport, txn, 1)
-//            val reportAndBundles =
-//                routedReports.map {
-//                    Pair(
-//                        it,
-//                        BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata())
-//                    )
-//                }
-//            // is the queue messaging what we expect it to be?
-//            val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
-//                FhirTranslateQueueMessage(
-//                    report.reportId,
-//                    report.bodyUrl,
-//                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
-//                    "phd.fhir-elr-no-transform",
-//                    fhirSenderWithNoTransform.topic,
-//                    "phd.x"
-//                )
-//            }.map {
-//                it.serialize()
-//            }
-//
-//            // filter should permit message and should not mangle message
-//            verify(exactly = 1) {
-//                QueueAccess.sendMessage(
-//                    elrTranslationQueueName,
-//                    match {
-//                        expectedRouteQueueMessages.contains(it)
-//                    }
-//                )
-//            }
-//
-//            // make sure action table has a new entry
-//            checkActionTable(listOf(TaskAction.convert, TaskAction.receive, TaskAction.route))
-//
-//            // ACTION_LOG table should be empty
-//            checkActionLogTable()
-//        }
-//    }
+    @Test
+    fun `should respect jurisdictional filter and send message`() {
+        // set up
+        val reportContents =
+            listOf(
+                File(VALID_FHIR_URL).readText()
+            ).joinToString()
+
+        val reportPair = createReportsWithLineage(reportContents)
+        val receiveReport = reportPair.first
+        val convertReport = reportPair.second
+        val queueMessage = generateQueueMessage(convertReport, reportContents, fhirSenderWithNoTransform)
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        // make sure action table has only what we put in there
+        checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
+
+        // execute
+        val receivers = createReceivers(listOf(ReceiverSetupData("x", jurisdictionalFilter = jurisdictionalFilterTx)))
+        val org = createOrganizationWithReceivers(receivers)
+        val fhirRouter = createFHIRRouter(org)
+        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+
+        // check results
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+
+            // did the report get pushed to blob store correctly and intact?
+            val routedReports = verifyLineageAndFetchCreatedReportFiles(convertReport, receiveReport, txn, 1)
+            val reportAndBundles =
+                routedReports.map {
+                    Pair(
+                        it,
+                        BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata())
+                    )
+                }
+            // is the queue messaging what we expect it to be?
+            val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
+                FhirTranslateQueueMessage(
+                    report.reportId,
+                    report.bodyUrl,
+                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                    "phd.fhir-elr-no-transform",
+                    fhirSenderWithNoTransform.topic,
+                    "phd.x"
+                )
+            }.map {
+                it.serialize()
+            }
+
+            // filter should permit message and should not mangle message
+            verify(exactly = 1) {
+                QueueAccess.sendMessage(
+                    elrTranslationQueueName,
+                    match {
+                        expectedRouteQueueMessages.contains(it)
+                    }
+                )
+            }
+
+            // make sure action table has a new entry
+            checkActionTable(listOf(TaskAction.convert, TaskAction.receive, TaskAction.route))
+
+            // check that the ACTION_LOG table has the expected but strange entry
+            checkActionLogTable(expectedButStrangeObservationFilterEntry)
+        }
+    }
 
     @Test
     fun `should respect jurisdictional filter and not send message`() {
@@ -765,8 +779,8 @@ class FHIRRouterIntegrationTests : Logging {
             assert(actionLogRecords.isEmpty())
         }
 
-        // ACTION_LOG table should be empty - we don't log jurisdictional filter actions
-        checkActionLogTable()
+        // we don't log jurisdictional filter actions
+        checkActionLogTable(listOf())
     }
 
     @Test
@@ -814,81 +828,85 @@ class FHIRRouterIntegrationTests : Logging {
             assertEquals(actionLogRecord.scope, ActionLogScope.translation)
         }
 
-        // ACTION_LOG should have an entry for the filter action
-        checkActionLogTable(convertReport.id.toString())
+        // ACTION_LOG should have an entry for the filter action along with the weird observation filter one
+        val expectedContentList = listOf(
+            ActionLogRecordContent(
+                index = 0,
+                reportId = convertReport.id,
+                type = ActionLogLevel.filter,
+                scope = ActionLogScope.translation
+            )
+        )
+        checkActionLogTable(expectedContentList)
     }
 
-    /*
-    this test fails because an observation is recorded removed despite no filter in place mandating it be removed. also
-    the resultant record in the ACTION_LOG table appears to be missing necessary fields like "report_id"
-    */
-//    @Test
-//    fun `should respect simple quality filter and send message`() {
-//        // set up
-//        val reportContents =
-//            listOf(
-//                File(VALID_FHIR_URL).readText()
-//            ).joinToString()
-//
-//        val reportPair = createReportsWithLineage(reportContents)
-//        val receiveReport = reportPair.first
-//        val convertReport = reportPair.second
-//        val queueMessage = generateQueueMessage(convertReport, reportContents, fhirSenderWithNoTransform)
-//        val fhirFunctions = createFHIRFunctionsInstance()
-//
-//        // make sure action table has only what we put in there
-//        checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
-//
-//        // execute
-//        val receiverSetupData = listOf(ReceiverSetupData("x", qualityFilter = simpleElrQualifyFilter))
-//        val receivers = createReceivers(receiverSetupData)
-//        val org = createOrganizationWithReceivers(receivers)
-//        val fhirRouter = createFHIRRouter(org)
-//        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
-//
-//        // check results
-//        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-//
-//            // did the report get pushed to blob store correctly and intact?
-//            val routedReports = verifyLineageAndFetchCreatedReportFiles(convertReport, receiveReport, txn, 1)
-//            val reportAndBundles =
-//                routedReports.map {
-//                    Pair(
-//                        it,
-//                        BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata())
-//                    )
-//                }
-//            // is the queue messaging what we expect it to be?
-//            val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
-//                FhirTranslateQueueMessage(
-//                    report.reportId,
-//                    report.bodyUrl,
-//                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
-//                    "phd.fhir-elr-no-transform",
-//                    fhirSenderWithNoTransform.topic,
-//                    "phd.x"
-//                )
-//            }.map {
-//                it.serialize()
-//            }
-//
-//            // filter should permit message and should not mangle message
-//            verify(exactly = 1) {
-//                QueueAccess.sendMessage(
-//                    elrTranslationQueueName,
-//                    match {
-//                        expectedRouteQueueMessages.contains(it)
-//                    }
-//                )
-//            }
-//
-//            // make sure action table has a new entry
-//            checkActionTable(listOf(TaskAction.convert, TaskAction.receive, TaskAction.route))
-//
-//            // we didn't do anything - should be empty
-//            checkActionLogTable()
-//        }
-//    }
+    @Test
+    fun `should respect simple quality filter and send message`() {
+        // set up
+        val reportContents =
+            listOf(
+                File(VALID_FHIR_URL).readText()
+            ).joinToString()
+
+        val reportPair = createReportsWithLineage(reportContents)
+        val receiveReport = reportPair.first
+        val convertReport = reportPair.second
+        val queueMessage = generateQueueMessage(convertReport, reportContents, fhirSenderWithNoTransform)
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        // make sure action table has only what we put in there
+        checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
+
+        // execute
+        val receiverSetupData = listOf(ReceiverSetupData("x", qualityFilter = simpleElrQualifyFilter))
+        val receivers = createReceivers(receiverSetupData)
+        val org = createOrganizationWithReceivers(receivers)
+        val fhirRouter = createFHIRRouter(org)
+        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+
+        // check results
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+
+            // did the report get pushed to blob store correctly and intact?
+            val routedReports = verifyLineageAndFetchCreatedReportFiles(convertReport, receiveReport, txn, 1)
+            val reportAndBundles =
+                routedReports.map {
+                    Pair(
+                        it,
+                        BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata())
+                    )
+                }
+            // is the queue messaging what we expect it to be?
+            val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
+                FhirTranslateQueueMessage(
+                    report.reportId,
+                    report.bodyUrl,
+                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                    "phd.fhir-elr-no-transform",
+                    fhirSenderWithNoTransform.topic,
+                    "phd.x"
+                )
+            }.map {
+                it.serialize()
+            }
+
+            // filter should permit message and should not mangle message
+            verify(exactly = 1) {
+                QueueAccess.sendMessage(
+                    elrTranslationQueueName,
+                    match {
+                        expectedRouteQueueMessages.contains(it)
+                    }
+                )
+            }
+
+            // make sure action table has a new entry
+            checkActionTable(listOf(TaskAction.convert, TaskAction.receive, TaskAction.route))
+
+            // check that the ACTION_LOG table has the expected but strange entry
+            checkActionLogTable(expectedButStrangeObservationFilterEntry)
+        }
+    }
 
     @Test
     fun `should respect reversed simple quality filter and not send message`() {
@@ -923,8 +941,16 @@ class FHIRRouterIntegrationTests : Logging {
         // make sure action table has a new entry
         checkActionTable(listOf(TaskAction.convert, TaskAction.receive, TaskAction.route))
 
-        // should have one record given the filter was activated
-        checkActionLogTable(convertReport.id.toString())
+        // ACTION_LOG should have an entry for the filter action
+        val expectedContentList = listOf(
+            ActionLogRecordContent(
+                index = 0,
+                reportId = convertReport.id,
+                type = ActionLogLevel.filter,
+                scope = ActionLogScope.translation
+            )
+        )
+        checkActionLogTable(expectedContentList)
     }
 
     @Test
@@ -989,6 +1015,9 @@ class FHIRRouterIntegrationTests : Logging {
 
             // make sure action table has a new entry
             checkActionTable(listOf(TaskAction.convert, TaskAction.receive, TaskAction.route))
+
+            // check that the ACTION_LOG table has the expected but strange entry
+            checkActionLogTable(expectedButStrangeObservationFilterEntry)
         }
     }
 
@@ -1022,5 +1051,16 @@ class FHIRRouterIntegrationTests : Logging {
 
         // make sure action table has a new entry
         checkActionTable(listOf(TaskAction.convert, TaskAction.receive, TaskAction.route))
+
+        // ACTION_LOG should have an entry for the filter action
+        val expectedContentList = listOf(
+            ActionLogRecordContent(
+                index = 0,
+                reportId = convertReport.id,
+                type = ActionLogLevel.filter,
+                scope = ActionLogScope.translation
+            )
+        )
+        checkActionLogTable(expectedContentList)
     }
 }
