@@ -60,7 +60,8 @@ resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
     "Get",
     "List",
     "Delete",
-    "Purge"
+    "Purge",
+    "GetRotationPolicy"
   ]
 
   secret_permissions = [
@@ -120,7 +121,8 @@ resource "azurerm_key_vault_access_policy" "terraform_app_config_access_policy" 
     "Get",
     "List",
     "Delete",
-    "Purge"
+    "Purge",
+    "GetRotationPolicy"
   ]
 
   secret_permissions = [

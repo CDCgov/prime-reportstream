@@ -1,11 +1,37 @@
 package fhirengine.engine
 
 import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import org.hl7.fhir.r4.model.Bundle
 
 interface IProcessedItem<ParsedType> {
+
+    companion object {
+
+        /**
+         * Extracts a tracking id from an HL7 message (MSH-10) which serves as a unique identifier for the item
+         * that can be referenced throughout the pipeline
+         *
+         *
+         * @param hl7Message the message to get the tracking ID
+         */
+        fun extractTrackingId(hl7Message: Message): String {
+            return Terser(hl7Message).get("MSH-10") ?: ""
+        }
+
+        /**
+         * Extracts a tracking id from an FHIR Bundle (Bundle.identifier) which
+         * serves as a unique identifier for the item that can be referenced throughout the pipeline
+         *
+         *
+         * @param bundle the message to get the tracking ID
+         */
+        fun extractTrackingId(bundle: Bundle): String {
+            return bundle.identifier?.value ?: ""
+        }
+    }
 
     val rawItem: String
     val index: Int
@@ -23,6 +49,8 @@ interface IProcessedItem<ParsedType> {
     fun getError(): FHIRConverter.InvalidItemActionLogDetail?
 
     fun setBundle(bundle: Bundle): IProcessedItem<ParsedType>
+
+    fun getTrackingId(): String
 }
 
 data class ProcessedFHIRItem(
@@ -53,6 +81,13 @@ data class ProcessedFHIRItem(
             return this.copy(bundle = bundle)
         }
         throw RuntimeException("Bundle should not be set if the item was not parseable or valid")
+    }
+
+    override fun getTrackingId(): String {
+        if (bundle != null) {
+            return IProcessedItem.extractTrackingId(bundle)
+        }
+        return ""
     }
 
     override fun getError(): FHIRConverter.InvalidItemActionLogDetail? {
@@ -89,6 +124,15 @@ data class ProcessedHL7Item(
             return this.copy(bundle = bundle)
         }
         throw RuntimeException("Bundle should not be set if the item was not parseable or valid")
+    }
+
+    override fun getTrackingId(): String {
+        if (bundle != null) {
+            return IProcessedItem.extractTrackingId(bundle)
+        } else if (parsedItem != null) {
+            return IProcessedItem.extractTrackingId(parsedItem)
+        }
+        return ""
     }
 
     fun setConversionError(error: FHIRConverter.InvalidItemActionLogDetail): ProcessedHL7Item {

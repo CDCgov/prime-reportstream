@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.validation
+package gov.cdc.prime.router.config.validation
 
 import assertk.assertThat
 import assertk.assertions.hasSize
@@ -51,7 +51,8 @@ class ValueValidationTest {
         val test = TestDataClass(
             string = "a", // too short
             nullable = -5, // negative
-            list = listOf( // list not long enough
+            list = listOf(
+                // list not long enough
                 "1", // too short
             )
         )

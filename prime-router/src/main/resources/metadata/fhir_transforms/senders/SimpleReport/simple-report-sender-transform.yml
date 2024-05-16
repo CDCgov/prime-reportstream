@@ -674,3 +674,9 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Observation)'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
     value: [ '%resource.issued' ]
+
+  - name: sr-observation-obx-29-for-aoe
+    condition: '%resource.meta.tag.code="AOE"'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.29").value[x]'
+    value: [ '"QST"' ]
