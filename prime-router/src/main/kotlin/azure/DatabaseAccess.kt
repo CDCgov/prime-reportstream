@@ -1348,6 +1348,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
      */
     private fun insertActionLog(actionLog: ActionLog, txn: Configuration) {
         val detailRecord = DSL.using(txn).newRecord(Tables.ACTION_LOG, actionLog)
+        logger.info("action log is: $detailRecord")
         detailRecord.store()
     }
 
