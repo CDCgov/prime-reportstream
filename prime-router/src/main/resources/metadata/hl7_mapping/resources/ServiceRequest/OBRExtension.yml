@@ -83,7 +83,7 @@ elements:
       hl7XCNField: '%{obrFieldPath}-28(%{xcnIndex})'
     resourceIndex: xcnIndex
 
-  - name: parent-order
+  - name: parent-observation-identifier
     resource: '%resource.extension.where(url = "OBR.29").value'
     schema: classpath:/metadata/hl7_mapping/datatypes/identifier-placerAssignedIdentifier/EIP.yml
     constants:
@@ -145,3 +145,9 @@ elements:
     constants:
       cxField: '%{obrFieldPath}-53(%{cxIndex})'
     resourceIndex: cxIndex
+
+  - name: parent-order
+    resource: '%resource.extension.where(url = "OBR.54").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-placerAssignedIdentifier/EIP.yml
+    constants:
+      eipFieldPath: '%{obrFieldPath}-54'

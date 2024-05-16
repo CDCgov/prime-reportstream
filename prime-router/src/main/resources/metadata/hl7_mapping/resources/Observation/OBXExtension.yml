@@ -55,3 +55,9 @@ elements:
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7OBXField}-32'
+
+  - name: OBX.33
+    resource: '%resource.extension.where(url = "OBX.33").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-placerAssignedIdentifier/EIP.yml
+    constants:
+      eipFieldPath: '%{hl7OBXField}-33'

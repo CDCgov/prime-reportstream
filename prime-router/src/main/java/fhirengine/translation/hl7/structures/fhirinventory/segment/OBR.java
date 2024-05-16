@@ -78,7 +78,7 @@ import ca.uhn.hl7v2.model.Varies;
  * <li>OBR-26: Parent Result + (PRL) <b>optional </b>
  * <li>OBR-27: Quantity/Timing (NULLDT) <b>optional repeating</b>
  * <li>OBR-28: Result Copies To (XCN) <b>optional repeating</b>
- * <li>OBR-29: Parent (EIP) <b>optional </b>
+ * <li>OBR-29: Parent Result Observation Identifier (EIP) <b>optional </b>
  * <li>OBR-30: Transportation Mode (ID) <b>optional </b>
  * <li>OBR-31: Reason for Study (CWE) <b>optional repeating</b>
  * <li>OBR-32: Principal Result Interpreter + (NDL) <b>optional </b>
@@ -147,7 +147,7 @@ public class OBR extends AbstractSegment {
       this.add(PRL.class, false, 1, 0, new Object[]{getMessage()}, "Parent Result +");
       this.add(NULLDT.class, false, 0, 0, new Object[]{getMessage()}, "Quantity/Timing");
       this.add(XCN.class, false, 0, 0, new Object[]{getMessage()}, "Result Copies To");
-      this.add(EIP.class, false, 1, 0, new Object[]{getMessage()}, "Parent");
+      this.add(EIP.class, false, 1, 0, new Object[]{getMessage()}, "Parent Result Observation Identifier");
       this.add(ID.class, false, 1, 4, new Object[]{getMessage(), Integer.valueOf(124)}, "Transportation Mode");
       this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Reason for Study");
       this.add(NDL.class, false, 1, 0, new Object[]{getMessage()}, "Principal Result Interpreter +");
@@ -1158,18 +1158,18 @@ public class OBR extends AbstractSegment {
 
   /**
    * Returns
-   * OBR-29: "Parent" - creates it if necessary
+   * OBR-29: "Parent Result Observation Identifier" - creates it if necessary
    */
-  public EIP getOBRParent() {
+  public EIP getOBRParentResultObservationIdentifier() {
     EIP retVal = this.getTypedField(29, 0);
     return retVal;
   }
 
   /**
    * Returns
-   * OBR-29: "Parent" - creates it if necessary
+   * OBR-29: "Parent Result Observation Identifier" - creates it if necessary
    */
-  public EIP getObr29_Parent() {
+  public EIP getObr29_ParentResultObservationIdentifier() {
     EIP retVal = this.getTypedField(29, 0);
     return retVal;
   }
