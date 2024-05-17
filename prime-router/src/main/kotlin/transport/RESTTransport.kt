@@ -537,6 +537,10 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
 
             val iv = IvParameterSpec(aesIV)
             val crypto = Cryptography()
+
+            // Note: I discussed with CDC security expert, Mr. Stephen Nesman, and he said, it is ok to use the
+            // AES/CBC/PKCS5Padding algorithm. Since, this is the internal, double, message encryption requested by
+            // Natus. RS uses the TLS1.3 for external encryption SSL cert on the wire to communicate with they server.
             val algorithm = "AES/CBC/PKCS5Padding"
 
             val enKey: SecretKey = SecretKeySpec(aesKey, "AES")
