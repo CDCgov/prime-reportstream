@@ -2,10 +2,12 @@ import { fireEvent, screen } from "@testing-library/react";
 import { Suspense } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
 
-import { _exportForTesting } from "./AdminReceiverDashboard";
+import { DateRangePickingAtomic, MainRender, ModalInfoRender, sortStatusData, strcmp, SuccessRate } from "./AdminReceiverDashboard";
+import { SKIP_HOURS } from "./AdminReceiverDashboard.constants";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
 import { renderApp } from "../../utils/CustomRenderUtils";
+import { dateIsInRange, dateShortFormat, durationFormatShort, endOfDayIso, initialEndDate, initialStartDate, startOfDayIso, TimeSlots } from "../../utils/DateTimeUtils";
 
 const mockData: AdmConnStatusDataType[] = [
     {
@@ -96,30 +98,30 @@ describe("AdminReceiverDashboard tests", () => {
     test("misc functions", () => {
         // we're checking these don't throw.
         const now = new Date();
-        expect(_exportForTesting.startOfDayIso(now)).toContain("T");
-        expect(_exportForTesting.endOfDayIso(now)).toContain("T");
-        expect(_exportForTesting.initialStartDate().toISOString()).toContain(
+        expect(startOfDayIso(now)).toContain("T");
+        expect(endOfDayIso(now)).toContain("T");
+        expect(initialStartDate().toISOString()).toContain(
             "T",
         );
-        expect(_exportForTesting.initialEndDate().toISOString()).toContain("T");
-        expect(_exportForTesting.strcmp("A", "a")).toBe(-1);
-        expect(_exportForTesting.strcmp("a", "a")).toBe(0);
-        expect(_exportForTesting.strcmp("a", "A")).toBe(1);
+        expect(initialEndDate().toISOString()).toContain("T");
+        expect(strcmp("A", "a")).toBe(-1);
+        expect(strcmp("a", "a")).toBe(0);
+        expect(strcmp("a", "A")).toBe(1);
 
         expect(
-            _exportForTesting.dateIsInRange(new Date("1/2/2020"), [
+            dateIsInRange(new Date("1/2/2020"), [
                 new Date("1/1/2020"),
                 new Date("1/3/2020"),
             ]),
         ).toBe(true);
         expect(
-            _exportForTesting.dateIsInRange(new Date("1/2/2020"), [
+            dateIsInRange(new Date("1/2/2020"), [
                 new Date("1/1/2020"),
                 new Date("1/1/2020"),
             ]),
         ).toBe(false);
         expect(
-            _exportForTesting.dateIsInRange(new Date("1/1/2020"), [
+            dateIsInRange(new Date("1/1/2020"), [
                 new Date("1/1/2020"),
                 new Date("1/2/2020"),
             ]),
@@ -128,7 +130,7 @@ describe("AdminReceiverDashboard tests", () => {
 
     test("TimeSlots", () => {
         // NOTE: all times are ISO with a trailing "Z"
-        const timeslots = new _exportForTesting.TimeSlots(
+        const timeslots = new TimeSlots(
             [
                 new Date("2022-07-11T00:00:00.000Z"),
                 new Date("2022-07-13T00:00:00.000Z"),
@@ -154,52 +156,10 @@ describe("AdminReceiverDashboard tests", () => {
 
     test("dateShortFormat", () => {
         expect(
-            _exportForTesting.dateShortFormat(
+            dateShortFormat(
                 new Date("2022-07-11T08:09:22.748Z"),
             ),
         ).toBe("Mon, 7/11/2022");
-    });
-
-    test("SuccessRateTracker", () => {
-        // test two overlapping conditions and variables just to be sure no globals are used
-        const testSuccess = new _exportForTesting.SuccessRateTracker();
-        const testFailure = new _exportForTesting.SuccessRateTracker();
-
-        for (let ii = 0; ii < 2; ii++) {
-            // run twice to make sure reset works
-            expect(testSuccess.currentState).toBe(
-                _exportForTesting.SuccessRate.UNDEFINED,
-            );
-            expect(testFailure.currentState).toBe(
-                _exportForTesting.SuccessRate.UNDEFINED,
-            );
-
-            expect(testSuccess.updateState(true)).toBe(
-                _exportForTesting.SuccessRate.ALL_SUCCESSFUL,
-            );
-            expect(testFailure.updateState(false)).toBe(
-                _exportForTesting.SuccessRate.ALL_FAILURE,
-            );
-
-            expect(testSuccess.updateState(true)).toBe(
-                _exportForTesting.SuccessRate.ALL_SUCCESSFUL,
-            );
-            expect(testFailure.updateState(false)).toBe(
-                _exportForTesting.SuccessRate.ALL_FAILURE,
-            );
-
-            // Flip it so we make results mixed.
-            expect(testSuccess.updateState(false)).toBe(
-                _exportForTesting.SuccessRate.MIXED_SUCCESS,
-            );
-            expect(testFailure.updateState(true)).toBe(
-                _exportForTesting.SuccessRate.MIXED_SUCCESS,
-            );
-
-            // test reset
-            testSuccess.reset();
-            testFailure.reset();
-        }
     });
 
     test("durationFormatShort", () => {
@@ -211,23 +171,23 @@ describe("AdminReceiverDashboard tests", () => {
             before.getSeconds() - 3,
         );
 
-        const result1 = _exportForTesting.durationFormatShort(now, before);
+        const result1 = durationFormatShort(now, before);
         expect(result1).toBe("1h 02m 03s");
 
         const future2 = new Date(now.getTime() + 5678);
-        const result2 = _exportForTesting.durationFormatShort(future2, now);
+        const result2 = durationFormatShort(future2, now);
         expect(result2).toBe("05.678s");
 
         future2.setHours(future2.getHours() + 12, future2.getMinutes() + 34);
-        const result3 = _exportForTesting.durationFormatShort(future2, now);
+        const result3 = durationFormatShort(future2, now);
         expect(result3).toBe("12h 34m 05.678s");
 
-        const result4 = _exportForTesting.durationFormatShort(now, now);
+        const result4 = durationFormatShort(now, now);
         expect(result4).toBe("");
     });
 
     test("sortStatusData", () => {
-        const data = _exportForTesting.sortStatusData(mockData); // sorts
+        const data = sortStatusData(mockData); // sorts
         expect(data.length).toBe(6);
         // make sure sortStatusData sorted correctly.
         expect(data[3].organizationName).toBe("oh-doh");
@@ -240,15 +200,15 @@ describe("AdminReceiverDashboard tests", () => {
             >
                 <Suspense fallback={<></>}>
                     {/*eslint-disable-next-line react/jsx-pascal-case*/}
-                    <_exportForTesting.MainRender
+                    <MainRender
                         datesRange={[
                             new Date("2022-07-11"),
                             new Date("2022-07-14"),
                         ]}
                         filterRowStatus={
-                            _exportForTesting.SuccessRate.ALL_SUCCESSFUL
+                            SuccessRate.ALL_SUCCESSFUL
                         }
-                        filterErrorText={" "}
+                        filterResultMessage={" "}
                         filterRowReceiver={"-"}
                         onDetailsClick={(_subdata: AdmConnStatusDataType[]) =>
                             void 0
@@ -262,14 +222,14 @@ describe("AdminReceiverDashboard tests", () => {
         expect(days.length).toBe(3);
         const orgs = screen.getAllByText(/oh-doh/);
         expect(orgs.length).toBe(1);
-        expect(_exportForTesting.sortStatusData([])).toStrictEqual([]);
+        expect(sortStatusData([])).toStrictEqual([]);
 
         // role options does NOT support "aria-disabled=false". lame.
         // No easy way to find active buttons
         const slices = await screen.findAllByRole("button", {});
 
         // broken out for readability
-        const slicesPerDay = 24 / _exportForTesting.SKIP_HOURS;
+        const slicesPerDay = 24 / SKIP_HOURS;
         const numDays = 3; // based on datesRange
         const numReceivers = 3; // based on mockData
         const totalSlices = numReceivers * numDays * slicesPerDay;
@@ -294,11 +254,11 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("ModalInfoRender", () => {
-        const data = _exportForTesting.sortStatusData(mockData); // sorts
+        const data = sortStatusData(mockData); // sorts
         const subData = data[0];
         renderApp(
             // eslint-disable-next-line react/jsx-pascal-case
-            <_exportForTesting.ModalInfoRender subData={[subData]} />,
+            <ModalInfoRender subData={[subData]} />,
         );
         const matches = screen.queryAllByText(
             "connectionCheckResult dummy result 2397",
@@ -309,7 +269,7 @@ describe("AdminReceiverDashboard tests", () => {
     test("ModalInfoRender empty", () => {
         renderApp(
             // eslint-disable-next-line react/jsx-pascal-case
-            <_exportForTesting.ModalInfoRender subData={[]} />,
+            <ModalInfoRender subData={[]} />,
         );
         expect(screen.getByText(/No Data Found/)).toBeInTheDocument();
     });
@@ -317,7 +277,7 @@ describe("AdminReceiverDashboard tests", () => {
     test("DateRangePickingAtomic", () => {
         renderApp(
             // eslint-disable-next-line react/jsx-pascal-case
-            <_exportForTesting.DateRangePickingAtomic
+            <DateRangePickingAtomic
                 defaultStartDate="2022-07-11T00:00:00.000Z"
                 defaultEndDate="2022-07-13T00:00:00.000Z"
                 onChange={(_props) => void 0}

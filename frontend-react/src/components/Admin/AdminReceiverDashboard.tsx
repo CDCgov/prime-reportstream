@@ -12,25 +12,21 @@ import {
     TextInput,
     Tooltip,
 } from "@trussworks/react-uswds";
-import { endOfDay, startOfDay, subDays } from "date-fns";
-import { Suspense, useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
-import { NetworkErrorBoundary, useResource } from "rest-hooks";
 
-import { ErrorPage } from "../../pages/error/ErrorPage";
+import { useResource } from "rest-hooks";
+import { MAX_DAYS_MS, SKIP_HOURS } from "./AdminReceiverDashboard.constants";
+import rawResults from "../../../debug.json"
 import {
     AdmConnStatusDataType,
     AdmConnStatusResource,
 } from "../../resources/AdmConnStatusResource";
+import { DatePair, durationFormatShort, endOfDayIso, initialEndDate, initialStartDate, startOfDayIso, TimeSlots } from "../../utils/DateTimeUtils";
 import { formatDate } from "../../utils/misc";
-import Spinner from "../Spinner";
 import { StyleClass, TableFilterDateLabel } from "../Table/TableFilters";
 import { USLink } from "../USLink";
 
-const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
-const SKIP_HOURS = 2; // hrs - should be factor of 24 (e.g. 12,6,4,3,2)
-const MAX_DAYS = 10;
-const MAX_DAYS_MS = MAX_DAYS * 24 * 60 * 60 * 1000;
 
 /**
  *
@@ -131,195 +127,50 @@ const MAX_DAYS_MS = MAX_DAYS * 24 * 60 * 60 * 1000;
  *
  */
 
-/**
- * Declared outside of the function so React doesn't update constantly (also, time is fixed)
- * Usage: `yesterday()`
- * @param d {Date}
- * @return {string}
- */
-const startOfDayIso = (d: Date) => {
-    return startOfDay(d).toISOString();
-};
 
-const endOfDayIso = (d: Date) => {
-    return endOfDay(d).toISOString();
-};
 
-const initialStartDate = () => {
-    return subDays(new Date(), DAY_BACK_DEFAULT);
-};
-
-const initialEndDate = () => {
-    return new Date();
-};
-
-/**
- * Result string is like "12h 34m 05.678s"
- * No duration returns ""
- * @param dateNewer Date
- * @param dateOlder Date
- */
-const durationFormatShort = (dateNewer: Date, dateOlder: Date): string => {
-    const msDiff = dateNewer.getTime() - dateOlder.getTime();
-    const hrs = Math.floor(msDiff / (60 * 60 * 1000)).toString();
-    const mins = Math.floor((msDiff / (60 * 1000)) % 60).toString();
-    // 0.1200001 -> '0.12`
-    const secs = parseFloat(((msDiff / 1000) % 60).toFixed(3)).toString();
-
-    const parts = [];
-    if (hrs !== "0") {
-        parts.push(`${hrs}h`);
-    }
-    if (parts.length || mins !== "0") {
-        const minsPad = mins.length < 2 ? "0" + mins : mins;
-        parts.push(`${minsPad}m`);
-    }
-    if (parts.length || secs !== "0") {
-        const secsPad = secs.indexOf(".") < 2 ? "0" + secs : secs;
-        parts.push(`${secsPad}s`);
-    }
-    return parts.join(" ");
-};
-
-/*
- * format: "Mon, 7/25/2022"
- * WARNING: Intl.DateTimeFormat() can be slow if called in a loop!
- * Rewrote to just use Date to save cpu
- * */
-const dateShortFormat = (d: Date) => {
-    const dayOfWeek =
-        ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()] || "";
-    return (
-        `${dayOfWeek}, ` +
-        `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
-    );
-};
-
-enum SuccessRate {
+export enum SuccessRate {
     UNDEFINED = "UNDEFINED",
     ALL_SUCCESSFUL = "ALL_SUCCESSFUL",
     ALL_FAILURE = "ALL_FAILURE",
     MIXED_SUCCESS = "MIXED_SUCCESS",
 }
 
-/** simple container for logic related to tracking if a run is all success or all failure or mixed.
- * Originally was a reducer, but the hook limitations made using it harder to use. **/
-class SuccessRateTracker {
-    currentState: SuccessRate;
-    countSuccess: number;
-    countFailed: number;
-
-    constructor() {
-        this.currentState = SuccessRate.UNDEFINED;
-        this.countSuccess = this.countFailed = 0;
-    }
-
-    updateState(newResult: boolean) {
-        if (newResult) {
-            this.countSuccess++;
-            // true and we're in one of these states
-            this.currentState = [
-                SuccessRate.UNDEFINED,
-                SuccessRate.ALL_SUCCESSFUL,
-            ].includes(this.currentState)
-                ? SuccessRate.ALL_SUCCESSFUL
-                : SuccessRate.MIXED_SUCCESS;
-        } else {
-            this.countFailed++;
-            // false and we're in one of these states
-            this.currentState = [
-                SuccessRate.UNDEFINED,
-                SuccessRate.ALL_FAILURE,
-            ].includes(this.currentState)
-                ? SuccessRate.ALL_FAILURE
-                : SuccessRate.MIXED_SUCCESS;
-        }
-        return this.currentState;
-    }
-
-    reset() {
-        this.currentState = SuccessRate.UNDEFINED;
-        this.countSuccess = 0;
-        this.countFailed = 0;
-    }
-}
-
-const SUCCESS_RATE_CLASSNAME_MAP = {
+export const SUCCESS_RATE_CLASSNAME_MAP = {
     [SuccessRate.UNDEFINED]: "success-undefined",
     [SuccessRate.ALL_SUCCESSFUL]: "success-all",
     [SuccessRate.ALL_FAILURE]: "failure-all",
     [SuccessRate.MIXED_SUCCESS]: "success-mixed",
 };
 
-enum MatchingFilter {
+export enum MatchingFilter {
     NO_FILTER,
     FILTER_NOT_MATCHED,
     FILTER_IS_MATCHED,
 }
 
-const MATCHING_FILTER_CLASSNAME_MAP = {
+export const MATCHING_FILTER_CLASSNAME_MAP = {
     [MatchingFilter.NO_FILTER]: "",
     [MatchingFilter.FILTER_NOT_MATCHED]: "success-result-hidden",
     [MatchingFilter.FILTER_IS_MATCHED]: "",
 };
 
-function dateAddHours(d: Date, h: number): Date {
-    const result = new Date(d); // copy value
-    result.setHours(result.getHours() + h);
-    return result;
-}
-
-// mostly for readably
-type DatePair = [Date, Date];
-
-function dateIsInRange(d: Date, range: DatePair): boolean {
-    return d >= range[0] && d < range[1];
-}
-
-const strcmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
-
-/**
- *  simple iterator to make other code more readable.
- *  Usage:
- *    for (let eachTimeSlot in (new TimeSlots([dateStart, dateEnd], 2)) { }
- */
-interface IterateTimeSlots {
-    [Symbol.iterator]: () => Iterator<DatePair>;
-}
-
-class TimeSlots implements IterateTimeSlots {
-    private current: Date;
-    private readonly end: Date;
-    private readonly skipHours: number;
-
-    constructor(range: DatePair, skipHours = 2) {
-        this.current = range[0];
-        this.end = range[1];
-        this.skipHours = skipHours;
-    }
-
-    *[Symbol.iterator]() {
-        do {
-            const endTime = dateAddHours(this.current, this.skipHours);
-            yield [this.current, endTime] as DatePair;
-            this.current = endTime;
-        } while (this.current < this.end);
-    }
-}
+export const strcmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
 /**
  * build the dictionary with a special path+key
  * @param dataIn
  */
-const sortStatusData = (
+export const sortStatusData = (
     dataIn: AdmConnStatusDataType[],
 ): AdmConnStatusDataType[] => {
+    const data = structuredClone(dataIn)
     // empty case
     if (dataIn.length === 0) {
         return [];
     }
 
-    dataIn.sort((d1: AdmConnStatusDataType, d2: AdmConnStatusDataType) => {
+    data.sort((d1: AdmConnStatusDataType, d2: AdmConnStatusDataType) => {
         // sorting by organizationName, then receiverName, then connectionCheckStartedAt
         const orgNameCmp = strcmp(d1.organizationName, d2.organizationName);
         // orgNameCmp === 0 means same
@@ -332,348 +183,202 @@ const sortStatusData = (
         }
         return strcmp(d1.connectionCheckStartedAt, d2.connectionCheckStartedAt);
     });
-    return dataIn; // we modified array in place, but returning value is handy for chaining.
+    return data; // we modified array in place, but returning value is handy for chaining.
 };
 
-// PreRenderedRowComponents breaks out row status and org+receiver name into props
-// so parent can more quickly filter at a higher level without changing the whole DOM
-function renderAllReceiverRows(props: {
+export interface TimePeriodData {
+    start: Date,
+    end: Date,
+    success: number,
+    fail: number,
+    isResultFilterMatch: boolean,
+    successRateType: SuccessRate,
+    matchingFilter: MatchingFilter,
+    entries: AdmConnStatusDataType[]
+}
+
+export function createStatusData({data, startDate, endDate, filterResultMessage}: {
     data: AdmConnStatusDataType[];
     startDate: Date;
     endDate: Date;
-    filterErrorText: string;
-    onClick: (dataItems: AdmConnStatusDataType[]) => void;
-}): JSX.Element[] {
-    const filterErrorText = props.filterErrorText.trim().toLowerCase();
-    const perReceiverRowElements: JSX.Element[] = [];
-    let perDayElements: JSX.Element[] = [];
-    let sliceElements: JSX.Element[] = [];
-    let visibleSliceCount = 0; // used when error filtering
-    // we use double cursors (primary moves through time and secondary through data entries)
-    let offset = 0;
-
-    // loop over all receivers (each is its own row)
-    while (offset < props.data.length) {
-        const successForRow = new SuccessRateTracker();
-        const offsetStartRow = offset; // used during render
-        let currentEntry = props.data[offset];
-        let currentDate = new Date(currentEntry.connectionCheckCompletedAt);
-        let currentReceiver = `${currentEntry.organizationName}|${currentEntry.receiverName}`;
-        const rowReceiver = currentReceiver; // used to know when we've run out of row data
-
-        // loop over all days
-        const daySlots = new TimeSlots([props.startDate, props.endDate], 24);
-        for (const [daySlotStart, daySlotEnd] of daySlots) {
-            const timeSlots = new TimeSlots(
-                [daySlotStart, daySlotEnd],
-                SKIP_HOURS,
-            );
-            for (const [timeSlotStart, timeSlotEnd] of timeSlots) {
-                const successForSlice = new SuccessRateTracker();
-
-                let errorFilterMatchedSlice =
-                    filterErrorText.length === 0
-                        ? MatchingFilter.NO_FILTER
-                        : MatchingFilter.FILTER_NOT_MATCHED;
-
-                // iterate over DATA that might be within this range.
-                // Build aggregates for success, needed for layout.
-                // NOTE: there might NOT BE ANY data for this slice...
-                //   OR: there might be MULTIPLE matches within this time slice!
-                while (
-                    offset < props.data.length &&
-                    dateIsInRange(currentDate, [timeSlotStart, timeSlotEnd]) &&
-                    rowReceiver === currentReceiver
-                ) {
-                    // because we're moving two cursors through data (date slots and data results),
-                    // we use the data results from the prior iteration when we moved that cursor forward.
-                    const wasSuccessful =
-                        currentEntry.connectionCheckSuccessful;
-                    successForSlice.updateState(wasSuccessful);
-                    successForRow.updateState(wasSuccessful);
-
-                    // if we're doing an error search, then we want to hide none matching slices.
-                    if (
-                        filterErrorText.length &&
-                        errorFilterMatchedSlice !==
-                            MatchingFilter.FILTER_IS_MATCHED
-                    ) {
-                        if (
-                            currentEntry.connectionCheckResult
-                                .toLowerCase()
-                                .includes(filterErrorText)
-                        ) {
-                            errorFilterMatchedSlice =
-                                MatchingFilter.FILTER_IS_MATCHED;
-                            visibleSliceCount++;
-                        } else {
-                            errorFilterMatchedSlice =
-                                MatchingFilter.FILTER_NOT_MATCHED;
-                        }
-                    }
-
-                    // next entry
-                    offset++;
-                    if (offset >= props.data.length) {
-                        break;
-                    }
-                    currentEntry = props.data[offset];
-                    currentDate = new Date(
-                        currentEntry.connectionCheckCompletedAt,
-                    );
-                    currentReceiver = `${currentEntry.organizationName}|${currentEntry.receiverName}`;
-                }
-
-                // <editor-fold desc="Time slices for a given day render">
-                // TODO: turn slices into their own Components and move the `data` items into props
-                const sliceClassName =
-                    SUCCESS_RATE_CLASSNAME_MAP[successForSlice.currentState];
-
-                const sliceFilterClassName =
-                    MATCHING_FILTER_CLASSNAME_MAP[errorFilterMatchedSlice];
-
-                const isClickable =
-                    successForSlice.currentState !== SuccessRate.UNDEFINED;
-
-                // it's possible to match more than on data entry per slice
-                const dataCount =
-                    successForSlice.countSuccess + successForSlice.countFailed;
-                const dataOffset = offset - dataCount;
-                const dataOffsetEnd = offset;
-
-                sliceElements.push(
-                    <Grid
-                        row
-                        key={`slice:${currentReceiver}|${timeSlotStart.toISOString()}`}
-                        className={`slice ${sliceClassName} ${sliceFilterClassName}`}
-                        data-offset={dataOffset}
-                        data-offset-end={dataOffsetEnd}
-                        role="button"
-                        aria-disabled={!isClickable}
-                        onClick={
-                            !isClickable
-                                ? undefined // do not even install a click handler noop
-                                : (evt) => {
-                                      // get saved offset from "data-offset" attribute on this element
-                                      const target = evt.currentTarget;
-                                      const sliceStart = parseInt(
-                                          target?.dataset.offset ?? "-1",
-                                      );
-                                      let sliceEnd = parseInt(
-                                          target?.dataset.offsetEnd ?? "-1",
-                                      );
-                                      // sanity check it's within range (should never happen)
-                                      if (
-                                          sliceStart >= 0 &&
-                                          sliceStart < props.data.length
-                                      ) {
-                                          // should never happen, but safety
-                                          sliceEnd =
-                                              sliceEnd > sliceStart
-                                                  ? sliceEnd
-                                                  : sliceStart;
-                                          const subsetData = props.data.slice(
-                                              sliceStart,
-                                              sliceEnd,
-                                          );
-                                          props.onClick(subsetData);
-                                      }
-                                  }
-                        }
-                    >
-                        {" "}
-                    </Grid>,
-                );
-                // </editor-fold>
-            } // per-day time slice loop
-
-            // <editor-fold desc="Per-Day render">
-            const dateStr = dateShortFormat(daySlotStart);
-
-            perDayElements.push(
-                <GridContainer
-                    key={`perday-${dateStr}`}
-                    className={"perday-component"}
-                >
-                    <Grid row className={"title-row"}>
-                        {dateStr}
-                    </Grid>
-                    <Grid gap={1} row className={"slices-row slices-row-12"}>
-                        {sliceElements}
-                    </Grid>
-                </GridContainer>,
-            );
-            sliceElements = [];
-            // </editor-fold>
-        } // for dayslots
-
-        // <editor-fold desc="Per-Receiver render">
-        // we saved the start of this block of data, grab the information from there.
-        const orgName = props.data[offsetStartRow].organizationName;
-        const recvrName = props.data[offsetStartRow].receiverName;
-        const combinedName = `${orgName} ${recvrName}`.toLowerCase();
-        const successRate = Math.round(
-            (100 * successForRow.countSuccess) /
-                (successForRow.countSuccess + successForRow.countFailed),
-        );
-        const titleClassName =
-            SUCCESS_RATE_CLASSNAME_MAP[successForRow.currentState];
-
-        // if we have error text, then check if we filtered out all the slices
-        const allSlicesFiltered = filterErrorText.length
-            ? visibleSliceCount === 0
-            : false;
-
-        const linkOrgSettings = `/admin/orgsettings/org/${orgName}`;
-        const linkRecvSettings = `/admin/orgreceiversettings/org/${orgName}/receiver/${recvrName}/action/edit`;
-        // cheat confession: using `data-` props allow us to stick properties
-        // on components without type checking requiring it be a formal prop.
-        perReceiverRowElements.push(
-            <Grid
-                row
-                key={`perreceiver-${combinedName}-${perReceiverRowElements.length}`}
-                className={"perreceiver-row"}
-                data-rowstatus={successForRow.currentState}
-                data-orgrecvname={combinedName}
-                data-allslicesfiltered={allSlicesFiltered}
-            >
-                <Grid className={`title-column ${titleClassName}`}>
-                    <div className={"title-text"}>
-                        <USLink href={linkOrgSettings}>{orgName}</USLink>
-                        <br />
-                        <USLink href={linkRecvSettings}>{recvrName}</USLink>
-                        <br />
-                        {successRate}%
-                    </div>
-                </Grid>
-                <ScrollSyncPane enabled>
-                    <>
-                        <Grid row className={"horizontal-scroll"}>
-                            <Grid row className={"week-column"}>
-                                {perDayElements}
-                            </Grid>
-                        </Grid>
-                    </>
-                </ScrollSyncPane>
-            </Grid>,
-        );
-        perDayElements = [];
-        visibleSliceCount = 0;
-        // </editor-fold>
-    } // while
-    return perReceiverRowElements;
-}
-
-/**
- * Some filtering doesn't need to modify rows, just show/hide rows.
- * This function loops over "pre-rendered" rows and decide which to
- * include.
- */
-function FilterRenderedRows(props: {
-    renderedRows: JSX.Element[];
-    filterRowStatus: SuccessRate;
-    filterRowReceiver: string;
-    filterErrorText: string;
-    onClick: (dataItem: AdmConnStatusDataType[]) => void;
+    filterResultMessage: string;
 }) {
-    const renderedRows = props.renderedRows;
+    const sortedData = sortStatusData(data).map(d => ({...d, connectionCheckCompletedAt: new Date(d.connectionCheckCompletedAt), connectionCheckStartedAt: new Date(d.connectionCheckStartedAt)}));
+    const receiverIds = Array.from(new Set(sortedData.map(d => d.receiverId)))
+    const daySlots = new TimeSlots([startDate, endDate], 24 * 60).toArray();
+    const timeSlots = daySlots.map(([start, end]) => new TimeSlots([start, end], SKIP_HOURS * 60).toArray());
 
-    const resultArray: JSX.Element[] = [];
-    for (const element of renderedRows) {
-        const renderedRow = element;
-        const rowStatus = renderedRow.props["data-rowstatus"] || "";
-        const orgRecvName = renderedRow.props["data-orgrecvname"] || "";
-        const allSlicesFilteredOut =
-            renderedRow.props["data-allslicesfiltered"] || false;
+    return receiverIds.map(id => {
+        const entries = sortedData.filter(d => d.receiverId === id);
+        const {organizationName, receiverName} = entries[0]
 
-        // filters remove rows.
-        const hideRowBasedOnStatus =
-            props.filterRowStatus !== SuccessRate.UNDEFINED
-                ? rowStatus !== props.filterRowStatus
-                : false;
+        const days = Array.from(daySlots.entries()).map(([i, [start,]]) => {
+            const dayEntries = entries.filter(e => e.connectionCheckCompletedAt.toLocaleDateString() === start.toLocaleDateString())
+            const dayTimeSlots = timeSlots[i];
+            const dayString = start.toLocaleDateString();
+            const timePeriods = dayTimeSlots.map(([start, end]) => {
+                const timePeriodEntries = dayEntries.filter(e => {
+                    return e.connectionCheckCompletedAt >= start && e.connectionCheckCompletedAt < end;
+                });
+                const agg = timePeriodEntries.reduce((agg, {connectionCheckSuccessful, connectionCheckResult}) => {
+                    if(connectionCheckSuccessful) agg.success += 1;
+                    else {
+                        agg.fail += 1;
+                        if(connectionCheckResult
+                                .toLowerCase()
+                                .includes(filterResultMessage)) {
+                                    agg.isResultFilterMatch = true;
+                                }
+                    }
+                    return agg;
+                }, {success: 0, fail: 0, isResultFilterMatch: false as boolean})
 
-        const hideRowBasedOnRecv =
-            props.filterRowReceiver !== ""
-                ? !orgRecvName.includes(props.filterRowReceiver)
-                : false;
+                const successRateType = agg.success && agg.fail ? SuccessRate.MIXED_SUCCESS : !agg.success && !agg.fail ? SuccessRate.UNDEFINED : agg.success ? SuccessRate.ALL_SUCCESSFUL : SuccessRate.ALL_FAILURE;
+                const matchingFilter = !filterResultMessage ? MatchingFilter.NO_FILTER : filterResultMessage && agg.isResultFilterMatch ? MatchingFilter.FILTER_IS_MATCHED : MatchingFilter.FILTER_NOT_MATCHED;
+                
+                return {
+                    start: start,
+                    end: end,
+                    ...agg,
+                    successRateType,
+                    matchingFilter,
+                    entries: timePeriodEntries,
+                    debug: `${start.toISOString()} - ${end.toISOString()}`,
+                    debug2: timePeriodEntries.map(e => e.connectionCheckCompletedAt.toISOString())
+                }
+            });
+            return {
+                dayString,
+                timePeriods,
+                entries: dayEntries,
+                debug1: dayEntries.map(d => d.connectionCheckCompletedAt.toISOString())
+            }
+        });
 
-        // this filter removed ALL slices from the day, so hide the row
-        const hideRowBasedOnErrorFilter =
-            props.filterErrorText !== "" ? allSlicesFilteredOut : false;
+        const {success, fail} = days.reduce((agg, curr) => {
+            curr.timePeriods.forEach(c => {
+                agg.fail += c.fail;
+                agg.success += c.success;
+            })
+            return agg
+        }, {success: 0, fail: 0})
+        const successRate = !!success || !!fail ? Math.round(
+            (100 * success) /
+                (success + fail),
+        ) : 0;
+        const successRateType = !success && !fail ? SuccessRate.UNDEFINED : successRate === 0 ? SuccessRate.ALL_FAILURE : successRate === 100 ? SuccessRate.ALL_SUCCESSFUL : SuccessRate.MIXED_SUCCESS;
 
-        const hideRow =
-            hideRowBasedOnStatus ||
-            hideRowBasedOnRecv ||
-            hideRowBasedOnErrorFilter;
-
-        if (!hideRow) {
-            resultArray.push(renderedRow);
+        return {
+            organizationName,
+            receiverName,
+            id,
+            successRate,
+            successRateType,
+            days,
         }
-    }
-    return resultArray;
+    });
 }
 
-function MainRender(props: {
+export function MainRender({
+    datesRange: [startDate, endDate],
+    filterResultMessage,
+    filterRowReceiver,filterRowStatus,onDetailsClick
+}: {
     datesRange: DatePair;
     filterRowStatus: SuccessRate;
-    filterErrorText: string;
+    filterResultMessage: string;
     filterRowReceiver: string;
     onDetailsClick: (subData: AdmConnStatusDataType[]) => void;
 }) {
-    const startDate = props.datesRange[0];
-    const endDate = props.datesRange[1];
     const results = useResource(AdmConnStatusResource.list(), {
         startDate: startOfDayIso(startDate),
         endDate: endOfDayIso(endDate),
     });
-    const data = useMemo(() => sortStatusData(results), [results]);
+    //console.log(results.filter(x => x.receiverName === "all-fail").map(x => x.connectionCheckCompletedAt).toSorted())
+    const data = useMemo(() => createStatusData({data: results, startDate, endDate, filterResultMessage}), [endDate, filterResultMessage, results, startDate]);
 
-    const onClick = useCallback(
-        (dataItems: AdmConnStatusDataType[]) => {
+    const handleTimePeriodClick = useCallback(
+        ({entries}: TimePeriodData) => {
             // in theory, there might be multiple events for the block, but we're only handling one for now.
-            props.onDetailsClick(dataItems);
+            onDetailsClick(entries);
         },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [props.onDetailsClick],
-    );
-    // Example: if we decide to filter data[1], then we filter renderedRows[1]
-    // this prevents the expensive row renders when a filter happens
-    // (since they filter out WHOLE rows).
-
-    const renderedRows = useMemo(
-        () =>
-            renderAllReceiverRows({
-                data,
-                startDate,
-                endDate,
-                filterErrorText: props.filterErrorText,
-                onClick,
-            }),
-        // memo cannot track date changes correctly, leave them out of deps!
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [data, props.filterErrorText],
+        [onDetailsClick],
     );
 
-    if (renderedRows.length === 0) {
+    if(data.length === 0) {
         return <div>No Data</div>;
+    }
+
+    const filteredData = data.filter(d => {
+        return (!filterRowReceiver || d.receiverName.toLowerCase().includes(filterRowReceiver)) && (!filterRowStatus || filterRowStatus === SuccessRate.UNDEFINED || d.successRateType === filterRowStatus)
+    });
+
+    if(filteredData.length === 0) {
+        return <div>No data matching filters</div>
     }
 
     return (
         <ScrollSync horizontal enabled>
             <GridContainer className={"rs-admindash-component"}>
-                {FilterRenderedRows({
-                    renderedRows,
-                    filterRowStatus: props.filterRowStatus,
-                    filterRowReceiver: props.filterRowReceiver,
-                    filterErrorText: props.filterErrorText,
-                    onClick,
-                }) || <div>No data matching filters</div>}
+                {
+                    filteredData.map(d => (
+                        <Grid
+                            row
+                            key={`perreceiver-${d.organizationName}-${d.receiverName}`}
+                            className={"perreceiver-row"}
+                        >
+                            <Grid className={`title-column ${SUCCESS_RATE_CLASSNAME_MAP[d.successRateType]}`}>
+                                <div className={"title-text"}>
+                                    <USLink href={`/admin/orgsettings/org/${d.organizationName}`}>{d.organizationName}</USLink>
+                                    <br />
+                                    <USLink href={`/admin/orgreceiversettings/org/${d.organizationName}/receiver/${d.receiverName}/action/edit`}>{d.receiverName}</USLink>
+                                    <br />
+                                    {d.successRate}%
+                                </div>
+                            </Grid>
+                            <ScrollSyncPane enabled>
+                                <Grid row className={"horizontal-scroll"}>
+                                    <Grid row className={"week-column"}>
+                                        {d.days.map(d => {
+                                            return <GridContainer
+                                                key={`perday-${d.dayString}`}
+                                                className={"perday-component"}
+                                            >
+                                                <Grid row className={"title-row"}>
+                                                    {d.dayString}
+                                                </Grid>
+                                                <Grid  gap={1} row className={"slices-row slices-row-12"}>
+                                                {d.timePeriods.map(t => {
+                                                    return (
+                                                        <Grid
+                                                            row
+                                                            key={`slice:${t.end.toISOString()}`}
+                                                            className={`slice ${SUCCESS_RATE_CLASSNAME_MAP[t.successRateType]} ${MATCHING_FILTER_CLASSNAME_MAP[t.matchingFilter]}`}
+                                                            role="button"
+                                                            aria-disabled={t.successRateType === SuccessRate.UNDEFINED}
+                                                            onClick={
+                                                                t.successRateType === SuccessRate.UNDEFINED
+                                                                    ? undefined // do not even install a click handler noop
+                                                                    : () => handleTimePeriodClick(t)
+                                                            }
+                                                        >
+                                                            {" "}
+                                                        </Grid>
+                                                    )})}</Grid>
+                                            </GridContainer>
+                                        })}
+                                    </Grid>
+                                </Grid>
+                            </ScrollSyncPane>
+                        </Grid>
+                    ))
+                }
             </GridContainer>
         </ScrollSync>
     );
 }
 
-function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
+export function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
     if (!props?.subData.length) {
         return <>No Data Found</>;
     }
@@ -765,7 +470,7 @@ function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
  *  - We want start AND end picked before the expensive fetch.
  *  - Picker fields are LARGE and take up a bunch of space.
  */
-function DateRangePickingAtomic(props: {
+export function DateRangePickingAtomic(props: {
     defaultStartDate: string;
     defaultEndDate: string;
     onChange: (props: { startDate: string; endDate: string }) => void;
@@ -888,7 +593,7 @@ export function AdminReceiverDashboard() {
                     "Times shown are in YOUR LOCAL timezone. Be aware that receivers and servers may be in different zones."
                 }
             </SiteAlert>
-            <form autoComplete="off" className="grid-row margin-0">
+            <form autoComplete="off" className="grid-row margin-0" name="filter">
                 <div className="flex-auto margin-1">
                     <Label
                         className="font-sans-xs usa-label text-no-wrap"
@@ -987,10 +692,6 @@ export function AdminReceiverDashboard() {
                     </Tooltip>
                 </div>
             </form>
-            <Suspense fallback={<Spinner />}>
-                <NetworkErrorBoundary
-                    fallbackComponent={() => <ErrorPage type="message" />}
-                >
                     <MainRender
                         datesRange={[
                             new Date(startDate),
@@ -999,14 +700,12 @@ export function AdminReceiverDashboard() {
                                 : new Date(endOfDayIso(new Date())),
                         ]}
                         filterRowStatus={filterRowSuccessState}
-                        filterErrorText={filterErrorResults
+                        filterResultMessage={filterErrorResults
                             .trim()
                             .toLowerCase()}
                         filterRowReceiver={filterReceivers.trim().toLowerCase()}
                         onDetailsClick={showDetailsModal}
                     />
-                </NetworkErrorBoundary>
-            </Suspense>
             <Modal
                 isLarge={true}
                 className="rs-admindash-modal"
@@ -1018,22 +717,3 @@ export function AdminReceiverDashboard() {
         </article>
     );
 }
-
-export const _exportForTesting = {
-    SKIP_HOURS,
-    startOfDayIso,
-    endOfDayIso,
-    initialStartDate,
-    initialEndDate,
-    strcmp,
-    dateIsInRange,
-    TimeSlots,
-    SuccessRateTracker,
-    SuccessRate,
-    durationFormatShort,
-    dateShortFormat,
-    sortStatusData,
-    MainRender,
-    ModalInfoRender,
-    DateRangePickingAtomic,
-};
