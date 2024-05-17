@@ -10,7 +10,7 @@ export async function goto(page: Page) {
     });
 }
 
-export function getOrgAPI(org: string) {
+export function getOrgSubmissionsAPI(org: string) {
     return `**/api/waters/org/${org}/submissions?*`;
 }
 
@@ -19,7 +19,7 @@ export async function mockGetSubmissionsResponse(
     org: string,
     responseStatus = 200,
 ) {
-    const submissionsApi = getOrgAPI(org);
+    const submissionsApi = getOrgSubmissionsAPI(org);
     await page.route(submissionsApi, async (route) => {
         const json = MOCK_GET_SUBMISSIONS;
         await route.fulfill({ json, status: responseStatus });
@@ -37,10 +37,8 @@ export async function mockGetReportHistoryResponse(
 }
 
 export async function openReportIdDetailPage(page: Page, id: string) {
-    const reportDetailsPage = page;
-    await expect(reportDetailsPage.locator("h1")).toBeAttached();
-    await expect(reportDetailsPage).toHaveURL(`/submissions/${id}`);
-    expect(reportDetailsPage.getByText(`Report ID:${id}`)).toBeTruthy();
+    await expect(page).toHaveURL(`/submissions/${id}`);
+    await expect(page.getByText(`Details: ${id}`)).toBeVisible();
 }
 
 export async function tableHeaders(page: Page) {
