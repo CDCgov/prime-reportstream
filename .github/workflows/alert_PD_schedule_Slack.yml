@@ -1,8 +1,15 @@
 name: Find next person on call
 on:
+  push:
+    branches:
+      - josiahsiegel/update/oncall-alerts
   schedule:
     - cron: "7 13 * * Tue-Fri"  #UTC-5
     - cron: "7 13 * * Mon"  #UTC-5
+
+env:
+  channel: temp_branch_dump
+
 jobs:
   pre_job:
     name: Pre Job
@@ -22,7 +29,7 @@ jobs:
       
       - name: IsWeekDay
         id: WeekDay
-        if: github.event_name == 'schedule' && github.event.schedule == '7 13 * * Tue-Fri'
+        #if: github.event_name == 'schedule' && github.event.schedule == '7 13 * * Tue-Fri'
         shell: bash
         run: echo "IsWeekDay=true" >> $GITHUB_OUTPUT
   
@@ -67,10 +74,10 @@ jobs:
           "PagerDuty Next person on-call": "${{ env.Schedules_oncallSchedule_0_NextPersonName }}"
           "PagerDuty Next person on-call from": "${{ env.Schedules_oncallSchedule_0_NextFrom }}"
           "PagerDuty Next person on-call until": "${{ env.Schedules_oncallSchedule_0_NextUntil }}"
-        icon-emoji: ':bell:'
-        channel:  prime-reportstream-engineering
+        icon-emoji: ':alarm_clock:'
+        channel:  ${{ env.channel }}
         webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        color: warning
+        color: good
     
     - name: Slack Notification
       uses: ./.github/actions/notifications
@@ -84,10 +91,10 @@ jobs:
           "PagerDuty Next person on-call": "${{ env.Schedules_oncallSchedule_1_NextPersonName }}"
           "PagerDuty Next person on-call from": "${{ env.Schedules_oncallSchedule_1_NextFrom }}"
           "PagerDuty Next person on-call until": "${{ env.Schedules_oncallSchedule_1_NextUntil }}"
-        icon-emoji: ':bell:'
-        channel:  prime-reportstream-engineering
+        icon-emoji: ':alarm_clock:'
+        channel:  ${{ env.channel }}
         webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        color: warning
+        color: good
 
     - name: Slack Notification
       uses: ./.github/actions/notifications
@@ -101,10 +108,10 @@ jobs:
           "PagerDuty Next person on-call": "${{ env.Schedules_oncallSchedule_2_NextPersonName }}"
           "PagerDuty Next person on-call from": "${{ env.Schedules_oncallSchedule_2_NextFrom }}"
           "PagerDuty Next person on-call until": "${{ env.Schedules_oncallSchedule_2_NextUntil }}"
-        icon-emoji: ':bell:'
-        channel:  prime-reportstream-engineering
+        icon-emoji: ':alarm_clock:'
+        channel:  ${{ env.channel }}
         webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        color: warning
+        color: good
 
     - name: Slack Notification
       uses: ./.github/actions/notifications
@@ -118,10 +125,10 @@ jobs:
           "PagerDuty Next person on-call": "${{ env.Schedules_oncallSchedule_3_NextPersonName }}"
           "PagerDuty Next person on-call from": "${{ env.Schedules_oncallSchedule_3_NextFrom }}"
           "PagerDuty Next person on-call until": "${{ env.Schedules_oncallSchedule_3_NextUntil }}"
-        icon-emoji: ':bell:'
-        channel:  prime-reportstream-engineering
+        icon-emoji: ':alarm_clock:'
+        channel:  ${{ env.channel }}
         webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        color: warning
+        color: good
 
   PDAlert_WeekDays:
     name: PD Alert for WeekDays
@@ -160,46 +167,16 @@ jobs:
         message: |
           "PagerDuty Schedule Name": "${{ env.Schedules_oncallSchedule_0_ScheduleName }}"
           "PagerDuty on-call person Now": "${{ env.Schedules_oncallSchedule_0_OnCallPersonName }}"
-        icon-emoji: ':bell:'
-        channel:  prime-reportstream-engineering
-        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        color: warning
-    
-    - name: Slack Notification
-      uses: ./.github/actions/notifications
-      with:
-        method: slack
-        title: Pagerduty 
-        message: |
+          ---
           "PagerDuty Schedule Name": "${{ env.Schedules_oncallSchedule_1_ScheduleName }}"
           "PagerDuty on-call person Now": "${{ env.Schedules_oncallSchedule_1_OnCallPersonName }}"
-        icon-emoji: ':bell:'
-        channel:  prime-reportstream-engineering
-        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        color: warning
-
-    - name: Slack Notification
-      uses: ./.github/actions/notifications
-      with:
-        method: slack
-        title: Pagerduty 
-        message: |
+          ---
           "PagerDuty Schedule Name": "${{ env.Schedules_oncallSchedule_2_ScheduleName }}"
           "PagerDuty on-call person Now": "${{ env.Schedules_oncallSchedule_2_OnCallPersonName }}"
-        icon-emoji: ':bell:'
-        channel:  prime-reportstream-engineering
-        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        color: warning
-
-    - name: Slack Notification
-      uses: ./.github/actions/notifications
-      with:
-        method: slack
-        title: Pagerduty 
-        message: |
+          ---
           "PagerDuty Schedule Name": "${{ env.Schedules_oncallSchedule_3_ScheduleName }}"
           "PagerDuty on-call person Now": "${{ env.Schedules_oncallSchedule_3_OnCallPersonName }}"
-        icon-emoji: ':bell:'
-        channel:  prime-reportstream-engineering
+        icon-emoji: ':alarm_clock:'
+        channel:  ${{ env.channel }}
         webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        color: warning
+        color: good
