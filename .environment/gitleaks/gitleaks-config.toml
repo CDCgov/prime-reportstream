@@ -14,6 +14,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     paths = [
         '.environment/sftp-conf',
         '.environment/soap_service/',
+        '.github/scripts/stale_items_report/',
         '.idea/',
         '.terraform/providers/',
         'frontend/dist',
@@ -36,6 +37,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'prime-router/src/main/kotlin/cli/tests/TestKeys.kt',
         'prime-router/src/test/csv_test_files/input/',
         'prime-router/src/test/kotlin/credentials/CredentialTests',
+        'prime-router/src/test/',
         '.environment/gitleaks/gitleaks-config.toml',
         'exp/as2/keystore_steps.md',
     ]
