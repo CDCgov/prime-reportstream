@@ -217,7 +217,8 @@ class FhirTransformer(
         val property = childResource.getNamedProperty(pathParts.last())
         if (property != null) {
             val newValue = FhirBundleUtils.convertFhirType(value, value.fhirType(), property.typeCode, logger)
-            childResource.setProperty(pathParts.last(), newValue)
+            // Use a copy to prevent endless looping on extensions
+            childResource.setProperty(pathParts.last(), newValue.copy())
         } else {
             logger.error("Could not find property '${pathParts.last()}'.")
         }
@@ -264,7 +265,7 @@ class FhirTransformer(
         var part = ""
         bundleProperty.toList().forEach {
             // Only add parts if outside parenthesis. To make sure things
-            // like extensions are not included
+            // like extensions are not split up
             if (!foundParenthesis && it == '.') {
                 parts += part
                 part = ""
