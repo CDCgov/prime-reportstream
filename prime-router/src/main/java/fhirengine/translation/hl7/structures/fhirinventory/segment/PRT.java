@@ -71,7 +71,7 @@ import ca.uhn.hl7v2.model.Varies;
  * <li>PRT-19: Device Lot Number (ST) <b>optional </b>
  * <li>PRT-20: Device Serial Number (ST) <b>optional </b>
  * <li>PRT-21: Device Donation Identification (EI) <b>optional </b>
- * <li>PRT-22: Device Type (CWE) <b>optional </b>
+ * <li>PRT-22: Device Type (CNE) <b>optional </b>
  * <li>PRT-23: Preferred Method of Contact (CWE) <b>optional </b>
  * <li>PRT-24: Contact Identifiers (PLN) <b>optional repeating</b>
  * </ul>
@@ -110,7 +110,7 @@ public class PRT extends AbstractSegment {
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Device Lot Number");
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Device Serial Number");
       this.add(EI.class, false, 1, 0, new Object[]{getMessage()}, "Device Donation Identification");
-      this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Device Type");
+      this.add(CNE.class, false, 1, 0, new Object[]{getMessage()}, "Device Type");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Preferred Method of Contact");
       this.add(PLN.class, false, 0, 0, new Object[]{getMessage()}, "Contact Identifiers");
     } catch (HL7Exception e) {
@@ -1056,8 +1056,8 @@ public class PRT extends AbstractSegment {
    * Returns
    * PRT-22: "Device Type" - creates it if necessary
    */
-  public CWE getDeviceType() {
-    CWE retVal = this.getTypedField(22, 0);
+  public CNE getDeviceType() {
+    CNE retVal = this.getTypedField(22, 0);
     return retVal;
   }
 
@@ -1065,8 +1065,8 @@ public class PRT extends AbstractSegment {
    * Returns
    * PRT-22: "Device Type" - creates it if necessary
    */
-  public CWE getPrt22_DeviceType() {
-    CWE retVal = this.getTypedField(22, 0);
+  public CNE getPrt22_DeviceType() {
+    CNE retVal = this.getTypedField(22, 0);
     return retVal;
   }
 
@@ -1246,7 +1246,7 @@ public class PRT extends AbstractSegment {
       case 20:
         return new EI(getMessage());
       case 21:
-        return new CWE(getMessage());
+        return new CNE(getMessage());
       case 22:
         return new CWE(getMessage());
       case 23:

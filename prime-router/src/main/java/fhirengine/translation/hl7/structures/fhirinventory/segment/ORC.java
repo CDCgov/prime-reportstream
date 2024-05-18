@@ -83,7 +83,7 @@ import ca.uhn.hl7v2.model.Varies;
  * <li>ORC-31: Parent Universal Service Identifier (CWE) <b>optional </b>
  * <li>ORC-32: Advanced Beneficiary Notice Date (DT) <b>optional </b>
  * <li>ORC-33: Alternate Placer Order Number (CX) <b>optional repeating</b>
- * <li>ORC-34: Order Workflow Profile (CWE) <b>optional repeating</b>
+ * <li>ORC-34: Order Workflow Profile (EI) <b>optional repeating</b>
  * </ul>
  */
 @SuppressWarnings("unused")
@@ -132,7 +132,7 @@ public class ORC extends AbstractSegment {
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Parent Universal Service Identifier");
       this.add(DT.class, false, 1, 0, new Object[]{getMessage()}, "Advanced Beneficiary Notice Date");
       this.add(CX.class, false, 0, 0, new Object[]{getMessage()}, "Alternate Placer Order Number");
-      this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Order Workflow Profile");
+      this.add(EI.class, false, 0, 0, new Object[]{getMessage()}, "Order Workflow Profile");
     } catch (HL7Exception e) {
       log.error("Unexpected error creating ORC - this is probably a bug in the source code generator.", e);
     }
@@ -1748,8 +1748,8 @@ public class ORC extends AbstractSegment {
   /**
    * Returns all repetitions of Order Workflow Profile (ORC-34).
    */
-  public CWE[] getOrderWorkflowProfile() {
-    CWE[] retVal = this.getTypedField(34, new CWE[0]);
+  public EI[] getOrderWorkflowProfile() {
+    EI[] retVal = this.getTypedField(34, new EI[0]);
     return retVal;
   }
 
@@ -1757,8 +1757,8 @@ public class ORC extends AbstractSegment {
   /**
    * Returns all repetitions of Order Workflow Profile (ORC-34).
    */
-  public CWE[] getOrc34_OrderWorkflowProfile() {
-    CWE[] retVal = this.getTypedField(34, new CWE[0]);
+  public EI[] getOrc34_OrderWorkflowProfile() {
+    EI[] retVal = this.getTypedField(34, new EI[0]);
     return retVal;
   }
 
@@ -1779,8 +1779,8 @@ public class ORC extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public CWE getOrderWorkflowProfile(int rep) {
-    CWE retVal = this.getTypedField(34, rep);
+  public EI getOrderWorkflowProfile(int rep) {
+    EI retVal = this.getTypedField(34, rep);
     return retVal;
   }
 
@@ -1790,8 +1790,8 @@ public class ORC extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public CWE getOrc34_OrderWorkflowProfile(int rep) {
-    CWE retVal = this.getTypedField(34, rep);
+  public EI getOrc34_OrderWorkflowProfile(int rep) {
+    EI retVal = this.getTypedField(34, rep);
     return retVal;
   }
 
@@ -1812,8 +1812,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CWE insertOrderWorkflowProfile(int rep) throws HL7Exception {
-    return (CWE) super.insertRepetition(34, rep);
+  public EI insertOrderWorkflowProfile(int rep) throws HL7Exception {
+    return (EI) super.insertRepetition(34, rep);
   }
 
 
@@ -1824,8 +1824,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CWE insertOrc34_OrderWorkflowProfile(int rep) throws HL7Exception {
-    return (CWE) super.insertRepetition(34, rep);
+  public EI insertOrc34_OrderWorkflowProfile(int rep) throws HL7Exception {
+    return (EI) super.insertRepetition(34, rep);
   }
 
 
@@ -1836,8 +1836,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CWE removeOrderWorkflowProfile(int rep) throws HL7Exception {
-    return (CWE) super.removeRepetition(34, rep);
+  public EI removeOrderWorkflowProfile(int rep) throws HL7Exception {
+    return (EI) super.removeRepetition(34, rep);
   }
 
 
@@ -1848,8 +1848,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public CWE removeOrc34_OrderWorkflowProfile(int rep) throws HL7Exception {
-    return (CWE) super.removeRepetition(34, rep);
+  public EI removeOrc34_OrderWorkflowProfile(int rep) throws HL7Exception {
+    return (EI) super.removeRepetition(34, rep);
   }
 
 
@@ -1925,7 +1925,7 @@ public class ORC extends AbstractSegment {
       case 32:
         return new CX(getMessage());
       case 33:
-        return new CWE(getMessage());
+        return new EI(getMessage());
       default:
         return null;
     }
