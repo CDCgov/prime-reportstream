@@ -92,7 +92,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         val restTransportInfo = transportType as RESTTransportType
         val reportId = "${header.reportFile.reportId}"
         val receiver = header.receiver ?: error("No receiver defined for report $reportId")
-        var reportContentOrg: ByteArray = header.content ?: error("No content for report $reportId")
+        var reportContent: ByteArray = header.content ?: error("No content for report $reportId")
         // get the file name from blob url, or create one from the report metadata
         val fileName = if (header.receiver.topic.isSendOriginal) {
             Report.formExternalFilename(header)
@@ -125,13 +125,13 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
 
                         // post the report
                         // If encryption is needed.
-                        val encryptClient = httpClient ?: createDefaultHttpClient(
-                            jksCredential, accessToken,
-                            restTransportInfo
-                        )
-                        val reportContent = if (restTransportInfo.encryptionKeyUrl.isNotEmpty()) {
+                        reportContent = if (restTransportInfo.encryptionKeyUrl.isNotEmpty()) {
+                            val encryptClient = httpClient ?: createDefaultHttpClient(
+                                jksCredential, accessToken,
+                                restTransportInfo
+                            )
                             encryptTheReport(
-                                reportContentOrg,
+                                reportContent,
                                 fileName,
                                 restTransportInfo.encryptionKeyUrl,
                                 httpHeaders,
@@ -139,7 +139,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                                 encryptClient
                             )
                         } else {
-                            reportContentOrg
+                            reportContent
                         }
 
                         // post the report
