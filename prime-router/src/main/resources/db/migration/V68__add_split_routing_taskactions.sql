@@ -10,7 +10,6 @@
 
 /*
  * Adds necessary values for split routing steps (destination and receiver filters)
- *  - timestamps for completion of destination and receiver filter functions to the task table.
  *  - new task_action values
  */
 ALTER TYPE public.task_action ADD VALUE 'destination-filter' after 'process';
