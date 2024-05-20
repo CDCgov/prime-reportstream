@@ -8,7 +8,10 @@ import * as messageDetails from "../pages/message-details";
 import { URL_MESSAGE_DETAILS } from "../pages/message-details";
 import * as messageIdSearch from "../pages/message-id-search";
 import { MESSAGE_ID } from "../pages/message-id-search";
-import { mockGetHistoryReportResponse } from "../pages/report-details";
+import {
+    API_HISTORY_REPORT,
+    mockGetHistoryReportResponse,
+} from "../pages/report-details";
 test.describe("Message Details Page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
@@ -145,23 +148,21 @@ test.describe("Message Details Page", () => {
                 page,
             }) => {
                 const downloadProm = page.waitForEvent("download");
-                const reportId = MOCK_GET_HISTORY_REPORT.reportId;
-                const fileName = parseFileLocation(
-                    MOCK_GET_MESSAGE.receiverData[0].fileUrl,
-                ).fileName;
-                await mockGetHistoryReportResponse(page, reportId);
+                await mockGetHistoryReportResponse(page, "*");
 
-                const fileNameCell = tableRows(page)
+                await tableRows(page)
                     .nth(0)
                     .locator("td")
                     .nth(6)
-                    .getByRole("button");
+                    .getByRole("button")
+                    .click();
 
-                await fileNameCell.click();
                 const download = await downloadProm;
 
                 // assert filename
-                expect(download.suggestedFilename()).toBe(fileName);
+                expect(download.suggestedFilename()).toBe(
+                    "hhsprotect-covid-19-73e3cbc8-9920-4ab7-871f-843a1db4c074.csv",
+                );
                 // get and assert stats
                 expect(
                     (await fs.promises.stat(await download.path())).size,
