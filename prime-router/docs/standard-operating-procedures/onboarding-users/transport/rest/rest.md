@@ -67,11 +67,11 @@ User can use **primeCLI** command with credential-create option to generate the 
 
 With CDC SU password, login into the **Microsoft Azure** and navigate to the **pdhprod-clientconfig** and select **Secrets** from the menu on the left.  You should see the following screenshot.
 
-![](./images/rest-pdhprod-clientconfig-secrets.png)
+![](images/rest-pdhprod-clientconfig-secrets.png)
 
 Next refer to the above image, click on the  [+ Generate/Import] as the red arrow is pointing to.  You should see the following screenshot. Please follow the instruction given in the image. Note, the naming convention is OrganizationName--Receiver.name (e.g., NY-PHD--ELR).
 
-![](./images/rest-create-a-secrete-key-screenshot.png)
+![](images/rest-create-a-secrete-key-screenshot.png)
 
 </ol>
 
@@ -152,19 +152,19 @@ Create a setting in staging environment by running the primeCLI command below:
 
 Head to https://staging.reportstream.cdc.gov/, login, and select the Organization setting from Admin dropdown menu as show below:
 
-![](./images/rest-organization-setting-page.png)
+![](images/rest-organization-setting-page.png)
 
 Search for the organization as show below:
 
-![](./images/rest-organization-search.png)
+![](images/rest-organization-search.png)
 
 Click on check as show below:
 
-![](./images/rest-ok-phd-history.png)
+![](images/rest-ok-phd-history.png)
 
 Click on start and you should see screenshot below:
 
-![](./images/rest-successful-page.png)
+![](images/rest-successful-page.png)
 
 
 
