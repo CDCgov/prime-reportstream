@@ -131,6 +131,22 @@ abstract class FHIREngine(
                     azureEventService ?: AzureEventServiceImpl(),
                     reportService ?: ReportService()
                 )
+                TaskAction.destination_filter -> FHIRDestinationFilter(
+                    metadata ?: Metadata.getInstance(),
+                    settingsProvider!!,
+                    databaseAccess ?: databaseAccessSingleton,
+                    blobAccess ?: BlobAccess(),
+                    azureEventService ?: AzureEventServiceImpl(),
+                    reportService ?: ReportService()
+                )
+                TaskAction.receiver_filter -> FHIRReceiverFilter(
+                    metadata ?: Metadata.getInstance(),
+                    settingsProvider!!,
+                    databaseAccess ?: databaseAccessSingleton,
+                    blobAccess ?: BlobAccess(),
+                    azureEventService ?: AzureEventServiceImpl(),
+                    reportService ?: ReportService()
+                )
                 TaskAction.translate -> FHIRTranslator(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
