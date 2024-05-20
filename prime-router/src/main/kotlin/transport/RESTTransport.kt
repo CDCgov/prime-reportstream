@@ -114,7 +114,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 launch {
                     try {
                         // parse headers for any dynamic values, OK needs the report ID
-                        var (httpHeaders, accessToken: String?) = getOAuthToken(
+                        val (httpHeaders, accessToken: String?) = getOAuthToken(
                             restTransportInfo,
                             reportId,
                             jksCredential,
@@ -123,37 +123,32 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         )
                         logger.info("Token successfully added!")
 
-                        // post the report
                         // If encryption is needed.
                         reportContent = if (restTransportInfo.encryptionKeyUrl.isNotEmpty()) {
-                            val encryptClient = httpClient ?: createDefaultHttpClient(
-                                jksCredential, accessToken,
-                                restTransportInfo
-                            )
                             encryptTheReport(
                                 reportContent,
-                                fileName,
                                 restTransportInfo.encryptionKeyUrl,
                                 httpHeaders,
-                                logger,
-                                encryptClient
+                                httpClient ?: createDefaultHttpClient(
+                                    jksCredential, accessToken,
+                                    restTransportInfo
+                                )
                             )
                         } else {
                             reportContent
                         }
 
                         // post the report
-                        val postClient = httpClient ?: createDefaultHttpClient(
-                            jksCredential, accessToken,
-                            restTransportInfo
-                        )
                         val response = postReport(
                             reportContent,
                             fileName,
                             restTransportInfo.reportUrl,
                             httpHeaders,
                             logger,
-                            postClient
+                            httpClient ?: createDefaultHttpClient(
+                                jksCredential, accessToken,
+                                restTransportInfo
+                            )
                         )
                         val responseBody = response.bodyAsText()
                         // update the action history
@@ -234,7 +229,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
 
     /**
      * Get credential either two-legged or default.
-     * @param transportType the transport type of two-legged or default
+     * @param transport the transport type of two-legged or default
      * @param receiver the receiver setting
      */
     fun getCredential(transport: RESTTransportType, receiver: Receiver): Pair<RestCredential, UserJksCredential?> {
@@ -298,10 +293,9 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     /**
      * Get the OAuth token based on credential type
      *
-     * @param restTransportInfo The URL to post to get the OAuth token
-     * @param reportId The Assertion credential
+     * @param restTransportInfo - Transport setting
+     * @param reportId - report ID
      * @param jksCredential The jks credential
-     * @param context Really just here to get logging injected
      */
     suspend fun getOAuthToken(
         restTransportInfo: RESTTransportType,
@@ -501,6 +495,29 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     }
 
     /**
+     * getEncryptionKey extracts the encryption key from provided URL.  It is to be used to encrypt message
+     * sending over the wire.
+     *
+     * @param encryptionKeyUrl - Url to extract the key from
+     * @param headers - headers
+     * @param httpClient - given http client engine
+     *
+     */
+    suspend fun getEncryptionKey(
+        encryptionKeyUrl: String,
+        headers: Map<String, String>,
+        httpClient: HttpClient,
+    ): String {
+        httpClient.use { client ->
+            return client.get(encryptionKeyUrl) {
+                postHeaders(
+                    headers.map { (key, value) -> Pair(key, value) }.toMap()
+                )
+            }.body<String>()
+        }
+    }
+
+    /**
      * Encrypt the report to the REST service. This is a suspend function, meaning it can get called as an
      * async method, though we call it a blocking way.
      *
@@ -510,43 +527,26 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      */
     suspend fun encryptTheReport(
         message: ByteArray,
-        fileName: String,
         encryptionKeyUrl: String,
         headers: Map<String, String>,
-        logger: Logger,
         httpClient: HttpClient,
     ): ByteArray {
-        logger.info(fileName)
-        httpClient.use { client ->
-            val encryptionKey = client.get(encryptionKeyUrl) {
-                postHeaders(
-                    // Calculate Content-Length if needed.
-                    headers.map { (key, value) ->
-                        if (key == "Content-Length" && value == "<calculated when request is sent>") {
-                            Pair(key, message.size.toString())
-                        } else {
-                            Pair(key, value)
-                        }
-                    }.toMap()
-                )
-            }.body<String>()
+        val encryptionKey = getEncryptionKey(encryptionKeyUrl, headers, httpClient)
+        val jsonEncryptionKey = JSONObject(encryptionKey)
+        val aesKey = Base64.getDecoder().decode(jsonEncryptionKey.get("aesKey").toString())
+        val aesIV = Base64.getDecoder().decode(jsonEncryptionKey.get("aesIV").toString())
 
-            val jsonEncryptionKey = JSONObject(encryptionKey)
-            val aesKey = Base64.getDecoder().decode(jsonEncryptionKey.get("aesKey").toString())
-            val aesIV = Base64.getDecoder().decode(jsonEncryptionKey.get("aesIV").toString())
+        val iv = IvParameterSpec(aesIV)
+        val crypto = Cryptography()
 
-            val iv = IvParameterSpec(aesIV)
-            val crypto = Cryptography()
+        // Note: I discussed with CDC security expert, Mr. Stephen Nesman, and he said, it is ok to use the
+        // AES/CBC/PKCS5Padding algorithm. Since, this is the internal, double, message encryption requested by
+        // Natus. RS uses the TLS1.3 for external encryption SSL cert on the wire to communicate with they server.
+        val algorithm = "AES/CBC/PKCS5Padding"
 
-            // Note: I discussed with CDC security expert, Mr. Stephen Nesman, and he said, it is ok to use the
-            // AES/CBC/PKCS5Padding algorithm. Since, this is the internal, double, message encryption requested by
-            // Natus. RS uses the TLS1.3 for external encryption SSL cert on the wire to communicate with they server.
-            val algorithm = "AES/CBC/PKCS5Padding"
-
-            val enKey: SecretKey = SecretKeySpec(aesKey, "AES")
-            val encryptedMsg = crypto.encrypt(algorithm, message, enKey, iv)
-            return encryptedMsg
-        }
+        val enKey: SecretKey = SecretKeySpec(aesKey, "AES")
+        val encryptedMsg = crypto.encrypt(algorithm, message, enKey, iv)
+        return encryptedMsg
     }
 
     /**
