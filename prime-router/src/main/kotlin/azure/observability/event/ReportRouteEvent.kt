@@ -15,3 +15,26 @@ data class ReportRouteEvent(
     val observations: List<ObservationSummary>,
     val bundleSize: Int,
 ) : AzureCustomEvent
+
+data class DestinationFilterReportRoutedEvent(
+    val parentReportId: ReportId,
+    val reportId: ReportId,
+    val topic: Topic,
+    val sender: String,
+    val receiver: String,
+    val bundleSize: Int,
+) : AzureCustomEvent
+data class DestinationFilterReportNotRoutedEvent(
+    val parentReportId: ReportId,
+    val topic: Topic,
+    val sender: String,
+    val receiver: String,
+    val bundleSize: Int,
+) : AzureCustomEvent
+data class DestinationFilterReportNoReceiversEvent(
+    val parentReportId: ReportId,
+    val reportId: ReportId,
+    val topic: Topic,
+    val sender: String,
+    val bundleSize: Int,
+) : AzureCustomEvent

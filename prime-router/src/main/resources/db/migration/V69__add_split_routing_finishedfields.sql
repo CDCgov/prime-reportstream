@@ -11,7 +11,6 @@
 /*
  * Adds necessary values for split routing steps (destination and receiver filters)
  *  - timestamps for completion of destination and receiver filter functions to the task table.
- *  - new task_action values
  */
 ALTER TABLE TASK ADD destination_filtered_at timestamp with time zone;
 ALTER TABLE TASK ADD receiver_filtered_at timestamp with time zone;
