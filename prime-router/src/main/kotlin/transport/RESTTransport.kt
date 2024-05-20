@@ -124,7 +124,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         logger.info("Token successfully added!")
 
                         // If encryption is needed.
-                        reportContent = if (restTransportInfo.encryptionKeyUrl.isNotEmpty()) {
+                        reportContent = restTransportInfo.encryptionKeyUrl.isNotEmpty().let {
                             encryptTheReport(
                                 reportContent,
                                 restTransportInfo.encryptionKeyUrl,
@@ -134,8 +134,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                                     restTransportInfo
                                 )
                             )
-                        } else {
-                            reportContent
                         }
 
                         // post the report
