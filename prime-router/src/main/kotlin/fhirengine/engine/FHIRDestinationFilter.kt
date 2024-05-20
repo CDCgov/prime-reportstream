@@ -5,8 +5,10 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -50,6 +52,9 @@ class FHIRDestinationFilter(
 
     override val engineType: String = "DestinationFilter"
 
+    internal fun findTopicReceivers(topic: Topic): List<Receiver> =
+            settings.receivers.filter { it.customerStatus != CustomerStatus.INACTIVE && it.topic == topic }
+
     /**
      * Accepts a [message] in internal FHIR format
      *
@@ -63,6 +68,9 @@ class FHIRDestinationFilter(
     ): List<FHIREngineRunResult> {
         return when (message) {
             is FhirDestinationFilterQueueMessage -> {
+                check(message.topic.isUniversalPipeline) {
+                    "Unexpected topic $message.topic in the Universal Pipeline routing step."
+                }
                 fhirEngineRunResults(message, actionHistory)
             }
 
@@ -90,7 +98,7 @@ class FHIRDestinationFilter(
         )
         withLoggingContext(contextMap) {
             // track input report
-            logger.info("Starting FHIR Convert step")
+            logger.info("Starting FHIR DestinationFilter step")
             actionHistory.trackExistingInputReport(queueMessage.reportId)
 
             // pull fhir document and parse FHIR document
@@ -118,33 +126,28 @@ class FHIRDestinationFilter(
             )
 
             // get the receivers that this bundle should go to
-            val receivers = settings.receivers.filter { receiver ->
-                val pass =
-                    if (receiver.customerStatus != CustomerStatus.ACTIVE || receiver.topic != queueMessage.topic) {
-                        false
-                    } else {
-                        receiver.jurisdictionalFilter.all { filter ->
-                            FhirPathUtils.evaluateCondition(
-                                CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
-                                bundle,
-                                bundle,
-                                bundle,
-                                filter
-                            )
-                        }
-                    }
-                if (!pass) {
-                    azureEventService.trackEvent(
-                        DestinationFilterReportNotRoutedEvent(
-                            queueMessage.reportId,
-                            queueMessage.topic,
-                            sender,
-                            receiver.fullName,
-                            fhirJson.length,
-                        )
+            val receivers = findTopicReceivers(queueMessage.topic).filter { receiver ->
+                receiver.jurisdictionalFilter.all { filter ->
+                    FhirPathUtils.evaluateCondition(
+                        CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
+                        bundle,
+                        bundle,
+                        bundle,
+                        filter
                     )
+                }.also { pass ->
+                    if (!pass) {
+                        azureEventService.trackEvent(
+                            DestinationFilterReportNotRoutedEvent(
+                                queueMessage.reportId,
+                                queueMessage.topic,
+                                sender,
+                                receiver.fullName,
+                                fhirJson.length,
+                            )
+                        )
+                    }
                 }
-                pass
             }
 
             // check if there are any receivers
