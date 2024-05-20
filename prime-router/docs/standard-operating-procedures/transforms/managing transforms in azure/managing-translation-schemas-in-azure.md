@@ -3,7 +3,7 @@
 This document describes the standard operating procedure for how to make changes to sender and receiver transforms that
 are stored in an azure container.
 
-[Design Note](../design/features/0005-managing-translation-schemas.md)
+[Design Note](../../../design/features/0005-managing-translation-schemas.md)
 
 ### Setup
 
@@ -17,7 +17,7 @@ are stored in an azure container.
 
 Out of the box, azure storage browser will automatically be configured to connect to the default azurite container (the
 one used by ReportStream locally).
-![azure default emulator](./azure-storage-browser-default-emulator.png)
+![azure default emulator](azure-storage-browser-default-emulator.png)
 
 It is sometimes useful to have a second storage account (primarily for testing/debugging). This can be added by
 right-clicking "Storage Accounts" and selecting "Connect to Azure Storage". You can then use the following connection
@@ -35,7 +35,7 @@ Before making changes, sync the schema type you're working on from staging to yo
 this will copy the current schemas from staging into your local azurite instance and trigger validation. You can confirm
 that this was successful by checking in storage browser and confirming the `valid-{TIMESTAMP}.txt` was just created.
 
-![completed sync](./completed-schema-sync.png)
+![completed sync](completed-schema-sync.png)
 
 ### Editing an existing schema
 
@@ -44,7 +44,7 @@ that this was successful by checking in storage browser and confirming the `vali
    application.
 3. Make the edits to the schema.
 4. Save the file. Azure storage browser will show a popup asking if you want to upload the file.
-   ![upload edited schema](./upload-edited-schema.png)
+   ![upload edited schema](upload-edited-schema.png)
 5. Repeat the process with the output file, reflecting the edits you made to the schema.
 6. Validate your changes.
 
@@ -72,9 +72,9 @@ that this was successful by checking in storage browser and confirming the `vali
 Creating a new schema should follow most of the same steps with the primary difference being you will need to create the
 file locally first, create the directory in azure storage browser and then upload the file.
 
-![create new folder](./create-new-folder.png)
+![create new folder](create-new-folder.png)
 
-![upload new file](./upload-new-file.png)
+![upload new file](upload-new-file.png)
 
 The rest of the steps for syncing will then be the same.
 
