@@ -1,4 +1,4 @@
-import { addMinutes, endOfDay, format, fromUnixTime, isValid, parseISO, startOfDay, subDays, subMilliseconds } from "date-fns";
+import { format, fromUnixTime, isValid, parseISO } from "date-fns";
 
 export const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
 
@@ -41,7 +41,7 @@ export function isDateExpired(dateTimeString: string | number) {
     // eslint-disable-next-line import/no-named-as-default-member
     const dateToCompare =
         typeof dateTimeString === "string"
-            ? parseISO(dateTimeString)
+            ? !/^\d+$/.test(dateTimeString) ? parseISO(dateTimeString) : fromUnixTime(parseInt(dateTimeString))
             : fromUnixTime(dateTimeString);
     return dateToCompare < now;
 }
@@ -57,69 +57,6 @@ export function formatDateWithoutSeconds(d: string) {
         minute: "2-digit",
     });
     return newDate.replace(/,/, "");
-}
-
-/**
- *  simple iterator to make other code more readable.
- *  Usage:
- *    for (let eachTimeSlot in (new TimeSlots([dateStart, dateEnd], 2)) { }
- */
-export interface IterateTimeSlots {
-    [Symbol.iterator]: () => Iterator<DatePair>;
-}
-
-export class TimeSlots implements Iterable<DatePair> {
-    private current: Date;
-    private readonly end: Date;
-    private readonly skipMinutes: number;
-
-    constructor(range: DatePair, skipMinutes = 2 * 60) {
-        this.current = range[0];
-        this.end = range[1];
-        this.skipMinutes = skipMinutes;
-    }
-
-    *[Symbol.iterator]() {
-        do {
-            const next = addMinutes(this.current, this.skipMinutes)
-            const end = subMilliseconds(next, 1);
-            yield [this.current, end] as DatePair;
-            this.current = next;
-        } while (this.current < this.end);
-    }
-
-    *map(mapper: (pair: DatePair) => unknown){
-        for(const next of this) {
-            yield mapper(next);
-        }
-    }
-
-    *drop(num: number) {
-        let remaining = num - 1;
-        const iter = this[Symbol.iterator]()
-
-        do {
-            const next = iter.next()
-            if(next.done) return;
-        } while(remaining-- > 0)
-
-        while(1) {
-            const {done, value} = iter.next();
-            if(done) return;
-            yield value;
-        }
-    }
-
-    toArray() {
-        return Array.from(this)
-    }
-}
-
-// mostly for readably
-export type DatePair = [Date, Date];
-
-export function dateIsInRange(d: Date, range: DatePair): boolean {
-    return d >= range[0] && d < range[1];
 }
 
 /*
@@ -164,24 +101,4 @@ export const durationFormatShort = (dateNewer: Date, dateOlder: Date): string =>
     return parts.join(" ");
 };
 
-/**
- * Declared outside of the function so React doesn't update constantly (also, time is fixed)
- * Usage: `yesterday()`
- * @param d {Date}
- * @return {string}
- */
-export const startOfDayIso = (d: Date) => {
-    return startOfDay(d).toISOString();
-};
-
-export const endOfDayIso = (d: Date) => {
-    return endOfDay(d).toISOString();
-};
-
-export const initialStartDate = () => {
-    return subDays(new Date(), DAY_BACK_DEFAULT);
-};
-
-export const initialEndDate = () => {
-    return new Date();
-};
+export type DatePair = [start: Date, end: Date]

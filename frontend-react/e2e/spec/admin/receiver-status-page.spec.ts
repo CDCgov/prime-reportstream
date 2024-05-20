@@ -1,18 +1,24 @@
 import { expect, Page, test } from "@playwright/test";
+import { endOfDay, startOfDay, subDays } from "date-fns";
 import { fileURLToPath } from "node:url";
-import { MOCK_GET_RECEIVER_STATUS } from "../../mocks/receiverStatus";
+import { createStatusTimePeriodData } from "../../../src/components/Admin/AdminReceiverDashboard.utils";
+import { createMockGetReceiverStatus } from "../../mocks/receiverStatus";
 import * as receiverStatus from "../../pages/admin/receiver-status";
 
 const __dirname = fileURLToPath(import.meta.url);
 
 async function gotoPage(page: Page) {
+    const now = new Date();
+    await receiverStatus.overridePageDate(page, now);
+    const mockGetReceiverStatus = createMockGetReceiverStatus();
     await page.route(receiverStatus.API_RECEIVER_STATUS, (route) =>
         route.fulfill({
             status: 200,
-            json: MOCK_GET_RECEIVER_STATUS,
+            json: mockGetReceiverStatus,
         }),
     );
     await receiverStatus.goto(page);
+    return {mockGetReceiverStatus, range: [startOfDay(subDays(now, 2)), endOfDay(now)]}
 }
 
 test.describe("Admin Organization Settings Page", () => {
@@ -59,14 +65,9 @@ test.describe("Admin Organization Settings Page", () => {
             });
 
         test.describe("When there is no error", () => {
-            test.beforeEach(async ({page}) => {
-                await gotoPage(page)
-            })
             test.describe("Displays correctly", () => {
-
                 test("Filter", async ({ page }) => {
-                    await gotoPage(page)          
-                    const {startDateString, endDateString} = await receiverStatus.getDateStrings(page)
+                    const {range: [startDate,endDate]} = await gotoPage(page)
                     const formOptionContainersLocator = page.locator(
                         "form[name=filter]> *",
                     );
@@ -115,7 +116,7 @@ test.describe("Admin Organization Settings Page", () => {
                     /* check form option inputs */
 
                     // date range
-                    const expectedDateRange = `🗓 ${startDateString} — ${endDateString}`;
+                    const expectedDateRange = `🗓 ${startDate.toLocaleDateString()} — ${endDate.toLocaleDateString()}`;
                     // date range is a widget initiated by a button, so target its display value element
                     const dateRangeDisplay =
                         dateRangeContainer.locator("> span");
@@ -146,12 +147,16 @@ test.describe("Admin Organization Settings Page", () => {
                 });
 
                 test("receiver status", async ({ page }) => {
+                    const {
+                        range: [startDate,endDate],
+                        mockGetReceiverStatus
+                    } = await gotoPage(page)
                     await expect(
                         page.getByRole("heading", {
                             name: "Receiver Status Dashboard",
                         }),
                     ).toBeVisible();
-                    const {startDateString, endDateString, priorDayString} = await receiverStatus.getDateStrings(page)
+                    const timePeriodData = createStatusTimePeriodData({data: mockGetReceiverStatus, startDate, endDate, filterResultMessage: ""});
                     const statusContainer = page.locator(
                         ".rs-admindash-component",
                     );
@@ -160,28 +165,20 @@ test.describe("Admin Organization Settings Page", () => {
                     const statusRows = statusContainer.locator("> .grid-row");
                     await expect(statusRows).toHaveCount(
                         new Set(
-                            MOCK_GET_RECEIVER_STATUS.map((r) => r.receiverId),
+                            mockGetReceiverStatus.map((r) => r.receiverId),
                         ).size,
                     );
 
                     const expectedDaysText = [
-                        startDateString,
-                        endDateString,
-                        priorDayString,
+                        startDate.toLocaleDateString(),
+                        subDays(endDate, 1).toLocaleDateString(),
+                        endDate.toLocaleDateString(),
                     ].join("            ");
                     for (const [i, row] of (await statusRows.all()).entries()) {
-                        const {
-                            organizationName,
-                            receiverName,
-                            connectionCheckResult,
-                        } = MOCK_GET_RECEIVER_STATUS[i];
-                        const expectedTitleText = `${organizationName}${receiverName}${connectionCheckResult}`;
-                        const titleCol = row.locator("> :nth(0)");
-                        const displayCol = row.locator("> :nth(1)");
-                        console.log(
-                            expectedTitleText,
-                            await titleCol.textContent(),
-                        );
+                        const {successRate, organizationName, receiverName} = timePeriodData[i];
+                        const expectedTitleText = `${organizationName}${receiverName}${successRate}%`;
+                        const titleCol = row.locator("> .title-column");
+                        const displayCol = row.locator("> .grid-row");
 
                         await expect(titleCol).toBeVisible();
                         await expect(displayCol).toBeVisible();

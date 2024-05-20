@@ -2,22 +2,22 @@ import { fireEvent, screen } from "@testing-library/react";
 import { Suspense } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
 
-import { DateRangePickingAtomic, MainRender, ModalInfoRender, sortStatusData, strcmp, SuccessRate } from "./AdminReceiverDashboard";
+import { DateRangePickingAtomic, MainRender, ModalInfoRender } from "./AdminReceiverDashboard";
 import { SKIP_HOURS } from "./AdminReceiverDashboard.constants";
+import { RSReceiverStatusParsed, sortStatusData, SuccessRate } from "./AdminReceiverDashboard.utils";
 import { ErrorPage } from "../../pages/error/ErrorPage";
-import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
 import { renderApp } from "../../utils/CustomRenderUtils";
-import { dateIsInRange, dateShortFormat, durationFormatShort, endOfDayIso, initialEndDate, initialStartDate, startOfDayIso, TimeSlots } from "../../utils/DateTimeUtils";
+import { dateShortFormat, durationFormatShort } from "../../utils/DateTimeUtils";
 
-const mockData: AdmConnStatusDataType[] = [
+const mockData: RSReceiverStatusParsed[] = [
     {
         receiverConnectionCheckResultId: 2397,
         organizationId: 61,
         receiverId: 313,
         connectionCheckResult: "connectionCheckResult dummy result 2397",
         connectionCheckSuccessful: true,
-        connectionCheckStartedAt: "2022-07-11T00:00:00.001Z",
-        connectionCheckCompletedAt: "2022-07-11T00:00:50.000Z",
+        connectionCheckStartedAt: new Date("2022-07-11T00:00:00.001Z"),
+        connectionCheckCompletedAt: new Date("2022-07-11T00:00:50.000Z"),
         organizationName: "ca-dph",
         receiverName: "elr",
     },
@@ -27,8 +27,8 @@ const mockData: AdmConnStatusDataType[] = [
         receiverId: 313,
         connectionCheckResult: "connectionCheckResult dummy result 2398",
         connectionCheckSuccessful: true,
-        connectionCheckStartedAt: "2022-07-11T07:59:24.036Z",
-        connectionCheckCompletedAt: "2022-07-11T07:59:24.358Z",
+        connectionCheckStartedAt: new Date("2022-07-11T07:59:24.036Z"),
+        connectionCheckCompletedAt: new Date("2022-07-11T07:59:24.358Z"),
         organizationName: "ca-dph",
         receiverName: "elr-secondary",
     },
@@ -38,8 +38,8 @@ const mockData: AdmConnStatusDataType[] = [
         receiverId: 311,
         connectionCheckResult: "connectionCheckResult dummy result 2399",
         connectionCheckSuccessful: true,
-        connectionCheckStartedAt: "2022-07-11T07:59:23.713Z",
-        connectionCheckCompletedAt: "2022-07-11T07:59:24.033Z",
+        connectionCheckStartedAt: new Date("2022-07-11T07:59:23.713Z"),
+        connectionCheckCompletedAt: new Date("2022-07-11T07:59:24.033Z"),
         organizationName: "oh-doh",
         receiverName: "elr",
     },
@@ -50,8 +50,8 @@ const mockData: AdmConnStatusDataType[] = [
         receiverId: 312,
         connectionCheckResult: "connectionCheckResult dummy result 2396",
         connectionCheckSuccessful: false,
-        connectionCheckStartedAt: "2022-07-11T07:59:23.385Z",
-        connectionCheckCompletedAt: "2022-07-11T07:59:23.711Z",
+        connectionCheckStartedAt: new Date("2022-07-11T07:59:23.385Z"),
+        connectionCheckCompletedAt: new Date("2022-07-11T07:59:23.711Z"),
         organizationName: "ca-dph",
         receiverName: "elr",
     },
@@ -61,8 +61,8 @@ const mockData: AdmConnStatusDataType[] = [
         receiverId: 310,
         connectionCheckResult: "connectionCheckResult dummy result 2395",
         connectionCheckSuccessful: true,
-        connectionCheckStartedAt: "2022-07-11T08:09:23.066Z",
-        connectionCheckCompletedAt: "2022-07-11T08:09:23.383Z",
+        connectionCheckStartedAt: new Date("2022-07-11T08:09:23.066Z"),
+        connectionCheckCompletedAt: new Date("2022-07-11T08:09:23.383Z"),
         organizationName: "vt-doh",
         receiverName: "elr-otc",
     },
@@ -72,8 +72,8 @@ const mockData: AdmConnStatusDataType[] = [
         receiverId: 309,
         connectionCheckResult: "connectionCheckResult dummy result 2394",
         connectionCheckSuccessful: false,
-        connectionCheckStartedAt: "2022-07-11T08:09:22.748Z",
-        connectionCheckCompletedAt: "2022-07-11T08:09:23.063Z",
+        connectionCheckStartedAt: new Date("2022-07-11T08:09:22.748Z"),
+        connectionCheckCompletedAt: new Date("2022-07-11T08:09:23.063Z"),
         organizationName: "vt-doh",
         receiverName: "elr-secondary",
     },
@@ -95,65 +95,6 @@ vi.mock("rest-hooks", async (importActual) => ({
 }));
 
 describe("AdminReceiverDashboard tests", () => {
-    test("misc functions", () => {
-        // we're checking these don't throw.
-        const now = new Date();
-        expect(startOfDayIso(now)).toContain("T");
-        expect(endOfDayIso(now)).toContain("T");
-        expect(initialStartDate().toISOString()).toContain(
-            "T",
-        );
-        expect(initialEndDate().toISOString()).toContain("T");
-        expect(strcmp("A", "a")).toBe(-1);
-        expect(strcmp("a", "a")).toBe(0);
-        expect(strcmp("a", "A")).toBe(1);
-
-        expect(
-            dateIsInRange(new Date("1/2/2020"), [
-                new Date("1/1/2020"),
-                new Date("1/3/2020"),
-            ]),
-        ).toBe(true);
-        expect(
-            dateIsInRange(new Date("1/2/2020"), [
-                new Date("1/1/2020"),
-                new Date("1/1/2020"),
-            ]),
-        ).toBe(false);
-        expect(
-            dateIsInRange(new Date("1/1/2020"), [
-                new Date("1/1/2020"),
-                new Date("1/2/2020"),
-            ]),
-        ).toBe(true);
-    });
-
-    test("TimeSlots", () => {
-        // NOTE: all times are ISO with a trailing "Z"
-        const timeslots = new TimeSlots(
-            [
-                new Date("2022-07-11T00:00:00.000Z"),
-                new Date("2022-07-13T00:00:00.000Z"),
-            ],
-            8,
-        );
-
-        const resultStart: string[] = [];
-        const resultEnd: string[] = [];
-        for (const timeslot of timeslots) {
-            resultStart.push(timeslot[0].toISOString());
-            resultEnd.push(timeslot[1].toISOString());
-        }
-        expect(JSON.stringify(resultStart)).toBe(
-            `["2022-07-11T00:00:00.000Z","2022-07-11T08:00:00.000Z","2022-07-11T16:00:00.000Z",` +
-                `"2022-07-12T00:00:00.000Z","2022-07-12T08:00:00.000Z","2022-07-12T16:00:00.000Z"]`,
-        );
-        expect(JSON.stringify(resultEnd)).toBe(
-            `["2022-07-11T08:00:00.000Z","2022-07-11T16:00:00.000Z","2022-07-12T00:00:00.000Z",` +
-                `"2022-07-12T08:00:00.000Z","2022-07-12T16:00:00.000Z","2022-07-13T00:00:00.000Z"]`,
-        );
-    });
-
     test("dateShortFormat", () => {
         expect(
             dateShortFormat(
@@ -210,7 +151,7 @@ describe("AdminReceiverDashboard tests", () => {
                         }
                         filterResultMessage={" "}
                         filterRowReceiver={"-"}
-                        onDetailsClick={(_subdata: AdmConnStatusDataType[]) =>
+                        onDetailsClick={(_subdata: RSReceiverStatusParsed[]) =>
                             void 0
                         }
                     />

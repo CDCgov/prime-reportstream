@@ -62,7 +62,6 @@ export default defineConfig<TestOptions>({
     reporter: [["html", { outputFolder: "e2e-data/report" }]],
     outputDir: "e2e-data/results",
     use: {
-        timezoneId: "UTC",
         baseURL: "http://localhost:4173",
         trace: "on-first-retry",
         screenshot: "only-on-failure",

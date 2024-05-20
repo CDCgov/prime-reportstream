@@ -12,17 +12,17 @@ import {
     TextInput,
     Tooltip,
 } from "@trussworks/react-uswds";
+import { endOfDay, startOfDay, subDays } from "date-fns";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
 import { useResource } from "rest-hooks";
-import { MAX_DAYS_MS, SKIP_HOURS } from "./AdminReceiverDashboard.constants";
-import rawResults from "../../../debug.json"
+import { MAX_DAYS_MS } from "./AdminReceiverDashboard.constants";
+import { createStatusTimePeriodData, MATCHING_FILTER_CLASSNAME_MAP, RSReceiverStatusParsed, SUCCESS_RATE_CLASSNAME_MAP, SuccessRate, TimePeriodData } from "./AdminReceiverDashboard.utils";
 import {
-    AdmConnStatusDataType,
     AdmConnStatusResource,
 } from "../../resources/AdmConnStatusResource";
-import { DatePair, durationFormatShort, endOfDayIso, initialEndDate, initialStartDate, startOfDayIso, TimeSlots } from "../../utils/DateTimeUtils";
+import { DatePair, DAY_BACK_DEFAULT, durationFormatShort} from "../../utils/DateTimeUtils";
 import { formatDate } from "../../utils/misc";
 import { StyleClass, TableFilterDateLabel } from "../Table/TableFilters";
 import { USLink } from "../USLink";
@@ -127,158 +127,6 @@ import { USLink } from "../USLink";
  *
  */
 
-
-
-export enum SuccessRate {
-    UNDEFINED = "UNDEFINED",
-    ALL_SUCCESSFUL = "ALL_SUCCESSFUL",
-    ALL_FAILURE = "ALL_FAILURE",
-    MIXED_SUCCESS = "MIXED_SUCCESS",
-}
-
-export const SUCCESS_RATE_CLASSNAME_MAP = {
-    [SuccessRate.UNDEFINED]: "success-undefined",
-    [SuccessRate.ALL_SUCCESSFUL]: "success-all",
-    [SuccessRate.ALL_FAILURE]: "failure-all",
-    [SuccessRate.MIXED_SUCCESS]: "success-mixed",
-};
-
-export enum MatchingFilter {
-    NO_FILTER,
-    FILTER_NOT_MATCHED,
-    FILTER_IS_MATCHED,
-}
-
-export const MATCHING_FILTER_CLASSNAME_MAP = {
-    [MatchingFilter.NO_FILTER]: "",
-    [MatchingFilter.FILTER_NOT_MATCHED]: "success-result-hidden",
-    [MatchingFilter.FILTER_IS_MATCHED]: "",
-};
-
-export const strcmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
-
-/**
- * build the dictionary with a special path+key
- * @param dataIn
- */
-export const sortStatusData = (
-    dataIn: AdmConnStatusDataType[],
-): AdmConnStatusDataType[] => {
-    const data = structuredClone(dataIn)
-    // empty case
-    if (dataIn.length === 0) {
-        return [];
-    }
-
-    data.sort((d1: AdmConnStatusDataType, d2: AdmConnStatusDataType) => {
-        // sorting by organizationName, then receiverName, then connectionCheckStartedAt
-        const orgNameCmp = strcmp(d1.organizationName, d2.organizationName);
-        // orgNameCmp === 0 means same
-        if (orgNameCmp !== 0) {
-            return orgNameCmp;
-        }
-        const receiverNameCmp = strcmp(d1.receiverName, d2.receiverName);
-        if (receiverNameCmp !== 0) {
-            return receiverNameCmp;
-        }
-        return strcmp(d1.connectionCheckStartedAt, d2.connectionCheckStartedAt);
-    });
-    return data; // we modified array in place, but returning value is handy for chaining.
-};
-
-export interface TimePeriodData {
-    start: Date,
-    end: Date,
-    success: number,
-    fail: number,
-    isResultFilterMatch: boolean,
-    successRateType: SuccessRate,
-    matchingFilter: MatchingFilter,
-    entries: AdmConnStatusDataType[]
-}
-
-export function createStatusData({data, startDate, endDate, filterResultMessage}: {
-    data: AdmConnStatusDataType[];
-    startDate: Date;
-    endDate: Date;
-    filterResultMessage: string;
-}) {
-    const sortedData = sortStatusData(data).map(d => ({...d, connectionCheckCompletedAt: new Date(d.connectionCheckCompletedAt), connectionCheckStartedAt: new Date(d.connectionCheckStartedAt)}));
-    const receiverIds = Array.from(new Set(sortedData.map(d => d.receiverId)))
-    const daySlots = new TimeSlots([startDate, endDate], 24 * 60).toArray();
-    const timeSlots = daySlots.map(([start, end]) => new TimeSlots([start, end], SKIP_HOURS * 60).toArray());
-
-    return receiverIds.map(id => {
-        const entries = sortedData.filter(d => d.receiverId === id);
-        const {organizationName, receiverName} = entries[0]
-
-        const days = Array.from(daySlots.entries()).map(([i, [start,]]) => {
-            const dayEntries = entries.filter(e => e.connectionCheckCompletedAt.toLocaleDateString() === start.toLocaleDateString())
-            const dayTimeSlots = timeSlots[i];
-            const dayString = start.toLocaleDateString();
-            const timePeriods = dayTimeSlots.map(([start, end]) => {
-                const timePeriodEntries = dayEntries.filter(e => {
-                    return e.connectionCheckCompletedAt >= start && e.connectionCheckCompletedAt < end;
-                });
-                const agg = timePeriodEntries.reduce((agg, {connectionCheckSuccessful, connectionCheckResult}) => {
-                    if(connectionCheckSuccessful) agg.success += 1;
-                    else {
-                        agg.fail += 1;
-                        if(connectionCheckResult
-                                .toLowerCase()
-                                .includes(filterResultMessage)) {
-                                    agg.isResultFilterMatch = true;
-                                }
-                    }
-                    return agg;
-                }, {success: 0, fail: 0, isResultFilterMatch: false as boolean})
-
-                const successRateType = agg.success && agg.fail ? SuccessRate.MIXED_SUCCESS : !agg.success && !agg.fail ? SuccessRate.UNDEFINED : agg.success ? SuccessRate.ALL_SUCCESSFUL : SuccessRate.ALL_FAILURE;
-                const matchingFilter = !filterResultMessage ? MatchingFilter.NO_FILTER : filterResultMessage && agg.isResultFilterMatch ? MatchingFilter.FILTER_IS_MATCHED : MatchingFilter.FILTER_NOT_MATCHED;
-                
-                return {
-                    start: start,
-                    end: end,
-                    ...agg,
-                    successRateType,
-                    matchingFilter,
-                    entries: timePeriodEntries,
-                    debug: `${start.toISOString()} - ${end.toISOString()}`,
-                    debug2: timePeriodEntries.map(e => e.connectionCheckCompletedAt.toISOString())
-                }
-            });
-            return {
-                dayString,
-                timePeriods,
-                entries: dayEntries,
-                debug1: dayEntries.map(d => d.connectionCheckCompletedAt.toISOString())
-            }
-        });
-
-        const {success, fail} = days.reduce((agg, curr) => {
-            curr.timePeriods.forEach(c => {
-                agg.fail += c.fail;
-                agg.success += c.success;
-            })
-            return agg
-        }, {success: 0, fail: 0})
-        const successRate = !!success || !!fail ? Math.round(
-            (100 * success) /
-                (success + fail),
-        ) : 0;
-        const successRateType = !success && !fail ? SuccessRate.UNDEFINED : successRate === 0 ? SuccessRate.ALL_FAILURE : successRate === 100 ? SuccessRate.ALL_SUCCESSFUL : SuccessRate.MIXED_SUCCESS;
-
-        return {
-            organizationName,
-            receiverName,
-            id,
-            successRate,
-            successRateType,
-            days,
-        }
-    });
-}
-
 export function MainRender({
     datesRange: [startDate, endDate],
     filterResultMessage,
@@ -288,14 +136,14 @@ export function MainRender({
     filterRowStatus: SuccessRate;
     filterResultMessage: string;
     filterRowReceiver: string;
-    onDetailsClick: (subData: AdmConnStatusDataType[]) => void;
+    onDetailsClick: (subData: RSReceiverStatusParsed[]) => void;
 }) {
+    const timePeriodMinutes = 2 * 60;
     const results = useResource(AdmConnStatusResource.list(), {
-        startDate: startOfDayIso(startDate),
-        endDate: endOfDayIso(endDate),
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
     });
-    //console.log(results.filter(x => x.receiverName === "all-fail").map(x => x.connectionCheckCompletedAt).toSorted())
-    const data = useMemo(() => createStatusData({data: results, startDate, endDate, filterResultMessage}), [endDate, filterResultMessage, results, startDate]);
+    const data = useMemo(() => createStatusTimePeriodData({data: results, startDate, endDate, filterResultMessage, timePeriodMinutes}), [endDate, filterResultMessage, results, startDate]);
 
     const handleTimePeriodClick = useCallback(
         ({entries}: TimePeriodData) => {
@@ -378,12 +226,12 @@ export function MainRender({
     );
 }
 
-export function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
+export function ModalInfoRender(props: { subData: RSReceiverStatusParsed[] }) {
     if (!props?.subData.length) {
         return <>No Data Found</>;
     }
 
-    const duration = (dataItem: AdmConnStatusDataType) => {
+    const duration = (dataItem: RSReceiverStatusParsed) => {
         return durationFormatShort(
             new Date(dataItem.connectionCheckCompletedAt),
             new Date(dataItem.connectionCheckStartedAt),
@@ -435,7 +283,7 @@ export function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
                         <Grid className={"modal-info-value"}>
                             {formatDate(dataItem.connectionCheckStartedAt)}
                             <br />
-                            {dataItem.connectionCheckStartedAt}
+                            {dataItem.connectionCheckStartedAt.toISOString()}
                         </Grid>
                     </Grid>
 
@@ -517,7 +365,7 @@ export function DateRangePickingAtomic(props: {
                         defaultValue: startDate,
                         onChange: (s) => {
                             if (s) {
-                                setStartDate(startOfDayIso(new Date(s)));
+                                setStartDate(s);
                             }
                         },
                     }}
@@ -528,7 +376,7 @@ export function DateRangePickingAtomic(props: {
                         defaultValue: props.defaultEndDate,
                         onChange: (s) => {
                             if (s) {
-                                setEndDate(endOfDayIso(new Date(s)));
+                                setEndDate(s);
                             }
                         },
                     }}
@@ -554,11 +402,19 @@ export function DateRangePickingAtomic(props: {
 }
 
 export function AdminReceiverDashboard() {
-    const [startDate, setStartDate] = useState<string>(
-        startOfDayIso(initialStartDate()),
+    const defaultDatesRef = useRef({
+        start: startOfDay(subDays(new Date(), DAY_BACK_DEFAULT)),
+        end: endOfDay(new Date())
+    })
+
+    // eslint-disable-next-line no-console
+    console.log("browser", {iso: new Date().toISOString(), end: defaultDatesRef.current.end.toISOString()})
+
+    const [startDate, setStartDate] = useState<Date>(
+        defaultDatesRef.current.start,
     );
-    const [endDate, setEndDate] = useState<string>(
-        initialEndDate().toISOString(),
+    const [endDate, setEndDate] = useState<Date>(
+        defaultDatesRef.current.end,
     );
     // this is the text input box filter
     const [filterReceivers, setFilterReceivers] = useState("");
@@ -569,10 +425,10 @@ export function AdminReceiverDashboard() {
     // used to show hide the modal
     const modalShowInfoRef = useRef<ModalRef>(null);
     const [currentDataForModal, setCurrentDataForModal] = useState<
-        AdmConnStatusDataType[]
+        RSReceiverStatusParsed[]
     >([]);
 
-    const showDetailsModal = useCallback((subData: AdmConnStatusDataType[]) => {
+    const showDetailsModal = useCallback((subData: RSReceiverStatusParsed[]) => {
         if (subData.length) {
             setCurrentDataForModal(subData);
             modalShowInfoRef?.current?.toggleModal(undefined, true);
@@ -602,11 +458,11 @@ export function AdminReceiverDashboard() {
                         Date range:
                     </Label>
                     <DateRangePickingAtomic
-                        defaultStartDate={startOfDayIso(initialStartDate())}
-                        defaultEndDate={initialEndDate().toISOString()}
+                        defaultStartDate={defaultDatesRef.current.start.toISOString()}
+                        defaultEndDate={defaultDatesRef.current.end.toISOString()}
                         onChange={(params) => {
-                            setStartDate(params.startDate);
-                            setEndDate(params.endDate);
+                            setStartDate(startOfDay(new Date(params.startDate)));
+                            setEndDate(endOfDay(new Date(params.endDate)));
                         }}
                     />
                 </div>
@@ -694,10 +550,10 @@ export function AdminReceiverDashboard() {
             </form>
                     <MainRender
                         datesRange={[
-                            new Date(startDate),
+                            startDate,
                             endDate
-                                ? new Date(endOfDayIso(new Date(endDate)))
-                                : new Date(endOfDayIso(new Date())),
+                                ? endOfDay(new Date(endDate))
+                                : defaultDatesRef.current.end,
                         ]}
                         filterRowStatus={filterRowSuccessState}
                         filterResultMessage={filterErrorResults
