@@ -63,7 +63,7 @@ class FHIRDestinationFilter(
     ): List<FHIREngineRunResult> {
         return when (message) {
             is FhirDestinationFilterQueueMessage -> {
-                fhirEngineRunResults(message, actionLogger, actionHistory)
+                fhirEngineRunResults(message, actionHistory)
             }
 
             else -> {
@@ -76,11 +76,10 @@ class FHIRDestinationFilter(
 
     /**
      * Process a [queueMessage] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
-     * [actionHistory] and [actionLogger] ensure all activities are logged.
+     * [actionHistory] ensures all activities are logged.
      */
     private fun fhirEngineRunResults(
         queueMessage: ReportPipelineMessage,
-        actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
         val contextMap = mapOf(
