@@ -14,6 +14,8 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.observability.context.MDCUtils
+import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
@@ -24,6 +26,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
 import org.jooq.Field
 import java.time.OffsetDateTime
@@ -43,14 +46,14 @@ class FHIRDestinationFilter(
     azureEventService: AzureEventService = AzureEventServiceImpl(),
     reportService: ReportService = ReportService(),
 ) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
+    override val finishedField: Field<OffsetDateTime> = Tables.TASK.DESTINATION_FILTERED_AT
+
+    override val engineType: String = "DestinationFilter"
 
     /**
-     * Adds logs for reports that pass through various methods in the FHIRRouter
-     */
-    private var actionLogger: ActionLogger? = null
-
-    /**
-     * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
+     * Accepts a [message] in internal FHIR format
+     *
+     * [message] is the incoming message to be evaluated for valid receivers and routed to the appropriate queues
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      */
     override fun <T : QueueMessage> doWork(
@@ -58,79 +61,191 @@ class FHIRDestinationFilter(
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
-        this.actionLogger = actionLogger
-
-        message as ReportPipelineMessage
-
-        // track input report
-        actionHistory.trackExistingInputReport(message.reportId)
-
-        // pull fhir document and parse FHIR document
-        val fhirJson = message.downloadContent()
-        val bundle = FhirTranscoder.decode(fhirJson)
-        val bodyString = FhirTranscoder.encode(bundle)
-
-        // go up the report lineage to get the sender of the root report
-        val sender = reportService.getSenderName(message.reportId)
-
-        // send event to Azure AppInsights
-        val observationSummary = AzureEventUtils.getObservations(bundle)
-        azureEventService.trackEvent(
-            ReportAcceptedEvent(
-                message.reportId,
-                message.topic,
-                sender,
-                observationSummary,
-                fhirJson.length
-            )
-        )
-
-        // get the receivers that this bundle should go to
-        val receivers = settings.receivers.filter { receiver ->
-            val pass = if (receiver.customerStatus != CustomerStatus.ACTIVE || receiver.topic != message.topic) {
-                false
-            } else {
-                receiver.jurisdictionalFilter.all { filter ->
-                    FhirPathUtils.evaluateCondition(
-                        CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
-                        bundle,
-                        bundle,
-                        bundle,
-                        filter
-                    )
-                }
+        return when (message) {
+            is FhirDestinationFilterQueueMessage -> {
+                fhirEngineRunResults(message, actionLogger, actionHistory)
             }
-            if (!pass) {
-                azureEventService.trackEvent(
-                    DestinationFilterReportNotRoutedEvent(
-                        message.reportId,
-                        message.topic,
-                        sender,
-                        receiver.fullName,
-                        fhirJson.length,
-                    )
+
+            else -> {
+                throw RuntimeException(
+                    "Message was not a FhirDestinationFilter and cannot be processed: $message"
                 )
             }
-            pass
         }
+    }
 
-        // check if there are any receivers
-        if (receivers.isNotEmpty()) {
-            return receivers.flatMap { receiver ->
+    /**
+     * Process a [queueMessage] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
+     * [actionHistory] and [actionLogger] ensure all activities are logged.
+     */
+    private fun fhirEngineRunResults(
+        queueMessage: ReportPipelineMessage,
+        actionLogger: ActionLogger,
+        actionHistory: ActionHistory,
+    ): List<FHIREngineRunResult> {
+        val contextMap = mapOf(
+            MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
+            MDCUtils.MDCProperty.REPORT_ID to queueMessage.reportId,
+            MDCUtils.MDCProperty.TOPIC to queueMessage.topic,
+            MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobURL
+        )
+        withLoggingContext(contextMap) {
+            // track input report
+            logger.info("Starting FHIR Convert step")
+            actionHistory.trackExistingInputReport(queueMessage.reportId)
+
+            // pull fhir document and parse FHIR document
+            val fhirJson = LogMeasuredTime.measureAndLogDurationWithReturnedValue(
+                "Downloaded content from queue message"
+            ) {
+                queueMessage.downloadContent()
+            }
+            val bundle = FhirTranscoder.decode(fhirJson)
+            val bodyString = FhirTranscoder.encode(bundle)
+
+            // go up the report lineage to get the sender of the root report
+            val sender = reportService.getSenderName(queueMessage.reportId)
+
+            // send event to Azure AppInsights
+            val observationSummary = AzureEventUtils.getObservations(bundle)
+            azureEventService.trackEvent(
+                ReportAcceptedEvent(
+                    queueMessage.reportId,
+                    queueMessage.topic,
+                    sender,
+                    observationSummary,
+                    fhirJson.length
+                )
+            )
+
+            // get the receivers that this bundle should go to
+            val receivers = settings.receivers.filter { receiver ->
+                val pass =
+                    if (receiver.customerStatus != CustomerStatus.ACTIVE || receiver.topic != queueMessage.topic) {
+                        false
+                    } else {
+                        receiver.jurisdictionalFilter.all { filter ->
+                            FhirPathUtils.evaluateCondition(
+                                CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
+                                bundle,
+                                bundle,
+                                bundle,
+                                filter
+                            )
+                        }
+                    }
+                if (!pass) {
+                    azureEventService.trackEvent(
+                        DestinationFilterReportNotRoutedEvent(
+                            queueMessage.reportId,
+                            queueMessage.topic,
+                            sender,
+                            receiver.fullName,
+                            fhirJson.length,
+                        )
+                    )
+                }
+                pass
+            }
+
+            // check if there are any receivers
+            if (receivers.isNotEmpty()) {
+                logger.info("Routing to receiver filter queue for ${receivers.size} receiver(s)")
+                return receivers.flatMap { receiver ->
+                    val report = Report(
+                        Report.Format.FHIR,
+                        emptyList(),
+                        1,
+                        metadata = this.metadata,
+                        topic = queueMessage.topic,
+                        destination = receiver
+                    )
+
+                    // create item lineage
+                    report.itemLineages = listOf(
+                        ItemLineage(
+                            null,
+                            queueMessage.reportId,
+                            1,
+                            report.id,
+                            1,
+                            null,
+                            null,
+                            null,
+                            report.getItemHashForRow(1)
+                        )
+                    )
+
+                    val nextEvent = ProcessEvent(
+                        Event.EventAction.RECEIVER_FILTER,
+                        report.id,
+                        Options.None,
+                        emptyMap(),
+                        emptyList()
+                    )
+
+                    // upload new copy to blobstore
+                    val blobInfo = BlobAccess.uploadBody(
+                        Report.Format.FHIR,
+                        bodyString.toByteArray(),
+                        report.name,
+                        queueMessage.blobSubFolderName,
+                        nextEvent.eventAction
+                    )
+                    // ensure tracking is set
+                    actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
+
+                    azureEventService.trackEvent(
+                        DestinationFilterReportRoutedEvent(
+                            queueMessage.reportId,
+                            report.id,
+                            queueMessage.topic,
+                            sender,
+                            receiver.fullName,
+                            bodyString.length
+                        )
+                    )
+
+                    listOf(
+                        FHIREngineRunResult(
+                            nextEvent,
+                            report,
+                            blobInfo.blobUrl,
+                            FhirReceiverFilterQueueMessage(
+                                report.id,
+                                blobInfo.blobUrl,
+                                BlobAccess.digestToString(blobInfo.digest),
+                                queueMessage.blobSubFolderName,
+                                queueMessage.topic,
+                                receiver.fullName
+                            )
+                        )
+                    )
+                }
+            } else {
+                logger.info("No receivers for this message. Terminating lineage.")
+                // this bundle does not have receivers; only perform the work necessary to track the routing action
+                // create none event
+                val nextEvent = ProcessEvent(
+                    Event.EventAction.NONE,
+                    queueMessage.reportId,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                )
                 val report = Report(
                     Report.Format.FHIR,
                     emptyList(),
                     1,
                     metadata = this.metadata,
-                    topic = message.topic,
-                    destination = receiver
+                    topic = queueMessage.topic
                 )
 
                 // create item lineage
                 report.itemLineages = listOf(
                     ItemLineage(
                         null,
-                        message.reportId,
+                        queueMessage.reportId,
                         1,
                         report.id,
                         1,
@@ -141,103 +256,22 @@ class FHIRDestinationFilter(
                     )
                 )
 
-                val nextEvent = ProcessEvent(
-                    Event.EventAction.RECEIVER_FILTER,
-                    report.id,
-                    Options.None,
-                    emptyMap(),
-                    emptyList()
-                )
-
-                // upload new copy to blobstore
-                val blobInfo = BlobAccess.uploadBody(
-                    Report.Format.FHIR,
-                    bodyString.toByteArray(),
-                    report.name,
-                    message.blobSubFolderName,
-                    nextEvent.eventAction
-                )
                 // ensure tracking is set
-                actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
+                actionHistory.trackCreatedReport(nextEvent, report)
 
+                // send event to Azure AppInsights
                 azureEventService.trackEvent(
-                    DestinationFilterReportRoutedEvent(
-                        message.reportId,
+                    DestinationFilterReportNoReceiversEvent(
+                        queueMessage.reportId,
                         report.id,
-                        message.topic,
+                        queueMessage.topic,
                         sender,
-                        receiver.fullName,
-                        bodyString.length
+                        fhirJson.length
                     )
                 )
 
-                listOf(
-                    FHIREngineRunResult(
-                        nextEvent,
-                        report,
-                        blobInfo.blobUrl,
-                        FhirReceiverFilterQueueMessage(
-                            report.id,
-                            blobInfo.blobUrl,
-                            BlobAccess.digestToString(blobInfo.digest),
-                            message.blobSubFolderName,
-                            message.topic,
-                            receiver.fullName
-                        )
-                    )
-                )
+                return emptyList()
             }
-        } else {
-            // this bundle does not have receivers; only perform the work necessary to track the routing action
-            // create none event
-            val nextEvent = ProcessEvent(
-                Event.EventAction.NONE,
-                message.reportId,
-                Options.None,
-                emptyMap(),
-                emptyList()
-            )
-            val report = Report(
-                Report.Format.FHIR,
-                emptyList(),
-                1,
-                metadata = this.metadata,
-                topic = message.topic
-            )
-
-            // create item lineage
-            report.itemLineages = listOf(
-                ItemLineage(
-                    null,
-                    message.reportId,
-                    1,
-                    report.id,
-                    1,
-                    null,
-                    null,
-                    null,
-                    report.getItemHashForRow(1)
-                )
-            )
-
-            // ensure tracking is set
-            actionHistory.trackCreatedReport(nextEvent, report)
-
-            // send event to Azure AppInsights
-            azureEventService.trackEvent(
-                DestinationFilterReportNoReceiversEvent(
-                    message.reportId,
-                    report.id,
-                    message.topic,
-                    sender,
-                    fhirJson.length
-                )
-            )
-
-            return emptyList()
         }
     }
-
-    override val finishedField: Field<OffsetDateTime> = Tables.TASK.DESTINATION_FILTERED_AT
-    override val engineType: String = "DestinationFilter"
 }
