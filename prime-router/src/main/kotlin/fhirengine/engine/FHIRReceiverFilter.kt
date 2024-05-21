@@ -4,7 +4,6 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.ConditionFilter
 import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
@@ -23,6 +22,8 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.observability.context.MDCUtils
+import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
@@ -37,6 +38,7 @@ import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.fhirengine.utils.getMappedConditionCodes
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservationsWithCondition
+import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -75,8 +77,8 @@ class FHIRReceiverFilter(
         message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
-    ): List<FHIREngineRunResult> {
-        return when (message) {
+    ): List<FHIREngineRunResult> =
+       when (message) {
             is FhirReceiverFilterQueueMessage -> {
                 check(message.topic.isUniversalPipeline) {
                     "Unexpected topic $message.topic in the Universal Pipeline routing step."
@@ -90,7 +92,6 @@ class FHIRReceiverFilter(
                 )
             }
         }
-    }
 
     /**
      * Process a [queueMessage] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
@@ -101,193 +102,202 @@ class FHIRReceiverFilter(
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
-        logger.trace("Processing HL7 data for FHIR conversion.")
-        this.actionLogger = actionLogger
-
-        queueMessage as FhirReceiverFilterQueueMessage
-
-        // track input report
-        actionHistory.trackExistingInputReport(queueMessage.reportId)
-
-        // pull fhir document and parse FHIR document
-        val fhirJson = queueMessage.downloadContent()
-        val bundle = FhirTranscoder.decode(fhirJson)
-
-        val receiver = settings.receivers.first { it.fullName == queueMessage.receiverFullName }
-
-        // go up the report lineage to get the sender of the root report
-        val sender = reportService.getSenderName(queueMessage.reportId)
-
-        // TODO: add legacy app insights events where appropriate (and maybe new?)
-        // TODO: add more logging
-        // TODO: add new mdcutils logging
-        // TODO?: remove org filters?
-        // TODO?: possibly refactor evaluateCondition code stuff?
-        // send event to Azure AppInsights
-//        val observationSummary = AzureEventUtils.getObservations(bundle)
-//        azureEventService.trackEvent(
-//            ReportAcceptedEvent(
-//                queueMessage.reportId,
-//                queueMessage.topic,
-//                sender,
-//                observationSummary,
-//                fhirJson.length
-//            )
-//        )
-
-        val report = Report(
-            Report.Format.FHIR,
-            emptyList(),
-            1,
-            metadata = this.metadata,
-            topic = queueMessage.topic,
-            destination = receiver
+        val contextMap = mapOf(
+            MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
+            MDCUtils.MDCProperty.REPORT_ID to queueMessage.reportId,
+            MDCUtils.MDCProperty.TOPIC to queueMessage.topic,
+            MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobURL
         )
+        withLoggingContext(contextMap) {
+            logger.info("Starting FHIR ReceiverFilter step")
+            this.actionLogger = actionLogger
 
-        // check if there are any receivers
-        return if (evaluateFiltersOnBundle(bundle, report.id, actionHistory, settings, receiver)) {
-            // create item lineage
-            report.itemLineages = listOf(
-                ItemLineage(
-                    null,
-                    queueMessage.reportId,
-                    1,
-                    report.id,
-                    1,
-                    null,
-                    null,
-                    null,
-                    report.getItemHashForRow(1)
-                )
-            )
+            queueMessage as FhirReceiverFilterQueueMessage
 
-            // TODO: merge with mapped condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
-            // If the receiver does not have a condition filter set send the entire bundle to the translate step
-            var receiverBundle = if (receiver.conditionFilter.isEmpty()) {
-                bundle
-            } else {
-                bundle.filterObservations(
-                    receiver.conditionFilter,
-                    shorthandLookupTable
-                )
-            }
+            // track input report
+            actionHistory.trackExistingInputReport(queueMessage.reportId)
 
-            // If the receiver does not have a mapped condition filter send the entire bundle to the translate step
-            if (receiver.mappedConditionFilter.isNotEmpty()) {
-                val (filteredIds, filteredBundle) = receiverBundle.filterMappedObservations(
-                    receiver.mappedConditionFilter
-                )
-                // TODO: need to handle filteredIds.forEach { id -> filteredIdMap.getOrPut(id) { mutableListOf() }.add(receiver.fullName) }
-                // TODO: need to log actionLogger.info(PrunedObservationsLogMessage(queueMessage.reportId, filteredIdMap))
-                receiverBundle = filteredBundle
-            }
+            // pull fhir document and parse FHIR document
+            val fhirJson = LogMeasuredTime.measureAndLogDurationWithReturnedValue(
+                "Downloaded content from queue message"
+            ) { queueMessage.downloadContent() }
+            val bundle = FhirTranscoder.decode(fhirJson)
 
-            val nextEvent = ProcessEvent(
-                Event.EventAction.TRANSLATE,
-                report.id,
-                Options.None,
-                emptyMap(),
-                emptyList()
-            )
+            val receiver = settings.receivers.first { it.fullName == queueMessage.receiverFullName }
 
-            // upload new copy to blobstore
-            val bodyString = FhirTranscoder.encode(receiverBundle)
-            val blobInfo = BlobAccess.uploadBody(
-                Report.Format.FHIR,
-                bodyString.toByteArray(),
-                report.name,
-                queueMessage.blobSubFolderName,
-                nextEvent.eventAction
-            )
-            // ensure tracking is set
-            actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
+            // go up the report lineage to get the sender of the root report
+            val sender = reportService.getSenderName(queueMessage.reportId)
 
-            // send event to Azure AppInsights
-            val receiverObservationSummary = AzureEventUtils.getObservations(receiverBundle)
-            azureEventService.trackEvent(
-                ReportRouteEvent(
-                    queueMessage.reportId,
-                    report.id,
-                    queueMessage.topic,
-                    sender,
-                    receiver.fullName,
-                    receiverObservationSummary,
-                    bodyString.length
-                )
-            )
-
-            listOf(
-                FHIREngineRunResult(
-                nextEvent,
-                report,
-                blobInfo.blobUrl,
-                FhirTranslateQueueMessage(
-                    report.id,
-                    blobInfo.blobUrl,
-                    BlobAccess.digestToString(blobInfo.digest),
-                    queueMessage.blobSubFolderName,
-                    queueMessage.topic,
-                    receiver.fullName
-                )
-            )
-            )
-        } else {
-            // this bundle does not have receivers; only perform the work necessary to track the routing action
-            // create none event
-            val nextEvent = ProcessEvent(
-                Event.EventAction.NONE,
-                queueMessage.reportId,
-                Options.None,
-                emptyMap(),
-                emptyList()
-            )
+            // TODO?: remove org filters?
+            // TODO?: possibly refactor evaluateCondition code stuff?
             val report = Report(
                 Report.Format.FHIR,
                 emptyList(),
                 1,
                 metadata = this.metadata,
-                topic = queueMessage.topic
+                topic = queueMessage.topic,
+                destination = receiver
             )
 
-            // create item lineage
-            report.itemLineages = listOf(
-                ItemLineage(
-                    null,
-                    queueMessage.reportId,
-                    1,
-                    report.id,
-                    1,
-                    null,
-                    null,
-                    null,
-                    report.getItemHashForRow(1)
+            // check if there are any receivers
+            return if (
+                LogMeasuredTime.measureAndLogDurationWithReturnedValue("Evaluated filters on bundle") {
+                    evaluateFiltersOnBundle(bundle, report.id, actionHistory, settings, receiver)
+                }
+            ) {
+                logger.info("Report passed receiver filters.")
+                // create item lineage
+                report.itemLineages = listOf(
+                    ItemLineage(
+                        null,
+                        queueMessage.reportId,
+                        1,
+                        report.id,
+                        1,
+                        null,
+                        null,
+                        null,
+                        report.getItemHashForRow(1)
+                    )
                 )
-            )
 
-            // ensure tracking is set
-            actionHistory.trackCreatedReport(nextEvent, report)
+                // TODO: merge with mapped condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
+                // If the receiver does not have a condition filter set send the entire bundle to the translate step
+                var receiverBundle = if (receiver.conditionFilter.isEmpty()) {
+                    bundle
+                } else {
+                    LogMeasuredTime.measureAndLogDurationWithReturnedValue(
+                        "Filtered bundle with condition filter"
+                    ) {
+                        bundle.filterObservations(
+                            receiver.conditionFilter,
+                            shorthandLookupTable
+                        )
+                    }
+                }
 
-            // send event to Azure AppInsights
-            val receiverObservationSummary = AzureEventUtils.getObservations(bundle)
-            azureEventService.trackEvent(
-                ReportRouteEvent(
-                    queueMessage.reportId,
+                // If the receiver does not have a mapped condition filter send the entire bundle to the translate step
+                if (receiver.mappedConditionFilter.isNotEmpty()) {
+                    val (filteredIds, filteredBundle) = LogMeasuredTime.measureAndLogDurationWithReturnedValue(
+                        "Filtered bundle with mapped condition filter"
+                    ) {
+                        receiverBundle.filterMappedObservations(receiver.mappedConditionFilter)
+                    }
+                    // TODO: need to handle filteredIds.forEach { id -> filteredIdMap.getOrPut(id) { mutableListOf() }.add(receiver.fullName) }
+                    // TODO: need to log actionLogger.info(PrunedObservationsLogMessage(queueMessage.reportId, filteredIdMap))
+                    receiverBundle = filteredBundle
+                }
+
+                logger.info("Queueing report for translate and updating lineage")
+                val nextEvent = ProcessEvent(
+                    Event.EventAction.TRANSLATE,
                     report.id,
-                    queueMessage.topic,
-                    sender,
-                    null,
-                    receiverObservationSummary,
-                    fhirJson.length
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
                 )
-            )
 
-            emptyList<FHIREngineRunResult>()
+                // upload new copy to blobstore
+                val bodyString = FhirTranscoder.encode(receiverBundle)
+                val blobInfo = BlobAccess.uploadBody(
+                    Report.Format.FHIR,
+                    bodyString.toByteArray(),
+                    report.name,
+                    queueMessage.blobSubFolderName,
+                    nextEvent.eventAction
+                )
+                // ensure tracking is set
+                actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
+
+                // send event to Azure AppInsights
+                val receiverObservationSummary = AzureEventUtils.getObservations(receiverBundle)
+                azureEventService.trackEvent(
+                    ReportRouteEvent(
+                        queueMessage.reportId,
+                        report.id,
+                        queueMessage.topic,
+                        sender,
+                        receiver.fullName,
+                        receiverObservationSummary,
+                        bodyString.length
+                    )
+                )
+
+                listOf(
+                    FHIREngineRunResult(
+                        nextEvent,
+                        report,
+                        blobInfo.blobUrl,
+                        FhirTranslateQueueMessage(
+                            report.id,
+                            blobInfo.blobUrl,
+                            BlobAccess.digestToString(blobInfo.digest),
+                            queueMessage.blobSubFolderName,
+                            queueMessage.topic,
+                            receiver.fullName
+                        )
+                    )
+                )
+            } else {
+                logger.info("Report did not pass receiver filters. Terminating lineage.")
+                // this bundle does not have receivers; only perform the work necessary to track the routing action
+                // create none event
+                val nextEvent = ProcessEvent(
+                    Event.EventAction.NONE,
+                    queueMessage.reportId,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                )
+                val emptyReport = Report(
+                    Report.Format.FHIR,
+                    emptyList(),
+                    1,
+                    metadata = this.metadata,
+                    topic = queueMessage.topic
+                )
+
+                // create item lineage
+                emptyReport.itemLineages = listOf(
+                    ItemLineage(
+                        null,
+                        queueMessage.reportId,
+                        1,
+                        emptyReport.id,
+                        1,
+                        null,
+                        null,
+                        null,
+                        emptyReport.getItemHashForRow(1)
+                    )
+                )
+
+                // ensure tracking is set
+                actionHistory.trackCreatedReport(nextEvent, emptyReport)
+
+                // send event to Azure AppInsights
+                val receiverObservationSummary = AzureEventUtils.getObservations(bundle)
+                azureEventService.trackEvent(
+                    ReportRouteEvent(
+                        queueMessage.reportId,
+                        emptyReport.id,
+                        queueMessage.topic,
+                        sender,
+                        null,
+                        receiverObservationSummary,
+                        fhirJson.length
+                    )
+                )
+
+                emptyList<FHIREngineRunResult>()
+            }
         }
     }
 
     /**
-     * Applies all filters to the list of all receivers with topic with a topic matching [topic] that are not set as
-     * INACTIVE. FHIRPath expressions are run against the [bundle] to determine if the receiver should get this message
+     * Evaluates all [receiver] filters on a [bundle] using
+     *  - [reportId], [actionHistory] for proper logging
+     *
      * As it goes through the filters, results are logged onto the provided [report]
      * @return list of receivers that should receive this bundle
      */
@@ -295,12 +305,12 @@ class FHIRReceiverFilter(
         bundle: Bundle,
         reportId: ReportId,
         actionHistory: ActionHistory,
-//        topic: Topic, // TODO: technically should be filtering by topic? wasn't being done in FHIRRouter
-        settings: SettingsProvider,
-        receiver: Receiver, // TODO: not gonna need, get rid of all org filters
+        settings: SettingsProvider, // TODO: not needed if org filters deprecated
+        receiver: Receiver, // TODO: can just pass filters if org filters deprecated
     ): Boolean {
         // get the receiver's organization, since we need to be able to find/combine the correct filters
-        val orgFilters = settings.findOrganization(receiver.organizationName)!!.filters // TODO: see topic above
+        // TODO: if org filters are retained -- should we filter to only filters of correct topics?
+        val orgFilters = settings.findOrganization(receiver.organizationName)!!.filters
 
         // Get the applicable filters, either receiver or organization level if there are no receiver filters
 
@@ -312,7 +322,7 @@ class FHIRReceiverFilter(
         //           must have at least one of patient street, zip code, phone number, email
         //           must have at least one of order test date, specimen collection date/time, test result date
         var passes = evaluateFilterAndLogResult(
-            getQualityFilters(receiver, orgFilters), // TODO: get rid of org filter
+            getQualityFilters(receiver, orgFilters),
             bundle,
             reportId,
             actionHistory,
@@ -325,7 +335,7 @@ class FHIRReceiverFilter(
         // ROUTING FILTER
         //  default: allowAll
         passes = passes && evaluateFilterAndLogResult(
-            getRoutingFilter(receiver, orgFilters), // TODO: get rid of org filter
+            getRoutingFilter(receiver, orgFilters),
             bundle,
             reportId,
             actionHistory,
@@ -337,7 +347,7 @@ class FHIRReceiverFilter(
         // PROCESSING MODE FILTER
         //  default: allowAll
         passes = passes && evaluateFilterAndLogResult(
-            getProcessingModeFilter(receiver, orgFilters), // TODO: get rid of org filter
+            getProcessingModeFilter(receiver, orgFilters),
             bundle,
             reportId,
             actionHistory,
@@ -350,7 +360,7 @@ class FHIRReceiverFilter(
         // CONDITION FILTER
         //  default: allowAll
         val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
-        var allObservations = FhirPathUtils.evaluate(
+        val allObservations = FhirPathUtils.evaluate(
             CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
             bundle,
             bundle,
@@ -671,18 +681,5 @@ class FHIRReceiverFilter(
             orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.conditionFilter
                 ?: emptyList()
             ).plus(receiver.conditionFilter)
-    }
-
-    /**
-     * Gets the applicable condition filters for 'FULL_ELR' for a [receiver].
-     */
-    internal fun getMappedConditionFilter(
-        receiver: Receiver,
-        orgFilters: List<ReportStreamFilters>?,
-    ): List<ConditionFilter> {
-        return (
-            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.mappedConditionFilter
-                ?: emptyList()
-            ).plus(receiver.mappedConditionFilter)
     }
 }
