@@ -118,6 +118,8 @@ data class RESTTransportType
     val reportUrl: String,
     /**  [authTokenUrl] The URL to get the OAuth token. e.g. https://api2.health.ny.gov/services/uphn/V1.0/auth. */
     val authTokenUrl: String,
+    /**  [encryptionKeyUrl] The URL to extract the encryption Key*/
+    val encryptionKeyUrl: String = "",
     /** Authentication type i.e two-legged.  It is default to null (API shared key) */
     val authType: String? = null,
     /** [tlsKeystore]The name for the credential manager to get the JKS used in TLS/SSL */
