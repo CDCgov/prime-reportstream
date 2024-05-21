@@ -158,7 +158,7 @@ underlying format/library.
 
 ## HL7v2 Validation Files
 
-ReportStream uses https://hl7v2-gvt.nist.gov/gvt/#/cf and its underlying java library to validate HL7v2 messages against
+ReportStream uses https://hl7v2-gvt.nist.gov/gvt/#/cf and its underlying scala library to validate HL7v2 messages against
 a particular conformance profile. nist.gov has a built-in conformance profile building tool and published profiles can
 be located in the top-right drop down.
 
