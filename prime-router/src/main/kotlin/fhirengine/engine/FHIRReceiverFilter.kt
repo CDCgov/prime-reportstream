@@ -7,6 +7,7 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.PrunedObservationsLogMessage
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -183,9 +184,8 @@ class FHIRReceiverFilter(
                     ) {
                         receiverBundle.filterMappedObservations(receiver.mappedConditionFilter)
                     }
-                    // TODO: need to handle filteredIds.forEach { id -> filteredIdMap.getOrPut(id) { mutableListOf() }.add(receiver.fullName) }
-                    // TODO: need to log actionLogger.info(PrunedObservationsLogMessage(queueMessage.reportId, filteredIdMap))
                     receiverBundle = filteredBundle
+                    actionLogger.info(PrunedObservationsLogMessage(report.id, mapOf(receiver.fullName to filteredIds)))
                 }
 
                 logger.info("Queueing report for translate and updating lineage")
