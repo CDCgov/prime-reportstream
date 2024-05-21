@@ -215,7 +215,7 @@ object UniversalPipelineTestUtils {
         previousStepReport: Report,
         expectedRootReport: Report,
         txn: DataAccessTransaction,
-        expectedNumberOfItems: Int
+        expectedNumberOfItems: Int,
     ): List<ReportFile> {
         val reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess))
 
