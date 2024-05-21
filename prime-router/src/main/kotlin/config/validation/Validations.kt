@@ -21,7 +21,7 @@ object OrganizationValidation {
         .map { it.createInstance() }
         .map { it.name }
         .flatMap {
-            // list contains both camel-case and pascal-case
+            // list contains both camelCase and PascalCase
             listOf(
                 it.replaceFirstChar(Char::uppercase),
                 it.replaceFirstChar(Char::lowercase)
