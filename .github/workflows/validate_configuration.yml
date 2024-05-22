@@ -1,0 +1,38 @@
+name: Validate Configuration
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  merge_group:
+    types:
+      - checks_requested
+    branches:
+      - master
+
+jobs:
+  pre_job:
+    name: Pre Job
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
+
+  validate_configuration_yml:
+    name: Validate Configuration YML
+    runs-on: ubuntu-latest
+    needs: pre_job
+    defaults:
+      run:
+        working-directory: prime-router
+
+    # Add more yaml checks here
+    steps:
+      - name: Organizations
+        run: ./gradlew primeCLI --args='validate-yaml --type organizations --file settings/organizations.yml'
