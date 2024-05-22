@@ -68,6 +68,12 @@ jobs:
           rm -rf docs/docs_deprecated/schema_documentation/*
           ./gradlew generatedocs
 
+      # Add more yaml checks here
+      - name: Validate YAML
+        run: |
+          # Add more YAML checks here
+          ./gradlew primeCLI --args='validate-yaml --type organizations --file settings/organizations.yml'
+
       - name: Check for Uncommited Schema Docs
         id: check_changes
         continue-on-error: true
