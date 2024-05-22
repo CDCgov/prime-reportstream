@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
+import { HTTPMethods } from "../../../../config/endpoints";
 import { RSSender } from "../../../../config/endpoints/settings";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 
@@ -14,7 +15,7 @@ function useUpdateOrganizationSender() {
     ) => {
         return authorizedFetch({
             url: `/settings/organizations/${data.organizationName}/senders/${data.name}`,
-            method: "put",
+            method: HTTPMethods.PUT,
             data,
         });
     };

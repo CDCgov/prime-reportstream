@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
+import { HTTPMethods } from "../../../../config/endpoints";
 import { RSOrganizationSettings } from "../../../../config/endpoints/settings";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 
@@ -11,7 +12,7 @@ function useDeleteOrganizationSettings() {
     ) => {
         return authorizedFetch({
             url: `/settings/organizations/${obj.name}`,
-            method: "delete",
+            method: HTTPMethods.DELETE,
         });
     };
     const result = useMutation({
