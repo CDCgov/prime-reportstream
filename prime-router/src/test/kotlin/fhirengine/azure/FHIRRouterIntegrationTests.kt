@@ -3,17 +3,22 @@ package gov.cdc.prime.router.fhirengine.azure
 import assertk.assertThat
 import assertk.assertions.containsOnly
 import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.FhirActionLogDetail
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.InvalidTranslationMessage
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportStreamFilter
+import gov.cdc.prime.router.ReportStreamFilterResult
+import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
@@ -27,6 +32,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
+import gov.cdc.prime.router.azure.scope
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSender
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransform
@@ -383,6 +389,7 @@ class FHIRRouterIntegrationTests : Logging {
         val reportId: UUID?,
         val type: ActionLogLevel?,
         val scope: ActionLogScope?,
+        val actionLogDetail: ActionLogDetail?,
     )
 
     private val expectedButStrangeObservationFilterEntry = listOf(
@@ -390,7 +397,8 @@ class FHIRRouterIntegrationTests : Logging {
             1,
             reportId = null,
             scope = ActionLogScope.report,
-            type = ActionLogLevel.info
+            type = ActionLogLevel.info,
+            actionLogDetail = null
         )
     )
 
@@ -404,13 +412,22 @@ class FHIRRouterIntegrationTests : Logging {
             assert(actionLogRecords.size >= expectedContentList.size)
 
             for (expectedActionLogRecordContent in expectedContentList) {
-                // -1 because the indexing is not zero based
-                val actualIndex = expectedActionLogRecordContent.index - 1;
+                // -1 because the indexing is not zero-based and we need to modify it to address the right element
+                // in the actionLogRecords array
+                val actualIndex = expectedActionLogRecordContent.index - 1
                 val actualActionLogRecord = actionLogRecords[actualIndex]
 
                 assertEquals(expectedActionLogRecordContent.reportId, actualActionLogRecord.reportId)
                 assertEquals(expectedActionLogRecordContent.type, actualActionLogRecord.type)
                 assertEquals(expectedActionLogRecordContent.scope, actualActionLogRecord.scope)
+
+                expectedActionLogRecordContent.actionLogDetail?.let {
+                    val expected = expectedActionLogRecordContent.actionLogDetail
+                    expected.javaClass.let { assertEquals(it, actualActionLogRecord.detail.javaClass) }
+                    expected.scope.let { assertEquals(it, actualActionLogRecord.detail.scope) }
+                    expected.message.let { assertEquals(it, actualActionLogRecord.detail.message) }
+                    expected.errorCode.let { assertEquals(it, actualActionLogRecord.detail.errorCode) }
+                }
             }
         }
     }
@@ -835,7 +852,8 @@ class FHIRRouterIntegrationTests : Logging {
                 index = 1,
                 reportId = convertReport.id,
                 type = ActionLogLevel.filter,
-                scope = ActionLogScope.translation
+                scope = ActionLogScope.translation,
+                actionLogDetail = null
             )
         )
         checkActionLogTable(expectedContentList)
@@ -943,12 +961,22 @@ class FHIRRouterIntegrationTests : Logging {
         checkActionTable(listOf(TaskAction.convert, TaskAction.receive, TaskAction.route))
 
         // ACTION_LOG should have an entry for the filter action
+        val detail = ReportStreamFilterResult(
+            receiverName = "phd.x",
+            originalCount = 1,
+            filterName = "(reversed) [Bundle.entry.resource.ofType(MessageHeader).id.exists()]",
+            filterArgs = listOf(),
+            filteredTrackingElement = "",
+            filterType = ReportStreamFilterType.QUALITY_FILTER
+        )
+
         val expectedContentList = listOf(
             ActionLogRecordContent(
                 index = 1,
                 reportId = convertReport.id,
                 type = ActionLogLevel.filter,
-                scope = ActionLogScope.translation
+                scope = ActionLogScope.translation,
+                actionLogDetail = detail
             )
         )
         checkActionLogTable(expectedContentList)
@@ -1054,12 +1082,26 @@ class FHIRRouterIntegrationTests : Logging {
         checkActionTable(listOf(TaskAction.convert, TaskAction.receive, TaskAction.route))
 
         // ACTION_LOG should have an entry for the filter action
+        val detail = ReportStreamFilterResult(
+            receiverName = "phd.x",
+            originalCount = 1,
+            filterName =
+                "[Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = " +
+                        "'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and " +
+                        "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = " +
+                        "'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'D']",
+            filterArgs = listOf(),
+            filteredTrackingElement = "",
+            filterType = ReportStreamFilterType.PROCESSING_MODE_FILTER
+        )
+
         val expectedContentList = listOf(
             ActionLogRecordContent(
                 index = 1,
                 reportId = convertReport.id,
                 type = ActionLogLevel.filter,
-                scope = ActionLogScope.translation
+                scope = ActionLogScope.translation,
+                actionLogDetail = detail
             )
         )
         checkActionLogTable(expectedContentList)
