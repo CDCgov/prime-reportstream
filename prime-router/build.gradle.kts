@@ -931,7 +931,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
-    implementation("gov.nist:hl7-v2-validation:1.6.4") {
+    implementation("gov.nist:hl7-v2-validation:1.6.5") {
         // These conflict with the javax.xml.transform package available in the base JDK and need to be excluded
         exclude("xerces")
         exclude("xml-apis")
