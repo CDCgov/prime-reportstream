@@ -51,6 +51,7 @@ test.describe("Evaluate links on public facing pages", () => {
     test("Check all public-facing URLs and their links for a valid 200 response", async ({
         page,
     }) => {
+        let aggregateHref = [];
         // Set test timeout to be 1 minute instead of 30 seconds
         test.setTimeout(60000);
         for (const path of urlPaths) {
@@ -59,48 +60,45 @@ test.describe("Evaluate links on public facing pages", () => {
 
             const allATags = await page.locator("role=link").elementHandles();
 
-            let hrefs = [];
             for (const aTag of allATags) {
                 const href = await aTag.getAttribute("href");
                 if (href && !href.startsWith("mailto:")) {
-                    hrefs.push(normalizeUrl(href, baseUrl));
+                    aggregateHref.push(normalizeUrl(href, baseUrl));
                 }
             }
-            // Remove any link duplicates to save resources
-            hrefs = [...new Set(hrefs)];
-
-            const axiosInstance = axios.create({
-                timeout: 10000,
-            });
-
-            const validateLink = async (url: string) => {
-                try {
-                    const response = await axiosInstance.get(url);
-                    return { url, status: response.status };
-                } catch (error) {
-                    const e = error as AxiosError;
-                    console.error(`Error accessing ${url}:`, e.message);
-                    return {
-                        url,
-                        status: e.response
-                            ? e.response.status
-                            : "Request failed",
-                    };
-                }
-            };
-
-            const results = await Promise.all(
-                hrefs.map((href) => validateLink(href)),
-            );
-
-            results.forEach((result) => {
-                try {
-                    expect(result.status).toBe(200);
-                } catch (error) {
-                    const e = error as AxiosError;
-                    console.warn(`Non-fatal: ${e.message}`);
-                }
-            });
         }
+        // Remove any link duplicates to save resources
+        aggregateHref = [...new Set(aggregateHref)];
+
+        const axiosInstance = axios.create({
+            timeout: 10000,
+        });
+
+        const validateLink = async (url: string) => {
+            try {
+                const response = await axiosInstance.get(url);
+                return { url, status: response.status };
+            } catch (error) {
+                const e = error as AxiosError;
+                console.error(`Error accessing ${url}:`, e.message);
+                return {
+                    url,
+                    status: e.response ? e.response.status : "Request failed",
+                };
+            }
+        };
+
+        const results = await Promise.all(
+            aggregateHref.map((href) => validateLink(href)),
+        );
+
+        results.forEach((result) => {
+            try {
+                expect(result.status).toBe(200);
+            } catch (error) {
+                const e = error as AxiosError;
+                console.warn(`Non-fatal: ${e.message}`);
+            }
+        });
     });
 });
