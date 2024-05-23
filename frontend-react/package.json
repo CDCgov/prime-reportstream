@@ -191,7 +191,8 @@
     },
     "resolutions": {
         "@types/react": "18.3.1",
-        "tocbot": "^4.25.0"
+        "tocbot": "^4.25.0",
+        "glob": "^10.3.16"
     },
     "engines": {
         "node": "^20.12"
