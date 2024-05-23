@@ -28,7 +28,7 @@ class AzureEventUtilsTest {
             ObservationSummary.EMPTY,
             ObservationSummary.EMPTY
         )
-        val actual = AzureEventUtils.getObservations(bundle)
+        val actual = AzureEventUtils.getObservationSummaries(bundle)
 
         assertThat(actual).isEqualTo(expected)
     }

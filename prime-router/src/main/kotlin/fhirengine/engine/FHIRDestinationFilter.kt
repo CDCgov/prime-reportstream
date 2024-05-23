@@ -113,7 +113,7 @@ class FHIRDestinationFilter(
             val sender = reportService.getSenderName(queueMessage.reportId)
 
             // send event to Azure AppInsights
-            val observationSummary = AzureEventUtils.getObservations(bundle)
+            val observationSummary = AzureEventUtils.getObservationSummaries(bundle)
             azureEventService.trackEvent(
                 ReportAcceptedEvent(
                     queueMessage.reportId,

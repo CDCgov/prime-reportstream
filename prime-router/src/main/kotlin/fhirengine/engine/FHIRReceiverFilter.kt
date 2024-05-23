@@ -354,9 +354,18 @@ class FHIRReceiverFilter(
                 actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
                 // send event to Azure AppInsights
-                val originalObservationSummary = AzureEventUtils.getObservations(bundle)
-                val receiverObservationSummary = AzureEventUtils.getObservations(receiverBundle)
-                // TODO include the filtered observations
+                val receiverObservationSummary = AzureEventUtils.getObservationSummaries(receiverBundle)
+
+                val filteredObservationSummary = AzureEventUtils.getObservationSummaries(
+                    bundle.getObservations().filter { observation ->
+                        receiverBundle.getObservations().none { receiverObservation ->
+                            observation == receiverObservation ||
+                                observation.id == receiverObservation.id ||
+                                observation.identifier == receiverObservation.identifier
+                        }
+                    }
+                )
+
                 azureEventService.trackEvent(
                     ReportRouteEvent(
                         queueMessage.reportId,
@@ -365,7 +374,7 @@ class FHIRReceiverFilter(
                         sender,
                         receiver.fullName,
                         receiverObservationSummary,
-                        originalObservationSummary,
+                        filteredObservationSummary,
                         bodyString.length
                     )
                 )
@@ -422,7 +431,7 @@ class FHIRReceiverFilter(
                 // ensure tracking is set
                 actionHistory.trackCreatedReport(nextEvent, emptyReport)
 
-                val observationSummary = AzureEventUtils.getObservations(bundle)
+                val observationSummary = AzureEventUtils.getObservationSummaries(bundle)
                 azureEventService.trackEvent(
                     ReportRouteEvent(
                         queueMessage.reportId,
