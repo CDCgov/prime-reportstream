@@ -27,10 +27,10 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.ConditionSummary
-import gov.cdc.prime.router.azure.observability.event.DestinationFilterReportNoReceiversEvent
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
 import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -442,21 +442,35 @@ class FhirDestinationFilterTests {
                 ),
                 36942
             )
-            val expectedNoReceiverEvent = DestinationFilterReportNoReceiversEvent(
+            val expectedRoutedEvent = ReportRouteEvent(
                 message.reportId,
                 UUID.randomUUID(),
                 message.topic,
                 "sendingOrg.sendingOrgClient",
+                null,
+                listOf(
+                    ObservationSummary(
+                        ConditionSummary(
+                            "840539006",
+                            "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                        )
+                    ),
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY
+                ),
                 36942
             )
+
             assertThat(azureEvents).hasSize(2)
             assertThat(azureEvents.first())
                 .isEqualTo(expectedAcceptedEvent)
             assertThat(azureEvents[1])
-                .isInstanceOf<DestinationFilterReportNoReceiversEvent>()
+                .isInstanceOf<ReportRouteEvent>()
                 .isEqualToIgnoringGivenProperties(
-                    expectedNoReceiverEvent,
-                    DestinationFilterReportNoReceiversEvent::reportId
+                    expectedRoutedEvent,
+                    ReportRouteEvent::reportId
                 )
         }
 
