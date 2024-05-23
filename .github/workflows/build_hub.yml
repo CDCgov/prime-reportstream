@@ -68,7 +68,6 @@ jobs:
           rm -rf docs/docs_deprecated/schema_documentation/*
           ./gradlew generatedocs
 
-      # Add more yaml checks here
       - name: Validate YAML
         run: |
           # Add more YAML checks here
