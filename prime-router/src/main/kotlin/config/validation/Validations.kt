@@ -20,7 +20,13 @@ object OrganizationValidation {
         .sealedSubclasses
         .map { it.createInstance() }
         .map { it.name }
-        .toSet()
+        .flatMap {
+            // list contains both camelCase and PascalCase
+            listOf(
+                it.replaceFirstChar(Char::uppercase),
+                it.replaceFirstChar(Char::lowercase)
+            )
+        }
 
     // custom path resolver to ensure that custom-defined fhir functions are considered valid
     private val customResolver = FhirPathCustomResolver(CustomFhirPathFunctions())
