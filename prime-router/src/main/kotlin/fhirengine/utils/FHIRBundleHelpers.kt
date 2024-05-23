@@ -87,17 +87,36 @@ fun Observation.addMappedConditions(metadata: Metadata): List<ActionLogDetail> {
     val codeSourcesMap = this.getCodeSourcesMap().filterValues { it.isNotEmpty() }
     var mappedSomething = false
     if (codeSourcesMap.values.flatten().isEmpty()) return listOf(UnmappableConditionMessage()) // no codes found
+    val mappingTable = metadata.findLookupTable("observation-mapping").also {
+        if (it == null) { // could not load the table
+            throw IllegalStateException("Unable to load lookup table 'observation-mapping' for condition stamping")
+        }
+    }!!
+    val codes = codeSourcesMap.flatMap { it.value.map { code -> code.code } }
 
+    val conditionsToCode =
+        mappingTable.FilterBuilder().isIn(ObservationMappingConstants.TEST_CODE_KEY, codes)
+            .filter().caseSensitiveDataRowsMap.fold(mutableMapOf<String, List<Coding>>()) { acc, condition ->
+                val code = condition[ObservationMappingConstants.TEST_CODE_KEY]!!
+                val conditions = acc[code] ?: mutableListOf()
+                acc[code] = conditions.plus(
+                    Coding(
+                        condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
+                        condition[ObservationMappingConstants.CONDITION_CODE_KEY],
+                        condition[ObservationMappingConstants.CONDITION_NAME_KEY]
+                    )
+                )
+                acc
+            }
     return codeSourcesMap.mapNotNull { codeSourceEntry ->
         codeSourceEntry.value.mapNotNull { code ->
-            lookupConditionCodings(code, metadata).let { conditions ->
-                if (conditions.isEmpty()) { // no codes found, track this unmapped code
-                    code.code
-                } else { // codes found; add extensions and return null to avoid mapping this as an error
-                    conditions.forEach { code.addExtension(conditionCodeExtensionURL, it) }
-                    mappedSomething = true
-                    null
-                }
+            val conditions = conditionsToCode.getOrDefault(code.code ?: "", emptyList())
+            if (conditions.isEmpty()) { // no codes found, track this unmapped code
+                code.code
+            } else { // codes found; add extensions and return null to avoid mapping this as an error
+                conditions.forEach { code.addExtension(conditionCodeExtensionURL, it) }
+                mappedSomething = true
+                null
             }
         }.let {
             // create log message for any unmapped codes
