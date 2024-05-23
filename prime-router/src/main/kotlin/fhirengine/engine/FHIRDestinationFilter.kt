@@ -21,10 +21,9 @@ import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
-import gov.cdc.prime.router.azure.observability.event.DestinationFilterReportNoReceiversEvent
-import gov.cdc.prime.router.azure.observability.event.DestinationFilterReportNotRoutedEvent
-import gov.cdc.prime.router.azure.observability.event.DestinationFilterReportRoutedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportReceiverSelectedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -135,18 +134,6 @@ class FHIRDestinationFilter(
                         bundle,
                         filter
                     )
-                }.also { pass ->
-                    if (!pass) {
-                        azureEventService.trackEvent(
-                            DestinationFilterReportNotRoutedEvent(
-                                queueMessage.reportId,
-                                queueMessage.topic,
-                                sender,
-                                receiver.fullName,
-                                fhirJson.length,
-                            )
-                        )
-                    }
                 }
             }
 
@@ -198,7 +185,7 @@ class FHIRDestinationFilter(
                     actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
                     azureEventService.trackEvent(
-                        DestinationFilterReportRoutedEvent(
+                        ReportReceiverSelectedEvent(
                             queueMessage.reportId,
                             report.id,
                             queueMessage.topic,
@@ -261,13 +248,17 @@ class FHIRDestinationFilter(
                 // ensure tracking is set
                 actionHistory.trackCreatedReport(nextEvent, report)
 
+                val receiverObservationSummary = AzureEventUtils.getObservations(bundle)
+
                 // send event to Azure AppInsights
                 azureEventService.trackEvent(
-                    DestinationFilterReportNoReceiversEvent(
+                    ReportRouteEvent(
                         queueMessage.reportId,
                         report.id,
                         queueMessage.topic,
                         sender,
+                        null,
+                        receiverObservationSummary,
                         fhirJson.length
                     )
                 )

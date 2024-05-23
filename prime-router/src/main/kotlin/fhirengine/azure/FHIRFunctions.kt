@@ -107,7 +107,7 @@ class FHIRFunctions(
     }
 
     /**
-     * An azure function for routing full-ELR FHIR data.
+     * An azure function for selecting valid destinations for inbound full-ELR FHIR data.
      */
     @FunctionName("destination-filter-fhir")
     @StorageAccount("AzureWebJobsStorage")
@@ -136,14 +136,14 @@ class FHIRFunctions(
 
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
-                elrTranslationQueueName,
+                elrDestinationFilterQueueName,
                 it.serialize()
             )
         }
     }
 
     /**
-     * An azure function for routing full-ELR FHIR data.
+     * An azure function for running receiver filters on full-ELR FHIR data
      */
     @FunctionName("receiver-filter-fhir")
     @StorageAccount("AzureWebJobsStorage")
@@ -171,7 +171,7 @@ class FHIRFunctions(
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
-                elrTranslationQueueName,
+                elrReceiverFilterQueueName,
                 it.serialize()
             )
         }

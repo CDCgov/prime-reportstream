@@ -21,10 +21,10 @@ import org.jooq.Field
 import java.time.OffsetDateTime
 
 const val elrConvertQueueName = "elr-fhir-convert"
-const val elrDestinationFilterQueueName = "elr-fhir-destination-filter"
 const val elrRoutingQueueName = "elr-fhir-route"
-const val elrTranslationQueueName = "elr-fhir-translate"
+const val elrDestinationFilterQueueName = "elr-fhir-destination-filter"
 const val elrReceiverFilterQueueName = "elr-fhir-receiver-filter"
+const val elrTranslationQueueName = "elr-fhir-translate"
 const val elrSendQueueName = "send"
 
 /**
