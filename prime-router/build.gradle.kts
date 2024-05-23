@@ -432,6 +432,8 @@ tasks.register<JavaExec>("primeCLI") {
     standardInput = System.`in`
 
     val finalDotenv = addVaultDotEnv(dotEnv)
+    finalDotEnv["SFTP_HOST_OVERRIDE"] = "localhost"
+    finalDotEnv["SFTP_PORT_OVERRIDE"] = "2222"
     environment = finalDotenv
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
