@@ -13,6 +13,7 @@ data class ReportRouteEvent(
     val sender: String,
     val receiver: String?,
     val observations: List<ObservationSummary>,
+    val originalObservations: List<ObservationSummary>,
     val bundleSize: Int,
     val messageId: AzureEventUtils.MessageID,
 ) : AzureCustomEvent

@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
@@ -89,14 +90,17 @@ class FHIRReceiverFilter(
 
     class ReceiverItemFilteredActionLogDetail(
         val filter: String,
+        @JsonProperty
         val filterType: ReportStreamFilterType,
+        @JsonProperty
         val receiverOrg: String,
+        @JsonProperty
         val receiverName: String,
         val index: Int = 1,
     ) : ActionLogDetail {
         override val scope: ActionLogScope = ActionLogScope.item
-        override val message: String
-            get() = TODO("Not yet implemented")
+        override val message: String =
+            "Item was not routed to $receiverName because it did not pass the $filterType. Item failed on: $filter"
 
         override val errorCode: ErrorCode = ErrorCode.UNKNOWN
     }
@@ -104,106 +108,69 @@ class FHIRReceiverFilter(
     private fun getBundleToRoute(receiver: Receiver, bundle: Bundle, actionLogger: ActionLogger): Bundle? {
         val trackingId = bundle.identifier.value
 
-        // TODO dry this out
-        val qualityFiltersEvaluated = receiver.qualityFilter.map { filter ->
-            Pair(
-                FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
-                    bundle,
-                    bundle,
-                    bundle,
-                    filter
-                ),
-                    filter
+        if (doesBundlePassFilters(
+                receiver,
+                bundle,
+                actionLogger,
+                trackingId,
+                receiver.qualityFilter,
+                ReportStreamFilterType.QUALITY_FILTER
             )
-        }
-        if (!qualityFiltersEvaluated.all { (passes, _) -> passes }) {
-            qualityFiltersEvaluated.filter { (passes, _) -> !passes }.forEach { (_, filter) ->
-                actionLogger.getItemLogger(1, trackingId).warn(
-                    ReceiverItemFilteredActionLogDetail(
-                        filter,
-                        ReportStreamFilterType.QUALITY_FILTER,
-                        receiver.organizationName,
-                        receiver.name,
-                        1
-                    )
-                )
-            }
+        ) {
             return null
         }
 
-        val routingFiltersEvaluated = receiver.routingFilter.map { filter ->
-            Pair(
-                FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
-                    bundle,
-                    bundle,
-                    bundle,
-                    filter
-                ),
-                    filter
+        if (doesBundlePassFilters(
+                receiver,
+                bundle,
+                actionLogger,
+                trackingId,
+                receiver.routingFilter,
+                ReportStreamFilterType.ROUTING_FILTER
             )
-        }
-        if (!routingFiltersEvaluated.all { (passes, _) -> passes }) {
-            routingFiltersEvaluated.filter { (passes, _) -> !passes }.forEach { (_, filter) ->
-                actionLogger.getItemLogger(1, trackingId).warn(
-                    ReceiverItemFilteredActionLogDetail(
-                        filter,
-                        ReportStreamFilterType.ROUTING_FILTER,
-                        receiver.organizationName,
-                        receiver.name,
-                        1
-                    )
-                )
-            }
+        ) {
             return null
         }
 
-        val processingModeFiltersEvaluated = receiver.processingModeFilter.map { filter ->
-            Pair(
-                FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
-                    bundle,
-                    bundle,
-                    bundle,
-                    filter
-                ),
-                    filter
+        if (doesBundlePassFilters(
+                receiver,
+                bundle,
+                actionLogger,
+                trackingId,
+                receiver.processingModeFilter,
+                ReportStreamFilterType.PROCESSING_MODE_FILTER
             )
-        }
-        if (!processingModeFiltersEvaluated.all { (passes, _) -> passes }) {
-            processingModeFiltersEvaluated.filter { (passes, _) -> !passes }.forEach { (_, filter) ->
-                actionLogger.getItemLogger(1, trackingId).warn(
-                    ReceiverItemFilteredActionLogDetail(
-                        filter,
-                        ReportStreamFilterType.PROCESSING_MODE_FILTER,
-                        receiver.organizationName,
-                        receiver.name,
-                        1
-                    )
-                )
-            }
+        ) {
             return null
         }
 
-        // TODO extract this into its own function
+        val prunedBundle = evaluateObservationConditionFilters(receiver, bundle, actionLogger, trackingId)
+
+        return prunedBundle
+    }
+
+    class MisconfiguredReceiverConditionFilters(val receiver: Receiver) : RuntimeException() {
+        override val message: String =
+            """${receiver.fullName} has \"conditionFilter\" and \"mappedConditionFilter\" which is not allowed as it can
+                | result in unintended bugs.  Please update the receiver to only use one
+""".trimMargin()
+    }
+
+    private fun evaluateObservationConditionFilters(
+        receiver: Receiver,
+        bundle: Bundle,
+        actionLogger: ActionLogger,
+        trackingId: String,
+    ): Bundle? {
         val conditionFilters = receiver.conditionFilter
         val mappedConditionFilters = receiver.mappedConditionFilter
 
         // These filters are not compatible with each other and configuring them at the same time is likely to produce
         // unintended results
         if (conditionFilters.isNotEmpty() && mappedConditionFilters.isNotEmpty()) {
-            throw RuntimeException(
-                "Both conditionFilters and mappedConditionFilters should not be configured at the same time"
-            )
+            throw MisconfiguredReceiverConditionFilters(receiver)
         }
 
-        // TODO logging
-        // What is useful to log?
-        // log the observations not keeping
-        // log the whole conditional filter
-        // which observation, filter?
-        // how many observations were filtered? the whole condition filter?
         val allObservations = bundle.getObservations()
         val prunedBundle = if (conditionFilters.isNotEmpty()) {
             val (keptObservations, filteredObservations) = allObservations.partition { observation ->
@@ -218,9 +185,22 @@ class FHIRReceiverFilter(
                 }
             }
             if (keptObservations.isEmpty()) {
-                // Corresponds not routing
+                actionLogger.getItemLogger(1, trackingId).warn(
+                    ReceiverItemFilteredActionLogDetail(
+                        mappedConditionFilters.joinToString(","),
+                        ReportStreamFilterType.CONDITION_FILTER,
+                        receiver.organizationName,
+                        receiver.name,
+                        1
+                    )
+                )
                 null
             } else {
+                filteredObservations.forEach { observation ->
+                    withLoggingContext(mapOf(MDCUtils.MDCProperty.OBSERVATION_ID to observation.id.toString())) {
+                        logger.info("Observations were filtered from the bundle")
+                    }
+                }
                 bundle.filterObservations(conditionFilters, shorthandLookupTable)
             }
         } else if (mappedConditionFilters.isNotEmpty()) {
@@ -230,11 +210,25 @@ class FHIRReceiverFilter(
                     it.getMappedConditionCodes().all { code -> code == "AOE" }
                 }
             ) {
+                actionLogger.getItemLogger(1, trackingId).warn(
+                    ReceiverItemFilteredActionLogDetail(
+                        mappedConditionFilters.joinToString(","),
+                        ReportStreamFilterType.MAPPED_CONDITION_FILTER,
+                        receiver.organizationName,
+                        receiver.name,
+                        1
+                    )
+                )
                 null
             } else {
-                val (_, filteredBundle) = bundle.filterMappedObservations(
+                val (filteredObservationIds, filteredBundle) = bundle.filterMappedObservations(
                     receiver.mappedConditionFilter
                 )
+                filteredObservationIds.forEach { observationId ->
+                    withLoggingContext(mapOf(MDCUtils.MDCProperty.OBSERVATION_ID to observationId)) {
+                        logger.info("Observations were filtered from the bundle")
+                    }
+                }
                 filteredBundle
             }
         } else {
@@ -245,11 +239,60 @@ class FHIRReceiverFilter(
     }
 
     /**
+     * Runs the passed filters (which are all FHIR path expressions) against the passed bundle.  If any of the filters
+     * do not pass, the bundle should not be routed.  For any failed filter, a warning is recorded in the action log
+     * with the details.
+     *
+     * @param receiver the receiver the bundle is getting evaluated for
+     * @param bundle the FHIR bundle being evaluated
+     * @param trackingId a unique identifier for the FHIR bundle
+     * @param filters the list of FHIR path expressions to evaluate against the bundle
+     * @param filterType the kind of filter, see [ReportStreamFilterType]
+     *
+     */
+    private fun doesBundlePassFilters(
+        receiver: Receiver,
+        bundle: Bundle,
+        actionLogger: ActionLogger,
+        trackingId: String,
+        filters: List<String>,
+        filterType: ReportStreamFilterType,
+    ): Boolean {
+        val filtersEvaluated = filters.map { filter ->
+            Pair(
+                FhirPathUtils.evaluateCondition(
+                    CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
+                    bundle,
+                    bundle,
+                    bundle,
+                    filter
+                ),
+                filter
+            )
+        }
+        if (!filtersEvaluated.all { (passes, _) -> passes }) {
+            filtersEvaluated.filter { (passes, _) -> !passes }.forEach { (_, filter) ->
+                actionLogger.getItemLogger(1, trackingId).warn(
+                    ReceiverItemFilteredActionLogDetail(
+                        filter,
+                        filterType,
+                        receiver.organizationName,
+                        receiver.name,
+                        1
+                    )
+                )
+            }
+            return true
+        }
+        return false
+    }
+
+    /**
      * Process a [queueMessage] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
      * [actionHistory] ensures all activities are logged.
      */
     private fun fhirEngineRunResults(
-        queueMessage: ReportPipelineMessage,
+        queueMessage: FhirReceiverFilterQueueMessage,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
@@ -261,10 +304,6 @@ class FHIRReceiverFilter(
         )
         withLoggingContext(contextMap) {
             logger.info("Starting FHIR ReceiverFilter step")
-            this.actionLogger = actionLogger
-
-            // TODO move this up, this cast can fail
-            queueMessage as FhirReceiverFilterQueueMessage
 
             // track input report
             actionHistory.trackExistingInputReport(queueMessage.reportId)
@@ -315,7 +354,9 @@ class FHIRReceiverFilter(
                 actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
                 // send event to Azure AppInsights
+                val originalObservationSummary = AzureEventUtils.getObservations(bundle)
                 val receiverObservationSummary = AzureEventUtils.getObservations(receiverBundle)
+                // TODO include the filtered observations
                 azureEventService.trackEvent(
                     ReportRouteEvent(
                         queueMessage.reportId,
@@ -324,7 +365,7 @@ class FHIRReceiverFilter(
                         sender,
                         receiver.fullName,
                         receiverObservationSummary,
-                        // filteredObs,
+                        originalObservationSummary,
                         bodyString.length
                     )
                 )
@@ -381,9 +422,7 @@ class FHIRReceiverFilter(
                 // ensure tracking is set
                 actionHistory.trackCreatedReport(nextEvent, emptyReport)
 
-                // TODO what events should be fired when?
-                // send event to Azure AppInsights
-                val receiverObservationSummary = AzureEventUtils.getObservations(bundle)
+                val observationSummary = AzureEventUtils.getObservations(bundle)
                 azureEventService.trackEvent(
                     ReportRouteEvent(
                         queueMessage.reportId,
@@ -391,7 +430,8 @@ class FHIRReceiverFilter(
                         queueMessage.topic,
                         sender,
                         null,
-                        receiverObservationSummary,
+                        observationSummary,
+                        observationSummary,
                         fhirJson.length
                     )
                 )
