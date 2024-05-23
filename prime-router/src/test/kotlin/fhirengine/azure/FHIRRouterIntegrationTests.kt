@@ -9,9 +9,7 @@ import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
-import gov.cdc.prime.router.FhirActionLogDetail
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.InvalidTranslationMessage
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -32,7 +30,6 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
-import gov.cdc.prime.router.azure.scope
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSender
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransform
@@ -47,6 +44,8 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
@@ -67,7 +66,6 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.File
 import java.time.OffsetDateTime
 import java.util.UUID
-import kotlin.test.Ignore
 import kotlin.test.assertEquals
 
 private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/fhir_without_birth_time.fhir"
@@ -76,7 +74,7 @@ private const val MULTIPLE_OBSERVATIONS_FHIR_URL =
     "src/test/resources/fhirengine/engine/bundle_multiple_observations.fhir"
 
 private const val FILTERED_OBSERVATIONS_FHIR_URL =
-    "src/test/resources/fhirengine/engine/bundle_some_filtered_observations.fhir"
+    "src/test/resources/fhirengine/engine/bundle_multiple_observations_filtered_only_94558_5.fhir"
 
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
@@ -137,10 +135,10 @@ class FHIRRouterIntegrationTests : Logging {
                 ").code = 'D'"
     )
 
-    // only allow observations that have 94558-4.
+    // only allow observations that have 94558-5.
     val observationFilter: ReportStreamFilter = listOf(
-        // "Bundle.entry.resource.ofType(Observation).code.coding.code='94558-5'"
-        "%resource.code.coding.code = '94558-4'"
+        "Bundle.entry.resource.ofType(Observation).code.coding.code='94558-5'"
+        //"%resource.code.coding.code='94558-5'"//.intersect('94558-5').exists()"
     )
 
     @Container
@@ -609,9 +607,9 @@ class FHIRRouterIntegrationTests : Logging {
         }
     }
 
-    @Ignore
+    //@Ignore
     @Test
-    fun `should send valid FHIR report filtered by condition code 94558-4`() {
+    fun `should send valid FHIR report filtered by condition code 94558-5`() {
         // set up
         val reportContents =
             listOf(
@@ -628,7 +626,11 @@ class FHIRRouterIntegrationTests : Logging {
         checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
 
         // execute
-        var receivers = createReceivers(listOf(ReceiverSetupData("x", conditionFilter = observationFilter)))
+        var receiverSetupData = listOf(
+            ReceiverSetupData("x", conditionFilter = observationFilter),
+            ReceiverSetupData("y"),
+        )
+        var receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
         fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
@@ -636,7 +638,7 @@ class FHIRRouterIntegrationTests : Logging {
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             // did the report get pushed to blob store correctly and intact?
-            val routedReports = verifyLineageAndFetchCreatedReportFiles(convertReport, receiveReport, txn, 1)
+            val routedReports = verifyLineageAndFetchCreatedReportFiles(convertReport, receiveReport, txn, 2)
             val reportAndBundles =
                 routedReports.map {
                     Pair(
@@ -645,11 +647,16 @@ class FHIRRouterIntegrationTests : Logging {
                     )
                 }
 
-            assertThat(reportAndBundles).transform { pairs ->
-                pairs.map {
-                    it.second.toString(Charsets.UTF_8)
-                }
-            }.containsOnly(File(FILTERED_OBSERVATIONS_FHIR_URL).readText())
+            var fhirBundlesAsObjectsOnly = reportAndBundles.map { it.second.toString(Charsets.UTF_8) }
+                                                           .map { FhirTranscoder.decode(it) }
+
+            // there should only be one observation of five remaining, and the code of that observation
+            // should be 94558-5
+            for (fhirBundleAsObject in fhirBundlesAsObjectsOnly) {
+                assertThat(fhirBundleAsObject.getObservations().size == 1)
+                assertThat(fhirBundleAsObject.getObservations()[0].code.coding.size == 1)
+                assertThat(fhirBundleAsObject.getObservations()[0].code.coding[0].code.equals("94558-5"))
+            }
 
             // is the queue messaging what we expect it to be?
             val expectedRouteQueueMessages = reportAndBundles.flatMap { (report, fhirBundle) ->

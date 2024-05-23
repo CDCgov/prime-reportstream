@@ -1344,10 +1344,28 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     }
 
     /**
-     * Inserts the provided [actionLog] using [txn] as the data context
+     * Inserts the provided [actionLog] using [txn] as the data context.
      */
     private fun insertActionLog(actionLog: ActionLog, txn: Configuration) {
-        val detailRecord = DSL.using(txn).newRecord(Tables.ACTION_LOG, actionLog)
+        var processedActionLog = actionLog
+        actionLog.trackingId?.let {
+            if (it.length > 128) {
+                processedActionLog = ActionLog(
+                    actionLog.detail,
+                    actionLog.trackingId.substring(0, 128),
+                    actionLog.index,
+                    actionLog.reportId,
+                    actionLog.action,
+                    actionLog.type,
+                    actionLog.created_at
+                )
+
+                logger.info("truncating ActionLog.trackingId to 128 chars as per database schema restriction.")
+                logger.info("original value was: ${actionLog.trackingId}");
+            }
+        }
+
+        val detailRecord = DSL.using(txn).newRecord(Tables.ACTION_LOG, processedActionLog)
         detailRecord.store()
     }
 
