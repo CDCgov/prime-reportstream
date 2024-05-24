@@ -134,7 +134,10 @@ resource "azurerm_application_insights_web_test" "sftp_test" {
   }
   lifecycle {
     # validated 5/21/2024
-    ignore_changes = [tags]
+    ignore_changes = [
+      tags,
+      configuration
+    ]
   }
 }
 resource "azurerm_application_insights_web_test" "livdapi_test" {
