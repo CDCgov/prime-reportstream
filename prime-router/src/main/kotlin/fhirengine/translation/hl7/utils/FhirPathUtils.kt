@@ -59,7 +59,7 @@ object FhirPathUtils : Logging {
     /**
      * Parse a FHIR path from a [fhirPath] string.  This will also provide some format validation.
      * @return the validated FHIR path
-     * @throws Exception if the path is invalid
+     * @throws FHIRLexerException if the path is invalid
      */
     fun parsePath(fhirPath: String?): ExpressionNode? {
         return if (fhirPath.isNullOrBlank()) {
@@ -98,12 +98,20 @@ object FhirPathUtils : Logging {
                 pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
             }
         } catch (e: Exception) {
-            // This is due to a bug in at least the extension() function
-            logger.error(
-                "Unknown error while evaluating FHIR expression $expression. " +
-                    "Returning empty resource list.",
-                e
-            )
+            when (e) {
+                is FHIRLexerException -> {
+                    // dunno what the original exception was, but this was also swallowing fhirpath validity errors
+                    logger.error("Error parsing the FhirPath expression.")
+                }
+                else -> {
+                    // This is due to a bug in at least the extension() function
+                    logger.error(
+                        "Unknown error while evaluating FHIR expression $expression. " +
+                            "Returning empty resource list.",
+                        e
+                    )
+                }
+            }
             emptyList()
         }
         logger.trace("Evaluated '$expression' to '$retVal'")
