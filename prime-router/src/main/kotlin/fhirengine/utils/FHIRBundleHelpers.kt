@@ -64,12 +64,9 @@ fun Observation.addMappedConditions(metadata: Metadata): List<ActionLogDetail> {
     val codeSourcesMap = this.getCodeSourcesMap().filterValues { it.isNotEmpty() }
     var mappedSomething = false
     if (codeSourcesMap.values.flatten().isEmpty()) return listOf(UnmappableConditionMessage()) // no codes found
-    val mappingTable = metadata.findLookupTable("observation-mapping").also {
-        if (it == null) { // could not load the table
-            throw IllegalStateException("Unable to load lookup table 'observation-mapping' for condition stamping")
-        }
-    }!!
-    val codes = codeSourcesMap.flatMap { it.value.map { code -> code.code } }
+    val mappingTable = metadata.findLookupTable("observation-mapping")
+        ?: throw IllegalStateException("Unable to load lookup table 'observation-mapping' for condition stamping")
+    val codes = codeSourcesMap.values.flatten().mapNotNull { it.code }
 
     val conditionsToCode =
         mappingTable.FilterBuilder().isIn(ObservationMappingConstants.TEST_CODE_KEY, codes)
