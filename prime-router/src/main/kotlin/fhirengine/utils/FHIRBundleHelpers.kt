@@ -10,6 +10,7 @@ import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.UnmappableConditionMessage
 import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.codes
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChildProperties
@@ -402,20 +403,25 @@ private fun getFilteredObservations(
     )
 
     val observationsToKeep = mutableListOf<Base>()
-    allObservations.forEach { observation ->
-        val passes = conditionFilter.any { conditionFilter ->
-            FhirPathUtils.evaluateCondition(
-                CustomContext(fhirBundle, observation, shortHandLookupTable, CustomFhirPathFunctions()),
-                observation,
-                fhirBundle,
-                fhirBundle,
-                conditionFilter
-            )
-        }
+    try {
+        allObservations.forEach { observation ->
+            val passes = conditionFilter.any { conditionFilter ->
+                FhirPathUtils.evaluateCondition(
+                    CustomContext(fhirBundle, observation, shortHandLookupTable, CustomFhirPathFunctions()),
+                    observation,
+                    fhirBundle,
+                    fhirBundle,
+                    conditionFilter
+                )
+            }
 
-        if (passes) {
-            observationsToKeep.add(observation)
+            if (passes) {
+                observationsToKeep.add(observation)
+            }
         }
+    } catch (e: SchemaException) {
+        // FhirPathUtils.evaluateCondition() throws SchemaException under several different scenarios
+        // todo
     }
 
     return Pair(observationsToKeep, allObservations)
