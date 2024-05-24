@@ -13,12 +13,16 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
+import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
+import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrReceiverFilterQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrSendQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
@@ -97,6 +101,77 @@ class FHIRFunctions(
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
                 elrTranslationQueueName,
+                it.serialize()
+            )
+        }
+    }
+
+    /**
+     * An azure function for selecting valid destinations for inbound full-ELR FHIR data.
+     */
+    @FunctionName("destination-filter-fhir")
+    @StorageAccount("AzureWebJobsStorage")
+    fun destinationFilter(
+        @QueueTrigger(name = "message", queueName = elrDestinationFilterQueueName)
+        message: String,
+        // Number of times this message has been dequeued
+        @BindingName("DequeueCount") dequeueCount: Int = 1,
+    ) {
+        doDestinationFilter(message, dequeueCount, FHIRDestinationFilter())
+    }
+
+    /**
+     * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
+     * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
+     * the [dequeueCount] is tracked as part of the log.
+     * [actionHistory] is an optional parameter for use in testing
+     */
+    internal fun doDestinationFilter(
+        message: String,
+        dequeueCount: Int,
+        fhirEngine: FHIRDestinationFilter,
+        actionHistory: ActionHistory = ActionHistory(TaskAction.route),
+    ) {
+        val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
+
+        messagesToDispatch.forEach {
+            queueAccess.sendMessage(
+                elrDestinationFilterQueueName,
+                it.serialize()
+            )
+        }
+    }
+
+    /**
+     * An azure function for running receiver filters on full-ELR FHIR data
+     */
+    @FunctionName("receiver-filter-fhir")
+    @StorageAccount("AzureWebJobsStorage")
+    fun receiverFilter(
+        @QueueTrigger(name = "message", queueName = elrReceiverFilterQueueName)
+        message: String,
+        // Number of times this message has been dequeued
+        @BindingName("DequeueCount") dequeueCount: Int = 1,
+    ) {
+        doReceiverFilter(message, dequeueCount, FHIRReceiverFilter())
+    }
+
+    /**
+     * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
+     * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
+     * the [dequeueCount] is tracked as part of the log.
+     * [actionHistory] is an optional parameter for use in testing
+     */
+    internal fun doReceiverFilter(
+        message: String,
+        dequeueCount: Int,
+        fhirEngine: FHIRReceiverFilter,
+        actionHistory: ActionHistory = ActionHistory(TaskAction.route),
+    ) {
+        val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
+        messagesToDispatch.forEach {
+            queueAccess.sendMessage(
+                elrReceiverFilterQueueName,
                 it.serialize()
             )
         }

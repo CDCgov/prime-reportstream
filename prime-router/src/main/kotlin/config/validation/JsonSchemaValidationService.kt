@@ -58,8 +58,8 @@ class JsonSchemaValidationServiceImpl : JsonSchemaValidationService {
             val parsedJson = JacksonMapperUtilities.yamlMapper.readTree(inputStream)
             val schemaValidation = configType.jsonSchema.validate(parsedJson)
             schemaErrors = schemaValidation.map { it.message }
-            val parsed = configType.convert(parsedJson)
             if (schemaErrors.isEmpty()) {
+                val parsed = configType.convert(parsedJson)
                 ConfigurationValidationSuccess(parsed)
             } else {
                 ConfigurationValidationFailure(schemaErrors)
