@@ -36,29 +36,6 @@ const val conditionExtensionurl = "https://reportstream.cdc.gov/fhir/StructureDe
 const val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
 
 /**
- * Looks up condition codes for the provided LOINC [code] (typically a test) using the given [metadata] object
- * @param code test (or other type) code to look up a condition for
- * @param metadata metadata containing an observation-mapping lookup table
- * @return a list of the matching condition codes (as `Coding`s)
- */
-private fun lookupConditionCodings(code: Coding, metadata: Metadata): List<Coding> {
-    val mappingTable = metadata.findLookupTable("observation-mapping").also {
-        if (it == null) { // could not load the table
-            throw IllegalStateException("Unable to load lookup table 'observation-mapping' for condition stamping")
-        }
-    }!!
-    return mappingTable.caseSensitiveDataRowsMap.filter { // find codes
-        it[ObservationMappingConstants.TEST_CODE_KEY] == code.code
-    }.map { condition ->
-        Coding(
-            condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
-            condition[ObservationMappingConstants.CONDITION_CODE_KEY],
-            condition[ObservationMappingConstants.CONDITION_NAME_KEY]
-        )
-    }.toList()
-}
-
-/**
  * Retrieves loinc/snomed codes from [this] observation in known locations (code.coding and valueCodeableConcept.coding)
  * @return a map of lists of codings keyed by their origin as a printable string
  */
