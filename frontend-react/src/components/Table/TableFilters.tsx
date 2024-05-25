@@ -297,7 +297,7 @@ function TableFilters({
             setSearchTerm("");
 
             appInsights?.trackEvent({
-                name: `${FeatureName.DAILY_DATA} | "Reset"}`,
+                name: `${FeatureName.DAILY_DATA} | Reset`,
             });
         },
         [resetFilterFields, searchReset, setSearchTerm],
@@ -321,7 +321,7 @@ function TableFilters({
             }
 
             appInsights?.trackEvent({
-                name: `${FeatureName.DAILY_DATA} | "Apply"}`,
+                name: `${FeatureName.DAILY_DATA} | Apply`,
             });
         },
         [
