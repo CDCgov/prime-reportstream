@@ -11,8 +11,9 @@
     1. This jar enables additional features like Azure events and customDimensions to be sent to Application Insights
     2. When writing this document, the current version is `3.4.19`
 2. Append the following argument to `JAVA_OPTS` in your `local.settings.json`
-    1. ` -javaagent:\"/path/to/jar/applicationinsights-agent-3.4.19.jar\"`
+    1. `-javaagent:\"/path/to/jar/applicationinsights-agent-3.4.19.jar\"`
     2. Update your path to point to your real JAR
+       1. For OSX use `realpath ./applicationinsights-agent-3.4.19.jar` to output the absolute path.
     3. The escaped quotes are present because these JAVA_OPTS are stored in a json file. If you were running this off
        the command line then there would be no backslashes.
         1. `-javaagent:"/path/to/jar/applicationinsights-agent-3.4.19.jar"`
@@ -32,6 +33,13 @@
     3. I suggested this one: http://localhost:7071/api/waters/report/1/history
     4. Wait about 10 minutes and ensure data is flowing into the appinsights portal. You should be able to see basic
        statistics around the requests.
+
+## Troubleshooting
+
+- If some logs from your computer are flowing to pdhtest-appinsights, but are not the ReportStream defined custom events listed above, this means your connection string is configured properly but there is an issue with your jar.
+- If none of the above defined custom events from your computer are ending up in pdhtest-appinsights, but you do see additional logging locally, then your connection string is incorrectly setup.
+  - Example of what the logs will look like when the jar is working:
+  - `{"mdc":{"span_id":"bc4881697f596148","trace_flags":"01","trace_id":"7fc97db1ef3ec27336ee70472e7989b7"}`
 
 ## Extra Resources
 

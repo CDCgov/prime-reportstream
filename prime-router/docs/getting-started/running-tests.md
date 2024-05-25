@@ -25,6 +25,18 @@ cd ./prime-router
 # Or to force the unit tests to run
 ./gradlew test -Pforcetest
 ```
+
+## Running smaller sets of unit tests
+
+The simplest way to run smaller sets of unit tests is through the IDE. Should you want to run a specific class of unit tests or single unit test in the command line, you may do so like the following:
+
+`./gradlew test --tests "[class path or class path with test name]"`
+
+To run an entire class: 
+`./gradlew test --tests "gov.cdc.prime.router.fhirengine.engine.FhirRouterTests"`
+
+To run a single test:
+`./gradlew test --tests "gov.cdc.prime.router.fhirengine.engine.FhirRouterTests.test applyFilters receiver setting - (reverseTheQualityFilter = true) "`
  
 ## Running the end-to-end tests locally
 
