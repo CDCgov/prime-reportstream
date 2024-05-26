@@ -140,7 +140,7 @@
         "@types/sanitize-html": "^2.11.0",
         "@typescript-eslint/eslint-plugin": "^7.8.0",
         "@typescript-eslint/parser": "^7.8.0",
-        "@vitejs/plugin-react": "^4.2.1",
+        "@vitejs/plugin-react": "^4.3.0",
         "@vitest/coverage-istanbul": "^1.6.0",
         "@vitest/ui": "^1.6.0",
         "autoprefixer": "^10.4.19",
