@@ -61,7 +61,7 @@ Once you've added a setting file the sender you next need to create a schema fil
 
 The schema provides additional transforms required so that the senders data can be routed correctly.
 
-Note: When creating a transform, please reference [Changing/Updating Sender/Receiver Transforms](../../../getting-started/standard-operating-procedures/changing-transforms.md) for guidance.
+Note: When creating a transform, please reference [Changing/Updating Sender/Receiver Transforms](../../transforms/changing-transforms.md) for guidance.
 
 ### Authenticating to ReportStream’s REST API
 **Note: This is legacy authentication and should not be used for onboarding new users**
