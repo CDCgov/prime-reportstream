@@ -1,0 +1,14 @@
+resources:
+  - resourceName: MessageHeader
+    segment: MSH
+    resourcePath: segments/MSH/MessageHeader
+    repeats: false
+    isReferenced: false
+
+  - resourceName: MessageAcknowledgment
+    segment: MSA
+    resourcePath: segments/MSA/MessageAcknowledgment
+    repeats: false
+    isReferenced: false
+    additionalSegments:
+      - MSH
