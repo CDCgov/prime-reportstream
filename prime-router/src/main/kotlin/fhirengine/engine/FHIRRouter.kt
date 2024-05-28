@@ -586,18 +586,7 @@ class FHIRRouter(
         filterType: ReportStreamFilterType,
         focusResource: Base,
     ) {
-        var filteredTrackingElement = bundle.identifier.value ?: ""
-        if (focusResource != bundle) {
-            filteredTrackingElement += " at " + focusResource.idBase
-
-            if (focusResource is Observation) {
-                // for Observation-type elements, we use the code property when available
-                // if more elements need specific logic, consider extending the FHIR libraries
-                // instead of adding more if/else statements
-                val coding = focusResource.code.coding.firstOrNull()
-                if (coding != null) filteredTrackingElement += " with " + coding.system + " code: " + coding.code
-            }
-        }
+        val filteredTrackingElement = bundle.identifier.value ?: ""
         val filterResult = ReportStreamFilterResult(
             receiver.fullName,
             // The FHIR router will only ever process a single item
@@ -605,7 +594,8 @@ class FHIRRouter(
             filterName,
             emptyList(),
             filteredTrackingElement,
-            filterType
+            filterType,
+            filteredObservation = if (focusResource is Observation) focusResource else null
         )
         actionHistory.trackLogs(
             ActionLog(
