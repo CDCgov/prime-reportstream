@@ -72,4 +72,4 @@ Receiver transform schemas, in addition to transforming values, can also define 
 
  > For more details on when a transform should be defined as a sender or receiver transform, and for details on how the
 transform schemas are laid out, please reference
-> [Changing/Updating Sender/Receiver Transforms](./standard-operating-procedures/changing-transforms.md) for guidance.
+> [Changing/Updating Sender/Receiver Transforms](../standard-operating-procedures/transforms/changing-transforms.md) for guidance.

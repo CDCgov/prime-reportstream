@@ -98,7 +98,7 @@ A good set of examples on how to query report and item lineage was created for t
 
 The Lookup Tables feature allows ReportStream to store and version datasets. Lookup Tables are generic and can be used for anything, but are mainly used for storing [LIVD tables](https://www.cdc.gov/csels/dls/livd-codes.html), so they can be referenced when validating or translating Reports.
 
-> Instructions for the most common use case of Lookup Tables, updating LIVD tables, can be found [here](../../getting-started/standard-operating-procedures/update-livd-table.md).
+> Instructions for the most common use case of Lookup Tables, updating LIVD tables, can be found [here](../../standard-operating-procedures/tables/livd-table/update-livd-table.md).
 
 #### Associated Tables
 

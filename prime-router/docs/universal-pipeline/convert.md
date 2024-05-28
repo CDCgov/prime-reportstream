@@ -32,7 +32,7 @@ to start to understand what kind of transforms a Sender may want performed on th
 > information regarding configuration of Sender Transforms.
 
 > When creating a transform, reference 
-> [Changing/Updating Sender/Receiver Transforms](../getting-started/standard-operating-procedures/changing-transforms.md)
+> [Changing/Updating Sender/Receiver Transforms](../standard-operating-procedures/transforms/changing-transforms.md)
 > for guidance.
  
 ## Retries
