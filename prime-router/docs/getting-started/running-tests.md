@@ -64,6 +64,7 @@ With your VPN running, do the following:
 export POSTGRES_PASSWORD=<postgres-password>
 export POSTGRES_USER= <postgres-user>@pdhstaging-pgsql                                                                                                          
 export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub
+export AZUREWEBJOBSSTORAGE="<get_this_key_from_pdhstaging-functionapp>"
 ./prime test --run end2end --env staging --key <reports-endpoint-function-key> 
 ```    
 

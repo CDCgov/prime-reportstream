@@ -32,8 +32,11 @@ import java.util.stream.Stream
 /**
  * A collection of helper functions that modify an existing FHIR bundle.
  */
-const val conditionExtensionurl = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
+
+// Constant URLs
+const val conditionExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
 const val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
+const val bundleIdentifierURL = "https://reportstream.cdc.gov/prime-router"
 
 /**
  * Looks up condition codes for the provided LOINC [code] (typically a test) using the given [metadata] object
@@ -339,7 +342,7 @@ internal fun getObservationExtensions(
         observationsToKeep.forEach {
             observationExtensionsToKeep.add(
                 Extension(
-                    conditionExtensionurl,
+                    conditionExtensionURL,
                     Reference(it.idBase)
                 )
             )
@@ -445,7 +448,7 @@ fun Bundle.enhanceBundleMetadata(hl7Message: Message) {
         else -> ""
     }
     this.identifier.value = identifierValue
-    this.identifier.system = "https://reportstream.cdc.gov/prime-router"
+    this.identifier.system = bundleIdentifierURL
 }
 
 /**
