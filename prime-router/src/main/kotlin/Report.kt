@@ -18,7 +18,6 @@ import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mappers
 import org.apache.logging.log4j.kotlin.Logging
-import org.hl7.fhir.r4.model.Observation
 import tech.tablesaw.api.Row
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
@@ -135,7 +134,7 @@ data class ReportStreamFilterResult(
     val filterArgs: List<String>,
     val filteredTrackingElement: String,
     val filterType: ReportStreamFilterType?,
-    val filteredObservation: Observation? = null,
+    val filteredObservationDetails: String? = null,
 ) : ActionLogDetail {
     override val scope = ActionLogScope.translation
     override val errorCode = ErrorCode.UNKNOWN
@@ -147,14 +146,7 @@ data class ReportStreamFilterResult(
 
     override val message = """
         For $receiverName, filter $filterName$filterArgs filtered out item $filteredTrackingElement. 
-        ${
-        if (filteredObservation == null) {
-            ""
-        } else {
-            "${filteredObservation.id} with system: |" +
-            "${filteredObservation.code.coding.firstOrNull()?.system} |" +
-            "and code: ${filteredObservation.code.coding.firstOrNull()?.code}"
-        }
+        $filteredObservationDetails 
     }
     """.trimIndent()
 

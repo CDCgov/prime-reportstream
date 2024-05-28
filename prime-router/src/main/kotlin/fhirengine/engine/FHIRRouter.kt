@@ -595,7 +595,13 @@ class FHIRRouter(
             emptyList(),
             filteredTrackingElement,
             filterType,
-            filteredObservation = if (focusResource is Observation) focusResource else null
+            filteredObservationDetails = if (focusResource is Observation) {
+                "${focusResource.id} with system: |" +
+                "${focusResource.code.coding.firstOrNull()?.system} |" +
+                "and code: ${focusResource.code.coding.firstOrNull()?.code}"
+            } else {
+                null
+            }
         )
         actionHistory.trackLogs(
             ActionLog(
