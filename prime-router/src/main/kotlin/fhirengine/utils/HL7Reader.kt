@@ -21,6 +21,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.kotlin.Logging
 import java.util.Date
+import ca.uhn.hl7v2.model.v251.message.ACK as v251_ACK
 import ca.uhn.hl7v2.model.v251.message.OML_O21 as v251_OML_O21
 import ca.uhn.hl7v2.model.v251.message.ORU_R01 as v251_ORU_R01
 import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
@@ -143,6 +144,11 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                     "OML" -> {
                         return listOf(
                             v251_OML_O21::class.java
+                        )
+                    }
+                    "ACK" -> {
+                        return listOf(
+                            v251_ACK::class.java
                         )
                     }
                     else -> {
