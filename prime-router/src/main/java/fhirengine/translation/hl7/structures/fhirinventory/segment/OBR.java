@@ -35,15 +35,14 @@ package fhirengine.translation.hl7.structures.fhirinventory.segment;
 
 // import ca.uhn.hl7v2.model.v27.group.*;
 
+import ca.uhn.hl7v2.model.v251.datatype.SPS;
+import ca.uhn.hl7v2.model.v251.datatype.TQ;
 import ca.uhn.hl7v2.model.v27.datatype.*;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import ca.uhn.hl7v2.parser.DefaultModelClassFactory;
-import ca.uhn.hl7v2.model.AbstractMessage;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Type;
 import ca.uhn.hl7v2.model.AbstractSegment;
-import ca.uhn.hl7v2.model.Varies;
 
 
 /**
@@ -54,8 +53,8 @@ import ca.uhn.hl7v2.model.Varies;
  * <li>OBR-2: Placer Order Number (EI) <b>optional </b>
  * <li>OBR-3: Filler Order Number (EI) <b>optional </b>
  * <li>OBR-4: Universal Service Identifier (CWE) <b> </b>
- * <li>OBR-5: Priority (NULLDT) <b>optional </b>
- * <li>OBR-6: Requested Date/Time (NULLDT) <b>optional </b>
+ * <li>OBR-5: Priority (ID) <b>optional </b>
+ * <li>OBR-6: Requested Date/Time (DTM) <b>optional </b>
  * <li>OBR-7: Observation Date/Time # (DTM) <b>optional </b>
  * <li>OBR-8: Observation End Date/Time # (DTM) <b>optional </b>
  * <li>OBR-9: Collection Volume * (CQ) <b>optional </b>
@@ -64,7 +63,7 @@ import ca.uhn.hl7v2.model.Varies;
  * <li>OBR-12: Danger Code (CWE) <b>optional </b>
  * <li>OBR-13: Relevant Clinical Information (ST) <b>optional </b>
  * <li>OBR-14: Specimen Received Date/Time (DTM) <b>optional </b>
- * <li>OBR-15: Specimen Source (NULLDT) <b>optional </b>
+ * <li>OBR-15: Specimen Source (SPS) <b>optional </b>
  * <li>OBR-16: Ordering Provider (XCN) <b>optional repeating</b>
  * <li>OBR-17: Order Callback Phone Number (XTN) <b>optional repeating</b>
  * <li>OBR-18: Placer Field 1 (ST) <b>optional </b>
@@ -76,7 +75,7 @@ import ca.uhn.hl7v2.model.Varies;
  * <li>OBR-24: Diagnostic Serv Sect ID (ID) <b>optional </b>
  * <li>OBR-25: Result Status + (ID) <b>optional </b>
  * <li>OBR-26: Parent Result + (PRL) <b>optional </b>
- * <li>OBR-27: Quantity/Timing (NULLDT) <b>optional repeating</b>
+ * <li>OBR-27: Quantity/Timing (TQ) <b>optional repeating</b>
  * <li>OBR-28: Result Copies To (XCN) <b>optional repeating</b>
  * <li>OBR-29: Parent Result Observation Identifier (EIP) <b>optional </b>
  * <li>OBR-30: Transportation Mode (ID) <b>optional </b>
@@ -123,8 +122,8 @@ public class OBR extends AbstractSegment {
       this.add(EI.class, false, 1, 0, new Object[]{getMessage()}, "Placer Order Number");
       this.add(EI.class, false, 1, 0, new Object[]{getMessage()}, "Filler Order Number");
       this.add(CWE.class, true, 1, 0, new Object[]{getMessage()}, "Universal Service Identifier");
-      this.add(NULLDT.class, false, 1, 0, new Object[]{getMessage()}, "Priority");
-      this.add(NULLDT.class, false, 1, 0, new Object[]{getMessage()}, "Requested Date/Time");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(0)}, "Priority");
+      this.add(DTM.class, false, 1, 0, new Object[]{getMessage()}, "Requested Date/Time");
       this.add(DTM.class, false, 1, 0, new Object[]{getMessage()}, "Observation Date/Time #");
       this.add(DTM.class, false, 1, 0, new Object[]{getMessage()}, "Observation End Date/Time #");
       this.add(CQ.class, false, 1, 0, new Object[]{getMessage()}, "Collection Volume *");
@@ -133,7 +132,7 @@ public class OBR extends AbstractSegment {
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Danger Code");
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Relevant Clinical Information");
       this.add(DTM.class, false, 1, 0, new Object[]{getMessage()}, "Specimen Received Date/Time");
-      this.add(NULLDT.class, false, 1, 0, new Object[]{getMessage()}, "Specimen Source");
+      this.add(SPS.class, false, 1, 0, new Object[]{getMessage()}, "Specimen Source");
       this.add(XCN.class, false, 0, 0, new Object[]{getMessage()}, "Ordering Provider");
       this.add(XTN.class, false, 2, 0, new Object[]{getMessage()}, "Order Callback Phone Number");
       this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Placer Field 1");
@@ -145,7 +144,7 @@ public class OBR extends AbstractSegment {
       this.add(ID.class, false, 1, 3, new Object[]{getMessage(), Integer.valueOf(74)}, "Diagnostic Serv Sect ID");
       this.add(ID.class, false, 1, 1, new Object[]{getMessage(), Integer.valueOf(123)}, "Result Status +");
       this.add(PRL.class, false, 1, 0, new Object[]{getMessage()}, "Parent Result +");
-      this.add(NULLDT.class, false, 0, 0, new Object[]{getMessage()}, "Quantity/Timing");
+      this.add(TQ.class, false, 0, 0, new Object[]{getMessage()}, "Quantity/Timing");
       this.add(XCN.class, false, 0, 0, new Object[]{getMessage()}, "Result Copies To");
       this.add(EIP.class, false, 1, 0, new Object[]{getMessage()}, "Parent Result Observation Identifier");
       this.add(ID.class, false, 1, 4, new Object[]{getMessage(), Integer.valueOf(124)}, "Transportation Mode");
@@ -259,8 +258,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-5: "Priority" - creates it if necessary
    */
-  public NULLDT getPriority() {
-    NULLDT retVal = this.getTypedField(5, 0);
+  public ID getPriority() {
+    ID retVal = this.getTypedField(5, 0);
     return retVal;
   }
 
@@ -268,8 +267,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-5: "Priority" - creates it if necessary
    */
-  public NULLDT getObr5_Priority() {
-    NULLDT retVal = this.getTypedField(5, 0);
+  public ID getObr5_Priority() {
+    ID retVal = this.getTypedField(5, 0);
     return retVal;
   }
 
@@ -278,8 +277,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-6: "Requested Date/Time" - creates it if necessary
    */
-  public NULLDT getRequestedDateTime() {
-    NULLDT retVal = this.getTypedField(6, 0);
+  public DTM getRequestedDateTime() {
+    DTM retVal = this.getTypedField(6, 0);
     return retVal;
   }
 
@@ -287,8 +286,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-6: "Requested Date/Time" - creates it if necessary
    */
-  public NULLDT getObr6_RequestedDateTime() {
-    NULLDT retVal = this.getTypedField(6, 0);
+  public DTM getObr6_RequestedDateTime() {
+    DTM retVal = this.getTypedField(6, 0);
     return retVal;
   }
 
@@ -538,8 +537,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-15: "Specimen Source" - creates it if necessary
    */
-  public NULLDT getSpecimenSource() {
-    NULLDT retVal = this.getTypedField(15, 0);
+  public SPS getSpecimenSource() {
+    SPS retVal = this.getTypedField(15, 0);
     return retVal;
   }
 
@@ -547,8 +546,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-15: "Specimen Source" - creates it if necessary
    */
-  public NULLDT getObr15_SpecimenSource() {
-    NULLDT retVal = this.getTypedField(15, 0);
+  public SPS getObr15_SpecimenSource() {
+    SPS retVal = this.getTypedField(15, 0);
     return retVal;
   }
 
@@ -943,8 +942,8 @@ public class OBR extends AbstractSegment {
   /**
    * Returns all repetitions of Quantity/Timing (OBR-27).
    */
-  public NULLDT[] getQuantityTiming() {
-    NULLDT[] retVal = this.getTypedField(27, new NULLDT[0]);
+  public TQ[] getQuantityTiming() {
+    TQ[] retVal = this.getTypedField(27, new TQ[0]);
     return retVal;
   }
 
@@ -952,8 +951,8 @@ public class OBR extends AbstractSegment {
   /**
    * Returns all repetitions of Quantity/Timing (OBR-27).
    */
-  public NULLDT[] getObr27_QuantityTiming() {
-    NULLDT[] retVal = this.getTypedField(27, new NULLDT[0]);
+  public TQ[] getObr27_QuantityTiming() {
+    TQ[] retVal = this.getTypedField(27, new TQ[0]);
     return retVal;
   }
 
@@ -974,8 +973,8 @@ public class OBR extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public NULLDT getQuantityTiming(int rep) {
-    NULLDT retVal = this.getTypedField(27, rep);
+  public TQ getQuantityTiming(int rep) {
+    TQ retVal = this.getTypedField(27, rep);
     return retVal;
   }
 
@@ -985,8 +984,8 @@ public class OBR extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public NULLDT getObr27_QuantityTiming(int rep) {
-    NULLDT retVal = this.getTypedField(27, rep);
+  public TQ getObr27_QuantityTiming(int rep) {
+    TQ retVal = this.getTypedField(27, rep);
     return retVal;
   }
 
@@ -1007,8 +1006,8 @@ public class OBR extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public NULLDT insertQuantityTiming(int rep) throws HL7Exception {
-    return (NULLDT) super.insertRepetition(27, rep);
+  public TQ insertQuantityTiming(int rep) throws HL7Exception {
+    return (TQ) super.insertRepetition(27, rep);
   }
 
 
@@ -1019,8 +1018,8 @@ public class OBR extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public NULLDT insertObr27_QuantityTiming(int rep) throws HL7Exception {
-    return (NULLDT) super.insertRepetition(27, rep);
+  public TQ insertObr27_QuantityTiming(int rep) throws HL7Exception {
+    return (TQ) super.insertRepetition(27, rep);
   }
 
 
@@ -1031,8 +1030,8 @@ public class OBR extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public NULLDT removeQuantityTiming(int rep) throws HL7Exception {
-    return (NULLDT) super.removeRepetition(27, rep);
+  public TQ removeQuantityTiming(int rep) throws HL7Exception {
+    return (TQ) super.removeRepetition(27, rep);
   }
 
 
@@ -1043,8 +1042,8 @@ public class OBR extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public NULLDT removeObr27_QuantityTiming(int rep) throws HL7Exception {
-    return (NULLDT) super.removeRepetition(27, rep);
+  public TQ removeObr27_QuantityTiming(int rep) throws HL7Exception {
+    return (TQ) super.removeRepetition(27, rep);
   }
 
 
@@ -2643,9 +2642,9 @@ public class OBR extends AbstractSegment {
       case 3:
         return new CWE(getMessage());
       case 4:
-        return new NULLDT(getMessage());
+        return new ID(getMessage());
       case 5:
-        return new NULLDT(getMessage());
+        return new DTM(getMessage());
       case 6:
         return new DTM(getMessage());
       case 7:
@@ -2663,7 +2662,7 @@ public class OBR extends AbstractSegment {
       case 13:
         return new DTM(getMessage());
       case 14:
-        return new NULLDT(getMessage());
+        return new SPS(getMessage());
       case 15:
         return new XCN(getMessage());
       case 16:
@@ -2687,7 +2686,7 @@ public class OBR extends AbstractSegment {
       case 25:
         return new PRL(getMessage());
       case 26:
-        return new NULLDT(getMessage());
+        return new TQ(getMessage());
       case 27:
         return new XCN(getMessage());
       case 28:

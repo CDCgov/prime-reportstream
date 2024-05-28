@@ -35,6 +35,7 @@ package fhirengine.translation.hl7.structures.fhirinventory.segment;
 
 // import ca.uhn.hl7v2.model.v27.group.*;
 
+import ca.uhn.hl7v2.model.v251.datatype.TQ;
 import ca.uhn.hl7v2.model.v27.datatype.*;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
@@ -56,7 +57,7 @@ import ca.uhn.hl7v2.model.Varies;
  * <li>ORC-4: Placer Group Number (EI) <b>optional </b>
  * <li>ORC-5: Order Status (ID) <b>optional </b>
  * <li>ORC-6: Response Flag (ID) <b>optional </b>
- * <li>ORC-7: Quantity/Timing (NULLDT) <b>optional repeating</b>
+ * <li>ORC-7: Quantity/Timing (TQ) <b>optional repeating</b>
  * <li>ORC-8: Parent (EIP) <b>optional </b>
  * <li>ORC-9: Date/Time of Transaction (DTM) <b>optional </b>
  * <li>ORC-10: Entered By (XCN) <b>optional repeating</b>
@@ -105,7 +106,7 @@ public class ORC extends AbstractSegment {
       this.add(EI.class, false, 1, 0, new Object[]{getMessage()}, "Placer Group Number");
       this.add(ID.class, false, 1, 2, new Object[]{getMessage(), Integer.valueOf(38)}, "Order Status");
       this.add(ID.class, false, 1, 1, new Object[]{getMessage(), Integer.valueOf(121)}, "Response Flag");
-      this.add(NULLDT.class, false, 0, 0, new Object[]{getMessage()}, "Quantity/Timing");
+      this.add(TQ.class, false, 0, 0, new Object[]{getMessage()}, "Quantity/Timing");
       this.add(EIP.class, false, 1, 0, new Object[]{getMessage()}, "Parent");
       this.add(DTM.class, false, 1, 0, new Object[]{getMessage()}, "Date/Time of Transaction");
       this.add(XCN.class, false, 0, 0, new Object[]{getMessage()}, "Entered By");
@@ -256,8 +257,8 @@ public class ORC extends AbstractSegment {
   /**
    * Returns all repetitions of Quantity/Timing (ORC-7).
    */
-  public NULLDT[] getQuantityTiming() {
-    NULLDT[] retVal = this.getTypedField(7, new NULLDT[0]);
+  public TQ[] getQuantityTiming() {
+    TQ[] retVal = this.getTypedField(7, new TQ[0]);
     return retVal;
   }
 
@@ -265,8 +266,8 @@ public class ORC extends AbstractSegment {
   /**
    * Returns all repetitions of Quantity/Timing (ORC-7).
    */
-  public NULLDT[] getOrc7_QuantityTiming() {
-    NULLDT[] retVal = this.getTypedField(7, new NULLDT[0]);
+  public TQ[] getOrc7_QuantityTiming() {
+    TQ[] retVal = this.getTypedField(7, new TQ[0]);
     return retVal;
   }
 
@@ -287,8 +288,8 @@ public class ORC extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public NULLDT getQuantityTiming(int rep) {
-    NULLDT retVal = this.getTypedField(7, rep);
+  public TQ getQuantityTiming(int rep) {
+    TQ retVal = this.getTypedField(7, rep);
     return retVal;
   }
 
@@ -298,8 +299,8 @@ public class ORC extends AbstractSegment {
    *
    * @param rep The repetition index (0-indexed)
    */
-  public NULLDT getOrc7_QuantityTiming(int rep) {
-    NULLDT retVal = this.getTypedField(7, rep);
+  public TQ getOrc7_QuantityTiming(int rep) {
+    TQ retVal = this.getTypedField(7, rep);
     return retVal;
   }
 
@@ -320,8 +321,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public NULLDT insertQuantityTiming(int rep) throws HL7Exception {
-    return (NULLDT) super.insertRepetition(7, rep);
+  public TQ insertQuantityTiming(int rep) throws HL7Exception {
+    return (TQ) super.insertRepetition(7, rep);
   }
 
 
@@ -332,8 +333,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public NULLDT insertOrc7_QuantityTiming(int rep) throws HL7Exception {
-    return (NULLDT) super.insertRepetition(7, rep);
+  public TQ insertOrc7_QuantityTiming(int rep) throws HL7Exception {
+    return (TQ) super.insertRepetition(7, rep);
   }
 
 
@@ -344,8 +345,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public NULLDT removeQuantityTiming(int rep) throws HL7Exception {
-    return (NULLDT) super.removeRepetition(7, rep);
+  public TQ removeQuantityTiming(int rep) throws HL7Exception {
+    return (TQ) super.removeRepetition(7, rep);
   }
 
 
@@ -356,8 +357,8 @@ public class ORC extends AbstractSegment {
    * @param rep The repetition index (0-indexed)
    * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
    */
-  public NULLDT removeOrc7_QuantityTiming(int rep) throws HL7Exception {
-    return (NULLDT) super.removeRepetition(7, rep);
+  public TQ removeOrc7_QuantityTiming(int rep) throws HL7Exception {
+    return (TQ) super.removeRepetition(7, rep);
   }
 
 
@@ -1871,7 +1872,7 @@ public class ORC extends AbstractSegment {
       case 5:
         return new ID(getMessage(), Integer.valueOf(121));
       case 6:
-        return new NULLDT(getMessage());
+        return new TQ(getMessage());
       case 7:
         return new EIP(getMessage());
       case 8:
