@@ -1,5 +1,0 @@
-# Releases
-
-## Release Versioning
-
-## Deployments
