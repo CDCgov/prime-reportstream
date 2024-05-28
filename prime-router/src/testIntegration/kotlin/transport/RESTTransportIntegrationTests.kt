@@ -154,12 +154,14 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     private val transportType = RESTTransportType(
         "mock-api",
         "mock-tokenUrl",
+        "",
         null,
         headers = mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
     )
     private val flexionRestTransportType = RESTTransportType(
         "v1/etor/orders",
         "v1/auth/token",
+        "",
         "two-legged",
         null,
         mapOf("mock-p1" to "value-p1", "mock-p2" to "value-p2"),
@@ -208,6 +210,8 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         4,
         "",
         "",
+        null,
+        null,
         null,
         null,
         null,
@@ -593,21 +597,12 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
     private val natusRestTransportTypeLive = RESTTransportType(
         "https://api.neometrics.com/natusAPI/api/v2/HL7",
         "https://api.neometrics.com/natusAPI/api/v2/AUTH/Login",
+        "",
         authHeaders = mapOf(
             "ExpectSuccess" to "true",
-            "Content-Type" to "application/json",
-            "Content-Length" to "108",
-            "Subscription" to "23edf66e1fe14685bb9dfa2cbb14eb3b",
-            "Host" to "api.neometrics.com",
-            "Authorization-Type" to "username/password"
         ),
         headers = mapOf(
             "Content-Length" to "<calculated when request is sent>",
-            "Content-Type" to "multipart/form-data",
-            "Key" to "files",
-            "File-Name" to "cdc-up-reportId-withdate.hl7",
-            "Subscription" to "23edf66e1fe14685bb9dfa2cbb14eb3b",
-            "Host" to "api.neometrics.com"
         )
     )
 
@@ -641,6 +636,47 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
                 mockRestTransport.getAuthTokenWithUserPass(natusRestTransportTypeLive, any(), any(), any())
             }
         }
+        assertThat(retryItems).isNull()
+    }
+
+    private val natusRestTransportTypeLiveEncrypt = RESTTransportType(
+        "mock-reportUtl",
+        "mock-authUrl",
+        "mock-GetEncryptionKeyUrl",
+        headers = mapOf(
+            "Content-Length" to "<calculated when request is sent>",
+        )
+    )
+
+    @Test
+    fun `test encryption with transport for Natus`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
+
+        // Given:
+        //      lookupDefaultCredential returns mock UserPassCredential object to allow
+        //      the getAuthTokenWithUserPass() to be called.
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserPassCredential(
+                "test-user",
+                "test-apikey"
+            )
+        )
+
+        every { runBlocking { mockRestTransport.getEncryptionKey(any(), any(), any()) } }.returns(
+            """{"status": "Success", 
+                        "aesKey": "BWHh9VPSzgjxwDeB52zFkSGQONBoOUqujMjsqzqur2I=", 
+                        "aesIV": "RTVxM0kyNkp0cDNOVExVRg=="}
+            """
+        )
+
+        // When:
+        //      RESTTransport is called WITH transport.parameters empty
+        val retryItems = mockRestTransport.send(
+            natusRestTransportTypeLiveEncrypt, header, reportId, null,
+            context, actionHistory
+        )
+
         assertThat(retryItems).isNull()
     }
 
@@ -727,18 +763,14 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
     }
 
     private var okRestTransportTypeLive = RESTTransportType(
-        "http://localhost:3001/report",
-        "http://localhost:3001/token",
+        "mock-report",
+        "mock-token",
         authHeaders = mapOf(
             "ExpectSuccess" to "true",
             "Content-Type" to "application/json",
-            "Authorization-Type" to "email/password"
         ),
         headers = mapOf(
             "RecordId" to "header.reportFile.reportId",
-            "Content-Length" to "<calculated when request is sent>",
-            "Content-Type" to "text/plain",
-            "BearerToken" to "",
         )
     )
 

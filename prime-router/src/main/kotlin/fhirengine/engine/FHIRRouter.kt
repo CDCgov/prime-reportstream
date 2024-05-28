@@ -64,64 +64,10 @@ class FHIRRouter(
     azureEventService: AzureEventService = AzureEventServiceImpl(),
     reportService: ReportService = ReportService(),
 ) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
-
-    /**
-     * The name of the lookup table to load the shorthand replacement key/value pairs from
-     */
-    private val fhirPathFilterShorthandTableName = "fhirpath_filter_shorthand"
-
-    /**
-     * The name of the column in the shorthand replacement lookup table that will be used as the key.
-     */
-    private val fhirPathFilterShorthandTableKeyColumnName = "variable"
-
-    /**
-     * The name of the column in the shorthand replacement lookup table that will be used as the value.
-     */
-    private val fhirPathFilterShorthandTableValueColumnName = "fhirPath"
-
-    /**
-     * Lookup table `fhirpath_filter_shorthand` containing all the shorthand fhirpath replacements for filtering.
-     */
-    private val shorthandLookupTable by lazy { loadFhirPathShorthandLookupTable() }
-
     /**
      * Adds logs for reports that pass through various methods in the FHIRRouter
      */
     private var actionLogger: ActionLogger? = null
-
-    /**
-     * Load the fhirpath_filter_shorthand lookup table into a map if it can be found and has the expected columns,
-     * otherwise log warnings and return an empty lookup table with the correct columns. This is valid since having
-     * a populated lookup table is not required to run the universal pipeline routing
-     *
-     * @returns Map containing all the values in the fhirpath_filter_shorthand lookup table. Empty map if the
-     * lookup table was not found, or it does not contain the expected columns. If an empty map is returned, a
-     * warning indicating why will be logged.
-     */
-    internal fun loadFhirPathShorthandLookupTable(): MutableMap<String, String> {
-        val lookup = metadata.findLookupTable(fhirPathFilterShorthandTableName)
-        // log a warning and return an empty table if either lookup table is missing or has incorrect columns
-        return if (lookup != null &&
-            lookup.hasColumn(fhirPathFilterShorthandTableKeyColumnName) &&
-            lookup.hasColumn(fhirPathFilterShorthandTableValueColumnName)
-        ) {
-            lookup.table.associate {
-                it.getString(fhirPathFilterShorthandTableKeyColumnName) to
-                    it.getString(fhirPathFilterShorthandTableValueColumnName)
-            }.toMutableMap()
-        } else {
-            if (lookup == null) {
-                logger.warn("Unable to find $fhirPathFilterShorthandTableName lookup table")
-            } else {
-                logger.warn(
-                    "$fhirPathFilterShorthandTableName does not contain " +
-                        "expected columns 'variable' and 'fhirPath'"
-                )
-            }
-            emptyMap<String, String>().toMutableMap()
-        }
-    }
 
     /**
      * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
@@ -458,7 +404,7 @@ class FHIRRouter(
      * that specific [filterType].
      * @param filters Filters that will be evaluated
      * @param bundle FHIR Bundle that will be evaluated
-     * @param report Report object passed for logging purposes
+     * @param reportId Report ID passed for logging purposes
      * @param receiver Receiver of the report passed for logging purposes
      * @param filterType Type of filter passed for logging purposes
      * @param defaultResponse Response returned if the filter is null or empty
@@ -626,7 +572,7 @@ class FHIRRouter(
      * "route" step for a [receiver], tracking the [filterType] and tying the results to a [receiver] and [bundle].
      * @param filterName Name of evaluated filter
      * @param bundle FHIR Bundle that was evaluated
-     * @param report Report object passed for logging purposes
+     * @param reportId Report ID passed for logging purposes
      * @param receiver Receiver of the report
      * @param filterType Type of filter used
      * @param focusResource Starting point for the evaluation, used for logging

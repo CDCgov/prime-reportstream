@@ -158,21 +158,77 @@ class CustomTranslationFunctionsTest {
             config = HL7TranslationConfig(
                 hl7Configuration = UnitTestUtils.createConfig(
                     truncateHDNamespaceIds = true,
-                    truncateHl7Fields = "MSH-4-1,MSH-3-1",
+                    truncateHl7Fields = "MSH-4-1, ORC-12-1, OBX-15-2",
                 ),
                 null
             )
         )
 
-        val inputAndExpected = mapOf(
+        val msh4InputAndExpected = mapOf(
             "short" to "short",
             "Test & Value ~ Text ^ String" to "Test & Value ~ T",
         )
 
-        inputAndExpected.forEach { (input, expected) ->
+        val orc12InputAndExpected = mapOf(
+            "short" to "short",
+            "Test value test value" to "Test value test",
+        )
+
+        val obx15InputAndExpected = mapOf(
+            "short" to "short",
+            "Test value test value longer Test value test value longer Test value test value longer" +
+                "Test value test value longer Test value test value longer Test value test value longer" +
+                "Test value test value Test TRUNCATE THIS"
+            to
+            "Test value test value longer Test value test value longer Test value test value longer" +
+                "Test value test value longer Test value test value longer Test value test value longer" +
+                "Test value test value Test"
+        )
+
+        msh4InputAndExpected.forEach { (input, expected) ->
             val actual = translationFunctions.maybeTruncateHL7Field(
                 input,
                 "/PATIENT_RESULT/PATIENT/MSH-4-1",
+                emptyTerser,
+                customContext
+            )
+            assertThat(actual).isEqualTo(expected)
+        }
+
+        orc12InputAndExpected.forEach { (input, expected) ->
+            val actual = translationFunctions.maybeTruncateHL7Field(
+                input,
+                "/PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/ORC-12(0)-1",
+                emptyTerser,
+                customContext
+            )
+            assertThat(actual).isEqualTo(expected)
+        }
+
+        orc12InputAndExpected.forEach { (input, expected) ->
+            val actual = translationFunctions.maybeTruncateHL7Field(
+                input,
+                "/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-1",
+                emptyTerser,
+                customContext
+            )
+            assertThat(actual).isEqualTo(expected)
+        }
+
+        obx15InputAndExpected.forEach { (input, expected) ->
+            val actual = translationFunctions.maybeTruncateHL7Field(
+                input,
+                "/PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/OBSERVATION(0)/OBX-15(0)-2",
+                emptyTerser,
+                customContext
+            )
+            assertThat(actual).isEqualTo(expected)
+        }
+
+        obx15InputAndExpected.forEach { (input, expected) ->
+            val actual = translationFunctions.maybeTruncateHL7Field(
+                input,
+                "/PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/OBSERVATION(0)/OBX-15-2",
                 emptyTerser,
                 customContext
             )
@@ -196,10 +252,25 @@ class CustomTranslationFunctionsTest {
             "Test & Value ~ Text ^ String" to "Test & Value ~ Text ^ String",
         )
 
+        val obr16InputAndExpected = mapOf(
+            "short" to "short",
+            "Test value test value do not truncate" to "Test value test value do not truncate",
+        )
+
         inputAndExpected.forEach { (input, expected) ->
             val actual = translationFunctions.maybeTruncateHL7Field(
                 input,
                 "/PATIENT_RESULT/PATIENT/MSH-4-1",
+                emptyTerser,
+                customContext
+            )
+            assertThat(actual).isEqualTo(expected)
+        }
+
+        obr16InputAndExpected.forEach { (input, expected) ->
+            val actual = translationFunctions.maybeTruncateHL7Field(
+                input,
+                "/PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/OBR-16(0)-1",
                 emptyTerser,
                 customContext
             )

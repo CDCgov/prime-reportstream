@@ -39,9 +39,7 @@ describe("MessageReceivers component", () => {
         expect(screen.getByText(/Service/)).toBeInTheDocument();
         expect(screen.getByText("elr")).toBeInTheDocument();
         expect(screen.getByText("Date")).toBeInTheDocument();
-        expect(
-            screen.getByText(/09\/28\/2022, 07:55:12 PM/),
-        ).toBeInTheDocument();
+        expect(screen.getByText(/9\/28\/2022, 7:55:12 PM/)).toBeInTheDocument();
         expect(screen.getByText(/Report Id/)).toBeInTheDocument();
         expect(
             screen.getByText(/578eae4e-b24d-45aa-bc5c-4d96a0bfef96/),

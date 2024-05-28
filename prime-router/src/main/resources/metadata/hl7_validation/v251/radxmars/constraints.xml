@@ -1,50 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ConformanceContext xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                    UUID="b9c1dbf4-3175-45b2-8d0a-dd9a4b4952db17089524134971708952415901"
+                    UUID="2b28be0d-7721-461e-aa5e-d248c0ef75bf17150091142771715009115918"
                     xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/Jungyubw/NIST_healthcare_hl7_v2_profile_schema/master/Schema/NIST%20Validation%20Schema/ConformanceContext.xsd">
    <MetaData Date="No Date Info" Name="RADx MARS"
              OrgName="Datapult, an APHL company, in partnership with NIH NIBIB"
              Version="2.5.1"/>
    <Predicates>
       <Datatype>
-         <ByID ID="XTN_ORC-23">
-            <Predicate FalseUsage="X" Target="4[1]" TrueUsage="RE">
-               <Description>If  XTN.7 (Local Number)  is not valued </Description>
-               <Condition>
-                  <NOT>
-                     <Presence Path="7[1]"/>
-                  </NOT>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="X" Target="5[1]" TrueUsage="O">
-               <Description>If  XTN.7 (Local Number)  is valued </Description>
-               <Condition>
-                  <Presence Path="7[1]"/>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="X" Target="6[1]" TrueUsage="RE">
-               <Description>If  XTN.4 (Email Address)  is not valued </Description>
-               <Condition>
-                  <NOT>
-                     <Presence Path="4[1]"/>
-                  </NOT>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="X" Target="7[1]" TrueUsage="RE">
-               <Description>If  XTN.4 (Email Address)  is not valued </Description>
-               <Condition>
-                  <NOT>
-                     <Presence Path="4[1]"/>
-                  </NOT>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="X" Target="8[1]" TrueUsage="O">
-               <Description>If  XTN.7 (Local Number)  is valued </Description>
-               <Condition>
-                  <Presence Path="7[1]"/>
-               </Condition>
-            </Predicate>
-         </ByID>
          <ByID ID="XCN_NIH">
             <Predicate FalseUsage="X" Target="13[1]" TrueUsage="R">
                <Description>If  XCN.1 (ID Number)  is valued </Description>
@@ -59,25 +21,161 @@
                </Condition>
             </Predicate>
          </ByID>
-         <ByID ID="XON_ORC-21">
-            <Predicate FalseUsage="X" Target="6[1]" TrueUsage="R">
-               <Description>If  XON.10 (Organization Identifier)  is valued </Description>
+         <ByID ID="XAD_OBX-24">
+            <Predicate FalseUsage="RE" Target="4[1]" TrueUsage="X">
+               <Description>If  XAD.3 (City)  contains the value 'Fake City'. </Description>
                <Condition>
-                  <Presence Path="10[1]"/>
+                  <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1]" Text="Fake City"/>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="RE" Target="5[1]" TrueUsage="X">
+               <Description>If  XAD.3 (City)  contains the value 'Fake City'. </Description>
+               <Condition>
+                  <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1]" Text="Fake City"/>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="RE" Target="9[1]" TrueUsage="X">
+               <Description>If  XAD.3 (City)  contains the value 'Fake City'. </Description>
+               <Condition>
+                  <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1]" Text="Fake City"/>
+               </Condition>
+            </Predicate>
+         </ByID>
+         <ByID ID="CWE_OBX-17">
+            <Predicate FalseUsage="X" Target="2[1]" TrueUsage="O">
+               <Description>If  CWE.1 (Identifier)  is valued </Description>
+               <Condition>
+                  <Presence Path="1[1]"/>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="X" Target="3[1]" TrueUsage="RE">
+               <Description>If  CWE.1 (Identifier)  is valued </Description>
+               <Condition>
+                  <Presence Path="1[1]"/>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="X" Target="7[1]" TrueUsage="RE">
+               <Description>If  CWE.1 (Identifier)  is valued </Description>
+               <Condition>
+                  <Presence Path="1[1]"/>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="O" Target="9[1]" TrueUsage="R">
+               <Description>If (  CWE.1 (Identifier)  is not valued  AND  CWE.4 (Alternate Identifier)  is not valued  )</Description>
+               <Condition>
+                  <AND>
+                     <NOT>
+                        <Presence Path="1[1]"/>
+                     </NOT>
+                     <NOT>
+                        <Presence Path="4[1]"/>
+                     </NOT>
+                  </AND>
+               </Condition>
+            </Predicate>
+         </ByID>
+         <ByID ID="CWE_NIH3">
+            <Predicate FalseUsage="X" Target="2[1]" TrueUsage="RE">
+               <Description>If  CWE.1 (Identifier)  is valued </Description>
+               <Condition>
+                  <Presence Path="1[1]"/>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="X" Target="3[1]" TrueUsage="RE">
+               <Description>If  CWE.1 (Identifier)  is valued </Description>
+               <Condition>
+                  <Presence Path="1[1]"/>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="X" Target="7[1]" TrueUsage="RE">
+               <Description>If  CWE.1 (Identifier)  is valued </Description>
+               <Condition>
+                  <Presence Path="1[1]"/>
+               </Condition>
+            </Predicate>
+         </ByID>
+         <ByID ID="XCN_NIH2">
+            <Predicate FalseUsage="X" Target="13[1]" TrueUsage="RE">
+               <Description>If  XCN.1 (ID Number)  is valued </Description>
+               <Condition>
+                  <Presence Path="1[1]"/>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="X" Target="2[1]" TrueUsage="RE">
+               <Description>If  XCN.1 (ID Number)  is valued </Description>
+               <Condition>
+                  <Presence Path="1[1]"/>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="X" Target="9[1]" TrueUsage="RE">
+               <Description>If  XCN.1 (ID Number)  is valued </Description>
+               <Condition>
+                  <Presence Path="1[1]"/>
+               </Condition>
+            </Predicate>
+         </ByID>
+         <ByID ID="CWE_NIH2">
+            <Predicate FalseUsage="X" Target="2[1]" TrueUsage="RE">
+               <Description>If  CWE.1 (Identifier)  is valued </Description>
+               <Condition>
+                  <Presence Path="1[1]"/>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="X" Target="3[1]" TrueUsage="RE">
+               <Description>If  CWE.1 (Identifier)  is valued </Description>
+               <Condition>
+                  <Presence Path="1[1]"/>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="X" Target="7[1]" TrueUsage="RE">
+               <Description>If  CWE.1 (Identifier)  is valued </Description>
+               <Condition>
+                  <Presence Path="1[1]"/>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="O" Target="9[1]" TrueUsage="R">
+               <Description>If (  CWE.1 (Identifier)  is not valued  AND  CWE.4 (Alternate Identifier)  is not valued  )</Description>
+               <Condition>
+                  <AND>
+                     <NOT>
+                        <Presence Path="1[1]"/>
+                     </NOT>
+                     <NOT>
+                        <Presence Path="4[1]"/>
+                     </NOT>
+                  </AND>
+               </Condition>
+            </Predicate>
+         </ByID>
+         <ByID ID="XTN_NIH">
+            <Predicate FalseUsage="X" Target="4[1]" TrueUsage="R">
+               <Description>If  XTN.3 (Telecommunication Equipment Type)  contain the value 'Internet'. </Description>
+               <Condition>
+                  <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1]" Text="Internet"/>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="X" Target="5[1]" TrueUsage="O">
+               <Description>If  XTN.7 (Local Number)  is valued </Description>
+               <Condition>
+                  <Presence Path="7[1]"/>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="X" Target="6[1]" TrueUsage="R">
+               <Description>If  XTN.3 (Telecommunication Equipment Type)  contain the value 'PH'. </Description>
+               <Condition>
+                  <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1]" Text="PH"/>
                </Condition>
             </Predicate>
             <Predicate FalseUsage="X" Target="7[1]" TrueUsage="R">
-               <Description>If  XON.10 (Organization Identifier)  is valued </Description>
+               <Description>If  XTN.3 (Telecommunication Equipment Type)  contain the value 'PH'. </Description>
                <Condition>
-                  <Presence Path="10[1]"/>
+                  <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1]" Text="PH"/>
                </Condition>
             </Predicate>
-            <Predicate FalseUsage="X" Target="10[1]" TrueUsage="R">
-               <Description>If  XON.1 (Organization Name)  is not valued </Description>
+            <Predicate FalseUsage="X" Target="8[1]" TrueUsage="O">
+               <Description>If  XTN.7 (Local Number)  is valued </Description>
                <Condition>
-                  <NOT>
-                     <Presence Path="1[1]"/>
-                  </NOT>
+                  <Presence Path="7[1]"/>
                </Condition>
             </Predicate>
          </ByID>
@@ -133,36 +231,63 @@
                </Condition>
             </Predicate>
          </ByID>
-         <ByID ID="CWE_NIH4">
-            <Predicate FalseUsage="X" Target="2[1]" TrueUsage="O">
-               <Description>If  CWE.1 (Identifier)  is valued </Description>
+         <ByID ID="XON_ORC-21">
+            <Predicate FalseUsage="X" Target="6[1]" TrueUsage="R">
+               <Description>If  XON.10 (Organization Identifier)  is valued </Description>
                <Condition>
-                  <Presence Path="1[1]"/>
+                  <Presence Path="10[1]"/>
                </Condition>
             </Predicate>
-            <Predicate FalseUsage="X" Target="3[1]" TrueUsage="RE">
-               <Description>If  CWE.1 (Identifier)  is valued </Description>
+            <Predicate FalseUsage="X" Target="7[1]" TrueUsage="R">
+               <Description>If  XON.10 (Organization Identifier)  is valued </Description>
                <Condition>
-                  <Presence Path="1[1]"/>
+                  <Presence Path="10[1]"/>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="X" Target="10[1]" TrueUsage="R">
+               <Description>If  XON.1 (Organization Name)  is not valued </Description>
+               <Condition>
+                  <NOT>
+                     <Presence Path="1[1]"/>
+                  </NOT>
+               </Condition>
+            </Predicate>
+         </ByID>
+         <ByID ID="XTN_ORC-23">
+            <Predicate FalseUsage="X" Target="4[1]" TrueUsage="RE">
+               <Description>If  XTN.7 (Local Number)  is not valued </Description>
+               <Condition>
+                  <NOT>
+                     <Presence Path="7[1]"/>
+                  </NOT>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="X" Target="5[1]" TrueUsage="O">
+               <Description>If  XTN.7 (Local Number)  is valued </Description>
+               <Condition>
+                  <Presence Path="7[1]"/>
+               </Condition>
+            </Predicate>
+            <Predicate FalseUsage="X" Target="6[1]" TrueUsage="RE">
+               <Description>If  XTN.4 (Email Address)  is not valued </Description>
+               <Condition>
+                  <NOT>
+                     <Presence Path="4[1]"/>
+                  </NOT>
                </Condition>
             </Predicate>
             <Predicate FalseUsage="X" Target="7[1]" TrueUsage="RE">
-               <Description>If  CWE.1 (Identifier)  is valued </Description>
+               <Description>If  XTN.4 (Email Address)  is not valued </Description>
                <Condition>
-                  <Presence Path="1[1]"/>
+                  <NOT>
+                     <Presence Path="4[1]"/>
+                  </NOT>
                </Condition>
             </Predicate>
-            <Predicate FalseUsage="O" Target="9[1]" TrueUsage="R">
-               <Description>If (  CWE.1 (Identifier)  is not valued  AND  CWE.4 (Alternate Identifier)  is not valued  )</Description>
+            <Predicate FalseUsage="X" Target="8[1]" TrueUsage="O">
+               <Description>If  XTN.7 (Local Number)  is valued </Description>
                <Condition>
-                  <AND>
-                     <NOT>
-                        <Presence Path="1[1]"/>
-                     </NOT>
-                     <NOT>
-                        <Presence Path="4[1]"/>
-                     </NOT>
-                  </AND>
+                  <Presence Path="7[1]"/>
                </Condition>
             </Predicate>
          </ByID>
@@ -199,60 +324,7 @@
                </Condition>
             </Predicate>
          </ByID>
-         <ByID ID="CWE_NIH2">
-            <Predicate FalseUsage="X" Target="2[1]" TrueUsage="RE">
-               <Description>If  CWE.1 (Identifier)  is valued </Description>
-               <Condition>
-                  <Presence Path="1[1]"/>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="X" Target="3[1]" TrueUsage="RE">
-               <Description>If  CWE.1 (Identifier)  is valued </Description>
-               <Condition>
-                  <Presence Path="1[1]"/>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="X" Target="7[1]" TrueUsage="RE">
-               <Description>If  CWE.1 (Identifier)  is valued </Description>
-               <Condition>
-                  <Presence Path="1[1]"/>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="O" Target="9[1]" TrueUsage="R">
-               <Description>If (  CWE.1 (Identifier)  is not valued  AND  CWE.4 (Alternate Identifier)  is not valued  )</Description>
-               <Condition>
-                  <AND>
-                     <NOT>
-                        <Presence Path="1[1]"/>
-                     </NOT>
-                     <NOT>
-                        <Presence Path="4[1]"/>
-                     </NOT>
-                  </AND>
-               </Condition>
-            </Predicate>
-         </ByID>
-         <ByID ID="CWE_NIH3">
-            <Predicate FalseUsage="X" Target="2[1]" TrueUsage="RE">
-               <Description>If  CWE.1 (Identifier)  is valued </Description>
-               <Condition>
-                  <Presence Path="1[1]"/>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="X" Target="3[1]" TrueUsage="RE">
-               <Description>If  CWE.1 (Identifier)  is valued </Description>
-               <Condition>
-                  <Presence Path="1[1]"/>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="X" Target="7[1]" TrueUsage="RE">
-               <Description>If  CWE.1 (Identifier)  is valued </Description>
-               <Condition>
-                  <Presence Path="1[1]"/>
-               </Condition>
-            </Predicate>
-         </ByID>
-         <ByID ID="CWE_OBX-17">
+         <ByID ID="CWE_NIH4">
             <Predicate FalseUsage="X" Target="2[1]" TrueUsage="O">
                <Description>If  CWE.1 (Identifier)  is valued </Description>
                <Condition>
@@ -285,80 +357,16 @@
                </Condition>
             </Predicate>
          </ByID>
-         <ByID ID="XCN_NIH2">
-            <Predicate FalseUsage="X" Target="13[1]" TrueUsage="RE">
-               <Description>If  XCN.1 (ID Number)  is valued </Description>
-               <Condition>
-                  <Presence Path="1[1]"/>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="X" Target="2[1]" TrueUsage="RE">
-               <Description>If  XCN.1 (ID Number)  is valued </Description>
-               <Condition>
-                  <Presence Path="1[1]"/>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="X" Target="9[1]" TrueUsage="RE">
-               <Description>If  XCN.1 (ID Number)  is valued </Description>
-               <Condition>
-                  <Presence Path="1[1]"/>
-               </Condition>
-            </Predicate>
-         </ByID>
-         <ByID ID="XTN_NIH">
-            <Predicate FalseUsage="X" Target="4[1]" TrueUsage="R">
-               <Description>If  XTN.3 (Telecommunication Equipment Type)  contain the value 'Internet'. </Description>
-               <Condition>
-                  <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1]" Text="Internet"/>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="X" Target="5[1]" TrueUsage="O">
-               <Description>If  XTN.7 (Local Number)  is valued </Description>
-               <Condition>
-                  <Presence Path="7[1]"/>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="X" Target="6[1]" TrueUsage="R">
-               <Description>If  XTN.3 (Telecommunication Equipment Type)  contain the value 'PH'. </Description>
-               <Condition>
-                  <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1]" Text="PH"/>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="X" Target="7[1]" TrueUsage="R">
-               <Description>If  XTN.3 (Telecommunication Equipment Type)  contain the value 'PH'. </Description>
-               <Condition>
-                  <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1]" Text="PH"/>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="X" Target="8[1]" TrueUsage="O">
-               <Description>If  XTN.7 (Local Number)  is valued </Description>
-               <Condition>
-                  <Presence Path="7[1]"/>
-               </Condition>
-            </Predicate>
-         </ByID>
-         <ByID ID="XAD_OBX-24">
-            <Predicate FalseUsage="RE" Target="4[1]" TrueUsage="X">
-               <Description>If  XAD.3 (City)  contains the value 'Fake City'. </Description>
-               <Condition>
-                  <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1]" Text="Fake City"/>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="RE" Target="5[1]" TrueUsage="X">
-               <Description>If  XAD.3 (City)  contains the value 'Fake City'. </Description>
-               <Condition>
-                  <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1]" Text="Fake City"/>
-               </Condition>
-            </Predicate>
-            <Predicate FalseUsage="RE" Target="9[1]" TrueUsage="X">
-               <Description>If  XAD.3 (City)  contains the value 'Fake City'. </Description>
-               <Condition>
-                  <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1]" Text="Fake City"/>
-               </Condition>
-            </Predicate>
-         </ByID>
       </Datatype>
       <Segment>
+         <ByID ID="ORC_NIH">
+            <Predicate FalseUsage="O" Target="24[1]" TrueUsage="RE">
+               <Description>If The first occurrence of ORC-12.1 (ID Number)  is valued </Description>
+               <Condition>
+                  <Presence Path="12[1].1[1]"/>
+               </Condition>
+            </Predicate>
+         </ByID>
          <ByID ID="OBX_NIH_2-8-1">
             <Predicate FalseUsage="X" Target="2[1]" TrueUsage="R">
                <Description>If  OBX-5 (Observation Value)  is valued </Description>
@@ -481,14 +489,6 @@
                </Condition>
             </Predicate>
          </ByID>
-         <ByID ID="ORC_NIH">
-            <Predicate FalseUsage="O" Target="24[1]" TrueUsage="RE">
-               <Description>If The first occurrence of ORC-12.1 (ID Number)  is valued </Description>
-               <Condition>
-                  <Presence Path="12[1].1[1]"/>
-               </Condition>
-            </Predicate>
-         </ByID>
       </Segment>
       <Group>
          <ByID ID="6494460e8b87bc0007492d42-3.2.6">
@@ -514,15 +514,6 @@
                </Assertion>
             </Constraint>
          </ByID>
-         <ByID ID="DTM">
-            <Constraint ID="DTM_DateTimeConstraint">
-               <Description>The value SHALL follow the Date/Time pattern 'YYYY[MM[DD[HH[MM[SS[.S[S[S[S]]]]]]]]][+/-ZZZZ]'.</Description>
-               <Assertion>
-                  <Format Path="."
-                          Regex="^(\d{4}|\d{6}|\d{8}|\d{10}|\d{12}|\d{14}|\d{14}\.\d|\d{14}\.\d{2}|\d{14}\.\d{3}|\d{14}\.\d{4})([+-]\d{4})?$"/>
-               </Assertion>
-            </Constraint>
-         </ByID>
          <ByID ID="TM">
             <Constraint ID="TM_DateTimeConstraint">
                <Description>The value SHALL follow the Date/Time pattern 'HH[MM[SS[.S[S[S[S]]]]]][+/-ZZZZ]'.</Description>
@@ -532,105 +523,107 @@
                </Assertion>
             </Constraint>
          </ByID>
+         <ByID ID="DTM">
+            <Constraint ID="DTM_DateTimeConstraint">
+               <Description>The value SHALL follow the Date/Time pattern 'YYYY[MM[DD[HH[MM[SS[.S[S[S[S]]]]]]]]][+/-ZZZZ]'.</Description>
+               <Assertion>
+                  <Format Path="."
+                          Regex="^(\d{4}|\d{6}|\d{8}|\d{10}|\d{12}|\d{14}|\d{14}\.\d|\d{14}\.\d{2}|\d{14}\.\d{3}|\d{14}\.\d{4})([+-]\d{4})?$"/>
+               </Assertion>
+            </Constraint>
+         </ByID>
       </Datatype>
       <Segment>
-         <ByID ID="OBX_NIH_2-8-1">
-            <Constraint ID="OBX-5 List for 94559-2" Strength="SHOULD">
-               <Description>If  OBX-3.1 (Identifier)  contain the value '94559-2'.  then  OBX-5 (Observation Value) should contain one of the values in the list: ['260385009','10828004','455371000124106','125157007']. </Description>
+         <ByID ID="PID_NIH">
+            <Constraint ID="PID-1" Strength="SHALL">
+               <Description> PID-1 (Set ID - PID) shall contain the value '1'. </Description>
+               <Assertion>
+                  <PlainText IgnoreCase="false" NotPresentBehavior="PASS" Path="1[1]" Text="1"/>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="PID-11.4" Strength="SHOULD">
+               <Description>If The first occurrence of PID-11.4 (State or Province)  is valued  then the first occurrence of PID-11.4 (State or Province) should match the regular expression '^[A-Z]{2}$'. </Description>
                <Assertion>
                   <IMPLY>
-                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1].1[1]" Text="94559-2"/>
-                     <StringList CSV="260385009,10828004,455371000124106,125157007" IgnoreCase="false"
+                     <Presence Path="11[1].4[1]"/>
+                     <Format NotPresentBehavior="FAIL" Path="11[1].4[1]" Regex="^[A-Z]{2}$"/>
+                  </IMPLY>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="PID-10.3" Strength="SHOULD">
+               <Description>If The first occurrence of PID-10.1 (Identifier)  is valued  then the first occurrence of PID-10.3 (Name of Coding System) should contain the value 'HL70005'. </Description>
+               <Assertion>
+                  <IMPLY>
+                     <Presence Path="10[1].1[1]"/>
+                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="10[1].3[1]" Text="HL70005"/>
+                  </IMPLY>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="PID-11.5" Strength="SHALL">
+               <Description>All occurrences of PID-11.5 (Zip or Postal Code) shall match the regular expression '^\d{5}$|^\d{5}-\d{4}$'. </Description>
+               <Assertion>
+                  <Format AtLeastOnce="false" NotPresentBehavior="PASS" Path="11[*].5[1]"
+                          Regex="^\d{5}$|^\d{5}-\d{4}$"/>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="PID-10.7" Strength="SHOULD">
+               <Description>If The first occurrence of PID-10.1 (Identifier)  is valued  then the first occurrence of PID-10.7 (Coding System Version ID) should contain the value '2.5.1'. </Description>
+               <Assertion>
+                  <IMPLY>
+                     <Presence Path="10[1].1[1]"/>
+                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="10[1].7[1]" Text="2.5.1"/>
+                  </IMPLY>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="PID-3.4.3" Strength="SHOULD">
+               <Description>All occurrences of PID-3.4.3 (Universal ID Type) should contain the value 'ISO'. </Description>
+               <Assertion>
+                  <PlainText AtLeastOnce="false" IgnoreCase="false" NotPresentBehavior="PASS"
+                             Path="3[*].4[1].3[1]"
+                             Text="ISO"/>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="PID-3.4.2" Strength="SHOULD">
+               <Description>All occurrences of PID-3.4.2 (Universal ID) should be valued with an ISO-compliant OID. </Description>
+               <Assertion>
+                  <Format AtLeastOnce="false" NotPresentBehavior="PASS" Path="3[*].4[1].2[1]"
+                          Regex="[0-2](\.(0|[1-9][0-9]*))*"/>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="PID-13.3" Strength="SHOULD">
+               <Description>If All occurrences of PID-13.3 (Telecommunication Equipment Type)  is valued  then all occurrences of PID-13.3 (Telecommunication Equipment Type) should contain one of the values in the list: ['PH','Internet']. </Description>
+               <Assertion>
+                  <IMPLY>
+                     <Presence Path="13[*].3[1]"/>
+                     <StringList AtLeastOnce="false" CSV="PH,Internet" IgnoreCase="false"
                                  NotPresentBehavior="FAIL"
-                                 Path="5[1]"/>
+                                 Path="13[*].3[1]"/>
                   </IMPLY>
                </Assertion>
             </Constraint>
-            <Constraint ID="OBX-19" Strength="SHALL">
-               <Description>If  OBX-19.1 (Time)  is valued  then  OBX-19.1 (Time) shall match the regular expression '^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$'. </Description>
+            <Constraint ID="PID-3.5" Strength="SHOULD">
+               <Description>All occurrences of PID-3.5 (Identifier Type Code) should contain the value 'PI'. </Description>
                <Assertion>
-                  <IMPLY>
-                     <Presence Path="19[1].1[1]"/>
-                     <Format NotPresentBehavior="FAIL" Path="19[1].1[1]"
-                             Regex="^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$"/>
-                  </IMPLY>
+                  <PlainText AtLeastOnce="false" IgnoreCase="false" NotPresentBehavior="PASS"
+                             Path="3[*].5[1]"
+                             Text="PI"/>
                </Assertion>
             </Constraint>
-            <Constraint ID="OBX-15.1 = OBX-23.10" Strength="SHOULD">
-               <Description> OBX-15.1 (Identifier) should be identical to  OBX-23.10 (Organization Identifier)</Description>
-               <Assertion>
-                  <PathValue IdenticalEquality="true" NotPresentBehavior="PASS" Operator="EQ"
-                             Path1="15[1].1[1]"
-                             Path2="23[1].10[1]"
-                             Truncated="false"/>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="Onset AOE" Strength="SHOULD">
-               <Description>If  OBX-3.1 (Identifier)  contain the value '65222-2'.  then (  OBX-2 (Value Type) should contain the value 'DT'.  AND  OBX-5 (Observation Value) should match the regular expression '^(\d{8})$'.  )</Description>
-               <Assertion>
-                  <IMPLY>
-                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1].1[1]" Text="65222-2"/>
-                     <AND>
-                        <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="2[1]" Text="DT"/>
-                        <Format NotPresentBehavior="FAIL" Path="5[1]" Regex="^(\d{8})$"/>
-                     </AND>
-                  </IMPLY>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="CWE OBX-2" Strength="SHALL">
-               <Description>If  OBX-3.1 (Identifier)  does not contain one of the values in the list: ['35659-2','65222-2'].  then  OBX-2 (Value Type) shall contain the value 'CWE'. </Description>
+            <Constraint ID="PID-5.1" Strength="SHOULD">
+               <Description>If The first occurrence of PID-5 (Patient Name)  is not valued  then the second occurrence of PID-5.7 (Name Type Code) should contain the value 'S'. </Description>
                <Assertion>
                   <IMPLY>
                      <NOT>
-                        <StringList CSV="35659-2,65222-2" IgnoreCase="false" NotPresentBehavior="FAIL"
-                                    Path="3[1].1[1]"/>
+                        <Presence Path="5[1]"/>
                      </NOT>
-                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="2[1]" Text="CWE"/>
+                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="5[2].7[1]" Text="S"/>
                   </IMPLY>
                </Assertion>
             </Constraint>
-            <Constraint ID="Age AOE OBX-6" Strength="SHOULD">
-               <Description>If  OBX-3.1 (Identifier)  contain the value '35659-2'.  then ( (  OBX-6.1 (Identifier) should contain the value 'a'.  AND  OBX-6.2 (Text) should contain the value 'year'.  ) AND (  OBX-6.7 (Coding System Version ID) should contain the value '2.1'.  AND  OBX-6.3 (Name of Coding System) should contain the value 'UCUM'.  ) )</Description>
+            <Constraint ID="PID-7" Strength="SHOULD">
+               <Description> PID-7.1 (Time) should match the regular expression '^\d{8}$'. </Description>
                <Assertion>
-                  <IMPLY>
-                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1].1[1]" Text="35659-2"/>
-                     <AND>
-                        <AND>
-                           <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="6[1].2[1]" Text="year"/>
-                           <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="6[1].1[1]" Text="a"/>
-                        </AND>
-                        <AND>
-                           <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="6[1].3[1]" Text="UCUM"/>
-                           <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="6[1].7[1]" Text="2.1"/>
-                        </AND>
-                     </AND>
-                  </IMPLY>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="Age AOE OBX-2" Strength="SHOULD">
-               <Description>If  OBX-3.1 (Identifier)  contain the value '35659-2'.  then  OBX-2 (Value Type) should contain the value 'NM'. </Description>
-               <Assertion>
-                  <IMPLY>
-                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1].1[1]" Text="35659-2"/>
-                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="2[1]" Text="NM"/>
-                  </IMPLY>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="OBX-3.1" Strength="SHOULD">
-               <Description> OBX-3.1 (Identifier) should contain one of the values in the list: ['100973-7','100974-5','94558-4','94559-2','95209-3','95409-9','95608-6','96986-5','97097-0','35659-2','95419-8','65222-2'] (Case Sensitive). </Description>
-               <Assertion>
-                  <StringList CSV="100973-7,100974-5,94558-4,94559-2,95209-3,95409-9,95608-6,96986-5,97097-0,35659-2,95419-8,65222-2"
-                              IgnoreCase="false"
-                              NotPresentBehavior="PASS"
-                              Path="3[1].1[1]"/>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="OBX-15" Strength="SHOULD">
-               <Description> OBX-15.1 (Identifier) should contain one of the values in the list: ['00Z0000042','00Z0000043','00Z0000015','00Z0000016']. </Description>
-               <Assertion>
-                  <StringList CSV="00Z0000042,00Z0000043,00Z0000015,00Z0000016" IgnoreCase="false"
-                              NotPresentBehavior="PASS"
-                              Path="15[1].1[1]"/>
+                  <Format NotPresentBehavior="PASS" Path="7[1].1[1]" Regex="^\d{8}$"/>
                </Assertion>
             </Constraint>
          </ByID>
@@ -795,7 +788,45 @@
                </Assertion>
             </Constraint>
          </ByID>
-         <ByID ID="OBX_NIH_COCON3-3_2-3_2_6-3_2_6_1_6494460e8b87bc0007492d42_2-8-1">
+         <ByID ID="OBR_NIH">
+            <Constraint ID="OBR-22.1" Strength="SHOULD">
+               <Description> OBR-22.1 (Time) should match the regular expression '^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$'. </Description>
+               <Assertion>
+                  <Format NotPresentBehavior="PASS" Path="22[1].1[1]"
+                          Regex="^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$"/>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="OBR-7.1" Strength="SHOULD">
+               <Description> OBR-7.1 (Time) should match the regular expression '^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})?$'. </Description>
+               <Assertion>
+                  <Format NotPresentBehavior="PASS" Path="7[1].1[1]"
+                          Regex="^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})?$"/>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="OBR-1" Strength="SHALL">
+               <Description> OBR-1 (Set ID - OBR) shall contain the value '1'. </Description>
+               <Assertion>
+                  <PlainText IgnoreCase="false" NotPresentBehavior="PASS" Path="1[1]" Text="1"/>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="OBR-4.1" Strength="SHOULD">
+               <Description> OBR-4.1 (Identifier) should contain one of the values in the list: ['97097-0','94558-4','95409-9','94559-2','95209-3','96986-5']. </Description>
+               <Assertion>
+                  <StringList CSV="97097-0,94558-4,95409-9,94559-2,95209-3,96986-5" IgnoreCase="false"
+                              NotPresentBehavior="PASS"
+                              Path="4[1].1[1]"/>
+               </Assertion>
+            </Constraint>
+         </ByID>
+         <ByID ID="ORC_NIH">
+            <Constraint ID="ORC-1" Strength="SHALL">
+               <Description> ORC-1 (Order Control) shall contain the value 'RE'. </Description>
+               <Assertion>
+                  <PlainText IgnoreCase="false" NotPresentBehavior="PASS" Path="1[1]" Text="RE"/>
+               </Assertion>
+            </Constraint>
+         </ByID>
+         <ByID ID="OBX_NIH_2-8-1">
             <Constraint ID="OBX-5 List for 94559-2" Strength="SHOULD">
                <Description>If  OBX-3.1 (Identifier)  contain the value '94559-2'.  then  OBX-5 (Observation Value) should contain one of the values in the list: ['260385009','10828004','455371000124106','125157007']. </Description>
                <Assertion>
@@ -807,8 +838,8 @@
                   </IMPLY>
                </Assertion>
             </Constraint>
-            <Constraint ID="OBX-19" Strength="SHALL">
-               <Description>If  OBX-19.1 (Time)  is valued  then  OBX-19.1 (Time) shall match the regular expression '^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$'. </Description>
+            <Constraint ID="OBX-19" Strength="SHOULD">
+               <Description>If  OBX-19.1 (Time)  is valued  then  OBX-19.1 (Time) should match the regular expression '^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$'. </Description>
                <Assertion>
                   <IMPLY>
                      <Presence Path="19[1].1[1]"/>
@@ -895,18 +926,122 @@
                </Assertion>
             </Constraint>
          </ByID>
+         <ByID ID="OBX_NIH_COCON3-3_2-3_2_6-3_2_6_1_6494460e8b87bc0007492d42_2-8-1">
+            <Constraint ID="OBX-5 List for 94559-2" Strength="SHOULD">
+               <Description>If  OBX-3.1 (Identifier)  contain the value '94559-2'.  then  OBX-5 (Observation Value) should contain one of the values in the list: ['260385009','10828004','455371000124106','125157007']. </Description>
+               <Assertion>
+                  <IMPLY>
+                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1].1[1]" Text="94559-2"/>
+                     <StringList CSV="260385009,10828004,455371000124106,125157007" IgnoreCase="false"
+                                 NotPresentBehavior="FAIL"
+                                 Path="5[1]"/>
+                  </IMPLY>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="OBX-19" Strength="SHOULD">
+               <Description>If  OBX-19.1 (Time)  is valued  then  OBX-19.1 (Time) should match the regular expression '^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$'. </Description>
+               <Assertion>
+                  <IMPLY>
+                     <Presence Path="19[1].1[1]"/>
+                     <Format NotPresentBehavior="FAIL" Path="19[1].1[1]"
+                             Regex="^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$"/>
+                  </IMPLY>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="OBX-15.1 = OBX-23.10" Strength="SHOULD">
+               <Description> OBX-15.1 (Identifier) should be identical to  OBX-23.10 (Organization Identifier)</Description>
+               <Assertion>
+                  <PathValue IdenticalEquality="true" NotPresentBehavior="PASS" Operator="EQ"
+                             Path1="15[1].1[1]"
+                             Path2="23[1].10[1]"
+                             Truncated="false"/>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="Onset AOE" Strength="SHOULD">
+               <Description>If  OBX-3.1 (Identifier)  contain the value '65222-2'.  then (  OBX-2 (Value Type) should contain the value 'DT'.  AND  OBX-5 (Observation Value) should match the regular expression '^(\d{8})$'.  )</Description>
+               <Assertion>
+                  <IMPLY>
+                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1].1[1]" Text="65222-2"/>
+                     <AND>
+                        <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="2[1]" Text="DT"/>
+                        <Format NotPresentBehavior="FAIL" Path="5[1]" Regex="^(\d{8})$"/>
+                     </AND>
+                  </IMPLY>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="CWE OBX-2" Strength="SHALL">
+               <Description>If  OBX-3.1 (Identifier)  does not contain one of the values in the list: ['35659-2','65222-2'].  then  OBX-2 (Value Type) shall contain the value 'CWE'. </Description>
+               <Assertion>
+                  <IMPLY>
+                     <NOT>
+                        <StringList CSV="35659-2,65222-2" IgnoreCase="false" NotPresentBehavior="FAIL"
+                                    Path="3[1].1[1]"/>
+                     </NOT>
+                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="2[1]" Text="CWE"/>
+                  </IMPLY>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="Age AOE OBX-6" Strength="SHOULD">
+               <Description>If  OBX-3.1 (Identifier)  contain the value '35659-2'.  then ( (  OBX-6.1 (Identifier) should contain the value 'a'.  AND  OBX-6.2 (Text) should contain the value 'year'.  ) AND (  OBX-6.7 (Coding System Version ID) should contain the value '2.1'.  AND  OBX-6.3 (Name of Coding System) should contain the value 'UCUM'.  ) )</Description>
+               <Assertion>
+                  <IMPLY>
+                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1].1[1]" Text="35659-2"/>
+                     <AND>
+                        <AND>
+                           <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="6[1].2[1]" Text="year"/>
+                           <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="6[1].1[1]" Text="a"/>
+                        </AND>
+                        <AND>
+                           <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="6[1].3[1]" Text="UCUM"/>
+                           <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="6[1].7[1]" Text="2.1"/>
+                        </AND>
+                     </AND>
+                  </IMPLY>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="Age AOE OBX-2" Strength="SHOULD">
+               <Description>If  OBX-3.1 (Identifier)  contain the value '35659-2'.  then  OBX-2 (Value Type) should contain the value 'NM'. </Description>
+               <Assertion>
+                  <IMPLY>
+                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="3[1].1[1]" Text="35659-2"/>
+                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="2[1]" Text="NM"/>
+                  </IMPLY>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="OBX-3.1" Strength="SHOULD">
+               <Description> OBX-3.1 (Identifier) should contain one of the values in the list: ['100973-7','100974-5','94558-4','94559-2','95209-3','95409-9','95608-6','96986-5','97097-0','35659-2','95419-8','65222-2'] (Case Sensitive). </Description>
+               <Assertion>
+                  <StringList CSV="100973-7,100974-5,94558-4,94559-2,95209-3,95409-9,95608-6,96986-5,97097-0,35659-2,95419-8,65222-2"
+                              IgnoreCase="false"
+                              NotPresentBehavior="PASS"
+                              Path="3[1].1[1]"/>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="OBX-15" Strength="SHOULD">
+               <Description> OBX-15.1 (Identifier) should contain one of the values in the list: ['00Z0000042','00Z0000043','00Z0000015','00Z0000016']. </Description>
+               <Assertion>
+                  <StringList CSV="00Z0000042,00Z0000043,00Z0000015,00Z0000016" IgnoreCase="false"
+                              NotPresentBehavior="PASS"
+                              Path="15[1].1[1]"/>
+               </Assertion>
+            </Constraint>
+         </ByID>
+         <ByID ID="SFT_NIH">
+            <Constraint ID="SFT-6" Strength="SHOULD">
+               <Description>If  SFT-6.1 (Time)  is valued  then  SFT-6.1 (Time) should match the regular expression '^\d{8}$'. </Description>
+               <Assertion>
+                  <IMPLY>
+                     <Presence Path="6[1].1[1]"/>
+                     <Format NotPresentBehavior="FAIL" Path="6[1].1[1]" Regex="^\d{8}$"/>
+                  </IMPLY>
+               </Assertion>
+            </Constraint>
+         </ByID>
          <ByID ID="SPM_NIH">
             <Constraint ID="SPM-18" Strength="SHOULD">
                <Description> SPM-18.1 (Time) should match the regular expression '^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$'. </Description>
                <Assertion>
                   <Format NotPresentBehavior="PASS" Path="18[1].1[1]"
-                          Regex="^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$"/>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="SPM-17 (Format)" Strength="SHOULD">
-               <Description> SPM-17.1.1 (Time) should match the regular expression '^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$'. </Description>
-               <Assertion>
-                  <Format NotPresentBehavior="PASS" Path="17[1].1[1].1[1]"
                           Regex="^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$"/>
                </Assertion>
             </Constraint>
@@ -918,6 +1053,13 @@
                      <PlainText IgnoreCase="true" NotPresentBehavior="FAIL" Path="4[1].2[1]"
                                 Text="Specimen of unknown material (specimen)"/>
                   </IMPLY>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="SPM-17 (Format)" Strength="SHOULD">
+               <Description> SPM-17.1.1 (Time) should match the regular expression '^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$'. </Description>
+               <Assertion>
+                  <Format NotPresentBehavior="PASS" Path="17[1].1[1].1[1]"
+                          Regex="^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$"/>
                </Assertion>
             </Constraint>
             <Constraint ID="SPM-4.2: 871810001" Strength="SHOULD">
@@ -946,148 +1088,6 @@
                   <StringList CSV="697989009,871810001,119324002" IgnoreCase="false"
                               NotPresentBehavior="PASS"
                               Path="4[1].1[1]"/>
-               </Assertion>
-            </Constraint>
-         </ByID>
-         <ByID ID="PID_NIH">
-            <Constraint ID="PID-1" Strength="SHALL">
-               <Description> PID-1 (Set ID - PID) shall contain the value '1'. </Description>
-               <Assertion>
-                  <PlainText IgnoreCase="false" NotPresentBehavior="PASS" Path="1[1]" Text="1"/>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="PID-11.4" Strength="SHOULD">
-               <Description>If The first occurrence of PID-11.4 (State or Province)  is valued  then the first occurrence of PID-11.4 (State or Province) should match the regular expression '^[A-Z]{2}$'. </Description>
-               <Assertion>
-                  <IMPLY>
-                     <Presence Path="11[1].4[1]"/>
-                     <Format NotPresentBehavior="FAIL" Path="11[1].4[1]" Regex="^[A-Z]{2}$"/>
-                  </IMPLY>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="PID-10.3" Strength="SHOULD">
-               <Description>If The first occurrence of PID-10.1 (Identifier)  is valued  then the first occurrence of PID-10.3 (Name of Coding System) should contain the value 'HL70005'. </Description>
-               <Assertion>
-                  <IMPLY>
-                     <Presence Path="10[1].1[1]"/>
-                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="10[1].3[1]" Text="HL70005"/>
-                  </IMPLY>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="PID-11.5" Strength="SHALL">
-               <Description>All occurrences of PID-11.5 (Zip or Postal Code) shall match the regular expression '^\d{5}$|^\d{5}-\d{4}$'. </Description>
-               <Assertion>
-                  <Format AtLeastOnce="false" NotPresentBehavior="PASS" Path="11[*].5[1]"
-                          Regex="^\d{5}$|^\d{5}-\d{4}$"/>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="PID-10.7" Strength="SHOULD">
-               <Description>If The first occurrence of PID-10.1 (Identifier)  is valued  then the first occurrence of PID-10.7 (Coding System Version ID) should contain the value '2.5.1'. </Description>
-               <Assertion>
-                  <IMPLY>
-                     <Presence Path="10[1].1[1]"/>
-                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="10[1].7[1]" Text="2.5.1"/>
-                  </IMPLY>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="PID-3.4.3" Strength="SHOULD">
-               <Description>All occurrences of PID-3.4.3 (Universal ID Type) should contain the value 'ISO'. </Description>
-               <Assertion>
-                  <PlainText AtLeastOnce="false" IgnoreCase="false" NotPresentBehavior="PASS"
-                             Path="3[*].4[1].3[1]"
-                             Text="ISO"/>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="PID-3.4.2" Strength="SHOULD">
-               <Description>All occurrences of PID-3.4.2 (Universal ID) should be valued with an ISO-compliant OID. </Description>
-               <Assertion>
-                  <Format AtLeastOnce="false" NotPresentBehavior="PASS" Path="3[*].4[1].2[1]"
-                          Regex="[0-2](\.(0|[1-9][0-9]*))*"/>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="PID-13.3" Strength="SHOULD">
-               <Description>If All occurrences of PID-13.3 (Telecommunication Equipment Type)  is valued  then all occurrences of PID-13.3 (Telecommunication Equipment Type) should contain one of the values in the list: ['PH','Internet']. </Description>
-               <Assertion>
-                  <IMPLY>
-                     <Presence Path="13[*].3[1]"/>
-                     <StringList AtLeastOnce="false" CSV="PH,Internet" IgnoreCase="false"
-                                 NotPresentBehavior="FAIL"
-                                 Path="13[*].3[1]"/>
-                  </IMPLY>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="PID-3.5" Strength="SHOULD">
-               <Description>All occurrences of PID-3.5 (Identifier Type Code) should contain the value 'PI'. </Description>
-               <Assertion>
-                  <PlainText AtLeastOnce="false" IgnoreCase="false" NotPresentBehavior="PASS"
-                             Path="3[*].5[1]"
-                             Text="PI"/>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="PID-5.1" Strength="SHOULD">
-               <Description>If The first occurrence of PID-5 (Patient Name)  is not valued  then the second occurrence of PID-5.7 (Name Type Code) should contain the value 'S'. </Description>
-               <Assertion>
-                  <IMPLY>
-                     <NOT>
-                        <Presence Path="5[1]"/>
-                     </NOT>
-                     <PlainText IgnoreCase="false" NotPresentBehavior="FAIL" Path="5[2].7[1]" Text="S"/>
-                  </IMPLY>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="PID-7" Strength="SHOULD">
-               <Description> PID-7.1 (Time) should match the regular expression '^\d{8}$'. </Description>
-               <Assertion>
-                  <Format NotPresentBehavior="PASS" Path="7[1].1[1]" Regex="^\d{8}$"/>
-               </Assertion>
-            </Constraint>
-         </ByID>
-         <ByID ID="SFT_NIH">
-            <Constraint ID="SFT-6" Strength="SHOULD">
-               <Description>If  SFT-6.1 (Time)  is valued  then  SFT-6.1 (Time) should match the regular expression '^\d{8}$'. </Description>
-               <Assertion>
-                  <IMPLY>
-                     <Presence Path="6[1].1[1]"/>
-                     <Format NotPresentBehavior="FAIL" Path="6[1].1[1]" Regex="^\d{8}$"/>
-                  </IMPLY>
-               </Assertion>
-            </Constraint>
-         </ByID>
-         <ByID ID="OBR_NIH">
-            <Constraint ID="OBR-22.1" Strength="SHOULD">
-               <Description> OBR-22.1 (Time) should match the regular expression '^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$'. </Description>
-               <Assertion>
-                  <Format NotPresentBehavior="PASS" Path="22[1].1[1]"
-                          Regex="^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$"/>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="OBR-7.1" Strength="SHOULD">
-               <Description> OBR-7.1 (Time) should match the regular expression '^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$'. </Description>
-               <Assertion>
-                  <Format NotPresentBehavior="PASS" Path="7[1].1[1]"
-                          Regex="^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$"/>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="OBR-1" Strength="SHALL">
-               <Description> OBR-1 (Set ID - OBR) shall contain the value '1'. </Description>
-               <Assertion>
-                  <PlainText IgnoreCase="false" NotPresentBehavior="PASS" Path="1[1]" Text="1"/>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="OBR-4.1" Strength="SHOULD">
-               <Description> OBR-4.1 (Identifier) should contain one of the values in the list: ['97097-0','94558-4','95409-9','94559-2','95209-3','96986-5']. </Description>
-               <Assertion>
-                  <StringList CSV="97097-0,94558-4,95409-9,94559-2,95209-3,96986-5" IgnoreCase="false"
-                              NotPresentBehavior="PASS"
-                              Path="4[1].1[1]"/>
-               </Assertion>
-            </Constraint>
-         </ByID>
-         <ByID ID="ORC_NIH">
-            <Constraint ID="ORC-1" Strength="SHALL">
-               <Description> ORC-1 (Order Control) shall contain the value 'RE'. </Description>
-               <Assertion>
-                  <PlainText IgnoreCase="false" NotPresentBehavior="PASS" Path="1[1]" Text="RE"/>
                </Assertion>
             </Constraint>
          </ByID>
@@ -1150,6 +1150,24 @@
                   </IMPLY>
                </Assertion>
             </Constraint>
+            <Constraint ID="NIH_001" Strength="SHOULD">
+               <Description>Where OBX-29 is not valued, OBX-17 (Observation Method) SHOULD contain the same value as all other occurrences of OBX-17 (Observation Method) where OBX-29 is not valued in the message.</Description>
+               <Assertion>    
+                  <Plugin QualifiedClassName="gov.nist.hit.elr.radx.plugin.cs.NIH_001"/>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="NIH_003" Strength="SHOULD">
+               <Description>OBX-11 (Observation Result Status) SHOULD contain the same value as all other occurances of OBX-11 (Observation Result Status) in the message.</Description>
+               <Assertion>    
+                  <Plugin QualifiedClassName="gov.nist.hit.elr.radx.plugin.cs.NIH_003"/>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="NIH_002" Strength="SHOULD">
+               <Description>Where OBX-29 is not valued, OBX-19 (Date/Time of the Analysis) SHOULD contain the same value as all other occurrences of OBX-19 (Date/Time of the Analysis) where OBX-29 is not valued in the message.</Description>
+               <Assertion>    
+                  <Plugin QualifiedClassName="gov.nist.hit.elr.radx.plugin.cs.NIH_002"/>
+               </Assertion>
+            </Constraint>
             <Constraint ID="ORC-12.3 = OBR-16.3" Strength="SHOULD">
                <Description>All occurrences of PATIENT_RESULT.ORDER_OBSERVATION.ORC-12.3 (Given Name) should be identical to All occurrences of PATIENT_RESULT.ORDER_OBSERVATION.OBR-16.3 (Given Name)</Description>
                <Assertion>
@@ -1159,6 +1177,18 @@
                              Path2="3[*].2[*].2[1].16[*].3[1]"
                              Path2Mode="All"
                              Truncated="false"/>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="NIH_005" Strength="SHOULD">
+               <Description>OBX-23 (Performing Organization Name) SHOULD contain the same value as all other occurances of OBX-23 (Performing Organization Name) in the message.</Description>
+               <Assertion>    
+                  <Plugin QualifiedClassName="gov.nist.hit.elr.radx.plugin.cs.NIH_005"/>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="NIH_004" Strength="SHOULD">
+               <Description>OBX-15 (Producer's Reference) SHOULD contain the same value as all other occurances of OBX-15 (Producer's Reference) in the message.</Description>
+               <Assertion>    
+                  <Plugin QualifiedClassName="gov.nist.hit.elr.radx.plugin.cs.NIH_004"/>
                </Assertion>
             </Constraint>
             <Constraint ID="00Z0000016:ORC-21.1" Strength="SHOULD">
@@ -1198,6 +1228,12 @@
                                 Path="3[*].2[*].1[1].12[*].3[1]"
                                 Text="SA.OTCSelfReport"/>
                   </IMPLY>
+               </Assertion>
+            </Constraint>
+            <Constraint ID="NIH_006" Strength="SHOULD">
+               <Description>OBX-24 (Performing Organization Address) SHOULD contain the same value as all other occurances of OBX-24 (Performing Organization Address) in the message.</Description>
+               <Assertion>    
+                  <Plugin QualifiedClassName="gov.nist.hit.elr.radx.plugin.cs.NIH_006"/>
                </Assertion>
             </Constraint>
             <Constraint ID="00Z0000016:ORC-12.3" Strength="SHOULD">

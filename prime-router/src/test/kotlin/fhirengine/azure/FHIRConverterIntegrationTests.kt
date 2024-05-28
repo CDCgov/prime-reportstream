@@ -463,7 +463,7 @@ class FHIRConverterIntegrationTests {
             @Suppress("ktlint:standard:max-line-length")
             assertThat(actionLogs.first()).transform { it.detail.message }
                 .isEqualTo(
-                    "Item 2 in the report was not valid. Reason: HL7 was not valid at OBX[1]-19[1].1 for validator: RADx MARS"
+                    "Item 2 in the report was not valid. Reason: HL7 was not valid at MSH[1]-21[1].3 for validator: RADx MARS"
                 )
             assertThat(actionLogs.first()).transform { it.trackingId }
                 .isEqualTo("20240403205305_dba7572cc6334f1ea0744c5f235c823e")

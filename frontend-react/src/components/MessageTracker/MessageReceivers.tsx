@@ -80,7 +80,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
             {
                 columnKey: "date",
                 columnHeader: "Date",
-                content: dateTimeFormatter.format(new Date(row.createdAt)),
+                content: new Date(row.createdAt).toLocaleString(),
             },
             {
                 columnKey: "reportId",
