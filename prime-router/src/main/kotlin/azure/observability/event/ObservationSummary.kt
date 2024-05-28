@@ -5,10 +5,12 @@ package gov.cdc.prime.router.azure.observability.event
  */
 data class ObservationSummary(
     val conditions: List<ConditionSummary>,
+    val code: String,
+    val display: String,
 ) {
-    constructor(condition: ConditionSummary) : this(listOf(condition))
+    constructor(condition: ConditionSummary, code: String, display: String) : this(listOf(condition), code, display)
 
     companion object {
-        val EMPTY = ObservationSummary(emptyList())
+        val EMPTY = ObservationSummary(emptyList(), "", "")
     }
 }

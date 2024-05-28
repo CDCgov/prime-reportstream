@@ -15,10 +15,14 @@ object AzureEventUtils {
      */
     fun getObservations(bundle: Bundle): List<ObservationSummary> {
         return bundle.getObservations().map { observation ->
+            // Note: Current use case for ELR expects that there will only be one coding per observation.
+            // If there is more than one, get mapped conditions will pull the mapped conditions from all of them.
             val conditions = observation
                 .getMappedConditions()
                 .map(ConditionSummary::fromCoding)
-            ObservationSummary(conditions)
+            val code = observation.code.codingFirstRep.code
+            val display = observation.code.codingFirstRep.display
+            ObservationSummary(conditions, code, display)
         }
     }
 
