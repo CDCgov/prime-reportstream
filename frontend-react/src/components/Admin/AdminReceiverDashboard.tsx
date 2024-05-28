@@ -12,7 +12,7 @@ import {
     TextInput,
     Tooltip,
 } from "@trussworks/react-uswds";
-import { endOfDay, startOfDay, subDays } from "date-fns";
+import { differenceInDays, endOfDay, startOfDay, subDays } from "date-fns";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
@@ -143,7 +143,7 @@ export function MainRender({
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
     });
-    const data = useMemo(() => createStatusTimePeriodData({data: results, startDate, endDate, filterResultMessage, timePeriodMinutes}), [endDate, filterResultMessage, results, startDate]);
+    const data = useMemo(() => createStatusTimePeriodData({data: results, startDate, endDate, filterResultMessage, timePeriodMinutes}), [endDate, filterResultMessage, results, startDate, timePeriodMinutes]);
 
     const handleTimePeriodClick = useCallback(
         ({entries}: TimePeriodData) => {
@@ -318,34 +318,26 @@ export function ModalInfoRender(props: { subData: RSReceiverStatusParsed[] }) {
  *  - We want start AND end picked before the expensive fetch.
  *  - Picker fields are LARGE and take up a bunch of space.
  */
-export function DateRangePickingAtomic(props: {
-    defaultStartDate: string;
-    defaultEndDate: string;
-    onChange: (props: { startDate: string; endDate: string }) => void;
+export function DateRangePickingAtomic({defaultEndDate, defaultStartDate, onChange}: {
+    defaultStartDate: Date;
+    defaultEndDate: Date;
+    onChange: (props: { startDate: Date; endDate: Date }) => void;
 }) {
-    const [startDate, setStartDate] = useState<string>(props.defaultStartDate);
-    const [endDate, setEndDate] = useState<string>(props.defaultEndDate); // may be null because it's optional
+    const [startDate, setStartDate] = useState(defaultStartDate);
+    const [endDate, setEndDate] = useState(defaultEndDate);
     const modalRef = useRef<ModalRef>(null);
 
     // for readability
     const isDateRangeOk = useCallback(() => {
-        const msEnd =
-            endDate !== "" ? new Date(endDate).getTime() : new Date().getTime();
-        const msStart = new Date(startDate).getTime();
-        return msEnd - msStart < MAX_DAYS_MS;
+        return differenceInDays(endDate, startDate) < MAX_DAYS_MS;
     }, [startDate, endDate]);
-
-    const formatDateFromString = (d: string) => {
-        if (d === "") return "now";
-        return new Date(d).toLocaleDateString();
-    };
 
     return (
         <>
             <span>
-                🗓 {formatDateFromString(startDate)}
+                🗓 {startDate.toLocaleDateString()}
                 {" — "}
-                {formatDateFromString(endDate)}
+                {endDate.toLocaleDateString()}
             </span>
             <ModalToggleButton
                 modalRef={modalRef}
@@ -362,10 +354,12 @@ export function DateRangePickingAtomic(props: {
                     startDatePickerProps={{
                         id: "start-date",
                         name: "start-date-picker",
-                        defaultValue: startDate,
+                        defaultValue: defaultStartDate.toLocaleDateString(),
                         onChange: (s) => {
                             if (s) {
-                                setStartDate(s);
+                                // eslint-disable-next-line no-console
+                                console.log("browser", {current: startDate.toLocaleDateString(), next: s, nextIso: startOfDay(new Date(s)).toISOString()})
+                                setStartDate(new Date(s));
                             }
                         },
                     }}
@@ -373,10 +367,12 @@ export function DateRangePickingAtomic(props: {
                     endDatePickerProps={{
                         id: "end-date",
                         name: "end-date-picker",
-                        defaultValue: props.defaultEndDate,
+                        defaultValue: defaultEndDate.toLocaleDateString(),
                         onChange: (s) => {
                             if (s) {
-                                setEndDate(s);
+                                // eslint-disable-next-line no-console
+                                console.log("browser", {current: endDate.toLocaleDateString(), next: s, nextIso: endOfDay(new Date(s)).toISOString()})
+                                setEndDate(endOfDay(new Date(s)));
                             }
                         },
                     }}
@@ -386,7 +382,7 @@ export function DateRangePickingAtomic(props: {
                     disabled={!isDateRangeOk()}
                     onClick={() => {
                         modalRef.current?.toggleModal(undefined, false);
-                        props.onChange({ startDate, endDate });
+                        onChange({startDate, endDate})
                     }}
                 >
                     Update
@@ -406,9 +402,6 @@ export function AdminReceiverDashboard() {
         start: startOfDay(subDays(new Date(), DAY_BACK_DEFAULT)),
         end: endOfDay(new Date())
     })
-
-    // eslint-disable-next-line no-console
-    console.log("browser", {iso: new Date().toISOString(), end: defaultDatesRef.current.end.toISOString()})
 
     const [startDate, setStartDate] = useState<Date>(
         defaultDatesRef.current.start,
@@ -458,11 +451,13 @@ export function AdminReceiverDashboard() {
                         Date range:
                     </Label>
                     <DateRangePickingAtomic
-                        defaultStartDate={defaultDatesRef.current.start.toISOString()}
-                        defaultEndDate={defaultDatesRef.current.end.toISOString()}
+                        defaultStartDate={defaultDatesRef.current.start}
+                        defaultEndDate={defaultDatesRef.current.end}
                         onChange={(params) => {
-                            setStartDate(startOfDay(new Date(params.startDate)));
-                            setEndDate(endOfDay(new Date(params.endDate)));
+                            // eslint-disable-next-line no-console
+                            console.log("browser", {sIso: params.startDate.toISOString(), eIso: params.endDate.toISOString()})
+                            setStartDate(params.startDate);
+                            setEndDate(params.endDate);
                         }}
                     />
                 </div>
@@ -551,9 +546,7 @@ export function AdminReceiverDashboard() {
                     <MainRender
                         datesRange={[
                             startDate,
-                            endDate
-                                ? endOfDay(new Date(endDate))
-                                : defaultDatesRef.current.end,
+                            endDate,
                         ]}
                         filterRowStatus={filterRowSuccessState}
                         filterResultMessage={filterErrorResults

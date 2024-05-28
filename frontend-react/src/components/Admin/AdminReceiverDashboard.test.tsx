@@ -219,8 +219,8 @@ describe("AdminReceiverDashboard tests", () => {
         renderApp(
             // eslint-disable-next-line react/jsx-pascal-case
             <DateRangePickingAtomic
-                defaultStartDate="2022-07-11T00:00:00.000Z"
-                defaultEndDate="2022-07-13T00:00:00.000Z"
+                defaultStartDate={new Date("2022-07-11T00:00:00.000Z")}
+                defaultEndDate={new Date("2022-07-13T00:00:00.000Z")}
                 onChange={(_props) => void 0}
             />,
         );

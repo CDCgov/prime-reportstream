@@ -1,4 +1,4 @@
-import { addDays, addMinutes, addSeconds, differenceInMinutes, endOfDay, interval, startOfDay, subDays } from "date-fns"
+import { addMinutes, addSeconds, differenceInMinutes, endOfDay, interval, startOfDay, subDays } from "date-fns"
 import { randomInt } from "crypto"
 import { AdmConnStatusDataType } from "../../src/resources/AdmConnStatusResource"
 
@@ -20,7 +20,7 @@ export function createMockGetReceiverStatusSet(
     }
     const now = new Date();
     const start = startOfDay(range ? range[0] : subDays(now, 2))
-    const end = endOfDay(range ? range[1] : addDays(now, 1));
+    const end = endOfDay(range ? range[1] : now);
     const statusSet: AdmConnStatusDataType[] = []
     // add minute lost from endOfDay conversion
     const statusSetLength = (differenceInMinutes(end, start) + 1) / maxMinutesPerStatus;
@@ -58,7 +58,7 @@ export function createMockGetReceiverStatusSet(
                 connectionCheckStartedAt: startedAt.toISOString(),
                 connectionCheckCompletedAt: completedAt.toISOString(),
                 connectionCheckSuccessful: isSuccessful,
-                connectionCheckResult: isSuccessful ? mockSuccessResult : mockFailResult,
+                connectionCheckResult: (isSuccessful ? mockSuccessResult : mockFailResult) + ` ${i}`,
             })
         }
 
