@@ -27,8 +27,8 @@ data class LookupTableValueSetConfig(
  */
 class LookupTableValueSet
     (@JsonProperty("lookupTable") private val configData: LookupTableValueSetConfig) : ValueSetCollection {
-    private val metadata = Metadata.getInstance()
     private val mapVal: SortedMap<String, String> by lazy {
+        val metadata = Metadata.getInstance()
         val lookupTable = metadata.findLookupTable(name = configData.tableName)
             ?: throw SchemaException("Specified lookup table not found")
 

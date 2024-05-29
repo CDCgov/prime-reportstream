@@ -1,10 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.fhirengine.engine.LookupTableValueSet
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.apache.commons.io.FilenameUtils
@@ -246,9 +243,7 @@ object ConfigSchemaReader : Logging {
         inputStream: InputStream,
         schemaClass: Class<out Schema>,
     ): Schema {
-        val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
-        mapper.registerSubtypes(LookupTableValueSet::class.java)
-        val rawSchema = mapper.readValue(inputStream, schemaClass)
+        val rawSchema = JacksonMapperUtilities.yamlMapper.readValue(inputStream, schemaClass)
         // Are there any null elements?  This may mean some unknown array value in the YAML
         if (rawSchema.elements.any { false }) {
             throw SchemaException("Invalid empty element found in schema. Check that all array items are elements.")

@@ -61,6 +61,16 @@ object FhirPathUtils : Logging {
     }
 
     /**
+     * Is the provided path a valid FHIR path given the evaluation context?
+     */
+    fun validatePath(path: String, evaluationContext: FHIRPathEngine.IEvaluationContext): Boolean {
+        return runCatching {
+            pathEngine.hostServices = evaluationContext
+            parsePath(path)
+        }.isSuccess
+    }
+
+    /**
      * Gets a FHIR base resource from the given [expression] using [bundle] and starting from a specific [focusResource].
      * [focusResource] can be the same as [bundle] when starting from the root.
      * [appContext] provides custom context (e.g. variables) used for the evaluation.
