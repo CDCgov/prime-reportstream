@@ -93,6 +93,24 @@ Many `ReportRouteEvent` can correspond to a `ReportAcceptedEvent` and can be "jo
 - topic
     - The Topic of the report
 
+### ReportReceiverSelectedEvent
+This event is emitted during the DestinationFilter routing step when a report is queued for receiver filter evaluation.
+Many `ReportRouteEvent` can correspond to a `ReportAcceptedEvent` and can be "joined" on
+`ReportAcceptedEvent.reportId == ReportReceiverSelectedEvent.parentReportId`.
+
+- parentReportId
+    - The ID assigned to parent report. This ID can be used to find the corresponding `ReportAcceptedEvent`.
+- reportId
+    - The ID assigned to the report
+- topic
+    - The Topic of the report
+- sender
+    - The full sender name
+- receiver
+    - The full receiver name. When a report does not get routed to a receiver this value will be `"null"`.
+- bundleSize
+    - Length of the bundle JSON string
+
 ## How to query for events
 
 Events that are pushed to Azure can be found in the `customEvents` table in the log explorer. The properties defined in
