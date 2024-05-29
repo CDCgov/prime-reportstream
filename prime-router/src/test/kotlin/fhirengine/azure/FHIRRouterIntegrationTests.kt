@@ -243,7 +243,7 @@ class FHIRRouterIntegrationTests : Logging {
         val blobConnectionString =
             """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;
                     BlobEndpoint=http://${azuriteContainer.host}:${
-                        
+
                 azuriteContainer.getMappedPort(
                     10000
                 )
@@ -653,7 +653,6 @@ class FHIRRouterIntegrationTests : Logging {
             var fhirBundleReceiverX = fhirBundlesAsObjectsOnly[0]
             var fhirBundleReceiverY = fhirBundlesAsObjectsOnly[1]
 
-
             // there should only be one observation of five remaining, and the code of that observation
             // should be 94558-5
             assertEquals(1, fhirBundleReceiverX.getObservations().size)
@@ -663,7 +662,7 @@ class FHIRRouterIntegrationTests : Logging {
             // for receiver Y all five observations should be intact
             assertEquals(5, fhirBundleReceiverY.getObservations().size)
             val expectedCodes = listOf("94558-5", "95418-0", "95417-2", "95421-4", "95419-8")
-            for(i in 0..fhirBundleReceiverX.getObservations().size - 1) {
+            for (i in 0..fhirBundleReceiverX.getObservations().size - 1) {
                 // in this bundle the array "coding" in every "Observation" only ever has one element
                 assertEquals(1, fhirBundleReceiverX.getObservations()[i].code.coding.size)
                 assertEquals(expectedCodes[i], fhirBundleReceiverX.getObservations()[i].code.coding[0].code)
