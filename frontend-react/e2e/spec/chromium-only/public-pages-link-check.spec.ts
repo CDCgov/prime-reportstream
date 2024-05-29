@@ -7,7 +7,7 @@ import * as publicPagesLinkCheck from "../../pages/public-pages-link-check";
 // Since we're just checking link validity. This is specified within our
 // Playwright.config here:
 // {
-//   name: "chromium-specific",
+//   name: "chromium-only",
 //   use: { browserName: "chromium" },
 //   testMatch: "spec/chromium-only/*.spec.ts",
 // },
@@ -17,8 +17,7 @@ test.describe("Evaluate links on public facing pages", () => {
     const normalizeUrl = (href: string, baseUrl: string) =>
         new URL(href, baseUrl).toString();
 
-    // Using our sitemap.xml that already has an up-to-date reference
-    // of all our public facing pages, we'll great a pathnames array
+    // Using our sitemap.xml, we'll create a pathnames array
     test.beforeAll(async ({ browser }) => {
         const page = await browser.newPage();
         const response = await page.goto("/sitemap.xml");
@@ -58,11 +57,14 @@ test.describe("Evaluate links on public facing pages", () => {
             await publicPagesLinkCheck.publicPageGoto(page, path);
             const baseUrl = new URL(page.url()).origin;
 
-            const allATags = await page.locator("role=link").elementHandles();
+            const allATags = await page
+                .getByRole("link", { includeHidden: true })
+                .elementHandles();
 
             for (const aTag of allATags) {
                 const href = await aTag.getAttribute("href");
-                if (href && !href.startsWith("mailto:")) {
+                // ONLY include http, https and relative path names
+                if (href && /^(https?:|\/)/.test(href)) {
                     aggregateHref.push(normalizeUrl(href, baseUrl));
                 }
             }
