@@ -137,8 +137,7 @@ class FHIRRouterIntegrationTests : Logging {
 
     // only allow observations that have 94558-5.
     val observationFilter: ReportStreamFilter = listOf(
-        "Bundle.entry.resource.ofType(Observation).code.coding.code='94558-5'"
-        //"%resource.code.coding.code='94558-5'"//.intersect('94558-5').exists()"
+        "%resource.code.coding.code='94558-5'"
     )
 
     @Container
@@ -242,7 +241,9 @@ class FHIRRouterIntegrationTests : Logging {
 
     private fun getBlobContainerMetadata(): BlobAccess.BlobContainerMetadata {
         val blobConnectionString =
-            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer.host}:${
+            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;
+                    BlobEndpoint=http://${azuriteContainer.host}:${
+                        
                 azuriteContainer.getMappedPort(
                     10000
                 )
@@ -607,7 +608,6 @@ class FHIRRouterIntegrationTests : Logging {
         }
     }
 
-    //@Ignore
     @Test
     fun `should send valid FHIR report filtered by condition code 94558-5`() {
         // set up
@@ -650,13 +650,25 @@ class FHIRRouterIntegrationTests : Logging {
             var fhirBundlesAsObjectsOnly = reportAndBundles.map { it.second.toString(Charsets.UTF_8) }
                                                            .map { FhirTranscoder.decode(it) }
 
+            var fhirBundleReceiverX = fhirBundlesAsObjectsOnly[0]
+            var fhirBundleReceiverY = fhirBundlesAsObjectsOnly[1]
+
+
             // there should only be one observation of five remaining, and the code of that observation
             // should be 94558-5
-            for (fhirBundleAsObject in fhirBundlesAsObjectsOnly) {
-                assertThat(fhirBundleAsObject.getObservations().size == 1)
-                assertThat(fhirBundleAsObject.getObservations()[0].code.coding.size == 1)
-                assertThat(fhirBundleAsObject.getObservations()[0].code.coding[0].code.equals("94558-5"))
+            assertEquals(1, fhirBundleReceiverX.getObservations().size)
+            assertEquals(1, fhirBundleReceiverX.getObservations()[0].code.coding.size)
+            assertThat(fhirBundleReceiverX.getObservations()[0].code.coding[0].code.equals("94558-5"))
+
+            // for receiver Y all five observations should be intact
+            assertEquals(5, fhirBundleReceiverY.getObservations().size)
+            val expectedCodes = listOf("94558-5", "95418-0", "95417-2", "95421-4", "95419-8")
+            for(i in 0..fhirBundleReceiverX.getObservations().size - 1) {
+                // in this bundle the array "coding" in every "Observation" only ever has one element
+                assertEquals(1, fhirBundleReceiverX.getObservations()[i].code.coding.size)
+                assertEquals(expectedCodes[i], fhirBundleReceiverX.getObservations()[i].code.coding[0].code)
             }
+            assertThat(fhirBundleReceiverY.getObservations()[0].code.coding[0].code.equals("94558-5"))
 
             // is the queue messaging what we expect it to be?
             val expectedRouteQueueMessages = reportAndBundles.flatMap { (report, fhirBundle) ->
