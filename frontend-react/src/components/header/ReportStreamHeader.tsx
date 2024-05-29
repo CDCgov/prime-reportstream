@@ -1,5 +1,4 @@
 import {
-    Button,
     GovBanner,
     Header,
     Menu,
@@ -26,6 +25,7 @@ import site from "../../content/site.json";
 import { RSSessionContext } from "../../contexts/Session/SessionProvider";
 import useSessionContext from "../../contexts/Session/useSessionContext";
 import { Icon } from "../../shared";
+import { MembershipSettings } from "../../utils/OrganizationUtils";
 import SenderModeBanner from "../SenderModeBanner";
 import Spinner from "../Spinner";
 import { USLink, USLinkButton, USSmartLink } from "../USLink";
@@ -79,14 +79,220 @@ interface ReportStreamNavbarProps extends PropsWithChildren {
     onToggleMobileNav: () => void;
     isMobileNavOpen: boolean;
     user: RSSessionContext["user"];
+    activeMembership: MembershipSettings | null | undefined;
+    logout: () => void;
     containerRef: MutableRefObject<HTMLElement | null>;
+}
+
+function ReportStreamAuthNavbar({
+    children,
+    onToggleMobileNav,
+    isMobileNavOpen,
+    user,
+    activeMembership,
+    logout,
+    containerRef,
+}: ReportStreamNavbarProps) {
+    const [openAuthMenuItem, setOpenAuthMenuItem] = useState<
+        undefined | string
+    >();
+
+    const setAuthMenu = useCallback((menuAuthName?: string) => {
+        setOpenAuthMenuItem((curr) => {
+            if (curr === menuAuthName) {
+                return undefined;
+            } else {
+                return menuAuthName;
+            }
+        });
+    }, []);
+
+    // handle if we need to close menus due to outside clicks
+    useEffect(() => {
+        function globalClickHandler(ev: MouseEvent) {
+            let buttonEle,
+                maybeAuthNavContainerEle =
+                    ev.target instanceof HTMLElement ? ev.target : undefined;
+
+            // if target is valid, loop through parents to store info for later
+            while (
+                maybeAuthNavContainerEle !== containerRef.current &&
+                maybeAuthNavContainerEle != null
+            ) {
+                if (
+                    maybeAuthNavContainerEle.classList.contains(
+                        "usa-menu-btn",
+                    ) ||
+                    (maybeAuthNavContainerEle.classList.contains(
+                        "usa-accordion__button",
+                    ) &&
+                        maybeAuthNavContainerEle.classList.contains(
+                            "usa-nav__link",
+                        ))
+                )
+                    buttonEle = maybeAuthNavContainerEle;
+                maybeAuthNavContainerEle =
+                    maybeAuthNavContainerEle.parentElement ?? undefined;
+            }
+
+            // if the click was outside the nav container or not on a button within,
+            // clear current dropdown.
+            if (maybeAuthNavContainerEle == null || buttonEle == null) {
+                if (isMobileNavOpen) onToggleMobileNav();
+                if (openAuthMenuItem) setAuthMenu();
+            }
+        }
+        window.addEventListener("click", globalClickHandler);
+
+        return () => window.removeEventListener("click", globalClickHandler);
+    }, [
+        containerRef,
+        isMobileNavOpen,
+        onToggleMobileNav,
+        openAuthMenuItem,
+        setAuthMenu,
+    ]);
+
+    const defaultMenuItems = [
+        <div className="primary-nav-link-container" key="user-email">
+            {user.claims && (
+                <span className={styles.UserEmail}>
+                    {user.claims.email ?? "Unknown"}
+                </span>
+            )}
+        </div>,
+    ];
+
+    const menuOrganization = [
+        <div
+            className="primary-nav-link-container org-settings"
+            key="organization"
+        >
+            <USLinkButton
+                unstyled
+                data-testid="org-settings"
+                href="/admin/settings"
+            >
+                {activeMembership?.parsedName ?? " "}
+                <Icon name="Loop" className="text-tbottom" />
+            </USLinkButton>
+        </div>,
+    ];
+
+    const menuItemsReceiver = [
+        <div className="primary-nav-link-container" key="daily">
+            <USLinkButton unstyled data-testid="daily-data" href="/daily-data">
+                Daily Data
+            </USLinkButton>
+        </div>,
+    ];
+
+    const menuItemsSender = [
+        <div className="primary-nav-link-container" key="submissions">
+            <USLinkButton
+                unstyled
+                data-testid="submissions"
+                href="/submissions"
+            >
+                Submission History
+            </USLinkButton>
+        </div>,
+    ];
+
+    const menuItemsAuth = [
+        <Dropdown
+            menuName="Admin tools"
+            dropdownList={[
+                <USSmartLink href="/admin/settings" key="settings">
+                    Organization Settings
+                </USSmartLink>,
+                <USSmartLink href="/admin/features" key="features">
+                    Feature Flags
+                </USSmartLink>,
+                <USSmartLink href="/admin/lastmile" key="lastmile">
+                    Last Mile Failures
+                </USSmartLink>,
+                <USSmartLink
+                    href="/admin/message-tracker"
+                    key="message-tracker"
+                >
+                    Message Id Search
+                </USSmartLink>,
+                <USSmartLink href="/admin/send-dash" key="send-dash">
+                    Receiver Status Dashboard
+                </USSmartLink>,
+                <USSmartLink href="/admin/value-sets" key="value-sets">
+                    Value Sets
+                </USSmartLink>,
+                <USSmartLink href="/file-handler/validate" key="validate">
+                    Validate
+                </USSmartLink>,
+            ]}
+            onToggle={setAuthMenu}
+            currentMenuName={openAuthMenuItem}
+            key="admin"
+        />,
+    ];
+
+    const menuLogOut = [
+        <div className="primary-nav-link-container" key="logout">
+            {user.claims && (
+                <USLinkButton
+                    id="logout"
+                    data-testid="logout"
+                    unstyled
+                    onClick={logout}
+                >
+                    Log out
+                </USLinkButton>
+            )}
+        </div>,
+    ];
+    const navbarItemBuilder = () => {
+        let menuItems = [...defaultMenuItems];
+
+        if (user.isUserSender || user.isUserTransceiver || user.isUserAdmin) {
+            menuItems = [...menuItems, ...menuItemsSender];
+        }
+
+        if (user.isUserReceiver || user.isUserTransceiver || user.isUserAdmin) {
+            menuItems = [...menuItems, ...menuItemsReceiver];
+        }
+
+        if (user.isAdminStrictCheck) {
+            menuItems = [
+                ...defaultMenuItems,
+                ...menuOrganization,
+                ...menuItemsSender,
+                ...menuItemsReceiver,
+                ...menuItemsAuth,
+            ];
+        }
+        menuItems = [...menuItems, ...menuLogOut];
+
+        return menuItems;
+    };
+
+    return (
+        <>
+            <div
+                className={`usa-overlay ${isMobileNavOpen ? "is-visible" : ""}`}
+            ></div>
+            <PrimaryNav
+                items={navbarItemBuilder()}
+                mobileExpanded={isMobileNavOpen}
+                onToggleMobileNav={onToggleMobileNav}
+            >
+                {children}
+            </PrimaryNav>
+        </>
+    );
 }
 
 function ReportStreamNavbar({
     children,
     onToggleMobileNav,
     isMobileNavOpen,
-    user,
     containerRef,
 }: ReportStreamNavbarProps) {
     const [openMenuItem, setOpenMenuItem] = useState<undefined | string>();
@@ -218,79 +424,8 @@ function ReportStreamNavbar({
             key="about"
         />,
     ];
-
-    const menuItemsReceiver = [
-        <div className="primary-nav-link-container" key="daily">
-            <USSmartLink
-                className={primaryLinkClasses(!!useMatch("/daily-data/*"))}
-                href="/daily-data"
-            >
-                Daily Data
-            </USSmartLink>
-        </div>,
-    ];
-
-    const menuItemsSender = [
-        <div className="primary-nav-link-container" key="submissions">
-            <USSmartLink
-                className={primaryLinkClasses(!!useMatch("/submissions/*"))}
-                href="/submissions"
-            >
-                Submissions
-            </USSmartLink>
-        </div>,
-    ];
-
-    const menuItemsAdmin = [
-        <Dropdown
-            menuName="Admin"
-            dropdownList={[
-                <USSmartLink href="/admin/settings" key="settings">
-                    Organization Settings
-                </USSmartLink>,
-                <USSmartLink href="/admin/features" key="features">
-                    Feature Flags
-                </USSmartLink>,
-                <USSmartLink href="/admin/lastmile" key="lastmile">
-                    Last Mile Failures
-                </USSmartLink>,
-                <USSmartLink
-                    href="/admin/message-tracker"
-                    key="message-tracker"
-                >
-                    Message Id Search
-                </USSmartLink>,
-                <USSmartLink href="/admin/send-dash" key="send-dash">
-                    Receiver Status Dashboard
-                </USSmartLink>,
-                <USSmartLink href="/admin/value-sets" key="value-sets">
-                    Value Sets
-                </USSmartLink>,
-                <USSmartLink href="/file-handler/validate" key="validate">
-                    Validate
-                </USSmartLink>,
-            ]}
-            onToggle={setMenu}
-            currentMenuName={openMenuItem}
-            key="admin"
-        />,
-    ];
     const navbarItemBuilder = () => {
-        let menuItems = [...menuItemsAbout, ...defaultMenuItems];
-
-        if (user.isUserReceiver || user.isUserTransceiver || user.isUserAdmin) {
-            menuItems = [...menuItems, ...menuItemsReceiver];
-        }
-
-        if (user.isUserSender || user.isUserTransceiver || user.isUserAdmin) {
-            menuItems = [...menuItems, ...menuItemsSender];
-        }
-
-        if (user.isAdminStrictCheck) {
-            menuItems = [...menuItems, ...menuItemsAdmin];
-        }
-
-        return menuItems;
+        return [...menuItemsAbout, ...defaultMenuItems];
     };
 
     return (
@@ -322,12 +457,32 @@ const ReportStreamHeader = ({
         () => setIsMobileNavOpen((v) => !v),
         [],
     );
+    const navAuthContainerRef = useRef<HTMLDivElement | null>(null);
     const navContainerRef = useRef<HTMLDivElement | null>(null);
 
     return (
         <>
             <GovBanner aria-label="Official government website" />
             {!isNavHidden && <SenderModeBanner />}
+            {!isNavHidden && user.claims && (
+                <Header basic={true} className={classnames(styles.AuthNavbar)}>
+                    <div
+                        className="usa-nav-container"
+                        ref={navAuthContainerRef}
+                    >
+                        <Suspense fallback={suspenseFallback}>
+                            <ReportStreamAuthNavbar
+                                isMobileNavOpen={isMobileNavOpen}
+                                onToggleMobileNav={toggleMobileNav}
+                                user={user}
+                                activeMembership={activeMembership}
+                                logout={logout}
+                                containerRef={navAuthContainerRef}
+                            ></ReportStreamAuthNavbar>
+                        </Suspense>
+                    </div>
+                </Header>
+            )}
             <Header
                 basic={true}
                 className={classnames(styles.Navbar, {
@@ -356,52 +511,21 @@ const ReportStreamHeader = ({
                                 isMobileNavOpen={isMobileNavOpen}
                                 onToggleMobileNav={toggleMobileNav}
                                 user={user}
+                                activeMembership={activeMembership}
+                                logout={logout}
                                 containerRef={navContainerRef}
                             >
                                 <div className="nav-cta-container">
-                                    {user.claims ? (
-                                        <>
-                                            <span className={styles.UserEmail}>
-                                                {user.claims.email ?? "Unknown"}
-                                            </span>
-                                            {user.isUserAdmin && (
-                                                <USLinkButton
-                                                    outline
-                                                    data-testid="org-settings"
-                                                    href="/admin/settings"
-                                                >
-                                                    {activeMembership?.parsedName ??
-                                                        " "}
-                                                    <Icon
-                                                        name="Loop"
-                                                        className="text-tbottom"
-                                                    />
-                                                </USLinkButton>
-                                            )}
-
-                                            <Button
-                                                id="logout"
-                                                type="button"
-                                                onClick={logout}
-                                            >
-                                                Logout
-                                            </Button>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <USLinkButton href="/login">
-                                                Login
-                                            </USLinkButton>
-                                            <USLinkButton
-                                                href={
-                                                    site.forms.connectWithRS.url
-                                                }
-                                                outline
-                                            >
-                                                Contact us
-                                            </USLinkButton>
-                                        </>
+                                    {!user.claims && (
+                                        <USLinkButton outline href="/login">
+                                            Login
+                                        </USLinkButton>
                                     )}
+                                    <USLinkButton
+                                        href={site.forms.connectWithRS.url}
+                                    >
+                                        Contact us
+                                    </USLinkButton>
                                 </div>
                             </ReportStreamNavbar>
                         </Suspense>

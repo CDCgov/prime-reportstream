@@ -11,6 +11,7 @@ import Pagination, {
 import TableFilters, {
     TableFilterDateLabel,
 } from "../../../components/Table/TableFilters";
+import { USLink } from "../../../components/USLink";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import useSessionContext from "../../../contexts/Session/useSessionContext";
@@ -30,7 +31,6 @@ import { Table } from "../../../shared";
 import { EventName } from "../../../utils/AppInsights";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
-import { USLink } from "../../../components/USLink";
 
 const extractCursor = (d: RSDelivery) => d.batchReadyAt;
 
