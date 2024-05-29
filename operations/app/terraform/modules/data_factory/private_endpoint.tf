@@ -4,12 +4,6 @@ resource "azurerm_data_factory_managed_private_endpoint" "sftp_share" {
   target_resource_id = var.sftp_storage.id
   subresource_name   = "file"
 
-  lifecycle {
-    ignore_changes = [
-      fqdns
-    ]
-  }
-
   timeouts {}
 }
 
