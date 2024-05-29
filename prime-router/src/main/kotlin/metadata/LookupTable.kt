@@ -15,7 +15,6 @@ import tech.tablesaw.api.Table
 import tech.tablesaw.io.csv.CsvReadOptions
 import tech.tablesaw.selection.Selection
 import java.io.InputStream
-import java.lang.IllegalStateException
 import java.util.function.BiPredicate
 
 /**
@@ -259,6 +258,10 @@ open class LookupTable : Logging {
          */
         fun equalsIgnoreCase(colName: String, value: String) = apply {
             addSelector(getColumn(colName)?.equalsIgnoreCase(value))
+        }
+
+        fun isIn(colName: String, values: List<String>) = apply {
+            addSelector(getColumn(colName)?.isIn(values))
         }
 
         /**
