@@ -1343,6 +1343,14 @@ class FhirReceiverFilterTests {
             assertThat(actionHistory.reportsOut).hasSize(1)
 
             val reportId = (messages.first() as ReportPipelineMessage).reportId
+            val expectedObservationSummary = listOf(
+                ObservationSummary(
+                    listOf(
+                        ConditionSummary("6142004", "Influenza (disorder)"),
+                        ConditionSummary("Some Condition Code", "Condition Name")
+                    )
+                )
+            )
             val expectedAzureEvents = listOf(
                 ReportAcceptedEvent(
                     message.reportId,
@@ -1364,14 +1372,8 @@ class FhirReceiverFilterTests {
                     message.topic,
                     "sendingOrg.sendingOrgClient",
                     orgWithMappedConditionFilter.receivers.first().fullName,
-                    listOf(
-                        ObservationSummary(
-                            listOf(
-                                ConditionSummary("6142004", "Influenza (disorder)"),
-                                ConditionSummary("Some Condition Code", "Condition Name")
-                            )
-                        )
-                    ),
+                    expectedObservationSummary,
+                    expectedObservationSummary,
                     1945
                 )
             )
@@ -1511,24 +1513,26 @@ class FhirReceiverFilterTests {
                 ),
                 36942
             )
+            val expectedObservationSummary = listOf(
+                ObservationSummary(
+                    ConditionSummary(
+                        "840539006",
+                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                    )
+                ),
+                ObservationSummary.EMPTY,
+                ObservationSummary.EMPTY,
+                ObservationSummary.EMPTY,
+                ObservationSummary.EMPTY
+            )
             val expectedRoutedEvent = ReportRouteEvent(
                 message.reportId,
                 UUID.randomUUID(),
                 message.topic,
                 "sendingOrg.sendingOrgClient",
                 null,
-                listOf(
-                    ObservationSummary(
-                        ConditionSummary(
-                            "840539006",
-                            "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
-                        )
-                    ),
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY
-                ),
+                expectedObservationSummary,
+                expectedObservationSummary,
                 36942
             )
             assertThat(azureEvents).hasSize(2)

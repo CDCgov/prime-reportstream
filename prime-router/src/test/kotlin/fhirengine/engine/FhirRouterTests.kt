@@ -1431,6 +1431,14 @@ class FhirRouterTests {
             assertThat(actionHistory.reportsOut).hasSize(1)
 
             val reportId = (messages.first() as ReportPipelineMessage).reportId
+            val expectedObservationSummary = listOf(
+                ObservationSummary(
+                    listOf(
+                        ConditionSummary("6142004", "Influenza (disorder)"),
+                        ConditionSummary("Some Condition Code", "Condition Name")
+                    )
+                )
+            )
             val expectedAzureEvents = listOf(
                 ReportAcceptedEvent(
                     message.reportId,
@@ -1456,14 +1464,8 @@ class FhirRouterTests {
                     message.topic,
                     "sendingOrg.sendingOrgClient",
                     orgWithMappedConditionFilter.receivers.first().fullName,
-                    listOf(
-                        ObservationSummary(
-                            listOf(
-                                ConditionSummary("6142004", "Influenza (disorder)"),
-                                ConditionSummary("Some Condition Code", "Condition Name")
-                            )
-                        )
-                    ),
+                    expectedObservationSummary,
+                    expectedObservationSummary,
                     1998,
                     AzureEventUtils.MessageID(
                         "1234d1d1-95fe-462c-8ac6-46728dba581c",
