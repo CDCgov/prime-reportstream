@@ -215,7 +215,7 @@ private const val validRadxMarsHL7MessageConverted =
 
 @Suppress("ktlint:standard:max-line-length")
 private const val invalidRadxMarsHL7Message =
-    """MSH|^~\&|MMTC.PROD^2.16.840.1.113883.3.8589.4.2.106.1^ISO|CAREEVOLUTION^00Z0000024^CLIA|AIMS.INTEGRATION.PRD^2.16.840.1.114222.4.3.15.1^ISO|AIMS.PLATFORM^2.16.840.1.114222.4.1.217446^ISO|20240403205305+0000||ORU^R01^ORU_R01|20240403205305_dba7572cc6334f1ea0744c5f235c823e|P|2.5.1|||NE|NE|||||PHLabReport-NoAck^ELR251R1_Rcvr_Prof^2.16.840.1.113883.9.11^ISO
+    """MSH|^~\&|MMTC.PROD^2.16.840.1.113883.3.8589.4.2.106.1^ISO|CAREEVOLUTION^00Z0000024^CLIA|AIMS.INTEGRATION.PRD^2.16.840.1.114222.4.3.15.1^ISO|AIMS.PLATFORM^2.16.840.1.114222.4.1.217446^ISO|20240403205305+0000||ORU^R01^ORU_R01|20240403205305_dba7572cc6334f1ea0744c5f235c823e|P|2.5.1|||NE|NE|||||PHLabReport-NoAck^ELR251R1_Rcvr_Prof^2.16.840.1.113883.9.12^ISO
 SFT|CAREEVOLUTION|2022|MMTC.PROD|16498||20240402
 PID|1||8be6fa3710374dcebe0174e0fd5a1a7c^^^MMTC.PROD&2.16.840.1.113883.3.8589.4.2.106.1&ISO^PI||^^^^^^~^^^^^^||||||^^^^02139^USA||^^^^^111^1111111
 ORC|RE||^MMTC.PROD^2.16.840.1.113883.3.8589.4.2.106.1^ISO|||||||||^^||^^^^^^|||||||SA.OTCSelfReport|^^^^02139^^^^|^^^^^^
@@ -1387,12 +1387,11 @@ class FhirFunctionIntegrationTests() {
                 .fetchInto(
                     DetailedActionLog::class.java
                 )
-
             assertThat(actionLogs).hasSize(1)
             @Suppress("ktlint:standard:max-line-length")
             assertThat(actionLogs.first()).transform { it.detail.message }
                 .isEqualTo(
-                    "Item 1 in the report was not valid. Reason: HL7 was not valid at OBX[1]-19[1].1"
+                    "Item 1 in the report was not valid. Reason: HL7 was not valid at MSH[1]-21[1].3 for validator: RADx MARS"
                 )
         }
     }

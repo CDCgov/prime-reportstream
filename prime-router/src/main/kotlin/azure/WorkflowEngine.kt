@@ -882,6 +882,8 @@ class WorkflowEngine(
                 //  for 'process' ... but 'process' is just too vague
                 Event.EventAction.CONVERT -> Tables.TASK.PROCESSED_AT
                 Event.EventAction.ROUTE -> Tables.TASK.ROUTED_AT
+                Event.EventAction.DESTINATION_FILTER -> Tables.TASK.DESTINATION_FILTERED_AT
+                Event.EventAction.RECEIVER_FILTER -> Tables.TASK.RECEIVER_FILTERED_AT
                 Event.EventAction.TRANSLATE -> Tables.TASK.TRANSLATED_AT
                 Event.EventAction.REBATCH -> Tables.TASK.TRANSLATED_AT // overwrites prior date
                 Event.EventAction.BATCH -> Tables.TASK.BATCHED_AT
