@@ -278,13 +278,6 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_default_https"
   ]
 }
 
-data "azurerm_key_vault_secret" "frontend_custom_https" {
-  for_each = toset(var.https_cert_names)
-
-  name         = each.value
-  key_vault_id = var.application_key_vault_id
-}
-
 resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" {
   for_each = toset(var.https_cert_names)
 
@@ -295,7 +288,6 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" 
     certificate_source                         = "AzureKeyVault"
     azure_key_vault_certificate_secret_name    = each.value
     azure_key_vault_certificate_vault_id       = var.application_key_vault_id
-    azure_key_vault_certificate_secret_version = data.azurerm_key_vault_secret.frontend_custom_https[each.value].version
   }
 
   depends_on = [
