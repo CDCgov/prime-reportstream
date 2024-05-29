@@ -285,9 +285,9 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" 
   custom_https_provisioning_enabled = true
 
   custom_https_configuration {
-    certificate_source                         = "AzureKeyVault"
-    azure_key_vault_certificate_secret_name    = each.value
-    azure_key_vault_certificate_vault_id       = var.application_key_vault_id
+    certificate_source                      = "AzureKeyVault"
+    azure_key_vault_certificate_secret_name = each.value
+    azure_key_vault_certificate_vault_id    = var.application_key_vault_id
   }
 
   depends_on = [
