@@ -26,8 +26,8 @@ resource "azurerm_storage_account" "storage_account_candidate" {
 
   lifecycle {
     prevent_destroy = false
+    # validated 5/29/2024
     ignore_changes = [
-      # Temp ignore ip_rules during tf development
       customer_managed_key,
       network_rules[0].ip_rules,
       network_rules[0].private_link_access
@@ -149,17 +149,6 @@ resource "azurerm_key_vault_access_policy" "storage_policy_candidate" {
   ]
 }
 
-resource "azurerm_storage_account_customer_managed_key" "storage_key_candidate" {
-  count              = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
-  key_name           = var.rsa_key_4096
-  key_vault_id       = var.application_key_vault_id
-  key_version        = null # Null allows automatic key rotation
-  storage_account_id = azurerm_storage_account.storage_account_candidate.id
-
-  depends_on = [azurerm_key_vault_access_policy.storage_policy_candidate]
-}
-
-
 # # Partner
 
 resource "azurerm_storage_account" "storage_partner_candidate" {
@@ -197,8 +186,7 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
   lifecycle {
     prevent_destroy = false
     ignore_changes = [
-      # Temp ignore ip_rules during tf development
-      secondary_blob_connection_string,
+      # validated 5/29/2024
       customer_managed_key,
       network_rules[0].ip_rules,
       network_rules[0].private_link_access
@@ -221,16 +209,6 @@ resource "azurerm_key_vault_access_policy" "storage_candidate_partner_policy" {
     "UnwrapKey",
     "WrapKey"
   ]
-}
-
-resource "azurerm_storage_account_customer_managed_key" "storage_candidate_partner_key" {
-  count              = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
-  key_name           = var.rsa_key_4096
-  key_vault_id       = var.application_key_vault_id
-  key_version        = null # Null allows automatic key rotation
-  storage_account_id = azurerm_storage_account.storage_partner_candidate.id
-
-  depends_on = [azurerm_key_vault_access_policy.storage_candidate_partner_policy]
 }
 
 resource "azurerm_storage_container" "storage_candidate_container_hhsprotect" {
@@ -261,12 +239,5 @@ resource "azurerm_storage_management_policy" "storage_candidate_partner_retentio
         delete_after_days_since_creation_greater_than = 30
       }
     }
-  }
-
-  lifecycle {
-    ignore_changes = [
-      # -1 value is applied, but not accepted in tf
-      rule[0].actions[0].base_blob[0].tier_to_cool_after_days_since_last_access_time_greater_than
-    ]
   }
 }
