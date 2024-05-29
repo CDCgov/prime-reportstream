@@ -249,8 +249,6 @@ class FHIRDestinationFilter(
                 // ensure tracking is set
                 actionHistory.trackCreatedReport(nextEvent, report)
 
-                val receiverObservationSummary = AzureEventUtils.getObservations(bundle)
-
                 // send event to Azure AppInsights
                 azureEventService.trackEvent(
                     ReportRouteEvent(
@@ -259,7 +257,8 @@ class FHIRDestinationFilter(
                         queueMessage.topic,
                         sender,
                         null,
-                        receiverObservationSummary,
+                        observationSummary,
+                        observationSummary,
                         fhirJson.length,
                         AzureEventUtils.getIdentifier(bundle)
                     )
