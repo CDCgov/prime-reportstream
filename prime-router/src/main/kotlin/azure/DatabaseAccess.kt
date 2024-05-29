@@ -1361,7 +1361,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
                 )
 
                 logger.info("truncating ActionLog.trackingId to 128 chars as per database schema restriction.")
-                logger.info("original value was: ${actionLog.trackingId}");
+                logger.info("original value was: ${actionLog.trackingId}")
             }
         }
 
