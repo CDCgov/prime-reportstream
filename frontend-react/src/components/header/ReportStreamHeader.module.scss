@@ -431,6 +431,7 @@ header.NavbarBlueVariant {
 
             & span:after {
                 background-color: color("primary");
+                right: 0;
             }
         }
 
@@ -438,7 +439,6 @@ header.NavbarBlueVariant {
             & span {
                 color: black;
                 vertical-align: middle;
-                margin-right: 3px;
                 padding-bottom: 8px;
             }
         }
