@@ -262,21 +262,12 @@
 # NTE -> Annotation
 - id: "note-source"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source"
-# Comment
 - id: "note-comment"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-comment"
-# Comment type
 - id: "note-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type"
-# Effective Start Date
-- id: "note-start-date"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-start-date"
-# Expiration Date
-- id: "note-expiration-date"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-expiration-date"
-# Coded Comment
-- id: "note-coded-comment"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-coded-comment"
+- id: "nte-annotation"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nte-annotation"
 
 ## Generic
 

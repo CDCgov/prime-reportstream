@@ -33,8 +33,10 @@ elements:
       cweField: '%{obrFieldPath}-12'
 
   - name: clinical-information
-    value: [ '%resource.extension.where(url = "OBR.13").value' ]
-    hl7Spec: [ '%{obrFieldPath}-13' ]
+    resource: '%resource.extension.where(url = "OBR.13").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{obrFieldPath}-13'
 
   - name: call-back-phone-number-obr-from-extension
     condition: '%context.requester.where(extension(%`rsext-callback-number`).value.extension(%`rsext-hl7v2Field`).value[%telecomIndex] = "OBR.17").exists().not()'

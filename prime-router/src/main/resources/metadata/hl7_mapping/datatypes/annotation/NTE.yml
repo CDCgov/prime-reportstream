@@ -40,16 +40,6 @@ elements:
     value: [ '%resource.time.extension(%`rsext-hl7v2-date-time`).value' ]
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-6' ]
 
-  - name: note-start-date
-    value: [ '%resource.extension(%`rsext-note-start-date`).value' ]
-    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-7' ]
-
-  - name: note-expiration-date
-    value: [ '%resource.extension(%`rsext-note-expiration-date`).value' ]
-    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-8' ]
-
-  - name: note-coded-comment
-    resource: '%resource.extension(%`rsext-note-coded-comment`).value'
-    constants:
-      cweField: '%{hl7NotePath}/NTE(%{noteIndex})-9'
-    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+  - name: nte-extension-values
+    resource: '%resource.extension(%`rsext-nte-annotation`)'
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTEExtension.yml

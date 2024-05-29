@@ -61,7 +61,7 @@ import ca.uhn.hl7v2.model.AbstractSegment;
  * <li>OBR-10: Collector Identifier * (XCN) <b>optional repeating</b>
  * <li>OBR-11: Specimen Action Code * (ID) <b>optional </b>
  * <li>OBR-12: Danger Code (CWE) <b>optional </b>
- * <li>OBR-13: Relevant Clinical Information (ST) <b>optional </b>
+ * <li>OBR-13: Relevant Clinical Information (CWE) <b>optional </b>
  * <li>OBR-14: Specimen Received Date/Time (DTM) <b>optional </b>
  * <li>OBR-15: Specimen Source (SPS) <b>optional </b>
  * <li>OBR-16: Ordering Provider (XCN) <b>optional repeating</b>
@@ -130,7 +130,7 @@ public class OBR extends AbstractSegment {
       this.add(XCN.class, false, 0, 0, new Object[]{getMessage()}, "Collector Identifier *");
       this.add(ID.class, false, 1, 1, new Object[]{getMessage(), Integer.valueOf(65)}, "Specimen Action Code *");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Danger Code");
-      this.add(ST.class, false, 1, 0, new Object[]{getMessage()}, "Relevant Clinical Information");
+      this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Relevant Clinical Information");
       this.add(DTM.class, false, 1, 0, new Object[]{getMessage()}, "Specimen Received Date/Time");
       this.add(SPS.class, false, 1, 0, new Object[]{getMessage()}, "Specimen Source");
       this.add(XCN.class, false, 0, 0, new Object[]{getMessage()}, "Ordering Provider");
@@ -499,8 +499,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-13: "Relevant Clinical Information" - creates it if necessary
    */
-  public ST getRelevantClinicalInformation() {
-    ST retVal = this.getTypedField(13, 0);
+  public CWE getRelevantClinicalInformation() {
+    CWE retVal = this.getTypedField(13, 0);
     return retVal;
   }
 
@@ -508,8 +508,8 @@ public class OBR extends AbstractSegment {
    * Returns
    * OBR-13: "Relevant Clinical Information" - creates it if necessary
    */
-  public ST getObr13_RelevantClinicalInformation() {
-    ST retVal = this.getTypedField(13, 0);
+  public CWE getObr13_RelevantClinicalInformation() {
+    CWE retVal = this.getTypedField(13, 0);
     return retVal;
   }
 
@@ -2658,7 +2658,7 @@ public class OBR extends AbstractSegment {
       case 11:
         return new CWE(getMessage());
       case 12:
-        return new ST(getMessage());
+        return new CWE(getMessage());
       case 13:
         return new DTM(getMessage());
       case 14:

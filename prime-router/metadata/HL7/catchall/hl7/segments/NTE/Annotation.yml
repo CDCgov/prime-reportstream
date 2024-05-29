@@ -42,19 +42,7 @@ text:
   required: true
   expressionType: HL7Spec
 
-extension_1-noteSource:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: note-source
-    valueId:
-      valueOf: NTE.2
-      expressionType: HL7Spec
-      type: STRING
-
-extension_2-noteComment:
+extension_1-noteComment:
   generateList: true
   expressionType: nested
   specs: NTE.3 *
@@ -67,7 +55,7 @@ extension_2-noteComment:
       expressionType: HL7Spec
       type: STRING
 
-extension_3-noteType:
+extension_2-noteType:
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -79,41 +67,7 @@ extension_3-noteType:
       expressionType: resource
       specs: NTE.4
 
-extension_4-startDate:
+extension_3:
   generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: note-start-date
-    valueString:
-      valueOf: NTE.7
-      expressionType: HL7Spec
-      type: STRING
-
-extension_5-expirationDate:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: note-expiration-date
-    valueString:
-      valueOf: NTE.8
-      expressionType: HL7Spec
-      type: STRING
-
-extension_6-noteCodedComment:
-  vars:
-    nte9: STRING_ALL, NTE.9
-  condition: $nte9 NOT_NULL
-  generateList: true
-  expressionType: nested
-  specs: NTE.9 *
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: note-coded-comment
-    valueCodeableConcept:
-      valueOf: datatypes/CWE/CodeableConcept
-      expressionType: resource
+  expressionType: resource
+  valueOf: segments/NTE/NTEExtension

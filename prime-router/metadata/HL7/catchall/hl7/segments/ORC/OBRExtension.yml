@@ -77,10 +77,10 @@ extension:
         url:
           type: STRING
           value: OBR.13
-        valueString:
-          expressionType: HL7Spec
-          type: STRING
-          valueOf: OBR.13
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: OBR.13
     - expressionType: nested
       vars:
         obr16: STRING_ALL, OBR.16
