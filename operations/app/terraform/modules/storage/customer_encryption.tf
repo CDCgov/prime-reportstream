@@ -16,7 +16,7 @@ locals {
 }
 
 resource "azurerm_storage_account_customer_managed_key" "customer_key" {
-  for_each = var.environment == "prod" || var.environment == "staging" ? local.customer_managed_encryption_accounts : {}
+  for_each = var.rsa_key_4096 != null ? local.customer_managed_encryption_accounts : {}
 
   key_name           = var.rsa_key_4096
   key_vault_id       = var.application_key_vault_id
