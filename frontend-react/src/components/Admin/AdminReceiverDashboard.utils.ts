@@ -1,5 +1,6 @@
 import { addMinutes, eachDayOfInterval, interval } from "date-fns";
 import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
+import { DatePair } from "../../utils/DateTimeUtils";
 
 export enum SuccessRate {
     UNDEFINED = "UNDEFINED",
@@ -73,15 +74,13 @@ export interface TimePeriodData {
 
 export function createStatusTimePeriodData({
     data,
-    startDate,
-    endDate,
-    filterResultMessage,
+    range: [startDate, endDate],
+    filterResultMessage = "",
     timePeriodMinutes = 2 * 60,
 }: {
     data: AdmConnStatusDataType[];
-    startDate: Date;
-    endDate: Date;
-    filterResultMessage: string;
+    range: DatePair;
+    filterResultMessage?: string;
     timePeriodMinutes?: number;
 }) {
     const inter = interval(startDate, endDate, { assertPositive: true });

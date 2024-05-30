@@ -1,4 +1,10 @@
-import { test as base, PlaywrightTestArgs, PlaywrightTestOptions, PlaywrightWorkerArgs, PlaywrightWorkerOptions } from "@playwright/test";
+import {
+    test as base,
+    PlaywrightTestArgs,
+    PlaywrightTestOptions,
+    PlaywrightWorkerArgs,
+    PlaywrightWorkerOptions,
+} from "@playwright/test";
 
 export interface TestLogin {
     username: string;
@@ -15,7 +21,16 @@ export interface CustomFixtures {
     isMockDisabled: boolean;
 }
 
-export type TestArgs = PlaywrightTestArgs & PlaywrightTestOptions & PlaywrightWorkerArgs & PlaywrightWorkerOptions & CustomFixtures
+export type PlaywrightAllTestArgs = PlaywrightTestArgs &
+    PlaywrightTestOptions &
+    PlaywrightWorkerArgs &
+    PlaywrightWorkerOptions;
+
+export type TestArgs<P extends keyof PlaywrightAllTestArgs> = Pick<
+    PlaywrightAllTestArgs,
+    P
+> &
+    CustomFixtures;
 
 export const test = base.extend<CustomFixtures>({
     // Define an option and provide a default value.
@@ -50,7 +65,7 @@ export const test = base.extend<CustomFixtures>({
         },
         { option: true },
     ],
-    isMockDisabled: false
+    isMockDisabled: false,
 });
 
-export {expect} from "@playwright/test"
+export { expect } from "@playwright/test";

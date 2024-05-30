@@ -18,15 +18,23 @@ import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
 import { useResource } from "rest-hooks";
 import { MAX_DAYS_MS } from "./AdminReceiverDashboard.constants";
-import { createStatusTimePeriodData, MATCHING_FILTER_CLASSNAME_MAP, RSReceiverStatusParsed, SUCCESS_RATE_CLASSNAME_MAP, SuccessRate, TimePeriodData } from "./AdminReceiverDashboard.utils";
 import {
-    AdmConnStatusResource,
-} from "../../resources/AdmConnStatusResource";
-import { DatePair, DAY_BACK_DEFAULT, durationFormatShort} from "../../utils/DateTimeUtils";
+    createStatusTimePeriodData,
+    MATCHING_FILTER_CLASSNAME_MAP,
+    RSReceiverStatusParsed,
+    SUCCESS_RATE_CLASSNAME_MAP,
+    SuccessRate,
+    TimePeriodData,
+} from "./AdminReceiverDashboard.utils";
+import { AdmConnStatusResource } from "../../resources/AdmConnStatusResource";
+import {
+    DatePair,
+    DAY_BACK_DEFAULT,
+    durationFormatShort,
+} from "../../utils/DateTimeUtils";
 import { formatDate } from "../../utils/misc";
 import { StyleClass, TableFilterDateLabel } from "../Table/TableFilters";
 import { USLink } from "../USLink";
-
 
 /**
  *
@@ -130,7 +138,9 @@ import { USLink } from "../USLink";
 export function MainRender({
     datesRange: [startDate, endDate],
     filterResultMessage,
-    filterRowReceiver,filterRowStatus,onDetailsClick
+    filterRowReceiver,
+    filterRowStatus,
+    onDetailsClick,
 }: {
     datesRange: DatePair;
     filterRowStatus: SuccessRate;
@@ -143,84 +153,127 @@ export function MainRender({
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
     });
-    const data = useMemo(() => createStatusTimePeriodData({data: results, startDate, endDate, filterResultMessage, timePeriodMinutes}), [endDate, filterResultMessage, results, startDate, timePeriodMinutes]);
+    const data = useMemo(
+        () =>
+            createStatusTimePeriodData({
+                data: results,
+                range: [startDate, endDate],
+                filterResultMessage,
+                timePeriodMinutes,
+            }),
+        [endDate, filterResultMessage, results, startDate, timePeriodMinutes],
+    );
 
     const handleTimePeriodClick = useCallback(
-        ({entries}: TimePeriodData) => {
+        ({ entries }: TimePeriodData) => {
             // in theory, there might be multiple events for the block, but we're only handling one for now.
             onDetailsClick(entries);
         },
         [onDetailsClick],
     );
 
-    if(data.length === 0) {
+    if (data.length === 0) {
         return <div>No Data</div>;
     }
 
-    const filteredData = data.filter(d => {
-        return (!filterRowReceiver || d.receiverName.toLowerCase().includes(filterRowReceiver)) && (!filterRowStatus || filterRowStatus === SuccessRate.UNDEFINED || d.successRateType === filterRowStatus)
+    const filteredData = data.filter((d) => {
+        return (
+            (!filterRowReceiver ||
+                d.receiverName.toLowerCase().includes(filterRowReceiver)) &&
+            (!filterRowStatus ||
+                filterRowStatus === SuccessRate.UNDEFINED ||
+                d.successRateType === filterRowStatus)
+        );
     });
 
-    if(filteredData.length === 0) {
-        return <div>No data matching filters</div>
+    if (filteredData.length === 0) {
+        return <div>No data matching filters</div>;
     }
 
     return (
         <ScrollSync horizontal enabled>
             <GridContainer className={"rs-admindash-component"}>
-                {
-                    filteredData.map(d => (
+                {filteredData.map((d) => (
+                    <Grid
+                        row
+                        key={`perreceiver-${d.organizationName}-${d.receiverName}`}
+                        className={"perreceiver-row"}
+                    >
                         <Grid
-                            row
-                            key={`perreceiver-${d.organizationName}-${d.receiverName}`}
-                            className={"perreceiver-row"}
+                            className={`title-column ${SUCCESS_RATE_CLASSNAME_MAP[d.successRateType]}`}
                         >
-                            <Grid className={`title-column ${SUCCESS_RATE_CLASSNAME_MAP[d.successRateType]}`}>
-                                <div className={"title-text"}>
-                                    <USLink href={`/admin/orgsettings/org/${d.organizationName}`}>{d.organizationName}</USLink>
-                                    <br />
-                                    <USLink href={`/admin/orgreceiversettings/org/${d.organizationName}/receiver/${d.receiverName}/action/edit`}>{d.receiverName}</USLink>
-                                    <br />
-                                    {d.successRate}%
-                                </div>
-                            </Grid>
-                            <ScrollSyncPane enabled>
-                                <Grid row className={"horizontal-scroll"}>
-                                    <Grid row className={"week-column"}>
-                                        {d.days.map(d => {
-                                            return <GridContainer
+                            <div className={"title-text"}>
+                                <USLink
+                                    href={`/admin/orgsettings/org/${d.organizationName}`}
+                                >
+                                    {d.organizationName}
+                                </USLink>
+                                <br />
+                                <USLink
+                                    href={`/admin/orgreceiversettings/org/${d.organizationName}/receiver/${d.receiverName}/action/edit`}
+                                >
+                                    {d.receiverName}
+                                </USLink>
+                                <br />
+                                {d.successRate}%
+                            </div>
+                        </Grid>
+                        <ScrollSyncPane enabled>
+                            <Grid row className={"horizontal-scroll"}>
+                                <Grid row className={"week-column"}>
+                                    {d.days.map((d) => {
+                                        return (
+                                            <GridContainer
                                                 key={`perday-${d.dayString}`}
                                                 className={"perday-component"}
                                             >
-                                                <Grid row className={"title-row"}>
+                                                <Grid
+                                                    row
+                                                    className={"title-row"}
+                                                >
                                                     {d.dayString}
                                                 </Grid>
-                                                <Grid  gap={1} row className={"slices-row slices-row-12"}>
-                                                {d.timePeriods.map(t => {
-                                                    return (
-                                                        <Grid
-                                                            row
-                                                            key={`slice:${t.end.toISOString()}`}
-                                                            className={`slice ${SUCCESS_RATE_CLASSNAME_MAP[t.successRateType]} ${MATCHING_FILTER_CLASSNAME_MAP[t.matchingFilter]}`}
-                                                            role="button"
-                                                            aria-disabled={t.successRateType === SuccessRate.UNDEFINED}
-                                                            onClick={
-                                                                t.successRateType === SuccessRate.UNDEFINED
-                                                                    ? undefined // do not even install a click handler noop
-                                                                    : () => handleTimePeriodClick(t)
-                                                            }
-                                                        >
-                                                            {" "}
-                                                        </Grid>
-                                                    )})}</Grid>
+                                                <Grid
+                                                    gap={1}
+                                                    row
+                                                    className={
+                                                        "slices-row slices-row-12"
+                                                    }
+                                                >
+                                                    {d.timePeriods.map((t) => {
+                                                        return (
+                                                            <Grid
+                                                                row
+                                                                key={`slice:${t.end.toISOString()}`}
+                                                                className={`slice ${SUCCESS_RATE_CLASSNAME_MAP[t.successRateType]} ${MATCHING_FILTER_CLASSNAME_MAP[t.matchingFilter]}`}
+                                                                role="button"
+                                                                aria-disabled={
+                                                                    t.successRateType ===
+                                                                    SuccessRate.UNDEFINED
+                                                                }
+                                                                onClick={
+                                                                    t.successRateType ===
+                                                                    SuccessRate.UNDEFINED
+                                                                        ? undefined // do not even install a click handler noop
+                                                                        : () =>
+                                                                              handleTimePeriodClick(
+                                                                                  t,
+                                                                              )
+                                                                }
+                                                            >
+                                                                {" "}
+                                                            </Grid>
+                                                        );
+                                                    })}
+                                                </Grid>
                                             </GridContainer>
-                                        })}
-                                    </Grid>
+                                        );
+                                    })}
                                 </Grid>
-                            </ScrollSyncPane>
-                        </Grid>
-                    ))
-                }
+                            </Grid>
+                        </ScrollSyncPane>
+                    </Grid>
+                ))}
             </GridContainer>
         </ScrollSync>
     );
@@ -318,7 +371,11 @@ export function ModalInfoRender(props: { subData: RSReceiverStatusParsed[] }) {
  *  - We want start AND end picked before the expensive fetch.
  *  - Picker fields are LARGE and take up a bunch of space.
  */
-export function DateRangePickingAtomic({defaultEndDate, defaultStartDate, onChange}: {
+export function DateRangePickingAtomic({
+    defaultEndDate,
+    defaultStartDate,
+    onChange,
+}: {
     defaultStartDate: Date;
     defaultEndDate: Date;
     onChange: (props: { startDate: Date; endDate: Date }) => void;
@@ -358,7 +415,13 @@ export function DateRangePickingAtomic({defaultEndDate, defaultStartDate, onChan
                         onChange: (s) => {
                             if (s) {
                                 // eslint-disable-next-line no-console
-                                console.log("browser", {current: startDate.toLocaleDateString(), next: s, nextIso: startOfDay(new Date(s)).toISOString()})
+                                console.log("browser", {
+                                    current: startDate.toLocaleDateString(),
+                                    next: s,
+                                    nextIso: startOfDay(
+                                        new Date(s),
+                                    ).toISOString(),
+                                });
                                 setStartDate(new Date(s));
                             }
                         },
@@ -371,7 +434,13 @@ export function DateRangePickingAtomic({defaultEndDate, defaultStartDate, onChan
                         onChange: (s) => {
                             if (s) {
                                 // eslint-disable-next-line no-console
-                                console.log("browser", {current: endDate.toLocaleDateString(), next: s, nextIso: endOfDay(new Date(s)).toISOString()})
+                                console.log("browser", {
+                                    current: endDate.toLocaleDateString(),
+                                    next: s,
+                                    nextIso: endOfDay(
+                                        new Date(s),
+                                    ).toISOString(),
+                                });
                                 setEndDate(endOfDay(new Date(s)));
                             }
                         },
@@ -382,7 +451,7 @@ export function DateRangePickingAtomic({defaultEndDate, defaultStartDate, onChan
                     disabled={!isDateRangeOk()}
                     onClick={() => {
                         modalRef.current?.toggleModal(undefined, false);
-                        onChange({startDate, endDate})
+                        onChange({ startDate, endDate });
                     }}
                 >
                     Update
@@ -400,15 +469,13 @@ export function DateRangePickingAtomic({defaultEndDate, defaultStartDate, onChan
 export function AdminReceiverDashboard() {
     const defaultDatesRef = useRef({
         start: startOfDay(subDays(new Date(), DAY_BACK_DEFAULT)),
-        end: endOfDay(new Date())
-    })
+        end: endOfDay(new Date()),
+    });
 
     const [startDate, setStartDate] = useState<Date>(
         defaultDatesRef.current.start,
     );
-    const [endDate, setEndDate] = useState<Date>(
-        defaultDatesRef.current.end,
-    );
+    const [endDate, setEndDate] = useState<Date>(defaultDatesRef.current.end);
     // this is the text input box filter
     const [filterReceivers, setFilterReceivers] = useState("");
     const [filterErrorResults, setFilterErrorResults] = useState("");
@@ -421,12 +488,15 @@ export function AdminReceiverDashboard() {
         RSReceiverStatusParsed[]
     >([]);
 
-    const showDetailsModal = useCallback((subData: RSReceiverStatusParsed[]) => {
-        if (subData.length) {
-            setCurrentDataForModal(subData);
-            modalShowInfoRef?.current?.toggleModal(undefined, true);
-        }
-    }, []);
+    const showDetailsModal = useCallback(
+        (subData: RSReceiverStatusParsed[]) => {
+            if (subData.length) {
+                setCurrentDataForModal(subData);
+                modalShowInfoRef?.current?.toggleModal(undefined, true);
+            }
+        },
+        [],
+    );
 
     return (
         <article>
@@ -442,7 +512,11 @@ export function AdminReceiverDashboard() {
                     "Times shown are in YOUR LOCAL timezone. Be aware that receivers and servers may be in different zones."
                 }
             </SiteAlert>
-            <form autoComplete="off" className="grid-row margin-0" name="filter">
+            <form
+                autoComplete="off"
+                className="grid-row margin-0"
+                name="filter"
+            >
                 <div className="flex-auto margin-1">
                     <Label
                         className="font-sans-xs usa-label text-no-wrap"
@@ -455,7 +529,10 @@ export function AdminReceiverDashboard() {
                         defaultEndDate={defaultDatesRef.current.end}
                         onChange={(params) => {
                             // eslint-disable-next-line no-console
-                            console.log("browser", {sIso: params.startDate.toISOString(), eIso: params.endDate.toISOString()})
+                            console.log("browser", {
+                                sIso: params.startDate.toISOString(),
+                                eIso: params.endDate.toISOString(),
+                            });
                             setStartDate(params.startDate);
                             setEndDate(params.endDate);
                         }}
@@ -543,18 +620,13 @@ export function AdminReceiverDashboard() {
                     </Tooltip>
                 </div>
             </form>
-                    <MainRender
-                        datesRange={[
-                            startDate,
-                            endDate,
-                        ]}
-                        filterRowStatus={filterRowSuccessState}
-                        filterResultMessage={filterErrorResults
-                            .trim()
-                            .toLowerCase()}
-                        filterRowReceiver={filterReceivers.trim().toLowerCase()}
-                        onDetailsClick={showDetailsModal}
-                    />
+            <MainRender
+                datesRange={[startDate, endDate]}
+                filterRowStatus={filterRowSuccessState}
+                filterResultMessage={filterErrorResults.trim().toLowerCase()}
+                filterRowReceiver={filterReceivers.trim().toLowerCase()}
+                onDetailsClick={showDetailsModal}
+            />
             <Modal
                 isLarge={true}
                 className="rs-admindash-modal"
