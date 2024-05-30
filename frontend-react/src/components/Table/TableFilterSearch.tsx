@@ -30,7 +30,7 @@ function TableFilterSearch({
         setSearchTerm(searchField?.value);
 
         appInsights?.trackEvent({
-            name: `${FeatureName.DAILY_DATA} | "Search"}`,
+            name: `${FeatureName.DAILY_DATA} | Search`,
         });
     };
     return (
