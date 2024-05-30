@@ -13,7 +13,8 @@ resource "azurerm_linux_web_app" "metabase" {
   site_config {
 
     application_stack {
-      docker_image_name = "metabase/metabase"
+      docker_image_name   = "metabase/metabase:latest"
+      docker_registry_url = "https://index.docker.io"
     }
 
     ip_restriction {
@@ -89,7 +90,6 @@ resource "azurerm_linux_web_app" "metabase" {
     "WEBSITE_SMTP_PASSWORD"                           = var.sendgrid_password
     "WEBSITE_SMTP_SERVER"                             = "smtp.sendgrid.net"
     "WEBSITE_SMTP_USERNAME"                           = "apikey"
-
   }
 
   sticky_settings {
