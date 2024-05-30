@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
+  "additionalProperties": false,
   "properties": {
     "ancestry": {
       "type": "array",
@@ -15,6 +16,7 @@
       "type": "array",
       "items": {
         "type": "object",
+        "additionalProperties": false,
         "properties": {
           "bundleProperty": {
             "type": "string"
@@ -62,9 +64,11 @@
             "anyOf": [
               {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                   "lookupTable": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                       "tableName": {
                         "type": "string"
@@ -81,6 +85,7 @@
               },
               {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                   "values": {
                     "type": "object"
