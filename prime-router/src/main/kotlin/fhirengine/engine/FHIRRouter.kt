@@ -104,7 +104,8 @@ class FHIRRouter(
                 message.topic,
                 sender,
                 observationSummary,
-                fhirJson.length
+                fhirJson.length,
+                AzureEventUtils.getIdentifier(bundle)
             )
         )
 
@@ -187,7 +188,8 @@ class FHIRRouter(
                         sender,
                         receiver.fullName,
                         receiverObservationSummary,
-                        bodyString.length
+                        bodyString.length,
+                        AzureEventUtils.getIdentifier(bundle)
                     )
                 )
 
@@ -255,7 +257,8 @@ class FHIRRouter(
                     sender,
                     null,
                     receiverObservationSummary,
-                    fhirJson.length
+                    fhirJson.length,
+                    AzureEventUtils.getIdentifier(bundle)
                 )
             )
 
