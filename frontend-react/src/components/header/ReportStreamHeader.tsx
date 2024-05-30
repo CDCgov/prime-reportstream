@@ -236,16 +236,14 @@ function ReportStreamAuthNavbar({
 
     const menuLogOut = [
         <div className="primary-nav-link-container" key="logout">
-            {user.claims && (
-                <USLinkButton
-                    id="logout"
-                    data-testid="logout"
-                    unstyled
-                    onClick={logout}
-                >
-                    Log out
-                </USLinkButton>
-            )}
+            <USLinkButton
+                id="logout"
+                data-testid="logout"
+                unstyled
+                onClick={logout}
+            >
+                Log out
+            </USLinkButton>
         </div>,
     ];
     const navbarItemBuilder = () => {
@@ -464,7 +462,7 @@ const ReportStreamHeader = ({
         <>
             <GovBanner aria-label="Official government website" />
             {!isNavHidden && <SenderModeBanner />}
-            {!isNavHidden && user.claims && (
+            {!isNavHidden && activeMembership && (
                 <Header basic={true} className={classnames(styles.AuthNavbar)}>
                     <div
                         className="usa-nav-container"
