@@ -26,6 +26,7 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.ConditionSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
@@ -440,7 +441,11 @@ class FhirDestinationFilterTests {
                     ObservationSummary.EMPTY,
                     ObservationSummary.EMPTY
                 ),
-                36942
+                36995,
+                AzureEventUtils.MessageID(
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
+                    "https://reportstream.cdc.gov/prime-router"
+                )
             )
             val expectedRoutedEvent = ReportRouteEvent(
                 message.reportId,
@@ -460,7 +465,11 @@ class FhirDestinationFilterTests {
                     ObservationSummary.EMPTY,
                     ObservationSummary.EMPTY
                 ),
-                36942
+                36995,
+                AzureEventUtils.MessageID(
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
+                    "https://reportstream.cdc.gov/prime-router"
+                )
             )
 
             assertThat(azureEvents).hasSize(2)
