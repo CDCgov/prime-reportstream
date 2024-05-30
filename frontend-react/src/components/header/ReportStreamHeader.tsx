@@ -181,7 +181,12 @@ function ReportStreamAuthNavbar({
 
     const menuItemsReceiver = [
         <div className="primary-nav-link-container" key="daily">
-            <USLinkButton unstyled data-testid="daily-data" href="/daily-data">
+            <USLinkButton
+                className={primaryLinkClasses(!!useMatch("/daily-data/*"))}
+                unstyled
+                data-testid="daily-data"
+                href="/daily-data"
+            >
                 Daily Data
             </USLinkButton>
         </div>,
@@ -190,6 +195,7 @@ function ReportStreamAuthNavbar({
     const menuItemsSender = [
         <div className="primary-nav-link-container" key="submissions">
             <USLinkButton
+                className={primaryLinkClasses(!!useMatch("/submissions/*"))}
                 unstyled
                 data-testid="submissions"
                 href="/submissions"
