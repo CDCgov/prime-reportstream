@@ -125,7 +125,9 @@ implementation differs from what is in the spreadsheets.
 - The inventory mentions OBR.29, ORC.8 and ORC.31 mention that they should be mapped onto a `basedOn` value which is not
   defined in the mapping, the implementation maps them to extensions
 - The inventory specifies to prefer OBR.53 over ORC.33 as an identifier which does not align with any of the other
-  identifiers, the implementations prefer ORC in all casses
+  identifiers, the implementations prefer ORC in all cases
+- ORC.34 is listed as type CWE in the mapping inventory but most sources state EI is the correct datatype. We have
+  chosen to treat this field as EI.
 
 ### PID -> Patient
 
