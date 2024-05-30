@@ -340,12 +340,7 @@ internal fun getObservationExtensions(
     val observationExtensionsToKeep = mutableListOf<Extension>()
     if (observationsToKeep.size < allObservations.size) {
         observationsToKeep.forEach {
-            observationExtensionsToKeep.add(
-                Extension(
-                    conditionExtensionURL,
-                    Reference(it.idBase)
-                )
-            )
+            observationExtensionsToKeep.add(Extension(conditionExtensionURL, Reference(it.idBase)))
         }
     }
     return observationExtensionsToKeep
@@ -441,13 +436,12 @@ fun Bundle.enhanceBundleMetadata(hl7Message: Message) {
     this.timestamp = HL7Reader.getMessageTimestamp(hl7Message)
 
     // The HL7 message ID
-    val identifierValue = when (val mshSegment = hl7Message["MSH"]) {
+    this.identifier.value = when (val mshSegment = hl7Message["MSH"]) {
         is fhirengine.translation.hl7.structures.nistelr251.segment.MSH -> mshSegment.messageControlID.value
         is ca.uhn.hl7v2.model.v27.segment.MSH -> mshSegment.messageControlID.value
         is ca.uhn.hl7v2.model.v251.segment.MSH -> mshSegment.messageControlID.value
         else -> ""
     }
-    this.identifier.value = identifierValue
     this.identifier.system = bundleIdentifierURL
 }
 
