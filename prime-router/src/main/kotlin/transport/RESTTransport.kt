@@ -57,6 +57,7 @@ import kotlinx.serialization.json.Json
 import org.json.JSONObject
 import java.io.InputStream
 import java.security.KeyStore
+import java.time.OffsetDateTime
 import java.util.Base64
 import java.util.logging.Logger
 import javax.crypto.SecretKey
@@ -105,7 +106,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             )
         }
 
-        // get the username/password to authenticate with OAuth
         val (credential, jksCredential) = getCredential(restTransportInfo, receiver)
 
         return try {
@@ -113,15 +113,23 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             runBlocking {
                 launch {
                     try {
-                        // parse headers for any dynamic values, OK needs the report ID
-                        val (httpHeaders, accessToken: String?) = getOAuthToken(
-                            restTransportInfo,
-                            reportId,
-                            jksCredential,
-                            credential,
-                            logger
-                        )
-                        logger.info("Token successfully added!")
+                        val httpHeaders = getHeaders(restTransportInfo, reportId)
+                        var accessToken: String? = null
+
+                        if (restTransportInfo.authType == "apiKey") {
+                            httpHeaders["Key"] = (credential as UserApiKeyCredential).apiKey
+                        }
+
+                        if (restTransportInfo.authType == "two-legged" || restTransportInfo.authType == null) {
+                            // parse headers for any dynamic values, OK needs the report ID
+                            accessToken = getOAuthToken(
+                                restTransportInfo,
+                                jksCredential,
+                                credential,
+                                logger
+                            )
+                            logger.info("Token successfully added!")
+                        }
 
                         // If encryption is needed.
                         if (restTransportInfo.encryptionKeyUrl.isNotEmpty()) {
@@ -146,7 +154,8 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             httpClient ?: createDefaultHttpClient(
                                 jksCredential, accessToken,
                                 restTransportInfo
-                            )
+                            ),
+                            header.reportFile.createdAt
                         )
                         val responseBody = response.bodyAsText()
                         // update the action history
@@ -256,7 +265,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             "RESTTransport",
             CredentialRequestReason.REST_UPLOAD
         ) as? RestCredential?
-            ?: error("Unable to find OAuth credentials for $receiverFullName using $credentialLabel")
+            ?: error("Unable to find credentials for $receiverFullName using $credentialLabel")
     }
 
     /**
@@ -289,26 +298,32 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     }
 
     /**
-     * Get the OAuth token based on credential type
-     *
-     * @param restTransportInfo - Transport setting
-     * @param reportId - report ID
-     * @param jksCredential The jks credential
+     * Generate headers
+     * @param [restTransportInfo] holds receiver-specific Rest parameters
+     * @param [reportId] report id to be added as header
      */
-    suspend fun getOAuthToken(
-        restTransportInfo: RESTTransportType,
-        reportId: String,
-        jksCredential: UserJksCredential?,
-        credential: RestCredential,
-        logger: Logger,
-    ): Pair<Map<String, String>, String?> {
-        var httpHeaders = restTransportInfo.headers.mapValues {
+    fun getHeaders(restTransportInfo: RESTTransportType, reportId: String): MutableMap<String, String> {
+        return restTransportInfo.headers.mapValues {
             if (it.value == "header.reportFile.reportId") {
                 reportId
             } else {
                 it.value
             }
-        }
+        }.toMutableMap()
+    }
+
+    /**
+     * Get the OAuth token based on credential type
+     *
+     * @param restTransportInfo - Transport setting
+     * @param jksCredential The jks credential
+     */
+    suspend fun getOAuthToken(
+        restTransportInfo: RESTTransportType,
+        jksCredential: UserJksCredential?,
+        credential: RestCredential,
+        logger: Logger,
+    ): String {
         val tokenClient = httpClient ?: createDefaultHttpClient(jksCredential, null, null)
         // get the credential and use it to request an OAuth token
         // Usually credential is a UserApiKey, with an apiKey field (NY)
@@ -341,7 +356,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             }
             else -> error("UserApiKey or UserPass credential required")
         }
-        return Pair(httpHeaders, tokenInfo.accessToken)
+        return tokenInfo.accessToken
     }
 
     /**
@@ -563,6 +578,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         headers: Map<String, String>,
         logger: Logger,
         httpClient: HttpClient,
+        reportCreateDate: OffsetDateTime,
     ): HttpResponse {
         logger.info(fileName)
         val boundary = "WebAppBoundary"
@@ -610,6 +626,26 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                                             append(HttpHeaders.ContentDisposition, "filename=\"${fileName}\"")
                                         }
                                     )
+                                },
+                                boundary
+                            )
+                        }
+                        "elims/params" -> {
+                            MultiPartFormDataContent(
+                                formData {
+                                    append("System_ID", "HL7_ETOR")
+                                    append("Key", headers["Key"] ?: "")
+                                    append("DateReceived", reportCreateDate.toString())
+                                    append("FileName", "filename=\"${fileName}\"")
+                                    append(
+                                        "Message",
+                                        message,
+                                        Headers.build {
+                                            append(HttpHeaders.ContentType, "text/plain")
+                                            append(HttpHeaders.ContentDisposition, "filename=\"${fileName}\"")
+                                        }
+                                    )
+                                    append("Comment", "")
                                 },
                                 boundary
                             )
