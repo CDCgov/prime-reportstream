@@ -94,16 +94,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         val receiver = header.receiver ?: error("No receiver defined for report $reportId")
         var reportContent: ByteArray = header.content ?: error("No content for report $reportId")
         // get the file name from blob url, or create one from the report metadata
-        val fileName = if (header.receiver.topic.isSendOriginal) {
-            Report.formExternalFilename(header)
-        } else {
-            Report.formFilename(
-                header.reportFile.reportId,
-                receiver.organizationName,
-                Report.Format.valueOf(receiver.translation.type),
-                header.reportFile.createdAt
-            )
-        }
+        val fileName = Report.formExternalFilename(header)
 
         // get the username/password to authenticate with OAuth
         val (credential, jksCredential) = getCredential(restTransportInfo, receiver)
@@ -194,6 +185,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     actionHistory.trackActionResult(t.response.status, msg)
                     null
                 }
+
                 is ServerResponseException -> {
                     // this is largely duplicated code as below, but we may want to add additional
                     // instrumentation based on the specific error type we're getting. One benefit
@@ -210,6 +202,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     actionHistory.trackActionResult(t.response.status, msg)
                     RetryToken.allItems
                 }
+
                 else -> {
                     // this is an unknown exception, and maybe not one related to ktor, so we should
                     // track, but try again
@@ -323,6 +316,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     tokenClient
                 )
             }
+
             is UserPassCredential -> {
                 tokenInfo = getAuthTokenWithUserPass(
                     restTransportInfo,
@@ -331,6 +325,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     tokenClient
                 )
             }
+
             is UserAssertionCredential -> {
                 tokenInfo = getAuthTokenWithAssertion(
                     restTransportInfo,
@@ -339,6 +334,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     tokenClient
                 )
             }
+
             else -> error("UserApiKey or UserPass credential required")
         }
         return Pair(httpHeaders, tokenInfo.accessToken)
@@ -614,6 +610,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                                 boundary
                             )
                         }
+
                         else -> {
                             // Note: It is here for default content-type.  It is used for integration test
                             contentType(ContentType.Text.Plain)

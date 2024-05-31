@@ -287,7 +287,7 @@ open class BaseHistoryFunction : Logging {
                     it.reportId,
                     it.schemaName,
                     Report.Format.safeValueOf(it.bodyFormat),
-                    it.createdAt
+                    it.createdAt,
                 )
 
                 val content = if (header !== null && header.content !== null) String(header.content) else ""

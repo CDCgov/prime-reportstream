@@ -184,11 +184,10 @@ class WorkflowEngine(
                 Report.Format.safeValueOf(sender.format.toString())
             }
 
-        val blobFilename = report.name.replace(report.bodyFormat.ext, reportFormat.ext)
         val blobInfo = BlobAccess.uploadBody(
             reportFormat,
             rawBody,
-            blobFilename,
+            report.id.toString(),
             sender.fullName,
             Event.EventAction.RECEIVE
         )

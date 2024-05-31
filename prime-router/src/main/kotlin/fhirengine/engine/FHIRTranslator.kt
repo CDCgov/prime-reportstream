@@ -83,6 +83,7 @@ class FHIRTranslator(
                         listOf(sendTranslated(message, receiver, actionHistory))
                     }
                 }
+
                 else -> {
                     throw RuntimeException(
                         "Message was not a FhirTranslateQueueMessage and cannot be " +
@@ -119,7 +120,6 @@ class FHIRTranslator(
             this.metadata,
             actionHistory,
             topic = message.topic,
-            originalReport.externalName,
             Report.Format.valueOfFromExt(originalReport.bodyFormat)
         )
 

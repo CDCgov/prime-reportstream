@@ -266,11 +266,7 @@ class Report : Logging {
     val name: String
         get() = formFilename(
             id,
-            schema.baseName,
             bodyFormat,
-            createdDateTime,
-            translationConfig = if (destination?.topic?.isSendOriginal == true) null else destination?.translation,
-            metadata = this.metadata
         )
 
     /**
@@ -1555,44 +1551,10 @@ class Report : Logging {
 
         fun formFilename(
             id: ReportId,
-            schemaName: String,
             fileFormat: Format?,
-            createdDateTime: OffsetDateTime,
-            translationConfig: TranslatorConfiguration? = null,
-            metadata: Metadata? = null,
         ): String {
-            return formFilename(
-                id,
-                schemaName,
-                fileFormat,
-                createdDateTime,
-                translationConfig?.nameFormat ?: "standard",
-                translationConfig,
-                metadata = metadata
-            )
-        }
-
-        fun formFilename(
-            id: ReportId,
-            schemaName: String,
-            fileFormat: Format?,
-            createdDateTime: OffsetDateTime,
-            nameFormat: String = "standard",
-            translationConfig: TranslatorConfiguration? = null,
-            metadata: Metadata? = null,
-        ): String {
-            val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
-            val fileName = if (fileFormat == Format.INTERNAL || translationConfig == null) {
-                // This file-naming format is used for all INTERNAL files, and whenever there is no custom format.
-                "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
-            } else {
-                metadata!!.fileNameTemplates[nameFormat.lowercase()].run {
-                    this?.getFileName(translationConfig, id)
-                        ?: "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
-                }
-            }
-            return "$fileName.$nameSuffix"
+            return "$id.$nameSuffix"
         }
 
         /**
@@ -1607,7 +1569,8 @@ class Report : Logging {
             return if (header.reportFile.bodyUrl != null) {
                 BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl)
             } else {
-                formFilename(
+                formExternalFilename(
+                    header.reportFile.bodyUrl,
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
                     Format.valueOfFromExt(header.reportFile.bodyFormat),
@@ -1627,18 +1590,20 @@ class Report : Logging {
             schemaName: String,
             format: Format,
             createdAt: OffsetDateTime,
-            metadata: Metadata? = null,
+            metadata: Metadata? = Metadata.getInstance(),
+            nameFormat: String = "standard",
+            translationConfig: TranslatorConfiguration? = null,
         ): String {
             return if (bodyUrl != null) {
                 BlobAccess.BlobInfo.getBlobFilename(bodyUrl)
             } else {
-                formFilename(
-                    reportId,
-                    schemaName,
-                    format,
-                    createdAt,
-                    metadata = metadata ?: Metadata.getInstance()
-                )
+                val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                val nameSuffix = format.ext
+                val fileName = metadata!!.fileNameTemplates[nameFormat.lowercase()].run {
+                    this?.getFileName(translationConfig, reportId)
+                        ?: "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}"
+                }
+                "$fileName.$nameSuffix"
             }
         }
 
@@ -1689,8 +1654,8 @@ class Report : Logging {
             metadata: Metadata,
             actionHistory: ActionHistory,
             topic: Topic,
-            externalName: String? = null,
             format: Format? = null,
+            externalName: String? = null,
         ): Triple<Report, Event, BlobAccess.BlobInfo> {
             check(messageBody.isNotEmpty())
             check(sourceReportIds.isNotEmpty())
@@ -1706,6 +1671,7 @@ class Report : Logging {
                         Report.Format.HL7
                     }
                 }
+
                 Report.Format.FHIR -> Report.Format.FHIR
                 else -> throw IllegalStateException("Unsupported receiver format ${receiver.format}")
             }
@@ -1759,7 +1725,7 @@ class Report : Logging {
             val blobInfo = BlobAccess.uploadBody(
                 reportFormat,
                 messageBody,
-                if (!externalName.isNullOrEmpty()) "${report.id}-$externalName" else report.name,
+                report.id.toString(),
                 receiver.fullName,
                 event.eventAction
             )
@@ -1767,7 +1733,7 @@ class Report : Logging {
             report.nextAction = event.eventAction.toTaskAction()
 
             // track generated reports, one per receiver
-            actionHistory.trackCreatedReport(event, report, blobInfo = blobInfo)
+            actionHistory.trackCreatedReport(event, report, blobInfo = blobInfo, externalName = externalName)
 
             return Triple(report, event, blobInfo)
         }

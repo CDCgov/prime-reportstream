@@ -170,7 +170,7 @@ class FHIRRouter(
                 val blobInfo = BlobAccess.uploadBody(
                     Report.Format.FHIR,
                     bodyString.toByteArray(),
-                    report.name,
+                    report.id.toString(),
                     message.blobSubFolderName,
                     nextEvent.eventAction
                 )

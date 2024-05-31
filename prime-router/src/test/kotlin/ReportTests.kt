@@ -979,7 +979,7 @@ class ReportTests {
         assertThat(report.destination!!.name).isEqualTo(receiver.name)
         assertThat(report.itemLineages).isNotNull()
         assertThat(report.itemLineages!!.size).isEqualTo(1)
-        assertThat(Regex("None-${report.id}-\\d*.fhir").matches(report.name)).isTrue()
+        assertThat(Regex("${report.id}.fhir").matches(report.name)).isTrue()
         assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
         assertThat(blobInfo.blobUrl).endsWith("/devstoreaccount1/container1/process%2Forg.name%2F${report.name}")
         assertThat(BlobAccess.downloadBlobAsByteArray(blobInfo.blobUrl, blobContainerMetadata))
@@ -1047,7 +1047,7 @@ class ReportTests {
         assertThat(report.destination!!.name).isEqualTo(receiver.name)
         assertThat(report.itemLineages).isNotNull()
         assertThat(report.itemLineages!!.size).isEqualTo(1)
-        assertThat(Regex("None-${report.id}-\\d*.hl7").matches(report.name)).isTrue()
+        assertThat(Regex("${report.id}.hl7").matches(report.name)).isTrue()
         assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
         assertThat(blobInfo.blobUrl).endsWith("/devstoreaccount1/container1/process%2Forg.name%2F${report.name}")
         assertThat(BlobAccess.downloadBlobAsByteArray(blobInfo.blobUrl, blobContainerMetadata))
@@ -1092,7 +1092,7 @@ class ReportTests {
             every { fileNameTemplates } returns emptyMap()
         }
         val mockActionHistory = mockk<ActionHistory> {
-            every { trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
+            every { trackCreatedReport(any(), any(), blobInfo = any(), externalName = any()) } returns Unit
         }
         val hl7MockData = UUID.randomUUID().toString().toByteArray() // Just some data
         val receiver = Receiver(
@@ -1108,13 +1108,13 @@ class ReportTests {
         val externalReportName = "TestExternalName.hl7"
         val (report, _, blobInfo) = Report.generateReportAndUploadBlob(
             Event.EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
-            topic = Topic.FULL_ELR, externalReportName
+            topic = Topic.FULL_ELR, externalName = externalReportName
         )
 
         assertThat(report.bodyFormat).isEqualTo(Report.Format.HL7)
-        assertThat(Regex("None-${report.id}-\\d*.hl7").matches(report.name)).isTrue()
+        assertThat(Regex("${report.id}.hl7").matches(report.name)).isTrue()
         assertThat(blobInfo.blobUrl).endsWith(
-            "/devstoreaccount1/container1/process%2Forg.name%2F${report.id}-$externalReportName"
+            "/devstoreaccount1/container1/process%2Forg.name%2F${report.name}"
         )
     }
 

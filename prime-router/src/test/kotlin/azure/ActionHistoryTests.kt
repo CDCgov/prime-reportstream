@@ -295,6 +295,7 @@ class ActionHistoryTests {
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
         every { inReportFile.itemCount } returns 15
+        every { inReportFile.reportId } returns uuid
         val orgReceiver = org.receivers[0]
         val actionHistory1 = ActionHistory(TaskAction.receive)
         actionHistory1.action
@@ -357,6 +358,7 @@ class ActionHistoryTests {
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
         every { inReportFile.itemCount } returns 15
+        every { inReportFile.reportId } returns uuid
         val actionHistory1 = ActionHistory(TaskAction.receive)
 
         actionHistory1.trackSentReport(org.receivers[0], uuid, "filename1", "params1", "result1", header)
@@ -550,6 +552,7 @@ class ActionHistoryTests {
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
         every { inReportFile.itemCount } returns 15
+        every { inReportFile.reportId } returns uuid
         val actionHistory1 = ActionHistory(TaskAction.receive)
         actionHistory1.action
         actionHistory1.trackSentReport(org.receivers[0], uuid, "filename1", "params1", "result1", header)

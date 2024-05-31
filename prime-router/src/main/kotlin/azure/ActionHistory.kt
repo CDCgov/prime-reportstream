@@ -28,7 +28,6 @@ import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.net.URISyntaxException
 import java.time.LocalDateTime
-import java.util.UUID
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -468,6 +467,7 @@ class ActionHistory(
         report: Report,
         receiver: Receiver? = null,
         blobInfo: BlobAccess.BlobInfo? = null,
+        externalName: String? = null,
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -482,6 +482,7 @@ class ActionHistory(
 
         reportFile.nextAction = event.eventAction.toTaskAction()
         reportFile.nextActionAt = event.at
+        reportFile.externalName = externalName
 
         if (receiver != null) {
             reportFile.receivingOrg = receiver.organizationName
@@ -540,7 +541,7 @@ class ActionHistory(
         val blobInfo = BlobAccess.uploadBody(
             receiver.format,
             header.content,
-            filename ?: UUID.randomUUID().toString(),
+            header.reportFile.reportId.toString(),
             receiver.fullName,
             Event.EventAction.NONE
         )
