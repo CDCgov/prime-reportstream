@@ -113,6 +113,7 @@ resource "azurerm_linux_web_app" "metabase" {
 
   lifecycle {
     ignore_changes = [
+      # validated 5/30/2024
       # The AzureRM Terraform provider provides regional virtual network integration
       # via the standalone resource app_service_virtual_network_swift_connection and
       # in-line within this resource using the virtual_network_subnet_id property.

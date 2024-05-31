@@ -13,11 +13,5 @@ resource "azurerm_data_factory_managed_private_endpoint" "sftp_archive" {
   target_resource_id = var.storage_account_id
   subresource_name   = "blob"
 
-  lifecycle {
-    ignore_changes = [
-      fqdns
-    ]
-  }
-
   timeouts {}
 }

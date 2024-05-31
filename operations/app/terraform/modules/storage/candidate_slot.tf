@@ -26,8 +26,8 @@ resource "azurerm_storage_account" "storage_account_candidate" {
 
   lifecycle {
     prevent_destroy = false
-    # validated 5/29/2024
     ignore_changes = [
+      # validated 5/29/2024
       customer_managed_key,
       network_rules[0].ip_rules,
       network_rules[0].private_link_access
@@ -126,13 +126,6 @@ resource "azurerm_storage_management_policy" "retention_policy_candidate" {
         delete_after_days_since_creation_greater_than = var.delete_pii_storage_after_days
       }
     }
-  }
-
-  lifecycle {
-    ignore_changes = [
-      # -1 value is applied, but not accepted in tf
-      rule[0].actions[0].base_blob[0].tier_to_cool_after_days_since_last_access_time_greater_than
-    ]
   }
 }
 

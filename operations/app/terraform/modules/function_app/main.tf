@@ -138,6 +138,11 @@ TEMPLATE
     }
   })
 
+  lifecycle {
+    ignore_changes = [
+
+    ]
+  }
   depends_on = [
     azurerm_function_app.function_app,
     azurerm_function_app_slot.candidate,
