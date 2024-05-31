@@ -105,7 +105,9 @@ class CustomTranslationFunctions(
             val truncationConfig = config.truncationConfig
 
             val hl7Field = hl7FieldPath.substringAfterLast("/")
+            val path = hl7FieldPath.substringBeforeLast("/")
             val cleanedHL7Field = HL7Utils.removeIndexFromHL7Field(hl7Field).trim()
+            val cleanedHL7FieldPath = "$path/$cleanedHL7Field"
 
             val shouldTruncateHDNamespaceIds = truncationConfig.truncateHDNamespaceIds &&
                 HL7Constants.HD_FIELDS_LOCAL.contains(cleanedHL7Field)
@@ -116,7 +118,7 @@ class CustomTranslationFunctions(
             if (shouldTruncateHDNamespaceIds || shouldTruncateHl7Fields) {
                 hl7Truncator.trimAndTruncateValue(
                     value,
-                    hl7FieldPath,
+                    cleanedHL7FieldPath,
                     terser,
                     truncationConfig
                 )

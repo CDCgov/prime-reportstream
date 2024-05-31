@@ -34,6 +34,8 @@ import {
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
+import { FeatureName } from "../../utils/FeatureName";
+import { appInsights } from "../../utils/TelemetryService/TelemetryService";
 
 export enum StyleClass {
     DATE_CONTAINER = "date-picker-container tablet:grid-col",
@@ -293,6 +295,10 @@ function TableFilters({
             resetFilterFields(e);
             setSearchReset(searchReset + 1);
             setSearchTerm("");
+
+            appInsights?.trackEvent({
+                name: `${FeatureName.DAILY_DATA} | Reset`,
+            });
         },
         [resetFilterFields, searchReset, setSearchTerm],
     );
@@ -313,6 +319,10 @@ function TableFilters({
                     filterDetails.rangeToWithTime,
                 );
             }
+
+            appInsights?.trackEvent({
+                name: `${FeatureName.DAILY_DATA} | Apply`,
+            });
         },
         [
             applyToFilterManager,
