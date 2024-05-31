@@ -31,7 +31,7 @@
  */
 
 
-package fhirengine.translation.hl7.structures.radxmars251.segment;
+package fhirengine.translation.hl7.structures.fhirinventory.segment;
 
 // import gov.cdc.nist.group.*;
 
@@ -77,6 +77,10 @@ import ca.uhn.hl7v2.parser.ModelClassFactory;
  * <li>OBX-27: Root Cause (CWE) <b>optional </b>
  * <li>OBX-28: Local Process Control (CWE) <b>optional repeating</b>
  * <li>OBX-29: Observation Type (ID) <b>optional </b>
+ * <li>OBX-30: Observation Sub-Type (ID) <b>optional </b>
+ * <li>OBX-31: Action Code (ID) <b>optional </b>
+ * <li>OBX-32: Observation Value Absent Reason (CWE) <b>optional repeating</b>
+ * <li>OBX-33: Observation Related Specimen Identifier (EIP) <b>optional repeating</b>
  * </ul>
  */
 @SuppressWarnings("unused")
@@ -121,6 +125,11 @@ public class OBX extends AbstractSegment {
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Root Cause");
       this.add(CWE.class, false, 0, 5, new Object[]{getMessage()}, "Local Process Control");
       this.add(ID.class, false, 1, 4, new Object[]{getMessage()}, "Observation Type");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage()}, "Observation Sub-Type");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage()}, "Action Code");
+      this.add(CWE.class, false, 0, 0, new Object[]{getMessage()}, "Observation Value Absent Reason");
+      this.add(EIP.class, false, 0, 0, new Object[]{getMessage()}, "Observation Related Specimen Identifier");
+
     } catch (HL7Exception e) {
       log.error("Unexpected error creating OBX - this is probably a bug in the source code generator.", e);
     }
@@ -1391,6 +1400,260 @@ public class OBX extends AbstractSegment {
 
 
   /**
+   * Returns
+   * OBX-30: "Observation Sub-Type" - creates it if necessary
+   */
+  public ID getObservationSubType() {
+    ID retVal = this.getTypedField(30, 0);
+    return retVal;
+  }
+
+  /**
+   * Returns
+   * OBX-30: "Observation Sub-Type" - creates it if necessary
+   */
+  public ID getObx30_ObservationSubType() {
+    ID retVal = this.getTypedField(30, 0);
+    return retVal;
+  }
+
+
+  /**
+   * Returns
+   * OBX-31: "Action Code" - creates it if necessary
+   */
+  public ID getActionCode() {
+    ID retVal = this.getTypedField(31, 0);
+    return retVal;
+  }
+
+  /**
+   * Returns
+   * OBX-31: "Action Code" - creates it if necessary
+   */
+  public ID getObx31_ActionCode() {
+    ID retVal = this.getTypedField(31, 0);
+    return retVal;
+  }
+
+
+  /**
+   * Returns all repetitions of Observation Value Absent Reason (OBX-32).
+   */
+  public CWE[] getObservationValueAbsentReason() {
+    CWE[] retVal = this.getTypedField(32, new CWE[0]);
+    return retVal;
+  }
+
+
+  /**
+   * Returns all repetitions of Observation Value Absent Reason (OBX-32).
+   */
+  public CWE[] getObx32_ObservationValueAbsentReason() {
+    CWE[] retVal = this.getTypedField(32, new CWE[0]);
+    return retVal;
+  }
+
+
+  /**
+   * Returns a count of the current number of repetitions of Observation Value Absent Reason (OBX-32).
+   * This method does not create a repetition, so if no repetitions have currently been defined or accessed,
+   * it will return zero.
+   */
+  public int getObservationValueAbsentReasonReps() {
+    return this.getReps(32);
+  }
+
+
+  /**
+   * Returns a specific repetition of
+   * OBX-32: "Observation Value Absent Reason" - creates it if necessary
+   *
+   * @param rep The repetition index (0-indexed)
+   */
+  public CWE getObservationValueAbsentReason(int rep) {
+    CWE retVal = this.getTypedField(32, rep);
+    return retVal;
+  }
+
+  /**
+   * Returns a specific repetition of
+   * OBX-32: "Observation Value Absent Reason" - creates it if necessary
+   *
+   * @param rep The repetition index (0-indexed)
+   */
+  public CWE getObx32_ObservationValueAbsentReason(int rep) {
+    CWE retVal = this.getTypedField(32, rep);
+    return retVal;
+  }
+
+  /**
+   * Returns a count of the current number of repetitions of Observation Value Absent Reason (OBX-32).
+   * This method does not create a repetition, so if no repetitions have currently been defined or accessed,
+   * it will return zero.
+   */
+  public int getObx32_ObservationValueAbsentReasonReps() {
+    return this.getReps(32);
+  }
+
+
+  /**
+   * Inserts a repetition of
+   * OBX-32: "Observation Value Absent Reason" at a specific index
+   *
+   * @param rep The repetition index (0-indexed)
+   * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
+   */
+  public CWE insertObservationValueAbsentReason(int rep) throws HL7Exception {
+    return (CWE) super.insertRepetition(32, rep);
+  }
+
+
+  /**
+   * Inserts a repetition of
+   * OBX-32: "Observation Value Absent Reason" at a specific index
+   *
+   * @param rep The repetition index (0-indexed)
+   * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
+   */
+  public CWE insertObx32_ObservationValueAbsentReason(int rep) throws HL7Exception {
+    return (CWE) super.insertRepetition(32, rep);
+  }
+
+
+  /**
+   * Removes a repetition of
+   * OBX-32: "Observation Value Absent Reason" at a specific index
+   *
+   * @param rep The repetition index (0-indexed)
+   * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
+   */
+  public CWE removeObservationValueAbsentReason(int rep) throws HL7Exception {
+    return (CWE) super.removeRepetition(32, rep);
+  }
+
+
+  /**
+   * Removes a repetition of
+   * OBX-32: "Observation Value Absent Reason" at a specific index
+   *
+   * @param rep The repetition index (0-indexed)
+   * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
+   */
+  public CWE removeObx32_ObservationValueAbsentReason(int rep) throws HL7Exception {
+    return (CWE) super.removeRepetition(32, rep);
+  }
+
+
+  /**
+   * Returns all repetitions of Observation Related Specimen Identifier (OBX-33).
+   */
+  public EIP[] getObservationRelatedSpecimenIdentifier() {
+    EIP[] retVal = this.getTypedField(33, new EIP[0]);
+    return retVal;
+  }
+
+
+  /**
+   * Returns all repetitions of Observation Related Specimen Identifier (OBX-33).
+   */
+  public EIP[] getObx33_ObservationRelatedSpecimenIdentifier() {
+    EIP[] retVal = this.getTypedField(33, new EIP[0]);
+    return retVal;
+  }
+
+
+  /**
+   * Returns a count of the current number of repetitions of Observation Related Specimen Identifier (OBX-33).
+   * This method does not create a repetition, so if no repetitions have currently been defined or accessed,
+   * it will return zero.
+   */
+  public int getObservationRelatedSpecimenIdentifierReps() {
+    return this.getReps(33);
+  }
+
+
+  /**
+   * Returns a specific repetition of
+   * OBX-33: "Observation Related Specimen Identifier" - creates it if necessary
+   *
+   * @param rep The repetition index (0-indexed)
+   */
+  public EIP getObservationRelatedSpecimenIdentifier(int rep) {
+    EIP retVal = this.getTypedField(33, rep);
+    return retVal;
+  }
+
+  /**
+   * Returns a specific repetition of
+   * OBX-33: "Observation Related Specimen Identifier" - creates it if necessary
+   *
+   * @param rep The repetition index (0-indexed)
+   */
+  public EIP getObx33_ObservationRelatedSpecimenIdentifier(int rep) {
+    EIP retVal = this.getTypedField(33, rep);
+    return retVal;
+  }
+
+  /**
+   * Returns a count of the current number of repetitions of Observation Related Specimen Identifier (OBX-33).
+   * This method does not create a repetition, so if no repetitions have currently been defined or accessed,
+   * it will return zero.
+   */
+  public int getObx33_ObservationRelatedSpecimenIdentifierReps() {
+    return this.getReps(33);
+  }
+
+
+  /**
+   * Inserts a repetition of
+   * OBX-33: "Observation Related Specimen Identifier" at a specific index
+   *
+   * @param rep The repetition index (0-indexed)
+   * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
+   */
+  public EIP insertObservationRelatedSpecimenIdentifier(int rep) throws HL7Exception {
+    return (EIP) super.insertRepetition(33, rep);
+  }
+
+
+  /**
+   * Inserts a repetition of
+   * OBX-33: "Observation Related Specimen Identifier" at a specific index
+   *
+   * @param rep The repetition index (0-indexed)
+   * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
+   */
+  public EIP insertObx33_ObservationRelatedSpecimenIdentifier(int rep) throws HL7Exception {
+    return (EIP) super.insertRepetition(33, rep);
+  }
+
+
+  /**
+   * Removes a repetition of
+   * OBX-33: "Observation Related Specimen Identifier" at a specific index
+   *
+   * @param rep The repetition index (0-indexed)
+   * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
+   */
+  public EIP removeObservationRelatedSpecimenIdentifier(int rep) throws HL7Exception {
+    return (EIP) super.removeRepetition(33, rep);
+  }
+
+
+  /**
+   * Removes a repetition of
+   * OBX-33: "Observation Related Specimen Identifier" at a specific index
+   *
+   * @param rep The repetition index (0-indexed)
+   * @throws HL7Exception If the rep is invalid (below 0, or too high for the allowable repetitions)
+   */
+  public EIP removeObx33_ObservationRelatedSpecimenIdentifier(int rep) throws HL7Exception {
+    return (EIP) super.removeRepetition(33, rep);
+  }
+
+
+  /**
    * {@inheritDoc}
    */
   protected Type createNewTypeWithoutReflection(int field) {
@@ -1453,6 +1716,14 @@ public class OBX extends AbstractSegment {
         return new CWE(getMessage());
       case 28:
         return new ID(getMessage());
+      case 29:
+        return new ID(getMessage());
+      case 30:
+        return new ID(getMessage());
+      case 31:
+        return new CWE(getMessage());
+      case 32:
+        return new EIP(getMessage());
       default:
         return null;
     }
