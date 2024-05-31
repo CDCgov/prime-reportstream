@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.validation
+package gov.cdc.prime.router.config.validation
 
 import assertk.assertThat
 import assertk.assertions.contains
@@ -55,11 +55,6 @@ class JsonSchemaValidationTest : Logging {
         val rawYml = javaClass.classLoader.getResourceAsStream(path)
         val yaml = JacksonMapperUtilities.yamlMapper.readTree(rawYml)
         val results = schema.validate(yaml)
-
-        logger.info("Validation errors: ${results.size}")
-        results.forEach { message ->
-            logger.info(message)
-        }
 
         return results
     }
