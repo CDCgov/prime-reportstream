@@ -2,7 +2,7 @@ import { defineConfig } from "@playwright/test";
 import dotenvflow from "dotenv-flow";
 import process from "process";
 
-import type { TestOptions } from "./e2e/helpers/rs-test.ts";
+import type { CustomFixtures } from "./e2e/test.ts";
 
 dotenvflow.config({
     purge_dotenv: true,
@@ -11,6 +11,7 @@ dotenvflow.config({
 });
 
 const isCi = Boolean(process.env.CI);
+const isMockDisabled = Boolean(process.env.MOCK_DISABLED);
 
 function createLogins<const T extends Array<string>>(
     loginTypes: T,
@@ -53,7 +54,7 @@ const logins = createLogins(["admin", "receiver", "sender"]);
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
-export default defineConfig<TestOptions>({
+export default defineConfig<CustomFixtures>({
     testDir: "e2e",
     fullyParallel: true,
     forbidOnly: isCi,
@@ -62,7 +63,8 @@ export default defineConfig<TestOptions>({
     reporter: [["html", { outputFolder: "e2e-data/report" }]],
     outputDir: "e2e-data/results",
     use: {
-        timezoneId: "UTC",
+        // keep playwright and browser timezones aligned. set preferably UTC by env var
+        timezoneId: Intl.DateTimeFormat().resolvedOptions().timeZone,
         baseURL: "http://localhost:4173",
         trace: "on-first-retry",
         screenshot: "only-on-failure",
@@ -78,6 +80,7 @@ export default defineConfig<TestOptions>({
             ...logins.receiver,
             landingPage: "/",
         },
+        isMockDisabled,
     },
 
     projects: [
