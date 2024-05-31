@@ -114,16 +114,16 @@ export abstract class BasePage {
                     typeof _fulfillOptions === "function"
                         ? _fulfillOptions(request)
                         : _fulfillOptions;
-                const mockErrorFullfillOptions = isMock
+                const mockErrorFulfillOptions = isMock
                     ? typeof this.mockError === "function"
                         ? this.mockError(request)
                         : this.mockError
                     : undefined;
                 const mockCacheFulfillOptions = isMock
-                    ? await this.getMockCacheFullfillOptions(url)
+                    ? await this.getMockCacheFulfillOptions(url)
                     : undefined;
                 const mockOverrideFulfillOptions =
-                    mockErrorFullfillOptions ?? mockCacheFulfillOptions;
+                    mockErrorFulfillOptions ?? mockCacheFulfillOptions;
 
                 if (isMock && !this.isMocked)
                     throw new Error("Mocks are disabled");
@@ -188,7 +188,7 @@ export abstract class BasePage {
         ]);
     }
 
-    async getMockCacheFullfillOptions(url: string) {
+    async getMockCacheFulfillOptions(url: string) {
         const cache = this._mockRouteCache[url];
         if (!cache) return cache;
 
