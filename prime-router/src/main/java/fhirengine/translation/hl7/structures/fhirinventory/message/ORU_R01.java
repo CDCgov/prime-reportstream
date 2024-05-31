@@ -31,7 +31,7 @@
  */
 
 
-package fhirengine.translation.hl7.structures.radxmars251.message;
+package fhirengine.translation.hl7.structures.fhirinventory.message;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractGroup;
@@ -43,7 +43,7 @@ import ca.uhn.hl7v2.model.v27.segment.SFT;
 import ca.uhn.hl7v2.model.v27.segment.UAC;
 import ca.uhn.hl7v2.parser.DefaultModelClassFactory;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.radxmars251.group.ORU_R01_PATIENT_RESULT;
+import fhirengine.translation.hl7.structures.fhirinventory.group.ORU_R01_PATIENT_RESULT;
 
 
 /**
