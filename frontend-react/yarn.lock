@@ -2250,9 +2250,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-signin-widget@npm:^7.18.0":
-  version: 7.18.0
-  resolution: "@okta/okta-signin-widget@npm:7.18.0"
+"@okta/okta-signin-widget@npm:^7.18.1":
+  version: 7.18.1
+  resolution: "@okta/okta-signin-widget@npm:7.18.1"
   dependencies:
     "@okta/okta-auth-js": ~7.0.0
     "@sindresorhus/to-milliseconds": ^1.0.0
@@ -2276,7 +2276,7 @@ __metadata:
   dependenciesMeta:
     fsevents:
       optional: true
-  checksum: 852371f7abd32132d92d6b320d50a5d23af5ac984db714b0a1ed819b5263578ea7bdec33fb39b5b60f4cc7d501a80d461e77d1e818ecd2321702fb75b26a7da9
+  checksum: c889082130e96b7adf3789c245b6dc7bac2c07bbec3678c79c2d196871e1f08107934a7508d30dac18cadf75a3329638ef2072397faa942ced734162be066324
   languageName: node
   linkType: hard
 
@@ -4069,10 +4069,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.14.167, @types/lodash@npm:^4.17.1":
-  version: 4.17.1
-  resolution: "@types/lodash@npm:4.17.1"
-  checksum: 01984d5b44c09ef45258f8ac6d0cf926900624064722d51a020ba179e5d4a293da0068fb278d87dc695586afe7ebd3362ec57f5c0e7c4f6c1fab9d04a80e77f5
+"@types/lodash@npm:^4.14.167, @types/lodash@npm:^4.17.4":
+  version: 4.17.4
+  resolution: "@types/lodash@npm:4.17.4"
+  checksum: 268e652fd52d49189f155bc89b49bd4535aa44f0b6b0ed9ce7e50318307bda58147c49539d2047f39ca37cf5b5ea38dfb801d0dbcdbc8b019c95c1afc346b05a
   languageName: node
   linkType: hard
 
@@ -11472,12 +11472,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"otpauth@npm:^9.2.3":
-  version: 9.2.3
-  resolution: "otpauth@npm:9.2.3"
+"otpauth@npm:^9.2.4":
+  version: 9.2.4
+  resolution: "otpauth@npm:9.2.4"
   dependencies:
     jssha: ~3.3.1
-  checksum: 5022ebc3edb90dc3a46bc105c6cdc28c157e1351f5491efc00e5ea38c4c24fd7819ec5b5c8d6069ec3ab49e5ce036f14890b57ecfdd9e7c85767676582c266e0
+  checksum: c9cdd82f5cea4484c0a9304fe5308376976ee991e5118886ff7d741d11196e6c5c8d3fba7232b97e8cbd20289b570120c64c2a05c529bcbe4846067dc6fa00c2
   languageName: node
   linkType: hard
 
@@ -12336,7 +12336,7 @@ __metadata:
     "@microsoft/applicationinsights-react-js": ^17.2.0
     "@microsoft/applicationinsights-web": ^3.2.1
     "@okta/okta-react": ^6.8.0
-    "@okta/okta-signin-widget": ^7.18.0
+    "@okta/okta-signin-widget": ^7.18.1
     "@playwright/test": ^1.43.1
     "@rest-hooks/rest": ^3.0.3
     "@rest-hooks/test": ^7.3.1
@@ -12365,7 +12365,7 @@ __metadata:
     "@types/downloadjs": ^1.4.6
     "@types/github-slugger": ^1.3.0
     "@types/html-to-text": ^9.0.4
-    "@types/lodash": ^4.17.1
+    "@types/lodash": ^4.17.4
     "@types/mdx": ^2.0.13
     "@types/node": ^20.12.5
     "@types/react": 18.3.1
@@ -12416,7 +12416,7 @@ __metadata:
     msw: ^2.3.0
     msw-storybook-addon: beta
     npm-run-all: ^4.1.5
-    otpauth: ^9.2.3
+    otpauth: ^9.2.4
     patch-package: ^8.0.0
     postcss: ^8.4.38
     prettier: ^3.2.5
