@@ -138,7 +138,6 @@ function ReportStreamAuthNavbar({
             // if the click was outside the nav container or not on a button within,
             // clear current dropdown.
             if (maybeAuthNavContainerEle == null || buttonEle == null) {
-                if (isMobileNavOpen) onToggleMobileNav();
                 if (openAuthMenuItem) setAuthMenu();
             }
         }
@@ -279,16 +278,8 @@ function ReportStreamAuthNavbar({
 
     return (
         <>
-            <div
-                className={`usa-overlay ${isMobileNavOpen ? "is-visible" : ""}`}
-            ></div>
-            <PrimaryNav
-                items={navbarItemBuilder()}
-                mobileExpanded={isMobileNavOpen}
-                onToggleMobileNav={onToggleMobileNav}
-            >
-                {children}
-            </PrimaryNav>
+            <div className={`usa-overlay`}></div>
+            <PrimaryNav items={navbarItemBuilder()}>{children}</PrimaryNav>
         </>
     );
 }
