@@ -949,7 +949,7 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     testImplementation(kotlin("test-junit5"))
-    testImplementation("io.mockk:mockk:1.13.10")
+    testImplementation("io.mockk:mockk:1.13.11")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.28.0")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
