@@ -141,9 +141,8 @@ resource "azurerm_data_factory_pipeline" "sftp_share_to_archive" {
   ]
 
   lifecycle {
-    //ignore until temp elims sftp solution is removed
     ignore_changes = [
-      variables,
+      # validated 5/28/2024
       activities_json
     ]
   }
