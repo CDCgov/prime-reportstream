@@ -31,42 +31,42 @@
  */
 
 
-package fhirengine.translation.hl7.structures.radxmars251.group;
+package fhirengine.translation.hl7.structures.fhirinventory.group;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Structure;
-import ca.uhn.hl7v2.model.v27.group.ORU_R01_PATIENT;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
+import ca.uhn.hl7v2.model.v27.segment.SPM;
 
 /**
- * <p>Represents a ORU_R01_PATIENT_RESULT group structure (a Group object).
+ * <p>Represents a ORU_R01_SPECIMEN group structure (a Group object).
  * A Group is an ordered collection of message segments that can repeat together or be optionally in/excluded together.
  * This Group contains the following elements:
  * </p>
  * <ul>
- * <li>1: ORU_R01_PATIENT (a Group object) <b>optional  </b></li>
- * <li>2: ORU_R01_ORDER_OBSERVATION (a Group object) <b> repeating </b></li>
+ * <li>1: SPM (Specimen) <b>  </b></li>
+ * <li>2: ORU_R01_SPECIMEN_OBSERVATION (a Group object) <b>optional repeating </b></li>
  * </ul>
  */
 //@SuppressWarnings("unused")
-public class ORU_R01_PATIENT_RESULT extends AbstractGroup {
+public class ORU_R01_SPECIMEN extends AbstractGroup {
 
   /**
-   * Creates a new ORU_R01_PATIENT_RESULT group
+   * Creates a new ORU_R01_SPECIMEN group
    */
-  public ORU_R01_PATIENT_RESULT(Group parent, ModelClassFactory factory) {
+  public ORU_R01_SPECIMEN(Group parent, ModelClassFactory factory) {
     super(parent, factory);
     init(factory);
   }
 
   private void init(ModelClassFactory factory) {
     try {
-      this.add(ORU_R01_PATIENT.class, false, false, false);
-      this.add(ORU_R01_ORDER_OBSERVATION.class, true, true, false);
+      this.add(SPM.class, true, false, false);
+      this.add(ORU_R01_SPECIMEN_OBSERVATION.class, false, true, false);
     } catch (HL7Exception e) {
-      log.error("Unexpected error creating ORU_R01_PATIENT_RESULT - this is probably a bug in the source code generator.", e);
+      log.error("Unexpected error creating ORU_R01_SPECIMEN - this is probably a bug in the source code generator.", e);
     }
   }
 
@@ -80,10 +80,10 @@ public class ORU_R01_PATIENT_RESULT extends AbstractGroup {
 
   /**
    * Returns
-   * PATIENT (PATIENT_RESULT.PATIENT) - creates it if necessary
+   * SPM (Specimen) - creates it if necessary
    */
-  public ORU_R01_PATIENT getPATIENT() {
-    ORU_R01_PATIENT retVal = getTyped("PATIENT", ORU_R01_PATIENT.class);
+  public SPM getSPM() {
+    SPM retVal = getTyped("SPM", SPM.class);
     return retVal;
   }
 
@@ -91,74 +91,74 @@ public class ORU_R01_PATIENT_RESULT extends AbstractGroup {
   /**
    * Returns
    * the first repetition of
-   * ORDER_OBSERVATION (PATIENT_RESULT.ORDER_OBSERVATION) - creates it if necessary
+   * SPECIMEN_OBSERVATION (a Group object) - creates it if necessary
    */
-  public ORU_R01_ORDER_OBSERVATION getORDER_OBSERVATION() {
-    ORU_R01_ORDER_OBSERVATION retVal = getTyped("ORDER_OBSERVATION", ORU_R01_ORDER_OBSERVATION.class);
+  public ORU_R01_SPECIMEN_OBSERVATION getSPECIMEN_OBSERVATION() {
+    ORU_R01_SPECIMEN_OBSERVATION retVal = getTyped("SPECIMEN_OBSERVATION", ORU_R01_SPECIMEN_OBSERVATION.class);
     return retVal;
   }
 
 
   /**
    * Returns a specific repetition of
-   * ORDER_OBSERVATION (PATIENT_RESULT.ORDER_OBSERVATION) - creates it if necessary
+   * SPECIMEN_OBSERVATION (a Group object) - creates it if necessary
    *
    * @param rep The repetition index (0-indexed, i.e. the first repetition is at index 0)
    * @throws HL7Exception if the repetition requested is more than one
    *                      greater than the number of existing repetitions.
    */
-  public ORU_R01_ORDER_OBSERVATION getORDER_OBSERVATION(int rep) {
-    ORU_R01_ORDER_OBSERVATION retVal = getTyped("ORDER_OBSERVATION", rep, ORU_R01_ORDER_OBSERVATION.class);
+  public ORU_R01_SPECIMEN_OBSERVATION getSPECIMEN_OBSERVATION(int rep) {
+    ORU_R01_SPECIMEN_OBSERVATION retVal = getTyped("SPECIMEN_OBSERVATION", rep, ORU_R01_SPECIMEN_OBSERVATION.class);
     return retVal;
   }
 
   /**
-   * Returns the number of existing repetitions of ORDER_OBSERVATION
+   * Returns the number of existing repetitions of SPECIMEN_OBSERVATION
    */
-  public int getORDER_OBSERVATIONReps() {
-    return getReps("ORDER_OBSERVATION");
+  public int getSPECIMEN_OBSERVATIONReps() {
+    return getReps("SPECIMEN_OBSERVATION");
   }
 
   /**
    * <p>
-   * Returns a non-modifiable List containing all current existing repetitions of ORDER_OBSERVATION.
+   * Returns a non-modifiable List containing all current existing repetitions of SPECIMEN_OBSERVATION.
    * <p>
    * <p>
-   * Note that unlike {@link #getORDER_OBSERVATION()}, this method will not create any reps
+   * Note that unlike {@link #getSPECIMEN_OBSERVATION()}, this method will not create any reps
    * if none are already present, so an empty list may be returned.
    * </p>
    */
-  public java.util.List<ORU_R01_ORDER_OBSERVATION> getORDER_OBSERVATIONAll() throws HL7Exception {
-    return getAllAsList("ORDER_OBSERVATION", ORU_R01_ORDER_OBSERVATION.class);
+  public java.util.List<ORU_R01_SPECIMEN_OBSERVATION> getSPECIMEN_OBSERVATIONAll() throws HL7Exception {
+    return getAllAsList("SPECIMEN_OBSERVATION", ORU_R01_SPECIMEN_OBSERVATION.class);
   }
 
   /**
-   * Inserts a specific repetition of ORDER_OBSERVATION (PATIENT_RESULT.ORDER_OBSERVATION)
+   * Inserts a specific repetition of SPECIMEN_OBSERVATION (a Group object)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
-  public void insertORDER_OBSERVATION(ORU_R01_ORDER_OBSERVATION structure, int rep) throws HL7Exception {
-    super.insertRepetition("ORDER_OBSERVATION", structure, rep);
+  public void insertSPECIMEN_OBSERVATION(ORU_R01_SPECIMEN_OBSERVATION structure, int rep) throws HL7Exception {
+    super.insertRepetition("SPECIMEN_OBSERVATION", structure, rep);
   }
 
 
   /**
-   * Inserts a specific repetition of ORDER_OBSERVATION (PATIENT_RESULT.ORDER_OBSERVATION)
+   * Inserts a specific repetition of SPECIMEN_OBSERVATION (a Group object)
    *
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
-  public ORU_R01_ORDER_OBSERVATION insertORDER_OBSERVATION(int rep) throws HL7Exception {
-    return (ORU_R01_ORDER_OBSERVATION) super.insertRepetition("ORDER_OBSERVATION", rep);
+  public ORU_R01_SPECIMEN_OBSERVATION insertSPECIMEN_OBSERVATION(int rep) throws HL7Exception {
+    return (ORU_R01_SPECIMEN_OBSERVATION) super.insertRepetition("SPECIMEN_OBSERVATION", rep);
   }
 
 
   /**
-   * Removes a specific repetition of ORDER_OBSERVATION (PATIENT_RESULT.ORDER_OBSERVATION)
+   * Removes a specific repetition of SPECIMEN_OBSERVATION (a Group object)
    *
    * @see AbstractGroup#removeRepetition(String, int)
    */
-  public ORU_R01_ORDER_OBSERVATION removeORDER_OBSERVATION(int rep) throws HL7Exception {
-    return (ORU_R01_ORDER_OBSERVATION) super.removeRepetition("ORDER_OBSERVATION", rep);
+  public ORU_R01_SPECIMEN_OBSERVATION removeSPECIMEN_OBSERVATION(int rep) throws HL7Exception {
+    return (ORU_R01_SPECIMEN_OBSERVATION) super.removeRepetition("SPECIMEN_OBSERVATION", rep);
   }
 
 
