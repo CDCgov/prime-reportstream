@@ -74,11 +74,13 @@ class Ping : CoolTest() {
 /**
  * An End-to-End test for the Universal Pipeline. This test posts a report and verifies that the file was sent to
  * the expected receiver(s), then verifies the contents of the file match the expected contents.
- * This test runs through four scenarios:
- * - A report that is submitted as HL7 and is sent as HL7 (Topic: FULL-ELR).
- * - A report that is submitted as HL7 and is sent as FHIR (Topic: FULL-ELR).
- * - A report that is submitted as HL7 and is sent as HL7 but has isSendOriginal set to true (Topic: ELIMS).
+ * This test runs through the following scenarios:
+ * - A report that is submitted as HL7 and is sent as HL7 and FHIR (Topic: FULL-ELR).
+ * - A report that is submitted as HL7 and is sent as HL7 and FHIR (Topic: MARS-OTC-ELR).
+ *     - This report contains multiple items, one of which is invalid and filtered out during validation
+ * - A report that is submitted as HL7 and is sent as HL7 but has isSendOriginal set to true (Topic: ELR-ELIMS).
  * - A report that is submitted as FHIR and is sent as FHIR (Topic: FULL-ELR).
+ * - A report that is submitted as FHIR and is sent as FHIR (Topic: MARS-OTC-ELR).
  */
 class End2EndUniversalPipeline : CoolTest() {
     override val name = "end2end_up"
@@ -99,7 +101,10 @@ class End2EndUniversalPipeline : CoolTest() {
 
         // Wait until reports are marked as Delivered, then run validations on results
         testData.forEach {
+            echo("\nStarting validation for scenario: ${it.name}")
+
             it.historyResponse = pauseForBatchProcess(environment, it.reportId)
+            echo(it.historyResponse)
 
             if (it.historyResponse.isEmpty()) {
                 passed = bad("***$name test FAILED***: One or more reports failed batch step.")
@@ -138,10 +143,10 @@ class End2EndUniversalPipeline : CoolTest() {
         }
 
         if (!examinePostResponse(json, false)) {
+            echo(json)
             bad("***$name test FAILED***: Error in post response")
         }
 
-        echo(json)
         return getReportIdFromResponse(json)
     }
 
@@ -154,8 +159,9 @@ class End2EndUniversalPipeline : CoolTest() {
         val pollSleepSecs = 5
         var timeElapsedSecs = 0
         var overallStatus = ""
+        var finalResponse = ""
 
-        echo("\nPolling for history endpoint for report ID: $reportId. (Max poll time $maxPollSecs seconds)")
+        echo("Polling for history endpoint for report ID: $reportId. (Max poll time $maxPollSecs seconds)")
         while (timeElapsedSecs <= maxPollSecs) {
             delay(pollSleepSecs.toLong() * 1000)
             timeElapsedSecs += pollSleepSecs
@@ -175,16 +181,17 @@ class End2EndUniversalPipeline : CoolTest() {
 
             if (DetailedSubmissionHistory.Status.DELIVERED.toString() == overallStatus) {
                 good("Report $reportId status was $overallStatus after $timeElapsedSecs seconds")
-                echo(response)
                 return response
             }
+
+            finalResponse = response
         }
 
         bad(
             "***$name test FAILED***: Batch step polling for report $reportId failed. " +
                 "After $timeElapsedSecs seconds the report status is $overallStatus."
         )
-        return ""
+        return finalResponse
     }
 
     /**
@@ -229,14 +236,16 @@ class End2EndUniversalPipeline : CoolTest() {
 
             // Compare the actual file content with the expected content
             val expectedFormat = Report.Format.valueOfFromExt(expectedReceiver.translation.type)
-            passed = passed and CompareData().compare(
+            val thisRoundPassed = CompareData().compare(
                 expectedFile.readBytes().inputStream(),
                 actualByteArray.inputStream(),
                 expectedFormat,
                 null
             ).passed
 
-            if (passed) {
+            passed = passed and thisRoundPassed
+
+            if (thisRoundPassed) {
                 good("The contents of $actualFilename matches the expected data")
             } else {
                 bad("***$name test FAILED***: The contents of $actualFilename did not match the expected contents")

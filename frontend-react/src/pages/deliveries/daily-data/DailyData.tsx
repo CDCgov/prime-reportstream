@@ -30,6 +30,7 @@ import { Table } from "../../../shared";
 import { EventName } from "../../../utils/AppInsights";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
+import { USLink } from "../../../components/USLink";
 
 const extractCursor = (d: RSDelivery) => d.batchReadyAt;
 
@@ -78,7 +79,11 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
         {
             columnKey: DeliveriesDataAttr.REPORT_ID,
             columnHeader: "Report ID",
-            content: dataRow.reportId,
+            content: (
+                <USLink href={`/report-details/${dataRow.reportId}`}>
+                    {dataRow.reportId}
+                </USLink>
+            ),
         },
         {
             columnKey: DeliveriesDataAttr.BATCH_READY,
