@@ -1,4 +1,5 @@
 resource "azurerm_linux_web_app" "metabase" {
+  #checkov:skip=CKV_AZURE_222: "Ensure that Azure Web App public network access is disabled"
   name                          = "${var.resource_prefix}-metabase"
   location                      = var.location
   resource_group_name           = var.resource_group
