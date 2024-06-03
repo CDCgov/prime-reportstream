@@ -1,13 +1,15 @@
 package gov.cdc.prime.router.config.validation
 
 import assertk.assertThat
-import assertk.assertions.isEmpty
+import assertk.assertions.isInstanceOf
+import assertk.assertions.isNotEmpty
+import gov.cdc.prime.router.DeepOrganization
 import java.io.File
 import kotlin.test.Test
 
 class JsonSchemaValidationServiceTest {
 
-    private val service = JsonSchemaValidationService()
+    private val service: JsonSchemaValidationService = JsonSchemaValidationServiceImpl()
 
     @Test
     fun `validate yaml string`() {
@@ -44,21 +46,40 @@ class JsonSchemaValidationServiceTest {
                     credentialName: DEFAULT-SFTP
         """.trimIndent()
 
-        val errors = service.validateYAMLStructure(
-            ConfigurationType.ORGANIZATIONS,
+        val result = service.validateYAMLStructure(
+            ConfigurationType.Organizations,
             yaml
         )
 
-        assertThat(errors).isEmpty()
+        assertThat(result).isInstanceOf<ConfigurationValidationSuccess<List<DeepOrganization>>>()
+    }
+
+    @Test
+    fun `error parsing yaml`() {
+        val badYaml = """
+            This is not our 
+            organizations yaml
+            at all!"
+        """.trimIndent()
+
+        val result = service.validateYAMLStructure(
+            ConfigurationType.Organizations,
+            badYaml
+        )
+
+        assertThat(result)
+            .isInstanceOf<ConfigurationValidationFailure<List<DeepOrganization>>>()
+            .transform { it.errors }
+            .isNotEmpty()
     }
 
     @Test
     fun organizations() {
-        val errors = service.validateYAMLStructure(
-            ConfigurationType.ORGANIZATIONS,
+        val result = service.validateYAMLStructure(
+            ConfigurationType.Organizations,
             File("settings/organizations.yml")
         )
 
-        assertThat(errors).isEmpty()
+        assertThat(result).isInstanceOf<ConfigurationValidationSuccess<List<DeepOrganization>>>()
     }
 }

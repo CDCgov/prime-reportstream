@@ -81,35 +81,33 @@ export default defineConfig<TestOptions>({
     },
 
     projects: [
-        /* Test setup (ex: authenticated sessions) */
         { name: "setup", testMatch: /\w+\.setup\.ts$/ },
+        // We have a suite of tests that are ONLY checking links so to
+        // save bandwidth, we only need to utilize a single browser
+        {
+            name: "chromium-only",
+            use: { browserName: "chromium" },
+            dependencies: ["setup"],
+            testMatch: "spec/chromium-only/*.spec.ts",
+        },
         {
             name: "chromium",
             use: { browserName: "chromium" },
             dependencies: ["setup"],
+            testMatch: "spec/*.spec.ts",
         },
-
         {
             name: "firefox",
             use: { browserName: "firefox" },
             dependencies: ["setup"],
+            testMatch: "spec/*.spec.ts",
         },
-
         {
             name: "webkit",
             use: { browserName: "webkit" },
             dependencies: ["setup"],
+            testMatch: "spec/*.spec.ts",
         },
-
-        /* Test against mobile viewports. */
-        // {
-        //   name: 'Mobile Chrome',
-        //   use: { ...devices['Pixel 5'] },
-        // },
-        // {
-        //   name: 'Mobile Safari',
-        //   use: { ...devices['iPhone 12'] },
-        // },
     ],
     webServer: {
         command: `yarn cross-env yarn run preview:build:${isCi ? "ci" : "test"}`,

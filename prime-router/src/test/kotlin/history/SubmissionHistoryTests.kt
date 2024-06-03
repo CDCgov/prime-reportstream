@@ -2,7 +2,7 @@ package gov.cdc.prime.router.history
 
 import assertk.assertFailure
 import assertk.assertThat
-import assertk.assertions.contains
+import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
@@ -14,6 +14,7 @@ import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.FieldPrecisionMessage
 import gov.cdc.prime.router.InvalidEquipmentMessage
 import gov.cdc.prime.router.InvalidReportMessage
@@ -23,6 +24,7 @@ import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
@@ -1291,6 +1293,83 @@ class SubmissionHistoryTests {
             assertThat(destinations.count()).isEqualTo(1)
             assertThat(destinations.first().organizationId).isEqualTo("recvOrg1")
             assertThat(destinations.first().service).isEqualTo("recvSvc1")
+        }
+    }
+
+    @Test
+    fun `test UP enrichWithDescendants add details from the convert step`() {
+        val inputReport = DetailedReport(
+            UUID.randomUUID(),
+            null,
+            null,
+            "org",
+            "client",
+            Topic.FULL_ELR,
+            "externalName",
+            null,
+            null,
+            5,
+            7,
+            false
+        )
+
+        val reports = listOf(
+            inputReport,
+            DetailedReport(
+                UUID.randomUUID(),
+                null,
+                null,
+                null,
+                null,
+                Topic.FULL_ELR,
+                "otherExternalName1",
+                null,
+                null,
+                1,
+                1,
+                true
+            ),
+        ).toMutableList()
+
+        val testEnrich = DetailedSubmissionHistory(
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+            HttpStatus.OK.value(),
+            reports
+        )
+        val logs = listOf(
+            DetailedActionLog(
+                ActionLogScope.item,
+                UUID.randomUUID(),
+                1,
+                null,
+                ActionLogLevel.error,
+
+                FHIRConverter.InvalidItemActionLogDetail(
+                    ErrorCode.INVALID_MSG_VALIDATION,
+                    0,
+                    "HL7 was not valid at OBX[1]-19[1].1"
+                )
+            ),
+        )
+        assertThat(testEnrich.destinations.count()).isEqualTo(0)
+        testEnrich.enrichWithDescendants(
+            listOf(
+                DetailedSubmissionHistory(
+                    2,
+                    TaskAction.convert,
+                    OffsetDateTime.now(),
+                    HttpStatus.OK.value(),
+                    null,
+                    logs
+                )
+            )
+        )
+
+        testEnrich.run {
+            assertThat(destinations.count()).isEqualTo(0)
+            assertThat(errors).hasSize(1)
         }
     }
 

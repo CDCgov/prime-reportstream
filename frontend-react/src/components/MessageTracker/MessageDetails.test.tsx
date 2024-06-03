@@ -192,7 +192,7 @@ describe("RSMessageDetail component", () => {
             screen.getByText(/29038fca-e521-4af8-82ac-6b9fafd0fd58/),
         ).toBeVisible();
         expect(screen.getAllByText("Date/Time Submitted")[0]).toBeVisible();
-        expect(screen.getByText("09/28/2022, 10:21:33 PM")).toBeVisible();
+        expect(screen.getByText("9/28/2022, 10:21:33 PM")).toBeVisible();
         expect(screen.getAllByText("File Location")[0]).toBeVisible();
         expect(screen.getByText("RECEIVE")).toBeVisible();
         expect(screen.getByText("simple_report.csvuploader")).toBeVisible();

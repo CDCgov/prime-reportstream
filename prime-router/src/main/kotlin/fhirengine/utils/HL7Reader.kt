@@ -7,13 +7,13 @@ import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.HapiContext
 import ca.uhn.hl7v2.model.AbstractMessage
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.model.v27.message.ORU_R01
 import ca.uhn.hl7v2.parser.ParserConfiguration
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
 import ca.uhn.hl7v2.validation.ValidationException
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
+import fhirengine.translation.hl7.structures.fhirinventory.message.ORU_R01
 import fhirengine.utils.ReportStreamCanonicalModelClassFactory
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
@@ -215,6 +215,9 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
 
     companion object {
 
+        // This regex is used to replace \n with \r while not replacing \r\n
+        val newLineRegex = Regex("(?<!\r)\n")
+
         /**
          * Class captures the details from the MSH segment and can be used to map
          * to which instance of a Message and which HL7 -> FHIR mappings should be used
@@ -274,8 +277,12 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             rawHL7: String,
             parseConfiguration: HL7MessageParseAndConvertConfiguration?,
         ): Message {
-            val hl7MessageType = getMessageType(rawHL7)
-            return getHL7ParsingContext(hl7MessageType, parseConfiguration).pipeParser.parse(rawHL7)
+            // A carriage return is the official segment delimiter; a newline is not recognized so we replace
+            // them
+
+            val carriageReturnFixedHL7 = rawHL7.replace(newLineRegex, "\r")
+            val hl7MessageType = getMessageType(carriageReturnFixedHL7)
+            return getHL7ParsingContext(hl7MessageType, parseConfiguration).pipeParser.parse(carriageReturnFixedHL7)
         }
 
         /**
