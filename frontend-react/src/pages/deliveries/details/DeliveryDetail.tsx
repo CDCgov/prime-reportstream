@@ -6,7 +6,7 @@ import DeliveryInfo from "./DeliveryInfo";
 import Summary from "./Summary";
 import HipaaNotice from "../../../components/HipaaNotice";
 import { withCatchAndSuspense } from "../../../components/RSErrorBoundary/RSErrorBoundary";
-import { useReportsDetail } from "../../../hooks/network/History/DeliveryHooks";
+import useReportsDetail from "../../../hooks/api/deliveries/UseReportDetail/UseReportDetail";
 
 const DetailsContent = () => {
     const { reportId } = useParams();

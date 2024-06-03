@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 
 import { MessageDetailsPage } from "./MessageDetails";
 import { RSMessageDetail } from "../../config/endpoints/messageTracker";
-import { mockUseMessageDetails } from "../../hooks/network/MessageTracker/__mocks__/MessageTrackerHooks";
+import useMessageDetails from "../../hooks/api/messages/UseMessageDetails/UseMessageDetails";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 const TEST_ID = 1;
@@ -164,6 +164,9 @@ vi.mock("react-router-dom", async (importActual) => ({
         id: TEST_ID,
     }),
 }));
+vi.mock("../../hooks/api/messages/UseMessageDetails/UseMessageDetails");
+
+const mockUseMessageDetails = vi.mocked(useMessageDetails);
 
 describe("RSMessageDetail component", () => {
     test("url param (messageId) feeds into network hook", () => {
