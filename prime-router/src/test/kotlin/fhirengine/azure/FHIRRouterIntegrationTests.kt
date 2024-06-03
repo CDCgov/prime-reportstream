@@ -264,7 +264,6 @@ class FHIRRouterIntegrationTests : Logging {
         nextAction: TaskAction,
         nextEventAction: Event.EventAction,
         topic: Topic,
-        taskIndex: Long = 0,
         childReport: Report? = null,
         bodyURL: String? = null,
     ): Report {
@@ -299,7 +298,7 @@ class FHIRRouterIntegrationTests : Logging {
                 ReportStreamTestDatabaseContainer.testDatabaseAccess
                     .insertReportLineage(
                         ReportLineage(
-                            taskIndex,
+                            0,
                             actionId,
                             report.id,
                             childReport.id,
@@ -349,7 +348,6 @@ class FHIRRouterIntegrationTests : Logging {
             TaskAction.route,
             Event.EventAction.ROUTE,
             topic,
-            0,
             null,
             convertedBlobUrl
         )
@@ -360,7 +358,6 @@ class FHIRRouterIntegrationTests : Logging {
             TaskAction.convert,
             Event.EventAction.CONVERT,
             topic,
-            0,
             convertReport,
             receivedBlobUrl
         )
@@ -439,6 +436,7 @@ class FHIRRouterIntegrationTests : Logging {
         every { BlobAccess getProperty "defaultBlobMetadata" } returns getBlobContainerMetadata()
         mockkObject(BlobAccess.BlobContainerMetadata)
         every { BlobAccess.BlobContainerMetadata.build(any(), any()) } returns getBlobContainerMetadata()
+        // TODO consider not mocking DatabaseLookupTableAccess
         mockkConstructor(DatabaseLookupTableAccess::class)
     }
 
@@ -662,7 +660,7 @@ class FHIRRouterIntegrationTests : Logging {
             // for receiver Y all five observations should be intact
             assertEquals(5, fhirBundleReceiverY.getObservations().size)
             val expectedCodes = listOf("94558-5", "95418-0", "95417-2", "95421-4", "95419-8")
-            for (i in 0..fhirBundleReceiverX.getObservations().size - 1) {
+            for (i in 0..< fhirBundleReceiverX.getObservations().size) {
                 // in this bundle the array "coding" in every "Observation" only ever has one element
                 assertEquals(1, fhirBundleReceiverX.getObservations()[i].code.coding.size)
                 assertEquals(expectedCodes[i], fhirBundleReceiverX.getObservations()[i].code.coding[0].code)
