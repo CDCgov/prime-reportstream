@@ -4,6 +4,7 @@ import { HTTPMethods } from "../../../../config/endpoints";
 import { RSSender } from "../../../../config/endpoints/settings";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 
+// TODO Implement in pages
 function useDeleteOrganizationSender() {
     const { authorizedFetch } = useSessionContext();
 

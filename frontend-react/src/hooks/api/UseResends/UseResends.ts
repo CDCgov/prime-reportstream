@@ -22,6 +22,7 @@ export interface RSResendsSearchParams {
     daysToShow: number;
 }
 
+// TODO Implement in pages
 const useResends = (params?: RSResendsSearchParams) => {
     const { authorizedFetch } = useSessionContext();
 

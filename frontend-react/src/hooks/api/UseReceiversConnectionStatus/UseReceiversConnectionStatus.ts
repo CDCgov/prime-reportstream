@@ -19,6 +19,7 @@ export interface RSReceiverStatusSearchParams {
     endDate?: string | undefined; // Date().toISOString
 }
 
+// TODO Implement in pages
 const useReceiversConnectionStatus = (params: RSReceiverStatusSearchParams) => {
     const { authorizedFetch } = useSessionContext();
 
