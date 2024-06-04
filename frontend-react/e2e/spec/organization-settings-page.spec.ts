@@ -62,7 +62,7 @@ test.describe("Admin Organization Settings Page", () => {
                 await expect(navItems).toContainText(["Admin tools"]);
 
                 await page
-                    .getByTestId("header")
+                    .getByTestId("auth-header")
                     .getByTestId("navDropDownButton")
                     .getByText("Admin tools")
                     .click();
