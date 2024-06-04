@@ -370,7 +370,11 @@ const ReportStreamHeader = ({
             <GovBanner aria-label="Official government website" />
             {!isNavHidden && <SenderModeBanner />}
             {!isNavHidden && activeMembership && (
-                <Header basic={true} className={classnames(styles.AuthNavbar)}>
+                <Header
+                    data-testid="auth-header"
+                    basic={true}
+                    className={classnames(styles.AuthNavbar)}
+                >
                     <div className="usa-nav-container">
                         <Suspense fallback={suspenseFallback}>
                             <ReportStreamAuthNavbar
