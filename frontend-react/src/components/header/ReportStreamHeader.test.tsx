@@ -3,7 +3,7 @@ import { screen, waitFor } from "@testing-library/react";
 import ReportStreamHeader from "./ReportStreamHeader";
 import { RSSessionContext } from "../../contexts/Session/SessionProvider";
 import useSessionContext from "../../contexts/Session/useSessionContext";
-import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
+import { Organizations } from "../../hooks/UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { MemberType } from "../../utils/OrganizationUtils";
 
