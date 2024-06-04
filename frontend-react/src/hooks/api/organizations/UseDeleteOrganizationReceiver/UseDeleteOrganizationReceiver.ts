@@ -1,8 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 
+import { HTTPMethods } from "../../../../config/endpoints";
 import { RSReceiver } from "../../../../config/endpoints/settings";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 
+// TODO Implement in pages
 function useDeleteOrganizationReceiver() {
     const { authorizedFetch } = useSessionContext();
 
@@ -14,7 +16,7 @@ function useDeleteOrganizationReceiver() {
     ) => {
         return authorizedFetch({
             url: `/settings/organizations/${obj.organizationName}/receivers/${obj.name}`,
-            method: "delete",
+            method: HTTPMethods.DELETE,
         });
     };
     const result = useMutation({

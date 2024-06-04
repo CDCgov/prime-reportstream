@@ -24,10 +24,10 @@ import Spinner from "../Spinner";
 import { StyleClass, TableFilterDateLabel } from "../Table/TableFilters";
 import { USLink } from "../USLink";
 
-const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
-const SKIP_HOURS = 2; // hrs - should be factor of 24 (e.g. 12,6,4,3,2)
-const MAX_DAYS = 10;
-const MAX_DAYS_MS = MAX_DAYS * 24 * 60 * 60 * 1000;
+export const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
+export const SKIP_HOURS = 2; // hrs - should be factor of 24 (e.g. 12,6,4,3,2)
+export const MAX_DAYS = 10;
+export const MAX_DAYS_MS = MAX_DAYS * 24 * 60 * 60 * 1000;
 
 /**
  *
@@ -134,19 +134,19 @@ const MAX_DAYS_MS = MAX_DAYS * 24 * 60 * 60 * 1000;
  * @param d {Date}
  * @return {string}
  */
-const startOfDayIso = (d: Date) => {
+export const startOfDayIso = (d: Date) => {
     return startOfDay(d).toISOString();
 };
 
-const endOfDayIso = (d: Date) => {
+export const endOfDayIso = (d: Date) => {
     return endOfDay(d).toISOString();
 };
 
-const initialStartDate = () => {
+export const initialStartDate = () => {
     return subDays(new Date(), DAY_BACK_DEFAULT);
 };
 
-const initialEndDate = () => {
+export const initialEndDate = () => {
     return new Date();
 };
 
@@ -156,7 +156,10 @@ const initialEndDate = () => {
  * @param dateNewer Date
  * @param dateOlder Date
  */
-const durationFormatShort = (dateNewer: Date, dateOlder: Date): string => {
+export const durationFormatShort = (
+    dateNewer: Date,
+    dateOlder: Date,
+): string => {
     const msDiff = dateNewer.getTime() - dateOlder.getTime();
     const hrs = Math.floor(msDiff / (60 * 60 * 1000)).toString();
     const mins = Math.floor((msDiff / (60 * 1000)) % 60).toString();
@@ -183,7 +186,7 @@ const durationFormatShort = (dateNewer: Date, dateOlder: Date): string => {
  * WARNING: Intl.DateTimeFormat() can be slow if called in a loop!
  * Rewrote to just use Date to save cpu
  * */
-const dateShortFormat = (d: Date) => {
+export const dateShortFormat = (d: Date) => {
     const dayOfWeek =
         ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()] || "";
     return (
@@ -192,7 +195,7 @@ const dateShortFormat = (d: Date) => {
     );
 };
 
-enum SuccessRate {
+export enum SuccessRate {
     UNDEFINED = "UNDEFINED",
     ALL_SUCCESSFUL = "ALL_SUCCESSFUL",
     ALL_FAILURE = "ALL_FAILURE",
@@ -201,7 +204,7 @@ enum SuccessRate {
 
 /** simple container for logic related to tracking if a run is all success or all failure or mixed.
  * Originally was a reducer, but the hook limitations made using it harder to use. **/
-class SuccessRateTracker {
+export class SuccessRateTracker {
     currentState: SuccessRate;
     countSuccess: number;
     countFailed: number;
@@ -241,50 +244,50 @@ class SuccessRateTracker {
     }
 }
 
-const SUCCESS_RATE_CLASSNAME_MAP = {
+export const SUCCESS_RATE_CLASSNAME_MAP = {
     [SuccessRate.UNDEFINED]: "success-undefined",
     [SuccessRate.ALL_SUCCESSFUL]: "success-all",
     [SuccessRate.ALL_FAILURE]: "failure-all",
     [SuccessRate.MIXED_SUCCESS]: "success-mixed",
 };
 
-enum MatchingFilter {
+export enum MatchingFilter {
     NO_FILTER,
     FILTER_NOT_MATCHED,
     FILTER_IS_MATCHED,
 }
 
-const MATCHING_FILTER_CLASSNAME_MAP = {
+export const MATCHING_FILTER_CLASSNAME_MAP = {
     [MatchingFilter.NO_FILTER]: "",
     [MatchingFilter.FILTER_NOT_MATCHED]: "success-result-hidden",
     [MatchingFilter.FILTER_IS_MATCHED]: "",
 };
 
-function dateAddHours(d: Date, h: number): Date {
+export function dateAddHours(d: Date, h: number): Date {
     const result = new Date(d); // copy value
     result.setHours(result.getHours() + h);
     return result;
 }
 
 // mostly for readably
-type DatePair = [Date, Date];
+export type DatePair = [Date, Date];
 
-function dateIsInRange(d: Date, range: DatePair): boolean {
+export function dateIsInRange(d: Date, range: DatePair): boolean {
     return d >= range[0] && d < range[1];
 }
 
-const strcmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+export const strcmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
 /**
  *  simple iterator to make other code more readable.
  *  Usage:
  *    for (let eachTimeSlot in (new TimeSlots([dateStart, dateEnd], 2)) { }
  */
-interface IterateTimeSlots {
+export interface IterateTimeSlots {
     [Symbol.iterator]: () => Iterator<DatePair>;
 }
 
-class TimeSlots implements IterateTimeSlots {
+export class TimeSlots implements IterateTimeSlots {
     private current: Date;
     private readonly end: Date;
     private readonly skipHours: number;
@@ -308,7 +311,9 @@ class TimeSlots implements IterateTimeSlots {
  * build the dictionary with a special path+key
  * @param dataIn
  */
-const sortStatusData = (dataIn: RSReceiverStatus[]): RSReceiverStatus[] => {
+export const sortStatusData = (
+    dataIn: RSReceiverStatus[],
+): RSReceiverStatus[] => {
     // empty case
     if (dataIn.length === 0) {
         return [];
@@ -332,7 +337,7 @@ const sortStatusData = (dataIn: RSReceiverStatus[]): RSReceiverStatus[] => {
 
 // PreRenderedRowComponents breaks out row status and org+receiver name into props
 // so parent can more quickly filter at a higher level without changing the whole DOM
-function renderAllReceiverRows(props: {
+export function renderAllReceiverRows(props: {
     data: RSReceiverStatus[];
     startDate: Date;
     endDate: Date;
@@ -608,7 +613,7 @@ function FilterRenderedRows(props: {
     return resultArray;
 }
 
-function MainRender(props: {
+export function MainRender(props: {
     datesRange: DatePair;
     filterRowStatus: SuccessRate;
     filterErrorText: string;
@@ -668,7 +673,7 @@ function MainRender(props: {
     );
 }
 
-function ModalInfoRender(props: { subData: RSReceiverStatus[] }) {
+export function ModalInfoRender(props: { subData: RSReceiverStatus[] }) {
     if (!props?.subData.length) {
         return <>No Data Found</>;
     }
@@ -760,7 +765,7 @@ function ModalInfoRender(props: { subData: RSReceiverStatus[] }) {
  *  - We want start AND end picked before the expensive fetch.
  *  - Picker fields are LARGE and take up a bunch of space.
  */
-function DateRangePickingAtomic(props: {
+export function DateRangePickingAtomic(props: {
     defaultStartDate: string;
     defaultEndDate: string;
     onChange: (props: { startDate: string; endDate: string }) => void;
@@ -1007,22 +1012,3 @@ export function AdminReceiverDashboard() {
         </article>
     );
 }
-
-export const _exportForTesting = {
-    SKIP_HOURS,
-    startOfDayIso,
-    endOfDayIso,
-    initialStartDate,
-    initialEndDate,
-    strcmp,
-    dateIsInRange,
-    TimeSlots,
-    SuccessRateTracker,
-    SuccessRate,
-    durationFormatShort,
-    dateShortFormat,
-    sortStatusData,
-    MainRender,
-    ModalInfoRender,
-    DateRangePickingAtomic,
-};

@@ -25,6 +25,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
+import java.net.URLEncoder
+import java.nio.charset.Charset
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
 import java.util.UUID
@@ -343,7 +345,7 @@ abstract class ReportFileFunction(
             pageSize = extractPageSize(query),
             showFailed = extractShowFailed(query),
             reportId = query["reportId"],
-            fileName = query["fileName"],
+            fileName = extractFileName(query),
             receivingOrgSvcStatus = extractReceivingOrgSvcStatus(query),
         )
 
@@ -413,6 +415,19 @@ abstract class ReportFileFunction(
              */
             fun extractShowFailed(query: Map<String, String>): Boolean {
                 return query["showfailed"]?.toBoolean() ?: false
+            }
+
+            /**
+             * Convert fileName from query into param used for the DB
+             * @param query Incoming query params
+             * @return encoded param
+             */
+            fun extractFileName(query: Map<String, String>): String? {
+                return if (query["fileName"] != null) {
+                    URLEncoder.encode(query["fileName"], Charset.defaultCharset())
+                } else {
+                    null
+                }
             }
 
             fun extractReceivingOrgSvcStatus(query: Map<String, String>): List<CustomerStatus>? {

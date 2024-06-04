@@ -114,7 +114,7 @@ index.js:2 Refused to apply inline style because it violates the
 
 To get started you will need to create three separate OKTA users. An admin, sender, and receiver.
 
-1. Assign the users to the Test Users Group
+1. Assign the admin, sender, and receiver users to the Test Users Group
 2. Assign the sender user to the DHSender_ignore Group.
 3. Assign the receiver user to the DHak-phd Group and make sure that you have data locally to support that organization.
 4. Create a `.env.test.local` file within frontend-react and add the following properties along with the values created from step #1:

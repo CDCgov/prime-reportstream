@@ -237,17 +237,16 @@ class FHIRConverterIntegrationTests {
             assertThat(reportAndBundles).transform { pairs -> pairs.map { it.second } }.each {
                 it.matchesPredicate { bytes ->
                     val invalidHL7Result = CompareData().compare(
-                        bytes.inputStream(),
                         cleanHL7RecordConverted.byteInputStream(),
-
+                        bytes.inputStream(),
                         Report.Format.FHIR,
                         null
                     )
                     invalidHL7Result.passed
 
                     val cleanHL7Result = CompareData().compare(
-                        bytes.inputStream(),
                         invalidHL7RecordConverted.byteInputStream(),
+                        bytes.inputStream(),
                         Report.Format.FHIR,
                         null
                     )
@@ -283,6 +282,14 @@ class FHIRConverterIntegrationTests {
                     "Item 3 in the report was not parseable. Reason: exception while parsing HL7: Determine encoding for message. The following is the first 50 chars of the message for reference, although this may not be where the issue is: MSH^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16",
                     "Item 4 in the report was not parseable. Reason: exception while parsing HL7: Invalid or incomplete encoding characters - MSH-2 is ^~\\&#!"
                 )
+            assertThat(actionLogs).transform {
+                it.map { log ->
+                    log.trackingId
+                }
+            }.containsOnly(
+                "",
+                ""
+            )
         }
     }
 
@@ -379,6 +386,16 @@ class FHIRConverterIntegrationTests {
             val actualDetailedActions = actionLogs.map { log -> log.index to log.detail.message }
 
             assertThat(actualDetailedActions).isEqualTo(expectedDetailedActions)
+            assertThat(actionLogs).transform {
+                it.map { log ->
+                    log.trackingId
+                }
+            }.containsOnly(
+                "",
+                "Observation/d683b42a-bf50-45e8-9fce-6c0531994f09",
+                "Observation/d683b42a-bf50-45e8-9fce-6c0531994f09",
+                ""
+            )
         }
     }
 
@@ -413,8 +430,8 @@ class FHIRConverterIntegrationTests {
             assertThat(reportAndBundles).transform { pairs -> pairs.map { it.second } }.each {
                 it.matchesPredicate { bytes ->
                     CompareData().compare(
-                        bytes.inputStream(),
                         validRadxMarsHL7MessageConverted.byteInputStream(),
+                        bytes.inputStream(),
                         Report.Format.FHIR,
                         null
                     ).passed
@@ -442,8 +459,13 @@ class FHIRConverterIntegrationTests {
                 )
 
             assertThat(actionLogs).hasSize(1)
+            @Suppress("ktlint:standard:max-line-length")
             assertThat(actionLogs.first()).transform { it.detail.message }
-                .isEqualTo("Item 2 in the report was not valid. Reason: HL7 was not valid at OBX[1]-19[1].1")
+                .isEqualTo(
+                    "Item 2 in the report was not valid. Reason: HL7 was not valid at MSH[1]-21[1].3 for validator: RADx MARS"
+                )
+            assertThat(actionLogs.first()).transform { it.trackingId }
+                .isEqualTo("20240403205305_dba7572cc6334f1ea0744c5f235c823e")
         }
     }
 
@@ -477,15 +499,14 @@ class FHIRConverterIntegrationTests {
             assertThat(reportAndBundles).transform { pairs -> pairs.map { it.second } }.each {
                 it.matchesPredicate { bytes ->
                     val invalidHL7Result = CompareData().compare(
-                        bytes.inputStream(),
                         cleanHL7RecordConvertedAndTransformed.byteInputStream(),
-
+                        bytes.inputStream(),
                         Report.Format.FHIR,
                         null
                     )
                     val cleanHL7Result = CompareData().compare(
-                        bytes.inputStream(),
                         invalidHL7RecordConvertedAndTransformed.byteInputStream(),
+                        bytes.inputStream(),
                         Report.Format.FHIR,
                         null
                     )
@@ -535,6 +556,9 @@ class FHIRConverterIntegrationTests {
 
         verify(exactly = 0) {
             QueueAccess.sendMessage(any(), any())
+        }
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            verifyLineageAndFetchCreatedReportFiles(receiveReport, receiveReport, txn, 1)
         }
     }
 }

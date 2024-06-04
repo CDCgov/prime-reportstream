@@ -108,6 +108,8 @@
   elements:
     - CDCPRIME_11D2030855_
     - createdDate()
+    - "-"
+    - uuid()
 
 - name: indiana
   upperCase: true

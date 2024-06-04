@@ -11,6 +11,7 @@ import Pagination, {
 import TableFilters, {
     TableFilterDateLabel,
 } from "../../../components/Table/TableFilters";
+import { USLink } from "../../../components/USLink";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import useSessionContext from "../../../contexts/Session/useSessionContext";
@@ -77,7 +78,11 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
         {
             columnKey: DeliveriesDataAttr.REPORT_ID,
             columnHeader: "Report ID",
-            content: dataRow.reportId,
+            content: (
+                <USLink href={`/report-details/${dataRow.reportId}`}>
+                    {dataRow.reportId}
+                </USLink>
+            ),
         },
         {
             columnKey: DeliveriesDataAttr.BATCH_READY,

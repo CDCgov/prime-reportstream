@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
+import { HTTPMethods } from "../../../../config/endpoints";
 import { RSReceiver } from "../../../../config/endpoints/settings";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 
@@ -14,7 +15,7 @@ function useUpdateOrganizationReceiver() {
     ) => {
         return authorizedFetch({
             url: `/settings/organizations/${data.organizationName}/receivers/${data.name}`,
-            method: "put",
+            method: HTTPMethods.PUT,
             data,
         });
     };

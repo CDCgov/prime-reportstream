@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { RSReceiver } from "../../../../config/endpoints/settings";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 
+// TODO Implement in pages
 function useOrganizationReceiver(receiverId: string, orgId?: string) {
     const { activeMembership, authorizedFetch } = useSessionContext();
     const org = orgId ?? activeMembership?.parsedName;

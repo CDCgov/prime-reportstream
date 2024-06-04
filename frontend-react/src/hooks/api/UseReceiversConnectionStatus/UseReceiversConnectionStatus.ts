@@ -18,16 +18,14 @@ export interface RSReceiverStatusSearchParams {
     endDate?: string | undefined; // Date().toISOString
 }
 
+// TODO Implement in pages
 const useReceiversConnectionStatus = (params: RSReceiverStatusSearchParams) => {
     const { authorizedFetch } = useSessionContext();
 
     const fn = () => {
         return authorizedFetch<RSReceiverStatus[]>({
             url: `/adm/listreceiversconnstatus`,
-            params: {
-                start_date: params.startDate,
-                end_date: params.endDate,
-            },
+            params,
         });
     };
 

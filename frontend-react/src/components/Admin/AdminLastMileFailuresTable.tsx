@@ -27,8 +27,8 @@ import useSendFailures, {
     RSSendFailure,
 } from "../../hooks/api/UseSendFailures/UseSendFailures";
 import Table from "../../shared/Table/Table";
-import { searchResends } from "../../utils/filters/resendFilters";
-import { searchSendFailures } from "../../utils/filters/sendFailuresFilters";
+import { filterMatch as resendFilterMatch } from "../../utils/filters/resendFilters";
+import { filterMatch as sendFailureFilterMatch } from "../../utils/filters/sendFailuresFilters";
 import { formatDate } from "../../utils/misc";
 import Spinner from "../Spinner";
 import { USLink } from "../USLink";
@@ -168,11 +168,13 @@ const DataLoadRenderTable = ({
     handleShowDetailsClick: (jsonRowData: string) => void;
 }) => {
     const fiterResends = (reportId: string) => {
-        return lastMileResends.filter((each) => searchResends(each, reportId));
+        return lastMileResends.filter((each) =>
+            resendFilterMatch(each, reportId),
+        );
     };
 
     const rowData = lastMileData
-        .filter((eachRow) => searchSendFailures(eachRow, filterText))
+        .filter((eachRow) => sendFailureFilterMatch(eachRow, filterText))
         .map((eachRow) => {
             // would be nice if org and receiver name were separate
             const parts = eachRow.receiver.split(".") || eachRow.receiver;
@@ -262,7 +264,7 @@ const DataLoadRenderTable = ({
 export function AdminLastMileFailuresTable() {
     const modalShowInfoId = "sendFailuresModalDetails";
     const modalResendId = "sendFailuresModalDetails";
-    const defaultDaysToShow = "15"; // numeric input but treat as string for easier passing around
+    const defaultDaysToShow = 15;
     const [daysToShow, setDaysToShow] = useState(defaultDaysToShow);
     const { data: lastMileData, refetch: refetchLastMileData } =
         useSendFailures({ daysToShow: daysToShow });
@@ -410,7 +412,9 @@ ${data.receiver}`;
                         defaultValue={defaultDaysToShow}
                         autoComplete="off"
                         aria-autocomplete="none"
-                        onBlur={(evt) => setDaysToShow(evt.target.value)}
+                        onBlur={(evt) =>
+                            setDaysToShow(parseInt(evt.target.value))
+                        }
                     />
                 </div>
                 <div className="flex-auto margin-1 padding-3">

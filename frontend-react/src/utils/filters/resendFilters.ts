@@ -1,6 +1,6 @@
 import { RSResend } from "../../hooks/api/UseResends/UseResends";
 
-export function searchResends(obj: RSResend, search: string | null): boolean {
+export function filterMatch(obj: RSResend, search: string | null): boolean {
     if (!search) {
         return true; // no search returns EVERYTHING
     }

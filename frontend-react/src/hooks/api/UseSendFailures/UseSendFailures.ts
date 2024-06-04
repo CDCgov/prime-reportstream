@@ -22,9 +22,10 @@ export interface RSSendFailure {
 }
 
 export interface RSSendFailuresSearchParams {
-    daysToShow: number | string;
+    daysToShow: number;
 }
 
+// TODO Implement in pages
 const useSendFailures = (params: RSSendFailuresSearchParams) => {
     const { authorizedFetch } = useSessionContext();
 
