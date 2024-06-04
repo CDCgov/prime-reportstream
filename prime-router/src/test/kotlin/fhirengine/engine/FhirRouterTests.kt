@@ -1612,7 +1612,7 @@ class FhirRouterTests {
                     ObservationSummary(code = "95421-4"),
                     ObservationSummary(code = "95419-8"),
                 ),
-                36995,
+                38803,
                 AzureEventUtils.MessageID(
                     "1234d1d1-95fe-462c-8ac6-46728dba581c",
                     "https://reportstream.cdc.gov/prime-router"
@@ -1630,7 +1630,7 @@ class FhirRouterTests {
                             "840539006",
                             "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
                         ),
-                            "", ""
+                        "", ""
                     ),
                     ObservationSummary.EMPTY,
                     ObservationSummary.EMPTY,
