@@ -1,6 +1,6 @@
 import { DeliveryDetailPage } from "./DeliveryDetail";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
-import { mockUseReportDetail } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import useReportsDetail from "../../../hooks/api/deliveries/UseReportDetail/UseReportDetail";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 
 const TEST_ID = "test-id-123";
@@ -10,6 +10,10 @@ vi.mock("react-router-dom", async (importActual) => ({
         reportId: TEST_ID,
     }),
 }));
+
+vi.mock("../../../hooks/api/deliveries/UseReportDetail/UseReportDetail");
+
+const mockUseReportDetail = vi.mocked(useReportsDetail);
 
 describe("DeliveryDetails", () => {
     /* Render tests for the Table component cover the generation of a table via config. The only untested
