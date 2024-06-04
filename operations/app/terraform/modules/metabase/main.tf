@@ -1,10 +1,11 @@
 resource "azurerm_linux_web_app" "metabase" {
+  #checkov:skip=CKV_AZURE_222: "Ensure that Azure Web App public network access is disabled"
   name                          = "${var.resource_prefix}-metabase"
   location                      = var.location
   resource_group_name           = var.resource_group
   service_plan_id               = var.service_plan_id
   https_only                    = true
-  public_network_access_enabled = false
+  public_network_access_enabled = true
 
   identity {
     type = "SystemAssigned"
@@ -13,8 +14,8 @@ resource "azurerm_linux_web_app" "metabase" {
   site_config {
 
     application_stack {
-      docker_image_name   = "metabase/metabase"
-      docker_registry_url = "https://registry.hub.docker.com/v2/"
+      docker_image_name   = "metabase/metabase:latest"
+      docker_registry_url = "https://index.docker.io"
     }
 
     ip_restriction {
@@ -48,8 +49,20 @@ resource "azurerm_linux_web_app" "metabase" {
 
   }
 
+  logs {
+    detailed_error_messages = false
+    failed_request_tracing  = false
+
+    http_logs {
+      file_system {
+        retention_in_days = 30
+        retention_in_mb   = 35
+      }
+    }
+  }
+
   app_settings = {
-    "MB_DB_CONNECTION_URI" = "postgresql://${var.postgres_server_name}.postgres.database.azure.com:5432/metabase?user=${var.postgres_user}@${var.postgres_server_name}&password=${var.postgres_pass}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+    "MB_DB_CONNECTION_URI" = "jdbc:postgresql://${var.postgres_server_name}.postgres.database.azure.com:5432/metabase?user=${var.postgres_user}%40${var.postgres_server_name}&password=${var.postgres_pass}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
     "MB_PASSWORD_LENGTH"   = "10"
 
     # Use the VNET DNS server (so we receive private endpoint URLs)
@@ -78,21 +91,37 @@ resource "azurerm_linux_web_app" "metabase" {
     "WEBSITE_SMTP_PASSWORD"                           = var.sendgrid_password
     "WEBSITE_SMTP_SERVER"                             = "smtp.sendgrid.net"
     "WEBSITE_SMTP_USERNAME"                           = "apikey"
+  }
 
+  sticky_settings {
+    app_setting_names = [
+      "APPINSIGHTS_INSTRUMENTATIONKEY",
+      "APPLICATIONINSIGHTS_CONNECTION_STRING ",
+      "APPINSIGHTS_PROFILERFEATURE_VERSION",
+      "APPINSIGHTS_SNAPSHOTFEATURE_VERSION",
+      "ApplicationInsightsAgent_EXTENSION_VERSION",
+      "XDT_MicrosoftApplicationInsights_BaseExtensions",
+      "DiagnosticServices_EXTENSION_VERSION",
+      "InstrumentationEngine_EXTENSION_VERSION",
+      "SnapshotDebugger_EXTENSION_VERSION",
+      "XDT_MicrosoftApplicationInsights_Mode",
+      "XDT_MicrosoftApplicationInsights_PreemptSdk",
+      "APPLICATIONINSIGHTS_CONFIGURATION_CONTENT",
+      "XDT_MicrosoftApplicationInsightsJava",
+      "XDT_MicrosoftApplicationInsights_NodeJS",
+    ]
   }
 
   lifecycle {
     ignore_changes = [
-      # Temp ignore app_settings during terraform overhaul
-      app_settings["APPINSIGHTS_INSTRUMENTATIONKEY"],
-      app_settings["APPLICATIONINSIGHTS_CONNECTION_STRING"],
-      app_settings["MB_DB_CONNECTION_URI"],
-      # The AzureRM Terraform provider provides regional virtual network integration via the standalone resource app_service_virtual_network_swift_connection and in-line within this resource using the virtual_network_subnet_id property. You cannot use both methods simultaneously. If the virtual network is set via the resource app_service_virtual_network_swift_connection then ignore_changes should be used in the web app configuration.
+      # validated 5/30/2024
+      # The AzureRM Terraform provider provides regional virtual network integration
+      # via the standalone resource app_service_virtual_network_swift_connection and
+      # in-line within this resource using the virtual_network_subnet_id property.
+      # You cannot use both methods simultaneously.
+      # If the virtual network is set via the resource app_service_virtual_network_swift_connection
+      # then ignore_changes should be used in the web app configuration.
       virtual_network_subnet_id,
-      public_network_access_enabled,
-      sticky_settings,
-      logs,
-      site_config[0].application_stack[0].docker_registry_url
     ]
   }
 }
