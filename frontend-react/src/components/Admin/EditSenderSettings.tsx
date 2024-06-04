@@ -18,7 +18,7 @@ import Title from "../../components/Title";
 import config from "../../config";
 import useSessionContext from "../../contexts/Session/useSessionContext";
 import { useToast } from "../../contexts/Toast";
-import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {

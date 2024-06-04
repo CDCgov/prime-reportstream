@@ -41,7 +41,7 @@ test.describe("Admin Organization Settings Page", () => {
                 route.fulfill({ status: 500 }),
             );
             await organization.goto(page);
-            await expect(page.getByText("An error has occurred")).toBeVisible();
+            await expect(page.getByText("there was an error")).toBeVisible();
         });
 
         test.describe("When there is no error", () => {
@@ -53,6 +53,24 @@ test.describe("Admin Organization Settings Page", () => {
                     }),
                 );
                 await organization.goto(page);
+            });
+
+            test("nav contains the 'Admin tools' dropdown with 'Organization Settings' option", async ({
+                page,
+            }) => {
+                const navItems = page.locator(".usa-nav  li");
+                await expect(navItems).toContainText(["Admin tools"]);
+
+                await page
+                    .getByTestId("auth-header")
+                    .getByTestId("navDropDownButton")
+                    .getByText("Admin tools")
+                    .click();
+
+                expect(page.getByText("Organization Settings")).toBeTruthy();
+
+                await page.getByText("Organization Settings").click();
+                await expect(page).toHaveURL("/admin/settings");
             });
 
             test("Has correct title", async ({ page }) => {

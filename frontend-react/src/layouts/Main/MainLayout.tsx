@@ -6,7 +6,7 @@ import { ToastContainer } from "react-toastify";
 import ReportStreamHeader from "../../components/header/ReportStreamHeader";
 import RSErrorBoundary from "../../components/RSErrorBoundary/RSErrorBoundary";
 import Spinner from "../../components/Spinner";
-import { useScrollToTop } from "../../hooks/UseScrollToTop";
+import useScrollToTop from "../../hooks/UseScrollToTop/UseScrollToTop";
 import { ReportStreamFooter } from "../../shared/ReportStreamFooter/ReportStreamFooter";
 
 const ArticleWrapper = (props: PropsWithChildren) => {
