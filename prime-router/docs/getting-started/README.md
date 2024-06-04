@@ -42,7 +42,8 @@ you are using an Apple Silicon computer, otherwise they are optional.
 
 > [!Warning]
 > If you are using an Apple Silicon computer you will need to use Gradle as Microsoft's Azure Function Docker image is
-> only `amd64` compatible. There are also [known issues](https://docs.docker.com/desktop/mac/apple-silicon/#known-issues)
+> only `amd64` compatible. There are
+> also [known issues](https://docs.docker.com/desktop/mac/apple-silicon/#known-issues)
 > running Intel Docker images on Apple Silicon. Both approaches to running the project are documented here.
 > Many of our local developer tools are set up to run in Docker containers. Looking at our `docker-compose.yml` file,
 > the `prime_dev` service does not work on Apple Silicon. Likewise, the `builder` service in
@@ -215,7 +216,8 @@ app__.
 
 ## Next Steps
 
-- [Contributing](./contributing.md) _IMPORTANT! You need to do this step before you push any code to the project!_
+- [Contributing](./contributing.md)
+    - _IMPORTANT! You need to do this step before you push any code to the project!_
 - [Running ReportStream tests](./running-tests.md)
 - [About the azure environment](./azure.md)
 - [Working with Docker](./docker.md)
