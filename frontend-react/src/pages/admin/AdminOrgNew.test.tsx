@@ -1,7 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react";
 
 import { AdminOrgNewPage } from "./AdminOrgNew";
-import { settingsServer } from "../../__mocks__/SettingsMockServer";
+import { settingsServer } from "../../__mockServers__/SettingsMockServer";
 import OrganizationResource from "../../resources/OrganizationResource";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import { renderApp } from "../../utils/CustomRenderUtils";
