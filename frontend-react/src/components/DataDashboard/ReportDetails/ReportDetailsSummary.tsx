@@ -2,7 +2,7 @@ import { Grid } from "@trussworks/react-uswds";
 
 import styles from "./ReportDetailsSummary.module.scss";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
-import ReportLink from "../../../pages/deliveries/daily-data/ReportLink";
+import ReportFileDownloadButton from "../../../shared/ReportFileDownloadButton/ReportFileDownloadButton";
 import {
     formatDateWithoutSeconds,
     isDateExpired,
@@ -22,11 +22,10 @@ export function ReportDetailsSummary(props: Props) {
                 {!isDateExpired(report!.expires) && (
                     <div className="font-sans-lg display-flex flex-align-end">
                         Download as{" "}
-                        <ReportLink
+                        <ReportFileDownloadButton
                             reportId={report!.reportId}
                             reportExpires={report!.expires}
                             fileType={report?.fileType}
-                            button
                         />
                     </div>
                 )}
