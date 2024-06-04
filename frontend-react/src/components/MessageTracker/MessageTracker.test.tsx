@@ -1,25 +1,17 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 
 import { MessageTracker } from "./MessageTracker";
-import { MOCK_MESSAGE_SENDER_DATA } from "../../__mocks__/MessageTrackerMockServer";
-import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
+import { MOCK_MESSAGE_SENDER_DATA } from "../../__mockServers__/MessageTrackerMockServer";
+import useMessageSearch from "../../hooks/api/messages/UseMessageSearch/UseMessageSearch";
 import { renderApp } from "../../utils/CustomRenderUtils";
+
+vi.mock("../../hooks/api/messages/UseMessageSearch/UseMessageSearch");
 
 const mockUseMessageSearchInitial = {
     mutateAsync: () => Promise.resolve(MOCK_MESSAGE_SENDER_DATA),
     isLoading: false,
     error: null,
 };
-
-vi.mock(
-    "../../hooks/network/MessageTracker/MessageTrackerHooks",
-    async (importActual) => ({
-        ...(await importActual<
-            typeof import("../../hooks/network/MessageTracker/MessageTrackerHooks")
-        >()),
-        useMessageSearch: vi.fn(),
-    }),
-);
 
 const mockUseMessageSearch = vi.mocked(useMessageSearch);
 

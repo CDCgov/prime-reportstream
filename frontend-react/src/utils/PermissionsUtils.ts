@@ -1,5 +1,7 @@
 import { AccessToken } from "@okta/okta-auth-js";
+import { isValidElement } from "react";
 
+import { RouteObject } from "react-router";
 import { getOktaGroups, RSOrgType, RSUserClaims } from "./OrganizationUtils";
 import { PERMISSIONS } from "./UsefulTypes";
 
@@ -54,5 +56,21 @@ export function getUserPermissions(user?: RSUserClaims): RSUserPermissions {
         isUserTransceiver,
     };
 }
+
+export const isAuthenticatedPath = (
+    pathname: string,
+    appRoutes: RouteObject[],
+) => {
+    const basePath = pathname.split("/")[1];
+    const matchedRoute = appRoutes[0].children?.find((route) => {
+        return route.path?.includes(basePath);
+    });
+
+    if (!matchedRoute || !isValidElement(matchedRoute.element)) {
+        return false;
+    }
+
+    return !!matchedRoute.element.props?.auth;
+};
 
 export { isSender, isReceiver, isAdmin, permissionCheck };
