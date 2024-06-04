@@ -1,7 +1,7 @@
 import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
 import Title from "../../../components/Title";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
-import { useOrganizationSettings } from "../../../hooks/UseOrganizationSettings";
+import useOrganizationSettings from "../../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings";
 import { FeatureName } from "../../../utils/FeatureName";
 import ReportLink from "../daily-data/ReportLink";
 

@@ -11,26 +11,25 @@ import Pagination, {
 import TableFilters, {
     TableFilterDateLabel,
 } from "../../../components/Table/TableFilters";
+import { USLink } from "../../../components/USLink";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import useSessionContext from "../../../contexts/Session/useSessionContext";
-import { FilterManager } from "../../../hooks/filters/UseFilterManager";
-import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
-import {
+import useOrgDeliveries, {
     DeliveriesDataAttr,
-    useOrgDeliveries,
-} from "../../../hooks/network/History/DeliveryHooks";
-import useAppInsightsContext from "../../../hooks/UseAppInsightsContext";
-import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceivers";
+} from "../../../hooks/api/deliveries/UseOrgDeliveries/UseOrgDeliveries";
+import useOrganizationReceivers from "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager/UseFilterManager";
+import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder/UseSortOrder";
+import useAppInsightsContext from "../../../hooks/UseAppInsightsContext/UseAppInsightsContext";
 import usePagination, {
     getSlots,
     ResultsFetcher,
-} from "../../../hooks/UsePagination";
+} from "../../../hooks/UsePagination/UsePagination";
 import { Table } from "../../../shared";
 import { EventName } from "../../../utils/AppInsights";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
-import { USLink } from "../../../components/USLink";
 
 const extractCursor = (d: RSDelivery) => d.batchReadyAt;
 
