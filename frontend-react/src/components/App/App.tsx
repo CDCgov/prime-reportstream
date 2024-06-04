@@ -82,9 +82,15 @@ function App({ config, routes }: AppProps) {
                 ) {
                     url = "/submissions";
                 }
+                if (
+                    authState?.accessToken &&
+                    permissionCheck(PERMISSIONS.RECEIVER, authState.accessToken)
+                ) {
+                    url = "/daily-data";
+                }
             }
             /**
-             * Labeled as internal api but they can't be bothered to give us a proper
+             * Labeled as internal api, but they can't be bothered to give us a proper
              * way to do this outside of a router context.
              */
             void router.navigate(url);
