@@ -5,8 +5,11 @@ import FileHandlerErrorsWarningsStep, {
     FileHandlerErrorsWarningsStepProps,
 } from "./FileHandlerErrorsWarningsStep";
 import type { RequestLevel } from "./FileHandlerMessaging";
-import { INITIAL_STATE } from "../../hooks/UseFileHandler";
-import { fakeError, fakeWarning } from "../../hooks/UseFileHandler.fixtures";
+import { INITIAL_STATE } from "../../hooks/UseFileHandler/UseFileHandler";
+import {
+    fakeError,
+    fakeWarning,
+} from "../../hooks/UseFileHandler/UseFileHandler.fixtures";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
 

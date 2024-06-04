@@ -14,7 +14,6 @@ import { CacheProvider, NetworkErrorBoundary } from "rest-hooks";
 
 import AuthStateGate from "./AuthStateGate";
 import { AppConfig } from "../../config";
-import AuthorizedFetchProvider from "../../contexts/AuthorizedFetch/AuthorizedFetchProvider";
 import FeatureFlagProvider from "../../contexts/FeatureFlag/FeatureFlagProvider";
 import SessionProvider from "../../contexts/Session/SessionProvider";
 import ToastProvider from "../../contexts/Toast";
@@ -107,33 +106,29 @@ function App({ config, routes }: AppProps) {
                                 rsConsole={rsConsole}
                             >
                                 <HelmetProvider>
-                                    <AuthorizedFetchProvider>
-                                        <FeatureFlagProvider>
-                                            <NetworkErrorBoundary
-                                                fallbackComponent={Fallback}
-                                            >
-                                                <CacheProvider>
-                                                    <ToastProvider>
-                                                        <DAPScript
-                                                            pathname={
-                                                                location.pathname
-                                                            }
+                                    <FeatureFlagProvider>
+                                        <NetworkErrorBoundary
+                                            fallbackComponent={Fallback}
+                                        >
+                                            <CacheProvider>
+                                                <ToastProvider>
+                                                    <DAPScript
+                                                        pathname={
+                                                            location.pathname
+                                                        }
+                                                    />
+                                                    <Suspense>
+                                                        <RouterProvider
+                                                            router={router}
                                                         />
-                                                        <Suspense>
-                                                            <RouterProvider
-                                                                router={router}
-                                                            />
-                                                        </Suspense>
-                                                        <ReactQueryDevtools
-                                                            initialIsOpen={
-                                                                false
-                                                            }
-                                                        />
-                                                    </ToastProvider>
-                                                </CacheProvider>
-                                            </NetworkErrorBoundary>
-                                        </FeatureFlagProvider>
-                                    </AuthorizedFetchProvider>
+                                                    </Suspense>
+                                                    <ReactQueryDevtools
+                                                        initialIsOpen={false}
+                                                    />
+                                                </ToastProvider>
+                                            </CacheProvider>
+                                        </NetworkErrorBoundary>
+                                    </FeatureFlagProvider>
                                 </HelmetProvider>
                             </SessionProvider>
                         </QueryClientProvider>
