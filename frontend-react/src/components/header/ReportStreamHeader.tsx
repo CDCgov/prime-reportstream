@@ -2,20 +2,17 @@ import {
     GovBanner,
     Header,
     Menu,
-    NavDropDownButton,
     NavMenuButton,
     PrimaryNav,
     Title,
 } from "@trussworks/react-uswds";
 import classnames from "classnames";
 import {
-    MutableRefObject,
     PropsWithChildren,
     ReactElement,
     Suspense,
     useCallback,
     useEffect,
-    useRef,
     useState,
 } from "react";
 import { useMatch } from "react-router-dom";
@@ -39,31 +36,48 @@ const primaryLinkClasses = (isActive: boolean) => {
 };
 
 export interface DropdownProps extends PropsWithChildren {
-    onToggle: (name: string) => void;
-
-    menuName: string;
+    activeDropdown: string | null;
     dropdownList: ReactElement[];
-    currentMenuName?: string;
+    menuName: string;
+    setActiveDropdown: (menuName: string | null) => void;
 }
 
 function Dropdown({
-    menuName,
+    activeDropdown,
     dropdownList,
-    currentMenuName,
-    onToggle,
+    menuName,
+    setActiveDropdown,
 }: DropdownProps) {
+    const isCurrentDropdown = activeDropdown === menuName;
+    const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation();
+        if (isCurrentDropdown) {
+            setActiveDropdown(null);
+        } else {
+            setActiveDropdown(menuName);
+        }
+    };
+    const classes = classnames("usa-accordion__button", "usa-nav__link", {
+        "usa-current": isCurrentDropdown,
+    });
+
     return (
         <>
-            <NavDropDownButton
-                menuId={menuName.toLowerCase()}
-                isOpen={currentMenuName === menuName}
-                isCurrent={currentMenuName === menuName}
-                label={menuName}
-                onToggle={() => onToggle(menuName)}
-            />
+            <button
+                data-testid="navDropDownButton"
+                className={classes}
+                aria-expanded={isCurrentDropdown}
+                aria-controls={menuName.toLowerCase()}
+                type="button"
+                onClick={(e) => {
+                    handleToggle(e);
+                }}
+            >
+                <span>{menuName}</span>
+            </button>
             <Menu
                 items={dropdownList}
-                isOpen={currentMenuName === menuName}
+                isOpen={isCurrentDropdown}
                 id={`${menuName}Dropdown`}
             />
         </>
@@ -76,82 +90,23 @@ export interface ReportStreamHeaderProps extends PropsWithChildren {
 }
 
 interface ReportStreamNavbarProps extends PropsWithChildren {
-    onToggleMobileNav: () => void;
-    isMobileNavOpen: boolean;
-    user: RSSessionContext["user"];
+    activeDropdown: string | null;
     activeMembership: MembershipSettings | null | undefined;
+    isMobileNavOpen?: boolean;
     logout: () => void;
-    containerRef: MutableRefObject<HTMLElement | null>;
+    onToggleMobileNav?: () => void;
+    setActiveDropdown: (menuName: string | null) => void;
+    user: RSSessionContext["user"];
 }
 
 function ReportStreamAuthNavbar({
-    children,
-    onToggleMobileNav,
-    isMobileNavOpen,
-    user,
+    activeDropdown,
     activeMembership,
+    children,
     logout,
-    containerRef,
+    setActiveDropdown,
+    user,
 }: ReportStreamNavbarProps) {
-    const [openAuthMenuItem, setOpenAuthMenuItem] = useState<
-        undefined | string
-    >();
-
-    const setAuthMenu = useCallback((menuAuthName?: string) => {
-        setOpenAuthMenuItem((curr) => {
-            if (curr === menuAuthName) {
-                return undefined;
-            } else {
-                return menuAuthName;
-            }
-        });
-    }, []);
-
-    // handle if we need to close menus due to outside clicks
-    useEffect(() => {
-        function globalClickHandler(ev: MouseEvent) {
-            let buttonEle,
-                maybeAuthNavContainerEle =
-                    ev.target instanceof HTMLElement ? ev.target : undefined;
-
-            // if target is valid, loop through parents to store info for later
-            while (
-                maybeAuthNavContainerEle !== containerRef.current &&
-                maybeAuthNavContainerEle != null
-            ) {
-                if (
-                    maybeAuthNavContainerEle.classList.contains(
-                        "usa-menu-btn",
-                    ) ||
-                    (maybeAuthNavContainerEle.classList.contains(
-                        "usa-accordion__button",
-                    ) &&
-                        maybeAuthNavContainerEle.classList.contains(
-                            "usa-nav__link",
-                        ))
-                )
-                    buttonEle = maybeAuthNavContainerEle;
-                maybeAuthNavContainerEle =
-                    maybeAuthNavContainerEle.parentElement ?? undefined;
-            }
-
-            // if the click was outside the nav container or not on a button within,
-            // clear current dropdown.
-            if (maybeAuthNavContainerEle == null || buttonEle == null) {
-                if (openAuthMenuItem) setAuthMenu();
-            }
-        }
-        window.addEventListener("click", globalClickHandler);
-
-        return () => window.removeEventListener("click", globalClickHandler);
-    }, [
-        containerRef,
-        isMobileNavOpen,
-        onToggleMobileNav,
-        openAuthMenuItem,
-        setAuthMenu,
-    ]);
-
     const defaultMenuItems = [
         <div className="primary-nav-link-container" key="user-email">
             {user.claims && (
@@ -233,8 +188,8 @@ function ReportStreamAuthNavbar({
                     Validate
                 </USSmartLink>,
             ]}
-            onToggle={setAuthMenu}
-            currentMenuName={openAuthMenuItem}
+            activeDropdown={activeDropdown}
+            setActiveDropdown={setActiveDropdown}
             key="admin"
         />,
     ];
@@ -285,67 +240,12 @@ function ReportStreamAuthNavbar({
 }
 
 function ReportStreamNavbar({
+    activeDropdown,
     children,
-    onToggleMobileNav,
     isMobileNavOpen,
-    containerRef,
+    onToggleMobileNav,
+    setActiveDropdown,
 }: ReportStreamNavbarProps) {
-    const [openMenuItem, setOpenMenuItem] = useState<undefined | string>();
-
-    const setMenu = useCallback((menuName?: string) => {
-        setOpenMenuItem((curr) => {
-            if (curr === menuName) {
-                return undefined;
-            } else {
-                return menuName;
-            }
-        });
-    }, []);
-
-    // handle if we need to close menus due to outside clicks
-    useEffect(() => {
-        function globalClickHandler(ev: MouseEvent) {
-            let buttonEle,
-                maybeNavContainerEle =
-                    ev.target instanceof HTMLElement ? ev.target : undefined;
-
-            // if target is valid, loop through parents to store info for later
-            while (
-                maybeNavContainerEle !== containerRef.current &&
-                maybeNavContainerEle != null
-            ) {
-                if (
-                    maybeNavContainerEle.classList.contains("usa-menu-btn") ||
-                    (maybeNavContainerEle.classList.contains(
-                        "usa-accordion__button",
-                    ) &&
-                        maybeNavContainerEle.classList.contains(
-                            "usa-nav__link",
-                        ))
-                )
-                    buttonEle = maybeNavContainerEle;
-                maybeNavContainerEle =
-                    maybeNavContainerEle.parentElement ?? undefined;
-            }
-
-            // if the click was outside the nav container or not on a button within,
-            // clear current dropdown.
-            if (maybeNavContainerEle == null || buttonEle == null) {
-                if (isMobileNavOpen) onToggleMobileNav();
-                if (openMenuItem) setMenu();
-            }
-        }
-        window.addEventListener("click", globalClickHandler);
-
-        return () => window.removeEventListener("click", globalClickHandler);
-    }, [
-        containerRef,
-        isMobileNavOpen,
-        onToggleMobileNav,
-        openMenuItem,
-        setMenu,
-    ]);
-
     const defaultMenuItems = [
         <div className="primary-nav-link-container" key="getting-started">
             <USSmartLink
@@ -414,8 +314,8 @@ function ReportStreamNavbar({
                     Release notes
                 </USSmartLink>,
             ]}
-            currentMenuName={openMenuItem}
-            onToggle={setMenu}
+            activeDropdown={activeDropdown}
+            setActiveDropdown={setActiveDropdown}
             key="about"
         />,
     ];
@@ -425,9 +325,10 @@ function ReportStreamNavbar({
 
     return (
         <>
-            <div
+            <button
+                onClick={onToggleMobileNav}
                 className={`usa-overlay ${isMobileNavOpen ? "is-visible" : ""}`}
-            ></div>
+            ></button>
             <PrimaryNav
                 items={navbarItemBuilder()}
                 mobileExpanded={isMobileNavOpen}
@@ -446,14 +347,23 @@ const ReportStreamHeader = ({
     children,
     isNavHidden,
 }: ReportStreamHeaderProps) => {
+    const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
     const { config, user, activeMembership, logout } = useSessionContext();
     const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
     const toggleMobileNav = useCallback(
         () => setIsMobileNavOpen((v) => !v),
         [],
     );
-    const navAuthContainerRef = useRef<HTMLDivElement | null>(null);
-    const navContainerRef = useRef<HTMLDivElement | null>(null);
+    const handleClickOutside = () => {
+        setActiveDropdown(null);
+    };
+
+    useEffect(() => {
+        document.addEventListener("click", handleClickOutside);
+        return () => {
+            document.removeEventListener("click", handleClickOutside);
+        };
+    }, []);
 
     return (
         <>
@@ -461,10 +371,7 @@ const ReportStreamHeader = ({
             {!isNavHidden && <SenderModeBanner />}
             {!isNavHidden && activeMembership && (
                 <Header basic={true} className={classnames(styles.AuthNavbar)}>
-                    <div
-                        className="usa-nav-container"
-                        ref={navAuthContainerRef}
-                    >
+                    <div className="usa-nav-container">
                         <Suspense fallback={suspenseFallback}>
                             <ReportStreamAuthNavbar
                                 isMobileNavOpen={isMobileNavOpen}
@@ -472,7 +379,8 @@ const ReportStreamHeader = ({
                                 user={user}
                                 activeMembership={activeMembership}
                                 logout={logout}
-                                containerRef={navAuthContainerRef}
+                                activeDropdown={activeDropdown}
+                                setActiveDropdown={setActiveDropdown}
                             ></ReportStreamAuthNavbar>
                         </Suspense>
                     </div>
@@ -485,7 +393,7 @@ const ReportStreamHeader = ({
                     [styles.NavbarDefault]: !blueVariant,
                 })}
             >
-                <div className="usa-nav-container" ref={navContainerRef}>
+                <div className="usa-nav-container">
                     <div className="usa-navbar">
                         <Title>
                             <USLink href="/" title="Home" aria-label="Home">
@@ -508,7 +416,8 @@ const ReportStreamHeader = ({
                                 user={user}
                                 activeMembership={activeMembership}
                                 logout={logout}
-                                containerRef={navContainerRef}
+                                activeDropdown={activeDropdown}
+                                setActiveDropdown={setActiveDropdown}
                             >
                                 <div className="nav-cta-container">
                                     {!user.claims && (
