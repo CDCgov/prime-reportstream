@@ -82,7 +82,7 @@ class CompareFhirData(
         if (filteredList.isNotEmpty()) {
             logger.info(
                 "JSON diff. Make the following changes to the expected JSON " +
-                        "for it to match the actual JSON:\n${array.toPrettyString()}"
+                    "for it to match the actual JSON:\n${array.toPrettyString()}"
             )
         }
     }
@@ -276,11 +276,11 @@ class CompareFhirData(
         }
         if (!primitiveResult.passed) {
             val msg = if (expectedPrimitive is PrimitiveType<*>) {
-                val actualPrimitivesValues = actualPrimitive
-                    .filterIsInstance<PrimitiveType<*>>()
+                val actualPrimitivesValues = actualPrimitive.filterIsInstance<PrimitiveType<*>>()
                     .joinToString { it.asStringValue() }
+
                 "FAILED: Property $primitiveIdPath $primitiveTypePath did not match. " +
-                        "expected=${expectedPrimitive.asStringValue()}, actuals=$actualPrimitivesValues"
+                    "expected=${expectedPrimitive.asStringValue()}, actuals=$actualPrimitivesValues"
             } else {
                 "FAILED: Property $primitiveIdPath $primitiveTypePath did not match."
             }
@@ -354,10 +354,10 @@ class CompareFhirData(
             "Property at $actualIdPath $propertyTypePath is not expected to be present"
         } else if (actualChild.values.size > expectedChild.values.size) {
             "Extra properties found at $actualIdPath $propertyTypePath. " +
-                    "actual=${actualChild.values.size}, expected=${expectedChild.values.size}"
+                "actual=${actualChild.values.size}, expected=${expectedChild.values.size}"
         } else if (actualChild.values.size < expectedChild.values.size) {
             "Fewer properties found at $actualIdPath $propertyTypePath. " +
-                    "actual=${actualChild.values.size}, expected=${expectedChild.values.size}"
+                "actual=${actualChild.values.size}, expected=${expectedChild.values.size}"
         } else {
             throw IllegalArgumentException("Expected child size and actual child size cannot be equal")
         }
@@ -399,6 +399,7 @@ class CompareFhirData(
             return when {
                 resource is Extension ->
                     "$parentIdPath->${resource.fhirType()}(${resource.url.substringAfterLast("/")})"
+
                 parentIdPath == resource.idBase -> parentIdPath
                 resource.isResource ->
                     if (parentIdPath.isBlank()) {
@@ -406,6 +407,7 @@ class CompareFhirData(
                     } else {
                         "$parentIdPath->${resource.idBase}"
                     }
+
                 else -> parentIdPath
             }
         }

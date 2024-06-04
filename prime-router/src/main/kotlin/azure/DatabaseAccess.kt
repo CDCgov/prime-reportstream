@@ -233,17 +233,17 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         } catch (e: Exception) {
             logger.error(
                 "FAILED to insert row into ACTION: action_name=${action.actionName}" +
-                        // The action_params value is huge and low value for receive actions, so skip it.
-                        (if (action.actionName != TaskAction.receive) ", params= " + action.actionParams else "")
+                    // The action_params value is huge and low value for receive actions, so skip it.
+                    (if (action.actionName != TaskAction.receive) ", params= " + action.actionParams else "")
             )
             throw e
         }
         val actionId = actionRecord.actionId
         logger.info(
             "Inserted row into ACTION: action_name=${action.actionName}" +
-                    // The action_params value is huge and low value for receive actions, so skip it.
-                    (if (action.actionName != TaskAction.receive) ", params= " + action.actionParams else "") +
-                    ", action_id=$actionId"
+                // The action_params value is huge and low value for receive actions, so skip it.
+                (if (action.actionName != TaskAction.receive) ", params= " + action.actionParams else "") +
+                ", action_id=$actionId"
         )
         return actionId
     }
@@ -339,11 +339,11 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             ?.into(ReportFile::class.java)
             ?: error(
                 "Could not find $reportId in REPORT_FILE" +
-                        if (org != null) {
-                            " associated with organization ${org.name}"
-                        } else {
-                            ""
-                        }
+                    if (org != null) {
+                        " associated with organization ${org.name}"
+                    } else {
+                        ""
+                    }
             )
     }
 
@@ -1116,7 +1116,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
                     it.get(COVID_RESULT_METADATA.TESTING_LAB_STATE)
                 } else {
                     "${it.get(COVID_RESULT_METADATA.TESTING_LAB_CITY)}, " +
-                            it.get(COVID_RESULT_METADATA.TESTING_LAB_STATE)
+                        it.get(COVID_RESULT_METADATA.TESTING_LAB_STATE)
                 }
             )
                 .build()
@@ -1133,12 +1133,12 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     fun checkReportExists(reportId: ReportId, txn: DataAccessTransaction): Boolean {
         // this is how you do a select 1 from ... in jooq
         return (
-                DSL.using(txn)
-                    .select(inline(1))
-                    .from(REPORT_FILE)
-                    .where(REPORT_FILE.REPORT_ID.eq(reportId))
-                    .count()
-                ) > 0
+            DSL.using(txn)
+                .select(inline(1))
+                .from(REPORT_FILE)
+                .where(REPORT_FILE.REPORT_ID.eq(reportId))
+                .count()
+            ) > 0
     }
 
     /** Fetch the newest CreatedAt timestamp, active or deleted. */
@@ -1227,6 +1227,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
                 when (endDateTime == null) {
                     true ->
                         RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.ge(startDateTime)
+
                     false ->
                         RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.ge(startDateTime)
                             .and(RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.le(endDateTime))
@@ -1391,7 +1392,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
 
         logger.debug(
             "Inserted ${itemLineages.size} " +
-                    "Item lineages into db for action ${action.actionId}: ${action.actionName}"
+                "Item lineages into db for action ${action.actionId}: ${action.actionName}"
         )
     }
 

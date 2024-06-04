@@ -660,7 +660,7 @@ class FHIRRouterIntegrationTests : Logging {
             // for receiver Y all five observations should be intact
             assertEquals(5, fhirBundleReceiverY.getObservations().size)
             val expectedCodes = listOf("94558-5", "95418-0", "95417-2", "95421-4", "95419-8")
-            for (i in 0..< fhirBundleReceiverX.getObservations().size) {
+            for (i in 0..<fhirBundleReceiverX.getObservations().size) {
                 // in this bundle the array "coding" in every "Observation" only ever has one element
                 assertEquals(1, fhirBundleReceiverX.getObservations()[i].code.coding.size)
                 assertEquals(expectedCodes[i], fhirBundleReceiverX.getObservations()[i].code.coding[0].code)
