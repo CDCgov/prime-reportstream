@@ -434,12 +434,14 @@ class FhirDestinationFilterTests {
                         ConditionSummary(
                             "840539006",
                             "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
-                        )
+                        ),
+                        "94558-4",
+                        "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
                     ),
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY
+                    ObservationSummary(code = "95418-0"),
+                    ObservationSummary(code = "95417-2"),
+                    ObservationSummary(code = "95421-4"),
+                    ObservationSummary(code = "95419-8"),
                 ),
                 36995,
                 AzureEventUtils.MessageID(
@@ -458,7 +460,9 @@ class FhirDestinationFilterTests {
                         ConditionSummary(
                             "840539006",
                             "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
-                        )
+                        ),
+                        "94558-4",
+                        "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
                     ),
                     ObservationSummary.EMPTY,
                     ObservationSummary.EMPTY,
@@ -565,16 +569,16 @@ class FhirDestinationFilterTests {
         // Verify error when using non-UP topic
         assertFailure {
             engine.doWork(
-            FhirDestinationFilterQueueMessage(
-                UUID.randomUUID(),
-                BLOB_URL,
-                "test",
-                BLOB_SUB_FOLDER_NAME,
-                topic = Topic.COVID_19
-            ),
-            actionLogger,
-            actionHistory
-        )
+                FhirDestinationFilterQueueMessage(
+                    UUID.randomUUID(),
+                    BLOB_URL,
+                    "test",
+                    BLOB_SUB_FOLDER_NAME,
+                    topic = Topic.COVID_19
+                ),
+                actionLogger,
+                actionHistory
+            )
         }.hasClass(java.lang.IllegalStateException::class.java)
     }
 }

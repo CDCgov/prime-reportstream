@@ -21,7 +21,7 @@ object AzureEventUtils {
                 .getMappedConditions()
                 .map(ConditionSummary::fromCoding)
             val code = observation.code.codingFirstRep.code
-            val display = observation.code.codingFirstRep.display
+            val display = observation.code.codingFirstRep.display ?: "Unknown"
             ObservationSummary(conditions, code, display)
         }
     }
