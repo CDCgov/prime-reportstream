@@ -2,7 +2,10 @@
 
 ## Goals
 
-## Directory structure
+- Understand the upper limits for the system in order to be pandemic ready
+- Identify performance bottlenecks and potential solutions
+- Be able to release with confidence that performance will not be impacted
+- Anticipate any long term performance bottlenecks (i.e. increasing database size)
 
 ## Tools
 
@@ -69,7 +72,7 @@ the team evaluate if the concurrent autoscaling mechanisms are sufficient.
 
 This test will want to get scheduled to run at regular intervals and after an infrastructure adjustments.
 
-### Soak test
+### Soak test (optional)
 
 This workload will serve as an endurance test where reports submitted per minute will ramp up and then plateau for an
 extended period of time, on the scale of several hours. The goal of this is workload is to gain confidence that the
@@ -79,39 +82,58 @@ behaviors.
 This test will want to get scheduled to run at regular intervals and after any large architectural or infrastructure
 changes.
 
+### Test configuration
+
+The overall goal is to understand the performance and scalability of the system based on the actual reported usage in
+Production, so the load test configuration will need to include the following:
+
+**This is not an exhaustive list and part of the work of implementing this spec will be collecting this data**
+
+- % of traffic to the Covid Pipeline
+- % of traffic to the Universal Pipeline
+- % of traffic going to other APIs (i.e. the submission history, ETOR metadata)
+- the average number of calls per a given time period
+- the % breakdown of HL7 and FHIR reports in the universal pipeline
+- the breakdown of the number of items per report
+- % of traffic going to each transport type
+- # of senders with transforms
+
+Most of this data can currently be retrieved via azure, but some of it will require some additional logging (such as
+the breakdown of the transports).
+
+Example from Production Usage (5/4-6/4)
+![Production Usage](./prod-usage.png)
+
+The traffic will then need to be interpreted down as to values relative to each other; the load test configuration needs
+the ability to scale up and down the amount of load, but remain the ratios of the production usage.
+
+Long term, the platform team will need to regularly analyze the production metrics above and adjust the load test
+configuration.
+
 ## Metrics
 
-In order to
+There will need to be a series of metrics that will be gathered on each of the performance test that will be used to
+measure the performance of the system. The following are an initial list of the metrics that will be reported on:
 
-- Max number of items in the queue?
-- Throughput of reports?
-- Compare across runs
-    - This is likely handled by azure load testing
-- Number of items in the poison queue
+- Max number of message in the queue at any point
+- The number of reports sent through the system
+- The number of items sent through the system
+- The response times for HTTP endpoints
+- Number of items that end up in the poison queue
+- Throughput of the data sent
 - APM
-    - Memory
-    - CPU
-
-## Datasets
-
-- FHIR and HL7
-- Mix of small and large batches
-
-### Receiver configuration
-
-- Mix of FHIR/HL7 receivers plus transforms
-
-### Sender configurations
-
-- Mix of FHIR/HL7 senders
-- Some senders need to have transforms
+    - % memory used on the app
+    - % CPU used on the app
+    - % memory used on the db
+    - % CPU used on the db
 
 ## CI Strategy
 
+Ideally, load tests would get performed on every PR before merging, but the CI complexity and infrastructure costs
+likely makes that untenable. Instead, the standard load test will get incorporated into the production release process.
+The CI job that cuts the production release can be updated to update the load test environment and the run the standard
+test there. The deployment process will get updated such that the engineer running the deployment will be responsible
+for checking that the results of the test are relatively similar to the previous release.
+
 ## Open Questions
 
-- Should the covid pipeline be included?
-- Which transports can be dropped/used and percents?
-- Should the APIs from the client be factored in too (i.e. submission history)?
-- Should the initial tests reflect the expected mix of data or the actual (i.e. 95% FHIR or a more even mix)?
-- Should we include ETOR data?
