@@ -95,7 +95,7 @@ Many `ReportRouteEvent` can correspond to a `ReportAcceptedEvent` and can be "jo
 
 ### ReportReceiverSelectedEvent
 This event is emitted during the DestinationFilter routing step when a report is queued for receiver filter evaluation.
-Many `ReportRouteEvent` can correspond to a `ReportAcceptedEvent` and can be "joined" on
+Many `ReportReceiverSelectedEvent` can correspond to a `ReportAcceptedEvent` and can be "joined" on
 `ReportAcceptedEvent.reportId == ReportReceiverSelectedEvent.parentReportId`.
 
 - parentReportId
@@ -107,7 +107,7 @@ Many `ReportRouteEvent` can correspond to a `ReportAcceptedEvent` and can be "jo
 - sender
     - The full sender name
 - receiver
-    - The full receiver name. When a report does not get routed to a receiver this value will be `"null"`.
+    - The full receiver name.
 - bundleSize
     - Length of the bundle JSON string
 

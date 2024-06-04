@@ -46,7 +46,8 @@ import java.time.OffsetDateTime
  * [settings] mockable settings
  * [db] mockable database access
  * [blob] mockable blob storage
- * [queue] mockable azure queue
+ * [azureEventService] mockable azure event service
+ * [reportService] mockable report service
  */
 class FHIRReceiverFilter(
     metadata: Metadata = Metadata.getInstance(),
@@ -56,8 +57,6 @@ class FHIRReceiverFilter(
     azureEventService: AzureEventService = AzureEventServiceImpl(),
     reportService: ReportService = ReportService(),
 ) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
-    private var actionLogger: ActionLogger? = null
-
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.RECEIVER_FILTERED_AT
 
     override val engineType: String = "ReceiverFilter"
@@ -83,7 +82,7 @@ class FHIRReceiverFilter(
 
             else -> {
                 throw RuntimeException(
-                    "Message was not a FhirDestinationFilter and cannot be processed: $message"
+                    "Message was not a FhirReceiverFilter and cannot be processed: $message"
                 )
             }
         }
