@@ -4,7 +4,7 @@ import { ReactNode, useState } from "react";
 
 import styles from "./Table.module.scss";
 import { NoServicesBanner } from "../../components/alerts/NoServicesAlert";
-import { SortSettings } from "../../hooks/filters/UseSortOrder";
+import { SortSettings } from "../../hooks/filters/UseSortOrder/UseSortOrder";
 
 enum FilterOptions {
     NONE = "NONE",

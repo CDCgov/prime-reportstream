@@ -6,7 +6,7 @@ import "./DataDashboardTableFilters.css";
 import {
     CursorActionType,
     CursorManager,
-} from "../../../../hooks/filters/UseCursorManager";
+} from "../../../../hooks/filters/UseCursorManager/UseCursorManager";
 import {
     FALLBACK_FROM_DATE_STRING,
     FALLBACK_FROM_STRING,
@@ -14,8 +14,8 @@ import {
     FALLBACK_TO_STRING,
     getEndOfDay,
     RangeSettingsActionType,
-} from "../../../../hooks/filters/UseDateRange";
-import { FilterManager } from "../../../../hooks/filters/UseFilterManager";
+} from "../../../../hooks/filters/UseDateRange/UseDateRange";
+import { FilterManager } from "../../../../hooks/filters/UseFilterManager/UseFilterManager";
 
 export enum StyleClass {
     CONTAINER = "filter-container",

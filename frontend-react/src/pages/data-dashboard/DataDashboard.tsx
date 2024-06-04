@@ -5,7 +5,7 @@ import DataDashboardTable from "../../components/DataDashboard/DataDashboardTabl
 import HipaaNotice from "../../components/HipaaNotice";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary/RSErrorBoundary";
 import { USNavLink } from "../../components/USLink";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import useOrganizationSettings from "../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings";
 import { HeroWrapper } from "../../shared";
 import { FeatureName } from "../../utils/FeatureName";
 

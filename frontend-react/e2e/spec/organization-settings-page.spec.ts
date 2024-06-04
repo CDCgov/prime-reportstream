@@ -41,7 +41,7 @@ test.describe("Admin Organization Settings Page", () => {
                 route.fulfill({ status: 500 }),
             );
             await organization.goto(page);
-            await expect(page.getByText("An error has occurred")).toBeVisible();
+            await expect(page.getByText("there was an error")).toBeVisible();
         });
 
         test.describe("When there is no error", () => {
