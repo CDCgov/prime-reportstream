@@ -21,12 +21,14 @@ class AzureEventUtilsTest {
                 ConditionSummary(
                     "840539006",
                     "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
-                )
+                ),
+                "94558-4",
+                "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
             ),
-            ObservationSummary.EMPTY,
-            ObservationSummary.EMPTY,
-            ObservationSummary.EMPTY,
-            ObservationSummary.EMPTY
+            ObservationSummary(code = "95418-0"),
+            ObservationSummary(code = "95417-2"),
+            ObservationSummary(code = "95421-4"),
+            ObservationSummary(code = "95419-8")
         )
         val actual = AzureEventUtils.getObservationSummaries(bundle)
 
