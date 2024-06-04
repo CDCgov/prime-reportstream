@@ -34,7 +34,7 @@ async function logIntoOkta(page: Page, login: TestLogin) {
     await page.waitForLoadState("domcontentloaded");
 
     // Verify we are authenticated
-    await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
+    await expect(page.getByTestId("logout")).toBeVisible();
 }
 
 /**
@@ -47,10 +47,9 @@ setup(
         for (const login of [adminLogin, senderLogin, receiverLogin]) {
             await logIntoOkta(page, login);
 
-            const logoutBtn = page.getByRole("button", { name: "Logout" });
             await page.context().storageState({ path: login.path });
+            await page.getByTestId("logout").click();
 
-            await logoutBtn.click();
             await expect(
                 page.getByRole("link", { name: "Login" }),
             ).toBeAttached();
