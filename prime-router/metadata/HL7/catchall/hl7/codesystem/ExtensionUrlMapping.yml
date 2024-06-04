@@ -262,12 +262,12 @@
 # NTE -> Annotation
 - id: "note-source"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source"
-# Comment
 - id: "note-comment"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-comment"
-# Comment type
 - id: "note-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type"
+- id: "nte-annotation"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nte-annotation"
 
 ## Generic
 

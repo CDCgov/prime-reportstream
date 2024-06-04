@@ -77,10 +77,10 @@ extension:
         url:
           type: STRING
           value: OBR.13
-        valueString:
-          expressionType: HL7Spec
-          type: STRING
-          valueOf: OBR.13
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: OBR.13
     - expressionType: nested
       vars:
         obr16: STRING_ALL, OBR.16
@@ -340,3 +340,17 @@ extension:
           expressionType: resource
           constants:
             CXIdentifierField: OBR.53
+    - expressionType: nested
+      vars:
+        obr54: STRING_ALL, OBR.54
+      condition: $obr54 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.54
+        valueIdentifier:
+          valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
+          expressionType: resource
+          specs: OBR.54
+          constants:
+            backupExtension: "filler-assigned-identifier"

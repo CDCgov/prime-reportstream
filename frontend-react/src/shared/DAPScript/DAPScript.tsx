@@ -1,7 +1,7 @@
-import { isValidElement } from "react";
 import { Helmet } from "react-helmet-async";
 
 import { appRoutes } from "../../AppRouter";
+import { isAuthenticatedPath } from "../../utils/PermissionsUtils";
 
 export interface DAPScriptProps {
     pathname?: string;
@@ -11,22 +11,9 @@ export interface DAPScriptProps {
 // so running through the appRoutes array, we can see any routes that
 // require an auth prop, which could be a boolean or a string, and
 // if so, that means it's an authenticated route.
-const isAuthenticatedPath = (pathname: string) => {
-    const basePath = pathname.split("/")[1];
-
-    const matchedRoute = appRoutes[0].children?.find((route) => {
-        return route.path?.includes(basePath);
-    });
-
-    if (!matchedRoute || !isValidElement(matchedRoute.element)) {
-        return false;
-    }
-
-    return !!matchedRoute.element.props?.auth;
-};
 
 const DAPScript = ({ pathname }: DAPScriptProps) => {
-    if (pathname && isAuthenticatedPath(pathname)) {
+    if (pathname && isAuthenticatedPath(pathname, appRoutes)) {
         return null;
     }
 

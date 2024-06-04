@@ -5,7 +5,7 @@ import SubmissionTable from "./SubmissionTable";
 import HipaaNotice from "../../components/HipaaNotice";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary/RSErrorBoundary";
 import Title from "../../components/Title";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import useOrganizationSettings from "../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings";
 
 function SubmissionHistoryContent() {
     const { data: orgDetails } = useOrganizationSettings();

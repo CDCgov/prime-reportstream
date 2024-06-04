@@ -3,14 +3,14 @@ import { userEvent } from "@testing-library/user-event";
 import { AxiosError, AxiosResponse } from "axios";
 
 import { ValueSetsDetailPage, ValueSetsDetailTable } from "./ValueSetsDetail";
-import {
-    useValueSetActivation,
-    useValueSetsMeta,
+import useValueSetActivation from "../../../hooks/api/lookuptables/UseValueSetActivation/UseValueSetActivation";
+import useValueSetsMeta, {
     UseValueSetsMetaResult,
-    useValueSetsTable,
+} from "../../../hooks/api/lookuptables/UseValueSetsMeta/UseValueSetsMeta";
+import useValueSetsTable, {
     UseValueSetsTableResult,
-    useValueSetUpdate,
-} from "../../../hooks/UseValueSets";
+} from "../../../hooks/api/lookuptables/UseValueSetsTable/UseValueSetsTable";
+import useValueSetUpdate from "../../../hooks/api/lookuptables/UseValueSetsUpdate/UseValueSetUpdate";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
 
@@ -40,13 +40,12 @@ const fakeMeta = {
 };
 const mockError = new RSNetworkError(new AxiosError("test-error"));
 
-vi.mock("../../../hooks/UseValueSets", async (importActual) => ({
-    ...(await importActual<typeof import("../../../hooks/UseValueSets")>()),
-    useValueSetsTable: vi.fn(),
-    useValueSetUpdate: vi.fn(),
-    useValueSetActivation: vi.fn(),
-    useValueSetsMeta: vi.fn(),
-}));
+vi.mock(
+    "../../../hooks/api/lookuptables/UseValueSetActivation/UseValueSetActivation",
+);
+vi.mock("../../../hooks/api/lookuptables/UseValueSetsMeta/UseValueSetsMeta");
+vi.mock("../../../hooks/api/lookuptables/UseValueSetsTable/UseValueSetsTable");
+vi.mock("../../../hooks/api/lookuptables/UseValueSetsUpdate/UseValueSetUpdate");
 
 const mockSaveData = vi.mocked(useValueSetUpdate);
 const mockActivateTable = vi.mocked(useValueSetActivation);
