@@ -374,7 +374,8 @@ class FHIRReceiverFilter(
                         receiver.fullName,
                         receiverObservationSummary,
                         filteredObservationSummary,
-                        bodyString.length
+                        bodyString.length,
+                        AzureEventUtils.getIdentifier(receiverBundle)
                     )
                 )
 
@@ -440,7 +441,8 @@ class FHIRReceiverFilter(
                         null,
                         observationSummary,
                         observationSummary,
-                        fhirJson.length
+                        fhirJson.length,
+                        AzureEventUtils.getIdentifier(bundle)
                     )
                 )
 

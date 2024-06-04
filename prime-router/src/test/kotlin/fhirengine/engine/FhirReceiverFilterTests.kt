@@ -29,6 +29,7 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.ConditionSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
@@ -788,7 +789,11 @@ class FhirReceiverFilterTests {
                     "$ORGANIZATION_NAME.$RECEIVER_NAME",
                     expectedObservationSummary,
                     emptyList(),
-                    1945
+                    1945,
+                    AzureEventUtils.MessageID(
+                        "1234d1d1-95fe-462c-8ac6-46728dba581c",
+                        null
+                    )
                 )
             )
 

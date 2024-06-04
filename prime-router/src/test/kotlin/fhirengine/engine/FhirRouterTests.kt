@@ -1611,24 +1611,26 @@ class FhirRouterTests {
                     "https://reportstream.cdc.gov/prime-router"
                 )
             )
+            val observationSummaries = listOf(
+                ObservationSummary(
+                    ConditionSummary(
+                        "840539006",
+                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                    )
+                ),
+                ObservationSummary.EMPTY,
+                ObservationSummary.EMPTY,
+                ObservationSummary.EMPTY,
+                ObservationSummary.EMPTY
+            )
             val expectedRoutedEvent = ReportRouteEvent(
                 message.reportId,
                 UUID.randomUUID(),
                 message.topic,
                 "sendingOrg.sendingOrgClient",
                 null,
-                listOf(
-                    ObservationSummary(
-                        ConditionSummary(
-                            "840539006",
-                            "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
-                        )
-                    ),
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY
-                ),
+                observationSummaries,
+                observationSummaries,
                 36995,
                 AzureEventUtils.MessageID(
                     "1234d1d1-95fe-462c-8ac6-46728dba581c",
