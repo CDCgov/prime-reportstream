@@ -714,10 +714,10 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             keyStore.load(inStream, jksPasscode)
 
             // create keyManager with the keystore, use default SunX509 algorithm
-            val keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm()) // "SunX509")
+//            val keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm()) // "SunX509")
 //            val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
 //            trustManagerFactory.init(keyStore)
-            keyManagerFactory.init(keyStore, jksPasscode)
+//            keyManagerFactory.init(keyStore, jksPasscode)
 
             val tmf = TrustManagerFactory
                 .getInstance(TrustManagerFactory.getDefaultAlgorithm())
@@ -728,45 +728,45 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
 // Get hold of the default trust manager
 
 // Get hold of the default trust manager
-            var x509Tm: X509TrustManager? = null
-            for (tm in tmf.trustManagers) {
-                if (tm is X509TrustManager) {
-                    x509Tm = tm
-                    break
-                }
-            }
+//            var x509Tm: X509TrustManager? = null
+//            for (tm in tmf.trustManagers) {
+//                if (tm is X509TrustManager) {
+//                    x509Tm = tm
+//                    break
+//                }
+//            }
 
 // Wrap it in your own class.
 
 // Wrap it in your own class.
-            val finalTm = x509Tm
-            val customTm: X509TrustManager = object : X509TrustManager {
-                override fun getAcceptedIssuers(): Array<X509Certificate> {
-                    return finalTm!!.acceptedIssuers
-                }
-
+//            val finalTm = x509Tm
+//            val customTm: X509TrustManager = object : X509TrustManager {
+//                override fun getAcceptedIssuers(): Array<X509Certificate> {
+//                    return finalTm!!.acceptedIssuers
+//                }
+//
 //                @Throws(CertificateException::class)
-                override fun checkServerTrusted(
-                    chain: Array<X509Certificate>,
-                    authType: String,
-                ) {
-                    print(chain)
-                    try {
-                        finalTm!!.checkServerTrusted(chain, authType)}
-                    catch(e:CertificateException) {
-                        print(e)
-                    }
-                }
-
-                @Throws(CertificateException::class)
-                override fun checkClientTrusted(
-                    chain: Array<X509Certificate>,
-                    authType: String,
-                ) {
-                    print(chain)
-                    finalTm!!.checkClientTrusted(chain, authType)
-                }
-            }
+//                override fun checkServerTrusted(
+//                    chain: Array<X509Certificate>,
+//                    authType: String,
+//                ) {
+//                    print(chain)
+//                    try {
+//                        finalTm!!.checkServerTrusted(chain, authType)}
+//                    catch(e:CertificateException) {
+//                        print(e)
+//                    }
+//                }
+//
+//                @Throws(CertificateException::class)
+//                override fun checkClientTrusted(
+//                    chain: Array<X509Certificate>,
+//                    authType: String,
+//                ) {
+//                    print(chain)
+//                    finalTm!!.checkClientTrusted(chain, authType)
+//                }
+//            }
 
 //            val sslContext = SSLContext.getInstance("TLS")
 //            sslContext.init(null, arrayOf<TrustManager>(customTm), null)
@@ -781,7 +781,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             // create the sslContext, type TLS, with the keyManager
             // note the ktor sample code uses a TrustManger instead, but that fails with the NY cert file
             val sslContext = SSLContext.getInstance("TLSv1.3")
-            sslContext.init(keyManagerFactory.keyManagers, arrayOf(customTm), null)
+            sslContext.init(null, tmf.trustManagers, null)
             return sslContext
         }
 
