@@ -1632,10 +1632,10 @@ class FhirRouterTests {
                         ),
                         "", ""
                     ),
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY
+                    ObservationSummary(code = "95418-0"),
+                    ObservationSummary(code = "95417-2"),
+                    ObservationSummary(code = "95421-4"),
+                    ObservationSummary(code = "95419-8"),
                 ),
                 38803,
                 AzureEventUtils.MessageID(
