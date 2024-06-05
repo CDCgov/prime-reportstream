@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
@@ -102,6 +103,8 @@ class FhirReceiverFilterTests {
     val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
     val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
 
+    private var actionLogger = ActionLogger()
+
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
         every { reportServiceMock.getSenderName(any()) } returns "sendingOrg.sendingOrgClient"
 
@@ -116,8 +119,8 @@ class FhirReceiverFilterTests {
     }
 
     private fun createOrganizationWithFilteredReceivers(
-        jurisFilter: List<String> = emptyList(),
-        qualFilter: List<String> = emptyList(),
+        jurisdictionFilter: List<String> = emptyList(),
+        qualityFilter: List<String> = emptyList(),
         routingFilter: List<String> = emptyList(),
         processingModeFilter: List<String> = emptyList(),
         conditionFilter: List<String> = emptyList(),
@@ -133,8 +136,8 @@ class FhirReceiverFilterTests {
                     Topic.FULL_ELR,
                     CustomerStatus.ACTIVE,
                     "one",
-                    jurisdictionalFilter = jurisFilter,
-                    qualityFilter = qualFilter,
+                    jurisdictionalFilter = jurisdictionFilter,
+                    qualityFilter = qualityFilter,
                     routingFilter = routingFilter,
                     processingModeFilter = processingModeFilter,
                     conditionFilter = conditionFilter,
@@ -146,8 +149,8 @@ class FhirReceiverFilterTests {
                     Topic.FULL_ELR,
                     CustomerStatus.INACTIVE,
                     "one",
-                    jurisdictionalFilter = jurisFilter,
-                    qualityFilter = qualFilter,
+                    jurisdictionalFilter = jurisdictionFilter,
+                    qualityFilter = qualityFilter,
                     routingFilter = routingFilter,
                     processingModeFilter = processingModeFilter,
                     conditionFilter = conditionFilter,
@@ -158,6 +161,7 @@ class FhirReceiverFilterTests {
 
     @BeforeEach
     fun reset() {
+        actionLogger = ActionLogger()
         actionHistory.reportsIn.clear()
         actionHistory.reportsOut.clear()
         actionHistory.actionLogs.clear()
@@ -168,10 +172,9 @@ class FhirReceiverFilterTests {
     @Test
     fun `fail - qual filter fails`() {
         // engine setup
-        val actionLogger = ActionLogger()
         val settings = FileSettings().loadOrganizations(
             createOrganizationWithFilteredReceivers(
-                qualFilter = FILTER_FAIL
+                qualityFilter = FILTER_FAIL
             )
         )
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
@@ -223,7 +226,6 @@ class FhirReceiverFilterTests {
     @Test
     fun `fail - routing filter fails`() {
         // engine setup
-        val actionLogger = ActionLogger()
         val settings = FileSettings().loadOrganizations(
             createOrganizationWithFilteredReceivers(routingFilter = FILTER_FAIL)
         )
@@ -275,7 +277,6 @@ class FhirReceiverFilterTests {
     @Test
     fun `fail - proc mode filter fails`() {
         // engine setup
-        val actionLogger = ActionLogger()
         val settings = FileSettings().loadOrganizations(
             createOrganizationWithFilteredReceivers(
                 processingModeFilter = listOf("false")
@@ -330,7 +331,6 @@ class FhirReceiverFilterTests {
     @Test
     fun `fail - condition filter fails`() {
         // engine setup
-        val actionLogger = ActionLogger()
         val settings = FileSettings().loadOrganizations(
             createOrganizationWithFilteredReceivers(
                 conditionFilter = listOf(PROVENANCE_COUNT_EQUAL_TO_TEN)
@@ -385,7 +385,6 @@ class FhirReceiverFilterTests {
     @Test
     fun `fail - mapped condition filter fails`() {
         // engine setup
-        val actionLogger = ActionLogger()
         val settings = FileSettings().loadOrganizations(
             createOrganizationWithFilteredReceivers(
                 mappedConditionFilter = listOf(CodeStringConditionFilter("foo,bar"))
@@ -423,7 +422,6 @@ class FhirReceiverFilterTests {
     @Test
     fun `fail - bundle of only AOEs do not pass mappedConditionFilter`() {
         // engine setup
-        val actionLogger = ActionLogger()
         val settings = FileSettings().loadOrganizations(
             createOrganizationWithFilteredReceivers(
                 mappedConditionFilter = listOf(CodeStringConditionFilter("AOE"))
@@ -476,7 +474,6 @@ class FhirReceiverFilterTests {
     @Test
     fun `success - jurisfilter, qualfilter, routing filter, proc mode passes, and condition filter passes`() {
         // engine setup
-        val actionLogger = ActionLogger()
         val settings = FileSettings().loadOrganizations(
             createOrganizationWithFilteredReceivers(
                 FILTER_PASS, FILTER_PASS, FILTER_PASS, FILTER_PASS, FILTER_PASS
@@ -543,7 +540,6 @@ class FhirReceiverFilterTests {
     @Test
     fun `test the bundle queued for the translate function is filtered to conditions the receiver wants`() {
         // engine setup
-        val actionLogger = ActionLogger()
         val settings = FileSettings().loadOrganizations(
             createOrganizationWithFilteredReceivers(
                 conditionFilter = listOf(CONDITION_FILTER)
@@ -592,7 +588,6 @@ class FhirReceiverFilterTests {
     @Test
     fun `test the bundle queued for the translate function is filtered to mapped conditions the receiver wants`() {
         // engine setup
-        val actionLogger = ActionLogger()
         val settings = FileSettings().loadOrganizations(
             createOrganizationWithFilteredReceivers(
                 mappedConditionFilter = listOf(CodeStringConditionFilter("6142004,Some Condition Code"))
@@ -682,7 +677,6 @@ class FhirReceiverFilterTests {
     @Test
     fun `test a receiver can receive a report when no condition filters are configured`() {
         // engine set up
-        val actionLogger = ActionLogger()
         val settings = FileSettings().loadOrganizations(createOrganizationWithFilteredReceivers())
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
         val message = spyk(
@@ -723,9 +717,8 @@ class FhirReceiverFilterTests {
     fun `test bundle with no receivers is not routed to translate function`() {
         // engine set up
         val settings = FileSettings().loadOrganizations(
-            createOrganizationWithFilteredReceivers(qualFilter = listOf("false"))
+            createOrganizationWithFilteredReceivers(qualityFilter = listOf("false"))
         )
-        val actionLogger = ActionLogger()
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
         val message = spyk(
             FhirReceiverFilterQueueMessage(
@@ -778,7 +771,6 @@ class FhirReceiverFilterTests {
                 mappedConditionFilter = listOf(CodeStringConditionFilter("6142004,Some Condition Code"))
             )
         )
-        val actionLogger = ActionLogger()
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
         val message = spyk(
             FhirReceiverFilterQueueMessage(
@@ -837,7 +829,6 @@ class FhirReceiverFilterTests {
         val settings = FileSettings().loadOrganizations(
             createOrganizationWithFilteredReceivers(conditionFilter = listOf("false"))
         )
-        val actionLogger = ActionLogger()
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
         val message = spyk(
             FhirReceiverFilterQueueMessage(
@@ -850,12 +841,8 @@ class FhirReceiverFilterTests {
             )
         )
 
-        // data setup
-        val fhirData = File(VALID_FHIR_FILEPATH).readText()
-        val bundle = FhirTranscoder.decode(fhirData)
-
         // mock setup
-        every { message.downloadContent() }.returns(FhirTranscoder.encode(bundle))
+        every { message.downloadContent() }.returns(File(VALID_FHIR_FILEPATH).readText())
 
         // act + assert
         accessSpy.transact { txn ->
@@ -868,5 +855,37 @@ class FhirReceiverFilterTests {
         assertThat(actionLogger.logs.first().detail)
             .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
             .matchesPredicate { it.filterType == ReportStreamFilterType.CONDITION_FILTER }
+    }
+
+    @Test
+    fun `test for error when mixing condition filters and mapped condition filters`() {
+        // engine setup
+        val settings = FileSettings().loadOrganizations(
+            createOrganizationWithFilteredReceivers(
+                conditionFilter = listOf("false"),
+                mappedConditionFilter = listOf(CodeStringConditionFilter("foo,bar"))
+            )
+        )
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
+        val message = spyk(
+            FhirReceiverFilterQueueMessage(
+                UUID.randomUUID(),
+                BLOB_URL,
+                "test",
+                BLOB_SUB_FOLDER_NAME,
+                topic = Topic.FULL_ELR,
+                "$ORGANIZATION_NAME.$RECEIVER_NAME"
+            )
+        )
+
+        // mock setup
+        every { message.downloadContent() }.returns(File(VALID_FHIR_FILEPATH).readText())
+
+        // act + assert
+        accessSpy.transact {
+            assertFailure { engine.run(message, actionLogger, actionHistory, it) }
+                .isInstanceOf<FHIRReceiverFilter.MisconfiguredReceiverConditionFilters>()
+                .matchesPredicate { it.receiver == settings.receivers.first() }
+        }
     }
 }
