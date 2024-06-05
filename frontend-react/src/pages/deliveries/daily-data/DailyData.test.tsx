@@ -2,16 +2,16 @@ import { screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
 import { DailyData } from "./DailyData";
-import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
+import { makeDeliveryFixtureArray } from "../../../__mockServers__/DeliveriesMockServer";
 import {
     orgServer,
     receiversGenerator,
-} from "../../../__mocks__/OrganizationMockServer";
+} from "../../../__mockServers__/OrganizationMockServer";
+import useOrgDeliveries from "../../../hooks/api/deliveries/UseOrgDeliveries/UseOrgDeliveries";
+import useOrganizationReceivers from "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers";
 import { filterManagerFixture } from "../../../hooks/filters/filters.fixtures";
-import { FilterManager } from "../../../hooks/filters/UseFilterManager";
-import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
-import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
-import useAppInsightsContext from "../../../hooks/UseAppInsightsContext";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager/UseFilterManager";
+import useAppInsightsContext from "../../../hooks/UseAppInsightsContext/UseAppInsightsContext";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 import { selectDatesFromRange } from "../../../utils/TestUtils";
@@ -37,8 +37,10 @@ const mockFilterManager: FilterManager = {
     rangeSettings: { from: "2024-03-01", to: "2024-03-30" },
 };
 
-vi.mock("../../../hooks/UsePagination", async (importActual) => ({
-    ...(await importActual<typeof import("../../../hooks/UsePagination")>()),
+vi.mock("../../../hooks/UsePagination/UsePagination", async (importActual) => ({
+    ...(await importActual<
+        typeof import("../../../hooks/UsePagination/UsePagination")
+    >()),
     default: () => {
         return {
             ...mockUsePagination,
@@ -47,6 +49,13 @@ vi.mock("../../../hooks/UsePagination", async (importActual) => ({
     __esModule: true,
 }));
 
+vi.mock(
+    "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers",
+);
+vi.mock("../../../hooks/api/deliveries/UseOrgDeliveries/UseOrgDeliveries");
+
+const mockUseOrganizationReceivers = vi.mocked(useOrganizationReceivers);
+const mockUseOrgDeliveries = vi.mocked(useOrgDeliveries);
 const mockUseAppInsightsContext = vi.mocked(useAppInsightsContext);
 const { trackEvent } = mockUseAppInsightsContext();
 const mockTrackEvent = vi.mocked(trackEvent);

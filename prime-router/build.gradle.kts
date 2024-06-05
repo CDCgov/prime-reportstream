@@ -35,7 +35,7 @@ plugins {
     id("org.flywaydb.flyway") version "10.11.0"
     id("nu.studer.jooq") version "9.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("com.microsoft.azure.azurefunctions") version "1.14.0"
+    id("com.microsoft.azure.azurefunctions") version "1.15.0"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
@@ -53,7 +53,11 @@ val azureAppName = "prime-data-hub-router"
 val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 val defaultDuplicateStrategy = DuplicatesStrategy.WARN
-azurefunctions.appName = azureAppName
+azurefunctions {
+    appName = azureAppName
+    pricingTier = ""
+    region = ""
+}
 val appJvmTarget = "17"
 val javaVersion = when (appJvmTarget) {
     "17" -> JavaVersion.VERSION_17
@@ -309,7 +313,7 @@ tasks.register<Test>("testIntegration") {
     outputs.upToDateWhen {
         // Call gradle with the -Pforcetest option will force the unit tests to run
         if (project.hasProperty("forcetest")) {
-            println("Rerunning unit tests...")
+            println("Rerunning integration tests...")
             false
         } else {
             true
@@ -512,6 +516,8 @@ tasks.register("reloadCredentials") {
  */
 tasks.azureFunctionsPackage {
     dependsOn("test")
+    finalizedBy("copyAzureResources")
+    finalizedBy("copyAzureScripts")
 }
 
 val azureResourcesTmpDir = File(buildDir, "$azureFunctionsDir-resources/$azureAppName")
@@ -558,11 +564,6 @@ tasks.register("copyAzureScripts") {
         File(azureScriptsFinalDir.path, startFuncScriptName).setExecutable(true)
         File(azureScriptsFinalDir.path, apiDocsSetupScriptName).setExecutable(true)
     }
-}
-
-tasks.azureFunctionsPackage {
-    finalizedBy("copyAzureResources")
-    finalizedBy("copyAzureScripts")
 }
 
 tasks.register("package") {
@@ -930,7 +931,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
-    implementation("gov.nist:hl7-v2-validation:1.6.4") {
+    implementation("gov.nist:hl7-v2-validation:1.6.5") {
         // These conflict with the javax.xml.transform package available in the base JDK and need to be excluded
         exclude("xerces")
         exclude("xml-apis")
