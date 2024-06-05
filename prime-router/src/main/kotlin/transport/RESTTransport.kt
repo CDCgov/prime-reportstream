@@ -712,7 +712,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             val jksPasscode = jksCredential.jksPasscode.toCharArray()
             val keyStore: KeyStore = KeyStore.getInstance("PKCS12")
             keyStore.load(inStream, jksPasscode)
-
+            System.setProperty("com.sun.security.enableAIAcaIssuers", "true")
             // create keyManager with the keystore, use default SunX509 algorithm
 //            val keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm()) // "SunX509")
 //            val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
