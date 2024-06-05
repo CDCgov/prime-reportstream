@@ -979,7 +979,7 @@ class FHIRRouterIntegrationTests : Logging {
             originalCount = 1,
             filterName = "(reversed) [Bundle.entry.resource.ofType(MessageHeader).id.exists()]",
             filterArgs = listOf(),
-            filteredTrackingElement = "",
+            filteredTrackingElement = "371784",
             filterType = ReportStreamFilterType.QUALITY_FILTER
         )
 
@@ -1104,7 +1104,7 @@ class FHIRRouterIntegrationTests : Logging {
                 "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = " +
                 "'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'D']",
             filterArgs = listOf(),
-            filteredTrackingElement = "",
+            filteredTrackingElement = "371784",
             filterType = ReportStreamFilterType.PROCESSING_MODE_FILTER
         )
 
