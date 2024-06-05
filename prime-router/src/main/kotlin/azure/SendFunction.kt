@@ -19,9 +19,11 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.context.SendFunctionLoggingContext
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
+import gov.cdc.prime.router.azure.observability.event.ReportSentEvent
 import gov.cdc.prime.router.transport.ITransport
 import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RetryToken
+import jakarta.mail.Header
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 import java.util.Date
@@ -93,6 +95,17 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 if (receiver.transport == null) {
                     actionHistory.setActionType(TaskAction.send_warning)
                     actionHistory.trackActionResult("Not sending $inputReportId to $serviceName: No transports defined")
+                    workflowEngine.azureEventService.trackEvent(
+                        ReportSentEvent(
+                            workflowEngine.reportService.getRootReport(inputReportId).reportId,
+                            inputReportId,
+                            receiver.topic,
+                            workflowEngine.reportService.getRootReport(inputReportId).sendingOrg,
+                            receiver.name,
+                            null,
+                            BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl),
+                        )
+                    )
                 } else {
                     val retryItems = retryToken?.items
                     val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
@@ -115,7 +128,8 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                     receiver,
                     retryToken,
                     actionHistory,
-                    event.isEmptyBatch
+                    event.isEmptyBatch,
+                    header
                 )
             }
         } catch (t: Throwable) {
@@ -156,9 +170,21 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         retryToken: RetryToken?,
         actionHistory: ActionHistory,
         isEmptyBatch: Boolean,
+        header: WorkflowEngine.Header,
     ): ReportEvent {
         withLoggingContext(SendFunctionLoggingContext(reportId, receiver.fullName)) {
             return if (nextRetryItems.isEmpty()) {
+                workflowEngine.azureEventService.trackEvent(
+                    ReportSentEvent(
+                        workflowEngine.reportService.getRootReport(reportId).reportId,
+                        reportId,
+                        receiver.topic,
+                        workflowEngine.reportService.getRootReport(reportId).sendingOrg,
+                        receiver.name,
+                        receiver.transport?.type,
+                        BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl),
+                    )
+                )
                 // All OK
                 logger.info("Successfully sent report: $reportId to ${receiver.fullName}")
                 ReportEvent(Event.EventAction.NONE, reportId, isEmptyBatch)
