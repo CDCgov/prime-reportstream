@@ -5,7 +5,7 @@ package gov.cdc.prime.router.azure.observability.event
  */
 data class ObservationSummary(
     val conditions: List<ConditionSummary> = emptyList(),
-    val code: String = "",
+    val code: String = "Unknown",
     val display: String = "Unknown",
 ) {
     constructor(condition: ConditionSummary, code: String, display: String) : this(listOf(condition), code, display)
