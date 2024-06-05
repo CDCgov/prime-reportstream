@@ -183,7 +183,6 @@ class ReportFunction(
                         rawBody,
                         payloadName
                     )
-
                     // return CREATED status, report submission was successful
                     HttpStatus.CREATED
                 } else {

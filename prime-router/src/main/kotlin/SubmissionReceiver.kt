@@ -9,6 +9,7 @@ import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.ReportWriter
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.ReportReceivedEvent
 import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -206,6 +207,16 @@ class TopicReceiver : SubmissionReceiver {
             )
             actionHistory.trackLogs(routingWarnings)
         }
+
+        workflowEngine.azureEventService.trackEvent(
+            ReportReceivedEvent(
+                report.id,
+                sender.topic,
+                sender.format.name,
+                sender.fullName,
+                payloadName,
+            )
+        )
     }
 
     /**
@@ -361,6 +372,16 @@ class UniversalPipelineReceiver : SubmissionReceiver {
                 ).serialize()
             )
         }
+
+        workflowEngine.azureEventService.trackEvent(
+            ReportReceivedEvent(
+                report.id,
+                sender.topic,
+                sender.format.name,
+                sender.fullName,
+                payloadName,
+            )
+        )
     }
 
     enum class MessageType {

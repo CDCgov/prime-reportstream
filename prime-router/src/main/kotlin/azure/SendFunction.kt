@@ -20,7 +20,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.context.SendFunctionLoggingContext
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
-import gov.cdc.prime.router.azure.observability.event.ReportSentEvent
+import gov.cdc.prime.router.azure.observability.event.ReportSent
 import gov.cdc.prime.router.transport.ITransport
 import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RetryToken
@@ -96,7 +96,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                     actionHistory.setActionType(TaskAction.send_warning)
                     actionHistory.trackActionResult("Not sending $inputReportId to $serviceName: No transports defined")
                     workflowEngine.azureEventService.trackEvent(
-                        ReportSentEvent(
+                        ReportSent(
                             receiver,
                             workflowEngine.reportService.getRootReport(inputReportId),
                             inputReportId,
@@ -172,7 +172,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         withLoggingContext(SendFunctionLoggingContext(reportId, receiver.fullName)) {
             return if (nextRetryItems.isEmpty()) {
                 workflowEngine.azureEventService.trackEvent(
-                    ReportSentEvent(
+                    ReportSent(
                         receiver,
                         workflowEngine.reportService.getRootReport(reportId),
                         reportId,

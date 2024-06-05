@@ -11,7 +11,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
  * [trasnportType] is nullable as some receivers will purposefully not have transports configured
  */
 
-class ReportSentEvent(
+class ReportSent(
     val receiver: Receiver,
     val reportFile: ReportFile,
     val reportId: ReportId,
@@ -22,8 +22,8 @@ class ReportSentEvent(
         reportFile: ReportFile = this.reportFile,
         reportId: ReportId = this.reportId,
         externalFilename: String = this.externalFilename,
-    ): CustomReportSentEvent {
-        return CustomReportSentEvent(
+    ): ReportSentEvent {
+        return ReportSentEvent(
             reportFile.reportId,
             reportId,
             receiver.topic,
@@ -35,11 +35,11 @@ class ReportSentEvent(
     }
 }
 
-data class CustomReportSentEvent(
+data class ReportSentEvent(
     val sentReportId: ReportId,
     val reportId: ReportId,
     val topic: Topic,
-    val sender: String,
+    val senderName: String,
     val receiverName: String,
     val transportType: String?,
     val externalFilename: String,
