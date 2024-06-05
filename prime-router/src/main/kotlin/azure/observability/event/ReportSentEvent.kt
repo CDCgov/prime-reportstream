@@ -12,26 +12,16 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
  */
 
 class ReportSentEvent(
-    val defaultReceiver: Receiver,
-    val defaultReportFile: ReportFile,
-    val defaultReportId: ReportId,
-    val defaultExternalFilename: String,
+    val receiver: Receiver,
+    val reportFile: ReportFile,
+    val reportId: ReportId,
+    val externalFilename: String,
 ) {
-    data class CustomReportSentEvent(
-        val sentReportId: ReportId,
-        val reportId: ReportId,
-        val topic: Topic,
-        val sender: String,
-        val receiverName: String,
-        val transportType: String?,
-        val externalFilename: String,
-    ) : AzureCustomEvent
-
     fun createEvent(
-        receiver: Receiver = defaultReceiver,
-        reportFile: ReportFile = defaultReportFile,
-        reportId: ReportId = defaultReportId,
-        externalFilename: String = defaultExternalFilename,
+        receiver: Receiver = this.receiver,
+        reportFile: ReportFile = this.reportFile,
+        reportId: ReportId = this.reportId,
+        externalFilename: String = this.externalFilename,
     ): CustomReportSentEvent {
         return CustomReportSentEvent(
             reportFile.reportId,
@@ -44,3 +34,13 @@ class ReportSentEvent(
         )
     }
 }
+
+data class CustomReportSentEvent(
+    val sentReportId: ReportId,
+    val reportId: ReportId,
+    val topic: Topic,
+    val sender: String,
+    val receiverName: String,
+    val transportType: String?,
+    val externalFilename: String,
+) : AzureCustomEvent
