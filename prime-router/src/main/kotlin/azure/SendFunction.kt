@@ -12,6 +12,7 @@ import gov.cdc.prime.router.GAENTransportType
 import gov.cdc.prime.router.NullTransportType
 import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.SoapTransportType
@@ -23,7 +24,6 @@ import gov.cdc.prime.router.azure.observability.event.ReportSentEvent
 import gov.cdc.prime.router.transport.ITransport
 import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RetryToken
-import jakarta.mail.Header
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 import java.util.Date
@@ -97,14 +97,11 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                     actionHistory.trackActionResult("Not sending $inputReportId to $serviceName: No transports defined")
                     workflowEngine.azureEventService.trackEvent(
                         ReportSentEvent(
-                            workflowEngine.reportService.getRootReport(inputReportId).reportId,
+                            receiver,
+                            workflowEngine.reportService.getRootReport(inputReportId),
                             inputReportId,
-                            receiver.topic,
-                            workflowEngine.reportService.getRootReport(inputReportId).sendingOrg,
-                            receiver.name,
-                            null,
                             BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl),
-                        )
+                        ).createEvent()
                     )
                 } else {
                     val retryItems = retryToken?.items
@@ -176,14 +173,11 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             return if (nextRetryItems.isEmpty()) {
                 workflowEngine.azureEventService.trackEvent(
                     ReportSentEvent(
-                        workflowEngine.reportService.getRootReport(reportId).reportId,
+                        receiver,
+                        workflowEngine.reportService.getRootReport(reportId),
                         reportId,
-                        receiver.topic,
-                        workflowEngine.reportService.getRootReport(reportId).sendingOrg,
-                        receiver.name,
-                        receiver.transport?.type,
-                        BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl),
-                    )
+                        Report.formExternalFilename(header)
+                    ).createEvent()
                 )
                 // All OK
                 logger.info("Successfully sent report: $reportId to ${receiver.fullName}")

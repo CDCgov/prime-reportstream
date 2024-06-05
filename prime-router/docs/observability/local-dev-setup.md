@@ -50,7 +50,8 @@
 
 - Double-check your path in settings.local.json the path should be in escaped quotes "/path/to/file"
 - Double-click the jar in finder, then go to System Settings -> Security and click "Open Anyway".
-    - Alternative 1: hold ctrl and click file, then click open. This should add a security rule saying that file is safe
+    - Alternative 1: hold ctrl and double click file, then click open. This should add a security rule saying that file
+      is safe
     - Alternative 2: use the cli tool to remove the quarantine attr, something like this xattr -dr
       com.apple.quarantine <path to file>/my-binary-amd64
 - Re-download the .jar file (you can attempt extracting it with the unzip cli command)
