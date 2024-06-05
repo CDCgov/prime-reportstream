@@ -67,6 +67,10 @@ $column-gutter: 2rem;
                 border-right: 1px solid color(gray-20);
                 padding: 0 calc($column-gutter - 14px) 0 $column-gutter;
             }
+
+            &__three {
+                padding: 0 calc($column-gutter - 14px) 0 $column-gutter;
+            }
         }
 
         .file-search-container {
