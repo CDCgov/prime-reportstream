@@ -2358,14 +2358,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.43.1":
-  version: 1.43.1
-  resolution: "@playwright/test@npm:1.43.1"
+"@playwright/test@npm:^1.44.1":
+  version: 1.44.1
+  resolution: "@playwright/test@npm:1.44.1"
   dependencies:
-    playwright: 1.43.1
+    playwright: 1.44.1
   bin:
     playwright: cli.js
-  checksum: f9db387b488a03125e5dc22dd7ffed9c661d1f2428188912a35a2235b3bd9d826b390e7600d04998639994f5a96695b9dc9034ca9cb59e261d2fdee93a60df3f
+  checksum: 90507b77e388aa984deb92db56f7bb3b305c6be441e1d0087ca046989cfdda068bbc26d75bd29c20ad3dbb2434e69a8ff0d6b30003b88c9234cd3aa6a9f7deb9
   languageName: node
   linkType: hard
 
@@ -4249,23 +4249,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^16.8.0 || ^17.0.0 || ^18.0.0":
+"@types/react@npm:*, @types/react@npm:^16.8.0 || ^17.0.0 || ^18.0.0, @types/react@npm:18.3.1":
   version: 18.3.3
   resolution: "@types/react@npm:18.3.3"
   dependencies:
     "@types/prop-types": "*"
     csstype: ^3.0.2
   checksum: c63d6a78163244e2022b01ef79b0baec4fe4da3475dc4a90bb8accefad35ef0c43560fd0312e5974f92a0f1108aa4d669ac72d73d66396aa060ea03b5d2e3873
-  languageName: node
-  linkType: hard
-
-"@types/react@npm:18.3.1":
-  version: 18.3.1
-  resolution: "@types/react@npm:18.3.1"
-  dependencies:
-    "@types/prop-types": "*"
-    csstype: ^3.0.2
-  checksum: 9224ef319a0c2b7f66e7e7f06012aa5eb638a6c76c9742843eab1a5d243f2bed5ff829ddbb41efd60d33a266420528adfcb84cb93f238b00e905f98c3a355768
   languageName: node
   linkType: hard
 
@@ -7297,9 +7287,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-playwright@npm:^1.6.0":
-  version: 1.6.0
-  resolution: "eslint-plugin-playwright@npm:1.6.0"
+"eslint-plugin-playwright@npm:^1.6.2":
+  version: 1.6.2
+  resolution: "eslint-plugin-playwright@npm:1.6.2"
   dependencies:
     globals: ^13.23.0
   peerDependencies:
@@ -7308,7 +7298,7 @@ __metadata:
   peerDependenciesMeta:
     eslint-plugin-jest:
       optional: true
-  checksum: d33bde83e1c0bf185dc0bce3d2b8e0a84adefcf6f3e4286b2492960a0e1e501519374a445bc6e77dfc5986ae23b5e71b0ff737735e606dd0809c96eb10aaefc4
+  checksum: c3fe5519239be46cdf89c32f714dba5c28aa86fd4316f6e8521a7c540aab0a7ecf778a73dafc3537a1fb70bd82dbdb0cee976f6862fdacb0a06c85196661bbcf
   languageName: node
   linkType: hard
 
@@ -12002,27 +11992,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.43.1":
-  version: 1.43.1
-  resolution: "playwright-core@npm:1.43.1"
+"playwright-core@npm:1.44.1":
+  version: 1.44.1
+  resolution: "playwright-core@npm:1.44.1"
   bin:
     playwright-core: cli.js
-  checksum: 7c96b3a4a4bce2ee22c3cd680c9b0bb9e4bf07ee4b51d1e9a7f47a6489c7b0b960d4b550e530b8f41d1ffeadd26c7c6bb626ae8689dfd90dce1cb8e35ae78ff7
+  checksum: ebc6fa0ff77792fe52648fda06cc4474d4e9746db6dc5750d262b7fe2caf9f9e2327a71f1fb365e862213403a9daf95361c5040a9b0fd462928d7eb4fdc760e1
   languageName: node
   linkType: hard
 
-"playwright@npm:1.43.1":
-  version: 1.43.1
-  resolution: "playwright@npm:1.43.1"
+"playwright@npm:1.44.1":
+  version: 1.44.1
+  resolution: "playwright@npm:1.44.1"
   dependencies:
     fsevents: 2.3.2
-    playwright-core: 1.43.1
+    playwright-core: 1.44.1
   dependenciesMeta:
     fsevents:
       optional: true
   bin:
     playwright: cli.js
-  checksum: de9db021f93018a18275bbb5af09ebf1804aa0534f47578b35b440064abc774509740205802824afc94a99fc84dd55ffe9e215718ad3ecc691b251ab3882b096
+  checksum: c2e8ff0a855e4a9e665ae5ffa0ff90423289546157be55e83f78916d17075c5910a7244773739c2a973da884a4ff0b3cf9b6e6b543de112e43b12169a9208e86
   languageName: node
   linkType: hard
 
@@ -12413,7 +12403,7 @@ __metadata:
     "@microsoft/applicationinsights-web": ^3.2.1
     "@okta/okta-react": ^6.8.0
     "@okta/okta-signin-widget": ^7.18.1
-    "@playwright/test": ^1.43.1
+    "@playwright/test": ^1.44.1
     "@rest-hooks/rest": ^3.0.3
     "@rest-hooks/test": ^7.3.1
     "@storybook/addon-a11y": ^8.0.9
@@ -12444,7 +12434,7 @@ __metadata:
     "@types/lodash": ^4.17.4
     "@types/mdx": ^2.0.13
     "@types/node": ^20.12.5
-    "@types/react": 18.3.1
+    "@types/react": 18.3.3
     "@types/react-dom": ^18.3.0
     "@types/react-router-dom": ^5.3.3
     "@types/react-scroll-sync": ^0.9.0
@@ -12473,7 +12463,7 @@ __metadata:
     eslint-plugin-import: ^2.29.1
     eslint-plugin-jest-dom: ^5.2.0
     eslint-plugin-jsx-a11y: ^6.8.0
-    eslint-plugin-playwright: ^1.6.0
+    eslint-plugin-playwright: ^1.6.2
     eslint-plugin-react: ^7.34.1
     eslint-plugin-react-hooks: ^4.6.0
     eslint-plugin-react-refresh: ^0.4.6
