@@ -5,18 +5,18 @@ import { Suspense } from "react";
 import FileHandlerFileUploadStep, {
     getClientHeader,
 } from "./FileHandlerFileUploadStep";
-import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
 import {
     fakeFile,
     mockSendFileWithErrors,
     mockSendValidFile,
 } from "../../__mocks__/validation";
+import { sendersGenerator } from "../../__mockServers__/OrganizationMockServer";
 import { RSSender } from "../../config/endpoints/settings";
-import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
-import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
-import { INITIAL_STATE } from "../../hooks/UseFileHandler";
-import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
-import * as useSenderResourceExports from "../../hooks/UseSenderResource";
+import { UseSenderResourceHookResult } from "../../hooks/api/organizations/UseOrganizationSender/UseOrganizationSender";
+import * as useSenderResourceExports from "../../hooks/api/organizations/UseOrganizationSender/UseOrganizationSender";
+import * as useWatersUploaderExports from "../../hooks/api/UseWatersUploader/UseWatersUploader";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
+import { INITIAL_STATE } from "../../hooks/UseFileHandler/UseFileHandler";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { MembershipSettings, MemberType } from "../../utils/OrganizationUtils";
 import {
@@ -159,10 +159,7 @@ describe("FileHandlerFileUploadStep", () => {
 
         describe("when a file is being submitted", () => {
             function setup() {
-                vi.spyOn(
-                    useWatersUploaderExports,
-                    "useWatersUploader",
-                ).mockReturnValue({
+                vi.spyOn(useWatersUploaderExports, "default").mockReturnValue({
                     isPending: true,
                     error: null,
                     mutateAsync: () => Promise.resolve({}),
@@ -198,10 +195,7 @@ describe("FileHandlerFileUploadStep", () => {
             const onFileSubmitSuccessSpy = vi.fn();
             const onNextStepClickSpy = vi.fn();
             async function setup() {
-                vi.spyOn(
-                    useWatersUploaderExports,
-                    "useWatersUploader",
-                ).mockReturnValue({
+                vi.spyOn(useWatersUploaderExports, "default").mockReturnValue({
                     isPending: false,
                     error: null,
                     mutateAsync: async () =>
@@ -282,10 +276,7 @@ describe("FileHandlerFileUploadStep", () => {
         describe("when an invalid file is submitted", () => {
             const onFileSubmitErrorSpy = vi.fn();
             async function setup() {
-                vi.spyOn(
-                    useWatersUploaderExports,
-                    "useWatersUploader",
-                ).mockReturnValue({
+                vi.spyOn(useWatersUploaderExports, "default").mockReturnValue({
                     isPending: false,
                     error: null,
                     mutateAsync: async () =>
@@ -375,6 +366,9 @@ describe("getClientHeader", () => {
         processingType: "sync",
         schemaName: DEFAULT_SCHEMA_NAME,
         topic: "covid-19",
+        version: 0,
+        createdAt: "",
+        createdBy: "",
     };
 
     describe("when selectedSchemaName is falsy", () => {

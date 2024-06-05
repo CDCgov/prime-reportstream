@@ -11,11 +11,11 @@ import { TableRowData, TableRows } from "./TableRows";
 import { filterManagerFixture } from "../../hooks/filters/filters.fixtures";
 import useCursorManager, {
     CursorActionType,
-} from "../../hooks/filters/UseCursorManager";
+} from "../../hooks/filters/UseCursorManager/UseCursorManager";
 import useFilterManager, {
     FilterManager,
-} from "../../hooks/filters/UseFilterManager";
-import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
+} from "../../hooks/filters/UseFilterManager/UseFilterManager";
+import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder/UseSortOrder";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { selectDatesFromRange } from "../../utils/TestUtils";
 
