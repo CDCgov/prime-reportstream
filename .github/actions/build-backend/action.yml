@@ -70,7 +70,7 @@ runs:
       run: tar -czvf prime-router-build.tar.gz build
 
     - name: Login into Azure
-      if: inputs.run-integration-tests == 'true' && inputs.sp-creds
+      # if: inputs.run-integration-tests == 'true' && inputs.sp-creds
       uses: ./.github/actions/vpn-azure
       with:
         sp-creds: ${{ inputs.sp-creds }}
@@ -82,7 +82,7 @@ runs:
       uses: ./.github/actions/runner-ip
 
     - name: Validate translation schemas
-      if: inputs.run-integration-tests == 'true' && inputs.sp-creds
+      # if: inputs.run-integration-tests == 'true' && inputs.sp-creds
       uses: ./.github/actions/retry
       with:
         timeout_minutes: 5
