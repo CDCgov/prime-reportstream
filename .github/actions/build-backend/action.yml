@@ -83,23 +83,19 @@ runs:
 
     - name: Validate translation schemas
       if: inputs.run-integration-tests == 'true' && inputs.sp-creds
-      uses: ./.github/actions/retry
-      with:
-        timeout_minutes: 5
-        max_attempts: 2
-        retry_wait_seconds: 30
-        command: |
-          az storage account network-rule add -g prime-data-hub-staging --account-name pdhstagingstorageaccount \
-          --ip-address ${{ steps.runner_ip.outputs.ip-address }} --output none;
-          sleep 10;
-          cd prime-router;
-          bsc=$(az storage account show-connection-string --name pdhstagingstorageaccount --resource-group prime-data-hub-staging \
-          --subscription 7d1e3999-6577-4cd5-b296-f518e5c8e677 -o tsv);
-          ./prime validateSchemas --schema-type="HL7" --blob-store-connect="$bsc" --blob-store-container="metadata";
-          ./prime validateSchemas --schema-type="FHIR" --blob-store-connect="$bsc" --blob-store-container="metadata";
-          az storage account network-rule remove -g prime-data-hub-staging --account-name pdhstagingstorageaccount \
-          --ip-address ${{ steps.runner_ip.outputs.ip-address }} --output none;
-        shell: bash
+      working-directory: prime-router
+      run: |
+        az storage account network-rule add -g prime-data-hub-staging --account-name pdhstagingstorageaccount \
+        --ip-address ${{ steps.runner_ip.outputs.ip-address }} --output none
+        sleep 10;
+        cd prime-router
+        bsc=$(az storage account show-connection-string --name pdhstagingstorageaccount --resource-group prime-data-hub-staging \
+        --subscription 7d1e3999-6577-4cd5-b296-f518e5c8e677 -o tsv)
+        ./prime validateSchemas --schema-type="HL7" --blob-store-connect="$bsc" --blob-store-container="metadata"
+        ./prime validateSchemas --schema-type="FHIR" --blob-store-connect="$bsc" --blob-store-container="metadata"
+        az storage account network-rule remove -g prime-data-hub-staging --account-name pdhstagingstorageaccount \
+        --ip-address ${{ steps.runner_ip.outputs.ip-address }} --output none
+      shell: bash
 
     - name: Publish Unit Test Results
       uses: EnricoMi/publish-unit-test-result-action/linux@30eadd5010312f995f0d3b3cff7fe2984f69409e
