@@ -185,6 +185,12 @@ export abstract class BasePage {
                 },
             ],
             // Google Analytics
+            [
+                "https://www.google-analytics.com/**",
+                {
+                    status: 204,
+                },
+            ],
         ]);
     }
 
