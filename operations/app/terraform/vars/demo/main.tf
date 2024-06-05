@@ -270,6 +270,7 @@ module "log_analytics_workspace" {
   law_retention_period     = local.log_analytics_workspace.law_retention_period
   //data_factory_id               = module.data_factory.data_factory_id
   //sftp_instance_01_id           = module.sftp.sftp_instance_ids[0]
+  action_group_id = module.application_insights.action_group_id
 }
 
 module "application_insights" {

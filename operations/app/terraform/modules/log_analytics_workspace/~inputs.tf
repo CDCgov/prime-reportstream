@@ -116,3 +116,8 @@ variable "law_retention_period" {
   description = "How long to keep logs for in LAW"
   default     = "30"
 }
+
+variable "action_group_id" {
+  type        = string
+  description = "Action group resource id"
+}
