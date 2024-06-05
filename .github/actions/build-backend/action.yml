@@ -60,7 +60,7 @@ runs:
         retry_wait_seconds: 30
         command: |
           cd prime-router
-          ./gradlew quickPackage -x fatjar -Pshowtests
+          ./gradlew package -x fatjar -Pshowtests -x test
         shell: bash
 
     - name: Tar router files
