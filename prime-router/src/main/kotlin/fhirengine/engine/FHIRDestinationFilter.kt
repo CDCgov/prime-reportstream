@@ -120,7 +120,8 @@ class FHIRDestinationFilter(
                     queueMessage.topic,
                     sender,
                     observationSummary,
-                    fhirJson.length
+                    fhirJson.length,
+                    AzureEventUtils.getIdentifier(bundle)
                 )
             )
 
@@ -259,7 +260,8 @@ class FHIRDestinationFilter(
                         sender,
                         null,
                         receiverObservationSummary,
-                        fhirJson.length
+                        fhirJson.length,
+                        AzureEventUtils.getIdentifier(bundle)
                     )
                 )
 

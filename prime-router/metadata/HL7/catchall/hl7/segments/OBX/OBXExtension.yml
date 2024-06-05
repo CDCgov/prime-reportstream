@@ -165,7 +165,46 @@ extension:
           type: STRING
           expressionType: HL7Spec
           valueOf: OBX.29
-
+    - expressionType: nested
+      vars:
+        obx31: STRING, OBX.31
+      condition: $obx31 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.31
+        valueId:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBX.31
+    - expressionType: nested
+      vars:
+        obx32: STRING_ALL, OBX.32
+      condition: $obx32 NOT_NULL
+      generateList: true
+      specs: OBX.32 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.32
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        obx33: STRING_ALL, OBX.33
+      condition: $obx33 NOT_NULL
+      generateList: true
+      specs: OBX.33 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.33
+        valueIdentifier:
+          valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
+          expressionType: resource
+          constants:
+            backupExtension: "filler-assigned-identifier"
 
 
 

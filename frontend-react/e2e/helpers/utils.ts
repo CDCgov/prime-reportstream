@@ -47,12 +47,6 @@ export async function selectTestOrg(page: Page) {
     await page.getByTestId("textInput").fill(TEST_ORG_IGNORE);
     await page.getByTestId("ignore_set").click();
 }
-
-export async function logOut(page: Page) {
-    await page.getByRole("button", { name: "Logout" }).click();
-    await expect(page.getByRole("button", { name: "Login" })).toBeVisible();
-}
-
 /**
  * Save session storage to file. Session storage is not handled in
  * playwright's storagestate.

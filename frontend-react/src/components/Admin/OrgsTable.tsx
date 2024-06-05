@@ -1,20 +1,21 @@
 import { Button, ButtonGroup, Label, TextInput } from "@trussworks/react-uswds";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
-import { useResource } from "rest-hooks";
 
 import useSessionContext from "../../contexts/Session/useSessionContext";
-import OrgSettingsResource from "../../resources/OrgSettingsResource";
+import useOrganizationSettingsList from "../../hooks/api/organizations/UseOrganizationSettingsList/UseOrganizationSettingsList";
 import Table from "../../shared/Table/Table";
+import { searchOrganizationSettingsList } from "../../utils/filters/organizationSettingsListFilters";
 import { MembershipSettings, MemberType } from "../../utils/OrganizationUtils";
 import { USNavLink } from "../USLink";
 
 export function OrgsTable() {
-    const orgs: OrgSettingsResource[] = useResource(
-        OrgSettingsResource.list(),
-        {},
-    ).sort((a, b) => a.name.localeCompare(b.name));
+    const { data } = useOrganizationSettingsList();
+    const orgs = useMemo(
+        () => data.toSorted((a, b) => a.name.localeCompare(b.name)),
+        [data],
+    );
     const [filter, setFilter] = useState("");
     const navigate = useNavigate();
     const { activeMembership, setActiveMembership } = useSessionContext();
@@ -43,7 +44,9 @@ export function OrgsTable() {
 
     const saveListToCSVFile = () => {
         const csvbody = orgs
-            .filter((eachOrg) => eachOrg.filterMatch(filter))
+            .filter((eachOrg) =>
+                searchOrganizationSettingsList(eachOrg, filter),
+            )
             .map((eachOrg) =>
                 [
                     `"`,
@@ -83,7 +86,9 @@ export function OrgsTable() {
 
     const formattedTableData = () => {
         return orgs
-            .filter((eachOrg) => eachOrg.filterMatch(filter))
+            .filter((eachOrg) =>
+                searchOrganizationSettingsList(eachOrg, filter),
+            )
             .map((eachOrg) => [
                 {
                     columnKey: "Name",

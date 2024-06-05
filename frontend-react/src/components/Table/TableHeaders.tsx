@@ -2,11 +2,11 @@
 import { Icon } from "@trussworks/react-uswds";
 
 import { ColumnConfig, TableConfig } from "./Table";
-import { FilterManager } from "../../hooks/filters/UseFilterManager";
+import { FilterManager } from "../../hooks/filters/UseFilterManager/UseFilterManager";
 import {
     SortOrder,
     SortSettingsActionType,
-} from "../../hooks/filters/UseSortOrder";
+} from "../../hooks/filters/UseSortOrder/UseSortOrder";
 
 interface TableHeaderProps {
     config: TableConfig;
