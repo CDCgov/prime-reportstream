@@ -15,7 +15,7 @@ elements:
 
   - name: result-value-type-ce
     resource: '%resource.value'
-    condition: false
+    condition: 'false'
     # This element remains here for usage in receiver-transforms
     value: [ '"CE"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]

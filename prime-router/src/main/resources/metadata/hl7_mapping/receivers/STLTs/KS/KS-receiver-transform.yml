@@ -10,32 +10,32 @@ elements:
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
   - name: ks-name-of-the-receiving-application
-    condition: true
+    condition: 'true'
     value: [ '"KSDOH"' ]
     hl7Spec: [ 'MSH-5-1' ]
 
   - name: ks-OID-of-the-receiving-application
-    condition: true
+    condition: 'true'
     value: [ '"2.16.840.1.114222.4.3.3.36"' ]
     hl7Spec: [ 'MSH-5-2' ]
 
   - name: ks-indicates-that-5.2-is-an-OID
-    condition: true
+    condition: 'true'
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-5-3' ]
 
   - name: ks-receiving-facility-namespace-ID
-    condition: true
+    condition: 'true'
     value: [ '"KDHE"' ]
     hl7Spec: [ 'MSH-6-1' ]
 
   - name: ks-receiving-facility-universal-ID
-    condition: true
+    condition: 'true'
     value: [ '"2.16.840.1.114222.4.3.2.2.1.163"' ]
     hl7Spec: [ 'MSH-6-2' ]
 
   - name: ks-receiving-facility-universal-ID-Type
-    condition: true
+    condition: 'true'
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-6-3' ]
 

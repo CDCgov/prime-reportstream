@@ -4,6 +4,8 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamFilterDefinition
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.HL7ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathCustomResolver
@@ -94,6 +96,28 @@ object FhirToFhirTransformValidation : KonformValidation<FhirTransformSchema>() 
                 addConstraint("Invalid FHIR path: {value}", test = ::validFhirPath)
             }
             FhirTransformSchemaElement::value ifPresent {
+                onEach {
+                    addConstraint("Invalid FHIR path: {value}", test = ::validFhirPath)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Validations for FHIR to FHIR transforms
+ */
+object FhirToHL7MappingValidation : KonformValidation<HL7ConverterSchema>() {
+
+    override val validation: Validation<HL7ConverterSchema> = Validation {
+        HL7ConverterSchema::elements onEach {
+            ConverterSchemaElement::condition ifPresent {
+                addConstraint("Invalid FHIR path: {value}", test = ::validFhirPath)
+            }
+            ConverterSchemaElement::resource ifPresent {
+                addConstraint("Invalid FHIR path: {value}", test = ::validFhirPath)
+            }
+            ConverterSchemaElement::value ifPresent {
                 onEach {
                     addConstraint("Invalid FHIR path: {value}", test = ::validFhirPath)
                 }

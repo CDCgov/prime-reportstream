@@ -37,44 +37,44 @@ elements:
 
   # ORC 3.1
   - name: filler-order-number
-    condition: false
+    condition: 'false'
 
   # ORC 12
   - name: ordering-provider-from-practitioner
-    condition: false
+    condition: 'false'
 
   - name: ordering-provider-from-practitioner-role
-    condition: false
+    condition: 'false'
 
   # ORC 22
   - name: ordering-facility-address
-    condition: false
+    condition: 'false'
 
   # ORC 23
   - name: ordering-facility-phone-number
-    condition: false
+    condition: 'false'
 
   # ORC 24
   - name: ordering-provider-address-from-practitioner
-    condition: false
+    condition: 'false'
 
   # OBR 7.1
   - name: observation-datetime-start
-    condition: false
+    condition: 'false'
 
   - name: observation-datetime
-    condition: false
+    condition: 'false'
 
   # OBR 16
   - name: ordering-provider-from-extension
-    condition: false
+    condition: 'false'
 
   # Suppress all notes as they may contain PII data
   - name: patient-note
-    condition: false
+    condition: 'false'
 
   - name: observation-note
-    condition: false
+    condition: 'false'
 
   - name: order-note
-    condition: false
+    condition: 'false'

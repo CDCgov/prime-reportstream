@@ -23,7 +23,7 @@
       customerStatus: "active"
       translation: !<HL7>
         schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/AZ/AZ-receiver-transform.yml"
-        format: "hl7"
+        format: "HL7"
         useBatching: true
         defaults: { }
         nameFormat: "STANDARD"

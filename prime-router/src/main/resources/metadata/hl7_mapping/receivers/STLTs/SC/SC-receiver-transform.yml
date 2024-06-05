@@ -10,67 +10,67 @@ elements:
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
   - name: sc-message-encoding-characters
-    condition: true
+    condition: 'true'
     value: [ '"^~\\&#"' ]
     hl7Spec: [ 'MSH-2' ]
 
   - name: sc-name-of-the-receiving-application
-    condition: true
+    condition: 'true'
     value: [ '"SCDOH"' ]
     hl7Spec: [ 'MSH-5-1' ]
 
   - name: sc-OID-of-the-receiving-application
-    condition: true
+    condition: 'true'
     value: [ '"2.16.840.1.114222.4.3.2.2.1.179.1"' ]
     hl7Spec: [ 'MSH-5-2' ]
 
   - name: sc-indicates-that-5.2-is-an-OID
-    condition: true
+    condition: 'true'
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-5-3' ]
 
   - name: sc-receiving-facility-namespace-ID
-    condition: true
+    condition: 'true'
     value: [ '"SC"' ]
     hl7Spec: [ 'MSH-6-1' ]
 
   - name: sc-receiving-facility-universal-ID
-    condition: true
+    condition: 'true'
     value: [ '"2.16.840.1.114222.4.1.3680"' ]
     hl7Spec: [ 'MSH-6-2' ]
 
   - name: sc-receiving-facility-universal-ID-Type
-    condition: true
+    condition: 'true'
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-6-3' ]
 
   - name: sc-country-code
-    condition: true
+    condition: 'true'
     value: [ '""' ]
     hl7Spec: [ 'MSH-17' ]
 
   - name: sc-character-set
-    condition: true
+    condition: 'true'
     value: [ '""' ]
     hl7Spec: [ 'MSH-18' ]
 
   - name: sc-character-set-1
-    condition: true
+    condition: 'true'
     value: [ '""' ]
     hl7Spec: [ 'MSH-19' ]
 
   - name: sc-character-set-2
-    condition: true
+    condition: 'true'
     value: [ '""' ]
     hl7Spec: [ 'MSH-19-2' ]
 
   - name: sc-character-set-3
-    condition: true
+    condition: 'true'
     value: [ '""' ]
     hl7Spec: [ 'MSH-19-3' ]
 
   - name: sc-patient-name-type-code
-    condition: true
+    condition: 'true'
     value: [ '""' ]
     hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-5-7 ]
 

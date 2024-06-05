@@ -81,7 +81,7 @@
       \ = 0"
         - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
         - "Bundle.identifier.value.empty().not()"
-    routingFilter:
+    routingFilter: []
     processingModeFilter: []
     reverseTheQualityFilter: true
     conditionFilter: []

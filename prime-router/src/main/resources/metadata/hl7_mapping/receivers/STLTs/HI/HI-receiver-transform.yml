@@ -11,12 +11,12 @@ elements:
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
   - name: hi-receiving-application
-    condition: true
+    condition: 'true'
     value: [ '"HIDOH"' ]
     hl7Spec: [ 'MSH-5-1' ]
 
   - name: hi-receiving-facility
-    condition: true
+    condition: 'true'
     value: [ '"HIDOH"' ]
     hl7Spec: [ 'MSH-6-1' ]
 
@@ -80,6 +80,6 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-5' ]
 
   - name: hi-specimen-source-site-text
-    condition: true
+    condition: 'true'
     value: [ 'Bundle.entry.resource.ofType(Specimen).collection.bodySite.text' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-8-2' ]

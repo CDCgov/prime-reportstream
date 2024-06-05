@@ -209,10 +209,10 @@ elements:
 
   # Suppress all notes as they may contain PII data
   - name: patient-note
-    condition: false
+    condition: 'false'
 
   - name: observation-note
-    condition: false
+    condition: 'false'
 
   - name: order-note
-    condition: false
+    condition: 'false'

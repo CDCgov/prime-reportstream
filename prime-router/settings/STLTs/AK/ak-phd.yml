@@ -78,7 +78,7 @@
         operation: "MERGE"
         numberPerDay: 1440
         initialTime: "00:00"
-        timeZone: "ALASkA"
+        timeZone: "ALASKA"
         maxReportCount: 100
         whenEmpty:
           action: "NONE"
