@@ -73,10 +73,9 @@ object FhirPathUtils : Logging {
      * Is the provided path a valid FHIR path given the evaluation context?
      */
     fun validatePath(path: String, evaluationContext: FHIRPathEngine.IEvaluationContext): Boolean {
-        return runCatching {
-            pathEngine.hostServices = evaluationContext
-            parsePath(path)
-        }.isSuccess
+        return withEvaluationContext(evaluationContext) {
+            runCatching { parsePath(path) }.isSuccess
+        }
     }
 
     /**
@@ -263,5 +262,24 @@ object FhirPathUtils : Logging {
             else -> hl7Date.setYearMonthDayPrecision(date.year, date.month + 1, date.day)
         }
         return hl7Date.toString()
+    }
+
+    /**
+     * Stores the previous evaluation context in a temporary variable and then
+     * runs the lambda with the new evaluation context.
+     *
+     * After executing the lambda, it will set the evaluation context back to the initial value.
+     */
+    private fun <T> withEvaluationContext(
+        evaluationContext: FHIRPathEngine.IEvaluationContext,
+        block: () -> T,
+    ): T {
+        val previousEvaluationContext = pathEngine.hostServices
+        pathEngine.hostServices = evaluationContext
+        return try {
+            block()
+        } finally {
+            pathEngine.hostServices = previousEvaluationContext
+        }
     }
 }
