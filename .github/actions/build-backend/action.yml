@@ -93,7 +93,6 @@ runs:
           --ip-address ${{ steps.runner_ip.outputs.ip-address }} --output none;
           sleep 10;
           cd prime-router;
-          exit 1;
           bsc=$(az storage account show-connection-string --name pdhstagingstorageaccount --resource-group prime-data-hub-staging \
           --subscription 7d1e3999-6577-4cd5-b296-f518e5c8e677 -o tsv);
           ./prime validateSchemas --schema-type="HL7" --blob-store-connect="$bsc" --blob-store-container="metadata";
