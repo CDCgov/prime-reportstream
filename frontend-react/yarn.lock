@@ -4249,6 +4249,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react@npm:*, @types/react@npm:^16.8.0 || ^17.0.0 || ^18.0.0":
+  version: 18.3.3
+  resolution: "@types/react@npm:18.3.3"
+  dependencies:
+    "@types/prop-types": "*"
+    csstype: ^3.0.2
+  checksum: c63d6a78163244e2022b01ef79b0baec4fe4da3475dc4a90bb8accefad35ef0c43560fd0312e5974f92a0f1108aa4d669ac72d73d66396aa060ea03b5d2e3873
+  languageName: node
+  linkType: hard
+
 "@types/react@npm:18.3.1":
   version: 18.3.1
   resolution: "@types/react@npm:18.3.1"
@@ -14315,10 +14325,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tocbot@npm:^4.25.0":
-  version: 4.25.0
-  resolution: "tocbot@npm:4.25.0"
-  checksum: ac382063526ae8cde93390e42761da7aac136a452f5109ddcbcaf0d1890de478a13d2cf01ef52ec2a50934e4fa10f1d4237109cccfa651ba8c5021638528b982
+"tocbot@npm:^4.20.1":
+  version: 4.28.2
+  resolution: "tocbot@npm:4.28.2"
+  checksum: 19754bf787090117680ded8f815ac57a167dd0706a976522341e47777dec3f91c44cb5dc29bc119f0884388638941f2dc31b99c93268721e332db10a3fdfbf91
   languageName: node
   linkType: hard
 
