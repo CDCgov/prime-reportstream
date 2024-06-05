@@ -5,7 +5,7 @@ import { FileHandlerStepProps } from "./FileHandler";
 import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
 import useSenderSchemaOptions, {
     SchemaOption,
-} from "../../senders/hooks/UseSenderSchemaOptions";
+} from "../../hooks/UseSenderSchemaOptions/UseSenderSchemaOptions";
 import Spinner from "../Spinner";
 
 export interface FileHandlerSchemaSelectionStepProps
