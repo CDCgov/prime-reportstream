@@ -26,7 +26,7 @@ jobs:
 
       - name: Get changed files
         id: changed_files
-        uses: tj-actions/changed-files@a29e8b565651ce417abb5db7164b4a2ad8b6155c
+        uses: tj-actions/changed-files@d6babd6899969df1a11d14c368283ea4436bca78
 
       - name: List all changed files
         id: set_vars
