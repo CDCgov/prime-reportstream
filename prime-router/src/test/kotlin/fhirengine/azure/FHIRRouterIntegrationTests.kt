@@ -73,9 +73,6 @@ private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/fhir_wi
 private const val MULTIPLE_OBSERVATIONS_FHIR_URL =
     "src/test/resources/fhirengine/engine/bundle_multiple_observations.fhir"
 
-private const val FILTERED_OBSERVATIONS_FHIR_URL =
-    "src/test/resources/fhirengine/engine/bundle_multiple_observations_filtered_only_94558_5.fhir"
-
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
 class FHIRRouterIntegrationTests : Logging {
@@ -90,14 +87,14 @@ class FHIRRouterIntegrationTests : Logging {
         "%patient.birthDate.exists()",
         "%specimen.type.exists()",
         "(%patient.address.line.exists() or " +
-                "%patient.address.postalCode.exists() or " +
-                "%patient.telecom.exists())",
+            "%patient.address.postalCode.exists() or " +
+            "%patient.telecom.exists())",
         "(" +
-                "(%specimen.collection.collectedPeriod.exists() or " +
-                "%specimen.collection.collected.exists()" +
-                ") or " +
-                "%serviceRequest.occurrence.exists() or " +
-                "%observation.effective.exists())",
+            "(%specimen.collection.collectedPeriod.exists() or " +
+            "%specimen.collection.collected.exists()" +
+            ") or " +
+            "%serviceRequest.occurrence.exists() or " +
+            "%observation.effective.exists())",
     )
 
     // requires only an id exists in the message header
@@ -117,22 +114,22 @@ class FHIRRouterIntegrationTests : Logging {
     val processingModeFilterProduction: ReportStreamFilter = listOf(
         "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(" +
             "system = 'http://terminology.hl7.org/CodeSystem/v2-0103'" +
-        ").code.exists() " +
-        "and " +
-        "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(" +
+            ").code.exists() " +
+            "and " +
+            "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(" +
             "system = 'http://terminology.hl7.org/CodeSystem/v2-0103'" +
-        ").code = 'P'"
+            ").code = 'P'"
     )
 
     // Must have a processing mode id of debugging
     val processingModeFilterDebugging: ReportStreamFilter = listOf(
         "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(" +
-                "system = 'http://terminology.hl7.org/CodeSystem/v2-0103'" +
-                ").code.exists() " +
-                "and " +
-                "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(" +
-                "system = 'http://terminology.hl7.org/CodeSystem/v2-0103'" +
-                ").code = 'D'"
+            "system = 'http://terminology.hl7.org/CodeSystem/v2-0103'" +
+            ").code.exists() " +
+            "and " +
+            "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(" +
+            "system = 'http://terminology.hl7.org/CodeSystem/v2-0103'" +
+            ").code = 'D'"
     )
 
     // only allow observations that have 94558-5.
@@ -281,15 +278,15 @@ class FHIRRouterIntegrationTests : Logging {
             report.bodyURL = bodyURL ?: "http://${report.id}.${fileFormat.toString().lowercase()}"
 
             val reportFile = ReportFile().setSchemaTopic(topic)
-                                         .setReportId(report.id)
-                                         .setActionId(actionId)
-                                         .setSchemaName("")
-                                         .setBodyFormat(fileFormat.toString())
-                                         .setItemCount(1)
-                                         .setExternalName("test-external-name")
-                                         .setBodyUrl(report.bodyURL)
-                                         .setSendingOrg(universalPipelineOrganization.name)
-                                         .setSendingOrgClient("Test Sender")
+                .setReportId(report.id)
+                .setActionId(actionId)
+                .setSchemaName("")
+                .setBodyFormat(fileFormat.toString())
+                .setItemCount(1)
+                .setExternalName("test-external-name")
+                .setBodyUrl(report.bodyURL)
+                .setSendingOrg(universalPipelineOrganization.name)
+                .setSendingOrgClient("Test Sender")
 
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
                 reportFile, txn, action
@@ -368,11 +365,11 @@ class FHIRRouterIntegrationTests : Logging {
     private fun checkActionTable(expectedTaskActions: List<TaskAction>) {
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val actionRecords = DSL.using(txn)
-                                   .select(Tables.ACTION.asterisk())
-                                   .from(Tables.ACTION)
-                                   .fetchInto(
-                                       Action::class.java
-                                   )
+                .select(Tables.ACTION.asterisk())
+                .from(Tables.ACTION)
+                .fetchInto(
+                    Action::class.java
+                )
 
             for (i in 0 until actionRecords.size) {
                 assertEquals(expectedTaskActions.get(i), actionRecords.get(i).actionName)
@@ -401,9 +398,9 @@ class FHIRRouterIntegrationTests : Logging {
     private fun checkActionLogTable(expectedContentList: List<ActionLogRecordContent>) {
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val actionLogRecords = DSL.using(txn)
-                                      .select(Tables.ACTION_LOG.asterisk())
-                                      .from(Tables.ACTION_LOG)
-                                      .fetchInto(ActionLog::class.java)
+                .select(Tables.ACTION_LOG.asterisk())
+                .from(Tables.ACTION_LOG)
+                .fetchInto(ActionLog::class.java)
 
             assert(actionLogRecords.size >= expectedContentList.size)
 
@@ -646,7 +643,7 @@ class FHIRRouterIntegrationTests : Logging {
                 }
 
             var fhirBundlesAsObjectsOnly = reportAndBundles.map { it.second.toString(Charsets.UTF_8) }
-                                                           .map { FhirTranscoder.decode(it) }
+                .map { FhirTranscoder.decode(it) }
 
             var fhirBundleReceiverX = fhirBundlesAsObjectsOnly[0]
             var fhirBundleReceiverY = fhirBundlesAsObjectsOnly[1]
@@ -660,10 +657,10 @@ class FHIRRouterIntegrationTests : Logging {
             // for receiver Y all five observations should be intact
             assertEquals(5, fhirBundleReceiverY.getObservations().size)
             val expectedCodes = listOf("94558-5", "95418-0", "95417-2", "95421-4", "95419-8")
-            for (i in 0..<fhirBundleReceiverX.getObservations().size) {
+            for (i in 0..<fhirBundleReceiverY.getObservations().size) {
                 // in this bundle the array "coding" in every "Observation" only ever has one element
-                assertEquals(1, fhirBundleReceiverX.getObservations()[i].code.coding.size)
-                assertEquals(expectedCodes[i], fhirBundleReceiverX.getObservations()[i].code.coding[0].code)
+                assertEquals(1, fhirBundleReceiverY.getObservations()[i].code.coding.size)
+                assertEquals(expectedCodes[i], fhirBundleReceiverY.getObservations()[i].code.coding[0].code)
             }
             assertThat(fhirBundleReceiverY.getObservations()[0].code.coding[0].code.equals("94558-5"))
 
@@ -806,9 +803,9 @@ class FHIRRouterIntegrationTests : Logging {
         // we don't log applications of jurisdictional filter to ACTION_LOG at this time
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val actionLogRecords = DSL.using(txn)
-                                      .select(Tables.ACTION_LOG.asterisk())
-                                      .from(Tables.ACTION_LOG)
-                                      .fetchInto(ActionLog::class.java)
+                .select(Tables.ACTION_LOG.asterisk())
+                .from(Tables.ACTION_LOG)
+                .fetchInto(ActionLog::class.java)
 
             assert(actionLogRecords.isEmpty())
         }
@@ -850,9 +847,9 @@ class FHIRRouterIntegrationTests : Logging {
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val actionLogRecords = DSL.using(txn)
-                                      .select(Tables.ACTION_LOG.asterisk())
-                                      .from(Tables.ACTION_LOG)
-                                      .fetchInto(ActionLog::class.java)
+                .select(Tables.ACTION_LOG.asterisk())
+                .from(Tables.ACTION_LOG)
+                .fetchInto(ActionLog::class.java)
 
             assert(actionLogRecords.size == 1)
 
@@ -1102,10 +1099,10 @@ class FHIRRouterIntegrationTests : Logging {
             receiverName = "phd.x",
             originalCount = 1,
             filterName =
-                "[Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = " +
-                        "'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and " +
-                        "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = " +
-                        "'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'D']",
+            "[Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = " +
+                "'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and " +
+                "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = " +
+                "'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'D']",
             filterArgs = listOf(),
             filteredTrackingElement = "",
             filterType = ReportStreamFilterType.PROCESSING_MODE_FILTER
