@@ -33,7 +33,16 @@ object FhirPathUtils : Logging {
     private val fhirContext = FhirContext.forR4()
 
     /**
-     * The FHIR path engine.
+     * The FHIR path engine
+     *
+     * For each call to the functions in this object, the path engine evaluation context is being
+     * set to support additional constants outside the base specification.
+     *
+     * Be very careful that you set this to the appropriate value for your use case!
+     *
+     * ex: pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
+     *
+     * TODO: Think about changing this pattern to avoid future bugs if a new function was written incorrectly
      */
     val pathEngine = FHIRPathEngine(HapiWorkerContext(fhirContext, fhirContext.validationSupport))
 
