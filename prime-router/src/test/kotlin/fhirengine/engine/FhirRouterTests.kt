@@ -1615,7 +1615,7 @@ class FhirRouterTests {
                     ObservationSummary.EMPTY,
                     ObservationSummary.EMPTY
                 ),
-                36995,
+                38803,
                 AzureEventUtils.MessageID(
                     "1234d1d1-95fe-462c-8ac6-46728dba581c",
                     "https://reportstream.cdc.gov/prime-router"
