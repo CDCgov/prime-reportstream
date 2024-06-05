@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { MessageReceivers } from "./MessageReceivers";
 import { WarningsErrors } from "./WarningsErrors";
 import { WarningError } from "../../config/endpoints/messageTracker";
-import { useMessageDetails } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
+import useMessageDetails from "../../hooks/api/messages/UseMessageDetails/UseMessageDetails";
 import { parseFileLocation } from "../../utils/misc";
 import { DetailItem } from "../DetailItem/DetailItem";
 import { withCatchAndSuspense } from "../RSErrorBoundary/RSErrorBoundary";
@@ -14,15 +14,6 @@ interface MessageDetailsProps {
     id: string | undefined;
     [k: string]: string | undefined;
 }
-
-const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
-    month: "2-digit",
-    day: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-});
 
 const dataToAccordionItems = (props: {
     id: string;
@@ -103,9 +94,13 @@ export function MessageDetails() {
                             />
                             <DetailItem
                                 item="Date/Time Submitted"
-                                content={dateTimeFormatter.format(
-                                    submittedDate,
-                                )}
+                                content={
+                                    submittedDate
+                                        ? new Date(
+                                              submittedDate,
+                                          ).toLocaleString()
+                                        : ""
+                                }
                             />
                             <div className="display-flex flex-column margin-bottom-2">
                                 <span className="text-base line-height-body-5">

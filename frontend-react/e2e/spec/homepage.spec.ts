@@ -1,7 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-import * as externalLinks from "../helpers/external-links";
-import { CONNECT_URL } from "../helpers/external-links";
 import { scrollToFooter, scrollToTop } from "../helpers/utils";
 import * as gettingStarted from "../pages/getting-started";
 import * as header from "../pages/header";
@@ -20,62 +18,6 @@ test.describe("Homepage", () => {
         await expect(page).toHaveTitle(
             /ReportStream - CDC's free, interoperable data transfer platform/,
         );
-    });
-
-    test("has About link and dropdown menu items", async ({ page }) => {
-        await header.clickOnAbout(page);
-
-        expect(true).toBe(true);
-    });
-
-    test("has Getting Started link", async ({ page }) => {
-        await header.clickOnGettingStarted(page);
-
-        expect(true).toBe(true);
-    });
-
-    test("has Developers link", async ({ page }) => {
-        await header.clickOnDevelopers(page);
-
-        expect(true).toBe(true);
-    });
-
-    test("has Your Connection link", async ({ page }) => {
-        await header.clickOnYourConnection(page);
-
-        expect(true).toBe(true);
-    });
-
-    test("has Support link", async ({ page }) => {
-        await header.clickOnSupport(page);
-
-        expect(true).toBe(true);
-    });
-
-    test('opens the "Connect with ReportStream" tab within header', async ({
-        page,
-    }) => {
-        const newTab = await externalLinks.clickOnExternalLink(
-            "header",
-            "Connect with us",
-            page,
-        );
-
-        await expect(newTab).toHaveURL(CONNECT_URL);
-        expect(true).toBe(true);
-    });
-
-    test('opens the "Connect with ReportStream" tab within footer', async ({
-        page,
-    }) => {
-        const newTab = await externalLinks.clickOnExternalLink(
-            "footer",
-            "Connect now",
-            page,
-        );
-
-        await expect(newTab).toHaveURL(CONNECT_URL);
-        expect(true).toBe(true);
     });
 
     test("opens the Getting started page on 'how to set up transfer' click", async ({

@@ -3,12 +3,12 @@ import { userEvent } from "@testing-library/user-event";
 
 import { _exportForTesting } from "./AdminRevHistory";
 import {
-    SettingRevision,
-    SettingRevisionParams,
-} from "../../network/api/Organizations/SettingRevisions";
+    RSSettingRevision,
+    RSSettingRevisionParams,
+} from "../../hooks/api/UseSettingsRevisions/UseSettingsRevisions";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-const fakeRows: SettingRevision[] = [
+const fakeRows: RSSettingRevision[] = [
     {
         id: 72,
         name: "ignore",
@@ -51,27 +51,19 @@ vi.mock("react-router-dom", async (importActual) => ({
 }));
 
 // replace this call to return our mock data
-vi.mock(
-    "../../network/api/Organizations/SettingRevisions",
-    async (importActual) => {
-        return {
-            ...(await importActual<
-                typeof import("../../network/api/Organizations/SettingRevisions")
-            >()),
-            useSettingRevisionEndpointsQuery: (
-                _params: SettingRevisionParams,
-            ) => {
-                // The results set (data, isLoading, error) needs to match what the component
-                // expects to get back from the call to useSettingRevisionEndpointsQuery()
-                return {
-                    data: fakeRows,
-                    isError: false,
-                    isLoading: false,
-                };
-            },
-        };
-    },
-);
+vi.mock("../../hooks/api/UseSettingsRevisions/UseSettingsRevisions", () => {
+    return {
+        default: (_params: RSSettingRevisionParams) => {
+            // The results set (data, isLoading, error) needs to match what the component
+            // expects to get back from the call to useSettingRevisionEndpointsQuery()
+            return {
+                data: fakeRows,
+                isError: false,
+                isLoading: false,
+            };
+        },
+    };
+});
 
 describe("AdminRevHistory", () => {
     test("Renders with no errors", async () => {

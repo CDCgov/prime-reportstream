@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 
 import { MessageDetailsPage } from "./MessageDetails";
 import { RSMessageDetail } from "../../config/endpoints/messageTracker";
-import { mockUseMessageDetails } from "../../hooks/network/MessageTracker/__mocks__/MessageTrackerHooks";
+import useMessageDetails from "../../hooks/api/messages/UseMessageDetails/UseMessageDetails";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 const TEST_ID = 1;
@@ -164,6 +164,9 @@ vi.mock("react-router-dom", async (importActual) => ({
         id: TEST_ID,
     }),
 }));
+vi.mock("../../hooks/api/messages/UseMessageDetails/UseMessageDetails");
+
+const mockUseMessageDetails = vi.mocked(useMessageDetails);
 
 describe("RSMessageDetail component", () => {
     test("url param (messageId) feeds into network hook", () => {
@@ -189,7 +192,7 @@ describe("RSMessageDetail component", () => {
             screen.getByText(/29038fca-e521-4af8-82ac-6b9fafd0fd58/),
         ).toBeVisible();
         expect(screen.getAllByText("Date/Time Submitted")[0]).toBeVisible();
-        expect(screen.getByText("09/28/2022, 10:21:33 PM")).toBeVisible();
+        expect(screen.getByText("9/28/2022, 10:21:33 PM")).toBeVisible();
         expect(screen.getAllByText("File Location")[0]).toBeVisible();
         expect(screen.getByText("RECEIVE")).toBeVisible();
         expect(screen.getByText("simple_report.csvuploader")).toBeVisible();
