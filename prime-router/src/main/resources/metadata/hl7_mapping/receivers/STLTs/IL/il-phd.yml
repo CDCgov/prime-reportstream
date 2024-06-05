@@ -17,7 +17,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation: !<HL7>
-        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/IL/IL-receiver-transform.yml"
+        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/IL/IL-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: null
