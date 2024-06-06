@@ -7,19 +7,24 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkConstructor
+import io.mockk.mockkObject
 import io.mockk.verify
 import org.jooq.Configuration
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.AfterEach
 import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.logging.Logger
@@ -59,11 +64,11 @@ class SendFunctionTests {
         null,
         TaskAction.send,
         null,
-        null,
-        null,
+        "ignore",
+        "ignore",
         "ignore",
         "CSV",
-        null, null, null, null, null, null, null, null, 0, null, null, null, null
+        null, null, "test", null, null, null, "CSV", null, 0, null, OffsetDateTime.now(), null, null
     )
 
     fun setupLogger() {
@@ -78,6 +83,8 @@ class SendFunctionTests {
         every { workflowEngine.settings }.returns(settings)
         every { workflowEngine.readBody(any()) }.returns("body".toByteArray())
         every { workflowEngine.sftpTransport }.returns(sftpTransport)
+        every { workflowEngine.azureEventService }.returns(InMemoryAzureEventService())
+        every { workflowEngine.reportService }.returns(mockk<ReportService>())
     }
 
     fun makeHeader(): WorkflowEngine.Header {
@@ -91,14 +98,13 @@ class SendFunctionTests {
         )
     }
 
-    @BeforeEach
+    @AfterEach
     fun reset() {
         clearAllMocks()
     }
 
     @Test
     fun `Test with message`() {
-        // Setup
         var nextEvent: ReportEvent? = null
         setupLogger()
         setupWorkflow()
@@ -110,6 +116,10 @@ class SendFunctionTests {
         }
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(null)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
+        every { workflowEngine.azureEventService.trackEvent(any()) }.returns(Unit)
+        every { workflowEngine.reportService.getRootReport(any()) } returns reportFile
+        mockkObject(Report.Companion)
+        every { Report.formExternalFilename(any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId, false)
