@@ -97,9 +97,14 @@ runs:
           --subscription 7d1e3999-6577-4cd5-b296-f518e5c8e677 -o tsv)
           ./prime validateSchemas --schema-type="HL7" --blob-store-connect="$bsc" --blob-store-container="metadata"
           ./prime validateSchemas --schema-type="FHIR" --blob-store-connect="$bsc" --blob-store-container="metadata"
-          az storage account network-rule remove -g prime-data-hub-staging --account-name pdhstagingstorageaccount \
-          --ip-address ${{ steps.runner_ip.outputs.ip-address }} --output none;
         shell: bash
+
+    - name: Remove GitHub action storage account IP whitelist
+      if: always() # This should happen even on a failure
+      run: |
+        az storage account network-rule remove -g prime-data-hub-staging --account-name pdhstagingstorageaccount \
+        --ip-address ${{ steps.runner_ip.outputs.ip-address }} --output none
+      shell: bash
 
     - name: Publish Unit Test Results
       uses: EnricoMi/publish-unit-test-result-action/linux@30eadd5010312f995f0d3b3cff7fe2984f69409e
