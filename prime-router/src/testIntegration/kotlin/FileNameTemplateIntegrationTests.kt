@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import assertk.Assert
 import assertk.assertThat
+import assertk.assertions.endsWith
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
@@ -392,6 +393,44 @@ class FileNameTemplateIntegrationTests {
 
         // assert
         assertThat(fileName).startsWith("none-$reportId-$formattedDate")
+    }
+
+    @Test
+    fun `test standard secondary name format when schemaBaseName is present`() {
+        // arrange
+        val key = "standard_secondary"
+        val config = mockkClass(Hl7Configuration::class).also {
+            every { it.schemaName }.returns("classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml")
+        }
+        assertThat(metadata.fileNameTemplates).containsKey(key)
+        val standardNameFormat = metadata.fileNameTemplates[key]
+
+        // act
+        val fileName = standardNameFormat?.getFileName(config, reportId = reportId)
+            ?: assertk.fail("error getting standard file name")
+
+        // assert
+        assertThat(fileName).startsWith("oru_r01-base.yml-$formattedDate")
+        assertThat(fileName).endsWith("-$reportId-secondary")
+    }
+
+    @Test
+    fun `test standard secondary name format when schemaBaseName is missing`() {
+        // arrange
+        val key = "standard_secondary"
+        val config = mockkClass(FHIRConfiguration::class).also {
+            every { it.schemaName }.returns("")
+        }
+        assertThat(metadata.fileNameTemplates).containsKey(key)
+        val standardNameFormat = metadata.fileNameTemplates[key]
+
+        // act
+        val fileName = standardNameFormat?.getFileName(config, reportId = reportId)
+            ?: assertk.fail("error getting standard file name")
+
+        // assert
+        assertThat(fileName).startsWith("none-$formattedDate")
+        assertThat(fileName).endsWith("-$reportId-secondary")
     }
 
     companion object {
