@@ -823,8 +823,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.1.0")
     implementation("com.microsoft.azure:applicationinsights-core:3.5.0")
-    implementation("com.azure:azure-core:1.48.0")
-    implementation("com.azure:azure-core-http-netty:1.14.2")
+    implementation("com.azure:azure-core:1.49.0")
+    implementation("com.azure:azure-core-http-netty:1.15.0")
     implementation("com.azure:azure-storage-blob:12.26.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
