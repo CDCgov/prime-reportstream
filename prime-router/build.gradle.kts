@@ -825,10 +825,10 @@ dependencies {
     implementation("com.microsoft.azure:applicationinsights-core:3.5.0")
     implementation("com.azure:azure-core:1.48.0")
     implementation("com.azure:azure-core-http-netty:1.14.2")
-    implementation("com.azure:azure-storage-blob:12.25.3") {
+    implementation("com.azure:azure-storage-blob:12.26.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.20.3") {
+    implementation("com.azure:azure-storage-queue:12.21.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.8.1") {
