@@ -21,7 +21,7 @@ def generate_row(file, lab):
 def generate_file(location, lab):
     f = open(location, "a")
     generate_header(f)
-    for i in range(random.randint(2, 9)):
+    for _ in range(random.randint(2, 9)):
         generate_row(f, lab)
     f.close()
 
