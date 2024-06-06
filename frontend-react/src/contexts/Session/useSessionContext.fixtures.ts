@@ -1,6 +1,7 @@
 import { SeverityLevel } from "@microsoft/applicationinsights-web";
-import { RSSessionContext } from "./SessionProvider";
+import { RSSessionContext, staticAuthorizedFetch } from "./SessionProvider";
 import { AppConfig } from "../../config";
+import { AxiosOptionsWithSegments, RSEndpoint } from "../../config/endpoints";
 import { mockRsconsole } from "../../utils/rsConsole/rsConsole.fixtures";
 
 export const configFixture = {
@@ -62,4 +63,19 @@ export const contextFixture = {
     config: configFixture,
     site: {} as any,
     rsConsole: mockRsconsole as any,
+    authorizedFetch: () => void 0 as any,
 } satisfies RSSessionContext;
+
+(contextFixture as any).authorizedFetch = (
+    options: Partial<AxiosOptionsWithSegments>,
+    endpointConfig?: RSEndpoint,
+) => {
+    return staticAuthorizedFetch({
+        apiUrl: configFixture.API_ROOT,
+        options,
+        endpointConfig,
+        accessToken: (contextFixture.authState as any).accessToken?.accessToken,
+        organization: contextFixture.activeMembership?.parsedName,
+        sessionId: "",
+    });
+};

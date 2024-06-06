@@ -32,9 +32,9 @@ resource "azurerm_postgresql_server" "postgres_server" {
 
   lifecycle {
     prevent_destroy = false
+    # validated 5/21/2024
     ignore_changes = [
-      storage_mb, # Auto-grow will change the size
-      administrator_login,
+      storage_mb,                  # Auto-grow will change the size
       administrator_login_password # This can't change without a redeploy
     ]
   }
@@ -97,9 +97,9 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
 
   lifecycle {
     prevent_destroy = false
+    # validated 5/21/2024
     ignore_changes = [
       storage_mb,                  # Auto-grow will change the size
-      administrator_login,         # Temp ignore during terraform overhaul
       administrator_login_password # This can't change without a redeploy
     ]
   }

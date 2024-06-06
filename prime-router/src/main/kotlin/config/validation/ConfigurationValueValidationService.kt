@@ -24,7 +24,7 @@ class ConfigurationValueValidationServiceImpl : ConfigurationValueValidationServ
         configType: ConfigurationType<T>,
         config: T,
     ): ConfigurationValidationResult<T> {
-        return when (val result = configType.valueValidation.validate(config)) {
+        return when (val result = configType.konformValidation.validation.validate(config)) {
             is Valid -> {
                 ConfigurationValidationSuccess(config)
             }

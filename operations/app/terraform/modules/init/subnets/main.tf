@@ -28,6 +28,7 @@ resource "azurerm_subnet" "init" {
 
   lifecycle {
     ignore_changes = [
+      # validated 5/21/2024
       delegation[0].service_delegation[0].actions
     ]
     prevent_destroy = true
