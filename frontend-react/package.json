@@ -173,7 +173,7 @@
         "otpauth": "^9.2.4",
         "patch-package": "^8.0.0",
         "postcss": "^8.4.38",
-        "prettier": "^3.2.5",
+        "prettier": "^3.3.0",
         "react-error-boundary": "^4.0.13",
         "remark-frontmatter": "^5.0.0",
         "remark-mdx-frontmatter": "^4.0.0",
