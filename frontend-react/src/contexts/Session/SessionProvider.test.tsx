@@ -4,7 +4,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { useContext } from "react";
 import SessionProvider, { SessionContext } from "./SessionProvider";
 import { configFixture } from "./useSessionContext.fixtures";
-import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
 import { isUseragentPreferred } from "../../utils/BrowserUtils";
 import { MemberType } from "../../utils/OrganizationUtils";
 

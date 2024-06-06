@@ -1,11 +1,12 @@
+import { Alert } from "@trussworks/react-uswds";
 import { Helmet } from "react-helmet-async";
 
 import styles from "./DataDashboard.module.scss";
 import DataDashboardTable from "../../components/DataDashboard/DataDashboardTable/DataDashboardTable";
 import HipaaNotice from "../../components/HipaaNotice";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary/RSErrorBoundary";
-import { USNavLink } from "../../components/USLink";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import { USLink, USNavLink } from "../../components/USLink";
+import useOrganizationSettings from "../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings";
 import { HeroWrapper } from "../../shared";
 import { FeatureName } from "../../utils/FeatureName";
 
@@ -29,6 +30,11 @@ function DataDashboardPage() {
                     content="An abstract illustration of screens and a document."
                 />
             </Helmet>
+            <Alert type="error" headingLevel="h2">
+                ReportStream is not maintaining this dashboard. Visit{" "}
+                <USLink href="/daily-data">Daily Data</USLink> to view the
+                status of data sent to you.
+            </Alert>
             <div className={styles.DataDashboard}>
                 <div className="bg-primary-darker text-white">
                     <div className="grid-container">
