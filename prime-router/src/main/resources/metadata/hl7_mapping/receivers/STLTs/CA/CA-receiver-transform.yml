@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 ##########################################################################
 # This is a temporary CA transform. These settings need to be #
 # moved to a sender transform once that feature is complete.             #
