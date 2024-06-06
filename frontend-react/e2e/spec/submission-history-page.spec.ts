@@ -51,9 +51,11 @@ test.describe("Submission history page", () => {
                 await submissionHistory.goto(page);
             });
 
-            test("nav contains the 'Submissions' option", async ({ page }) => {
+            test("nav contains the 'Submission History' option", async ({
+                page,
+            }) => {
                 const navItems = page.locator(".usa-nav  li");
-                await expect(navItems).toContainText(["Submissions"]);
+                await expect(navItems).toContainText(["Submission History"]);
             });
 
             test("has correct title", async ({ page }) => {
@@ -169,9 +171,9 @@ test.describe("Submission history page", () => {
             await submissionHistory.goto(page);
         });
 
-        test("nav contains the Submissions option", async ({ page }) => {
+        test("nav contains the Submission History option", async ({ page }) => {
             const navItems = page.locator(".usa-nav  li");
-            await expect(navItems).toContainText(["Submissions"]);
+            await expect(navItems).toContainText(["Submission History"]);
         });
 
         test("has correct title", async ({ page }) => {

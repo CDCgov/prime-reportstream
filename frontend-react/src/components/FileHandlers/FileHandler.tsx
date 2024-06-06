@@ -9,12 +9,12 @@ import FileHandlerSuccessStep from "./FileHandlerSuccessStep";
 import { WatersResponse } from "../../config/endpoints/waters";
 import site from "../../content/site.json";
 import { showToast } from "../../contexts/Toast";
+import useOrganizationSettings from "../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings";
 import useFileHandler, {
     FileHandlerActionType,
     FileHandlerState,
-} from "../../hooks/UseFileHandler";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
-import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
+} from "../../hooks/UseFileHandler/UseFileHandler";
+import { SchemaOption } from "../../hooks/UseSenderSchemaOptions/UseSenderSchemaOptions";
 import Alert from "../../shared/Alert/Alert";
 import Spinner from "../Spinner";
 import { USExtLink, USLink } from "../USLink";

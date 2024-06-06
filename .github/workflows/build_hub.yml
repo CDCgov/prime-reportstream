@@ -71,7 +71,8 @@ jobs:
       - name: Validate YAML
         run: |
           # Add more YAML checks here
-          ./gradlew primeCLI --args='validate-yaml --type organizations --file settings/organizations.yml'
+          ./gradlew primeCLI --args='validate-yaml --type Organizations --file settings/organizations.yml'
+          ./gradlew primeCLI --args='validate-yaml --type FhirToFhirTransform --dir src/main/resources/metadata/fhir_transforms'
 
       - name: Check for Uncommited Schema Docs
         id: check_changes
