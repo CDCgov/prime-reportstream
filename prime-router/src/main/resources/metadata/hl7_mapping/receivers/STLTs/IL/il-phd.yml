@@ -12,7 +12,7 @@
   filters: []
   senders: []
   receivers:
-    - name: "elr"
+    - name: "full-elr"
       organizationName: "il-phd"
       topic: "full-elr"
       customerStatus: "active"
