@@ -12156,12 +12156,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.1.1, prettier@npm:^3.2.5":
+"prettier@npm:^3.1.1":
   version: 3.2.5
   resolution: "prettier@npm:3.2.5"
   bin:
     prettier: bin/prettier.cjs
   checksum: 2ee4e1417572372afb7a13bb446b34f20f1bf1747db77cf6ccaf57a9be005f2f15c40f903d41a6b79eec3f57fff14d32a20fb6dee1f126da48908926fe43c311
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "prettier@npm:3.3.0"
+  bin:
+    prettier: bin/prettier.cjs
+  checksum: 0d3a7fca9cab29828e189fefc10e8f6025d1208c84cd1e94def8a8f8a04eea341aa21d0af8c01253527632f8225b0b8482a62b64cafa26e9988cd6f9ff16a38b
   languageName: node
   linkType: hard
 
@@ -12573,7 +12582,7 @@ __metadata:
     otpauth: ^9.2.4
     patch-package: ^8.0.0
     postcss: ^8.4.38
-    prettier: ^3.2.5
+    prettier: ^3.3.0
     react: ^18.3.1
     react-dom: ^18.3.1
     react-error-boundary: ^4.0.13
