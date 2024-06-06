@@ -5,6 +5,7 @@ import {
     UserClaims,
 } from "@okta/okta-auth-js";
 import { useOktaAuth } from "@okta/okta-react";
+import axios, { AxiosError } from "axios";
 import {
     createContext,
     PropsWithChildren,
@@ -17,8 +18,9 @@ import {
 
 import { IIdleTimerProps, useIdleTimer } from "react-idle-timer";
 import type { AppConfig } from "../../config";
+import { AxiosOptionsWithSegments, RSEndpoint } from "../../config/endpoints";
 import site from "../../content/site.json";
-import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
 import { updateApiSessions } from "../../network/Apis";
 import { EventName } from "../../utils/AppInsights";
 import { isUseragentPreferred } from "../../utils/BrowserUtils";
@@ -33,6 +35,7 @@ import {
     RSUserPermissions,
 } from "../../utils/PermissionsUtils";
 import { RSConsole } from "../../utils/rsConsole/rsConsole";
+import { RSNetworkError } from "../../utils/RSNetworkError";
 
 export interface RSSessionContext {
     oktaAuth: OktaAuth;
@@ -49,6 +52,10 @@ export interface RSSessionContext {
     config: AppConfig;
     site: typeof site;
     rsConsole: RSConsole;
+    authorizedFetch: <T = any>(
+        options: Partial<AxiosOptionsWithSegments>,
+        EndpointConfig?: RSEndpoint,
+    ) => Promise<T>;
 }
 
 export const SessionContext = createContext<RSSessionContext>(null as any);
@@ -56,6 +63,65 @@ export const SessionContext = createContext<RSSessionContext>(null as any);
 export interface SessionProviderProps extends PropsWithChildren {
     config: AppConfig;
     rsConsole: RSConsole;
+}
+
+export interface StaticAuthorizedFetchProps {
+    apiUrl: string;
+    sessionId?: string;
+    accessToken?: string;
+    organization?: string;
+    options: Partial<AxiosOptionsWithSegments>;
+    endpointConfig?: RSEndpoint;
+}
+
+export async function staticAuthorizedFetch<T = unknown>({
+    apiUrl,
+    sessionId = "",
+    accessToken = "",
+    organization = "",
+    options,
+    endpointConfig,
+}: StaticAuthorizedFetchProps) {
+    if (options.segments && !endpointConfig)
+        throw new Error("EndpointConfig required when using segments");
+    if (options.url && endpointConfig)
+        throw new Error("Cannot use both url and EndpointConfig");
+    if (!options.url && !endpointConfig)
+        throw new Error("Must use either url or EndpointConfig");
+
+    const headerOverrides = options?.headers ?? {};
+
+    const authHeaders = {
+        "x-ms-session-id": sessionId,
+        "authentication-type": "okta",
+        authorization: `Bearer ${accessToken}`,
+        organization: organization,
+    };
+    const headers = { ...authHeaders, ...headerOverrides };
+
+    const axiosConfig = endpointConfig
+        ? endpointConfig.toAxiosConfig({
+              ...options,
+              headers,
+          })
+        : { ...options, headers };
+
+    // Add base url if needed
+    if (!endpointConfig) {
+        if (axiosConfig.url?.startsWith("/")) {
+            axiosConfig.url = `${apiUrl}${options.url}`;
+        }
+    }
+
+    try {
+        const res = await axios<T>(axiosConfig);
+        return res.data;
+    } catch (e: any) {
+        if (e instanceof AxiosError) {
+            throw new RSNetworkError(e);
+        }
+        throw e;
+    }
 }
 
 function SessionProvider({
@@ -113,7 +179,7 @@ function SessionProvider({
     );
 
     useIdleTimer({
-        onIdle: () => void handleIdle(),
+        onIdle: () => handleIdle(),
         ...config.IDLE_TIMERS,
     });
 
@@ -154,6 +220,29 @@ function SessionProvider({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // Authorized fetcher that handles headers and supports manual url or EndpointConfig
+    const authorizedFetch = useCallback(
+        async function <TData>(
+            options: Partial<AxiosOptionsWithSegments>,
+            endpointConfig?: RSEndpoint,
+        ): Promise<TData> {
+            return staticAuthorizedFetch({
+                apiUrl: config.API_ROOT,
+                accessToken: authState?.accessToken?.accessToken,
+                endpointConfig,
+                options,
+                organization: activeMembership?.parsedName,
+                sessionId: aiReactPlugin.properties.context.getSessionId(),
+            });
+        },
+        [
+            activeMembership?.parsedName,
+            aiReactPlugin.properties.context,
+            authState?.accessToken?.accessToken,
+            config.API_ROOT,
+        ],
+    );
+
     const context = useMemo(() => {
         return {
             oktaAuth,
@@ -175,6 +264,7 @@ function SessionProvider({
             config,
             site,
             rsConsole,
+            authorizedFetch,
         };
     }, [
         oktaAuth,
@@ -184,6 +274,7 @@ function SessionProvider({
         _activeMembership,
         config,
         rsConsole,
+        authorizedFetch,
     ]);
 
     useEffect(() => {

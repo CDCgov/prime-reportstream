@@ -1,7 +1,5 @@
 import { Page } from "@playwright/test";
 
-export const CONNECT_URL =
-    "https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957";
 export const SIMPLEREPORT = "https://www.simplereport.gov/";
 export const RADX_MARS =
     "https://www.nibib.nih.gov/covid-19/radx-tech-program/mars";

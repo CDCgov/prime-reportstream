@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 
 import { OrgReceiverTable } from "./OrgReceiverTable";
-import { settingsServer } from "../../__mocks__/SettingsMockServer";
+import { settingsServer } from "../../__mockServers__/SettingsMockServer";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 const mockData = [
