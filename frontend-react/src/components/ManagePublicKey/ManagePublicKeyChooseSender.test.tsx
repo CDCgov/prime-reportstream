@@ -16,6 +16,9 @@ const DEFAULT_SENDERS: RSSender[] = [
         processingType: "sync",
         allowDuplicates: true,
         topic: "covid-19",
+        version: 0,
+        createdAt: "",
+        createdBy: "",
     },
     {
         name: "ignore-full-elr",
@@ -26,6 +29,9 @@ const DEFAULT_SENDERS: RSSender[] = [
         processingType: "sync",
         allowDuplicates: true,
         topic: "full-elr",
+        version: 0,
+        createdAt: "",
+        createdBy: "",
     },
 ];
 
