@@ -7,13 +7,13 @@ import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.HapiContext
 import ca.uhn.hl7v2.model.AbstractMessage
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.model.v27.message.ORU_R01
 import ca.uhn.hl7v2.parser.ParserConfiguration
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
 import ca.uhn.hl7v2.validation.ValidationException
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
+import fhirengine.translation.hl7.structures.fhirinventory.message.ORU_R01
 import fhirengine.utils.ReportStreamCanonicalModelClassFactory
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
@@ -29,7 +29,6 @@ import ca.uhn.hl7v2.model.v27.message.ORU_R01 as v27_ORU_R01
 import ca.uhn.hl7v2.model.v27.segment.MSH as v27_MSH
 import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01 as NIST_ELR_ORU_R01
 import fhirengine.translation.hl7.structures.nistelr251.segment.MSH as NIST_MSH
-import fhirengine.translation.hl7.structures.radxmars251.message.ORU_R01 as RadxMarsORU_R01
 
 private const val MSH_SEGMENT_NAME = "MSH"
 
@@ -307,7 +306,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                     DefaultHapiContext(
                         ParserConfiguration(),
                         ValidationContextFactory.noValidation(),
-                        ReportStreamCanonicalModelClassFactory(RadxMarsORU_R01::class.java),
+                        ReportStreamCanonicalModelClassFactory(ORU_R01::class.java),
                     )
                 } else {
                     DefaultHapiContext(ValidationContextFactory.noValidation())

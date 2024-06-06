@@ -32,8 +32,11 @@ import java.util.stream.Stream
 /**
  * A collection of helper functions that modify an existing FHIR bundle.
  */
-const val conditionExtensionurl = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
+
+// Constant URLs
+const val conditionExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
 const val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
+const val bundleIdentifierURL = "https://reportstream.cdc.gov/prime-router"
 
 /**
  * Retrieves loinc/snomed codes from [this] observation in known locations (code.coding and valueCodeableConcept.coding)
@@ -330,12 +333,7 @@ internal fun getObservationExtensions(
     val observationExtensionsToKeep = mutableListOf<Extension>()
     if (observationsToKeep.size < allObservations.size) {
         observationsToKeep.forEach {
-            observationExtensionsToKeep.add(
-                Extension(
-                    conditionExtensionurl,
-                    Reference(it.idBase)
-                )
-            )
+            observationExtensionsToKeep.add(Extension(conditionExtensionURL, Reference(it.idBase)))
         }
     }
     return observationExtensionsToKeep
@@ -431,14 +429,13 @@ fun Bundle.enhanceBundleMetadata(hl7Message: Message) {
     this.timestamp = HL7Reader.getMessageTimestamp(hl7Message)
 
     // The HL7 message ID
-    val identifierValue = when (val mshSegment = hl7Message["MSH"]) {
+    this.identifier.value = when (val mshSegment = hl7Message["MSH"]) {
         is fhirengine.translation.hl7.structures.nistelr251.segment.MSH -> mshSegment.messageControlID.value
         is ca.uhn.hl7v2.model.v27.segment.MSH -> mshSegment.messageControlID.value
         is ca.uhn.hl7v2.model.v251.segment.MSH -> mshSegment.messageControlID.value
         else -> ""
     }
-    this.identifier.value = identifierValue
-    this.identifier.system = "https://reportstream.cdc.gov/prime-router"
+    this.identifier.system = bundleIdentifierURL
 }
 
 /**

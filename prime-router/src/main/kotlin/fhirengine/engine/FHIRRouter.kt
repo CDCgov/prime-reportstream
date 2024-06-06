@@ -104,7 +104,8 @@ class FHIRRouter(
                 message.topic,
                 sender,
                 observationSummary,
-                fhirJson.length
+                fhirJson.length,
+                AzureEventUtils.getIdentifier(bundle)
             )
         )
 
@@ -187,7 +188,8 @@ class FHIRRouter(
                         sender,
                         receiver.fullName,
                         receiverObservationSummary,
-                        bodyString.length
+                        bodyString.length,
+                        AzureEventUtils.getIdentifier(bundle)
                     )
                 )
 
@@ -255,7 +257,8 @@ class FHIRRouter(
                     sender,
                     null,
                     receiverObservationSummary,
-                    fhirJson.length
+                    fhirJson.length,
+                    AzureEventUtils.getIdentifier(bundle)
                 )
             )
 
@@ -586,18 +589,7 @@ class FHIRRouter(
         filterType: ReportStreamFilterType,
         focusResource: Base,
     ) {
-        var filteredTrackingElement = bundle.identifier.value ?: ""
-        if (focusResource != bundle) {
-            filteredTrackingElement += " at " + focusResource.idBase
-
-            if (focusResource is Observation) {
-                // for Observation-type elements, we use the code property when available
-                // if more elements need specific logic, consider extending the FHIR libraries
-                // instead of adding more if/else statements
-                val coding = focusResource.code.coding.firstOrNull()
-                if (coding != null) filteredTrackingElement += " with " + coding.system + " code: " + coding.code
-            }
-        }
+        val filteredTrackingElement = bundle.identifier.value ?: ""
         val filterResult = ReportStreamFilterResult(
             receiver.fullName,
             // The FHIR router will only ever process a single item
@@ -605,7 +597,14 @@ class FHIRRouter(
             filterName,
             emptyList(),
             filteredTrackingElement,
-            filterType
+            filterType,
+            filteredObservationDetails = if (focusResource is Observation) {
+                "${focusResource.id} with system: |" +
+                "${focusResource.code.coding.firstOrNull()?.system} |" +
+                "and code: ${focusResource.code.coding.firstOrNull()?.code}"
+            } else {
+                null
+            }
         )
         actionHistory.trackLogs(
             ActionLog(

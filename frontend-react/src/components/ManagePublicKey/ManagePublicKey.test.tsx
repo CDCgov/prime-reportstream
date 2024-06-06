@@ -2,14 +2,14 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
 import { ManagePublicKeyPage } from "./ManagePublicKey";
-import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
+import { sendersGenerator } from "../../__mockServers__/OrganizationMockServer";
 import { RSSender } from "../../config/endpoints/settings";
-import * as useCreateOrganizationPublicKeyExports from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
-import { UseCreateOrganizationPublicKeyResult } from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
-import * as useOrganizationPublicKeysExports from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
-import { UseOrganizationPublicKeysResult } from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
-import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
-import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders";
+import * as useCreateOrganizationPublicKeyExports from "../../hooks/api/organizations/UseCreateOrganizationPublicKey/UseCreateOrganizationPublicKey";
+import { UseCreateOrganizationPublicKeyResult } from "../../hooks/api/organizations/UseCreateOrganizationPublicKey/UseCreateOrganizationPublicKey";
+import * as useOrganizationPublicKeysExports from "../../hooks/api/organizations/UseOrganizationPublicKeys/UseOrganizationPublicKeys";
+import { UseOrganizationPublicKeysResult } from "../../hooks/api/organizations/UseOrganizationPublicKeys/UseOrganizationPublicKeys";
+import * as useOrganizationSendersExports from "../../hooks/api/organizations/UseOrganizationSenders/UseOrganizationSenders";
+import { UseOrganizationSendersResult } from "../../hooks/api/organizations/UseOrganizationSenders/UseOrganizationSenders";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { MemberType } from "../../utils/OrganizationUtils";
 

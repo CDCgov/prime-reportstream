@@ -62,6 +62,8 @@ This event is emitted during the route step _before_ running any receiver specif
   - A list of observations each containing a list of its mapped conditions
 - bundleSize
   - Length of the bundle JSON string
+- messageId
+  - From the bundle.identifier value and system. If ingested as HL7 this comes from MSH-10
 
 ### ReportRouteEvent
 This event is emitted during the route step _after_ running any receiver specific filtering. 
@@ -82,6 +84,14 @@ Many `ReportRouteEvent` can correspond to a `ReportAcceptedEvent` and can be "jo
   - A list of observations each containing a list of its mapped conditions 
 - bundleSize
   - Length of the bundle JSON string
+- messageId
+    - From the bundle.identifier value and system. If ingested as HL7 this comes from MSH-10
+
+### ReportCreatedEvent
+- reportId
+    - The ID assigned to the report
+- topic
+    - The Topic of the report
 
 ## How to query for events
 

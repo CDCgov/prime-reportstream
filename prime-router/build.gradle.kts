@@ -313,7 +313,7 @@ tasks.register<Test>("testIntegration") {
     outputs.upToDateWhen {
         // Call gradle with the -Pforcetest option will force the unit tests to run
         if (project.hasProperty("forcetest")) {
-            println("Rerunning unit tests...")
+            println("Rerunning integration tests...")
             false
         } else {
             true

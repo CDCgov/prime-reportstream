@@ -8,9 +8,9 @@ import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
+import fhirengine.translation.hl7.structures.fhirinventory.message.ORU_R01
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import kotlin.test.Test
-import fhirengine.translation.hl7.structures.radxmars251.message.ORU_R01 as RADXMARS_ORU_R01
 
 class RadxMarsTests {
     @Test
@@ -28,7 +28,7 @@ SPM|1|^433848dc33ca4ce89ff4773fed48e8f6&MMTC.PROD&2.16.840.1.113883.3.8589.4.2.1
     """.trimIndent()
         val messages: MutableList<Message> = mutableListOf()
         val validationContext = ValidationContextFactory.noValidation()
-        val context = DefaultHapiContext(CanonicalModelClassFactory(RADXMARS_ORU_R01::class.java))
+        val context = DefaultHapiContext(CanonicalModelClassFactory(ORU_R01::class.java))
         context.validationContext = validationContext
 
         val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream(), context)
