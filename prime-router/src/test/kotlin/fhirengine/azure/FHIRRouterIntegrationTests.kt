@@ -149,11 +149,11 @@ class FHIRRouterIntegrationTests : Logging {
         val name: String,
         val orgName: String = "phd",
         val topic: Topic = Topic.FULL_ELR,
-        val jurisdictionalFilter: List<String> = listOf("true"),
-        val qualityFilter: List<String> = listOf("true"),
-        val routingFilter: List<String> = listOf("true"),
-        val processingModeFilter: List<String> = listOf("true"),
-        val conditionFilter: List<String> = listOf("true"),
+        val jurisdictionalFilter: List<String> = emptyList(),
+        val qualityFilter: List<String> = emptyList(),
+        val routingFilter: List<String> = emptyList(),
+        val processingModeFilter: List<String> = emptyList(),
+        val conditionFilter: List<String> = emptyList(),
         val reverseQuality: Boolean = false,
     )
 
