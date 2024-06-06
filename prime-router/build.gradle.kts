@@ -882,7 +882,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.14.0")
     implementation("org.apache.commons:commons-text:1.12.0")
     implementation("commons-codec:commons-codec:1.17.0")
-    implementation("commons-io:commons-io:2.16.0")
+    implementation("commons-io:commons-io:2.16.1")
     implementation("org.postgresql:postgresql:42.7.3")
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("org.flywaydb:flyway-core:10.13.0")
@@ -912,7 +912,7 @@ dependencies {
     implementation("org.apache.poi:poi:5.2.5")
     implementation("org.apache.poi:poi-ooxml:5.2.5")
     implementation("org.apache.commons:commons-compress:1.26.2")
-    implementation("commons-io:commons-io:2.16.0")
+    implementation("commons-io:commons-io:2.16.1")
     implementation("com.anyascii:anyascii:0.3.2")
     // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.17.2")
