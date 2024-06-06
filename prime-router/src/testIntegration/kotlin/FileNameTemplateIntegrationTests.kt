@@ -281,6 +281,15 @@ class FileNameTemplateIntegrationTests {
     }
 
     @Test
+    fun `test schema base name not present`() {
+        val config = mockkClass(TranslatorConfiguration::class)
+        every { config.schemaName }.returns("")
+        SchemaBaseName().run {
+            assertThat(this.getElementValue(emptyList(), config)).isEqualTo("None")
+        }
+    }
+
+    @Test
     fun `load file name templates from metadata`() {
         assertThat(metadata.fileNameTemplates).isNotEmpty()
         assertThat(metadata.fileNameTemplates).containsKey("standard")
@@ -347,6 +356,42 @@ class FileNameTemplateIntegrationTests {
             ?: assertk.fail("error getting aphl light file name")
         // assert
         assertThat(fileName).startsWith("cdcprime_laoph_production_$formattedDate")
+    }
+
+    @Test
+    fun `test standard name format when schemaBaseName is present`() {
+        // arrange
+        val key = "standard"
+        val config = mockkClass(Hl7Configuration::class).also {
+            every { it.schemaName }.returns("classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml")
+        }
+        assertThat(metadata.fileNameTemplates).containsKey(key)
+        val standardNameFormat = metadata.fileNameTemplates[key]
+
+        // act
+        val fileName = standardNameFormat?.getFileName(config, reportId = reportId)
+            ?: assertk.fail("error getting standard file name")
+
+        // assert
+        assertThat(fileName).startsWith("oru_r01-base.yml-$reportId-$formattedDate")
+    }
+
+    @Test
+    fun `test standard name format when schemaBaseName is missing`() {
+        // arrange
+        val key = "standard"
+        val config = mockkClass(FHIRConfiguration::class).also {
+            every { it.schemaName }.returns("")
+        }
+        assertThat(metadata.fileNameTemplates).containsKey(key)
+        val standardNameFormat = metadata.fileNameTemplates[key]
+
+        // act
+        val fileName = standardNameFormat?.getFileName(config, reportId = reportId)
+            ?: assertk.fail("error getting standard file name")
+
+        // assert
+        assertThat(fileName).startsWith("none-$reportId-$formattedDate")
     }
 
     companion object {
