@@ -576,15 +576,16 @@ class SubmissionFunctionTests : Logging {
 
         every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
 
+        every { anyConstructed<RESTTransport>().getHeaders(any(), any()) } returns mutableMapOf("a" to "b")
+
         coEvery {
             anyConstructed<RESTTransport>().getOAuthToken(
                 any(),
                 any(),
                 any(),
                 any(),
-                any()
             )
-        } returns Pair(mapOf("a" to "b"), "TEST")
+        } returns "TEST"
 
         val mock = MockEngine {
             respond(
@@ -637,15 +638,16 @@ class SubmissionFunctionTests : Logging {
 
         every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
 
+        every { anyConstructed<RESTTransport>().getHeaders(any(), any()) } returns mutableMapOf("a" to "b")
+
         coEvery {
             anyConstructed<RESTTransport>().getOAuthToken(
                 any(),
                 any(),
                 any(),
                 any(),
-                any()
             )
-        } returns Pair(mapOf("a" to "b"), "TEST")
+        } returns "TEST"
 
         val customContext = mockk<ExecutionContext>()
         every { customContext.logger } returns mockk<Logger>()
@@ -720,15 +722,16 @@ class SubmissionFunctionTests : Logging {
 
         every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
 
+        every { anyConstructed<RESTTransport>().getHeaders(any(), any()) } returns mutableMapOf("a" to "b")
+
         coEvery {
             anyConstructed<RESTTransport>().getOAuthToken(
                 any(),
                 any(),
                 any(),
                 any(),
-                any()
             )
-        } returns Pair(mapOf("a" to "b"), "TEST")
+        } returns "TEST"
 
         val mock = MockEngine {
             respond(
@@ -810,15 +813,16 @@ class SubmissionFunctionTests : Logging {
 
         every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
 
+        every { anyConstructed<RESTTransport>().getHeaders(any(), any()) } returns mutableMapOf("a" to "b")
+
         coEvery {
             anyConstructed<RESTTransport>().getOAuthToken(
                 any(),
                 any(),
                 any(),
                 any(),
-                any()
             )
-        } returns Pair(mapOf("a" to "b"), "TEST")
+        } returns "TEST"
 
         val mock = MockEngine {
             respond(
