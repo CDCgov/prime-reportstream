@@ -105,7 +105,7 @@ object FhirToFhirTransformValidation : KonformValidation<FhirTransformSchema>() 
 }
 
 /**
- * Validations for FHIR to FHIR transforms
+ * Validations for FHIR to HL7 transforms
  */
 object FhirToHL7MappingValidation : KonformValidation<HL7ConverterSchema>() {
 
