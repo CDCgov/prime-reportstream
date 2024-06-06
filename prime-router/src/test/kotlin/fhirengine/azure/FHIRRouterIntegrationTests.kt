@@ -385,6 +385,8 @@ class FHIRRouterIntegrationTests : Logging {
         val actionLogDetail: ActionLogDetail?,
     )
 
+    // TODO remove this and refactor tests expecting it ones issue 14450 has been addressed
+    // https://github.com/CDCgov/prime-reportstream/issues/14450
     private val expectedButStrangeObservationFilterEntry = listOf(
         ActionLogRecordContent(
             1,
