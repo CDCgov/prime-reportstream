@@ -124,6 +124,7 @@ class SendFunctionTests {
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId, false)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
+
         // Verify
         assertThat(nextEvent).isNotNull()
         assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.NONE)
