@@ -9,7 +9,7 @@ import {
 
 import { ColumnData } from "./ColumnData";
 import { ColumnConfig, RowSideEffect } from "./Table";
-import { FilterManager } from "../../hooks/filters/UseFilterManager";
+import { FilterManager } from "../../hooks/filters/UseFilterManager/UseFilterManager";
 import { StringIndexed } from "../../utils/UsefulTypes";
 
 export type TableRowData = StringIndexed;

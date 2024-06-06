@@ -5,7 +5,7 @@ import { TableHeaders } from "./TableHeaders";
 import { DatasetAction, TableInfo } from "./TableInfo";
 import { TableRowData, TableRows } from "./TableRows";
 import Pagination, { PaginationProps } from "../../components/Table/Pagination";
-import { FilterManager } from "../../hooks/filters/UseFilterManager";
+import { FilterManager } from "../../hooks/filters/UseFilterManager/UseFilterManager";
 import { NoServicesBanner } from "../alerts/NoServicesAlert";
 
 export interface ActionableColumn {
