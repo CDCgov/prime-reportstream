@@ -1,6 +1,7 @@
+# $schema: ../../../../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
 extends: classpath:/metadata/fhir_transforms/senders/baseline-sender-transform.yml
 
 elements:
   - name: sender-identifier
-    condition: true
+    condition: 'true'
     value: [ '"hcintegrations"' ]

@@ -107,7 +107,7 @@
     "devDependencies": {
         "@mdx-js/react": "^3.0.1",
         "@mdx-js/rollup": "^3.0.1",
-        "@playwright/test": "^1.43.1",
+        "@playwright/test": "^1.44.1",
         "@rest-hooks/test": "^7.3.1",
         "@storybook/addon-a11y": "^8.0.9",
         "@storybook/addon-actions": "^8.0.9",
@@ -134,7 +134,7 @@
         "@types/lodash": "^4.17.4",
         "@types/mdx": "^2.0.13",
         "@types/node": "^20.12.5",
-        "@types/react": "18.3.1",
+        "@types/react": "18.3.3",
         "@types/react-dom": "^18.3.0",
         "@types/react-router-dom": "^5.3.3",
         "@types/react-scroll-sync": "^0.9.0",
@@ -156,7 +156,7 @@
         "eslint-plugin-import": "^2.29.1",
         "eslint-plugin-jest-dom": "^5.2.0",
         "eslint-plugin-jsx-a11y": "^6.8.0",
-        "eslint-plugin-playwright": "^1.6.0",
+        "eslint-plugin-playwright": "^1.6.2",
         "eslint-plugin-react": "^7.34.1",
         "eslint-plugin-react-hooks": "^4.6.0",
         "eslint-plugin-react-refresh": "^0.4.6",
@@ -165,7 +165,7 @@
         "eslint-plugin-vitest": "^0.5.4",
         "husky": "^9.0.11",
         "jsdom": "^24.0.0",
-        "lint-staged": "^15.2.2",
+        "lint-staged": "^15.2.5",
         "mockdate": "^3.0.5",
         "msw": "^2.3.0",
         "msw-storybook-addon": "beta",
@@ -191,7 +191,7 @@
         "vitest": "^1.6.0"
     },
     "resolutions": {
-        "@types/react": "18.3.1",
+        "@types/react": "18.3.3",
         "tocbot": "^4.25.0"
     },
     "engines": {

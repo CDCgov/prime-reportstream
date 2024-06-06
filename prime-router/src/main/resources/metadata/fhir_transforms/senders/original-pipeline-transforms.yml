@@ -1,3 +1,4 @@
+# $schema: ../../../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
 constants:
   rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
 
@@ -6,20 +7,20 @@ elements:
   # ReportStream specific #
   #########################
   - name: sending-application-namespace-id
-    condition: true
+    condition: 'true'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.source.name'
     value: [ '"CDC PRIME - Atlanta: 2.16.840.1.114222.4.1.237821"' ]
 
   - name: sending-application-universal-id
-    condition: true
+    condition: 'true'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.source.endpoint'
     value: [ '"urn:oid:2.16.840.1.114222.4.1.237821"' ]
 
   # SFT-1-1
   - name: software-vendor-name
-    condition: true
+    condition: 'true'
     resource: 'Bundle.entry.resource.ofType(MessageHeader).source.extension(%`rsext-software-vendor-org`).value.resolve()'
     bundleProperty: '%resource.name'
     value: [ '"Centers for Disease Control and Prevention"' ]
@@ -73,25 +74,25 @@ elements:
     value: [ '"UNICODE UTF-8"' ]
 
   - name: msh-19-principal-language-of-message
-    condition: true
+    condition: 'true'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.19").valueCodeableConcept.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
     value: [ '"coding"' ]
 
   - name: msh-19-principal-language-of-message-coding
-    condition: true
+    condition: 'true'
     resource: 'Bundle.entry.resource.ofType(MessageHeader).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.19").value.coding.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value = "coding")'
     bundleProperty: '%resource.code'
     value: [ '"ENG"' ]
 
   - name: msh-19-principal-language-of-message-display
-    condition: true
+    condition: 'true'
     resource: 'Bundle.entry.resource.ofType(MessageHeader).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.19").value.coding.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value = "coding")'
     bundleProperty: '%resource.display'
     value: [ '"English"' ]
 
   - name: msh-19-principal-language-of-message-coding-system
-    condition: true
+    condition: 'true'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.19").value.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
     value: [ '"ISO"' ]
