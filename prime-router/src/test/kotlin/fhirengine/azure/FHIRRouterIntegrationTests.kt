@@ -68,7 +68,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.assertEquals
 
-private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/fhir_without_birth_time.fhir"
+private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/valid_data.fhir"
 
 private const val MULTIPLE_OBSERVATIONS_FHIR_URL =
     "src/test/resources/fhirengine/engine/bundle_multiple_observations.fhir"
@@ -102,9 +102,9 @@ class FHIRRouterIntegrationTests : Logging {
         "Bundle.entry.resource.ofType(MessageHeader).id.exists()"
     )
 
-    // patient must reside in Texas
-    val jurisdictionalFilterTx: ReportStreamFilter =
-        listOf("Bundle.entry.resource.ofType(Patient).address.state='TX'")
+    // patient must reside in Colorado
+    val jurisdictionalFilterCo: ReportStreamFilter =
+        listOf("Bundle.entry.resource.ofType(Patient).address.state='CO'")
 
     // patient must reside in Illinois
     val jurisdictionalFilterIl: ReportStreamFilter =
@@ -720,7 +720,7 @@ class FHIRRouterIntegrationTests : Logging {
         checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
 
         // execute
-        val receivers = createReceivers(listOf(ReceiverSetupData("x", jurisdictionalFilter = jurisdictionalFilterTx)))
+        val receivers = createReceivers(listOf(ReceiverSetupData("x", jurisdictionalFilter = jurisdictionalFilterCo)))
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
         fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
@@ -979,7 +979,7 @@ class FHIRRouterIntegrationTests : Logging {
             originalCount = 1,
             filterName = "(reversed) [Bundle.entry.resource.ofType(MessageHeader).id.exists()]",
             filterArgs = listOf(),
-            filteredTrackingElement = "371784",
+            filteredTrackingElement = "MT_COCNB_ORU_NBPHELR.1.5348467",
             filterType = ReportStreamFilterType.QUALITY_FILTER
         )
 
@@ -1104,7 +1104,7 @@ class FHIRRouterIntegrationTests : Logging {
                 "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = " +
                 "'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'D']",
             filterArgs = listOf(),
-            filteredTrackingElement = "371784",
+            filteredTrackingElement = "MT_COCNB_ORU_NBPHELR.1.5348467",
             filterType = ReportStreamFilterType.PROCESSING_MODE_FILTER
         )
 
