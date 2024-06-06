@@ -60,6 +60,3 @@ elements:
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
 
-  - name: order-note
-    resource: '%resource.basedOn.resolve().note | %resource.basedOn.resolve().supportingInfo.resolve().where(meta.tag.code = "AOE")'
-    schema: classpath:/metadata/hl7_mapping/receivers/Common/observation-to-nte/aoe-note.yml
