@@ -190,6 +190,9 @@
         "vite-plugin-svgr": "^4.2.0",
         "vitest": "^1.6.0"
     },
+    "resolutions": {
+        "@types/react": "18.3.3"
+    },
     "engines": {
         "node": "^20.12"
     },
