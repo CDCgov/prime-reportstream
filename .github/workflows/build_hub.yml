@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - master
+      - josiahsiegel/debug/platform/kalish/bug-schema-validation-not-occurring
   merge_group:
     types:
       - checks_requested
