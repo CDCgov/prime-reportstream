@@ -1,0 +1,23 @@
+plugins {
+    kotlin("jvm") version "1.9.24"
+}
+
+group = "gov.cdc.prime"
+version = "0.0.1-SNAPSHOT"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("org.apache.commons:commons-lang3:3.14.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.28.1")
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+kotlin {
+    jvmToolchain(17)
+}
