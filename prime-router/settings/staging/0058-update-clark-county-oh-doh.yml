@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0058-setup-clark-county-oh.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0058-setup-clark-county-oh.yml'
 ---
 - name: oh-ccchd-doh
   description: Ohio Department of Health - Clark County

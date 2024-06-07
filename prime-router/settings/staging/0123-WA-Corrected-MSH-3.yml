@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0123-WA-Corrected-MSH-3.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0123-WA-Corrected-MSH-3.yml'
 ---
 - name: "wa-phd"
   description: "Washington Department of Health"

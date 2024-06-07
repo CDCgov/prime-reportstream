@@ -1,6 +1,6 @@
 ---
 name: empty
-description: Empty Schema.  For Testing error conditions.  Used by cli ./prime test
+description: Empty Schema.  For Testing error conditions.  Used by cli ./gradlew primecli --args='test'
 topic: covid-19
 trackingElement: message_id
 basedOn: covid-19

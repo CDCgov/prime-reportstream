@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0098-update-nv-phd-data-quality.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0098-update-nv-phd-data-quality.yml'
 ---
 - name: "nv-phd"
   description: "Nevada Public Health Department"

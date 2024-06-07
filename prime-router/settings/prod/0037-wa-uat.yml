@@ -1,6 +1,6 @@
 # Connect WA-PHD to their UAT (aka test) environment.
 # Note: the JKS secret must be set for this connection to complete
-# ./prime multiple-settings set --input settings/prod/0037-wa-uat.yml --env prod
+# ./gradlew primecli --args='multiple-settings set --input settings/prod/0037-wa-uat.yml --env prod'
 ---
 - name: wa-phd
   description: Washington Department of Health

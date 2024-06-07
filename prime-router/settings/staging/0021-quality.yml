@@ -1,4 +1,4 @@
-# Run this:   ./prime multiple-settings set --input ./settings/staging/0021-quality.yml --env staging
+# Run this:   ./gradlew primecli --args='multiple-settings set --input ./settings/staging/0021-quality.yml --env staging'
 ---
 - name: "ignore"
   description: "FOR TESTING ONLY"

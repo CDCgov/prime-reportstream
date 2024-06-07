@@ -1,6 +1,6 @@
 # To submit this to localhost, run:
 #
-# ./prime multiple-settings set --input ./metadata/hl7_mapping/receivers/STLTs/KS/ks-doh.yml
+# ./gradlew primecli --args='multiple-settings set --input ./metadata/hl7_mapping/receivers/STLTs/KS/ks-doh.yml'
 ---
 - name: "ks-doh"
   description: "Kansas Department Of Health"

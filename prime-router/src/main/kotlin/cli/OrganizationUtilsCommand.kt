@@ -232,7 +232,7 @@ class TokenUrl : SettingCommand(
     help = """
         Use my private key to request a token from ReportStream
         Example call:
-            ./prime organization reqtoken --private-key my-es-keypair.pem --scope strac.default.report --name strac.default
+            ./gradlew primecli --args='organization reqtoken --private-key my-es-keypair.pem --scope strac.default.report --name strac.default'
     """.trimIndent(),
 ) {
     val privateKeyFilename by option(

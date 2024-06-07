@@ -1,4 +1,4 @@
-# Run this:  ./prime multiple-settings set --input ./settings/staging/0051-prescryptive.yml --env staging
+# Run this:  ./gradlew primecli --args='multiple-settings set --input ./settings/staging/0051-prescryptive.yml --env staging'
 ---
 - name: prescryptive
   description: Prescryptive Health

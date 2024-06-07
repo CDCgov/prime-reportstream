@@ -412,7 +412,7 @@ NTE|1|L|This is a final comment|RE
      *  and the ./src/testIntegration/resources/datatests/CSV_to_HL7/sample-pdi-covid-19-nh.csv file for the test
      *  message(s).  It tests data flow between all classes in the execution path of the prime cli command
      *  below:
-     *      ./prime data --input [FILE PATH OF TEST MESSAGE] --input-schema [FILE PATH OF SCHEMA TO USE]
+     *      ./gradlew primecli --args='data --input [FILE PATH OF TEST MESSAGE] --input-schema [FILE PATH OF SCHEMA TO USE]'
      *          --output [FILE PATH OF TEST OUTPUT] --route
      *  Testing steps:
      *      1. Prepare the testInputFile - test message(s)

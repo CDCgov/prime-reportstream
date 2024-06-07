@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0130-update-wy-no-otc-secondary-feed.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0130-update-wy-no-otc-secondary-feed.yml'
 # NOTE: No need to run the above script as the settings in production were updated using the UI.
 
 ---

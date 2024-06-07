@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0147-MO-Update-ORC-2.1-and-OBR-2-1.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0147-MO-Update-ORC-2.1-and-OBR-2-1.yml'
 
 ---
 - name: "mo-phd"

@@ -1,4 +1,4 @@
-# Run this:  ./prime multiple-settings set --input ./settings/staging/0114-hcintegrations-ca.yml --env staging
+# Run this:  ./gradlew primecli --args='multiple-settings set --input ./settings/staging/0114-hcintegrations-ca.yml --env staging'
 ---
 - name: "ca-dph"
   description: "California Department of Public Health"

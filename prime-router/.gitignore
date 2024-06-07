@@ -1,0 +1,103 @@
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+!gradle-wrapper.jar
+*.war
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# Build output
+**/target/**
+**/build/**
+**/log/**
+**/dependency-reduced-pom.xml
+
+# IDEA files
+**/.idea/**
+**/*.iml
+**/.run/**
+!.idea/codeStyles/
+!.idea/codeStyles/Project.xml
+!.idea/codeStyles/codeStyleConfig.xml
+
+# Play files
+**/result_files/*.csv
+**/routed_files/*.csv
+**/result_files/*.hl7
+**/routed_files/*.hl7
+Test*.csv
+Test*.json
+**/Xperiment.kt
+**/junk
+
+# Mac files
+.DS_Store
+
+# Emacs files
+*~
+
+fake-pdi-covid-19.csv
+id_file
+.classpath
+.project
+# Not to check in the open api spec for now
+docs/api/generated
+
+# VS Code
+**/.vscode/**
+workspace.code-workspace
+
+# Vim
+*.swp
+
+# Eclipse
+**/.settings/**
+
+# Azurite (Win)
+**/__azurite_*
+**/__blobstorage__/*
+**/__queuestorage__/*
+.factorypath
+metadata/organizations-mry.yml
+pdi-covid-19.csv
+source.mry
+
+# Azure
+**/.azure/*
+
+# PRIME test files
+result_files/*
+routed_files/*
+
+# Hashicorp Vault Secrets
+.vault/env/**
+
+# Python virtualenv files
+**/venv/**
+
+# Gradle files
+**/.gradle/**
+
+# Gitleaks
+gitleaks.report.json
+gitleaks.log
+*.jtl
+
+# Archived functions
+*function*.zip
+
+# local environment files
+.env.local
+.env.*.local

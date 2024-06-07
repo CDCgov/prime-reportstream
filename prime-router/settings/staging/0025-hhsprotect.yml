@@ -1,4 +1,4 @@
-# Run ./prime receiver set --input ./settings/staging/0025-hhsprotect.yml --env staging
+# Run ./gradlew primecli --args='receiver set --input ./settings/staging/0025-hhsprotect.yml --env staging'
 # The change is additions to the juris Filter.
 ---
 name: "elr"

@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0135-RI-Suppressed-Unwanted-fields.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0135-RI-Suppressed-Unwanted-fields.yml'
 ---
 - name: "ri-phd"
   description: "Rhode Island Public Health Department"

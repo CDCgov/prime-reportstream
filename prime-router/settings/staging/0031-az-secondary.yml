@@ -1,4 +1,4 @@
-# Run this with ./prime receiver set --env prod --input ./settings/prod/0033-az-secondary.yml
+# Run this with ./gradlew primecli --args='receiver set --env prod --input ./settings/prod/0033-az-secondary.yml'
 ---
 name: "elr-secondary"
 organizationName: "az-phd"

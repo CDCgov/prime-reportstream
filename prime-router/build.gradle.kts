@@ -17,6 +17,7 @@ Properties to control the execution and output using the Gradle -P arguments:
   E.g. ./gradlew clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
  */
 
+import io.github.cdimascio.dotenv.dotenv
 import io.swagger.v3.plugins.gradle.tasks.ResolveTask
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
@@ -24,10 +25,8 @@ import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 import org.jooq.meta.jaxb.ForcedType
-import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Properties
 
 plugins {
     val kotlinVersion by System.getProperties()
@@ -70,76 +69,100 @@ val kotlinVersion by System.getProperties()
 val jacksonVersion = "2.17.0"
 jacoco.toolVersion = "0.8.12"
 
-// Local database information, first one wins:
-// 1. Project properties (-P<VAR>=<VALUE> flag)
-// 2. Environment variable
-// 3. Default
-val KEY_DB_USER = "DB_USER"
-val KEY_DB_PASSWORD = "DB_PASSWORD"
-val KEY_DB_URL = "DB_URL"
-val KEY_PRIME_RS_API_ENDPOINT_HOST = "PRIME_RS_API_ENDPOINT_HOST"
-val dbUser = (
-    project.properties[KEY_DB_USER]
-        ?: System.getenv(KEY_DB_USER)
-        ?: "prime"
-    ) as String
-val dbPassword = (
-    project.properties[KEY_DB_PASSWORD]
-        ?: System.getenv(KEY_DB_PASSWORD)
-        ?: "changeIT!"
-    ) as String
-val dbUrl = (
-    project.properties[KEY_DB_URL]
-        ?: System.getenv(KEY_DB_URL)
-        ?: "jdbc:postgresql://localhost:5432/prime_data_hub"
-    ) as String
-
-val reportsApiEndpointHost = (
-    System.getenv(KEY_PRIME_RS_API_ENDPOINT_HOST)
-        ?: "localhost"
-    )
-
-// This storage account key is not a secret, just a dummy value.
-val devAzureConnectString =
-    "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
-        "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
-        "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
-
-val env = mutableMapOf<String, Any>(
-    "AzureWebJobsStorage" to devAzureConnectString,
-    "AzureBlobDownloadRetryCount" to 5,
-    "PartnerStorage" to devAzureConnectString,
-    "POSTGRES_USER" to dbUser,
-    "POSTGRES_PASSWORD" to dbPassword,
-    "POSTGRES_URL" to dbUrl,
-    "PRIME_ENVIRONMENT" to "local",
-    "VAULT_API_ADDR" to "http://localhost:8200",
-    "SFTP_HOST_OVERRIDE" to "localhost",
-    "SFTP_PORT_OVERRIDE" to "2222",
-    "RS_OKTA_baseUrl" to "reportstream.oktapreview.com"
-)
-
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
 val buildDir = project.layout.buildDirectory.asFile.get()
+var userDir = System.getProperty("user.dir").toString()
 
 /**
- * Add the `VAULT_TOKEN` in the local vault to the [env] map
+ * Add vault map (.vault/env/.env.local) to provided one
  */
-fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
+fun addVaultDotEnv(dotEnv: Map<String, String>): Map<String, String> {
     val vaultFile = File(project.projectDir, ".vault/env/.env.local")
     if (!vaultFile.exists()) {
         vaultFile.createNewFile()
         throw GradleException("Your vault configuration has not been initialized. Start/Restart your vault container.")
     }
-    val prop = Properties()
-    FileInputStream(vaultFile).use { prop.load(it) }
-    prop.forEach { key, value -> env[key.toString()] = value.toString().replace("\"", "") }
-    if (!env.contains("CREDENTIAL_STORAGE_METHOD") || env["CREDENTIAL_STORAGE_METHOD"] != "HASHICORP_VAULT") {
+    val vaultDotenv = dotenv {
+        filename = vaultFile.relativeTo(File(userDir)).toString()
+    }.entries().associate { Pair(it.key, it.value) }
+    if (vaultDotenv["CREDENTIAL_STORAGE_METHOD"] == null ||
+        vaultDotenv["CREDENTIAL_STORAGE_METHOD"] != "HASHICORP_VAULT"
+    ) {
         throw GradleException("Your vault configuration is incorrect.  Check your ${vaultFile.absolutePath} file.")
     }
+
+    return dotEnv + vaultDotenv
 }
+
+/**
+ * Collect variables from the following locations, with each following location overriding the priors:
+ * - .env
+ * - .env.local
+ * - host environment
+ * - project properties (-P<VAR>=<VALUE> flag)
+ */
+fun loadDotEnv(): Map<String, String> {
+    val properties = project.properties.entries.associate { Pair(it.key, it.value?.toString() ?: "") }
+        .toMutableMap()
+
+    val dotEnvPath = File(project.projectDir, ".env")
+    // ensure .local exists for docker command
+    val dotEnvLocal = File(project.projectDir, ".env.local")
+    if (!dotEnvLocal.exists()) {
+        dotEnvLocal.createNewFile()
+    }
+
+    // dotenv library will ensure host environment takes precedence
+    val dotEnv = (
+        dotenv {
+            filename = dotEnvPath.relativeTo(File(userDir)).toString()
+        }.entries() + dotenv {
+            filename = dotEnvLocal.relativeTo(File(userDir)).toString()
+            ignoreIfMissing = true
+        }.entries()
+        ).associate { Pair(it.key, it.value) }
+
+    // project properties added AFTER
+    val finalEnv = (dotEnv + properties).toMutableMap()
+
+    // Override connection strings with proper host-based ones if a custom one wasn't provided
+    val overrides = listOf(
+        Pair("POSTGRES_URL", "HOST_POSTGRES_URL"),
+        Pair("AzureWebJobsStorage", "HostAzureWebJobsStorage"),
+        Pair("PartnerStorage", "HostPartnerStorage"),
+        Pair("VAULT_API_ADDR", "HOST_VAULT_API_ADDR"),
+        Pair("PRIME_RS_API_ENDPOINT_HOST", "HOST_PRIME_RS_API_ENDPOINT_HOST")
+    )
+    overrides.forEach {
+        if (properties[it.first] == null && System.getenv(it.first) == null) {
+            finalEnv[it.first] = finalEnv[it.second]
+        }
+    }
+
+    /*listOf(
+        Pair("properties", properties),
+        Pair("dotenv", dotEnv),
+        Pair("environment", System.getenv()),
+        Pair("final", finalEnv)
+    ).forEach {
+        logMap(it)
+    }*/
+
+    return finalEnv.toMap()
+}
+
+fun logMap(it: Pair<String, Map<String, String>>) {
+    project.logger.debug("[DOTENV] ${it.first.uppercase()} MAP")
+    project.logger.debug("[DOTENV] --------------")
+    it.second.entries.sortedBy { it.key }.forEach {
+        project.logger.debug("[DOTENV] ${it.key}: ${it.value}")
+    }
+    project.logger.debug("[DOTENV] ------------")
+}
+
+val dotEnv = loadDotEnv()
 
 defaultTasks("package")
 
@@ -184,12 +207,7 @@ tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
 
-    // Set the environment to local for the tests
-    environment["PRIME_ENVIRONMENT"] = "local"
-    environment["POSTGRES_URL"] = dbUrl
-    environment["POSTGRES_USER"] = dbUser
-    environment["POSTGRES_PASSWORD"] = dbPassword
-
+    environment = dotEnv
     // Set max parellel forks as recommended in https://docs.gradle.org/current/userguide/performance.html
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
     dependsOn("compileKotlin")
@@ -294,12 +312,7 @@ tasks.register<Test>("testIntegration") {
     dependsOn("compileTestIntegrationJava")
     shouldRunAfter("test")
 
-    // Set the environment to local for the tests
-    environment["PRIME_ENVIRONMENT"] = "local"
-    environment["POSTGRES_URL"] = dbUrl
-    environment["POSTGRES_USER"] = dbUser
-    environment["POSTGRES_PASSWORD"] = dbPassword
-
+    environment = dotEnv
     testClassesDirs = sourceSets["testIntegration"].output.classesDirs
     classpath = sourceSets["testIntegration"].runtimeClasspath
     // Run the test task if specified configuration files are changed
@@ -370,7 +383,7 @@ tasks.jar {
     duplicatesStrategy = defaultDuplicateStrategy
     manifest {
         /* We put the CLI main class in the manifest at this step as a convenience to allow this jar to be
-        run by the ./prime script. It will be overwritten by the Azure host or the CLI fat jar package. */
+        run by the ./gradlew primecli script. It will be overwritten by the Azure host or the CLI fat jar package. */
         attributes("Main-Class" to primeMainClass)
         attributes("Multi-Release" to true)
     }
@@ -422,13 +435,10 @@ tasks.register<JavaExec>("primeCLI") {
     classpath = sourceSets["main"].runtimeClasspath
     standardInput = System.`in`
 
-    // Default arguments is to display the help
-    environment["POSTGRES_URL"] = dbUrl
-    environment["POSTGRES_USER"] = dbUser
-    environment["POSTGRES_PASSWORD"] = dbPassword
-    environment[KEY_PRIME_RS_API_ENDPOINT_HOST] = reportsApiEndpointHost
-    addVaultValuesToEnv(environment)
-    environment(env)
+    val finalDotenv = addVaultDotEnv(dotEnv)
+    finalDotEnv["SFTP_HOST_OVERRIDE"] = "localhost"
+    finalDotEnv["SFTP_PORT_OVERRIDE"] = "2222"
+    environment = finalDotenv
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
     doFirst {
@@ -591,7 +601,8 @@ tasks.register("quickPackage") {
 }
 
 /**
- * Docker services needed for running Dockerless
+ * Docker services needed for running Dockerless. When using docker-compose manually, be
+ * sure to include dotenv files via the --env-file option (ex: --env-file .env).
  */
 dockerCompose {
 //    projectName = "prime-router" // docker-composer has this setter broken as of 0.16.4
@@ -603,16 +614,18 @@ dockerCompose {
     // Starting in version 0.17 the plugin changed the default to true, meaning our docker compose yaml files
     // get run with `docker compose` rather than `docker-compose`
     useDockerComposeV2.set(true)
+
+    // use dotenv files directly with docker commands instead of passing environment
+    composeAdditionalArgs = listOf("--env-file", ".env", "--env-file", ".env.local")
 }
 
 tasks.azureFunctionsRun {
     dependsOn("composeUp")
     dependsOn("uploadSwaggerUI").mustRunAfter("composeUp")
 
-    // Load the vault variables
-    addVaultValuesToEnv(env)
+    val finalDotenv = addVaultDotEnv(dotEnv)
+    environment = finalDotenv
 
-    environment(env)
     azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
 }
 
@@ -654,9 +667,9 @@ tasks.register("quickRun") {
  */
 // Configuration for Flyway migration tool
 flyway {
-    url = dbUrl
-    user = dbUser
-    password = dbPassword
+    url = dotEnv["POSTGRES_URL"]
+    user = dotEnv["POSTGRES_USER"]
+    password = dotEnv["POSTGRES_PASSWORD"]
 }
 
 // Database code generation configuration
@@ -668,9 +681,9 @@ jooq {
                 logging = org.jooq.meta.jaxb.Logging.INFO
                 jdbc.apply {
                     driver = "org.postgresql.Driver"
-                    url = dbUrl
-                    user = dbUser
-                    password = dbPassword
+                    url = dotEnv["POSTGRES_URL"]
+                    user = dotEnv["POSTGRES_USER"]
+                    password = dotEnv["POSTGRES_PASSWORD"]
                 }
                 generator.apply {
                     name = "org.jooq.codegen.DefaultGenerator"
@@ -755,9 +768,9 @@ task<RunSQL>("clearDB") {
     group = rootProject.description ?: ""
     description = "Truncate/empty all tables in the database that hold report and related data, and leave settings"
     config {
-        username = dbUser
-        password = dbPassword
-        url = dbUrl
+        username = dotEnv["POSTGRES_USER"]
+        password = dotEnv["POSTGRES_PASSWORD"]
+        url = dotEnv["POSTGRES_URL"]
         driverClassName = "org.postgresql.Driver"
         script = """
             TRUNCATE TABLE public.action CASCADE;
@@ -803,6 +816,7 @@ buildscript {
         classpath("net.minidev:json-smart:2.5.1")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
         classpath("org.flywaydb:flyway-database-postgresql:10.11.0")
+        classpath("io.github.cdimascio:dotenv-kotlin:6.4.1")
     }
 }
 

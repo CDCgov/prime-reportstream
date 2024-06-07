@@ -41,7 +41,7 @@ import java.net.URL
  * The command below reads the LIVE-SARS-CoV-2-2011-10-19.xlsx file from junk directory, extracts the LOINC Mapping
  * Sheet, Converts to CSV, uploads to database, and activate the table.
  *
- *  ./prime livd-table-update --input-file junk/LIVE-SARS-CoV-2-2011-10-19.xlsx -a
+ *  ./gradlew primecli --args='livd-table-update --input-file junk/LIVE-SARS-CoV-2-2011-10-19.xlsx -a'
  *
  */
 

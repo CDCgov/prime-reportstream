@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0099-update-nv-phd-drop-obr-16-1.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0099-update-nv-phd-drop-obr-16-1.yml'
 ---
 - name: "nv-phd"
   description: "Nevada Public Health Department"

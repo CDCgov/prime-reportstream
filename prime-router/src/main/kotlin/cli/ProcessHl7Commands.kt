@@ -36,7 +36,7 @@ class ProcessHl7Commands : CliktCommand(
     private val hl7DiffHelper = HL7DiffHelper()
 
     /**
-     * The run function is what runs when ./prime hl7data is run on the command line
+     * The run function is what runs when ./gradlew primecli --args='hl7data' is run on the command line
      */
     override fun run() {
         val starterFile = starterFile.inputStream().readBytes().toString(Charsets.UTF_8)

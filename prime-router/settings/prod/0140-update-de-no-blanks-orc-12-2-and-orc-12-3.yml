@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0140-update-de-no-blanks-orc-12-2-and-orc-12-3.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0140-update-de-no-blanks-orc-12-2-and-orc-12-3.yml'
 
 ---
 - name: "de-dph"

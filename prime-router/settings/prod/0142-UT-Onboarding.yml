@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0142-UT-Onboarding.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0142-UT-Onboarding.yml'
 
 - name: "ut-phd"
   description: "Utah Public Health Department"

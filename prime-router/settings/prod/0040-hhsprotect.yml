@@ -1,4 +1,4 @@
-# Run ./prime receiver set --input ./settings/prod/0040-hhsprotect.yml --env prod
+# Run ./gradlew primecli --args='receiver set --input ./settings/prod/0040-hhsprotect.yml --env prod'
 # Note that the processing_mode_code filter is still set to allow both "T" and "P" data, for now, in Prod.
 ---
 name: "elr"

@@ -12,19 +12,19 @@ PRIME_RS_API_ENDPOINT_HOST=${PRIME_RS_API_ENDPOINT_HOST:-localhost}
 cd ../../../prime-router/
 echo
 echo -e "${TITLE}##### Generating first set of 200 lines of fake data${NC}"
-./prime data --input-fake 200 \
+./gradlew primecli --args='data --input-fake 200' \
   --input-schema primedatainput/pdi-covid-19 \
   --output examples/data-lineage/Test.a.csv
 echo
 
 echo -e "${TITLE}##### Generating second set of 200 lines of fake data${NC}"
-./prime data --input-fake 200 \
+./gradlew primecli --args='data --input-fake 200' \
   --input-schema primedatainput/pdi-covid-19 \
   --output examples/data-lineage/Test.b.csv
 echo
 
 echo -e "${TITLE}##### Generating third set of 200 lines of fake data${NC}"
-./prime data --input-fake 200 \
+./gradlew primecli --args='data --input-fake 200' \
   --input-schema primedatainput/pdi-covid-19 \
   --output examples/data-lineage/Test.c.csv
 echo

@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0119-Mo-Onboarding.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0119-Mo-Onboarding.yml'
 ---
 - name: "mo-phd"
   description: "Missouri Public Health Department"

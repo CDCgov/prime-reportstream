@@ -1,6 +1,6 @@
 # To submit this to localhost, run:
 #
-# ./prime multiple-settings set --env staging --input ./settings/staging/0162-la-phl-staging-new-rest-setting.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0162-la-phl-staging-new-rest-setting.yml'
 ---
 - name: "la-phl"
   description: "Louisiana Public Health Lab"

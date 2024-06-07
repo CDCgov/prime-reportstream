@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0141-VaultHealth-Onboarding.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0141-VaultHealth-Onboarding.yml'
 ---
 - name: vaulthealth
   description: Vault Health

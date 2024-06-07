@@ -1,6 +1,6 @@
 # To submit this to localhost, run:
 #
-# ./prime multiple-settings set --env prod --input ./settings/prod/0162-ny-prod-new-rest-setting.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0162-ny-prod-new-rest-setting.yml'
 ---
 - name: "ny-phd"
   description: "New York Public Health Department"

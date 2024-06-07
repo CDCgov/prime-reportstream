@@ -1,5 +1,5 @@
 # To submit this to localhost, run:
-# ./prime multiple-settings set --env staging --input ./settings/staging/0167-baptist-alabama-staging-sender-receiver.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0167-baptist-alabama-staging-sender-receiver.yml'
 #
 # Description:
 #   These following setting are for Baptist Health AL via Oracle RLN

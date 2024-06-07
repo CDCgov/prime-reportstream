@@ -1,5 +1,5 @@
-# Run this:   ./prime multiple-settings set --input ./settings/staging/0020-hhsprotect.yml --env staging
-# And direct is not needed as a sender any more:  ./prime organization remove --help --env staging --name direct
+# Run this:   ./gradlew primecli --args='multiple-settings set --input ./settings/staging/0020-hhsprotect.yml --env staging'
+# And direct is not needed as a sender any more:  ./gradlew primecli --args='organization remove --help --env staging --name direct'
 ---
 - name: "hhsprotect"
   description: "HHSProtect"

@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0159-AR-onboarding.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0159-AR-onboarding.yml'
 
 - name: "ar-phd"
   description: "Arkansas Public Health Department"

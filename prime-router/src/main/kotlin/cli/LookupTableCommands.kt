@@ -64,7 +64,8 @@ class LookupTableEndpointUtilities(
      */
     private val accessToken = useThisToken ?: OktaCommand.fetchAccessToken(environment.oktaApp)
     ?: throw PrintMessage(
-        "Missing access token. Run ./prime login to fetch/refresh your access token.", printError = true
+        "Missing access token. Run ./gradlew primecli --args='login' to fetch/refresh your access token.",
+        printError = true
     )
 
     /**
@@ -90,8 +91,8 @@ class LookupTableEndpointUtilities(
                 // chain up the cause for details
                 throw IOException(
                     "Invalid response body found," +
-                            " response status: ${response.status.value}, " +
-                            "body $respStr.",
+                        " response status: ${response.status.value}, " +
+                        "body $respStr.",
                     e
                 )
             }
@@ -133,8 +134,8 @@ class LookupTableEndpointUtilities(
         val activeVersion = (tableList.firstOrNull { it.tableName == tableName })?.tableVersion ?: 0
         if (activeVersion == 0) {
             throw PrintMessage(
-            "Could not find lookup table: $tableName", printError = true
-        )
+                "Could not find lookup table: $tableName", printError = true
+            )
         }
         return activeVersion
     }
@@ -162,8 +163,8 @@ class LookupTableEndpointUtilities(
             // chain up the root cause, here e.g. might have where the json parsing choked
             throw IOException(
                 "Invalid response body found, " +
-                        "response status: ${response.status.value}" +
-                        ", body: $respStr",
+                    "response status: ${response.status.value}" +
+                    ", body: $respStr",
                 e
             )
         }
@@ -193,7 +194,7 @@ class LookupTableEndpointUtilities(
      * @throws IOException if there is a server or API error
      */
     fun createTable(tableName: String, tableData: List<Map<String, String>>, forceTableToCreate: Boolean):
-            LookupTableVersion {
+        LookupTableVersion {
         val url = environment
             .formUrl(
                 "$endpointRoot/$tableName?table&forceTableToCreate=$forceTableToCreate"
@@ -245,11 +246,11 @@ class LookupTableEndpointUtilities(
                 ) {
                     throw IOException(
                         "Invalid version information in the response, " +
-                                "response status: ${response.status.value}, body: $respStr, " +
-                                "LookupTableVersion object: tableName: ${info.tableName}, " +
-                                "tableVersion: ${info.tableVersion}, " +
-                                "createdBy: ${info.createdBy}, " +
-                                "createdAt: ${info.createdAt}."
+                            "response status: ${response.status.value}, body: $respStr, " +
+                            "LookupTableVersion object: tableName: ${info.tableName}, " +
+                            "tableVersion: ${info.tableVersion}, " +
+                            "createdBy: ${info.createdBy}, " +
+                            "createdAt: ${info.createdAt}."
                     )
                 } else {
                     return info
@@ -258,7 +259,7 @@ class LookupTableEndpointUtilities(
                 // chain up the root cause
                 throw IOException(
                     "Invalid JSON response, response status: ${response.status.value}" +
-                            ", body: $respStr.",
+                        ", body: $respStr.",
                     e
                 )
             }
@@ -544,7 +545,7 @@ class LookupTableGetCommand(httpClient: HttpClient? = null) : GenericLookupTable
                 saveTableAsCSV(outputFile!!.outputStream(), tableList)
                 echo(
                     "Saved ${tableList.size} rows of table $tableName version $version " +
-                            "to ${outputFile!!.absolutePath} "
+                        "to ${outputFile!!.absolutePath} "
                 )
             }
         } else {
@@ -868,7 +869,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                     it in ObservationMappingConstants.CONDITION_KEYS // fetch existing condition data for this oid
                 }
                 update.value.toMappings(conditionData)
-            // flatten + add carryover
+                // flatten + add carryover
             }.flatten() + tableOIDMap.filterKeys { it !in updateOIDMap.keys }.values.flatten()
         }
 
@@ -962,7 +963,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                     "Continue to create a new version of $tableName with ${outputData.size} rows?",
                     currentContext.terminal
                 ).ask() == true
-        ) || silent
+                ) || silent
         ) {
             val newTableInfo = try {
                 tableUtil.createTable(tableName, outputData, true)
@@ -1101,7 +1102,7 @@ class LookupTableCreateCommand(httpClient: HttpClient? = null) : GenericLookupTa
             } else {
                 echo(
                     "Error: The table you are trying to create is identical to the active version " +
-                            "$activeVersion."
+                        "$activeVersion."
                 )
                 return
             }
@@ -1129,7 +1130,7 @@ class LookupTableCreateCommand(httpClient: HttpClient? = null) : GenericLookupTa
 
             echo(
                 "\t${inputData.size} rows created for lookup table $tableName version " +
-                        "${newTableInfo.tableVersion}."
+                    "${newTableInfo.tableVersion}."
             )
             // Always have an active version, so if this is the first version then activate it.
             if (activate || newTableInfo.tableVersion == 1) {
@@ -1146,7 +1147,7 @@ class LookupTableCreateCommand(httpClient: HttpClient? = null) : GenericLookupTa
             } else {
                 echo(
                     "\tTable version ${newTableInfo.tableVersion} " +
-                            "left inactive, so don't forget to activate it."
+                        "left inactive, so don't forget to activate it."
                 )
             }
         } else {
@@ -1323,7 +1324,7 @@ class LookupTableActivateCommand(httpClient: HttpClient? = null) : GenericLookup
             currentlyActiveTable != null && currentlyActiveTable.tableVersion == version ->
                 throw PrintMessage(
                     "Nothing to do. Lookup table $tableName's active version number is already " +
-                            "$version."
+                        "$version."
                 )
 
             currentlyActiveTable == null ->
@@ -1332,7 +1333,7 @@ class LookupTableActivateCommand(httpClient: HttpClient? = null) : GenericLookup
             else ->
                 echo(
                     "Current Lookup table $tableName's active version number is " +
-                            "${currentlyActiveTable.tableVersion}"
+                        "${currentlyActiveTable.tableVersion}"
                 )
         }
 

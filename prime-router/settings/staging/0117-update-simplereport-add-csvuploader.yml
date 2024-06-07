@@ -1,4 +1,4 @@
-# Run this:  ./prime multiple-settings set --input ./settings/staging/0117-update-simplereport-add-csvuploader.yml --env staging
+# Run this:  ./gradlew primecli --args='multiple-settings set --input ./settings/staging/0117-update-simplereport-add-csvuploader.yml --env staging'
 ---
 - name: simple_report
   description: PRIME's POC testing app

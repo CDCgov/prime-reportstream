@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0122-al-phd-remove-transport.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0122-al-phd-remove-transport.yml'
 ---
 - name: "al-phd"
   description: "Alabama Public Health Department"

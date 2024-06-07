@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0088-update-il-orc-21-1-truncation.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0088-update-il-orc-21-1-truncation.yml'
 ---
 - name: "il-phd"
   description: "Illinois Public Health Department"

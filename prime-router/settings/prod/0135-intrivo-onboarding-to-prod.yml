@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0135-intrivo-onboarding-to-prod.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0135-intrivo-onboarding-to-prod.yml'
 ---
 - name: "intrivo"
   description: "Intrivo"

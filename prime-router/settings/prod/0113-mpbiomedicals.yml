@@ -1,4 +1,4 @@
-# Run this:  ./prime multiple-settings set --input ./settings/prod/0113-mpbiomedicals.yml --env prod
+# Run this:  ./gradlew primecli --args='multiple-settings set --input ./settings/prod/0113-mpbiomedicals.yml --env prod'
 ---
 - name: "mpbiomedicals"
   description: "MP Biomedicals - CSV for OTC Results"

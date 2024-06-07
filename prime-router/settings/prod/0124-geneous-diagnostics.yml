@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0124-geneous-diagnostics.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0124-geneous-diagnostics.yml'
 ---
 - name: geneous-diagnostics
   description: Geneus Diagnostics Las Vagas

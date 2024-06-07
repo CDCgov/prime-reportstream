@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0137-RI-Replace-HL0189-table-With-CDCREC.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0137-RI-Replace-HL0189-table-With-CDCREC.yml'
 ---
 - name: "ri-phd"
   description: "Rhode Island Public Health Department"

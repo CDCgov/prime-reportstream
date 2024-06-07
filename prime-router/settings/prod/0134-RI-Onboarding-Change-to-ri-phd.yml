@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0134-RI-Onboarding-Change-to-ri-phd.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0134-RI-Onboarding-Change-to-ri-phd.yml'
 ---
 - name: "ri-phd"
   description: "Rhode Island Public Health Department"

@@ -19,14 +19,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    # These are for CI and not credentials of any system
-    - name: Set Environment Variables
-      working-directory: prime-router
-      shell: bash
-      run: |
-        echo >> $GITHUB_ENV DB_USER='prime'
-        echo >> $GITHUB_ENV DB_PASSWORD='changeIT!'
-
     - name: Remove unnecessary software
       shell: bash
       run: |
@@ -50,7 +42,7 @@ runs:
     - name: Spin up build containers
       working-directory: prime-router
       shell: bash
-      run: docker compose -f docker-compose.postgres.yml up -d
+      run: docker compose --env-file .env -f docker-compose.postgres.yml up -d
 
     - name: Build Prime Router Package
       uses: ./.github/actions/retry
@@ -59,8 +51,10 @@ runs:
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
+          echo "::group::Build"
           cd prime-router
           ./gradlew package -x fatjar -Pshowtests
+          echo "::endgroup::"
         shell: bash
 
     - name: Tar router files
@@ -95,8 +89,8 @@ runs:
           cd prime-router
           bsc=$(az storage account show-connection-string --name pdhstagingstorageaccount --resource-group prime-data-hub-staging \
           --subscription 7d1e3999-6577-4cd5-b296-f518e5c8e677 -o tsv)
-          ./prime validateSchemas --schema-type="HL7" --blob-store-connect="$bsc" --blob-store-container="metadata"
-          ./prime validateSchemas --schema-type="FHIR" --blob-store-connect="$bsc" --blob-store-container="metadata"
+          ./gradlew primecli --args="validateSchemas --schema-type=\"HL7\" --blob-store-connect=\"$bsc\" --blob-store-container=\"metadata\""
+          ./gradlew primecli --args="validateSchemas --schema-type=\"FHIR\" --blob-store-connect=\"$bsc\" --blob-store-container=\"metadata\""
           az storage account network-rule remove -g prime-data-hub-staging --account-name pdhstagingstorageaccount \
           --ip-address ${{ steps.runner_ip.outputs.ip-address }} --output none;
         shell: bash
@@ -117,7 +111,7 @@ runs:
       run: |
         mkdir .vault/env
         touch .vault/env/.env.local
-        docker compose -f docker-compose.yml up -d vault
+        docker compose --env-file .env -f docker-compose.yml up -d vault
         while [ ! -s .vault/env/.env.local ]; do sleep 1; done
         echo "loaded env vars"
       shell: bash
@@ -126,7 +120,7 @@ runs:
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
       id: spin_containers
-      run: docker compose -f docker-compose.yml up -d prime_dev sftp azurite azurite-stage
+      run: docker compose --env-file .env -f docker-compose.yml up -d prime_dev sftp azurite azurite-stage
       shell: bash
 
       # Important to give enough time here in order to avoid a race described in https://github.com/CDCgov/prime-reportstream/issues/13961#issuecomment-2065217386
@@ -151,7 +145,10 @@ runs:
     - name: Run Integration Tests
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
-      run: ./gradlew testIntegration -Pshowtests
+      run: |
+        echo "::group::Integration Tests"
+        ./gradlew testIntegration -Pshowtests
+        echo "::endgroup::"
       shell: bash
 
     - name: Publish Integration Test Results
@@ -169,7 +166,7 @@ runs:
     - name: Correct sftp perms
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
-      run: docker compose exec -T sftp chmod 777 /home/foo/upload
+      run: docker compose --env-file .env exec -T sftp chmod 777 /home/foo/upload
       shell: bash
 
     - name: Smoke tests
@@ -180,10 +177,12 @@ runs:
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
+          echo "::group::Smoke Tests"
           cd prime-router
           export $(xargs < .vault/env/.env.local)
-          ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
+          ./gradlew primecli --args='create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass'
           ./gradlew testSmoke
+          echo "::endgroup::"
         shell: bash
 
     - name: Dump docker logs

@@ -1,5 +1,5 @@
 # Changing CA to use the new filter features
-# ./prime multiple-settings set --env staging --input ./settings/staging/0055-ca-dph.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0055-ca-dph.yml'
 ---
 - name: "ca-dph"
   description: "California Department of Public Health"

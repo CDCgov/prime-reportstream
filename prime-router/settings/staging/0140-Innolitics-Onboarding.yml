@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0140-Innolitics-Onboarding.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0140-Innolitics-Onboarding.yml'
 ---
 - name: innolitics
   description: Innolitics

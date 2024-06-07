@@ -1,6 +1,6 @@
 # To submit this to localhost, run:
-# ./prime multiple-settings set --input ./junk/flexion/AL/Settings/al-phl-staging-l.yml
-# ./prime multiple-settings set --env staging --input ./junk/flexion/AL/Settings/al-phl-staging.yml
+# ./gradlew primecli --args='multiple-settings set --input ./junk/flexion/AL/Settings/al-phl-staging-l.yml'
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./junk/flexion/AL/Settings/al-phl-staging.yml'
 #
 # Description:
 #   These following setting are for Alabama Public Health Lab (al-phl) sender and receivers

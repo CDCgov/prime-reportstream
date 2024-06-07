@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0135-providence.yml
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0135-providence.yml'
 # NOTE: Updated from UI
 ---
 - name: providence

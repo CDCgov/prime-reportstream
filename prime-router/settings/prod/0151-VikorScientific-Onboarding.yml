@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/prod/0151-VikorScientific-Onboarding.yml
+# ./gradlew primecli --args='multiple-settings set --env prod --input ./settings/prod/0151-VikorScientific-Onboarding.yml'
 ---
 - name: "vikorscientific"
   description: "Vikor Scientific"

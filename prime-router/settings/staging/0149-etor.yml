@@ -1,10 +1,10 @@
 # To submit this to staging, run:
-# ./prime login --env staging
-# ./prime multiple-settings set --env staging --input ./settings/staging/0149-etor.yml
+# ./gradlew primecli --args='login --env staging'
+# ./gradlew primecli --args='multiple-settings set --env staging --input ./settings/staging/0149-etor.yml'
 #
 # Then add keys to it, as needed, like this:
-#  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.simulated-hospital --doit
-#  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.etor-service-sender --doit
+#  ./gradlew primecli --args='sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.simulated-hospital --doit'
+#  ./gradlew primecli --args='sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.etor-service-sender --doit'
 #
 # Then go into prime-reportstream/prime-router/examples/generate-jwt-python/generate-jwt.py
 #     and change these vars to:
