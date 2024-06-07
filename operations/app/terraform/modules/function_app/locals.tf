@@ -124,6 +124,7 @@ locals {
     # HHS Protect Storage Account
     "PartnerStorage" = var.sa_partner_connection_string
     "OKTA_scope"     = var.OKTA_scope
+    "AzureFunctionsJobHost__functionTimeout" = " 01:00:00"
   })
 
   candidate_slot_settings = merge(local.all_app_settings, {
@@ -132,5 +133,6 @@ locals {
     # HHS Protect Storage Account
     "PartnerStorage" = var.primary_connection_string
     "OKTA_scope"     = var.OKTA_scope
+    "AzureFunctionsJobHost__functionTimeout" = " 01:00:00"
   })
 }
