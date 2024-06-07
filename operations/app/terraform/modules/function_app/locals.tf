@@ -122,8 +122,8 @@ locals {
     "POSTGRES_URL"         = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
     "POSTGRES_REPLICA_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql-replica.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
     # HHS Protect Storage Account
-    "PartnerStorage" = var.sa_partner_connection_string
-    "OKTA_scope"     = var.OKTA_scope
+    "PartnerStorage"                         = var.sa_partner_connection_string
+    "OKTA_scope"                             = var.OKTA_scope
     "AzureFunctionsJobHost__functionTimeout" = " 01:00:00"
   })
 
@@ -131,8 +131,8 @@ locals {
     "POSTGRES_URL"         = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub_candidate?sslmode=require"
     "POSTGRES_REPLICA_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql-replica.postgres.database.azure.com:5432/prime_data_hub_candidate?sslmode=require"
     # HHS Protect Storage Account
-    "PartnerStorage" = var.primary_connection_string
-    "OKTA_scope"     = var.OKTA_scope
+    "PartnerStorage"                         = var.primary_connection_string
+    "OKTA_scope"                             = var.OKTA_scope
     "AzureFunctionsJobHost__functionTimeout" = " 01:00:00"
   })
 }
