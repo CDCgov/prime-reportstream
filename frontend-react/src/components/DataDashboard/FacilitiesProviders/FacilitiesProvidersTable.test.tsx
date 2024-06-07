@@ -1,18 +1,27 @@
 import { screen } from "@testing-library/react";
 
 import FacilitiesProvidersTable from "./FacilitiesProvidersTable";
-import { makeRSReceiverSubmitterResponseFixture } from "../../../__mocks__/DataDashboardMockServer";
+import { makeRSReceiverSubmitterResponseFixture } from "../../../__mockServers__/DataDashboardMockServer";
 import {
     orgServer,
     receiversGenerator,
-} from "../../../__mocks__/OrganizationMockServer";
+} from "../../../__mockServers__/OrganizationMockServer";
 import { FacilityResource } from "../../../config/endpoints/dataDashboard";
+import useReceiverSubmitter from "../../../hooks/api/deliveries/UseReceiverSubmitters/UseReceiverSubmitters";
+import useOrganizationReceivers from "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers";
 import { filterManagerFixture } from "../../../hooks/filters/filters.fixtures";
-import { mockUseReceiverSubmitter } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverSubmitter";
-import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 
+vi.mock(
+    "../../../hooks/api/deliveries/UseReceiverSubmitters/UseReceiverSubmitters",
+);
+vi.mock(
+    "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers",
+);
+
+const mockUseReceiverSubmitter = vi.mocked(useReceiverSubmitter);
+const mockUseOrganizationReceivers = vi.mocked(useOrganizationReceivers);
 const { mockSessionContentReturnValue } = await vi.importMock<
     typeof import("../../../contexts/Session/__mocks__/useSessionContext")
 >("../../../contexts/Session/useSessionContext");

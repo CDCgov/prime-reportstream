@@ -6,18 +6,18 @@ import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.SpecVersion
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import io.konform.validation.Validation
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import java.io.File
 import java.io.InputStream
 
 /**
- * A configration type containing all necessary data to parse and validate a YAML file
+ * A configuration type containing all necessary data to parse and validate a YAML file
  */
 sealed class ConfigurationType<T> {
 
     // references to how a type is validated
     abstract val jsonSchema: JsonSchema
-    abstract val valueValidation: Validation<T>
+    abstract val konformValidation: KonformValidation<T>
 
     // implementations for using Jackson to parse to a type
     abstract fun convert(node: JsonNode): T
@@ -41,19 +41,36 @@ sealed class ConfigurationType<T> {
         override val jsonSchema: JsonSchema by lazy {
             getSchema("./metadata/json_schema/organizations/organizations.json")
         }
-        override val valueValidation: Validation<List<DeepOrganization>> = OrganizationValidation.validation
+
+        override val konformValidation: KonformValidation<List<DeepOrganization>> = OrganizationValidation
+
         override fun convert(node: JsonNode): List<DeepOrganization> {
             return mapper.convertValue(node, Array<DeepOrganization>::class.java).toList()
         }
+
         override fun parse(inputStream: InputStream): List<DeepOrganization> {
             return mapper.readValue(inputStream, Array<DeepOrganization>::class.java).toList()
         }
     }
 
-//    TODO: #14168
-//    data object FhirTransforms : ConfigurationType<...>() {
-//
-//    }
+    /**
+     * FHIR to FHIR transform configuration
+     */
+    data object FhirToFhirTransform : ConfigurationType<FhirTransformSchema>() {
+        override val jsonSchema: JsonSchema by lazy {
+            getSchema("./metadata/json_schema/fhir/fhir-to-fhir-transform.json")
+        }
+
+        override val konformValidation: KonformValidation<FhirTransformSchema> = FhirToFhirTransformValidation
+
+        override fun convert(node: JsonNode): FhirTransformSchema {
+            return mapper.convertValue(node, FhirTransformSchema::class.java)
+        }
+
+        override fun parse(inputStream: InputStream): FhirTransformSchema {
+            return mapper.readValue(inputStream, FhirTransformSchema::class.java)
+        }
+    }
 //
 //    TODO: #14169
 //    data object FhirMappings : ConfigurationType<...>() {
