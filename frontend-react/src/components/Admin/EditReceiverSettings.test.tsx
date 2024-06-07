@@ -2,7 +2,7 @@ import { fireEvent, screen } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 
 import { EditReceiverSettingsPage } from "./EditReceiverSettings";
-import { settingsServer } from "../../__mocks__/SettingsMockServer";
+import { settingsServer } from "../../__mockServers__/SettingsMockServer";
 import config from "../../config";
 import { renderApp } from "../../utils/CustomRenderUtils";
 

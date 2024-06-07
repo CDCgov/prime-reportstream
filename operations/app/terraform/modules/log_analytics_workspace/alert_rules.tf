@@ -91,7 +91,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_504errors" {
   resource_group_name = var.resource_group
 
   action {
-    action_group = [var.action_group_slack_id]
+    action_group = var.resource_prefix == "pdhstaging" ? [var.action_group_id] : [var.action_group_slack_id]
   }
   data_source_id = local.log_analytics_workspace_id
   description    = "Found 1 or more 504s errors in FunctionApp logs"

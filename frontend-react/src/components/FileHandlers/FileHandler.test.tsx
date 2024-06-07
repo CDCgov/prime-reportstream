@@ -8,22 +8,22 @@ import {
     mockSendValidFile,
 } from "../../__mocks__/validation";
 import { RSSender } from "../../config/endpoints/settings";
-import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
+import * as useWatersUploaderExports from "../../hooks/api/UseWatersUploader/UseWatersUploader";
 import {
     UseWatersUploaderResult,
     UseWatersUploaderSendFileMutation,
-} from "../../hooks/network/WatersHooks";
-import * as useFileHandlerExports from "../../hooks/UseFileHandler";
+} from "../../hooks/api/UseWatersUploader/UseWatersUploader";
+import * as useFileHandlerExports from "../../hooks/UseFileHandler/UseFileHandler";
 import {
     calculateRequestCompleteState,
     FileHandlerState,
     INITIAL_STATE,
-} from "../../hooks/UseFileHandler";
-import * as useSenderSchemaOptionsExports from "../../senders/hooks/UseSenderSchemaOptions";
+} from "../../hooks/UseFileHandler/UseFileHandler";
+import * as useSenderSchemaOptionsExports from "../../hooks/UseSenderSchemaOptions/UseSenderSchemaOptions";
 import {
     STANDARD_SCHEMA_OPTIONS,
     UseSenderSchemaOptionsHookResult,
-} from "../../senders/hooks/UseSenderSchemaOptions";
+} from "../../hooks/UseSenderSchemaOptions/UseSenderSchemaOptions";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 const _CSV_SCHEMA_SELECTED = {
@@ -93,32 +93,37 @@ const WARNING_CSV_FILE_SELECTED = {
     selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
 };
 
-vi.mock("../../hooks/UseOrganizationSettings", () => ({
-    useOrganizationSettings: () => {
-        return {
-            data: {
-                description: "wow, cool organization",
-                createdAt: "2023-01-10T21:23:14.467Z",
-                createdBy: "local@test.com",
-                filters: [],
-                jurisdiction: "FEDERAL",
-                name: "aegis",
-                version: 0,
-            },
-            isLoading: false,
-        };
-    },
-}));
-
-vi.mock("../../hooks/UseSenderResource", () => ({
-    __esModule: true,
-    default: () => ({
-        data: {
-            name: "default",
-            organizationName: "aegis",
-        } satisfies Partial<RSSender>,
+vi.mock(
+    "../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings",
+    () => ({
+        default: () => {
+            return {
+                data: {
+                    description: "wow, cool organization",
+                    createdAt: "2023-01-10T21:23:14.467Z",
+                    createdBy: "local@test.com",
+                    filters: [],
+                    jurisdiction: "FEDERAL",
+                    name: "aegis",
+                    version: 0,
+                },
+                isLoading: false,
+            };
+        },
     }),
-}));
+);
+
+vi.mock(
+    "../../hooks/api/organizations/UseOrganizationSender/UseOrganizationSender",
+    () => ({
+        default: () => ({
+            data: {
+                name: "default",
+                organizationName: "aegis",
+            } satisfies Partial<RSSender>,
+        }),
+    }),
+);
 
 async function _chooseSchema(schemaName: string) {
     expect(screen.getByText(/Select data model/)).toBeVisible();
@@ -158,15 +163,13 @@ describe("FileHandler", () => {
     function mockUseWatersUploader(
         result: Partial<UseWatersUploaderResult> = {},
     ) {
-        vi.spyOn(useWatersUploaderExports, "useWatersUploader").mockReturnValue(
-            {
-                isPending: false,
-                error: null,
-                mutateAsync: (() =>
-                    Promise.resolve({})) as UseWatersUploaderSendFileMutation,
-                ...result,
-            } as any,
-        );
+        vi.spyOn(useWatersUploaderExports, "default").mockReturnValue({
+            isPending: false,
+            error: null,
+            mutateAsync: (() =>
+                Promise.resolve({})) as UseWatersUploaderSendFileMutation,
+            ...result,
+        } as any);
     }
 
     async function schemaContinue() {

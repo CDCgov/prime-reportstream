@@ -146,12 +146,6 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
     }
   }
 
-  lifecycle {
-    ignore_changes = [
-      notification[0].webhook[0].service_uri
-    ]
-  }
-
   depends_on = [
     var.app_service_plan
   ]
