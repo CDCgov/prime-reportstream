@@ -195,7 +195,7 @@
         "tocbot": "^4.25.0"
     },
     "engines": {
-        "node": "^20.12"
+        "node": "^20.14"
     },
     "packageManager": "yarn@3.6.3"
 }
