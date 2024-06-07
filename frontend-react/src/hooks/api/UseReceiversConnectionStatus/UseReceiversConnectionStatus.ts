@@ -14,23 +14,29 @@ export interface RSReceiverStatus {
 }
 
 export interface RSReceiverStatusSearchParams {
-    startDate: string; // Date().toISOString
-    endDate?: string | undefined; // Date().toISOString
+    startDate: string; // iso string
+    endDate?: string; // iso string
 }
 
-// TODO Implement in pages
-const useReceiversConnectionStatus = (params: RSReceiverStatusSearchParams) => {
+const useReceiversConnectionStatus = ({
+    startDate,
+    endDate,
+}: RSReceiverStatusSearchParams) => {
     const { authorizedFetch } = useSessionContext();
+    const fixedParams = {
+        start_date: startDate,
+        end_date: endDate,
+    };
 
     const fn = () => {
         return authorizedFetch<RSReceiverStatus[]>({
             url: `/adm/listreceiversconnstatus`,
-            params,
+            params: fixedParams,
         });
     };
 
     return useSuspenseQuery({
-        queryKey: ["receiversConnectionStatus", params],
+        queryKey: ["receiversConnectionStatus", fixedParams],
         queryFn: fn,
     });
 };
