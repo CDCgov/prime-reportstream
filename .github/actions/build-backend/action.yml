@@ -41,8 +41,7 @@ runs:
 
     - name: Lint
       if: inputs.run-integration-tests == 'true'
-      working-directory: prime-router
-      run: ./gradlew ktlintCheck
+      run: ./gradlew :prime-router:ktlintCheck
       shell: bash
 
     - uses: gradle/actions/wrapper-validation@db19848a5fa7950289d3668fb053140cf3028d43
