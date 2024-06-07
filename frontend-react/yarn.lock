@@ -4442,6 +4442,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@typescript-eslint/scope-manager@npm:7.8.0":
+  version: 7.8.0
+  resolution: "@typescript-eslint/scope-manager@npm:7.8.0"
+  dependencies:
+    "@typescript-eslint/types": 7.11.0
+    "@typescript-eslint/visitor-keys": 7.11.0
+  checksum: c3fbf6c091b418a79cc3eb671184b83eaa26c06766aa78b4f32234d366f1130271317525b0b3bc38670195e4c608df049ae400cc343f6afa6104b2eec1bbb577
+  languageName: node
+  linkType: hard
+
 "@typescript-eslint/type-utils@npm:7.11.0":
   version: 7.11.0
   resolution: "@typescript-eslint/type-utils@npm:7.11.0"
@@ -4494,6 +4504,7 @@ __metadata:
 "@typescript-eslint/typescript-estree@npm:7.11.0":
   version: 7.11.0
   resolution: "@typescript-eslint/typescript-estree@npm:7.11.0"
+
   dependencies:
     "@typescript-eslint/types": 7.11.0
     "@typescript-eslint/visitor-keys": 7.11.0
@@ -4510,7 +4521,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/utils@npm:7.11.0, @typescript-eslint/utils@npm:^7.7.1":
+"@typescript-eslint/utils@npm:7.11.0":
   version: 7.11.0
   resolution: "@typescript-eslint/utils@npm:7.11.0"
   dependencies:
@@ -4539,6 +4550,23 @@ __metadata:
   peerDependencies:
     eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
   checksum: ee9398c8c5db6d1da09463ca7bf36ed134361e20131ea354b2da16a5fdb6df9ba70c62a388d19f6eebb421af1786dbbd79ba95ddd6ab287324fc171c3e28d931
+  languageName: node
+  linkType: hard
+
+"@typescript-eslint/utils@npm:^7.7.1":
+  version: 7.8.0
+  resolution: "@typescript-eslint/utils@npm:7.8.0"
+  dependencies:
+    "@eslint-community/eslint-utils": ^4.4.0
+    "@types/json-schema": ^7.0.15
+    "@types/semver": ^7.5.8
+    "@typescript-eslint/scope-manager": 7.8.0
+    "@typescript-eslint/types": 7.8.0
+    "@typescript-eslint/typescript-estree": 7.8.0
+    semver: ^7.6.0
+  peerDependencies:
+    eslint: ^8.56.0
+  checksum: 770c4742acf3a1845dcc7c280d6af3d338b02187c333f7df4a5f974ba69f56d6be84b888b1d951674f5aab2317b32d3f29a96292d992a87d1a9238d34b15c943
   languageName: node
   linkType: hard
 
@@ -5445,7 +5473,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"braces@npm:^3.0.3, braces@npm:~3.0.2":
+"braces@npm:^3.0.2, braces@npm:^3.0.3, braces@npm:~3.0.2":
   version: 3.0.3
   resolution: "braces@npm:3.0.3"
   dependencies:
@@ -6331,6 +6359,18 @@ __metadata:
   dependencies:
     ms: ^2.1.1
   checksum: b3d8c5940799914d30314b7c3304a43305fd0715581a919dacb8b3176d024a782062368405b47491516d2091d6462d4d11f2f4974a405048094f8bfebfa3071c
+  languageName: node
+  linkType: hard
+
+"debug@npm:~4.3.4":
+  version: 4.3.5
+  resolution: "debug@npm:4.3.5"
+  dependencies:
+    ms: 2.1.2
+  peerDependenciesMeta:
+    supports-color:
+      optional: true
+  checksum: 7c002b51e256257f936dda09eb37167df952758c57badf6bf44bdc40b89a4bcb8e5a0a2e4c7b53f97c69e2970dd5272d33a757378a12c8f8e64ea7bf99e8e86e
   languageName: node
   linkType: hard
 
@@ -10824,6 +10864,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"micromatch@npm:~4.0.7":
+  version: 4.0.7
+  resolution: "micromatch@npm:4.0.7"
+  dependencies:
+    braces: ^3.0.3
+    picomatch: ^2.3.1
+  checksum: 3cde047d70ad80cf60c787b77198d680db3b8c25b23feb01de5e2652205d9c19f43bd81882f69a0fd1f0cde6a7a122d774998aad3271ddb1b8accf8a0f480cf7
+  languageName: node
+  linkType: hard
+
 "mime-db@npm:1.52.0, mime-db@npm:>= 1.43.0 < 2":
   version: 1.52.0
   resolution: "mime-db@npm:1.52.0"
@@ -12072,6 +12122,15 @@ __metadata:
   linkType: hard
 
 "prettier@npm:^3.1.1, prettier@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "prettier@npm:3.3.0"
+  bin:
+    prettier: bin/prettier.cjs
+  checksum: 0d3a7fca9cab29828e189fefc10e8f6025d1208c84cd1e94def8a8f8a04eea341aa21d0af8c01253527632f8225b0b8482a62b64cafa26e9988cd6f9ff16a38b
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^3.3.0":
   version: 3.3.0
   resolution: "prettier@npm:3.3.0"
   bin:
@@ -15702,6 +15761,15 @@ __metadata:
   linkType: hard
 
 "yaml@npm:^2.0.0, yaml@npm:^2.2.2, yaml@npm:~2.4.2":
+  version: 2.4.2
+  resolution: "yaml@npm:2.4.2"
+  bin:
+    yaml: bin.mjs
+  checksum: 90dda4485de04367251face9abb5c36927c94e44078f4e958e6468a07e74e7e92f89be20fc49860b6268c51ee5a5fc79ef89197d3f874bf24ef8921cc4ba9013
+  languageName: node
+  linkType: hard
+
+"yaml@npm:~2.4.2":
   version: 2.4.2
   resolution: "yaml@npm:2.4.2"
   bin:
