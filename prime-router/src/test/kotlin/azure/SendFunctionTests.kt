@@ -64,11 +64,11 @@ class SendFunctionTests {
         null,
         TaskAction.send,
         null,
-        "ignore",
-        "ignore",
-        "ignore",
-        "CSV",
-        null, null, "test", null, null, null, "csv", null, 0, null, OffsetDateTime.now(), null, null
+        "test",
+        "test-sender",
+        "test",
+        "test-receiver",
+        null, null, "covid-19", null, null, null, "CSV", null, 0, null, OffsetDateTime.now(), null, null
     )
 
     fun setupLogger() {
