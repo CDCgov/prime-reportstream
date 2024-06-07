@@ -22,22 +22,25 @@ export interface RSSendFailure {
 }
 
 export interface RSSendFailuresSearchParams {
-    daysToShow: number;
+    daysToShow?: number;
 }
 
 // TODO Implement in pages
-const useSendFailures = (params: RSSendFailuresSearchParams) => {
+const useSendFailures = ({ daysToShow }: RSSendFailuresSearchParams = {}) => {
     const { authorizedFetch } = useSessionContext();
+    const fixedParams = {
+        days_to_show: daysToShow,
+    };
 
     const fn = () => {
         return authorizedFetch<RSSendFailure[]>({
             url: `/adm/getsendfailures`,
-            params,
+            params: fixedParams,
         });
     };
 
     return useSuspenseQuery({
-        queryKey: ["sendFailures", params],
+        queryKey: ["sendFailures", fixedParams],
         queryFn: fn,
     });
 };

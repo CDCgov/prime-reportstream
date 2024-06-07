@@ -18,22 +18,25 @@ export interface RSResend {
 }
 
 export interface RSResendsSearchParams {
-    daysToShow: number;
+    daysToShow?: number;
 }
 
 // TODO Implement in pages
-const useResends = (params?: RSResendsSearchParams) => {
+const useResends = ({ daysToShow }: RSResendsSearchParams = {}) => {
     const { authorizedFetch } = useSessionContext();
+    const fixedParams = {
+        days_to_show: daysToShow,
+    };
 
     const fn = () => {
         return authorizedFetch<RSResend[]>({
             url: `/adm/getresend`,
-            params,
+            params: fixedParams,
         });
     };
 
     return useSuspenseQuery({
-        queryKey: ["resends", params],
+        queryKey: ["resends", fixedParams],
         queryFn: fn,
     });
 };
