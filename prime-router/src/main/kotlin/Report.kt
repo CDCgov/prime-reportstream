@@ -1602,17 +1602,21 @@ class Report : Logging {
             nameFormat: String = "standard",
             translationConfig: TranslatorConfiguration? = null,
         ): String {
-            return if (bodyUrl != null) {
+            val nameSuffix = format.ext
+            val fileName = if (bodyUrl != null) {
                 BlobAccess.BlobInfo.getBlobFilename(bodyUrl)
+            } else if (translationConfig == null) {
+                val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                // This file-naming format is used for all INTERNAL files, and whenever there is no custom format.
+                "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}"
             } else {
                 val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-                val nameSuffix = format.ext
-                val fileName = metadata!!.fileNameTemplates[nameFormat.lowercase()].run {
+                metadata!!.fileNameTemplates[nameFormat.lowercase()].run {
                     this?.getFileName(translationConfig, reportId)
                         ?: "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}"
                 }
-                "$fileName.$nameSuffix"
             }
+            return "$fileName.$nameSuffix"
         }
 
         /**
