@@ -7,6 +7,8 @@ pluginManagement {
     }
 }
 plugins {
+    val kotlinVersion by System.getProperties()
+    kotlin("jvm") version "$kotlinVersion" apply false
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
 }
 
