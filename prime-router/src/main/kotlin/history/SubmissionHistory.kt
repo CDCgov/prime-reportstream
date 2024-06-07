@@ -11,8 +11,6 @@ import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
@@ -79,13 +77,7 @@ open class SubmissionHistory(
      */
     val fileName: String
         get() {
-            return externalName ?: Report.formExternalFilename(
-                this.bodyUrl,
-                ReportId.fromString(this.reportId),
-                this.schemaName,
-                Report.Format.safeValueOf(this.bodyFormat),
-                this.createdAt
-            )
+            return this.bodyUrl ?: ""
         }
 
     /**
