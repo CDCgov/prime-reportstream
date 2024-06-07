@@ -68,7 +68,7 @@ class SendFunctionTests {
         "ignore",
         "ignore",
         "CSV",
-        null, null, "test", null, null, null, "CSV", null, 0, null, OffsetDateTime.now(), null, null
+        null, null, "test", null, null, null, "csv", null, 0, null, OffsetDateTime.now(), null, null
     )
 
     fun setupLogger() {
