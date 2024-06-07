@@ -56,6 +56,7 @@ import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import io.mockk.verify
 import org.apache.logging.log4j.kotlin.Logging
+import org.jooq.True
 import org.jooq.impl.DSL
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -418,10 +419,10 @@ class FHIRRouterIntegrationTests : Logging {
 
                 expectedActionLogRecordContent.actionLogDetail?.let {
                     val expected = expectedActionLogRecordContent.actionLogDetail
-                    expected.javaClass.let { assertEquals(it, actualActionLogRecord.detail.javaClass) }
-                    expected.scope.let { assertEquals(it, actualActionLogRecord.detail.scope) }
-                    expected.message.let { assertEquals(it, actualActionLogRecord.detail.message) }
-                    expected.errorCode.let { assertEquals(it, actualActionLogRecord.detail.errorCode) }
+                    assertEquals(expected.javaClass, actualActionLogRecord.detail.javaClass)
+                    assertEquals(expected.scope, actualActionLogRecord.detail.scope)
+                    assertEquals(expected.message, actualActionLogRecord.detail.message)
+                    assertEquals(expected.errorCode, actualActionLogRecord.detail.errorCode)
                 }
             }
         }
@@ -534,9 +535,25 @@ class FHIRRouterIntegrationTests : Logging {
         // execute
         val receiverList = createReceivers(
             listOf(
-                ReceiverSetupData("x"),
-                ReceiverSetupData("y"),
-                ReceiverSetupData("z", topic = Topic.TEST)
+                ReceiverSetupData(
+                    "x",
+                    jurisdictionalFilter = listOf("true"),
+                    qualityFilter = listOf("true"),
+                    routingFilter = listOf("true")
+                ),
+                ReceiverSetupData(
+                    "y",
+                    jurisdictionalFilter = listOf("true"),
+                    qualityFilter = listOf("true"),
+                    routingFilter = listOf("true")
+                ),
+                ReceiverSetupData(
+                    "z",
+                    jurisdictionalFilter = listOf("true"),
+                    qualityFilter = listOf("true"),
+                    routingFilter = listOf("true"),
+                    topic = Topic.TEST
+                )
             )
         )
 
@@ -624,8 +641,20 @@ class FHIRRouterIntegrationTests : Logging {
 
         // execute
         var receiverSetupData = listOf(
-            ReceiverSetupData("x", conditionFilter = observationFilter),
-            ReceiverSetupData("y"),
+            ReceiverSetupData(
+                "x",
+                jurisdictionalFilter = listOf("true"),
+                qualityFilter = listOf("true"),
+                routingFilter = listOf("true"),
+                conditionFilter = observationFilter
+            ),
+            ReceiverSetupData(
+                "y",
+                jurisdictionalFilter = listOf("true"),
+                qualityFilter = listOf("true"),
+                routingFilter = listOf("true"),
+                conditionFilter = listOf("true")
+            ),
         )
         var receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
@@ -833,7 +862,14 @@ class FHIRRouterIntegrationTests : Logging {
         checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
 
         // execute
-        val receiverSetupData = listOf(ReceiverSetupData("x", qualityFilter = fullElrQualityFilterSample))
+        val receiverSetupData = listOf(
+            ReceiverSetupData(
+                "x",
+                jurisdictionalFilter = listOf("true"),
+                routingFilter = listOf("true"),
+                qualityFilter = fullElrQualityFilterSample
+            )
+        )
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
@@ -892,7 +928,15 @@ class FHIRRouterIntegrationTests : Logging {
         checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
 
         // execute
-        val receiverSetupData = listOf(ReceiverSetupData("x", qualityFilter = simpleElrQualifyFilter))
+        val receiverSetupData = listOf(
+            ReceiverSetupData(
+                "x",
+                jurisdictionalFilter = listOf("true"),
+                routingFilter = listOf("true"),
+                qualityFilter = simpleElrQualifyFilter
+            )
+        )
+
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
@@ -960,7 +1004,13 @@ class FHIRRouterIntegrationTests : Logging {
 
         // execute
         val receiverSetupData = listOf(
-            ReceiverSetupData("x", qualityFilter = simpleElrQualifyFilter, reverseQuality = true)
+            ReceiverSetupData(
+                "x",
+                jurisdictionalFilter = listOf("true"),
+                routingFilter = listOf("true"),
+                qualityFilter = simpleElrQualifyFilter,
+                reverseQuality = true
+            )
         )
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
@@ -1015,7 +1065,15 @@ class FHIRRouterIntegrationTests : Logging {
         checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
 
         // execute
-        val receiverSetupData = listOf(ReceiverSetupData("x", processingModeFilter = processingModeFilterProduction))
+        val receiverSetupData = listOf(
+            ReceiverSetupData(
+                "x",
+                jurisdictionalFilter = listOf("true"),
+                qualityFilter = listOf("true"),
+                routingFilter = listOf("true"),
+                processingModeFilter = processingModeFilterProduction
+            )
+        )
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
@@ -1082,7 +1140,16 @@ class FHIRRouterIntegrationTests : Logging {
         checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
 
         // execute
-        val receiverSetupData = listOf(ReceiverSetupData("x", processingModeFilter = processingModeFilterDebugging))
+        val receiverSetupData = listOf(
+            ReceiverSetupData(
+                "x",
+                jurisdictionalFilter = listOf("true"),
+                qualityFilter = listOf("true"),
+                routingFilter = listOf("true"),
+                processingModeFilter = processingModeFilterDebugging,
+            )
+        )
+
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
