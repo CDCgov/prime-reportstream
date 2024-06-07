@@ -61,10 +61,7 @@ class SimpleReportIntegrationTests {
         outputReports.forEach { (report, orgSvc) ->
             val fileName = Report.formFilename(
                 report.id,
-                report.schema.baseName,
-                Report.Format.CSV,
-                report.createdDateTime,
-                metadata = metadata
+                report.bodyFormat
             )
             val reportFile = File(outputPath, fileName)
             csvSerializer.write(report, reportFile.outputStream())
@@ -83,10 +80,7 @@ class SimpleReportIntegrationTests {
         )
         val fakeReportFileName = Report.formFilename(
             fakeReport.id,
-            fakeReport.schema.baseName,
-            if (useInternal) Report.Format.INTERNAL else Report.Format.CSV,
-            fakeReport.createdDateTime,
-            metadata = metadata
+            fakeReport.bodyFormat
         )
         val fakeReportFile = File(outputPath, fakeReportFileName)
         if (useInternal) {
