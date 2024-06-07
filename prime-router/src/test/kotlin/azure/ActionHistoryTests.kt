@@ -384,23 +384,24 @@ class ActionHistoryTests {
         reportFile1.reportId = uuid
         reportFile1.receivingOrg = "myOrg"
         reportFile1.receivingOrgSvc = "myRcvr"
+        reportFile1.externalName = "externalName1"
         val actionHistory1 = ActionHistory(TaskAction.download)
         val uuid2 = UUID.randomUUID()
-        actionHistory1.trackDownloadedReport(reportFile1, "filename1", uuid2, "bob")
+        actionHistory1.trackDownloadedReport(reportFile1, uuid2, "bob")
         assertThat(actionHistory1.reportsOut[uuid2]).isNotNull()
         val reportFile2 = actionHistory1.reportsOut[uuid2]!!
         assertThat(reportFile2.receivingOrgSvc).isEqualTo("myRcvr")
         assertThat(reportFile2.receivingOrg).isEqualTo("myOrg")
-        assertThat(reportFile2.externalName).isEqualTo("filename1")
+        assertThat(reportFile2.externalName).isEqualTo("externalName1")
         assertThat(reportFile2.downloadedBy).isEqualTo("bob")
         assertThat(reportFile2.sendingOrg).isNull()
         assertThat(reportFile2.bodyUrl).isNull()
         assertThat(reportFile2.blobDigest).isNull()
-        assertThat(actionHistory1.action.externalName).isEqualTo("filename1")
+        assertThat(actionHistory1.action.externalName).isEqualTo("externalName1")
         // not allowed to track the same report twice.
         assertFailure {
             actionHistory1.trackDownloadedReport(
-                reportFile1, "filename1", uuid2, "bob"
+                reportFile1, uuid2, "bob"
             )
         }
     }

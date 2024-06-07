@@ -1122,11 +1122,12 @@ class ReportTests {
     fun `test formExternalFilename from header when body url is not null`() {
         val expectedReportId = UUID.randomUUID()
         val expectedFileName = "sampleFileName-someReportId.fhir"
-        val expectedBodyUrl = "https://this/is/an/example/blob/url/$expectedFileName"
+        val expectedBodyUrl = "https://this/is/an/example/blob/url/$expectedReportId"
 
         val reportUnderTest = ReportFile()
         reportUnderTest.reportId = expectedReportId
         reportUnderTest.bodyUrl = expectedBodyUrl
+        reportUnderTest.externalName = expectedFileName
 
         val header = WorkflowEngine.Header(
             Task(),

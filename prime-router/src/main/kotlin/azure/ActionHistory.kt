@@ -571,7 +571,6 @@ class ActionHistory(
      */
     fun trackDownloadedReport(
         parentReportFile: ReportFile,
-        filename: String,
         externalReportId: ReportId,
         downloadedBy: String,
     ) {
@@ -588,8 +587,8 @@ class ActionHistory(
         reportFile.receivingOrgSvc = parentReportFile.receivingOrgSvc
         reportFile.schemaName = trimSchemaNameToMaxLength(parentReportFile.schemaName)
         reportFile.schemaTopic = parentReportFile.schemaTopic
-        reportFile.externalName = filename
-        action.externalName = filename
+        reportFile.externalName = parentReportFile.externalName
+        action.externalName = parentReportFile.externalName
         reportFile.transportParams = "{ \"reportRequested\": \"${parentReportFile.reportId}\"}"
         reportFile.transportResult = "{ \"downloadedBy\": \"$downloadedBy\"}"
         reportFile.bodyUrl = null // this entry represents an external file, not a blob.

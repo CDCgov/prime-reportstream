@@ -17,6 +17,7 @@ import gov.cdc.prime.router.common.DateUtilities.toYears
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mappers
+import gov.cdc.prime.router.report.ReportService
 import org.apache.logging.log4j.kotlin.Logging
 import tech.tablesaw.api.Row
 import tech.tablesaw.api.StringColumn
@@ -1570,8 +1571,11 @@ class Report : Logging {
             header: WorkflowEngine.Header,
             metadata: Metadata? = null,
         ): String {
-            return if (header.reportFile.bodyUrl != null) {
-                BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl)
+            return if (header.receiver?.topic?.isSendOriginal == true) {
+//                the externalName of the root report should equal the submission payload name parameter
+                ReportService().getRootReport(header.reportFile.reportId).externalName
+            } else if (header.reportFile.externalName != null) {
+                header.reportFile.externalName
             } else {
                 formExternalFilename(
                     header.reportFile.bodyUrl,

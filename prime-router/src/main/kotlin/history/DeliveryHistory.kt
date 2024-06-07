@@ -83,7 +83,7 @@ class DeliveryHistory(
      */
     val fileName: String
         get() {
-            return Report.formExternalFilename(
+            return externalName ?: Report.formExternalFilename(
                 this.bodyUrl,
                 ReportId.fromString(this.reportId),
                 this.schemaName,

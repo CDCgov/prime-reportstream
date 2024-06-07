@@ -79,16 +79,13 @@ open class SubmissionHistory(
      */
     val fileName: String
         get() {
-            if (this.reportId != null) {
-                return Report.formExternalFilename(
-                    this.bodyUrl,
-                    ReportId.fromString(this.reportId),
-                    this.schemaName,
-                    Report.Format.safeValueOf(this.bodyFormat),
-                    this.createdAt
-                )
-            }
-            return ""
+            return externalName ?: Report.formExternalFilename(
+                this.bodyUrl,
+                ReportId.fromString(this.reportId),
+                this.schemaName,
+                Report.Format.safeValueOf(this.bodyFormat),
+                this.createdAt
+            )
         }
 
     /**
