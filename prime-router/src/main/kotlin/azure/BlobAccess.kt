@@ -115,7 +115,7 @@ class BlobAccess() : Logging {
             } else if (accountName != null && endpointSuffix != null) {
                 logger.warn("Account name $accountName")
                 logger.warn("Endpoint suffix $endpointSuffix")
-                return "https://$accountName.blob.$endpointSuffix/$containerName"
+                return "https://$accountName.blob.$endpointSuffix$containerName"
             }
             throw RuntimeException("Connection string is misconfigured and does not contain a blob endpoint URL")
         }
