@@ -569,7 +569,7 @@ class FHIRRouterIntegrationTests : Logging {
         checkActionTable(listOf(TaskAction.convert, TaskAction.receive))
 
         // execute
-        var receiverSetupData = listOf(
+        val receiverSetupData = listOf(
             ReceiverSetupData(
                 "x",
                 jurisdictionalFilter = listOf("true"),
@@ -585,7 +585,7 @@ class FHIRRouterIntegrationTests : Logging {
                 conditionFilter = listOf("true")
             ),
         )
-        var receivers = createReceivers(receiverSetupData)
+        val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
         fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
@@ -602,11 +602,11 @@ class FHIRRouterIntegrationTests : Logging {
                     )
                 }
 
-            var fhirBundlesAsObjectsOnly = reportAndBundles.map { it.second.toString(Charsets.UTF_8) }
+            val fhirBundlesAsObjectsOnly = reportAndBundles.map { it.second.toString(Charsets.UTF_8) }
                 .map { FhirTranscoder.decode(it) }
 
-            var fhirBundleReceiverX = fhirBundlesAsObjectsOnly[0]
-            var fhirBundleReceiverY = fhirBundlesAsObjectsOnly[1]
+            val fhirBundleReceiverX = fhirBundlesAsObjectsOnly[0]
+            val fhirBundleReceiverY = fhirBundlesAsObjectsOnly[1]
 
             // there should only be one observation of five remaining, and the code of that observation
             // should be 94558-5
