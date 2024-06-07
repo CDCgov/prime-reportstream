@@ -401,6 +401,8 @@ class TranslationSchemaManager : Logging {
                 getRawInputOutputAndSchemaUri(blobs, blobContainerInfo, inputDirectoryPath, schemaType)
             } catch (e: RuntimeException) {
                 logger.error("Failed to get input or output to validate the schema", e)
+                throw e
+                @Suppress("UNREACHABLE_CODE")
                 return@map ValidationResult(inputDirectoryPath, passes = false, didError = true)
             }
 
