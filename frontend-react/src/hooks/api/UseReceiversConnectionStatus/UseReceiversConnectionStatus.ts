@@ -1,5 +1,4 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { RSOrganizationSettings } from "../../../config/endpoints/settings";
 import useSessionContext from "../../../contexts/Session/useSessionContext";
 
 export interface RSReceiverStatus {
@@ -24,7 +23,7 @@ const useReceiversConnectionStatus = (params: RSReceiverStatusSearchParams) => {
     const { authorizedFetch } = useSessionContext();
 
     const fn = () => {
-        return authorizedFetch<RSOrganizationSettings[]>({
+        return authorizedFetch<RSReceiverStatus[]>({
             url: `/adm/listreceiversconnstatus`,
             params,
         });
