@@ -111,7 +111,7 @@ class BlobAccess() : Logging {
             if (blobEndpoint != null) {
                 logger.warn("Endpoint $blobEndpoint")
                 logger.warn("Container name $containerName")
-                return "$blobEndpoint/$containerName"
+                return "$blobEndpoint$containerName"
             } else if (accountName != null && endpointSuffix != null) {
                 logger.warn("Account name $accountName")
                 logger.warn("Endpoint suffix $endpointSuffix")
