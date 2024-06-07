@@ -68,7 +68,7 @@ class SendFunctionTests {
         "test-sender",
         "test",
         "test-receiver",
-        null, null, "covid-19", null, null, null, "CSV", null, 0, null, OffsetDateTime.now(), null, null
+        null, null, "one", null, null, "test.csv", "CSV", null, 0, null, OffsetDateTime.now(), null, null
     )
 
     fun setupLogger() {
