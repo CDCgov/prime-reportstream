@@ -12836,7 +12836,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-fallback@npm:prettier@^3":
+"prettier-fallback@npm:prettier@^3, prettier@npm:^3.3.1":
   version: 3.3.1
   resolution: "prettier@npm:3.3.1"
   bin:
@@ -12845,7 +12845,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.1.1, prettier@npm:^3.3.0":
+"prettier@npm:^3.1.1":
   version: 3.3.0
   resolution: "prettier@npm:3.3.0"
   bin:
@@ -13262,7 +13262,7 @@ __metadata:
     otpauth: ^9.2.4
     patch-package: ^8.0.0
     postcss: ^8.4.38
-    prettier: ^3.3.0
+    prettier: ^3.3.1
     react: ^18.3.1
     react-dom: ^18.3.1
     react-error-boundary: ^4.0.13
