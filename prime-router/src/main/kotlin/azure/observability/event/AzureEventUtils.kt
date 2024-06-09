@@ -44,15 +44,16 @@ object AzureEventUtils {
      */
     fun createReportSentEvent(
         receiver: Receiver,
-        reportFile: ReportFile,
+        reportFiles: List<ReportFile?>,
         reportId: ReportId,
         externalFilename: String,
     ): ReportSentEvent {
+        val reportFile = if (reportFiles.size == 1) reportFiles.first() else null
         return ReportSentEvent(
-            reportFile.reportId,
+            reportFile?.reportId,
             reportId,
             receiver.topic,
-            Sender.createFullName(reportFile.sendingOrg, reportFile.sendingOrgClient),
+            Sender.createFullName(reportFile?.sendingOrg, reportFile?.sendingOrgClient),
             receiver.fullName,
             receiver.transport?.type,
             externalFilename

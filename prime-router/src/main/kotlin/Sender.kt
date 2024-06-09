@@ -177,8 +177,12 @@ abstract class Sender(
             }
         }
 
-        fun createFullName(organizationName: String, senderName: String): String {
-            return "$organizationName${fullNameSeparator}$senderName"
+        fun createFullName(organizationName: String?, senderName: String?): String? {
+            return if (!organizationName.isNullOrEmpty() && !senderName.isNullOrEmpty()) {
+                "$organizationName${fullNameSeparator}$senderName"
+            } else {
+                null
+            }
         }
     }
 }

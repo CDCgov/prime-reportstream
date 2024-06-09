@@ -98,7 +98,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                     workflowEngine.azureEventService.trackEvent(
                         AzureEventUtils.createReportSentEvent(
                             receiver,
-                            workflowEngine.reportService.getRootReport(inputReportId),
+                            workflowEngine.reportService.getRootReports(inputReportId),
                             inputReportId,
                             BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl),
                         )
@@ -174,7 +174,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 workflowEngine.azureEventService.trackEvent(
                     AzureEventUtils.createReportSentEvent(
                         receiver,
-                        workflowEngine.reportService.getRootReport(reportId),
+                        workflowEngine.reportService.getRootReports(reportId),
                         reportId,
                         Report.formExternalFilename(header)
                     )

@@ -197,6 +197,17 @@ class Report : Logging {
                     else -> throw IllegalArgumentException("Unexpected extension $ext.")
                 }
             }
+
+            fun valueOfFromBodyFormat(bodyFormat: String): Format {
+                return when (bodyFormat.uppercase()) {
+                    HL7.toString() -> HL7
+                    HL7_BATCH.toString() -> HL7
+                    FHIR.toString() -> FHIR
+                    CSV.toString() -> CSV
+                    CSV_SINGLE.toString() -> CSV
+                    else -> throw IllegalArgumentException("Unexpected extension $bodyFormat.")
+                }
+            }
         }
     }
 
@@ -1581,7 +1592,7 @@ class Report : Logging {
                     header.reportFile.bodyUrl,
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
-                    Format.valueOfFromExt(header.reportFile.bodyFormat),
+                    Format.valueOfFromBodyFormat(header.reportFile.bodyFormat),
                     header.reportFile.createdAt,
                     metadata = metadata ?: Metadata.getInstance()
                 )
@@ -1603,20 +1614,19 @@ class Report : Logging {
             translationConfig: TranslatorConfiguration? = null,
         ): String {
             val nameSuffix = format.ext
-            val fileName = if (bodyUrl != null) {
+            return if (bodyUrl != null) {
                 BlobAccess.BlobInfo.getBlobFilename(bodyUrl)
             } else if (translationConfig == null) {
                 val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
                 // This file-naming format is used for all INTERNAL files, and whenever there is no custom format.
-                "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}"
+                "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}.$nameSuffix"
             } else {
                 val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
                 metadata!!.fileNameTemplates[nameFormat.lowercase()].run {
                     this?.getFileName(translationConfig, reportId)
-                        ?: "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}"
+                        ?: "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}.$nameSuffix"
                 }
             }
-            return "$fileName.$nameSuffix"
         }
 
         /**

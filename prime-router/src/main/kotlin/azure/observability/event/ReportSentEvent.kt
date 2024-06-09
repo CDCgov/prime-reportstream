@@ -8,10 +8,10 @@ import gov.cdc.prime.router.Topic
  * [trasnportType] is nullable as some receivers will purposefully not have transports configured
  */
 data class ReportSentEvent(
-    val sentReportId: ReportId,
+    val sentReportId: ReportId?,
     val reportId: ReportId,
     val topic: Topic,
-    val senderName: String,
+    val senderName: String?,
     val receiverName: String,
     val transportType: String?,
     val externalFilename: String,

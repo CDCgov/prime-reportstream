@@ -889,6 +889,28 @@ class ReportTests {
     }
 
     @Test
+    fun `test format from bodyFormat`() {
+        var format = Report.Format.valueOfFromBodyFormat("csv")
+        assertThat(format).isEqualTo(Report.Format.CSV)
+
+        format = Report.Format.valueOfFromBodyFormat("fhir")
+        assertThat(format).isEqualTo(Report.Format.FHIR)
+
+        format = Report.Format.valueOfFromBodyFormat("hl7")
+        assertThat(format).isEqualTo(Report.Format.HL7)
+
+        format = Report.Format.valueOfFromBodyFormat("HL7_BATCH")
+        assertThat(format).isEqualTo(Report.Format.HL7)
+
+        try {
+            format = Report.Format.valueOfFromBodyFormat("txt")
+            fail("Expected IllegalArgumentException, instead got $format.")
+        } catch (e: IllegalArgumentException) {
+            assertThat(e).isNotNull()
+        }
+    }
+
+    @Test
     fun `test generateReportAndUploadBlob errors`() {
         val mockActionHistory = mockk<ActionHistory>()
         val mockMetadata = mockk<Metadata>()
