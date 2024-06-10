@@ -15,28 +15,27 @@ import {
     PropsWithChildren,
     Suspense,
     useCallback,
+    useEffect,
     useRef,
     useState,
 } from "react";
-import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 
-import config from "../../config";
-import useSessionContext from "../../contexts/Session/useSessionContext";
 import { showToast } from "../../contexts/Toast";
-import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
-import { ErrorPage } from "../../pages/error/ErrorPage";
-import AdmAction from "../../resources/AdmActionResource";
-import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
+import useCreateResend from "../../hooks/api/UseCreateResend/UseCreateResend";
+import useResends, { RSResend } from "../../hooks/api/UseResends/UseResends";
+import useSendFailures, {
+    RSSendFailure,
+} from "../../hooks/api/UseSendFailures/UseSendFailures";
 import Table from "../../shared/Table/Table";
+import { filterMatch as resendFilterMatch } from "../../utils/filters/resendFilters";
+import { filterMatch as sendFailureFilterMatch } from "../../utils/filters/sendFailuresFilters";
 import { formatDate } from "../../utils/misc";
 import Spinner from "../Spinner";
 import { USLink } from "../USLink";
 
-const { RS_API_URL } = config;
-
 interface DataForDialog {
-    info: AdmSendFailuresResource;
-    resends: AdmAction[];
+    info: RSSendFailure;
+    resends: RSResend[];
 }
 
 // Improves readability
@@ -155,26 +154,27 @@ const RenderResendModal = (props: {
 /**
  * This is factored out so refreshing only rerenders the table itself.
  */
-const DataLoadRenderTable = (props: {
-    daysToShow: string;
+const DataLoadRenderTable = ({
+    lastMileData,
+    lastMileResends,
+    filterText,
+    handleRetrySendClick,
+    handleShowDetailsClick,
+}: {
+    lastMileResends: RSResend[];
+    lastMileData: RSSendFailure[];
     filterText: string;
     handleRetrySendClick: (jsonRowData: string) => void;
     handleShowDetailsClick: (jsonRowData: string) => void;
 }) => {
-    const lastMileData: AdmSendFailuresResource[] = useResource(
-        AdmSendFailuresResource.list(),
-        { days_to_show: props.daysToShow },
-    );
-    const lastMileResends: AdmAction[] = useResource(AdmAction.list(), {
-        days_to_show: props.daysToShow,
-    });
-
     const fiterResends = (reportId: string) => {
-        return lastMileResends.filter((each) => each.filterMatch(reportId));
+        return lastMileResends.filter((each) =>
+            resendFilterMatch(each, reportId),
+        );
     };
 
     const rowData = lastMileData
-        .filter((eachRow) => eachRow.filterMatch(props.filterText))
+        .filter((eachRow) => sendFailureFilterMatch(eachRow, filterText))
         .map((eachRow) => {
             // would be nice if org and receiver name were separate
             const parts = eachRow.receiver.split(".") || eachRow.receiver;
@@ -202,9 +202,9 @@ const DataLoadRenderTable = (props: {
                                 unstyled
                                 className={"font-mono-xs"}
                                 title={"Show Info"}
-                                key={`details_${eachRow.pk()}`}
+                                key={`details_${eachRow.actionId}`}
                                 onClick={() =>
-                                    props.handleShowDetailsClick(
+                                    handleShowDetailsClick(
                                         JSON.stringify(dataForDialog, null, 4),
                                     )
                                 }
@@ -233,15 +233,15 @@ const DataLoadRenderTable = (props: {
                             <USLink
                                 title={"Jump to Settings"}
                                 href={linkRecvSettings}
-                                key={`recv_link_${eachRow.pk()}`}
+                                key={`recv_link_${eachRow.actionId}`}
                                 className={"font-mono-xs padding-right-4"}
                             >
                                 {eachRow.receiver}
                             </USLink>
                             <Button
-                                key={`retry_${eachRow.pk()}`}
+                                key={`retry_${eachRow.actionId}`}
                                 onClick={() =>
-                                    props.handleRetrySendClick(
+                                    handleRetrySendClick(
                                         JSON.stringify(eachRow, null, 2),
                                     )
                                 }
@@ -262,13 +262,25 @@ const DataLoadRenderTable = (props: {
 
 // Main component. Tracks state but does not load/contain data.
 export function AdminLastMileFailuresTable() {
-    const { properties } = useAppInsightsContext();
-    const { authState } = useSessionContext();
     const modalShowInfoId = "sendFailuresModalDetails";
     const modalResendId = "sendFailuresModalDetails";
-    const defaultDaysToShow = "15"; // numeric input but treat as string for easier passing around
+    const defaultDaysToShow = 15;
     const [daysToShow, setDaysToShow] = useState(defaultDaysToShow);
-    const { invalidate: forceRefresh } = useController();
+    const { data: lastMileData, refetch: refetchLastMileData } =
+        useSendFailures({ daysToShow: daysToShow });
+    const { data: lastMileResends, refetch: refetchLastMileResends } =
+        useResends({ daysToShow: daysToShow });
+    const {
+        mutate: createResend,
+        isPending,
+        error,
+        data,
+        isSuccess,
+    } = useCreateResend();
+    const refresh = useCallback(async () => {
+        await refetchLastMileData();
+        await refetchLastMileResends();
+    }, [refetchLastMileData, refetchLastMileResends]);
 
     // this is the input box filter
     const [filter, setFilter] = useState("");
@@ -299,25 +311,11 @@ export function AdminLastMileFailuresTable() {
     const [currentReceiver, setCurrentReceiver] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const refresh = async () => {
-        // Promise.all runs in parallel
-        await Promise.all([
-            forceRefresh(AdmSendFailuresResource.list(), {
-                days_to_show: daysToShow,
-            }),
-            forceRefresh(AdmAction.list(), {
-                days_to_show: daysToShow,
-            }),
-        ]);
-
-        return true;
-    };
-
     // called from the list when retry button is clicked.
     // all the data is serialized to a json string as a cheap clone.
     const handleRetrySendClick = useCallback(
         (jsonRowData: string) => {
-            const data = JSON.parse(jsonRowData) as AdmSendFailuresResource;
+            const data = JSON.parse(jsonRowData) as RSSendFailure;
 
             // the content has line feeds, etc. so the formatted content isn't tabbed here in the code
             const formatted = `Report ID:
@@ -346,41 +344,36 @@ ${data.receiver}`;
     }, [modalResendRef]);
 
     // Trigger a resend by issuing an api call
-    const startResend = async () => {
-        try {
-            setLoading(true);
-            setHtmlContentResultText(`Starting...`);
-            const url =
-                `${RS_API_URL}/api/adm/resend?` +
-                `reportId=${currentReportId}&receiver=${currentReceiver}`;
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "x-ms-session-id": properties.context.getSessionId(),
-                    Authorization: `Bearer ${authState.accessToken?.accessToken}`,
-                },
-                mode: "cors",
-            });
+    const startResend = useCallback(() => {
+        setLoading(true);
+        createResend({
+            reportId: currentReportId,
+            receiverId: currentReceiver,
+        });
+    }, [createResend, currentReceiver, currentReportId]);
 
-            const body = await response.text();
-
-            if (!response.ok) {
-                const msg = `Triggering resend command failed.\n${body}`;
-                showToast(msg, "error");
-                setHtmlContentResultText(msg);
-            } else {
-                // oddly, this api just returns a bunch of messages on success.
-                const msg = `Success. \n ${body}`;
-                showToast(msg, "success");
-                setHtmlContentResultText(msg);
-            }
-        } catch (e: any) {
-            const msg = `Triggering resend command failed. ${e.toString()}`;
+    useEffect(() => {
+        if (error) {
+            const msg = `Triggering resend command failed. ${error.toString()}`;
             showToast(msg, "error");
             setHtmlContentResultText(msg);
         }
-        setLoading(false);
-    };
+    }, [error]);
+
+    useEffect(() => {
+        if (isPending) {
+            setHtmlContentResultText(`Starting...`);
+            setLoading(true);
+        } else {
+            setLoading(false);
+        }
+    }, [isPending]);
+
+    useEffect(() => {
+        if (isSuccess) {
+            setHtmlContentResultText(`Success. \n ${data}`);
+        }
+    }, [data, isSuccess]);
 
     return (
         <section>
@@ -419,7 +412,9 @@ ${data.receiver}`;
                         defaultValue={defaultDaysToShow}
                         autoComplete="off"
                         aria-autocomplete="none"
-                        onBlur={(evt) => setDaysToShow(evt.target.value)}
+                        onBlur={(evt) =>
+                            setDaysToShow(parseInt(evt.target.value))
+                        }
                     />
                 </div>
                 <div className="flex-auto margin-1 padding-3">
@@ -443,16 +438,13 @@ ${data.receiver}`;
 
             <div className={"grid-row margin-0 rs-container-unbounded"}>
                 <Suspense fallback={<Spinner />}>
-                    <NetworkErrorBoundary
-                        fallbackComponent={() => <ErrorPage type="message" />}
-                    >
-                        <DataLoadRenderTable
-                            daysToShow={daysToShow}
-                            filterText={filter}
-                            handleRetrySendClick={handleRetrySendClick}
-                            handleShowDetailsClick={handleShowDetailsClick}
-                        />
-                    </NetworkErrorBoundary>
+                    <DataLoadRenderTable
+                        lastMileData={lastMileData}
+                        lastMileResends={lastMileResends}
+                        filterText={filter}
+                        handleRetrySendClick={handleRetrySendClick}
+                        handleShowDetailsClick={handleShowDetailsClick}
+                    />
                 </Suspense>
             </div>
 
@@ -487,9 +479,3 @@ ${data.receiver}`;
         </section>
     );
 }
-
-export const _exportForTesting = {
-    RenderInfoModal,
-    RenderResendModal,
-    DataLoadRenderTable,
-};
