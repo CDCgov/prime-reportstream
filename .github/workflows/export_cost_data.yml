@@ -54,7 +54,7 @@ jobs:
           database: prime_data_hub
           output-file: result.txt
           query: |
-            CREATE TABLE IF NOT EXISTS Costs (
+            CREATE TABLE IF NOT EXISTS Azure_Costs (
               Date       date,
               Cost       NUMERIC(5, 8),
               CostUsd    NUMERIC(5, 8),
