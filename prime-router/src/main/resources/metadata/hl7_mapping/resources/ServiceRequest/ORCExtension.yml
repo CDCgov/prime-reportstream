@@ -1,3 +1,5 @@
+# possible '%resource's:
+# Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id).basedOn.resolve().extension(%`rsext-orc-common-order`)
 elements:
   - name: order-status
     hl7Spec: [ '%{hl7Order}-5' ]

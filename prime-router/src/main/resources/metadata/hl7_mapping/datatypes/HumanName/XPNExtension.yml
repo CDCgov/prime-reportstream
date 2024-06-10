@@ -1,3 +1,5 @@
+# possible '%resource's:
+# PID-5: Bundle.entry.resource.ofType(Patient).name.extension(%`rsext-xpn-human-name`)
 elements:
 
   - name: xpn-2-given-name

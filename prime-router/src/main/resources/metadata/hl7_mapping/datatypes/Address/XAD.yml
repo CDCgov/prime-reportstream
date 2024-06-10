@@ -1,3 +1,5 @@
+# possible '%resource's:
+# PID-11: Bundle.entry.resource.ofType(Patient).address
 elements:
 
   - name: city

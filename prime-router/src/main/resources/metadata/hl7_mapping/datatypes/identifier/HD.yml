@@ -1,3 +1,5 @@
+# possible '%resource's:
+# PID-3-4: Bundle.entry.resource.ofType(Patient).identifier.where(extension(%`rsext-hl7v2Field`).value = "PID.3").assigner.resolve()
 elements:
 
   - name: hd-namespace-id
