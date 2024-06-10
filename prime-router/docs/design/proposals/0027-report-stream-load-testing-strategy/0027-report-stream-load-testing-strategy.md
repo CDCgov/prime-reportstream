@@ -20,7 +20,7 @@ be [tested](https://learn.microsoft.com/en-us/azure/load-testing/how-to-create-l
 
 The entry point for the pipeline is just a single endpoint, so the load test should be configurable entirely via the UI;
 including the sender configuration and the report payload. The way this would be set up is to add several different
-requests with the different payloads.
+requests with different payloads.
 
 #### JMeter support
 
@@ -102,7 +102,7 @@ This test will want to get scheduled to run at regular intervals and after an in
 ### Soak test (optional)
 
 This workload will serve as an endurance test where reports submitted per minute will ramp up and then plateau for an
-extended period of time, on the scale of several hours. The goal of this is workload is to gain confidence that the
+extended period of time, on the scale of several hours. The goal of this workload is to gain confidence that the
 system is working as expected under an extended period of load and that system does not develop any unexpected
 behaviors.
 
