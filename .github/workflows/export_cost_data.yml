@@ -30,7 +30,8 @@ jobs:
           dotnet tool install --global azure-cost-cli
       - name: Run azure-cost-cli
         run: |
-          azure-cost accumulatedCost -g prime-data-hub-prod -t custom --from $(date --date='180 days ago' '+%m/%d/%Y') --to $(date '+%m/%d/%Y')  -o csv
+          azure-cost accumulatedCost -g prime-data-hub-prod -t custom --from $(date --date='180 days ago' '+%m/%d/%Y') --to $(date '+%m/%d/%Y')  -o csv > costs.csv
+          cat ./costs.csv
       - name: Get runner IP
         shell: bash
         run: echo "PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)" >> $GITHUB_ENV
@@ -53,7 +54,12 @@ jobs:
           database: prime_data_hub
           output-file: result.txt
           query: |
-            SELECT 1 ;
+            CREATE TABLE IF NOT EXISTS Costs (
+              Date       date,
+              Cost       NUMERIC(5, 8),
+              CostUsd    NUMERIC(5, 8),
+              Currency   varchar(3)
+            );
       # Remove runner db access
       - name: Remove DB access
         if: always() && steps.add-db-access.outcome == 'success'
