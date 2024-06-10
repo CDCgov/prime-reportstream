@@ -237,17 +237,16 @@ class FHIRConverterIntegrationTests {
             assertThat(reportAndBundles).transform { pairs -> pairs.map { it.second } }.each {
                 it.matchesPredicate { bytes ->
                     val invalidHL7Result = CompareData().compare(
-                        bytes.inputStream(),
                         cleanHL7RecordConverted.byteInputStream(),
-
+                        bytes.inputStream(),
                         Report.Format.FHIR,
                         null
                     )
                     invalidHL7Result.passed
 
                     val cleanHL7Result = CompareData().compare(
-                        bytes.inputStream(),
                         invalidHL7RecordConverted.byteInputStream(),
+                        bytes.inputStream(),
                         Report.Format.FHIR,
                         null
                     )
@@ -431,8 +430,8 @@ class FHIRConverterIntegrationTests {
             assertThat(reportAndBundles).transform { pairs -> pairs.map { it.second } }.each {
                 it.matchesPredicate { bytes ->
                     CompareData().compare(
-                        bytes.inputStream(),
                         validRadxMarsHL7MessageConverted.byteInputStream(),
+                        bytes.inputStream(),
                         Report.Format.FHIR,
                         null
                     ).passed
@@ -502,7 +501,6 @@ class FHIRConverterIntegrationTests {
                     val invalidHL7Result = CompareData().compare(
                         cleanHL7RecordConvertedAndTransformed.byteInputStream(),
                         bytes.inputStream(),
-
                         Report.Format.FHIR,
                         null
                     )

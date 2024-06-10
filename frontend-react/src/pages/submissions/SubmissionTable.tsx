@@ -12,10 +12,10 @@ import useSessionContext from "../../contexts/Session/useSessionContext";
 import useFilterManager, {
     FilterManager,
     FilterManagerDefaults,
-} from "../../hooks/filters/UseFilterManager";
-import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
-import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
-import usePagination from "../../hooks/UsePagination";
+} from "../../hooks/filters/UseFilterManager/UseFilterManager";
+import { Organizations } from "../../hooks/UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
+import usePagination from "../../hooks/UsePagination/UsePagination";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { EventName } from "../../utils/AppInsights";
 import { FeatureName } from "../../utils/FeatureName";

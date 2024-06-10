@@ -347,7 +347,7 @@ subject:
   specs: $Patient
 
 note:
-  valueOf: datatype/Annotation
+  valueOf: segments/NTE/Annotation
   expressionType: resource
   generateList: true
   specs: NTE

@@ -84,6 +84,11 @@ test.describe("Daily Data page", () => {
                 await dailyData.goto(page);
             });
 
+            test("nav contains the 'Daily Data' option", async ({ page }) => {
+                const navItems = page.locator(".usa-nav  li");
+                await expect(navItems).toContainText(["Daily Data"]);
+            });
+
             test("has correct title", async ({ page }) => {
                 await expect(page).toHaveTitle(/Daily Data - ReportStream/);
             });
@@ -886,6 +891,11 @@ test.describe("Daily Data page", () => {
             );
             await dailyData.goto(page);
             await page.getByTestId("filter-form").waitFor({ state: "visible" });
+        });
+
+        test("nav contains the 'Daily Data' option", async ({ page }) => {
+            const navItems = page.locator(".usa-nav  li");
+            await expect(navItems).toContainText(["Daily Data"]);
         });
 
         test("has correct title", async ({ page }) => {
