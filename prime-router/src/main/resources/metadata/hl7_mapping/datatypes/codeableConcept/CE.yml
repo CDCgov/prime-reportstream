@@ -67,5 +67,10 @@ elements:
     value: [ '%resource.value' ]
     hl7Spec: [ '%{ceFieldPath}-12' ]
 
- 
+  - name: second-alternative-coding-system-version-id
+    condition: '%resource.coding.where(extension(%`rsext-ce-coding`).value = "secondary-alt-coding").exists()'
+    value: [ '%resource.coding.where(extension(%`rsext-ce-coding`).value = "secondary-alt-coding").version' ]
+    hl7Spec: [ '%{ceFieldPath}-13' ]
+
+
 
