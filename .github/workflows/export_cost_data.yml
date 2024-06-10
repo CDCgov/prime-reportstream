@@ -56,8 +56,8 @@ jobs:
           query: |
             CREATE TABLE IF NOT EXISTS Azure_Costs (
               Date       date,
-              Cost       NUMERIC(5, 8),
-              CostUsd    NUMERIC(5, 8),
+              Cost       NUMERIC(8, 8),
+              CostUsd    NUMERIC(8, 8),
               Currency   varchar(3)
             );
       # Remove runner db access
