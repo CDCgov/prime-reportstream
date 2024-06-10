@@ -1584,7 +1584,18 @@ class Report : Logging {
         ): String {
             return if (header.receiver?.topic?.isSendOriginal == true) {
 //                the externalName of the root report should equal the submission payload name parameter
-                ReportService().getRootReport(header.reportFile.reportId).externalName
+                try {
+                    ReportService().getRootReport(header.reportFile.reportId).externalName
+                } catch (e: Exception) {
+                    return formExternalFilename(
+                        header.reportFile.bodyUrl,
+                        header.reportFile.reportId,
+                        header.reportFile.schemaName,
+                        Format.valueOfFromBodyFormat(header.reportFile.bodyFormat),
+                        header.reportFile.createdAt,
+                        metadata = metadata ?: Metadata.getInstance()
+                    )
+                }
             } else if (header.reportFile.externalName != null) {
                 header.reportFile.externalName
             } else {

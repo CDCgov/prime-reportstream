@@ -106,6 +106,7 @@ class SendFunctionTests {
     @Test
     fun `Test with message`() {
         var nextEvent: ReportEvent? = null
+        val reportList = listOf(reportFile)
         setupLogger()
         setupWorkflow()
         every { workflowEngine.handleReportEvent(any(), any()) }.answers {
@@ -117,7 +118,7 @@ class SendFunctionTests {
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(null)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         every { workflowEngine.azureEventService.trackEvent(any()) }.returns(Unit)
-        every { workflowEngine.reportService.getRootReport(any()) } returns reportFile
+        every { workflowEngine.reportService.getRootReports(any()) } returns reportList
         mockkObject(Report.Companion)
         every { Report.formExternalFilename(any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
 
