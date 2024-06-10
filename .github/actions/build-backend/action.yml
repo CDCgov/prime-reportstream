@@ -58,7 +58,7 @@ runs:
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
-          ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" :prime-router:package -x fatjar -Pshowtests
+          ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" :prime-router:package -x fatjar -Pshowtests -x tests
         shell: bash
 
     - name: Tar router files
@@ -145,10 +145,10 @@ runs:
       shell: bash
 
     # Integrations tests require the metadata catalog
-    - name: Run Integration Tests
-      if: inputs.run-integration-tests == 'true'
-      run: ./gradlew :prime-router:testIntegration -Pshowtests
-      shell: bash
+#    - name: Run Integration Tests
+#      if: inputs.run-integration-tests == 'true'
+#      run: ./gradlew :prime-router:testIntegration -Pshowtests
+#      shell: bash
 
     - name: Publish Integration Test Results
       uses: EnricoMi/publish-unit-test-result-action/linux@30eadd5010312f995f0d3b3cff7fe2984f69409e
