@@ -543,7 +543,7 @@ tasks.register("copyAzureResources") {
 }
 
 val azureScriptsTmpDir = File(buildDir, "$azureFunctionsDir-scripts/$azureAppName")
-val azureScriptsFinalDir = rootProject.layout.buildDirectory.asFile.get()
+val azureScriptsFinalDir = project.layout.buildDirectory.asFile.get()
 val primeScriptName = "prime"
 val startFuncScriptName = "start_func.sh"
 val apiDocsSetupScriptName = "upload_swaggerui.sh"
