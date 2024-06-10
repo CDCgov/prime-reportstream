@@ -49,3 +49,8 @@ elements:
     value: [ '%resource.text' ]
     hl7Spec: [ '%{ceFieldPath}-9' ]
 
+  - name: second-alternative-identifier
+    condition: '%resource.coding.where(extension(%`rsext-ce-coding`).value = "secondary-alt-coding").exists()'
+    value: [ '%resource.coding.where(extension(%`rsext-ce-coding`).value = "secondary-alt-coding").code' ]
+    hl7Spec: [ '%{ceFieldPath}-10' ]
+
