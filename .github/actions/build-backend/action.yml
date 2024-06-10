@@ -168,6 +168,14 @@ runs:
       run: docker compose exec -T sftp chmod 777 /home/foo/upload
       shell: bash
 
+    - name: Add SFTP credentials
+      if: inputs.run-integration-tests == 'true'
+      working-directory: prime-router
+      run: |
+        export $(xargs < .vault/env/.env.local)
+        ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
+      shell: bash
+
     - name: Smoke tests
       if: inputs.run-integration-tests == 'true'
       uses: ./.github/actions/retry
@@ -175,12 +183,7 @@ runs:
         timeout_minutes: 30
         max_attempts: 2
         retry_wait_seconds: 30
-        command: |
-          cd prime-router
-          export $(xargs < .vault/env/.env.local)
-          ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
-          cd ../
-          ./gradlew :prime-router:testSmoke
+        command: ./gradlew :prime-router:testSmoke
         shell: bash
 
     - name: Dump docker logs
