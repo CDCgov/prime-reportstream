@@ -1,6 +1,6 @@
 # To submit this to localhost, run:
 #
-# ./prime multiple-settings set --input ./src/main/resources/metadata/hl7_mapping/receivers/STLTs/ND/nd-doh.yml
+# ./prime multiple-settings set --input ./settings/staging/171-nd-doh-up-receiver-migration.yml
 #
 ---
 - name: "nd-doh"
@@ -69,8 +69,7 @@
         customLengthHl7Fields: {}
     jurisdictionalFilter:
       - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'ND') or (Bundle.entry.resource.ofType(Patient).address.state = 'ND')"
-    qualityFilter: []
-    routingFilter:
+    qualityFilter:
       - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or Bundle.entry.resource.ofType(serviceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists())"
       - "(Bundle.entry.resource.ofType(Patient).address.line.exists() or Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or Bundle.entry.resource.ofType(Patient).telecom.exists())"
       - "Bundle.entry.resource.ofType(MessageHeader).id.exists()"
@@ -78,6 +77,7 @@
       - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
       - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
       - "Bundle.entry.resource.ofType(Specimen).type.exists()"
+    routingFilter: []
     processingModeFilter: []
     reverseTheQualityFilter: false
     conditionFilter:
