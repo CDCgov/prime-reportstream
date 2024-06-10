@@ -44,3 +44,8 @@ elements:
     condition: '%resource.coding.where(extension(%`rsext-ce-coding`).value = "alt-coding").exists()'
     value: [ '%resource.coding.where(extension(%`rsext-ce-coding`).value = "alt-coding").version' ]
     hl7Spec: [ '%{ceFieldPath}-8' ]
+
+  - name: original-text
+    value: [ '%resource.text' ]
+    hl7Spec: [ '%{ceFieldPath}-9' ]
+
