@@ -54,10 +54,11 @@ jobs:
           database: prime_data_hub
           output-file: result.txt
           query: |
+            DROP TABLE IF EXISTS Azure_Costs;
             CREATE TABLE IF NOT EXISTS Azure_Costs (
               Date       date,
-              Cost       NUMERIC(8, 8),
-              CostUsd    NUMERIC(8, 8),
+              Cost       NUMERIC(13, 8),
+              CostUsd    NUMERIC(13, 8),
               Currency   varchar(3)
             );
             TRUNCATE Azure_Costs;
