@@ -1,14 +1,14 @@
 import { useState } from "react";
 
 import { RSReceiver } from "../../../config/endpoints/settings";
-import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
-import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import useReceiverSubmitters, {
     DeliveriesAttr,
-} from "../../../hooks/network/DataDashboard/UseReceiverSubmitters";
-import useAppInsightsContext from "../../../hooks/UseAppInsightsContext";
-import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceivers";
-import { getSlots } from "../../../hooks/UsePagination";
+} from "../../../hooks/api/deliveries/UseReceiverSubmitters/UseReceiverSubmitters";
+import useOrganizationReceivers from "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers";
+import { PageSettingsActionType } from "../../../hooks/filters/UsePages/UsePages";
+import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder/UseSortOrder";
+import useAppInsightsContext from "../../../hooks/UseAppInsightsContext/UseAppInsightsContext";
+import { getSlots } from "../../../hooks/UsePagination/UsePagination";
 import { Table } from "../../../shared";
 import { EventName } from "../../../utils/AppInsights";
 import {

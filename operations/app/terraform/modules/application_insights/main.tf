@@ -37,11 +37,6 @@ resource "azurerm_monitor_action_group" "action_group" {
   tags = {
     environment = var.environment
   }
-  lifecycle {
-    ignore_changes = [
-      webhook_receiver[0].service_uri
-    ]
-  }
 }
 
 resource "azurerm_monitor_action_group" "action_group_metabase" {

@@ -1,9 +1,8 @@
 import { ReportDetailsPage } from "./ReportDetails";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
-import {
-    mockUseReportDetail,
-    mockUseReportFacilities,
-} from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+
+import useReportsDetail from "../../../hooks/api/deliveries/UseReportDetail/UseReportDetail";
+import useReportsFacilities from "../../../hooks/api/deliveries/UseReportFacilities/UseReportFacilities";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 
 const TEST_ID = "123";
@@ -14,6 +13,13 @@ vi.mock("react-router-dom", async (importActual) => ({
         reportId: TEST_ID,
     }),
 }));
+vi.mock("../../../hooks/api/deliveries/UseReportDetail/UseReportDetail");
+vi.mock(
+    "../../../hooks/api/deliveries/UseReportFacilities/UseReportFacilities",
+);
+
+const mockUseReportDetail = vi.mocked(useReportsDetail);
+const mockUseReportFacilities = vi.mocked(useReportsFacilities);
 
 describe("ReportDetails", () => {
     test("url param (reportId) feeds into network hook", () => {

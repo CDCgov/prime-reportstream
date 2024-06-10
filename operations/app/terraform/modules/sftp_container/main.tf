@@ -73,13 +73,6 @@ resource "azurerm_container_group" "sftp_container" {
     environment = var.environment
   }
 
-  lifecycle {
-    # Workaround. TF thinks this is a new resource after import
-    ignore_changes = [
-      container[0].volume[0],
-    ]
-  }
-
   depends_on = [
     azurerm_storage_share.sftp_share,
     azurerm_network_profile.sftp_vnet_network_profile
