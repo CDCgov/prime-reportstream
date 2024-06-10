@@ -1,6 +1,6 @@
 import { addDays, endOfDay, startOfDay, subDays } from "date-fns";
 import { fileURLToPath } from "node:url";
-import { SuccessRate } from "../../../src/components/Admin/AdminReceiverDashboard.utils";
+import { SuccessRate } from "../../../src/pages/admin/receiver-dashboard/utils";
 import { durationFormatShort } from "../../../src/utils/DateTimeUtils";
 import { formatDate } from "../../../src/utils/misc";
 import { AdminReceiverStatusPage } from "../../pages/admin/receiver-status";

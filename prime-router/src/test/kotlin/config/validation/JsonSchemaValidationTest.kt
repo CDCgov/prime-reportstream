@@ -56,11 +56,6 @@ class JsonSchemaValidationTest : Logging {
         val yaml = JacksonMapperUtilities.yamlMapper.readTree(rawYml)
         val results = schema.validate(yaml)
 
-        logger.info("Validation errors: ${results.size}")
-        results.forEach { message ->
-            logger.info(message)
-        }
-
         return results
     }
 }

@@ -34,7 +34,7 @@ import java.time.format.DateTimeParseException
  * Hoping we implement some geospatial searches someday.
  *
  */
-interface ReportStreamFilterDefinition : Logging {
+sealed interface ReportStreamFilterDefinition : Logging {
     /**
      * Name of the filter function
      */

@@ -35,3 +35,11 @@ elements:
     constants:
       hl7XCNField: '%{hl7NotePath}/NTE(%{noteIndex})-5'
       contactIndex: '0'
+
+  - name: note-entered-date
+    value: [ '%resource.time.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-6' ]
+
+  - name: nte-extension-values
+    resource: '%resource.extension(%`rsext-nte-annotation`)'
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTEExtension.yml

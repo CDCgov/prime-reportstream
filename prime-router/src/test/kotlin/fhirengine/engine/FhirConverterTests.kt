@@ -157,6 +157,12 @@ class FhirConverterTests {
         val actionLogger = mockk<ActionLogger>()
         val transformer = mockk<FhirTransformer>()
 
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable(
+                "observation-mapping",
+                emptyList()
+            )
+        )
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
             FhirConvertQueueMessage(

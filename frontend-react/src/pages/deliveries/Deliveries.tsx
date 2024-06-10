@@ -1,11 +1,11 @@
-import { Alert, GridContainer } from "@trussworks/react-uswds";
+import { GridContainer } from "@trussworks/react-uswds";
 import { Helmet } from "react-helmet-async";
 
 import { DailyData } from "./daily-data/DailyData";
 import HipaaNotice from "../../components/HipaaNotice";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary/RSErrorBoundary";
 import Title from "../../components/Title";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import useOrganizationSettings from "../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings";
 import { FeatureName } from "../../utils/FeatureName";
 
 function DeliveriesPage() {
@@ -28,12 +28,6 @@ function DeliveriesPage() {
                     content="An abstract illustration of screens and a document."
                 />
             </Helmet>
-            <Alert type="info" headingLevel="h2">
-                Try new filter and search features for enhanced troubleshooting
-                and learning more about your connection. <br />
-                If you were using Data Dashboard, Daily Data is now where you
-                can view information on data sent to you.
-            </Alert>
             <article className="padding-bottom-5 tablet:padding-top-6">
                 <Title
                     preTitle={description}

@@ -134,6 +134,7 @@ data class ReportStreamFilterResult(
     val filterArgs: List<String>,
     val filteredTrackingElement: String,
     val filterType: ReportStreamFilterType?,
+    val filteredObservationDetails: String? = null,
 ) : ActionLogDetail {
     override val scope = ActionLogScope.translation
     override val errorCode = ErrorCode.UNKNOWN
@@ -143,8 +144,11 @@ data class ReportStreamFilterResult(
         const val DEFAULT_TRACKING_VALUE = "MissingID"
     }
 
-    override val message = "For $receiverName, filter $filterName$filterArgs" +
-        " filtered out item $filteredTrackingElement"
+    override val message = """
+        For $receiverName, filter $filterName$filterArgs filtered out item $filteredTrackingElement. 
+        $filteredObservationDetails 
+    }
+    """.trimIndent()
 
     // Used for deserializing to a JSON response
     override fun toString(): String {
@@ -1759,7 +1763,7 @@ class Report : Logging {
             val blobInfo = BlobAccess.uploadBody(
                 reportFormat,
                 messageBody,
-                if (!externalName.isNullOrEmpty()) "$externalName-${report.name}" else report.name,
+                if (!externalName.isNullOrEmpty()) "${report.id}-$externalName" else report.name,
                 receiver.fullName,
                 event.eventAction
             )

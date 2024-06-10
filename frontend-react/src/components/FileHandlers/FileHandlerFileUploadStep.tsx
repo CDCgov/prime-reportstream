@@ -14,10 +14,10 @@ import { RSSender } from "../../config/endpoints/settings";
 import { WatersResponse } from "../../config/endpoints/waters";
 import useSessionContext from "../../contexts/Session/useSessionContext";
 import { showToast } from "../../contexts/Toast";
-import { useWatersUploader } from "../../hooks/network/WatersHooks";
-import useAppInsightsContext from "../../hooks/UseAppInsightsContext";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
-import useSenderResource from "../../hooks/UseSenderResource";
+import useOrganizationSender from "../../hooks/api/organizations/UseOrganizationSender/UseOrganizationSender";
+import useOrganizationSettings from "../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings";
+import useWatersUploader from "../../hooks/api/UseWatersUploader/UseWatersUploader";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
 import { EventName } from "../../utils/AppInsights";
 import { parseCsvForError } from "../../utils/FileUtils";
 import { MembershipSettings } from "../../utils/OrganizationUtils";
@@ -86,7 +86,7 @@ export default function FileHandlerFileUploadStep({
 }: FileHandlerFileUploadStepProps) {
     const appInsights = useAppInsightsContext();
     const { data: organization } = useOrganizationSettings();
-    const { data: senderDetail } = useSenderResource();
+    const { data: senderDetail } = useOrganizationSender();
     const { activeMembership, rsConsole } = useSessionContext();
     const fileInputRef = useRef<FileInputRef>(null);
     const { format } = selectedSchemaOption;

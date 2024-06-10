@@ -1,6 +1,6 @@
 # Adding support for a new HL7v2 conformance profile in ReportStream
 
-This document outlines the process of integrating a HL7v2 conformance profile so that a new data model can be
+This section outlines the process of integrating a HL7v2 conformance profile so that a new data model can be
 processed by ReportStream.
 
 ## Background
@@ -143,3 +143,47 @@ v251. That presents the opportunity for reuse.
 - The FHIR to HL7 mappings extensively use [FHIR Path](https://hl7.org/fhirpath/N1/) to access values in FHIR
 - [Mapping schema file structure](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/design/design/mapping-schemas.md)  
   has good information on building elements in the mappings files
+
+# Adding/Updating Validation Configuration(s) for Profiles
+
+This section outlines how to add or update validation configurations/files for a particular conformance profile.
+
+## Background
+
+HL7v2 and FHIR have tools/libraries that take in a file containing the rules of a particular conformance profile and run
+them against a message to determine if the message is "valid". ReportStream has the ability to configure conformance
+profile validation per topic, see `Topic` in `prime-router/src/main/kotlin/SettingsProvider.kt`. The validation files
+are stored in `prime-router/src/main/resources/metadata` and the number and format of those files depends on the
+underlying format/library.
+
+## HL7v2 Validation Files
+
+ReportStream uses https://hl7v2-gvt.nist.gov/gvt/#/cf and its underlying scala library to validate HL7v2 messages against
+a particular conformance profile. nist.gov has a built-in conformance profile building tool and published profiles can
+be located in the top-right drop down.
+
+### Adding or Updating HL7v2 Validation Files for a Particular Profile
+
+Go to https://hl7v2-gvt.nist.gov/gvt/#/cf and:
+
+1. Select the profile the needs to be added or updated in the top right
+2. Go to the documentation tab
+3. Select the profile specific sub-tab next to the "General Documents" sub-tab, like "RADx MARS HL7v2's Documents"
+4. Go to "Test Case Documentation" and download the files under the following columns:
+    - Conformance Profile
+    - Constraints
+    - CoConstraints
+    - ValueSet Library
+    - ValueSet Bindings
+    - Slicings
+
+5. Create (if adding new profile support) or locate (if updating existing profile) the validation profile folder in
+   ReportStream. Example: `prime-router/src/main/resources/metadata/hl7_validation/v251/radxmars`
+6. Rename the downloaded files, if needed, to match the file names as shown
+   in `gov.cdc.prime.router.validation.AbstractItemValidator.Companion.getHL7Validator`
+7. If adding support for a new profile, follow the example of `gov.cdc.prime.router.validation.MarsOtcElrValidator` to
+   create a new validator class for the profile
+
+### Adding or Updating FHIR Validation Files for a Particular Profile
+
+TBD, no use-case exists for FHIR validation at the moment.

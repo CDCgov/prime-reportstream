@@ -1,10 +1,10 @@
 import { expect, Locator, Response } from "@playwright/test";
 import { endOfDay, format, startOfDay, subDays } from "date-fns";
+import { RSReceiverStatus } from "../../../src/hooks/api/UseReceiversConnectionStatus/UseReceiversConnectionStatus";
 import {
     createStatusTimePeriodData,
     SUCCESS_RATE_CLASSNAME_MAP,
-} from "../../../src/components/Admin/AdminReceiverDashboard.utils";
-import { AdmConnStatusDataType } from "../../../src/resources/AdmConnStatusResource";
+} from "../../../src/pages/admin/receiver-dashboard/utils";
 import { DatePair } from "../../../src/utils/DateTimeUtils";
 import { createMockGetReceiverStatus } from "../../mocks/receiverStatus";
 import {
@@ -27,7 +27,7 @@ export interface AdminReceiverStatusPageUpdateFiltersProps {
 
 export class AdminReceiverStatusPage extends BasePage {
     static readonly API_RECEIVER_STATUS = "/api/adm/listreceiversconnstatus?*";
-    protected _receiverStatus: AdmConnStatusDataType[];
+    protected _receiverStatus: RSReceiverStatus[];
     protected _timePeriodData: ReturnType<typeof createStatusTimePeriodData>;
 
     readonly filterForm: Locator;
@@ -208,7 +208,7 @@ export class AdminReceiverStatusPage extends BasePage {
             AdminReceiverStatusPage.API_RECEIVER_STATUS,
         );
 
-        const data: AdmConnStatusDataType[] = await apiRes.json();
+        const data: RSReceiverStatus[] = await apiRes.json();
         const url = new URL(apiRes.url());
         const startDate = url.searchParams.get("start_date");
         const endDate = url.searchParams.get("end_date");

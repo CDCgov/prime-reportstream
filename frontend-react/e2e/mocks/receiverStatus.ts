@@ -8,7 +8,7 @@ import {
     subDays,
 } from "date-fns";
 import { randomInt } from "crypto";
-import { AdmConnStatusDataType } from "../../src/resources/AdmConnStatusResource";
+import { RSReceiverStatus } from "../../src/hooks/api/UseReceiversConnectionStatus/UseReceiversConnectionStatus";
 
 const mockFailResult = "ERROR";
 const mockSuccessResult = "SUCCESS";
@@ -45,7 +45,7 @@ export function createMockGetReceiverStatusSet({
     const now = new Date();
     const start = startOfDay(range ? range[0] : subDays(now, 2));
     const end = endOfDay(range ? range[1] : now);
-    const statusSet: AdmConnStatusDataType[] = [];
+    const statusSet: RSReceiverStatus[] = [];
     // add minute lost from endOfDay conversion
     const statusSetLength =
         (differenceInMinutes(end, start) + 1) / maxMinutesPerStatus;
@@ -163,7 +163,7 @@ export function createMockGetReceiverStatus(
             ...orgA,
             receiverId: 5,
             receiverName: "skipped",
-        } as unknown as AdmConnStatusDataType,
+        } as unknown as RSReceiverStatus,
     ];
 
     const data = [success, fail, mixedWithSkips, skipped].flat();
