@@ -61,8 +61,7 @@ jobs:
               Currency   varchar(3)
             );
             TRUNCATE Azure_Costs;
-            \copy Azure_Costs (Date, Cost, CostUsd, Currency)
-                from './costs.csv' WITH DELIMITER ',' CSV HEADER;
+            \copy Azure_Costs (Date, Cost, CostUsd, Currency) FROM './costs.csv' WITH DELIMITER ',' CSV HEADER;
       # Remove runner db access
       - name: Remove DB access
         if: always() && steps.add-db-access.outcome == 'success'
