@@ -15,6 +15,12 @@ jobs:
     steps:
       - name: "Check out changes"
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: prod
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          tf-auth: false
       - name: Install .NET
         run: |
           sudo apt-get update
@@ -22,9 +28,6 @@ jobs:
       - name: Install azure-cost-cli
         run: |
           dotnet tool install --global azure-cost-cli
-      - name: Connect to VPN and login to Azure
-        uses: ./.github/actions/vpn-azure
-        with:
-          env-name: prod
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-          tf-auth: false
+      - name: Run azure-cost-cli
+        run: |
+          azure-cost accumulatedCost -g prime-data-hub-prod -t custom --from 09/01/2023 --to 06/01/2024  -o csv
