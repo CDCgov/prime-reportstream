@@ -58,7 +58,7 @@ runs:
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
-          ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" :prime-router:package -x fatjar -Pshowtests -x tests
+          ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" :prime-router:package -x :prime-router:tests -x fatjar -Pshowtests
         shell: bash
 
     - name: Tar router files
