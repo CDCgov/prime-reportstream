@@ -13,6 +13,8 @@ jobs:
     name: Export Azure Cost Data to Storage
     runs-on: ubuntu-latest
     steps:
+      - name: "Check out changes"
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - name: Install .NET
         run: |
           sudo apt-get update
