@@ -1,6 +1,6 @@
 # To submit this to localhost, run:
 #
-# ./prime multiple-settings set --input ./metadata/hl7_mapping/receivers/STLTs/MS/md-doh.yml
+# ./prime multiple-settings set --input ./settings/staging/0172-ms-doh-up-receiver-migration.yml
 ---
 - name: "ms-doh"
   description: "Mississippi Department of Health"
