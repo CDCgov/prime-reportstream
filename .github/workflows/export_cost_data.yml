@@ -1,0 +1,19 @@
+name: Export Cost Data
+
+on:
+  pull_request:
+    branches:
+      - dkrylov/costs_dash_10546
+  push:
+    branches:
+      - dkrylov/costs_dash_10546
+
+jobs:
+  export_cost_data:
+    name: Export Azure Cost Data to Storage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install .NET
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dotnet-sdk-8.0
