@@ -7,14 +7,16 @@
 - Be able to release with confidence that performance will not be impacted
 - Anticipate any long term performance bottlenecks (i.e. increasing database size)
 
+However, the short term goal is to confirm that the Universal pipeline can handle the approximate number of senders that 
+we anticipate by summer 2024. The following document is split between detailing how we'll tackle the short term goal, 
+but also what the long term solution would look like.
+
 ## Tools
 
 ### Azure load testing
 
 Out of the box, there are tools baked in to azure for running load tests and specifically azure functions can easily
 be [tested](https://learn.microsoft.com/en-us/azure/load-testing/how-to-create-load-test-function-app).
-
-**Note: currently do not have access with regular or SU accounts**
 
 The entry point for the pipeline is just a single endpoint, so the load test should be configurable entirely via the UI;
 including the sender configuration and the report payload. The way this would be set up is to add several different
@@ -23,7 +25,21 @@ requests with the different payloads.
 #### JMeter support
 
 Azure load testing also supports JMeter scripts, but this is likely not required since the workflow is so simple;
-typically, JMeter would be used to simulate a complex user flow that invokes many different APIs in a defined order.
+typically, JMeter would be used to simulate a complex user flow that invokes many different APIs in a defined order. 
+
+Under the hood, azure load tests actually generates a JMeter script when configured via the UI.
+
+### Short term
+
+The UI will be sufficient for setting up requests that just post data to the universal pipeline.
+
+![Configuring http request via UI](./example-request-configured-via-ui.png)
+
+### Long term
+
+Over the long term, the team will likely want to switch to writing the scripts via JMeter as the tool provides 
+significantly more functionality including convenient variable capturing, conditionals and more fine-grained controls on
+when requests are dispatched.
 
 ## Infrastructure
 
@@ -49,6 +65,17 @@ To enable both of these tests, we'll need to configure the following environment
   minimums and maximum instances set to reflect the amount the data was scaled down by
 - an environment that gets seeded with the most recent PROD backup of the db and identical settings for the number of
   instances
+
+### Short term
+
+In the short term, we can adopt a much simpler approach and simply reconfigure one of the demo environments to match
+the production resources and get a recent clone of the DB data.  The environments are already configured for an SFTP
+server which will be sufficient.
+
+### Long term
+
+It will be desired to have multiple environments matching the setup described above as well as having all the expected
+transports be available.
 
 ## Workloads
 
@@ -82,6 +109,28 @@ behaviors.
 This test will want to get scheduled to run at regular intervals and after any large architectural or infrastructure
 changes.
 
+### Short term
+
+The short term here is mostly informed by the initial POC testing of azure load testing that revealed that the universal
+pipeline can handle ~12 reports/sec, but started encountering lots of errors as the load was increased.  See the
+following screenshots:
+
+Success:
+![Successful load test](./successful-load-test.png)
+
+Failure:
+![Failed load test](./failed-load-test.png)
+
+The immediate goal is to target X reports/sec where X reflects the expected number of senders that will be using RS over
+the next two quarters with a current rough estimate being ~100. The initial approach will be oriented around creating a
+standard load test that we can run regularly as we track our progress towards the report/sec goal.
+
+### Long term
+
+To maintain the health of the system over the long term, the team will want to set up all the workloads described above
+and ideally have the tightly integrated into the CI processes; i.e. the standard load test could be triggered for any
+pull request and the spike and load tests would be run as part of the deployment processes.
+
 ### Test configuration
 
 The overall goal is to understand the performance and scalability of the system based on the actual reported usage in
@@ -110,6 +159,19 @@ the ability to scale up and down the amount of load, but remain the ratios of th
 Long term, the platform team will need to regularly analyze the production metrics above and adjust the load test
 configuration.
 
+#### Short term
+
+Configure tests that just send a single HL7 message to the universal pipeline.  This is incredibly trivial to configure
+and provides more than enough insight to track down some of the major performance issues.  Since the system struggled
+under the load, adding more requests with a complex breakdown is unlikely to reveal any additional insights. 
+
+#### Long term
+
+We'll want to configure load tests that accurately mimic what is happening in production so that we can anticipate 
+upcoming changes to the application, whether that be new functionality, new senders/receivers or simply an increased
+load over time.  This will be a living process where a team member will need to look at production traffic and then 
+adjust in the scripts how often each piece of functionality is invoked.
+
 ## Metrics
 
 There will need to be a series of metrics that will be gathered on each of the performance test that will be used to
@@ -119,7 +181,8 @@ measure the performance of the system. The following are an initial list of the 
 - The number of reports sent through the system
 - The number of items sent through the system
 - The response times for HTTP endpoints
-- Number of items that end up in the poison queue
+- ~~Number of items that end up in the poison queue~~ (this does not appear to be something that azure provides)
+- Success/failure counts for each of the pipeline steps
 - Throughput of the data sent
 - APM
     - % memory used on the app
