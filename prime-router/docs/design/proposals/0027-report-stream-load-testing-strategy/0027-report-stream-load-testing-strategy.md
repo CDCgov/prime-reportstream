@@ -161,9 +161,9 @@ configuration.
 
 #### Short term
 
-Configure tests that just send a single HL7 message to the universal pipeline.  This is incredibly trivial to configure
-and provides more than enough insight to track down some of the major performance issues.  Since the system struggled
-under the load, adding more requests with a complex breakdown is unlikely to reveal any additional insights. 
+Configure tests that just send a single HL7 or FHIR message to the universal pipeline.  This is incredibly trivial to 
+configure and provides more than enough insight to track down some of the major performance issues.  Since the system 
+struggled under the load, adding more requests with a complex breakdown is unlikely to reveal any additional insights. 
 
 #### Long term
 
