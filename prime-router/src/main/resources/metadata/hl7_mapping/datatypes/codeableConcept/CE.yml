@@ -34,3 +34,13 @@ elements:
     resource: '%resource.coding.where(extension(%`rsext-ce-coding`).value = "alt-coding").extension(%`rsext-ce-coding-system`)'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{ceFieldPath}-6' ]
+
+  - name: coding-system-version-id
+    condition: '%resource.coding.where(extension(%`rsext-ce-coding`).value = "coding").exists()'
+    value: [ '%resource.coding.where(extension(%`rsext-ce-coding`).value = "coding").version' ]
+    hl7Spec: [ '%{ceFieldPath}-7' ]
+
+  - name: alternative-coding-system-version-id
+    condition: '%resource.coding.where(extension(%`rsext-ce-coding`).value = "alt-coding").exists()'
+    value: [ '%resource.coding.where(extension(%`rsext-ce-coding`).value = "alt-coding").version' ]
+    hl7Spec: [ '%{ceFieldPath}-8' ]
