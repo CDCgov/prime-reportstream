@@ -8,5 +8,5 @@ data class ReportReceivedEvent(
     val topic: Topic,
     val format: String,
     val senderName: String,
-    val payload: String?,
+    val payloadName: String?,
 ) : AzureCustomEvent

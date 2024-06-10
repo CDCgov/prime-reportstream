@@ -106,10 +106,12 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 } else {
                     val retryItems = retryToken?.items
                     val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
+                    val externalFileName = Report.formExternalFilename(header, workflowEngine.reportService)
                     val nextRetry = getTransport(receiver.transport)?.send(
                         receiver.transport,
                         header,
                         sentReportId,
+                        externalFileName,
                         retryItems,
                         context,
                         actionHistory,
@@ -176,7 +178,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                         receiver,
                         workflowEngine.reportService.getRootReports(reportId),
                         reportId,
-                        Report.formExternalFilename(header)
+                        Report.formExternalFilename(header, workflowEngine.reportService)
                     )
                 )
                 // All OK

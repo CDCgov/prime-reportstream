@@ -890,20 +890,20 @@ class ReportTests {
 
     @Test
     fun `test format from bodyFormat`() {
-        var format = Report.Format.valueOfFromBodyFormat("csv")
+        var format = Report.Format.valueOf("csv")
         assertThat(format).isEqualTo(Report.Format.CSV)
 
-        format = Report.Format.valueOfFromBodyFormat("fhir")
+        format = Report.Format.valueOf("fhir")
         assertThat(format).isEqualTo(Report.Format.FHIR)
 
-        format = Report.Format.valueOfFromBodyFormat("hl7")
+        format = Report.Format.valueOf("hl7")
         assertThat(format).isEqualTo(Report.Format.HL7)
 
-        format = Report.Format.valueOfFromBodyFormat("HL7_BATCH")
+        format = Report.Format.valueOf("HL7_BATCH")
         assertThat(format).isEqualTo(Report.Format.HL7)
 
         try {
-            format = Report.Format.valueOfFromBodyFormat("txt")
+            format = Report.Format.valueOf("txt")
             fail("Expected IllegalArgumentException, instead got $format.")
         } catch (e: IllegalArgumentException) {
             assertThat(e).isNotNull()
@@ -994,6 +994,7 @@ class ReportTests {
             Event.EventAction.PROCESS, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory,
             topic = Topic.FULL_ELR,
         )
+        val blobUrl = "/devstoreaccount1/container1/process%2Forg.name%2F${report.id}.${report.bodyFormat.ext}"
 
         assertThat(report.bodyFormat).isEqualTo(Report.Format.FHIR)
         assertThat(report.itemCount).isEqualTo(1)
@@ -1001,9 +1002,8 @@ class ReportTests {
         assertThat(report.destination!!.name).isEqualTo(receiver.name)
         assertThat(report.itemLineages).isNotNull()
         assertThat(report.itemLineages!!.size).isEqualTo(1)
-        assertThat(Regex("${report.id}.fhir").matches(report.name)).isTrue()
         assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
-        assertThat(blobInfo.blobUrl).endsWith("/devstoreaccount1/container1/process%2Forg.name%2F${report.name}")
+        assertThat(blobInfo.blobUrl).endsWith(blobUrl)
         assertThat(BlobAccess.downloadBlobAsByteArray(blobInfo.blobUrl, blobContainerMetadata))
             .isEqualTo(fhirMockData)
 
@@ -1062,6 +1062,7 @@ class ReportTests {
             Event.EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
             topic = Topic.FULL_ELR
         )
+        val blobUrl = "/devstoreaccount1/container1/process%2Forg.name%2F${report.id}.${report.bodyFormat.ext}"
 
         assertThat(report.bodyFormat).isEqualTo(Report.Format.HL7)
         assertThat(report.itemCount).isEqualTo(1)
@@ -1069,9 +1070,8 @@ class ReportTests {
         assertThat(report.destination!!.name).isEqualTo(receiver.name)
         assertThat(report.itemLineages).isNotNull()
         assertThat(report.itemLineages!!.size).isEqualTo(1)
-        assertThat(Regex("${report.id}.hl7").matches(report.name)).isTrue()
         assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
-        assertThat(blobInfo.blobUrl).endsWith("/devstoreaccount1/container1/process%2Forg.name%2F${report.name}")
+        assertThat(blobInfo.blobUrl).endsWith(blobUrl)
         assertThat(BlobAccess.downloadBlobAsByteArray(blobInfo.blobUrl, blobContainerMetadata))
             .isEqualTo(hl7MockData)
 
@@ -1134,9 +1134,8 @@ class ReportTests {
         )
 
         assertThat(report.bodyFormat).isEqualTo(Report.Format.HL7)
-        assertThat(Regex("${report.id}.hl7").matches(report.name)).isTrue()
         assertThat(blobInfo.blobUrl).endsWith(
-            "/devstoreaccount1/container1/process%2Forg.name%2F${report.name}"
+            "/devstoreaccount1/container1/process%2Forg.name%2F${report.id}.${report.bodyFormat.ext}"
         )
     }
 

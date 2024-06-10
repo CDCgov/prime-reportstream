@@ -108,7 +108,7 @@ class SimpleReportIntegrationTests {
         val inputReport = readResult.report
 
         // 2) Write the input report back out to a new file
-        val outputFile = File(outputPath, inputReport.name)
+        val outputFile = File(outputPath, Report.formFilename(inputReport.id, inputReport.bodyFormat))
         csvSerializer.write(inputReport, outputFile.outputStream())
         assertThat(outputFile).exists()
         return outputFile
@@ -133,7 +133,7 @@ class SimpleReportIntegrationTests {
         )
 
         // 2) Write the input report back out to a new file
-        val outputFile = File(outputPath, inputReport.name)
+        val outputFile = File(outputPath, Report.formFilename(inputReport.id, inputReport.bodyFormat))
         csvSerializer.writeInternal(inputReport, outputFile.outputStream())
         assertThat(outputFile).exists()
         return outputFile

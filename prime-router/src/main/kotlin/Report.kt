@@ -198,7 +198,7 @@ class Report : Logging {
                 }
             }
 
-            fun valueOfFromBodyFormat(bodyFormat: String): Format {
+            fun valueOf(bodyFormat: String): Format {
                 return when (bodyFormat.uppercase()) {
                     HL7.toString() -> HL7
                     HL7_BATCH.toString() -> HL7
@@ -275,15 +275,6 @@ class Report : Logging {
      * A range of item index for this report
      */
     val itemIndices: IntRange get() = 0 until this.table.rowCount()
-
-    /**
-     * A standard name for this report that take schema, id, and destination into account
-     */
-    val name: String
-        get() = formFilename(
-            id,
-            bodyFormat,
-        )
 
     /**
      * A format for the body or use the destination format
@@ -1567,9 +1558,9 @@ class Report : Logging {
 
         fun formFilename(
             id: ReportId,
-            fileFormat: Format?,
+            fileFormat: Format,
         ): String {
-            val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
+            val nameSuffix = fileFormat.ext
             return "$id.$nameSuffix"
         }
 
@@ -1580,15 +1571,16 @@ class Report : Logging {
          */
         fun formExternalFilename(
             header: WorkflowEngine.Header,
+            reportService: ReportService,
             metadata: Metadata? = null,
         ): String {
             return if (header.receiver?.topic?.isSendOriginal == true) {
 //                the externalName of the root report should equal the submission payload name parameter
-                ReportService().getRootReport(header.reportFile.reportId).externalName ?: formExternalFilename(
+                reportService.getRootReport(header.reportFile.reportId).externalName ?: formExternalFilename(
                     header.reportFile.bodyUrl,
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
-                    Format.valueOfFromBodyFormat(header.reportFile.bodyFormat),
+                    Format.valueOf(header.reportFile.bodyFormat),
                     header.reportFile.createdAt,
                     metadata = metadata ?: Metadata.getInstance()
                 )
@@ -1599,7 +1591,7 @@ class Report : Logging {
                     header.reportFile.bodyUrl,
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
-                    Format.valueOfFromBodyFormat(header.reportFile.bodyFormat),
+                    Format.valueOf(header.reportFile.bodyFormat),
                     header.reportFile.createdAt,
                     metadata = metadata ?: Metadata.getInstance()
                 )
@@ -1625,7 +1617,6 @@ class Report : Logging {
                 BlobAccess.BlobInfo.getBlobFilename(bodyUrl)
             } else if (translationConfig == null) {
                 val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-                // This file-naming format is used for all INTERNAL files, and whenever there is no custom format.
                 "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}.$nameSuffix"
             } else {
                 val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
