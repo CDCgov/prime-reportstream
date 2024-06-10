@@ -58,7 +58,7 @@ runs:
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
-          ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" :prime-router:package -x test -x fatjar -Pshowtests
+          ./gradlew :prime-router:package -x fatjar -Pshowtests
         shell: bash
 
     - name: Tar router files
@@ -145,10 +145,10 @@ runs:
       shell: bash
 
     # Integrations tests require the metadata catalog
-#    - name: Run Integration Tests
-#      if: inputs.run-integration-tests == 'true'
-#      run: ./gradlew :prime-router:testIntegration -Pshowtests
-#      shell: bash
+    - name: Run Integration Tests
+      if: inputs.run-integration-tests == 'true'
+      run: ./gradlew :prime-router:testIntegration -Pshowtests
+      shell: bash
 
     - name: Publish Integration Test Results
       uses: EnricoMi/publish-unit-test-result-action/linux@30eadd5010312f995f0d3b3cff7fe2984f69409e
@@ -167,14 +167,6 @@ runs:
       working-directory: prime-router
       run: docker compose exec -T sftp chmod 777 /home/foo/upload
       shell: bash
-
-#    - name: Add SFTP credentials
-#      if: inputs.run-integration-tests == 'true'
-#      working-directory: prime-router
-#      run: |
-#        export $(xargs < .vault/env/.env.local)
-#        reloadCredentials
-#      shell: bash
 
     - name: Smoke tests
       if: inputs.run-integration-tests == 'true'

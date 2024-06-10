@@ -63,9 +63,10 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Generate New Schema Docs
+        working-directory: /
         run: |
           # Clean the docs before regenerating
-          rm -rf docs/docs_deprecated/schema_documentation/*
+          rm -rf prime-router/docs/docs_deprecated/schema_documentation/*
           ./gradlew generatedocs
 
       - name: Validate YAML
