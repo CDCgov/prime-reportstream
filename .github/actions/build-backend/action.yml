@@ -176,8 +176,10 @@ runs:
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
+          cd prime-router
           export $(xargs < .vault/env/.env.local)
           ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
+          cd ../
           ./gradlew :prime-router:testSmoke
         shell: bash
 
