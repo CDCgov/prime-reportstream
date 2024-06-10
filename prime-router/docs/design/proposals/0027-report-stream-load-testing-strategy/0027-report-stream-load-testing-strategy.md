@@ -198,5 +198,4 @@ The CI job that cuts the production release can be updated to update the load te
 test there. The deployment process will get updated such that the engineer running the deployment will be responsible
 for checking that the results of the test are relatively similar to the previous release.
 
-## Open Questions
 
