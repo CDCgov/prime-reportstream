@@ -59,3 +59,13 @@ elements:
     value: [ '%resource.coding.where(extension(%`rsext-ce-coding`).value = "secondary-alt-coding").display' ]
     hl7Spec: [ '%{ceFieldPath}-11' ]
 
+  - name: second-alternative-name-of-coding-system
+    condition: >
+      %context.coding.where(extension(%`rsext-ce-coding`).value = "secondary-alt-coding").exists() and
+      %context.coding.where(extension(%`rsext-ce-coding`).value = "secondary-alt-coding").extension(%`rsext-ce-coding-system`).value.exists()
+    resource: '%resource.coding.where(extension(%`rsext-ce-coding`).value = "secondary-alt-coding").extension(%`rsext-ce-coding-system`)'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{ceFieldPath}-12' ]
+
+ 
+
