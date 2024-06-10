@@ -30,4 +30,4 @@ jobs:
           dotnet tool install --global azure-cost-cli
       - name: Run azure-cost-cli
         run: |
-          azure-cost accumulatedCost -g prime-data-hub-prod -t custom --from $(date -v-180d '+%m/%d/%Y') --to $(date '+%m/%d/%Y')  -o csv
+          azure-cost accumulatedCost -g prime-data-hub-prod -t custom --from $(date --date='30 days ago' '+%m/%d/%Y') --to $(date '+%m/%d/%Y')  -o csv
