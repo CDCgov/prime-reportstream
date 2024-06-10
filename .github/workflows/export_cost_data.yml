@@ -31,3 +31,14 @@ jobs:
       - name: Run azure-cost-cli
         run: |
           azure-cost accumulatedCost -g prime-data-hub-prod -t custom --from $(date --date='180 days ago' '+%m/%d/%Y') --to $(date '+%m/%d/%Y')  -o csv
+      - name: Store cost data in DB
+        uses: ./.github/actions/db-query
+        with:
+          pass: ${{ secrets['POSTGRESQL_STAGING_PWD'] }}
+          host: pdhstaging-pgsql
+          port: 5432
+          user: prime
+          database: prime_data_hub
+          output-file: result.txt
+          query: |
+            SELECT 1 ;
