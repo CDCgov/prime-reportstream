@@ -198,15 +198,8 @@ class Report : Logging {
                 }
             }
 
-            fun valueOf(bodyFormat: String): Format {
-                return when (bodyFormat.uppercase()) {
-                    HL7.toString() -> HL7
-                    HL7_BATCH.toString() -> HL7
-                    FHIR.toString() -> FHIR
-                    CSV.toString() -> CSV
-                    CSV_SINGLE.toString() -> CSV
-                    else -> throw IllegalArgumentException("Unexpected extension $bodyFormat.")
-                }
+            fun valueOfIgnoreCase(bodyFormat: String): Format {
+                return valueOf(bodyFormat.uppercase())
             }
         }
     }
@@ -1580,7 +1573,7 @@ class Report : Logging {
                     header.reportFile.bodyUrl,
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
-                    Format.valueOf(header.reportFile.bodyFormat),
+                    Format.valueOfIgnoreCase(header.reportFile.bodyFormat),
                     header.reportFile.createdAt,
                     metadata = metadata ?: Metadata.getInstance()
                 )
@@ -1591,7 +1584,7 @@ class Report : Logging {
                     header.reportFile.bodyUrl,
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
-                    Format.valueOf(header.reportFile.bodyFormat),
+                    Format.valueOfIgnoreCase(header.reportFile.bodyFormat),
                     header.reportFile.createdAt,
                     metadata = metadata ?: Metadata.getInstance()
                 )

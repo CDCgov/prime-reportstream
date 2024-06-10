@@ -83,6 +83,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         transportType: TransportType,
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
+        externalFileName: String,
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
@@ -93,8 +94,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         val reportId = "${header.reportFile.reportId}"
         val receiver = header.receiver ?: error("No receiver defined for report $reportId")
         var reportContent: ByteArray = header.content ?: error("No content for report $reportId")
-        // get the file name from blob url, or create one from the report metadata
-        val fileName = Report.formExternalFilename(header)
 
         // get the username/password to authenticate with OAuth
         val (credential, jksCredential) = getCredential(restTransportInfo, receiver)
@@ -130,7 +129,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         // post the report
                         val response = postReport(
                             reportContent,
-                            fileName,
+                            externalFileName,
                             restTransportInfo.reportUrl,
                             httpHeaders,
                             logger,
@@ -141,13 +140,13 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         )
                         val responseBody = response.bodyAsText()
                         // update the action history
-                        val msg = "Success: REST transport of $fileName to $restTransportInfo:\n$responseBody"
+                        val msg = "Success: REST transport of $externalFileName to $restTransportInfo:\n$responseBody"
                         logger.info("Message successfully sent!")
                         actionHistory.trackActionResult(response.status, msg)
                         actionHistory.trackSentReport(
                             receiver,
                             sentReportId,
-                            fileName,
+                            externalFileName,
                             restTransportInfo.toString(),
                             msg,
                             header

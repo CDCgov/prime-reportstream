@@ -20,6 +20,7 @@ import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockk
@@ -39,6 +40,7 @@ import kotlin.test.fail
 class ReportTests {
     private val metadata = UnitTestUtils.simpleMetadata
 
+    val reportService = ReportService()
     val rcvr = Receiver("name", "org", Topic.TEST, CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
 
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
@@ -890,20 +892,17 @@ class ReportTests {
 
     @Test
     fun `test format from bodyFormat`() {
-        var format = Report.Format.valueOf("csv")
+        var format = Report.Format.valueOfIgnoreCase("csv")
         assertThat(format).isEqualTo(Report.Format.CSV)
 
-        format = Report.Format.valueOf("fhir")
+        format = Report.Format.valueOfIgnoreCase("fhir")
         assertThat(format).isEqualTo(Report.Format.FHIR)
 
-        format = Report.Format.valueOf("hl7")
-        assertThat(format).isEqualTo(Report.Format.HL7)
-
-        format = Report.Format.valueOf("HL7_BATCH")
+        format = Report.Format.valueOfIgnoreCase("hl7")
         assertThat(format).isEqualTo(Report.Format.HL7)
 
         try {
-            format = Report.Format.valueOf("txt")
+            format = Report.Format.valueOfIgnoreCase("txt")
             fail("Expected IllegalArgumentException, instead got $format.")
         } catch (e: IllegalArgumentException) {
             assertThat(e).isNotNull()
@@ -1161,7 +1160,7 @@ class ReportTests {
             true
         )
 
-        assertThat(Report.formExternalFilename(header, metadata)).isEqualTo(expectedFileName)
+        assertThat(Report.formExternalFilename(header, reportService, metadata)).isEqualTo(expectedFileName)
     }
 
     @Test
@@ -1192,7 +1191,7 @@ class ReportTests {
             true
         )
 
-        assertThat(Report.formExternalFilename(header, metadata)).isEqualTo(expectedFileName)
+        assertThat(Report.formExternalFilename(header, reportService, metadata)).isEqualTo(expectedFileName)
     }
 }
 
