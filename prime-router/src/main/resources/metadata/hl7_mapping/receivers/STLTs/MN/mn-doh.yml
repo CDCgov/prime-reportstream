@@ -12,9 +12,9 @@
   keys: null
   senders: []
   receivers:
-    - name: "elr"
+    - name: "full-elr"
       organizationName: "mn-doh"
-      topic: "covid-19"
+      topic: "full-elr"
       customerStatus: "active"
       translation: !<HL7>
         schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/MN/MN-receiver-transform.yml"
