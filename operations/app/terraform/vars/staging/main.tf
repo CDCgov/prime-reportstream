@@ -321,10 +321,3 @@ module "data_factory" {
   sftp_storage                 = module.sftp.sftp_storage
   sftp_shares                  = module.sftp.sftp_shares
 }
-
-module "exports" {
-    source               = "../../modules/exports"
-    resource_group_name  = local.init.resource_group_name
-    resource_prefix      = local.init.resource_prefix
-    storage_account_name = module.storage.storage_account.name
-}
