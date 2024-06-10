@@ -31,6 +31,18 @@ jobs:
       - name: Run azure-cost-cli
         run: |
           azure-cost accumulatedCost -g prime-data-hub-prod -t custom --from $(date --date='180 days ago' '+%m/%d/%Y') --to $(date '+%m/%d/%Y')  -o csv
+      - name: Get runner IP
+        shell: bash
+        run: echo "PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)" >> $GITHUB_ENV
+      # Allow runner db access
+      - name: Allow DB access
+        id: add-db-access
+        shell: bash
+        run: |
+          az postgres server update -g prime-data-hub-staging -n pdhstaging-pgsql --public-network-access "Enabled"
+          sleep 10;
+          az postgres server firewall-rule create -g prime-data-hub-staging -s pdhstaging-pgsql -n github_actions_runner \
+            --start-ip-address ${{ env.PUBLIC_IP }} --end-ip-address ${{ env.PUBLIC_IP }}
       - name: Store cost data in DB
         uses: ./.github/actions/db-query
         with:
@@ -42,3 +54,11 @@ jobs:
           output-file: result.txt
           query: |
             SELECT 1 ;
+      # Remove runner db access
+      - name: Remove DB access
+        if: always() && steps.add-db-access.outcome == 'success'
+        shell: bash
+        run: |
+          az postgres server firewall-rule delete -g prime-data-hub-staging -s pdhstaging-pgsql  -n github_actions_runner --yes
+          sleep 10;
+          az postgres server update -g prime-data-hub-staging -n pdhstaging-pgsql --public-network-access "Disabled"
