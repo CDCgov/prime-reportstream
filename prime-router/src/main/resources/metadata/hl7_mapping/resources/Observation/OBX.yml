@@ -5,12 +5,14 @@ elements:
 
   - name: obx-code-cwe
     resource: '%resource.code'
+    condition: '%context.type.coding.where(code = "CWE").exists()'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7OBXField}-3'
 
   - name: obx-code-ce
     resource: '%resource.code'
+    condition: '%context.type.coding.where(code = "CE").exists()'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CE.yml
     constants:
       ceFieldPath: '%{hl7OBXField}-3'
