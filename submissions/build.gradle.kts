@@ -1,23 +1,14 @@
+apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
+
 plugins {
 	id("org.springframework.boot") version "3.2.7-SNAPSHOT"
 	id("io.spring.dependency-management") version "1.1.5"
-	kotlin("jvm")
+    id("reportstream.project-conventions")
 	kotlin("plugin.spring") version "1.9.24"
 }
 
 group = "gov.cdc.prime"
 version = "0.0.1-SNAPSHOT"
-
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
-}
-
-repositories {
-	mavenCentral()
-	maven { url = uri("https://repo.spring.io/snapshot") }
-}
 
 extra["springCloudAzureVersion"] = "5.13.0"
 
@@ -29,8 +20,8 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.boot:spring-boot-testcontainers")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-	testImplementation("org.testcontainers:junit-jupiter")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.8.1")
     implementation(project(":shared"))
 }
 
@@ -46,6 +37,4 @@ kotlin {
 	}
 }
 
-tasks.withType<Test> {
-	useJUnitPlatform()
-}
+

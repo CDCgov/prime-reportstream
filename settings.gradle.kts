@@ -6,11 +6,6 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-plugins {
-    val kotlinVersion by System.getProperties()
-    kotlin("jvm") version "$kotlinVersion" apply false
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
-}
 
 sourceControl {
     gitRepository(URI("https://github.com/CDCgov/hl7v2-fhir-converter.git")) {

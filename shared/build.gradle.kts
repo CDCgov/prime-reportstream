@@ -1,8 +1,11 @@
+apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
+
 plugins {
-    kotlin("jvm")
+    id("reportstream.project-conventions")
 }
 
-group = "gov.cdc.prime"
+
+group = "gov.cdc.prime.reportstream"
 version = "0.0.1-SNAPSHOT"
 
 repositories {
