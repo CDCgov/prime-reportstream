@@ -149,7 +149,7 @@ class ActionHistory(
     }
 
     /**
-     * Track the parmeters of a [request].
+     * Track the parameters of a [request].
      */
     fun trackActionParams(request: HttpRequestMessage<String?>) {
         // TODO Convert to use jackson mapper
@@ -185,9 +185,18 @@ class ActionHistory(
             }
         }
         // capture the azure client IP but override with the first forwarded for if present
-        action.senderIp = request.headers["x-azure-clientip"]?.take(ACTION.SENDER_IP.dataType.length())
+        action.senderIp = if (ACTION.SENDER_IP.dataType.length() > 0) {
+            request.headers["x-azure-clientip"]?.take(ACTION.SENDER_IP.dataType.length())
+        } else {
+            request.headers["x-azure-clientip"]
+        }
         request.headers["x-forwarded-for"]?.let {
-            action.senderIp = it.split(",").firstOrNull()?.trim()?.take(ACTION.SENDER_IP.dataType.length())
+            val tmp = it.split(",").firstOrNull()?.trim()
+            action.senderIp = if (ACTION.SENDER_IP.dataType.length() > 0) {
+                tmp?.take(ACTION.SENDER_IP.dataType.length())
+            } else {
+                tmp
+            }
         }
         trackActionParams(outStream.toString())
     }
@@ -313,8 +322,16 @@ class ActionHistory(
         if (clientParam.isNotBlank()) {
             try {
                 val (sendingOrg, sendingOrgClient) = Sender.parseFullName(clientParam)
-                action.sendingOrg = sendingOrg.take(ACTION.SENDING_ORG.dataType.length())
-                action.sendingOrgClient = sendingOrgClient.take(ACTION.SENDING_ORG_CLIENT.dataType.length())
+                action.sendingOrg = if (ACTION.SENDING_ORG.dataType.length() > 0) {
+                    sendingOrg.take(ACTION.SENDING_ORG.dataType.length())
+                } else {
+                    sendingOrg
+                }
+                action.sendingOrgClient = if (ACTION.SENDING_ORG_CLIENT.dataType.length() > 0) {
+                    sendingOrgClient.take(ACTION.SENDING_ORG_CLIENT.dataType.length())
+                } else {
+                    sendingOrgClient
+                }
             } catch (e: Exception) {
                 logger.warn(
                     "Exception tracking sender: ${e.localizedMessage} ${e.stackTraceToString()}"
