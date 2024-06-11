@@ -21,7 +21,7 @@ import kotlin.test.assertTrue
 class SimpleQuickTests {
     @Test
     fun `test waters data translation`() {
-        val watersFilenameRegex = "waters.*\\\\.csv"
+        val watersFilenameRegex = "waters.*\\.csv"
         var watersFile = QuickTestUtils.generateFakeData(
             "waters/waters-covid-19", 50, Report.Format.CSV,
             "CA", "Santa Clara"
@@ -35,7 +35,7 @@ class SimpleQuickTests {
 
     @Test
     fun `test fake data generator`() {
-        val reddyFMCFilenameRegex = "reddyfmc-la-covid-19.*\\\\.csv"
+        val reddyFMCFilenameRegex = "reddyfmc-la-covid-19.*\\.csv"
         val reddyFMCNumFakeRecords = 1
 
         /**
@@ -62,7 +62,7 @@ class SimpleQuickTests {
 
     @Test
     fun `test merge using fake data`() {
-        val stracsFilenameRegex = "strac-covid-19.*\\\\.csv"
+        val stracsFilenameRegex = "strac-covid-19.*\\.csv"
         val stracsNumFakeRecords = 5
 
         /**

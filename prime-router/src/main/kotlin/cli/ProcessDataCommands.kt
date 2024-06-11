@@ -337,7 +337,8 @@ class ProcessData(
                         format,
                         report.createdDateTime,
                         metadata,
-                        translationConfig = translationConfig,
+                        translationConfig.nameFormat,
+                        translationConfig,
                     )
                     File(outputDir ?: ".", fileName)
                 }
