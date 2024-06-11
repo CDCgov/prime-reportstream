@@ -109,19 +109,19 @@
         "@mdx-js/rollup": "^3.0.1",
         "@playwright/test": "^1.44.1",
         "@rest-hooks/test": "^7.3.1",
-        "@storybook/addon-a11y": "^8.0.9",
-        "@storybook/addon-actions": "^8.0.9",
-        "@storybook/addon-essentials": "^8.0.9",
-        "@storybook/addon-interactions": "^8.0.9",
-        "@storybook/addon-links": "^8.0.9",
-        "@storybook/blocks": "^8.0.9",
-        "@storybook/components": "^8.0.9",
-        "@storybook/core-events": "^8.0.9",
+        "@storybook/addon-a11y": "^8.1.6",
+        "@storybook/addon-actions": "^8.1.6",
+        "@storybook/addon-essentials": "^8.1.6",
+        "@storybook/addon-interactions": "^8.1.6",
+        "@storybook/addon-links": "^8.1.6",
+        "@storybook/blocks": "^8.1.6",
+        "@storybook/components": "^8.1.6",
+        "@storybook/core-events": "^8.1.6",
         "@storybook/mdx2-csf": "1.1.0",
-        "@storybook/react": "^8.0.9",
-        "@storybook/react-vite": "^8.0.9",
+        "@storybook/react": "^8.1.6",
+        "@storybook/react-vite": "^8.1.6",
         "@storybook/testing-library": "^0.2.2",
-        "@storybook/theming": "^8.0.9",
+        "@storybook/theming": "^8.1.6",
         "@testing-library/dom": "^10.1.0",
         "@testing-library/jest-dom": "^6.4.5",
         "@testing-library/react": "^15.0.7",
@@ -179,7 +179,7 @@
         "remark-mdx-frontmatter": "^4.0.0",
         "remark-mdx-toc": "^0.3.1",
         "sass": "^1.77.4",
-        "storybook": "^8.0.9",
+        "storybook": "^8.1.6",
         "storybook-addon-remix-react-router": "^3.0.0",
         "ts-node": "^10.9.2",
         "tslib": "^2.6.2",
@@ -191,11 +191,10 @@
         "vitest": "^1.6.0"
     },
     "resolutions": {
-        "@types/react": "18.3.3",
-        "tocbot": "^4.25.0"
+        "@types/react": "18.3.3"
     },
     "engines": {
-        "node": "^20.12"
+        "node": "^20.14"
     },
     "packageManager": "yarn@3.6.3"
 }
