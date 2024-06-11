@@ -26,10 +26,13 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.cli.tests.ExpectedSubmissionList
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.credentials.RestCredential
 import gov.cdc.prime.router.credentials.UserJksCredential
+import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
+import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.history.Destination
 import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
@@ -61,12 +64,14 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.extension.ExtendWith
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.logging.Logger
 import kotlin.test.Test
 
+@ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SubmissionFunctionTests : Logging {
     private val mapper = JacksonMapperUtilities.allowUnknownsMapper
@@ -514,9 +519,50 @@ class SubmissionFunctionTests : Logging {
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
     }
 
+    private fun setupEtorTestData(): UUID {
+        var reportId: UUID = UUID.randomUUID()
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val action = Action()
+            action.actionName = TaskAction.receive
+            val actionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
+            val report = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
+                .setActionId(actionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1)
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
+                report, txn, action
+            )
+
+            reportId = report.reportId
+
+            val action2 = Action()
+            // TODO - insert all the other steps
+            action2.actionName = TaskAction.batch
+            val actionId2 = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action2)
+            val report2 = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
+                .setActionId(actionId2).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1)
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
+                report2, txn, action2
+            )
+
+            val reportLineage = ReportLineage()
+            reportLineage.actionId = actionId2
+            reportLineage.childReportId = report2.reportId
+            reportLineage.parentReportId = report.reportId
+
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportLineage(reportLineage, txn)
+        }
+        return reportId
+    }
+
     @Test
     fun `test getEtorMetadata`() {
-        val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
+        val goodUuid = setupEtorTestData()
+//
+//        val reportFileDatabaseAccess =
+//            ReportFileDatabaseAccess(ReportStreamTestDatabaseContainer.testDatabaseAccess)
+//        val rows = reportFileDatabaseAccess.getReports(ReportFileApiSearch(emptyList(), null))
+//
+
+        // val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
         val mockRequest = MockHttpRequestMessage()
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
         val mockSubmissionFacade = mockk<SubmissionsFacade>()
@@ -551,7 +597,7 @@ class SubmissionFunctionTests : Logging {
         action.sendingOrg = organizationName
         action.actionName = TaskAction.receive
 
-        mockkConstructor(ReportGraph::class)
+        // mockkConstructor(ReportGraph::class)
 
         val firstReport = ReportFile()
         firstReport.reportId = UUID.randomUUID()
@@ -561,9 +607,9 @@ class SubmissionFunctionTests : Logging {
         secondReport.reportId = UUID.randomUUID()
         secondReport.receivingOrg = "flexion"
 
-        every {
-            anyConstructed<ReportGraph>().getDescendantReports(any(), any(), any())
-        } returns listOf(firstReport, secondReport)
+//        every {
+//            anyConstructed<ReportGraph>().getDescendantReports(any(), any(), any())
+//        } returns listOf(firstReport, secondReport)
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
@@ -598,7 +644,7 @@ class SubmissionFunctionTests : Logging {
         every { customContext.logger } returns mockk<Logger>()
 
         val response = function.retrieveETORIntermediaryMetadata(
-            mockRequest, UUID.fromString(goodUuid), customContext, mock, "etor_base_url"
+            mockRequest, goodUuid, customContext, mock, "etor_base_url"
         )
 
         assertThat(response.status).isEqualTo(HttpStatus.OK)

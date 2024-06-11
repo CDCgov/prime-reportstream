@@ -156,11 +156,13 @@ class ReportGraph(
      */
     fun getDescendantReports(
         txn: DataAccessTransaction,
-        childReportId: UUID,
+        parentReportId: UUID,
         searchedForTaskActions: Set<TaskAction>,
     ): List<ReportFile> {
-        val cte = reportDescendantGraphCommonTableExpression(listOf(childReportId))
-        return descendantReportRecords(txn, cte, searchedForTaskActions).fetchInto(ReportFile::class.java)
+        val cte = reportDescendantGraphCommonTableExpression(listOf(parentReportId))
+        val temp = descendantReportRecords(txn, cte, searchedForTaskActions)
+        val temp2 = temp.fetchInto(ReportFile::class.java)
+        return temp2
     }
 
     /**
