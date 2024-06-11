@@ -50,6 +50,7 @@ resource "azurerm_private_endpoint" "endpoint" {
   }
 
   lifecycle {
+    # validated 5/21/2024
     ignore_changes = [
       private_dns_zone_group,
       custom_dns_configs,

@@ -21,4 +21,17 @@ object AzureEventUtils {
             ObservationSummary(conditions)
         }
     }
+
+    /**
+     * For tracking the Message ID, we need the bundle.identifier value and system.
+     * In FHIR bundle.identifier is optional so one or both may not be present.
+     */
+    data class MessageID(val value: String? = null, val system: String? = null)
+
+    /**
+     * Returns the bundle identifier elements that relate to HL7v2 Message Header information for tracking
+     */
+    fun getIdentifier(bundle: Bundle): MessageID {
+        return MessageID(bundle.identifier?.value, bundle.identifier?.system)
+    }
 }

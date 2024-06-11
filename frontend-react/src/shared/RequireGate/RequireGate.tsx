@@ -65,7 +65,7 @@ export function RequireGateBase({
                 | undefined
         )?.find((g) =>
             perms.find((t) => {
-                if (t === PERMISSIONS.PRIME_ADMIN) {
+                if (g === PERMISSIONS.PRIME_ADMIN) {
                     isAdmin = true;
                     return g === t;
                 }

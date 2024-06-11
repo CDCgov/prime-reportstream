@@ -5,7 +5,7 @@ class NoopItemValidationResult : IItemValidationResult {
         return true
     }
 
-    override fun getErrorsMessage(): String {
+    override fun getErrorsMessage(validator: IItemValidator): String {
         return ""
     }
 }
@@ -15,4 +15,6 @@ class NoopItemValidator : AbstractItemValidator() {
     override fun validate(message: Any): IItemValidationResult {
         return NoopItemValidationResult()
     }
+
+    override val validatorProfileName: String = "NOOP"
 }

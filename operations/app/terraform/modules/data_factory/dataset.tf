@@ -21,6 +21,7 @@ resource "azurerm_data_factory_dataset_binary" "sftp_share" {
 
   lifecycle {
     ignore_changes = [
+      # validated 5/28/2024
       sftp_server_location #TF not recognizing file share properly
     ]
   }

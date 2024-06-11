@@ -98,7 +98,9 @@ class MessageValidatorTests {
 
     @Test
     fun `test only validates an HL7 message or FHIR bundle`() {
-        class TestValidator : AbstractItemValidator()
+        class TestValidator : AbstractItemValidator() {
+            override val validatorProfileName: String = "Test"
+        }
 
         val validator = TestValidator()
 
@@ -109,7 +111,9 @@ class MessageValidatorTests {
 
     @Test
     fun `test FHIR validation`() {
-        class TestValidator : AbstractItemValidator()
+        class TestValidator : AbstractItemValidator() {
+            override val validatorProfileName: String = "Test"
+        }
 
         val validator = TestValidator()
 

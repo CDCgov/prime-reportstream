@@ -121,6 +121,7 @@ class OBXToObservationTests {
     fun `test creates an organization as performer when OBX25 not populated`() {
         assert(verifyHL7ToFHIRToHL7Mapping("catchall/obx/OBX-to-Observation-obx25-not-valued").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("catchall/obx/OBX-to-Observation-obx25-valued").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/obx/OBX-to-Observation-obx25-obx24-not-valued").passed)
     }
 
     @Test

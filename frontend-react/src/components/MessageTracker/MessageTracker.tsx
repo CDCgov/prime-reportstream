@@ -8,7 +8,7 @@ import {
 import { FC, FormEvent, useState } from "react";
 
 import { MessageListResource } from "../../config/endpoints/messageTracker";
-import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
+import useMessageSearch from "../../hooks/api/messages/UseMessageSearch/UseMessageSearch";
 import Table from "../../shared/Table/Table";
 import Spinner from "../Spinner";
 import { USLink } from "../USLink";

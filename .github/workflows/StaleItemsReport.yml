@@ -2,9 +2,6 @@ name: Alert Stale Items from GitHub
 
 on:
   workflow_dispatch:
-  # push: 
-  #   branches:
-  #     - feature/staleitems-report
   schedule:
     - cron: "13 1 1 * *"
 
@@ -14,71 +11,76 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
         with:
           fetch-depth: 0
 
-      - name: Get Stale prs
-        id: PullRequests
+      - name: Get Stale items
         shell: pwsh
+        env:
+          pass: ${{ secrets.RUNLEAKS_TOKEN }}
         run: |
-          ./.github/scripts/stale_items_report/StalePullRequests.ps1        
+          ./.github/scripts/stale_items_report/StaleItems.ps1 -pass "$Env:pass"
 
-      - name: Get Stale prs
-        id: PullRequestsShow
+      - name: Decode Slack Message
         shell: pwsh
         run: |
-         echo  ${env:Stale_pullrequests} >> PullRequests.txt
-        
-      - name: Get Stale branches
-        id: Branches
-        shell: pwsh
-        run: |
-          ./.github/scripts/stale_items_report/Stale_Branches.ps1
+          $slackMessageSummary = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:SLACK_MESSAGE_SUMMARY))
+          $slackMessagePullRequests = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:SLACK_MESSAGE_PULL_REQUESTS))
+          $slackMessageBranches = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:SLACK_MESSAGE_BRANCHES))
+          $slackMessageIssues = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:SLACK_MESSAGE_ISSUES))
+          echo $slackMessageSummary > slackMessageSummary.md
+          echo $slackMessagePullRequests > slackMessagePullRequests.md
+          echo $slackMessageBranches > slackMessageBranches.md
+          echo $slackMessageIssues > slackMessageIssues.md
 
-      - name: Get Stale branches
-        id: BranchesShow
-        shell: pwsh
-        run: |
-         echo  ${env:Stale_Branches} >> Branches.txt
+          echo "## Stale Items`n$slackMessageSummary" >> $env:GITHUB_STEP_SUMMARY
+          echo "## Stale Items`n$slackMessagePullRequests" >> $env:GITHUB_STEP_SUMMARY
+          echo "## Stale Items`n$slackMessageBranches" >> $env:GITHUB_STEP_SUMMARY
+          echo "## Stale Items`n$slackMessageIssues" >> $env:GITHUB_STEP_SUMMARY
 
-      - name: Get Stale Issues
-        id: Issues
-        shell: pwsh
+      - name: Get Stale items
+        id: stale_out
+        shell: bash
         run: |
-          ./.github/scripts/stale_items_report/StaleIssues.ps1
+          messageSummary=$(cat slackMessageSummary.md)
+          messagePullRequests=$(cat slackMessagePullRequests.md)
+          messageBranches=$(cat slackMessageBranches.md)
+          messageIssues=$(cat slackMessageIssues.md)
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "MESSAGE_RESPONSE<<$EOF" >> $GITHUB_OUTPUT
+          echo -e "$messageSummary" >> $GITHUB_OUTPUT
+          echo -e "$messagePullRequests" >> $GITHUB_OUTPUT
+          echo -e "$messageBranches" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
 
-      - name: Get Stale issues
-        id: IssuesShow
-        shell: pwsh
-        run: |
-         echo  ${env:Stale_Issues} >> StaleIssues.txt
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "MESSAGE_ISSUES_RESPONSE<<$EOF" >> $GITHUB_OUTPUT
+          echo -e "$messageIssues" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
 
-      - uses: MeilCli/slack-upload-file@44b8c5399b7fc13ac6220637a38b8df1634c3560
-        id: message
-        continue-on-error: true
+      - name: Slack Notification
+        uses: ./.github/actions/notifications
         with:
-          slack_token: ${{ secrets.SLACK_TOKEN }}
-          channel_id: 'C04UBN6R9EF'
-          file_path: 'PullRequests.txt'
-          initial_comment: 'Stale pull requests report'
+          method: slack
+          title: Stale GitHub Items
+          message: |
+            ${{ steps.stale_out.outputs.MESSAGE_RESPONSE }}
+          icon-emoji: ':hourglass_flowing_sand:'
+          channel: prime-reportstream-engineering
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          color: warning
+          slackify-markdown: true
 
-      - uses: MeilCli/slack-upload-file@44b8c5399b7fc13ac6220637a38b8df1634c3560
-        id: Branchesmessage
-        continue-on-error: true
+      - name: Slack Notification
+        uses: ./.github/actions/notifications
         with:
-          slack_token: ${{ secrets.SLACK_TOKEN }}
-          channel_id: 'C04UBN6R9EF'
-          file_path: 'Branches.txt'
-          initial_comment: 'Stale branches report'
-
-      - uses: MeilCli/slack-upload-file@44b8c5399b7fc13ac6220637a38b8df1634c3560
-        id: Issuesmessage
-        continue-on-error: true
-        with:
-          slack_token: ${{ secrets.SLACK_TOKEN }}
-          channel_id: 'C04UBN6R9EF'
-          file_path: 'StaleIssues.txt'
-          initial_comment: 'Stale Issues report'
-
-     
+          method: slack
+          title: Stale GitHub Items
+          message: |
+            ${{ steps.stale_out.outputs.MESSAGE_ISSUES_RESPONSE }}
+          icon-emoji: ':hourglass_flowing_sand:'
+          channel: prime-reportstream-engineering
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          color: warning
+          slackify-markdown: true

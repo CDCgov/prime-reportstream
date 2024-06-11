@@ -28,7 +28,7 @@ jobs:
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -54,7 +54,7 @@ jobs:
           sudo swapon --show
 
       - name: "Check out changes"
-        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
 
       - name: Build backend
         uses: ./.github/actions/build-backend
@@ -69,6 +69,13 @@ jobs:
           # Clean the docs before regenerating
           rm -rf docs/docs_deprecated/schema_documentation/*
           ./gradlew generatedocs
+
+      - name: Validate YAML
+        run: |
+          # Add more YAML checks here
+          ./gradlew primeCLI --args='validate-yaml --type Organizations --file settings/organizations.yml --dir settings/STLTs'
+          ./gradlew primeCLI --args='validate-yaml --type FhirToFhirTransform --dir src/main/resources/metadata/fhir_transforms'
+          ./gradlew primeCLI --args='validate-yaml --type FhirToHL7Mapping --dir src/main/resources/metadata/hl7_mapping'
 
       - name: Check for Uncommited Schema Docs
         id: check_changes

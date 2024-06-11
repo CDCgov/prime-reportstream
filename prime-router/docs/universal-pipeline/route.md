@@ -7,7 +7,7 @@ unique interests in the data that flows through the pipeline. Routing is designe
 interests.
 
 The Route function follows the [Convert](convert.md) function. At this point all data will be in FHIR format. These
-messages are passed to the FHIR Router which first decodes a FHIR Bundle. `FHIRRouter.applyFilters` does the work to
+messages are passed to the FHIR Router which first decodes a FHIR Bundle. `FHIRRouter.findReceiversForBundle` does the work to
 find receivers that accept the bundle. With the list of acceptable receivers, FHIR Endpoints are added to the Provenance
 resource identifying those receivers. An Endpoint resource describes the details of a receiver including which test
 results to include. With that information, the message is passed to the [Translate](translate.md) function where
@@ -263,7 +263,7 @@ Production data should only be accepted by production receivers.
 </table>
 
 ```kotlin
-   /**
+/**
  * Default Rule:
  *  Must have a processing mode id of 'P'
  */
@@ -364,7 +364,7 @@ the [filtering design](https://github.com/CDCgov/prime-reportstream/blob/master/
 
 ### Frontend User Interface
 
-The admin user interface at[ https://reportstream.cdc.gov/](https://reportstream.cdc.gov/) allows a PRIME admin to
+The admin user interface at https://reportstream.cdc.gov/ allows a PRIME admin to
 manage the settings of an organization, sender and/or receiver. Filters are configured as free text and the input text
 must conform to the expected syntax.
 

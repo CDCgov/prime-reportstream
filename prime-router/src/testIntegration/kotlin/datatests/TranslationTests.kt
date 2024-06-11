@@ -452,16 +452,16 @@ class TranslationTests {
          * @return a FHIR bundle as a JSON input stream
          */
         private fun translateToFhir(hl7: String, profile: String? = null): InputStream {
-            val hl7messages = HL7Reader(ActionLogger()).getMessages(hl7)
-            val fhirBundles = hl7messages.map { message ->
-                if (profile == null) {
-                    HL7toFhirTranslator().translate(message)
-                } else {
-                    HL7toFhirTranslator(profile).translate(message)
-                }
+            val hl7message = HL7Reader.parseHL7Message(
+                hl7,
+                null
+            )
+            val fhirBundle = if (profile == null) {
+                HL7toFhirTranslator().translate(hl7message)
+            } else {
+                HL7toFhirTranslator(profile).translate(hl7message)
             }
-            check(fhirBundles.size == 1)
-            val fhirJson = FhirTranscoder.encode(fhirBundles[0])
+            val fhirJson = FhirTranscoder.encode(fhirBundle)
             return fhirJson.byteInputStream()
         }
 

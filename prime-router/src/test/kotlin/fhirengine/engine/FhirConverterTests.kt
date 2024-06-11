@@ -28,6 +28,7 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
@@ -71,6 +72,7 @@ private const val BLOB_URL = "http://blobstore.example/file.hl7"
 private const val BLOB_SUB_FOLDER_NAME = "test-sender"
 private const val SCHEMA_NAME = "classpath:/test-schema.yml"
 private const val VALID_DATA_URL = "src/test/resources/fhirengine/engine/valid_data.fhir"
+private const val BATCH_VALID_DATA_URL = "src/test/resources/fhirengine/engine/batch_valid_data.fhir"
 private const val BLOB_FHIR_URL = "http://blobstore.example/file.fhir"
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -155,6 +157,12 @@ class FhirConverterTests {
         val actionLogger = mockk<ActionLogger>()
         val transformer = mockk<FhirTransformer>()
 
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable(
+                "observation-mapping",
+                emptyList()
+            )
+        )
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
             FhirConvertQueueMessage(
@@ -176,6 +184,9 @@ class FhirConverterTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        val action = Action()
+        action.actionName = TaskAction.convert
+        every { actionHistory.action } returns action
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
         every { transformer.process(any()) } returnsArgument (0)
 
@@ -229,6 +240,9 @@ class FhirConverterTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        val action = Action()
+        action.actionName = TaskAction.convert
+        every { actionHistory.action } returns action
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
         every { transformer.process(any()) } returnsArgument (0)
 
@@ -239,61 +253,12 @@ class FhirConverterTests {
 
         // assert
         verify(exactly = 1) {
-            // TODO clean up assertions
-//            engine.getContentFromFHIR(any(), any())
             actionHistory.trackExistingInputReport(any())
             transformer.process(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), any(), any())
         }
     }
-
-    // TODO move these assertions
-//
-//    @Test
-//    fun `test getContentFromHL7 alternate profile`() {
-//        @Suppress("ktlint:standard:max-line-length")
-//        val expectedFHIR =
-//            """{"resourceType":"Bundle","id":"1712209848170736000.4ee08e76-3054-4cab-b203-252ae2d97e30","meta":{"lastUpdated":"2024-04-04T01:50:48.179-04:00"},"identifier":{"system":"https://reportstream.cdc.gov/prime-router","value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T09:15:11.015-04:00","entry":[{"fullUrl":"MessageHeader/c03f1b6b-cfc3-3477-89c0-d38316cd1a38","resource":{"resourceType":"MessageHeader","id":"c03f1b6b-cfc3-3477-89c0-d38316cd1a38"}}]}"""
-//        val testProfile = HL7Reader.Companion.MessageProfile("ORU", "TestProfile")
-//
-//        val actionLogger = spyk(ActionLogger())
-//        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
-//        val message = spyk(
-//            FhirConvertQueueMessage(
-//                UUID.randomUUID(),
-//                BLOB_URL,
-//                "test",
-//                BLOB_SUB_FOLDER_NAME,
-//                topic = Topic.FULL_ELR
-//            )
-//        )
-//        val testConfigPaths = HL7toFhirTranslator.Companion.configPaths.toMutableList()
-//        testConfigPaths.add("./metadata/test_fhir_mapping")
-//        val testTemplates = HL7toFhirTranslator.Companion.loadTemplates(testConfigPaths.toList())
-//
-//        every { message.downloadContent() }
-//            .returns(validHl7)
-//        mockkObject(HL7Reader.Companion)
-//        every { HL7Reader.Companion.getMessageProfile(any()) } returns testProfile
-//        every { HL7Reader.Companion.profileDirectoryMap[testProfile] } returns "./metadata/test_fhir_mapping"
-//
-//        mockkObject(HL7toFhirTranslator.Companion)
-//        every { HL7toFhirTranslator.Companion.getMessageTemplates() } returns testTemplates
-//
-//        val bundles = engine.getContentFromHL7(message, actionLogger)
-//
-//        // the test fhir mappings produce a small subset of what the input HL7 contains
-//        assertThat(bundles).isNotEmpty()
-//        // assertThat(bundles[0].equalsDeep(FhirTranscoder.decode(expectedFHIR))).isTrue()
-//        val result = CompareData.Result()
-//        CompareFhirData().compare(
-//            FhirTranscoder.encode(bundles[0]).byteInputStream(),
-//            expectedFHIR.byteInputStream(),
-//            result
-//        )
-//        assertThat(result.passed).isTrue()
-//    }
 
     @Test
     fun `test getTransformerFromSchema`() {
@@ -344,6 +309,9 @@ class FhirConverterTests {
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }
             .returns(Unit) andThenThrows (RuntimeException())
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        val action = Action()
+        action.actionName = TaskAction.convert
+        every { actionHistory.action } returns action
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
         every { transformer.process(any()) } returnsArgument (0)
 
@@ -432,6 +400,9 @@ class FhirConverterTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        val action = Action()
+        action.actionName = TaskAction.convert
+        every { actionHistory.action } returns action
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
         every { transformer.process(any()) } returnsArgument (0)
 
@@ -466,7 +437,7 @@ class FhirConverterTests {
 
     @Test
     fun `test fully unmapped condition code stamping logs errors`() {
-        val fhirData = File(VALID_DATA_URL).readText()
+        val fhirData = File(BATCH_VALID_DATA_URL).readText()
 
         mockkObject(BlobAccess)
         mockkObject(Report)
@@ -520,6 +491,9 @@ class FhirConverterTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        val action = Action()
+        action.actionName = TaskAction.convert
+        every { actionHistory.action } returns action
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
         every { transformer.process(any()) } returnsArgument (0)
 
@@ -530,12 +504,15 @@ class FhirConverterTests {
 
         // assert
         verify(exactly = 1) {
-// TODO clean up assertions
-            //            engine.getContentFromFHIR(any(), any())
-            actionHistory.trackExistingInputReport(any())
-            transformer.process(any())
-            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), fhirData.toByteArray(), any())
+            actionLogger.getItemLogger(1, "Observation/1671741861219479500.1e349936-127c-4edc-8d77-39fb231f4391")
+            actionLogger.getItemLogger(2, "Observation/1671741861219479500.1e349936-127c-4edc-8d77-39fb231f4391")
+            actionLogger.getItemLogger(1, "Observation/1671741861243115100.885296c7-ac1c-4af2-83e4-140a220669c1")
+            actionLogger.getItemLogger(2, "Observation/1671741861243115100.885296c7-ac1c-4af2-83e4-140a220669c1")
+            actionLogger.getItemLogger(1, "Observation/1671741861265113600.62f588e5-4e72-43b6-aa97-59766a9c83b0")
+            actionLogger.getItemLogger(2, "Observation/1671741861265113600.62f588e5-4e72-43b6-aa97-59766a9c83b0")
+        }
+
+        verify(exactly = 2) {
             actionLogger.warn(
                 match<List<ActionLogDetail>> {
                     it.size == 2 &&
@@ -700,6 +677,7 @@ class FhirConverterTests {
             every { mockValidation.entries } returns mapOf("ORU" to listOf(mockEntry))
             val mockValidator = mockk<IItemValidator>()
             every { mockValidator.validate(any()) } returns HL7ValidationResult(mockValidation)
+            every { mockValidator.validatorProfileName } returns "MockValidator"
             mockkObject(Topic.FULL_ELR)
             every { Topic.FULL_ELR.validator } returns mockValidator
 
@@ -713,11 +691,14 @@ class FhirConverterTests {
             } returns simpleHL7
             val bundles = engine.process(Report.Format.HL7, mockMessage, actionLogger)
             assertThat(bundles).isEmpty()
+            @Suppress("ktlint:standard:max-line-length")
             assertThat(
                 actionLogger.errors.map {
                     it.detail.message
                 }
-            ).contains("Item 1 in the report was not valid. Reason: HL7 was not valid at PID[1]-13[1].7")
+            ).contains(
+                "Item 1 in the report was not valid. Reason: HL7 was not valid at PID[1]-13[1].7 for validator: MockValidator"
+            )
         }
 
         @Test

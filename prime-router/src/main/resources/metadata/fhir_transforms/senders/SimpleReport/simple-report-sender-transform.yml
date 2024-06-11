@@ -1,3 +1,4 @@
+# $schema: ../../../../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
 extends: classpath:/metadata/fhir_transforms/senders/original-pipeline-transforms.yml
 constants:
   serviceRequest: 'Bundle.entry.resource.ofType(ServiceRequest)'
@@ -8,19 +9,19 @@ elements:
 
   # MSH
   - name: sending-application-target-msh3-extension
-    condition: true
+    condition: 'true'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
     value: [ '"CDC PRIME - Atlanta"' ]
 
   - name: sending-application-universal-id-extension
-    condition: true
+    condition: 'true'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
     value: [ '"2.16.840.1.114222.4.1.237821"' ]
 
   - name: sending-application-universal-id-type-extension
-    condition: true
+    condition: 'true'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
     value: [ '"ISO"' ]
@@ -35,7 +36,7 @@ elements:
       - Bundle.timestamp
 
   - name: sending-application-target-msh3
-    condition: true
+    condition: 'true'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
     value: [ '"MSH.3"' ]
@@ -588,7 +589,6 @@ elements:
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
     value: [ '%diagnosticReport.issued' ]
 
-  # TODO: https://github.com/CDCgov/prime-reportstream/issues/14257
   - name: sr-diagnostic-report-effective-date-time
     resource: '%diagnosticReport.effective'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
@@ -675,3 +675,9 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Observation)'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
     value: [ '%resource.issued' ]
+
+  - name: sr-observation-obx-29-for-aoe
+    condition: '%resource.meta.tag.code="AOE"'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.29").value[x]'
+    value: [ '"QST"' ]

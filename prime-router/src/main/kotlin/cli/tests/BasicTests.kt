@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.cli.tests
 
+import com.azure.storage.blob.models.BlobStorageException
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.google.common.base.CharMatcher
@@ -10,16 +11,21 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.UniversalPipelineSender
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.FileUtilities
+import gov.cdc.prime.router.cli.OktaCommand
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.common.SystemExitCodes
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import kotlinx.coroutines.delay
 import org.jooq.exception.DataAccessException
+import org.json.JSONObject
 import java.io.File
 import java.lang.Thread.sleep
 import java.net.HttpURLConnection
@@ -66,45 +72,61 @@ class Ping : CoolTest() {
 }
 
 /**
- * End to end test for the universal pipeline. This test should read in a submission, verify it reached all steps
- * (receive, convert, route, translate, batch, send) and that it generated the correct lineage records.
+ * An End-to-End test for the Universal Pipeline. This test posts a report and verifies that the file was sent to
+ * the expected receiver(s), then verifies the contents of the file match the expected contents.
+ * This test runs through the following scenarios:
+ * - A report that is submitted as HL7 and is sent as HL7 and FHIR (Topic: FULL-ELR).
+ * - A report that is submitted as HL7 and is sent as HL7 and FHIR (Topic: MARS-OTC-ELR).
+ *     - This report contains multiple items, one of which is invalid and filtered out during validation
+ * - A report that is submitted as HL7 and is sent as HL7 but has isSendOriginal set to true (Topic: ELR-ELIMS).
+ * - A report that is submitted as FHIR and is sent as FHIR (Topic: FULL-ELR).
+ * - A report that is submitted as FHIR and is sent as FHIR (Topic: MARS-OTC-ELR).
  */
 class End2EndUniversalPipeline : CoolTest() {
     override val name = "end2end_up"
-    override val description = "Create Fake data, submit, wait, confirm sent via database lineage data for UP"
+    override val description = "e2e tests that verify reports are correctly uploaded, routed, and received"
     override val status = TestStatus.SMOKE
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCountiesForUniversalPipeline()
-        ugly("Starting $name Test: send ${fullELRSender.fullName} data to $allGoodCounties")
-
-        // run through the universal pipeline test
-        ugly("Running end2end_up asynchronously")
+        val testData = testDataForUniversalPipeline()
         var passed = true
 
-        passed = passed and universalPipelineEnd2End(
-            environment,
-            options,
-            fullELRSender,
-            listOf(universalPipelineReceiver1, universalPipelineReceiver2)
-        )
-        passed = passed and universalPipelineEnd2End(environment, options, etorTISender, listOf(etorReceiver))
-        passed = passed and universalPipelineEnd2End(environment, options, elrElimsSender, listOf(elimsReceiver))
+        ugly("Starting $name Test")
+
+        // Posting the reports first. Batching the sending of all reports before pausing in the second step
+        testData.forEach {
+            ugly("Sending ${it.baseFile.extension} data from ${it.sender.fullName} to the UP")
+            it.reportId = postPreTestReports(it.baseFile, environment, options, it.sender)
+        }
+
+        // Wait until reports are marked as Delivered, then run validations on results
+        testData.forEach {
+            echo("\nStarting validation for scenario: ${it.name}")
+
+            it.historyResponse = pauseForBatchProcess(environment, it.reportId)
+            echo(it.historyResponse)
+
+            if (it.historyResponse.isEmpty()) {
+                passed = bad("***$name test FAILED***: One or more reports failed batch step.")
+                return@forEach
+            }
+
+            ugly("Examining sent reports for the posted report ID ${it.reportId}")
+            passed = passed and end2EndUP(it.historyResponse, it.expectedResults)
+        }
+
         return passed
     }
 
-    private suspend fun universalPipelineEnd2End(
+    /**
+     * Posts a file to the UP. Verifies the response from the server and returns the extracted report ID from it.
+     */
+    private fun postPreTestReports(
+        file: File,
         environment: Environment,
         options: CoolTestOptions,
-        sender: Sender,
-        expectedReceivers: List<Receiver>,
-    ): Boolean {
-        var passed = true
-        // load a valid HL7 file
-        val file = File("src/test/resources/fhirengine/smoketest/valid_hl7.hl7")
-
-        echo("Loaded datafile $file")
-        // Now send it to ReportStream.
+        sender: UniversalPipelineSender,
+    ): ReportId? {
         val (responseCode, json) =
             HttpUtilities.postReportFile(
                 environment,
@@ -115,126 +137,218 @@ class End2EndUniversalPipeline : CoolTest() {
                 payloadName = "$name ${status.description}",
             )
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
-            bad("***end2end_up Test FAILED***:  response code $responseCode")
-            passed = false
+            bad("***$name test FAILED***: Response code $responseCode")
         } else {
-            good("Posting of async report succeeded with response code $responseCode")
+            good("Posting of report succeeded with response code $responseCode")
         }
 
-        echo(json)
-        passed = passed and examinePostResponse(json, false)
-        if (!passed) {
-            bad("***async end2end_up FAILED***: Error in post response")
+        if (!examinePostResponse(json, false)) {
+            echo(json)
+            bad("***$name test FAILED***: Error in post response")
         }
-        // gets back 'received' reportId
-        val reportId = getReportIdFromResponse(json)
 
-        if (reportId != null) {
-            // check convert step
-            val convertResults = pollForStepResult(reportId, TaskAction.convert)
-            // verify each result is valid
-            for (result in convertResults.values)
-                passed = passed && examineStepResponse(result, "convert", sender.topic)
-            if (!passed) {
-                bad("***async end2end_up FAILED***: Convert result invalid")
-            }
+        return getReportIdFromResponse(json)
+    }
 
-            // check route step
-            val convertReportId = getSingleChildReportId(reportId)
-                ?: return bad("***async end2end_up FAILED***: Convert report id null")
+    /**
+     * Calls the report history endpoint periodically, waiting for the overall status to be set to Delivered.
+     * Times out after 150 seconds, mostly for breathing room in staging.
+     */
+    private suspend fun pauseForBatchProcess(environment: Environment, reportId: ReportId?): String {
+        val maxPollSecs = 150
+        val pollSleepSecs = 5
+        var timeElapsedSecs = 0
+        var overallStatus = ""
+        var finalResponse = ""
 
-            val routeResults = pollForStepResult(convertReportId, TaskAction.route)
-            // verify each result is valid
-            for (result in routeResults.values)
-                passed = passed && examineStepResponse(result, "route", sender.topic)
-            if (!passed) {
-                bad("***async end2end_up FAILED***: Route result invalid")
-            }
-            val receiverNames = routeResults.values.flatMap { it?.reports ?: emptyList() }
-                .map { "${it.receivingOrg}.${it.receivingOrgSvc}" }
-            expectedReceivers.forEach { receiver ->
-                if (!receiverNames.contains(receiver.fullName)) {
-                    bad("***async end2end_up FAILED***: expected ${receiver.fullName} to have received a report")
-                    passed = false
-                }
-            }
+        echo("Polling for history endpoint for report ID: $reportId. (Max poll time $maxPollSecs seconds)")
+        while (timeElapsedSecs <= maxPollSecs) {
+            delay(pollSleepSecs.toLong() * 1000)
+            timeElapsedSecs += pollSleepSecs
 
-            // check translate step
-            val routeReportIds = getAllChildrenReportId(convertReportId)
-            if (routeReportIds.size < expectedReceivers.size) {
-                return bad(
-                    "***async end2end_up FAILED***: Expected at least ${expectedReceivers.size} route" +
-                        "report id(s), but got ${routeReportIds.size}."
-                )
-            }
-            routeReportIds.forEach { routeReportId ->
-                val translateResults = pollForStepResult(routeReportId, TaskAction.translate)
-                // verify each result is valid
-                for (result in translateResults.values)
-                    passed = passed && examineStepResponse(result, "translate", sender.topic)
-                if (!passed) {
-                    bad("***async end2end_up FAILED***: Translate result invalid")
-                }
+            val headers = mutableListOf<Pair<String, String>>()
+            val oktaToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE)
+            headers.add("Authorization" to "Bearer $oktaToken")
+            val getUrl = "${environment.url}/api/waters/report/$reportId/history"
 
-                if (sender.topic.isSendOriginal) { // original message pass through has translate directly call send
-                    // check send step
-                    val translateReportId = getSingleChildReportId(routeReportId)
-                        ?: return bad(
-                            "***async end2end_up FAILED***:" +
-                                " Did not find a translate report id from route: $routeReportId"
-                        )
-                    val sendResults = pollForStepResult(translateReportId, TaskAction.send)
-                    // verify each result is valid
-                    for (result in sendResults.values)
-                        passed = passed && examineStepResponse(result, "send", sender.topic)
-                    if (!passed) {
-                        bad("***async end2end_up FAILED***: Send result invalid")
-                    }
-                } else {
-                    // check batch step
-                    val translateReportId = getSingleChildReportId(routeReportId)
-                        ?: return bad(
-                            "***async end2end_up FAILED***:" +
-                                " Did not find a translate report id from route: $routeReportId"
-                        )
-                    val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
-                    if (batchResults.isEmpty()) {
-                        return bad(
-                            "***async end2end_up FAILED***: No batch report was found after translate: " +
-                                "$translateReportId"
-                        )
-                    }
-                    // verify each result is valid
-                    for (result in batchResults.values)
-                        passed = passed && examineStepResponse(result, "batch", sender.topic)
-                    if (!passed) {
-                        bad("***async end2end_up FAILED***: Batch result invalid")
-                    }
-
-                    // check send step
-                    val batchReportId = getSingleChildReportId(translateReportId)
-                        ?: return bad("***async end2end_up FAILED***: Batch report id null")
-                    val sendResults = pollForStepResult(batchReportId, TaskAction.send)
-                    // verify each result is valid
-                    for (result in sendResults.values)
-                        passed = passed && examineStepResponse(result, "send", sender.topic)
-                    if (!passed) {
-                        bad("***async end2end_up FAILED***: Send result invalid")
-                    }
-                }
-            }
-
-            // check that lineages were generated properly
-            passed = passed and pollForLineageResults(
-                reportId,
-                expectedReceivers,
-                expectedReceivers.size,
-                asyncProcessMode = true,
-                isUniversalPipeline = true
+            val (_, response) = HttpClientUtils.getWithStringResponse(
+                url = getUrl,
+                accessToken = oktaToken,
+                timeout = 45000
             )
+
+            overallStatus = JSONObject(response).getString("overallStatus")
+
+            if (DetailedSubmissionHistory.Status.DELIVERED.toString() == overallStatus) {
+                good("Report $reportId status was $overallStatus after $timeElapsedSecs seconds")
+                return response
+            }
+
+            finalResponse = response
         }
+
+        bad(
+            "***$name test FAILED***: Batch step polling for report $reportId failed. " +
+                "After $timeElapsedSecs seconds the report status is $overallStatus."
+        )
+        return finalResponse
+    }
+
+    /**
+     * Runs validations after a report has been submitted to the UP and marked as Delivered.
+     * For all expected receivers this will validate:
+     * - An external filename matching that receiver is present in the history endpoint response
+     * - Download the file from BlobStorage
+     * - Compare the expected data with the actual data returned from BlobStorage
+     */
+    private fun end2EndUP(
+        historyResponse: String,
+        expectedResults: List<Pair<Receiver, File>>,
+    ): Boolean {
+        var passed = true
+        val blobConnectionString = Environment.get().blobEnvVar
+        val blobContainerMetadata: BlobAccess.BlobContainerMetadata =
+            BlobAccess.BlobContainerMetadata.build("reports", blobConnectionString)
+
+        expectedResults.forEach { (expectedReceiver, expectedFile) ->
+            // Retrieve external filename
+            val actualFilename = findReportExternalName(historyResponse, expectedReceiver)
+            if (actualFilename.isEmpty()) {
+                passed = bad(
+                    "***$name test FAILED***: " +
+                        "Did not find the sent report name for receiver ${expectedReceiver.name}"
+                )
+                return@forEach
+            }
+
+            // Grab the uploaded files out of blob store
+            val actualURL = "${blobContainerMetadata.getBlobEndpoint()}/" +
+                "none/${expectedReceiver.fullName}/$actualFilename"
+            var actualByteArray: ByteArray
+
+            try {
+                actualByteArray = BlobAccess.downloadBlobAsByteArray(actualURL, blobContainerMetadata)
+                good("File successfully uploaded to blob store as $actualFilename")
+            } catch (e: BlobStorageException) {
+                passed = bad("***$name test FAILED***: Failed to find $actualURL in blob storage: $e")
+                return@forEach
+            }
+
+            // Compare the actual file content with the expected content
+            val expectedFormat = Report.Format.valueOfFromExt(expectedReceiver.translation.type)
+            val thisRoundPassed = CompareData().compare(
+                expectedFile.readBytes().inputStream(),
+                actualByteArray.inputStream(),
+                expectedFormat,
+                null
+            ).passed
+
+            passed = passed and thisRoundPassed
+
+            if (thisRoundPassed) {
+                good("The contents of $actualFilename matches the expected data")
+            } else {
+                bad("***$name test FAILED***: The contents of $actualFilename did not match the expected contents")
+            }
+        }
+
         return passed
     }
+
+    /**
+     * Searches a submission history json response for the external filename that matches the expected receiver.
+     * Will fail if the expected json objects are not populated.
+     * @param response must be a response from the submission history endpoint for json lookup
+     * @param expectedReceiver receiver for which to find a matching destination service
+     */
+    private fun findReportExternalName(response: String, expectedReceiver: Receiver): String {
+        var filename = ""
+
+        try {
+            val destinations = JSONObject(response).getJSONArray("destinations")
+
+            destinations.forEach { d ->
+                val destination = JSONObject(d.toString())
+
+                // Check that the destination service matches the expected receiver. Uses the first name listed.
+                if (expectedReceiver.name == destination.getString("service").removeSurrounding("\"")) {
+                    filename = destination.getJSONArray("sentReports").getJSONObject(0).getString("externalName")
+                    good("The report was received by ${expectedReceiver.name}")
+                }
+            }
+        } catch (e: org.json.JSONException) {
+            bad("***$name test FAILED***: History response is missing an element for the sent report: $e")
+        }
+
+        return filename
+    }
+
+    /**
+     * NOTE: This method is not currently being used. It is being kept for intended later usage. This method allows the
+     * e2e test to generate the expected final sent report from the original file that is posted to the UP.
+     * The e2e test is now using expected data files saved in the repo. Using saved files allows for another layer of
+     * test coverage on the classes used below. Using this method would allow another layer of test coverage on
+     * the translation schemas.
+     *
+     * Performs the expected transforms that would happen to a file moving through the UP. If the topic is ELI`MS this
+     * process will be skipped. Otherwise, the file will be converted to FHIR if necessary. Sender enrichments will be
+     * run. Then translated based on the expected receiver format.
+     * Caveats:
+     *  - This does not perform all transformations from the UP. Notably, batch headers/footers are absent.
+     *  - The setting data for receivers and senders is pulling from organizations.yml so that must be kept in sync
+     *      with the settings in both the local db and in staging.
+     *
+     * Example Usage:
+     * // Mimic the UP transformations to get the expected file contents
+     *    val expectedByteArray = performFileTransforms(
+     *        originalFile.inputStream(),
+     *        expectedReceiver,
+     *        sender,
+     *        blobContainerMetadata
+     *    )
+     *
+     * @param originalFile the file to transform
+     * @param expectedReceiver determines resulting data format
+     * @param sender used for the sender enrichment schema
+     * @param blobMetadata necessary for the FhirTransformer
+     * @return the transformed ByteArray in the proper data format of HL7 or FHIR
+     */
+//    private fun performFileTransforms(
+//        originalFile: FileInputStream,
+//        expectedReceiver: Receiver,
+//        sender: Sender,
+//        blobMetadata: BlobAccess.BlobContainerMetadata,
+//    ): ByteArray {
+//        // If topic is set to send original then we do not need to perform any transformations
+//        if (expectedReceiver.topic.isSendOriginal) {
+//            return originalFile.readBytes()
+//        }
+//
+//        // Create FHIR Bundle, translate to FHIR if originally in HL7
+//        var fhirBundle = if (sender.format.toString() == "HL7") {
+//            val hl7messages = HL7Reader(ActionLogger()).getMessages(originalFile.bufferedReader().readText())
+//            hl7messages.map { message -> HL7toFhirTranslator().translate(message) }.first()
+//        } else {
+//            FhirTranscoder.getBundles(originalFile.bufferedReader().readText(), ActionLogger()).first()
+//        }
+//
+//        // Run Sender Enrichment if it exists
+//        if (sender.schemaName.isNotEmpty()) {
+//            fhirBundle = FhirTransformer(sender.schemaName).process(fhirBundle)
+//        }
+//        val encodedBundle = FhirTranscoder.encode(fhirBundle).byteInputStream()
+//
+//        // Translate from FHIR to HL7 if required by receiver
+//        val translatedFile = if (expectedReceiver.translation.type == "HL7") {
+//            fhirBundle = FhirTranscoder.decode(encodedBundle.bufferedReader().readText())
+//            FhirToHl7Converter(expectedReceiver.translation.schemaName, blobMetadata)
+//                .process(fhirBundle).encodePreserveEncodingChars().byteInputStream().readBytes()
+//        } else {
+//            FhirTranscoder.encode(fhirBundle).encodeToByteArray()
+//        }
+//
+//        return translatedFile
+//    }
 }
 
 class End2End : CoolTest() {

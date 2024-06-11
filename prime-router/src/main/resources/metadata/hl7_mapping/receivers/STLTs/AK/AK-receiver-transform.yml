@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
 extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
@@ -11,17 +13,17 @@ elements:
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
   - name: ak-receiving-application
-    condition: true
+    condition: 'true'
     value: [ '"AKDOH"' ]
     hl7Spec: [ 'MSH-5-1' ]
 
   - name: ak-receiving-facility
-    condition: true
+    condition: 'true'
     value: [ '"AKDOH"' ]
     hl7Spec: [ 'MSH-6-1' ]
 
   - name: ak-patient-name-type-code
-    condition: true
+    condition: 'true'
     value: [ '""' ]
     hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-5-7 ]
 
@@ -84,7 +86,7 @@ elements:
     hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-3 ]
 
   - name: ak-ordering-provider-person-identifier
-    condition: true
+    condition: 'true'
     value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-1' ]
 
@@ -104,7 +106,7 @@ elements:
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-24-5' ]
 
   - name: ak-ordering-provider-id-number
-    condition: true
+    condition: 'true'
     value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/OBR-16-1' ]
 
@@ -115,6 +117,6 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-5' ]
 
   - name: ak-specimen-source-site-text
-    condition: true
+    condition: 'true'
     value: [ 'Bundle.entry.resource.ofType(Specimen).collection.bodySite.text' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-8-2' ]

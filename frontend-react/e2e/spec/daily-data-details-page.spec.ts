@@ -128,8 +128,7 @@ test.describe("Daily Data Details page", () => {
                 });
             });
 
-            // Currently no download link. Un-skip when there is.
-            test.skip("should download file", async ({ page }) => {
+            test("should download file", async ({ page }) => {
                 await reportDetails.downloadFile(page, id, fileName);
             });
 
@@ -210,8 +209,7 @@ test.describe("Daily Data Details page", () => {
             });
         });
 
-        // Currently no download link. Un-skip when there is.
-        test.skip("should download file", async ({ page }) => {
+        test("should download file", async ({ page }) => {
             await reportDetails.downloadFile(page, id, fileName);
         });
 

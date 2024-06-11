@@ -34,15 +34,9 @@ vi.mock("../ScrollRestoration", () => {
         default: MockComponent,
     };
 });
-vi.mock("../../hooks/UseScrollToTop");
+vi.mock("../../hooks/UseScrollToTop/UseScrollToTop");
 vi.mock("../../utils/PermissionsUtils");
 vi.mock("../../pages/error/ErrorPage");
-vi.mock("../../contexts/AuthorizedFetch", () => {
-    return {
-        __esModule: true,
-        default: MockComponent,
-    };
-});
 vi.mock("../../network/QueryClients", () => {
     return {
         __esModule: true,

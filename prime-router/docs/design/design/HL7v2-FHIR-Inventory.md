@@ -125,7 +125,9 @@ implementation differs from what is in the spreadsheets.
 - The inventory mentions OBR.29, ORC.8 and ORC.31 mention that they should be mapped onto a `basedOn` value which is not
   defined in the mapping, the implementation maps them to extensions
 - The inventory specifies to prefer OBR.53 over ORC.33 as an identifier which does not align with any of the other
-  identifiers, the implementations prefer ORC in all casses
+  identifiers, the implementations prefer ORC in all cases
+- ORC.34 is listed as type CWE in the mapping inventory but most sources state EI is the correct datatype. We have
+  chosen to treat this field as EI.
 
 ### PID -> Patient
 
@@ -167,3 +169,13 @@ implementation differs from what is in the spreadsheets.
 - The inventory does not have a record for the FC datatype and the implementation does not map PV1.20
 - PV1.52 should be mapped as it's in NIST and has a mapping in the inventory but, the HAPI 2.7 structures have it as
   NULLDT so this implementation does not map it
+
+### NTE -> Annotation
+
+- There isn't a specific NTE to Annotation mapping in the inventory; we used the ones for Observation and
+  ServiceRequest.
+- The inventory specifies NTE.3 (a repeatable field) maps to note.text (non-repeatable) without specifying how to handle
+  repetitions. We may want to consider concatenating repetitions together, delimited with a newline `\n`.
+- Additionally, there is handling that performs a union between note.text and the RS note-comment extension. We may want
+  to consider using only an NTE.3 extension when converting HL7 -> FHIR -> HL7.
+    - This is as opposed to a FHIR sender, where instead the text and author fields are used.

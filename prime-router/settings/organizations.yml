@@ -1,3 +1,4 @@
+# $schema: ./../metadata/json_schema/organizations/organizations.json
 ---
 #
 # This file runs in environments (ie. your desktop) where the 'localhost' host name resolves
@@ -93,6 +94,8 @@
         - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
       qualityFilter:
         - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
+    - topic: mars-otc-elr
+      jurisdictionalFilter: [ "%patientState.exists() and %patientState = 'IG'" ]
   senders:
     - name: default
       organizationName: ignore
@@ -110,6 +113,12 @@
       organizationName: ignore
       topic: mars-otc-elr
       customerStatus: active
+      format: HL7
+    - name: ignore-full-elr-e2e  # For the E2E UP test
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      schemaName: classpath:/metadata/fhir_transforms/senders/baseline-sender-transform.yml
       format: HL7
     - name: dev-simple-report      # Use this to test full-elr
       organizationName: ignore
@@ -139,6 +148,18 @@
       topic: full-elr
       customerStatus: active
       schemaName: classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml
+      format: FHIR
+    - name: ignore-fhir-e2e   # For the E2E UP test
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      schemaName: classpath:/metadata/fhir_transforms/senders/baseline-sender-transform.yml
+      format: FHIR
+    - name: ignore-fhir-mars-otc-e2e   # For the E2E UP test
+      organizationName: ignore
+      topic: mars-otc-elr
+      customerStatus: active
+      schemaName: classpath:/metadata/fhir_transforms/senders/baseline-sender-transform.yml
       format: FHIR
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
@@ -230,13 +251,82 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<HL7>
+      translation:
         schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CO/CO.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
         receivingApplicationName: "CO-ELR"
         receivingFacilityName: "CO"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: FULL_ELR_E2E      # For the E2E UP test
+      externalName: Ignore FULL_ELR_E2E
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      qualityFilter:
+        - "%messageId.exists()"
+        - "%patient.name.family.exists()"
+        - "%patient.name.given.count() > 0"
+        - "%patient.birthDate.exists()"
+        - "%specimen.type.exists()"
+        - "(%patient.address.line.exists() or %patient.address.postalCode.exists() or %patient.telecom.exists())"
+        - "((%specimen.collection.collectedPeriod.exists() or %specimen.collection.collected.exists()) or %serviceRequest.occurrence.exists() or %observation.effective.exists())"
+      processingModeFilter:
+        - "%processingId.exists() and %processingId = 'P'"
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      timing:
+        operation: NONE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+        type: "HL7"
+        receivingApplicationName: "IG-ELR"
+        receivingFacilityName: "IG"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: FULL_ELR_FHIR_A_E2E     # For the E2E UP test
+      externalName: Ignore FULL_ELR_FHIR_A_E2E
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "Bundle.entry.resource.ofType(Location).address[0].state.exists() and Bundle.entry.resource.ofType(Location).address[0].state = 'CX'" ]
+      timing:
+        operation: NONE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<FHIR>
+        type: "FHIR"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: FULL_ELR_FHIR_B_E2E     # For the E2E UP test
+      externalName: Ignore FULL_ELR_FHIR_B_E2E
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "Bundle.entry.resource.ofType(Patient).address.city.exists() and Bundle.entry.resource.ofType(Patient).address.city = 'CANTERBURY'" ]
+      timing:
+        operation: NONE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<FHIR>
+        type: "FHIR"
       transport:
         type: SFTP
         host: sftp
@@ -259,7 +349,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<HL7>
+      translation:
         schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CO/CO.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
@@ -284,10 +374,90 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
+      translation:
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        useBatchHeaders: true
+        type: "HL7"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: MARS_OTC
+      externalName: Ignore MARS_OTC
+      organizationName: ignore
+      topic: mars-otc-elr
+      customerStatus: active
+      qualityFilter:
+        - "true"
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
       translation: !<HL7>
         schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
         useBatchHeaders: true
         type: "HL7"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: MARS_OTC_ELR_E2E      # For the E2E UP test
+      externalName: Ignore MARS_OTC_ELR_E2E
+      organizationName: ignore
+      topic: mars-otc-elr
+      customerStatus: active
+      qualityFilter:
+        - "true"
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        useBatchHeaders: false
+        type: "HL7"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: MARS_OTC_ELR_FHIR_A_E2E     # For the E2E UP test
+      externalName: Ignore MARS_OTC_ELR_FHIR_A_E2E
+      organizationName: ignore
+      topic: mars-otc-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "Bundle.entry.resource.ofType(Organization).address[0].state.exists() and Bundle.entry.resource.ofType(Organization).address[0].state = 'JX'" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: "FHIR"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: MARS_OTC_ELR_FHIR_B_E2E     # For the E2E UP test
+      externalName: Ignore MARS_OTC_ELR_FHIR_B_E2E
+      organizationName: ignore
+      topic: mars-otc-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "Bundle.entry.resource.ofType(Patient).address.city.exists() and Bundle.entry.resource.ofType(Patient).address.city = 'ROCINANTE'" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: "FHIR"
       transport:
         type: SFTP
         host: sftp
@@ -314,7 +484,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<FHIR>
+      translation:
         type: "FHIR"
       transport:
         type: SFTP
@@ -991,7 +1161,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<HL7>
+      translation:
         schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
@@ -1019,7 +1189,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<HL7>
+      translation:
         schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
@@ -1044,7 +1214,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<HL7>
+      translation:
         schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base-deidentified.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
@@ -1070,7 +1240,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<HL7>
+      translation:
         schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
@@ -1099,7 +1269,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<FHIR>
+      translation:
         useBatching: false
         type: "FHIR"
       transport:

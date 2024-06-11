@@ -1,0 +1,11 @@
+Name,Description,Jurisdiction,State,County
+"ak-phd","Alaska Public Health Department","STATE","AK",""
+"development","FOR DEVELOPMENT PURPOSES ONLY","FEDERAL","",""
+"hcintegrations","Healthcare Integrations","FEDERAL","",""
+"hi-phd","Hawaii Public Health Department","STATE","HI",""
+"historytest","FOR TESTING SUBMISSION HISTORY","FEDERAL","",""
+"ignore","FOR TESTING ONLY","FEDERAL","",""
+"md-phd","TEST Maryland Public Health Department","STATE","MD",""
+"oh-doh","Ohio Department of Health","STATE","OH",""
+"simple_report","PRIME's POC testing app","FEDERAL","",""
+"waters","Test Sender from Waters","FEDERAL","",""
