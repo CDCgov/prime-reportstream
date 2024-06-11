@@ -1,9 +1,5 @@
 package gov.cdc.prime.router.azure.observability.event
 
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.fhirengine.utils.getMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import org.hl7.fhir.r4.model.Bundle
@@ -37,26 +33,5 @@ object AzureEventUtils {
      */
     fun getIdentifier(bundle: Bundle): MessageID {
         return MessageID(bundle.identifier?.value, bundle.identifier?.system)
-    }
-
-    /**
-     * Returns a ReportSentEvent
-     */
-    fun createReportSentEvent(
-        receiver: Receiver,
-        reportFiles: List<ReportFile?>,
-        reportId: ReportId,
-        externalFilename: String,
-    ): ReportSentEvent {
-        val reportFile = if (reportFiles.size == 1) reportFiles.first() else null
-        return ReportSentEvent(
-            reportFile?.reportId,
-            reportId,
-            receiver.topic,
-            Sender.createFullName(reportFile?.sendingOrg, reportFile?.sendingOrgClient),
-            receiver.fullName,
-            receiver.transport?.type,
-            externalFilename
-        )
     }
 }

@@ -541,7 +541,7 @@ class ActionHistory(
         val blobInfo = BlobAccess.uploadBody(
             receiver.format,
             header.content,
-            header.reportFile.reportId.toString(),
+            sentReportId.toString(),
             receiver.fullName,
             Event.EventAction.NONE
         )
