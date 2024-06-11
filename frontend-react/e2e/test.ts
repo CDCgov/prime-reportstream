@@ -1,4 +1,10 @@
-import { test as base } from "@playwright/test";
+import {
+    test as base,
+    PlaywrightTestArgs,
+    PlaywrightTestOptions,
+    PlaywrightWorkerArgs,
+    PlaywrightWorkerOptions,
+} from "@playwright/test";
 
 export interface TestLogin {
     username: string;
@@ -8,13 +14,25 @@ export interface TestLogin {
     landingPage: string;
 }
 
-export interface TestOptions {
+export interface CustomFixtures {
     adminLogin: TestLogin;
     senderLogin: TestLogin;
     receiverLogin: TestLogin;
+    isMockDisabled: boolean;
 }
 
-export const test = base.extend<TestOptions>({
+export type PlaywrightAllTestArgs = PlaywrightTestArgs &
+    PlaywrightTestOptions &
+    PlaywrightWorkerArgs &
+    PlaywrightWorkerOptions;
+
+export type TestArgs<P extends keyof PlaywrightAllTestArgs> = Pick<
+    PlaywrightAllTestArgs,
+    P
+> &
+    CustomFixtures;
+
+export const test = base.extend<CustomFixtures>({
     // Define an option and provide a default value.
     // We can later override it in the config.
     adminLogin: [
@@ -47,4 +65,7 @@ export const test = base.extend<TestOptions>({
         },
         { option: true },
     ],
+    isMockDisabled: false,
 });
+
+export { expect } from "@playwright/test";
