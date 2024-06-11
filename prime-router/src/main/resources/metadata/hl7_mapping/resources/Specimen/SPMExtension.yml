@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
 
   # the specimen.parent field in FHIR does not repeat so an extension is needed to capture additional parent identifiers
