@@ -1,12 +1,9 @@
 name: Export Cost Data
 
 on:
-  pull_request:
-    branches:
-      - dkrylov/costs_dash_10546
-  push:
-    branches:
-      - dkrylov/costs_dash_10546
+  schedule:
+    # The workflow runs every day at 3PM
+    - cron: "0 19 * * *"  #UTC-5
 
 jobs:
   export_cost_data:
@@ -40,15 +37,15 @@ jobs:
         id: add-db-access
         shell: bash
         run: |
-          az postgres server update -g prime-data-hub-staging -n pdhstaging-pgsql --public-network-access "Enabled"
+          az postgres server update -g prime-data-hub-prod -n pdhprod-pgsql --public-network-access "Enabled"
           sleep 10;
-          az postgres server firewall-rule create -g prime-data-hub-staging -s pdhstaging-pgsql -n github_actions_runner \
+          az postgres server firewall-rule create -g prime-data-hub-prod -s pdhprod-pgsql -n github_actions_runner \
             --start-ip-address ${{ env.PUBLIC_IP }} --end-ip-address ${{ env.PUBLIC_IP }}
       - name: Store cost data in DB
         uses: ./.github/actions/db-query
         with:
-          pass: ${{ secrets['POSTGRESQL_STAGING_PWD'] }}
-          host: pdhstaging-pgsql
+          pass: ${{ secrets['POSTGRESQL_PROD_PWD'] }}
+          host: pdhprod-pgsql
           port: 5432
           user: prime
           database: prime_data_hub
@@ -67,6 +64,6 @@ jobs:
         if: always() && steps.add-db-access.outcome == 'success'
         shell: bash
         run: |
-          az postgres server firewall-rule delete -g prime-data-hub-staging -s pdhstaging-pgsql  -n github_actions_runner --yes
+          az postgres server firewall-rule delete -g prime-data-hub-prod -s pdhprod-pgsql  -n github_actions_runner --yes
           sleep 10;
-          az postgres server update -g prime-data-hub-staging -n pdhstaging-pgsql --public-network-access "Disabled"
+          az postgres server update -g prime-data-hub-prod -n pdhprod-pgsql --public-network-access "Disabled"
