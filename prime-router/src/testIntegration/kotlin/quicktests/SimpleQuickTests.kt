@@ -21,7 +21,7 @@ import kotlin.test.assertTrue
 class SimpleQuickTests {
     @Test
     fun `test waters data translation`() {
-        val watersFilenameRegex = "[/\\\\]*\\.csv"
+        val watersFilenameRegex = "waters.*\\\\.csv"
         var watersFile = QuickTestUtils.generateFakeData(
             "waters/waters-covid-19", 50, Report.Format.CSV,
             "CA", "Santa Clara"
@@ -35,7 +35,7 @@ class SimpleQuickTests {
 
     @Test
     fun `test fake data generator`() {
-        val reddyFMCFilenameRegex = "[/\\\\]*\\.csv"
+        val reddyFMCFilenameRegex = "reddyfmc-la-covid-19.*\\\\.csv"
         val reddyFMCNumFakeRecords = 1
 
         /**
@@ -62,7 +62,7 @@ class SimpleQuickTests {
 
     @Test
     fun `test merge using fake data`() {
-        val stracsFilenameRegex = "[/\\\\]*\\.csv"
+        val stracsFilenameRegex = "strac-covid-19.*\\\\.csv"
         val stracsNumFakeRecords = 5
 
         /**
@@ -112,7 +112,8 @@ class SimpleQuickTests {
 
     @org.junit.jupiter.api.Test
     fun `test report data with comparison`() {
-        val csvFileRegex = Regex("[/\\\\]*\\.csv")
+        val azFileRegex = Regex("[/\\\\]az.*\\.csv")
+        val pdFileRegex = Regex("[/\\\\]pdi-covid-19")
         val expectedDir = "./src/test/csv_test_files/expected"
         val expectedAzFile = "$expectedDir/simplereport-az.csv"
         val simpleReportFile = "./src/test/csv_test_files/input/simplereport.csv"
@@ -122,7 +123,7 @@ class SimpleQuickTests {
 
         var actualAzFile: String? = null
         reports.forEach {
-            if (it.contains(csvFileRegex)) actualAzFile = it
+            if (it.contains(azFileRegex)) actualAzFile = it
         }
         assertThat(actualAzFile).isNotNull().isNotEmpty()
 
@@ -137,13 +138,13 @@ class SimpleQuickTests {
             "primedatainput/pdi-covid-19", 50, Report.Format.CSV,
             "IG", "CSV"
         )
-        assertThat(csvFileRegex.containsMatchIn(generatedFakeDataFile)).isTrue()
+        assertThat(pdFileRegex.containsMatchIn(generatedFakeDataFile)).isTrue()
 
         // Now send that fake data thru the router.
         reports = QuickTestUtils.routeReport("primedatainput/pdi-covid-19", generatedFakeDataFile)
         var actualAzFile3: String? = null
         reports.forEach {
-            if (it.contains(csvFileRegex)) actualAzFile3 = it
+            if (it.contains(azFileRegex)) actualAzFile3 = it
         }
         assertThat(actualAzFile3).isNotNull().isNotEmpty()
 

@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
 import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.CustomConfiguration
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DefaultValues
 import gov.cdc.prime.router.FakeReport
@@ -303,6 +304,7 @@ class ProcessData(
 
     private fun writeReportsToFile(
         reports: List<Pair<Report, Report.Format>>,
+        metadata: Metadata,
         writeBlock: (report: Report, format: Report.Format, outputStream: OutputStream) -> Unit,
     ) {
         if (outputDir == null && outputFileName == null) return
@@ -323,9 +325,19 @@ class ProcessData(
                 val outputFile = if (outputFileName != null) {
                     File(outputFileName!!)
                 } else {
-                    val fileName = Report.formFilename(
-                        report.id,
+                    val translationConfig = report.destination?.translation ?: CustomConfiguration(
+                        report.schema.baseName,
                         format,
+                        receivingOrganization = null,
+                        nameFormat = nameFormat ?: "standard"
+                    )
+                    val fileName = Report.formExternalFilename(
+                        report.id,
+                        report.schema.baseName,
+                        format,
+                        report.createdDateTime,
+                        metadata,
+                        translationConfig = translationConfig,
                     )
                     File(outputDir ?: ".", fileName)
                 }
@@ -531,7 +543,7 @@ class ProcessData(
         }
 
         // Output reports
-        writeReportsToFile(outputReports) { report, format, stream ->
+        writeReportsToFile(outputReports, metadata) { report, format, stream ->
             when (format) {
                 Report.Format.INTERNAL -> csvSerializer.writeInternal(report, stream)
                 Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer.write(report, stream)

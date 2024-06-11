@@ -1570,7 +1570,6 @@ class Report : Logging {
             return if (header.receiver?.topic?.isSendOriginal == true) {
 //                the externalName of the root report should equal the submission payload name parameter
                 reportService.getRootReport(header.reportFile.reportId).externalName ?: formExternalFilename(
-                    header.reportFile.bodyUrl,
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
                     Format.valueOfIgnoreCase(header.reportFile.bodyFormat),
@@ -1581,7 +1580,6 @@ class Report : Logging {
                 header.reportFile.externalName
             } else {
                 formExternalFilename(
-                    header.reportFile.bodyUrl,
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
                     Format.valueOfIgnoreCase(header.reportFile.bodyFormat),
@@ -1596,7 +1594,6 @@ class Report : Logging {
          * @param metadata optional metadata instance used for dependency injection
          */
         fun formExternalFilename(
-            bodyUrl: String?,
             reportId: ReportId,
             schemaName: String,
             format: Format,
@@ -1606,18 +1603,17 @@ class Report : Logging {
             translationConfig: TranslatorConfiguration? = null,
         ): String {
             val nameSuffix = format.ext
-            return if (bodyUrl != null) {
-                BlobAccess.BlobInfo.getBlobFilename(bodyUrl)
-            } else if (translationConfig == null) {
+            val fileName = if (translationConfig == null) {
                 val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-                "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}.$nameSuffix"
+                "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}"
             } else {
                 val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
                 metadata!!.fileNameTemplates[nameFormat.lowercase()].run {
                     this?.getFileName(translationConfig, reportId)
-                        ?: "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}.$nameSuffix"
+                        ?: "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}"
                 }
             }
+            return "$fileName.$nameSuffix"
         }
 
         /**

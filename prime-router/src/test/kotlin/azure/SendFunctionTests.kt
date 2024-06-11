@@ -120,7 +120,7 @@ class SendFunctionTests {
         every { workflowEngine.azureEventService.trackEvent(any()) }.returns(Unit)
         every { workflowEngine.reportService.getRootReports(any()) } returns reportList
         mockkObject(Report.Companion)
-        every { Report.formExternalFilename(any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
+        every { Report.formExternalFilename(any(), any(), any(), any(), any(), any(), any()) } returns ""
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId, false)
