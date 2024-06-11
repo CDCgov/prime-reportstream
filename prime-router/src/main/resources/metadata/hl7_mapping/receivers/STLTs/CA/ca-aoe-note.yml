@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 constants:
   caAoeNteFieldPath: '%{hl7NotePath}/NTE(%{noteIndex})'
   commentCondition: '%resource.code.coding.code.exists() and %resource.code.text.exists()'
