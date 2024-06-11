@@ -163,10 +163,10 @@ runs:
       shell: bash
       run: |
         az postgres server update -g prime-data-hub-${{ inputs.env-name }} \
-        -n pdh${{ inputs.env-name }}-pgsql-replica --sku-name GP_Gen5_32
+        -n pdh${{ inputs.env-name }}-pgsql-replica --sku-name GP_Gen5_64
         sleep 120;
         az postgres server update -g prime-data-hub-${{ inputs.env-name }} \
-        -n pdh${{ inputs.env-name }}-pgsql --sku-name GP_Gen5_32
+        -n pdh${{ inputs.env-name }}-pgsql --sku-name GP_Gen5_64
 
     - name: Run DB restores and wait
       if: inputs.github-token && inputs.destroy == 'false' && env.IGNORE_DB == 'false'
