@@ -23,7 +23,6 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
-import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
 import java.time.LocalDateTime
 import java.util.UUID
@@ -252,10 +251,13 @@ class ActionHistory(
     fun trackActionParams(actionParams: String) {
         if (actionParams.isEmpty()) return
         val tmp = if (action.actionParams.isNullOrBlank()) actionParams else "${action.actionParams}, $actionParams"
-        // kluge to get the max size of the varchar
+        // truncate if data is longer than maximum length of db column
         val max = ACTION.ACTION_PARAMS.dataType.length()
-        // truncate if needed
-        action.actionParams = tmp.chunked(size = max)[0]
+        action.actionParams = if (max > 0) {
+            tmp.take(max)
+        } else {
+            tmp
+        }
     }
 
     /**
@@ -263,13 +265,12 @@ class ActionHistory(
      */
     fun trackActionResult(actionResult: String) {
         val tmp = if (action.actionResult.isNullOrBlank()) actionResult else "${action.actionResult}, $actionResult"
+        // truncate if data is longer than maximum length of db column
         val max = ACTION.ACTION_RESULT.dataType.length()
-        // max is 0 for the CLOB type. we're using CLOB for the action_result now because we want
-        // bigly strings, not just small sad 2048 strings
-        action.actionResult = if (ACTION.ACTION_RESULT.dataType == SQLDataType.CLOB && max == 0) {
-            tmp
+        action.actionResult = if (max > 0) {
+            tmp.take(max)
         } else {
-            tmp.chunked(size = max)[0]
+            tmp
         }
     }
 
