@@ -1,9 +1,12 @@
 name: Export Cost Data
 
 on:
-  schedule:
-    # The workflow runs every day at 3PM
-    - cron: "0 19 * * *"  #UTC-5
+  pull_request:
+    branches:
+      - dkrylov/costs_dash_10546
+  push:
+    branches:
+      - dkrylov/costs_dash_10546
 
 jobs:
   export_cost_data:
