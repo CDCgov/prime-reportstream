@@ -1,10 +1,12 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
 extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
 elements:
   # MSH 4-1
   - name: sending-facility_namespace-id
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '"CDC PRIME REPORTSTREAM"' ]
     hl7Spec: [ MSH-4-1 ]
@@ -12,13 +14,13 @@ elements:
   # MSH 4-2
   - name: sending-facility-universal-id
     resource: 'Bundle'
-    condition: true
+    condition: 'true'
     value: [ '"10DRPTSTRM"' ]
     hl7Spec: [ MSH-4-2 ]
 
   - name: sending-facility-universal-id-type
     resource: 'Bundle'
-    condition: true
+    condition: 'true'
     value: [ '"CLIA"' ]
     hl7Spec: [ MSH-4-3 ]
 
@@ -28,18 +30,18 @@ elements:
     hl7Spec: [ MSH-18 ]
 
   - name: message-character-set
-    condition: false
+    condition: 'false'
 
   # MSH-5
   - name: receiving-application-namespace-id
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '"ECLRS"' ]
     hl7Spec: [ MSH-5-1 ]
 
   # MSH-6
   - name: receiving-facility-namespace-id
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '"NYSDOH"' ]
     hl7Spec: [ MSH-6-1 ]
