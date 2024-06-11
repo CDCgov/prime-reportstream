@@ -90,6 +90,8 @@ This is a routing event emitted during the destination filter step if a bundle n
     - The full sender name
 - bundleSize
     - Length of the bundle JSON string
+- failingFilters
+  - A list of all the filters that failed causing this report not the be routed
 - messageId
     - From the bundle.identifier value and system. If ingested as HL7 this comes from MSH-10
 
@@ -114,8 +116,10 @@ routed to a receiver. Many `ReportRouteEvent` can correspond to a `ReportAccepte
   - The full receiver name. (deprecated: When a report does not get routed to a receiver this value will be `"null"`)
 - observations
   - A list of observations each containing a list of its mapped conditions
-- originalObsevations
-  - A list of observations in the originally submitted report, before any filters were run
+- (deprecated) originalObservations
+  - (deprecated) A list of observations in the originally submitted report, before any filters were run
+- filteredObservations
+  - A list of observations that were filtered from the bundle during filtering
 - bundleSize
   - Length of the bundle JSON string
 - messageId
@@ -139,6 +143,10 @@ This is a routing event emitted during the receiver filter step if a bundle fail
     - The full receiver name.
 - observations
     - A list of observations each containing a list of its mapped conditions
+- failingFilters
+    - A list of all the filters that failed for this report
+- failingFilterType
+    - The type of filter that failed this report
 - bundleSize
     - Length of the bundle JSON string
 - messageId

@@ -340,7 +340,7 @@ class FhirDestinationFilterTests {
                 )
             )
 
-            assertThat(azureEvents).hasSize(2)
+            assertThat(azureEvents).hasSize(1)
             assertThat(azureEvents.first())
                 .isInstanceOf<ReportAcceptedEvent>()
                 .isEqualTo(expectedAcceptedEvent)
@@ -450,6 +450,7 @@ class FhirDestinationFilterTests {
                 submittedId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
+                emptyList(),
                 36995,
                 AzureEventUtils.MessageID(
                     "1234d1d1-95fe-462c-8ac6-46728dba581c",
@@ -464,7 +465,7 @@ class FhirDestinationFilterTests {
                 .isInstanceOf<ReportNotRoutedEvent>()
                 .isEqualToIgnoringGivenProperties(
                     expectedRoutedEvent,
-                    ReportNotRoutedEvent::reportId
+                    ReportNotRoutedEvent::reportId,
                 )
         }
 

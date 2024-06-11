@@ -14,7 +14,7 @@ data class ReportRouteEvent(
     val sender: String,
     val receiver: String?, // TODO: this should not be nullable anymore after #14450
     val observations: List<ObservationSummary>,
-    val originalObservations: List<ObservationSummary>,
+    val filteredObservations: List<ObservationSummary>,
     val bundleSize: Int,
     val messageId: AzureEventUtils.MessageID,
 ) : AzureCustomEvent

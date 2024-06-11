@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure.observability.event
 
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Topic
 
 /**
@@ -15,6 +16,8 @@ data class ReceiverFilterFailedEvent(
     val sender: String,
     val receiver: String,
     val observations: List<ObservationSummary>,
+    val failingFilters: List<String>,
+    val failingFilterType: ReportStreamFilterType,
     val bundleSize: Int,
     val messageId: AzureEventUtils.MessageID,
 ) : AzureCustomEvent

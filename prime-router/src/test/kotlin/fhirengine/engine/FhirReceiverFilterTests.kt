@@ -66,7 +66,6 @@ import kotlin.test.Test
 
 private const val ORGANIZATION_NAME = "co-phd"
 private const val RECEIVER_NAME = "full-elr-hl7"
-private const val PROVENANCE_COUNT_EQUAL_TO_TEN = "Bundle.entry.resource.ofType(Provenance).count() = 10"
 private const val VALID_FHIR_FILEPATH = "src/test/resources/fhirengine/engine/routing/valid.fhir"
 private const val BLOB_URL = "https://blob.url"
 private const val BLOB_SUB_FOLDER_NAME = "test-sender"
@@ -74,6 +73,7 @@ private const val BODY_URL = "https://anyblob.com"
 private const val CONDITION_FILTER = "%resource.code.coding.code = '95418-0'"
 private val FILTER_PASS: ReportStreamFilter = listOf("true")
 private val FILTER_FAIL: ReportStreamFilter = listOf("false")
+private val MAPPED_CONDITION_FILTER_FAIL = CodeStringConditionFilter("foo,bar")
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FhirReceiverFilterTests {
@@ -216,7 +216,11 @@ class FhirReceiverFilterTests {
 
         // assert
         azureEventService.getEvents().forEach { event ->
-            assertThat(event).isInstanceOf<ReceiverFilterFailedEvent>()
+            assertThat(event)
+                .isInstanceOf<ReceiverFilterFailedEvent>()
+                .matchesPredicate {
+                    it.failingFilters == FILTER_FAIL && it.failingFilterType == ReportStreamFilterType.QUALITY_FILTER
+                }
         }
         assertThat(actionLogger.logs).hasSize(2)
         actionLogger.logs.forEach {
@@ -262,7 +266,11 @@ class FhirReceiverFilterTests {
         }
 
         azureEventService.getEvents().forEach { event ->
-            assertThat(event).isInstanceOf<ReceiverFilterFailedEvent>()
+            assertThat(event)
+                .isInstanceOf<ReceiverFilterFailedEvent>()
+                .matchesPredicate {
+                    it.failingFilters == FILTER_FAIL && it.failingFilterType == ReportStreamFilterType.ROUTING_FILTER
+                }
         }
 
         assertThat(actionLogger.logs).hasSize(2)
@@ -274,12 +282,10 @@ class FhirReceiverFilterTests {
     }
 
     @Test
-    fun `fail - proc mode filter fails`() {
+    fun `fail - processing mode filter fails`() {
         // engine setup
         val settings = FileSettings().loadOrganizations(
-            createOrganizationWithFilteredReceivers(
-                processingModeFilter = listOf("false")
-            )
+            createOrganizationWithFilteredReceivers(processingModeFilter = FILTER_FAIL)
         )
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
         val messages = settings.receivers.map {
@@ -313,7 +319,12 @@ class FhirReceiverFilterTests {
 
         // assert
         azureEventService.getEvents().forEach { event ->
-            assertThat(event).isInstanceOf<ReceiverFilterFailedEvent>()
+            assertThat(event)
+                .isInstanceOf<ReceiverFilterFailedEvent>()
+                .matchesPredicate {
+                    it.failingFilters == FILTER_FAIL &&
+                        it.failingFilterType == ReportStreamFilterType.PROCESSING_MODE_FILTER
+                }
         }
         assertThat(actionLogger.logs).hasSize(2)
         actionLogger.logs.forEach {
@@ -327,9 +338,7 @@ class FhirReceiverFilterTests {
     fun `fail - condition filter fails`() {
         // engine setup
         val settings = FileSettings().loadOrganizations(
-            createOrganizationWithFilteredReceivers(
-                conditionFilter = listOf(PROVENANCE_COUNT_EQUAL_TO_TEN)
-            )
+            createOrganizationWithFilteredReceivers(conditionFilter = FILTER_FAIL)
         )
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
         val messages = settings.receivers.map {
@@ -363,7 +372,11 @@ class FhirReceiverFilterTests {
 
         // assert
         azureEventService.getEvents().forEach { event ->
-            assertThat(event).isInstanceOf<ReceiverFilterFailedEvent>()
+            assertThat(event)
+                .isInstanceOf<ReceiverFilterFailedEvent>()
+                .matchesPredicate {
+                    it.failingFilters == FILTER_FAIL && it.failingFilterType == ReportStreamFilterType.CONDITION_FILTER
+                }
         }
         assertThat(actionLogger.logs).hasSize(2)
         actionLogger.logs.forEach {
@@ -378,7 +391,7 @@ class FhirReceiverFilterTests {
         // engine setup
         val settings = FileSettings().loadOrganizations(
             createOrganizationWithFilteredReceivers(
-                mappedConditionFilter = listOf(CodeStringConditionFilter("foo,bar"))
+                mappedConditionFilter = listOf(MAPPED_CONDITION_FILTER_FAIL)
             )
         )
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
@@ -403,6 +416,16 @@ class FhirReceiverFilterTests {
         accessSpy.transact { txn ->
             val messages = engine.run(message, actionLogger, actionHistory, txn)
             assertThat(messages).isEmpty()
+
+            azureEventService.getEvents().forEach { event ->
+                assertThat(event)
+                    .isInstanceOf<ReceiverFilterFailedEvent>()
+                    .matchesPredicate {
+                        it.failingFilters == listOf(MAPPED_CONDITION_FILTER_FAIL.value) &&
+                            it.failingFilterType == ReportStreamFilterType.MAPPED_CONDITION_FILTER
+                    }
+            }
+
             assertThat(actionLogger.logs).hasSize(1)
             assertThat(actionLogger.logs.first().detail)
                 .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
@@ -709,7 +732,7 @@ class FhirReceiverFilterTests {
     fun `test bundle with no receivers is not routed to translate function`() {
         // engine set up
         val settings = FileSettings().loadOrganizations(
-            createOrganizationWithFilteredReceivers(qualityFilter = listOf("false"))
+            createOrganizationWithFilteredReceivers(qualityFilter = FILTER_FAIL)
         )
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
         val message = spyk(
@@ -740,7 +763,12 @@ class FhirReceiverFilterTests {
             assertThat(messages).isEmpty()
 
             azureEventService.getEvents().forEach { event ->
-                assertThat(event).isInstanceOf<ReceiverFilterFailedEvent>()
+                assertThat(event)
+                    .isInstanceOf<ReceiverFilterFailedEvent>()
+                    .matchesPredicate {
+                        it.failingFilters == FILTER_FAIL &&
+                            it.failingFilterType == ReportStreamFilterType.QUALITY_FILTER
+                    }
             }
         }
 
@@ -753,10 +781,11 @@ class FhirReceiverFilterTests {
 
     @Test
     fun `test logging for mapped condition filters resulting in full prune`() {
+        val mappedConditionFilter = CodeStringConditionFilter("6142004,Some Condition Code")
         // engine setup
         val settings = FileSettings().loadOrganizations(
             createOrganizationWithFilteredReceivers(
-                mappedConditionFilter = listOf(CodeStringConditionFilter("6142004,Some Condition Code"))
+                mappedConditionFilter = listOf(mappedConditionFilter)
             )
         )
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
@@ -799,7 +828,12 @@ class FhirReceiverFilterTests {
 
         // assert
         azureEventService.getEvents().forEach { event ->
-            assertThat(event).isInstanceOf<ReceiverFilterFailedEvent>()
+            assertThat(event)
+                .isInstanceOf<ReceiverFilterFailedEvent>()
+                .matchesPredicate {
+                    it.failingFilters == listOf(mappedConditionFilter.value) &&
+                        it.failingFilterType == ReportStreamFilterType.MAPPED_CONDITION_FILTER
+                }
         }
         assertThat(actionLogger.logs).hasSize(1)
         assertThat(actionLogger.logs.first().detail)
@@ -847,7 +881,7 @@ class FhirReceiverFilterTests {
         val settings = FileSettings().loadOrganizations(
             createOrganizationWithFilteredReceivers(
                 conditionFilter = listOf("false"),
-                mappedConditionFilter = listOf(CodeStringConditionFilter("foo,bar"))
+                mappedConditionFilter = listOf(MAPPED_CONDITION_FILTER_FAIL)
             )
         )
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
