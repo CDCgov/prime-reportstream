@@ -79,18 +79,18 @@ class ActionHistoryTests {
 
         val mockRequest = MockHttpRequestMessage()
         mockRequest.httpHeaders += mapOf(
-            "x-azure-clientip" to "10.0.0.1"
+            "x-azure-clientip" to "10.0.1"
         )
 
         actionHistory.trackActionParams(mockRequest)
-        assertThat(actionHistory.action.senderIp).isEqualTo("10.0.0.1")
+        assertThat(actionHistory.action.senderIp).isEqualTo("10.0.1")
 
         mockRequest.httpHeaders += mapOf(
-            "x-forwarded-for" to "10.0.0.2"
+            "x-forwarded-for" to "10.0.2, 10.0.3"
         )
 
         actionHistory.trackActionParams(mockRequest)
-        assertThat(actionHistory.action.senderIp).isEqualTo("10.0.0.2")
+        assertThat(actionHistory.action.senderIp).isEqualTo("10.0.2")
     }
 
     @Test
