@@ -85,6 +85,7 @@ class FHIRRouter(
 
         // track input report
         actionHistory.trackExistingInputReport(message.reportId)
+        val rootReportId = reportService.getRootReport(message.reportId).reportId
 
         // pull fhir document and parse FHIR document
         val fhirJson = message.downloadContent()
@@ -101,6 +102,7 @@ class FHIRRouter(
         azureEventService.trackEvent(
             ReportAcceptedEvent(
                 message.reportId,
+                rootReportId,
                 message.topic,
                 sender,
                 observationSummary,
@@ -138,7 +140,6 @@ class FHIRRouter(
                     )
                 )
 
-                // TODO: merge with mapped condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
                 // If the receiver does not have a condition filter set send the entire bundle to the translate step
                 var receiverBundle = if (receiver.conditionFilter.isEmpty()) {
                     bundle
@@ -183,8 +184,9 @@ class FHIRRouter(
                 val receiverObservationSummary = AzureEventUtils.getObservationSummaries(receiverBundle)
                 azureEventService.trackEvent(
                     ReportRouteEvent(
-                        message.reportId,
                         report.id,
+                        message.reportId,
+                        rootReportId,
                         message.topic,
                         sender,
                         receiver.fullName,
@@ -253,8 +255,9 @@ class FHIRRouter(
             val receiverObservationSummary = AzureEventUtils.getObservationSummaries(bundle)
             azureEventService.trackEvent(
                 ReportRouteEvent(
-                    message.reportId,
                     report.id,
+                    message.reportId,
+                    rootReportId,
                     message.topic,
                     sender,
                     null,
@@ -342,11 +345,10 @@ class FHIRRouter(
                 defaultResponse = true
             )
 
-            // TODO: merge with mapped condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
             // CONDITION FILTER
             //  default: allowAll
             val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
-            var allObservations = FhirPathUtils.evaluate(
+            val allObservations = FhirPathUtils.evaluate(
                 CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
                 bundle,
                 bundle,
@@ -374,7 +376,6 @@ class FHIRRouter(
                 }
                 )
 
-            // TODO: merge with condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
             // MAPPED CONDITION FILTER
             //  default: allowAll
             if (bundle.getObservations().isNotEmpty() && receiver.mappedConditionFilter.isNotEmpty()) {

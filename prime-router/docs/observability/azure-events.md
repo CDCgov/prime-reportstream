@@ -52,8 +52,10 @@ to the configured Microsoft AppInsights instance.
 
 ### ReportAcceptedEvent
 This event is emitted during the route step _before_ running any receiver specific filtering
-- reportId
-  - The ID assigned to the report
+- parentReportId
+  - The report ID that was submitted to running function
+- submittedId
+  - The report ID that was created in the receive step when sender uploaded the report
 - topic
   - The Topic of the report
 - sender
@@ -70,18 +72,22 @@ This event is emitted during the route step _after_ running any receiver specifi
 Many `ReportRouteEvent` can correspond to a `ReportAcceptedEvent` and can be "joined" on 
 `ReportAcceptedEvent.reportId == ReportRouteEvent.parentReportId`.
 
-- parentReportId
-  - The ID assigned to parent report. This ID can be used to find the corresponding `ReportAcceptedEvent`.
 - reportId
-  - The ID assigned to the report
+    - The ID assigned to the report created in the running function
+- parentReportId
+    - The report ID that was submitted to running function
+- submittedId
+    - The report ID that was created in the receive step when sender uploaded the report
 - topic
   - The Topic of the report
 - sender
   - The full sender name
 - receiver
-  - The full receiver name. When a report does not get routed to a receiver this value will be `"null"`.
+  - The full receiver name. When a report does not get routed to a receiver this value will be `"null"`
 - observations
-  - A list of observations each containing a list of its mapped conditions 
+  - A list of observations each containing a list of its mapped conditions
+- originalObsevations
+    - A list of observations in the originally submitted report, before any filters were run
 - bundleSize
   - Length of the bundle JSON string
 - messageId
@@ -89,19 +95,21 @@ Many `ReportRouteEvent` can correspond to a `ReportAcceptedEvent` and can be "jo
 
 ### ReportCreatedEvent
 - reportId
-    - The ID assigned to the report
+    - The ID assigned to the created report
 - topic
-    - The Topic of the report
+    - The Topic of the created report
 
 ### ReportReceiverSelectedEvent
 This event is emitted during the DestinationFilter routing step when a report is queued for receiver filter evaluation.
 Many `ReportReceiverSelectedEvent` can correspond to a `ReportAcceptedEvent` and can be "joined" on
 `ReportAcceptedEvent.reportId == ReportReceiverSelectedEvent.parentReportId`.
 
-- parentReportId
-    - The ID assigned to parent report. This ID can be used to find the corresponding `ReportAcceptedEvent`.
 - reportId
-    - The ID assigned to the report
+    - The ID assigned to the report created in the running function
+- parentReportId
+    - The report ID that was submitted to running function
+- submittedId
+    - The report ID that was created in the receive step when sender uploaded the report
 - topic
     - The Topic of the report
 - sender
@@ -110,6 +118,48 @@ Many `ReportReceiverSelectedEvent` can correspond to a `ReportAcceptedEvent` and
     - The full receiver name.
 - bundleSize
     - Length of the bundle JSON string
+
+### ReceiverFilterFailedEvent
+This event is emitted during the receiver filter step if a bundle fails a receiver filter.
+
+- parentReportId
+    - The ID assigned to parent report. This ID can be used to find the corresponding `ReportAcceptedEvent`
+- reportId
+    - The ID assigned to the report created in the running function
+- topic
+    - The Topic of the report
+- sender
+    - The full sender name
+- receiver
+    - The full receiver name.
+- observations
+    - A list of observations each containing a list of its mapped conditions
+- bundleSize
+    - Length of the bundle JSON string
+- messageId
+    - From the bundle.identifier value and system. If ingested as HL7 this comes from MSH-10
+
+### ReportNotRoutedEvent
+This event is emitted during the route step _after_ running any receiver specific filtering.
+Many `ReportRouteEvent` can correspond to a `ReportAcceptedEvent` and can be "joined" on
+`ReportAcceptedEvent.reportId == ReportRouteEvent.parentReportId`.
+
+- reportId
+    - The ID assigned to the report created in the running function
+- parentReportId
+    - The report ID that was submitted to running function
+- submittedId
+    - The report ID that was created in the receive step when sender uploaded the report
+- topic
+    - The Topic of the report
+- sender
+    - The full sender name
+- observations
+    - A list of observations each containing a list of its mapped conditions
+- bundleSize
+    - Length of the bundle JSON string
+- messageId
+    - From the bundle.identifier value and system. If ingested as HL7 this comes from MSH-10
 
 ## How to query for events
 

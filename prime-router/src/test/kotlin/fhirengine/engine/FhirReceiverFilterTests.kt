@@ -28,10 +28,12 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.ConditionSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
+import gov.cdc.prime.router.azure.observability.event.ReceiverFilterFailedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.conditionCodeExtensionURL
@@ -82,6 +84,7 @@ class FhirReceiverFilterTests {
     private val actionHistory = ActionHistory(TaskAction.route)
     private val azureEventService = InMemoryAzureEventService()
     private val reportServiceMock = mockk<ReportService>()
+    private val submittedId = UUID.randomUUID()
 
     val csv = """
             variable,fhirPath
@@ -106,7 +109,11 @@ class FhirReceiverFilterTests {
     private var actionLogger = ActionLogger()
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
-        every { reportServiceMock.getSenderName(any()) } returns "sendingOrg.sendingOrgClient"
+        val rootReport = mockk<ReportFile>()
+        every { rootReport.reportId } returns submittedId
+        every { rootReport.sendingOrg } returns "sendingOrg"
+        every { rootReport.sendingOrgClient } returns "sendingOrgClient"
+        every { reportServiceMock.getRootReport(any()) } returns rootReport
 
         return FHIREngine.Builder()
             .metadata(metadata)
@@ -209,11 +216,7 @@ class FhirReceiverFilterTests {
 
         // assert
         azureEventService.getEvents().forEach { event ->
-            assertThat(event)
-                .isInstanceOf<ReportRouteEvent>()
-                .matchesPredicate {
-                    it.receiver == null
-                }
+            assertThat(event).isInstanceOf<ReceiverFilterFailedEvent>()
         }
         assertThat(actionLogger.logs).hasSize(2)
         actionLogger.logs.forEach {
@@ -259,11 +262,7 @@ class FhirReceiverFilterTests {
         }
 
         azureEventService.getEvents().forEach { event ->
-            assertThat(event)
-                .isInstanceOf<ReportRouteEvent>()
-                .matchesPredicate {
-                    it.receiver == null
-                }
+            assertThat(event).isInstanceOf<ReceiverFilterFailedEvent>()
         }
 
         assertThat(actionLogger.logs).hasSize(2)
@@ -314,11 +313,7 @@ class FhirReceiverFilterTests {
 
         // assert
         azureEventService.getEvents().forEach { event ->
-            assertThat(event)
-                .isInstanceOf<ReportRouteEvent>()
-                .matchesPredicate {
-                    it.receiver == null
-                }
+            assertThat(event).isInstanceOf<ReceiverFilterFailedEvent>()
         }
         assertThat(actionLogger.logs).hasSize(2)
         actionLogger.logs.forEach {
@@ -368,11 +363,7 @@ class FhirReceiverFilterTests {
 
         // assert
         azureEventService.getEvents().forEach { event ->
-            assertThat(event)
-                .isInstanceOf<ReportRouteEvent>()
-                .matchesPredicate {
-                    it.receiver == null
-                }
+            assertThat(event).isInstanceOf<ReceiverFilterFailedEvent>()
         }
         assertThat(actionLogger.logs).hasSize(2)
         actionLogger.logs.forEach {
@@ -647,8 +638,9 @@ class FhirReceiverFilterTests {
             )
             val expectedAzureEvents = listOf(
                 ReportRouteEvent(
-                    message.reportId,
                     reportId,
+                    message.reportId,
+                    submittedId,
                     message.topic,
                     "sendingOrg.sendingOrgClient",
                     "$ORGANIZATION_NAME.$RECEIVER_NAME",
@@ -748,11 +740,7 @@ class FhirReceiverFilterTests {
             assertThat(messages).isEmpty()
 
             azureEventService.getEvents().forEach { event ->
-                assertThat(event)
-                    .isInstanceOf<ReportRouteEvent>()
-                    .matchesPredicate {
-                        it.receiver == null
-                    }
+                assertThat(event).isInstanceOf<ReceiverFilterFailedEvent>()
             }
         }
 
@@ -811,11 +799,7 @@ class FhirReceiverFilterTests {
 
         // assert
         azureEventService.getEvents().forEach { event ->
-            assertThat(event)
-                .isInstanceOf<ReportRouteEvent>()
-                .matchesPredicate {
-                    it.receiver == null
-                }
+            assertThat(event).isInstanceOf<ReceiverFilterFailedEvent>()
         }
         assertThat(actionLogger.logs).hasSize(1)
         assertThat(actionLogger.logs.first().detail)

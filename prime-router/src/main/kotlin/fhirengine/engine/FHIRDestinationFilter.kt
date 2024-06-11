@@ -15,6 +15,7 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
@@ -22,8 +23,8 @@ import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportNotRoutedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportReceiverSelectedEvent
-import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -110,13 +111,15 @@ class FHIRDestinationFilter(
             val bodyString = FhirTranscoder.encode(bundle)
 
             // go up the report lineage to get the sender of the root report
-            val sender = reportService.getSenderName(queueMessage.reportId)
+            val rootReport = reportService.getRootReport(queueMessage.reportId)
+            val sender = "${rootReport.sendingOrg}.${rootReport.sendingOrgClient}"
 
             // send event to Azure AppInsights
             val observationSummary = AzureEventUtils.getObservationSummaries(bundle)
             azureEventService.trackEvent(
                 ReportAcceptedEvent(
                     queueMessage.reportId,
+                    rootReport.reportId,
                     queueMessage.topic,
                     sender,
                     observationSummary,
@@ -148,7 +151,8 @@ class FHIRDestinationFilter(
                         1,
                         metadata = this.metadata,
                         topic = queueMessage.topic,
-                        destination = receiver
+                        destination = receiver,
+                        nextAction = TaskAction.receiver_filter
                     )
 
                     // create item lineage
@@ -187,8 +191,9 @@ class FHIRDestinationFilter(
 
                     azureEventService.trackEvent(
                         ReportReceiverSelectedEvent(
-                            queueMessage.reportId,
                             report.id,
+                            queueMessage.reportId,
+                            rootReport.reportId,
                             queueMessage.topic,
                             sender,
                             receiver.fullName,
@@ -251,13 +256,12 @@ class FHIRDestinationFilter(
 
                 // send event to Azure AppInsights
                 azureEventService.trackEvent(
-                    ReportRouteEvent(
-                        queueMessage.reportId,
+                    ReportNotRoutedEvent(
                         report.id,
+                        queueMessage.reportId,
+                        rootReport.reportId,
                         queueMessage.topic,
                         sender,
-                        null,
-                        observationSummary,
                         observationSummary,
                         fhirJson.length,
                         AzureEventUtils.getIdentifier(bundle)

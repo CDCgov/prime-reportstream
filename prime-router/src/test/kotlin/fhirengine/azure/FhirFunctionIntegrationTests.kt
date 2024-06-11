@@ -54,6 +54,7 @@ import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.unmockkAll
@@ -1398,7 +1399,7 @@ class FhirFunctionIntegrationTests() {
 
     @Test
     fun `test successfully processes a route message`() {
-        val reportServiceMock = mockk<ReportService>()
+//        val reportServiceMock = mockk<ReportService>()
         val report = seedTask(
             Report.Format.HL7,
             TaskAction.receive,
@@ -1412,6 +1413,7 @@ class FhirFunctionIntegrationTests() {
         mockkObject(BlobAccess)
         mockkObject(QueueMessage)
         mockkObject(QueueAccess)
+        val mockReport = mockk<ReportFile>()
         val routeFhirBytes =
             File(VALID_FHIR_PATH).readBytes()
         every {
@@ -1427,14 +1429,16 @@ class FhirFunctionIntegrationTests() {
             )
         } returns BlobAccess.BlobInfo(Report.Format.FHIR, "", "".toByteArray())
         every { QueueAccess.sendMessage(any(), any()) } returns Unit
-        every { reportServiceMock.getSenderName(any()) } returns "senderOrg.senderOrgClient"
+        every { mockReport.reportId } returns UUID.randomUUID()
+        mockkConstructor(ReportService::class)
+        every { anyConstructed<ReportService>().getSenderName(any()) } returns "senderOrg.senderOrgClient"
+        every { anyConstructed<ReportService>().getRootReport(any()) } returns mockReport
 
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val fhirEngine = FHIRRouter(
             UnitTestUtils.simpleMetadata,
             settings,
-            ReportStreamTestDatabaseContainer.testDatabaseAccess,
-            reportService = reportServiceMock
+            ReportStreamTestDatabaseContainer.testDatabaseAccess
         )
 
         val actionHistory = spyk(ActionHistory(TaskAction.receive))

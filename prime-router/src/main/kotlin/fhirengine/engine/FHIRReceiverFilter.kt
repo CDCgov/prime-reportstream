@@ -25,6 +25,7 @@ import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
+import gov.cdc.prime.router.azure.observability.event.ReceiverFilterFailedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -64,7 +65,7 @@ class FHIRReceiverFilter(
     /**
      * Accepts a [message] in internal FHIR format
      *
-     * [message] is the incoming message to be evaluated for valid receivers and routed to the appropriate queues
+     * [message] is the incoming message with metadata for evaluating receiver filters
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      */
     override fun <T : QueueMessage> doWork(
@@ -98,12 +99,18 @@ class FHIRReceiverFilter(
         val index: Int = 1,
     ) : ActionLogDetail {
         override val scope: ActionLogScope = ActionLogScope.item
-        override val message: String =
-            "Item was not routed to $receiverName because it did not pass the $filterType. Item failed on: $filter"
+
+        @Suppress("ktlint:standard:max-line-length")
+        override val message: String = "Item was not routed to $receiverOrg.$receiverName because it did not pass the $filterType. Item failed on: $filter"
 
         override val errorCode: ErrorCode = ErrorCode.UNKNOWN
     }
 
+    /**
+     * Runs [receiver] filters on a [bundle], returning a pruned bundle or null if filters did not pass
+     *
+     * [actionLogger] ensure all activities are logged.
+     */
     private fun getBundleToRoute(receiver: Receiver, bundle: Bundle, actionLogger: ActionLogger): Bundle? {
         val trackingId = bundle.identifier.value
 
@@ -155,6 +162,12 @@ class FHIRReceiverFilter(
 """.trimMargin()
     }
 
+    /**
+     * Evaluate a [receiver]'s condition filters on a [bundle], returning the pruned bundle or null if all observations
+     * were pruned.
+     *
+     * [actionLogger] and [trackingId] facilitate logging
+     */
     private fun evaluateObservationConditionFilters(
         receiver: Receiver,
         bundle: Bundle,
@@ -238,16 +251,9 @@ class FHIRReceiverFilter(
     }
 
     /**
-     * Runs the passed filters (which are all FHIR path expressions) against the passed bundle.  If any of the filters
-     * do not pass, the bundle should not be routed.  For any failed filter, a warning is recorded in the action log
-     * with the details.
+     * Evaluates a list of FHIR expression [filters] for a [receiver] on a [bundle].
      *
-     * @param receiver the receiver the bundle is getting evaluated for
-     * @param bundle the FHIR bundle being evaluated
-     * @param trackingId a unique identifier for the FHIR bundle
-     * @param filters the list of FHIR path expressions to evaluate against the bundle
-     * @param filterType the kind of filter, see [ReportStreamFilterType]
-     *
+     * [actionLogger], [trackingId], and [filterType] facilitate logging
      */
     private fun doesBundlePassFilters(
         receiver: Receiver,
@@ -287,8 +293,9 @@ class FHIRReceiverFilter(
     }
 
     /**
-     * Process a [queueMessage] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
-     * [actionHistory] ensures all activities are logged.
+     * Process a [queueMessage] azure queue
+     *
+     * [actionHistory] and [actionHistory] ensure all activities are logged.
      */
     private fun fhirEngineRunResults(
         queueMessage: FhirReceiverFilterQueueMessage,
@@ -307,18 +314,20 @@ class FHIRReceiverFilter(
             // track input report
             actionHistory.trackExistingInputReport(queueMessage.reportId)
 
-            // pull fhir document and parse FHIR document
+            // gather receiver and sender objects
+            val receiver = settings.receivers.first { it.fullName == queueMessage.receiverFullName }
+            val rootReport = reportService.getRootReport(queueMessage.reportId)
+            val sender = "${rootReport.sendingOrg}.${rootReport.sendingOrgClient}"
+
+            // download and parse FHIR document
             val fhirJson = LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                 "Downloaded content from queue message"
             ) { queueMessage.downloadContent() }
             val bundle = FhirTranscoder.decode(fhirJson)
 
-            val receiver = settings.receivers.first { it.fullName == queueMessage.receiverFullName }
             actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
 
             val receiverBundle = getBundleToRoute(receiver, bundle, actionLogger)
-            // go up the report lineage to get the sender of the root report
-            val sender = reportService.getSenderName(queueMessage.reportId)
             return if (receiverBundle != null) {
                 logger.info("Bundle was returned after evaluating receiver filters.")
                 val report = Report(
@@ -329,7 +338,7 @@ class FHIRReceiverFilter(
                     ),
                     metadata = this.metadata,
                     topic = queueMessage.topic,
-                    nextAction = TaskAction.route
+                    nextAction = TaskAction.translate
                 )
 
                 val nextEvent = ProcessEvent(
@@ -367,8 +376,9 @@ class FHIRReceiverFilter(
 
                 azureEventService.trackEvent(
                     ReportRouteEvent(
-                        queueMessage.reportId,
                         report.id,
+                        queueMessage.reportId,
+                        rootReport.reportId,
                         queueMessage.topic,
                         sender,
                         receiver.fullName,
@@ -433,13 +443,13 @@ class FHIRReceiverFilter(
 
                 val observationSummary = AzureEventUtils.getObservationSummaries(bundle)
                 azureEventService.trackEvent(
-                    ReportRouteEvent(
-                        queueMessage.reportId,
+                    ReceiverFilterFailedEvent(
                         emptyReport.id,
+                        queueMessage.reportId,
+                        rootReport.reportId,
                         queueMessage.topic,
                         sender,
-                        null,
-                        observationSummary,
+                        receiver.fullName,
                         observationSummary,
                         fhirJson.length,
                         AzureEventUtils.getIdentifier(bundle)

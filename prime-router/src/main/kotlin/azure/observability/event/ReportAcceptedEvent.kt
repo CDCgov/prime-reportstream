@@ -10,7 +10,8 @@ import gov.cdc.prime.router.Topic
  * receiver specific filters have been run
  */
 data class ReportAcceptedEvent(
-    val reportId: ReportId,
+    val parentReportId: ReportId,
+    val submittedId: ReportId,
     val topic: Topic,
     val sender: String,
     val observations: List<ObservationSummary>,

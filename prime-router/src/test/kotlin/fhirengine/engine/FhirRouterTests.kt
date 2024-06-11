@@ -39,6 +39,7 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.ConditionSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
@@ -168,6 +169,7 @@ class FhirRouterTests {
     private val actionHistory = ActionHistory(TaskAction.route)
     private val azureEventService = InMemoryAzureEventService()
     private val reportServiceMock = mockk<ReportService>()
+    private val submittedId = UUID.randomUUID()
 
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
@@ -377,6 +379,11 @@ class FhirRouterTests {
     )
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
+        val rootReport = mockk<ReportFile>()
+        every { rootReport.reportId } returns submittedId
+        every { rootReport.sendingOrg } returns "sendingOrg"
+        every { rootReport.sendingOrgClient } returns "sendingOrgClient"
+        every { reportServiceMock.getRootReport(any()) } returns rootReport
         every { reportServiceMock.getSenderName(any()) } returns "sendingOrg.sendingOrgClient"
 
         return FHIREngine.Builder()
@@ -1442,6 +1449,7 @@ class FhirRouterTests {
             val expectedAzureEvents = listOf(
                 ReportAcceptedEvent(
                     message.reportId,
+                    submittedId,
                     message.topic,
                     "sendingOrg.sendingOrgClient",
                     listOf(
@@ -1459,8 +1467,9 @@ class FhirRouterTests {
                     )
                 ),
                 ReportRouteEvent(
-                    message.reportId,
                     reportId,
+                    message.reportId,
+                    submittedId,
                     message.topic,
                     "sendingOrg.sendingOrgClient",
                     orgWithMappedConditionFilter.receivers.first().fullName,
@@ -1591,6 +1600,7 @@ class FhirRouterTests {
             val azureEvents = azureEventService.getEvents()
             val expectedAcceptedEvent = ReportAcceptedEvent(
                 message.reportId,
+                submittedId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
                 listOf(
@@ -1624,8 +1634,9 @@ class FhirRouterTests {
                 ObservationSummary.EMPTY
             )
             val expectedRoutedEvent = ReportRouteEvent(
-                message.reportId,
                 UUID.randomUUID(),
+                message.reportId,
+                submittedId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
                 null,

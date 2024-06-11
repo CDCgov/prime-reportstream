@@ -25,12 +25,14 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.ConditionSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
 import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
-import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
+import gov.cdc.prime.router.azure.observability.event.ReportNotRoutedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportReceiverSelectedEvent
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -71,6 +73,7 @@ class FhirDestinationFilterTests {
     private val actionHistory = ActionHistory(TaskAction.route)
     private val azureEventService = InMemoryAzureEventService()
     private val reportServiceMock = mockk<ReportService>()
+    private val submittedId = UUID.randomUUID()
 
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
@@ -225,7 +228,11 @@ class FhirDestinationFilterTests {
     )
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
-        every { reportServiceMock.getSenderName(any()) } returns "sendingOrg.sendingOrgClient"
+        val rootReport = mockk<ReportFile>()
+        every { rootReport.reportId } returns submittedId
+        every { rootReport.sendingOrg } returns "sendingOrg"
+        every { rootReport.sendingOrgClient } returns "sendingOrgClient"
+        every { reportServiceMock.getRootReport(any()) } returns rootReport
 
         return FHIREngine.Builder()
             .metadata(metadata)
@@ -307,6 +314,53 @@ class FhirDestinationFilterTests {
             assertThat(actionHistory.actionLogs).isEmpty()
             assertThat(actionHistory.reportsIn).hasSize(1)
             assertThat(actionHistory.reportsOut).hasSize(1)
+
+            val azureEvents = azureEventService.getEvents()
+
+            val expectedAcceptedEvent = ReportAcceptedEvent(
+                message.reportId,
+                submittedId,
+                message.topic,
+                "sendingOrg.sendingOrgClient",
+                listOf(
+                    ObservationSummary(
+                        ConditionSummary(
+                            "840539006",
+                            "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                        )
+                    ),
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY,
+                    ObservationSummary.EMPTY
+                ),
+                36995,
+                AzureEventUtils.MessageID(
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
+                    "https://reportstream.cdc.gov/prime-router"
+                )
+            )
+
+            val expectedRouteEvent = ReportReceiverSelectedEvent(
+                message.reportId,
+                message.reportId,
+                submittedId,
+                message.topic,
+                "sendingOrg.sendingOrgClient",
+                "$ORGANIZATION_NAME.$RECEIVER_NAME",
+                36995
+            )
+
+            assertThat(azureEvents).hasSize(2)
+            assertThat(azureEvents.first())
+                .isInstanceOf<ReportAcceptedEvent>()
+                .isEqualTo(expectedAcceptedEvent)
+            assertThat(azureEvents[1])
+                .isInstanceOf<ReportReceiverSelectedEvent>()
+                .isEqualToIgnoringGivenProperties(
+                    expectedRouteEvent,
+                    ReportReceiverSelectedEvent::reportId
+                )
         }
 
         // assert
@@ -386,6 +440,7 @@ class FhirDestinationFilterTests {
             val azureEvents = azureEventService.getEvents()
             val expectedAcceptedEvent = ReportAcceptedEvent(
                 message.reportId,
+                submittedId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
                 listOf(
@@ -418,13 +473,12 @@ class FhirDestinationFilterTests {
                 ObservationSummary.EMPTY,
                 ObservationSummary.EMPTY
             )
-            val expectedRoutedEvent = ReportRouteEvent(
-                message.reportId,
+            val expectedRoutedEvent = ReportNotRoutedEvent(
                 UUID.randomUUID(),
+                message.reportId,
+                submittedId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
-                null,
-                expectedObservationSummary,
                 expectedObservationSummary,
                 36995,
                 AzureEventUtils.MessageID(
@@ -437,10 +491,10 @@ class FhirDestinationFilterTests {
             assertThat(azureEvents.first())
                 .isEqualTo(expectedAcceptedEvent)
             assertThat(azureEvents[1])
-                .isInstanceOf<ReportRouteEvent>()
+                .isInstanceOf<ReportNotRoutedEvent>()
                 .isEqualToIgnoringGivenProperties(
                     expectedRoutedEvent,
-                    ReportRouteEvent::reportId
+                    ReportNotRoutedEvent::reportId
                 )
         }
 
