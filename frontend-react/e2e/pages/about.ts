@@ -1,6 +1,8 @@
+import { Locator } from "@playwright/test";
 import { BasePage, BasePageTestArgs } from "./BasePage";
 
 export class AboutPage extends BasePage {
+    readonly footer: Locator;
     constructor(testArgs: BasePageTestArgs) {
         super(
             {
@@ -12,5 +14,6 @@ export class AboutPage extends BasePage {
             },
             testArgs,
         );
+        this.footer = this.page.locator("footer");
     }
 }

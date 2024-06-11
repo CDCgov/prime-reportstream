@@ -175,15 +175,15 @@ test.describe("About page", () => {
 
     test.describe("Footer", () => {
         test("has footer", async ({ aboutPage }) => {
-            await expect(aboutPage.page.locator("footer")).toBeAttached();
+            await expect(aboutPage.footer).toBeAttached();
         });
 
         test("explicit scroll to footer and then scroll to top", async ({
             aboutPage,
         }) => {
-            await expect(aboutPage.page.locator("footer")).not.toBeInViewport();
+            await expect(aboutPage.footer).not.toBeInViewport();
             await scrollToFooter(aboutPage.page);
-            await expect(aboutPage.page.locator("footer")).toBeInViewport();
+            await expect(aboutPage.footer).toBeInViewport();
             await expect(
                 aboutPage.page.getByTestId("govBanner"),
             ).not.toBeInViewport();
