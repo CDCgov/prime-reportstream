@@ -32,7 +32,6 @@ import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
 import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportNotRoutedEvent
-import gov.cdc.prime.router.azure.observability.event.ReportReceiverSelectedEvent
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -341,26 +340,10 @@ class FhirDestinationFilterTests {
                 )
             )
 
-            val expectedRouteEvent = ReportReceiverSelectedEvent(
-                message.reportId,
-                message.reportId,
-                submittedId,
-                message.topic,
-                "sendingOrg.sendingOrgClient",
-                "$ORGANIZATION_NAME.$RECEIVER_NAME",
-                36995
-            )
-
             assertThat(azureEvents).hasSize(2)
             assertThat(azureEvents.first())
                 .isInstanceOf<ReportAcceptedEvent>()
                 .isEqualTo(expectedAcceptedEvent)
-            assertThat(azureEvents[1])
-                .isInstanceOf<ReportReceiverSelectedEvent>()
-                .isEqualToIgnoringGivenProperties(
-                    expectedRouteEvent,
-                    ReportReceiverSelectedEvent::reportId
-                )
         }
 
         // assert
@@ -461,25 +444,12 @@ class FhirDestinationFilterTests {
                     "https://reportstream.cdc.gov/prime-router"
                 )
             )
-            val expectedObservationSummary = listOf(
-                ObservationSummary(
-                    ConditionSummary(
-                        "840539006",
-                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
-                    )
-                ),
-                ObservationSummary.EMPTY,
-                ObservationSummary.EMPTY,
-                ObservationSummary.EMPTY,
-                ObservationSummary.EMPTY
-            )
             val expectedRoutedEvent = ReportNotRoutedEvent(
                 UUID.randomUUID(),
                 message.reportId,
                 submittedId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
-                expectedObservationSummary,
                 36995,
                 AzureEventUtils.MessageID(
                     "1234d1d1-95fe-462c-8ac6-46728dba581c",

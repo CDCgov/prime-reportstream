@@ -9,10 +9,10 @@ import gov.cdc.prime.router.Topic
 data class ReportRouteEvent(
     val reportId: ReportId,
     val parentReportId: ReportId,
-    val submittedId: ReportId,
+    val submittedReportId: ReportId,
     val topic: Topic,
     val sender: String,
-    val receiver: String?,
+    val receiver: String?, // TODO: this should not be nullable anymore after #14450
     val observations: List<ObservationSummary>,
     val originalObservations: List<ObservationSummary>,
     val bundleSize: Int,

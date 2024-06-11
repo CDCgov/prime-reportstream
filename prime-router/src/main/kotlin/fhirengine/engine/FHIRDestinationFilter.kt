@@ -24,7 +24,6 @@ import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportNotRoutedEvent
-import gov.cdc.prime.router.azure.observability.event.ReportReceiverSelectedEvent
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -189,18 +188,6 @@ class FHIRDestinationFilter(
                     // ensure tracking is set
                     actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
-                    azureEventService.trackEvent(
-                        ReportReceiverSelectedEvent(
-                            report.id,
-                            queueMessage.reportId,
-                            rootReport.reportId,
-                            queueMessage.topic,
-                            sender,
-                            receiver.fullName,
-                            bodyString.length
-                        )
-                    )
-
                     listOf(
                         FHIREngineRunResult(
                             nextEvent,
@@ -262,7 +249,6 @@ class FHIRDestinationFilter(
                         rootReport.reportId,
                         queueMessage.topic,
                         sender,
-                        observationSummary,
                         fhirJson.length,
                         AzureEventUtils.getIdentifier(bundle)
                     )
