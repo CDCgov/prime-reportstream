@@ -3,19 +3,19 @@ elements:
     value: [ '%resultIndex + 1' ]
     hl7Spec: [ '%{hl7OBXField}-1' ]
 
-  - name: obx-code-cwe
+  - name: obx-code
     resource: '%resource.code'
-    condition: '%context.type.coding.where(code = "CWE").exists()'
+    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "OBX.2").value = "CWE"'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7OBXField}-3'
 
-  - name: obx-code-ce
+  - name: obx-code
     resource: '%resource.code'
-    condition: '%context.type.coding.where(code = "CE").exists()'
-    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CE.yml
+    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "OBX.2").value = "CE"'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
-      ceFieldPath: '%{hl7OBXField}-3'
+      cweField: '%{hl7OBXField}-3'
 
   - name: obx-sub-id
     value: [ '%resource.extension(%`rsext-sub-id`).value' ]

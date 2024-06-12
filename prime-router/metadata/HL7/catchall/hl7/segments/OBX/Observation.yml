@@ -35,7 +35,7 @@ code_supportsCE:
     obx2: STRING, OBX.2
   condition: $obx2 EQUALS CE
   expressionType: resource
-  valueOf: datatypes/CE/CodeableConcept
+  valueOf: datatypes/CWE/CodeableConcept
   specs: OBX.3
 
 valueString_obx:
