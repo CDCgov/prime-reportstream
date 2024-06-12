@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
 constants:
@@ -209,10 +211,10 @@ elements:
 
   # Suppress all notes as they may contain PII data
   - name: patient-note
-    condition: false
+    condition: 'false'
 
   - name: observation-note
-    condition: false
+    condition: 'false'
 
   - name: order-note
-    condition: false
+    condition: 'false'

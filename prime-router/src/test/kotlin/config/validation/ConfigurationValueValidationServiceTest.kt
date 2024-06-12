@@ -9,6 +9,7 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import java.io.File
 import kotlin.test.Test
 
@@ -81,7 +82,8 @@ class ConfigurationValueValidationServiceTest {
     @Test
     fun organizations() {
         val yaml = File("settings/organizations.yml")
-        val orgs = ConfigurationType.Organizations.parse(yaml.inputStream())
+        val jsonNode = JacksonMapperUtilities.yamlMapper.readTree(yaml)
+        val orgs = ConfigurationType.Organizations.convert(jsonNode)
 
         val result = configurationValueValidationService.validate(
             ConfigurationType.Organizations,
