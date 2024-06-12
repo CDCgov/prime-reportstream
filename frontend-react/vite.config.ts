@@ -121,15 +121,16 @@ export default defineConfig(async ({ mode }) => {
                       " https://reportstream.oktapreview.com;" +
                       " img-src 'self'" +
                       " https://reportstream.oktapreview.com" +
-                      " https://localhost:${port}" +
+                      ` https://localhost:${port}` +
                       " data:;" +
                       " connect-src 'self'" +
                       " https://www.google-analytics.com" +
                       " https://*.in.applicationinsights.azure.com" +
                       " https://reportstream.oktapreview.com" +
-                      " http://localhost:${port}/api/" +
+                      ` http://localhost:${port}/api/` +
                       " https://dap.digitalgov.gov" +
-                      " https://www.googletagmanager.com"
+                      " https://www.googletagmanager.com" +
+                      " https://js.monitor.azure.com/"
                     : "",
             },
         },
