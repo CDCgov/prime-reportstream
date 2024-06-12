@@ -67,10 +67,10 @@ elements:
 
   - name: obx-value-ce
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "OBX.2").value = "CE"'
-    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CE.yml
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     resource: '%resource.value'
     constants:
-      ceFieldPath: '%{hl7OBXField}-5'
+      cweField: '%{hl7OBXField}-5'
 
   - name: obx-value-cwe
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "OBX.2").value = "CWE"'
