@@ -9,9 +9,13 @@
 
 /*
  * Extend length of character limited fields that are in danger of being exceeded in production.
+ * Online documentation on the PostgreSQL website recommends limits only be set if there is an application reason
+ * to do so: https://wiki.postgresql.org/wiki/Don%27t_Do_This#Don.27t_use_varchar.28n.29_by_default
+ * In most cases, the previously defined limits were arbitrary and had no solid application requirement
+ * for being limited to a certain length.
  */
 
-/* Columns used by views cannot be altered, so we have to drop the view first. */
+/* Columns used by materialized views cannot be altered, so we have to drop the view first. */
 
 /* Clean up any existing structures for the view that exist now */
 DROP INDEX IF EXISTS idx_vw_livid_manufacturer;
@@ -25,51 +29,52 @@ DROP MATERIALIZED VIEW IF EXISTS vw_livd_table;
 
 
 ALTER TABLE action
-ALTER COLUMN action_params TYPE VARCHAR,
-ALTER COLUMN sender_ip TYPE VARCHAR,
-ALTER COLUMN sending_org TYPE VARCHAR,
-ALTER COLUMN sending_org_client TYPE VARCHAR,
-ALTER COLUMN receiving_org TYPE VARCHAR,
-ALTER COLUMN receiving_org_svc TYPE VARCHAR;
+ALTER COLUMN action_params TYPE VARCHAR, --previously VARCHAR(2048)
+ALTER COLUMN sender_ip TYPE VARCHAR, -- previously VARCHAR(39)
+ALTER COLUMN sending_org TYPE VARCHAR, -- previously VARCHAR(63)
+ALTER COLUMN sending_org_client TYPE VARCHAR, -- previously VARCHAR(63)
+ALTER COLUMN receiving_org TYPE VARCHAR, -- previously VARCHAR(63)
+ALTER COLUMN receiving_org_svc TYPE VARCHAR; -- previously VARCHAR(63)
 
 ALTER TABLE action_log
-ALTER COLUMN tracking_id TYPE VARCHAR;
+ALTER COLUMN tracking_id TYPE VARCHAR; -- previously VARCHAR(128)
 
 ALTER TABLE email_schedule
-ALTER COLUMN created_by TYPE VARCHAR;
+ALTER COLUMN created_by TYPE VARCHAR; -- previously VARCHAR(63)
 
 ALTER TABLE item_lineage
-ALTER COLUMN tracking_id TYPE VARCHAR,
-ALTER COLUMN transport_result TYPE VARCHAR;
+ALTER COLUMN tracking_id TYPE VARCHAR, -- previously VARCHAR(128)
+ALTER COLUMN transport_result TYPE VARCHAR; -- previously VARCHAR(512)
 
 ALTER TABLE jti_cache
-ALTER COLUMN jti TYPE VARCHAR;
+ALTER COLUMN jti TYPE VARCHAR; -- previously VARCHAR(128)
 
 ALTER TABLE lookup_table_version
-ALTER COLUMN table_name TYPE VARCHAR,
-ALTER COLUMN created_by TYPE VARCHAR;
+ALTER COLUMN table_name TYPE VARCHAR, -- previously VARCHAR(512)
+ALTER COLUMN created_by TYPE VARCHAR; -- previously VARCHAR(63)
 
 ALTER TABLE report_file
-ALTER COLUMN sending_org TYPE VARCHAR,
-ALTER COLUMN sending_org_client TYPE VARCHAR,
-ALTER COLUMN receiving_org TYPE VARCHAR,
-ALTER COLUMN receiving_org_svc TYPE VARCHAR,
-ALTER COLUMN transport_params TYPE VARCHAR,
-ALTER COLUMN schema_topic TYPE VARCHAR,
-ALTER COLUMN body_url TYPE VARCHAR,
-ALTER COLUMN external_name TYPE VARCHAR,
-ALTER COLUMN body_format TYPE VARCHAR,
-ALTER COLUMN downloaded_by TYPE VARCHAR;
+ALTER COLUMN sending_org TYPE VARCHAR, -- previously VARCHAR(63)
+ALTER COLUMN sending_org_client TYPE VARCHAR, -- previously VARCHAR(63)
+ALTER COLUMN receiving_org TYPE VARCHAR, -- previously VARCHAR(63)
+ALTER COLUMN receiving_org_svc TYPE VARCHAR, -- previously VARCHAR(63)
+ALTER COLUMN transport_params TYPE VARCHAR, -- previously VARCHAR(512)
+ALTER COLUMN schema_name TYPE VARCHAR, -- previously VARCHAR(63)
+ALTER COLUMN schema_topic TYPE VARCHAR, -- previously VARCHAR(63)
+ALTER COLUMN body_url TYPE VARCHAR, -- previously VARCHAR(2048)
+ALTER COLUMN external_name TYPE VARCHAR, -- previously VARCHAR(2048)
+ALTER COLUMN body_format TYPE VARCHAR, -- previously VARCHAR(63)
+ALTER COLUMN downloaded_by TYPE VARCHAR; -- previously VARCHAR(63)
 
 ALTER TABLE setting
-ALTER COLUMN name TYPE VARCHAR,
-ALTER COLUMN created_by TYPE VARCHAR;
+ALTER COLUMN name TYPE VARCHAR, -- previously VARCHAR(63)
+ALTER COLUMN created_by TYPE VARCHAR; -- previously VARCHAR(63)
 
 ALTER TABLE task
-ALTER COLUMN schema_name TYPE VARCHAR,
-ALTER COLUMN receiver_name TYPE VARCHAR,
-ALTER COLUMN body_format TYPE VARCHAR,
-ALTER COLUMN body_url TYPE VARCHAR;
+ALTER COLUMN schema_name TYPE VARCHAR, -- previously VARCHAR(63)
+ALTER COLUMN receiver_name TYPE VARCHAR, -- previously VARCHAR(63)
+ALTER COLUMN body_format TYPE VARCHAR, -- previously VARCHAR(63)
+ALTER COLUMN body_url TYPE VARCHAR; -- previously VARCHAR(2048)
 
 /*
  * Recreate the view. It is better to do a drop and recreate. CREATE OR REPLACE could fail
