@@ -34,7 +34,7 @@ jobs:
   build_frontend_react:
     name: Build Frontend React
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_frontend_change == 'true' }} && ${{ github.event_name != 'pull_request' }} || ${{ needs.pre_job.outputs.is_deployment_pr == 'true' }}
+    if: needs.pre_job.outputs.has_frontend_change == 'true' && (github.event_name != 'pull_request' || needs.pre_job.outputs.is_deployment_pr == 'true')
     runs-on: ubuntu-latest
 
     defaults:
