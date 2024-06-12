@@ -189,10 +189,10 @@ runs:
       run: |
         echo "is_deployment_pr=false" >> $GITHUB_OUTPUT;
         if [[ \
-          '${{ github.event_name  == \'pull_request\' }}' && ( \
+          '${{ github.event_name }} == 'pull_request' && ( \
             '${{ startsWith(github.ref_name, \'demo\') }}' || \
             '${{ startsWith(github.ref_name, \'trialfrontend\') }}' || \
-            '${{ github.ref_name == \'production\' }}' || \
+            '${{ github.ref_name }} == 'production' }}' || \
           ) \
         ]]; then
           echo "is_deployment_pr=true" >> $GITHUB_OUTPUT
