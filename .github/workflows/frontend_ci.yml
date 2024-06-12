@@ -26,7 +26,9 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-      is_permitted: ${{ steps.build_vars.outputs.str_has_frontend_change == 'true' && github.event_name == 'pull_request' && steps.build_vars.outputs.str_is_deployment_pr == 'false' }}
+      is_permitted: false
+      # Should not run for deployment PRs
+      #is_permitted: ${{ steps.build_vars.outputs.str_has_frontend_change == 'true' && github.event_name == 'pull_request' && steps.build_vars.outputs.str_is_deployment_pr == 'false' }}
     steps:
       - name: "Check out changes"
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
@@ -37,8 +39,7 @@ jobs:
   lint:
     name: Lint
     needs: pre-job
-    if: false
-    #if: needs.pre-job.outputs.is_permitted
+    if: needs.pre-job.outputs.is_permitted
     runs-on: ubuntu-latest
 
     steps:
