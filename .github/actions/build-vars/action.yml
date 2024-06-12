@@ -192,7 +192,7 @@ runs:
           '${{ github.event_name }}' == 'pull_request' && \
           '${{ github.ref_name }}' == demo* || \
           '${{ github.ref_name }}' == trialfrontend* || \
-          '${{ github.ref_name }}' == 'production' || \
+          '${{ github.ref_name }}' == 'production' \
         ]]; then
           echo "is_deployment_pr=true" >> $GITHUB_OUTPUT
         fi
