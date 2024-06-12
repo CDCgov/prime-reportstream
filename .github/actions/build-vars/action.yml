@@ -220,7 +220,7 @@ runs:
       id: frontend_change_result
       shell: bash
       run: |
-        echo "has_frontend_change=false" >> $GITHUB_OUTPUT;
+        echo "str_has_frontend_change=false" >> $GITHUB_OUTPUT;
         if [[ \
         '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
         '${{ steps.build_result.outputs.env_name }}' == 'test' || \
