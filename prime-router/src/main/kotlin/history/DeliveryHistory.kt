@@ -81,7 +81,7 @@ class DeliveryHistory(
      */
     val fileName: String
         get() {
-            return this.bodyUrl ?: ""
+            return this.bodyUrl?.substringAfter("%2F").toString()
         }
 
     /**
