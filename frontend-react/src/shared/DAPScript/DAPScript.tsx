@@ -21,7 +21,8 @@ const DAPScript = ({ pathname }: DAPScriptProps) => {
         <Helmet>
             <script
                 async
-                crossOrigin="anonymous"
+                crossOrigin="use-credentials"
+                referrerPolicy="same-origin"
                 type="text/javascript"
                 src="https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=HHS&subagency=CDC"
                 id="_fed_an_ua_tag"
