@@ -78,6 +78,7 @@
         # Accept COVID only
         - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
         # - "matches(test_result_status, F, C, P)"
+        - "Bundle.entry.resource.ofType(Observation).extension('https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation').extension('OBX.11').where(value = 'F' or value = 'C' or value = 'P').count() > 0"
       mappedConditionFilter: [ ]
       deidentify: false
       deidentifiedValue: ""
