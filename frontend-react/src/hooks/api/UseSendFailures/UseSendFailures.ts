@@ -1,5 +1,4 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { RSOrganizationSettings } from "../../../config/endpoints/settings";
 import useSessionContext from "../../../contexts/Session/useSessionContext";
 
 export interface RSSendFailure {
@@ -23,22 +22,24 @@ export interface RSSendFailure {
 }
 
 export interface RSSendFailuresSearchParams {
-    daysToShow: number;
+    daysToShow?: number;
 }
 
-// TODO Implement in pages
-const useSendFailures = (params: RSSendFailuresSearchParams) => {
+const useSendFailures = ({ daysToShow }: RSSendFailuresSearchParams = {}) => {
     const { authorizedFetch } = useSessionContext();
+    const fixedParams = {
+        days_to_show: daysToShow,
+    };
 
     const fn = () => {
-        return authorizedFetch<RSOrganizationSettings[]>({
+        return authorizedFetch<RSSendFailure[]>({
             url: `/adm/getsendfailures`,
-            params,
+            params: fixedParams,
         });
     };
 
     return useSuspenseQuery({
-        queryKey: ["sendFailures", params],
+        queryKey: ["sendFailures", fixedParams],
         queryFn: fn,
     });
 };
