@@ -190,6 +190,7 @@ runs:
         echo "str_is_deployment_pr=false" >> $GITHUB_OUTPUT;
         if [[ \
           '${{ github.event_name }}' == 'pull_request' && \
+          '${{ github.ref_name }}' == deployment* || \
           '${{ github.ref_name }}' == demo* || \
           '${{ github.ref_name }}' == trialfrontend* || \
           '${{ github.ref_name }}' == 'production' \

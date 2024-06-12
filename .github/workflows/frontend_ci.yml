@@ -26,9 +26,8 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-      str_is_permitted: false
       # Should not run for deployment PRs
-      # is_permitted: ${{ steps.build_vars.outputs.str_has_frontend_change == 'true' && github.event_name == 'pull_request' && steps.build_vars.outputs.str_is_deployment_pr == 'false' }}
+      str_is_permitted: ${{ steps.build_vars.outputs.str_has_frontend_change == 'true' && github.event_name == 'pull_request' && steps.build_vars.outputs.str_is_deployment_pr == 'false' }}
     steps:
       - name: "Check out changes"
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
@@ -43,9 +42,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Debug
-        shell: bash
-        run: echo 'is_permitted=${{ needs.pre-job.outputs.is_permitted }}'
       - name: Check out changes
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Use Node.js with yarn
@@ -156,8 +152,6 @@ jobs:
     name: Chromatic Analysis
     needs: lint
     runs-on: ubuntu-latest
-    # Don't run on deployment-based branches
-    if: ${{ ! contains(fromJSON('["deployment","production"]'),github.head_ref) }}
 
     steps:
       - name: Checkout - On Pull Request
