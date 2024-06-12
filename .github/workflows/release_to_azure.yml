@@ -23,7 +23,7 @@ jobs:
       env_name: ${{ steps.build_vars.outputs.env_name }}
       version: ${{ steps.build_vars.outputs.version }}
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
-      str_has_frontend_change: ${{ steps.build_vars.outputs.has_frontend_change }}
+      str_has_frontend_change: ${{ steps.build_vars.outputs.str_has_frontend_change }}
       dns_ip: ${{ steps.build_vars.outputs.dns_ip }}
     steps:
       - name: Check out changes
@@ -134,7 +134,7 @@ jobs:
       - name: Login to Azure
         if: |
           needs.pre_job.outputs.has_router_change == 'true' ||
-          needs.pre_job.outputs.has_frontend_change == 'true'
+          needs.pre_job.outputs.str_has_frontend_change == 'true'
         uses: ./.github/actions/vpn-azure
         with:
           env-name: ${{ needs.pre_job.outputs.env_name }}
@@ -158,7 +158,7 @@ jobs:
       always() &&
       !cancelled() &&
       !failure() &&
-      needs.pre_job.outputs.has_frontend_change == 'true'
+      needs.pre_job.outputs.str_has_frontend_change == 'true'
     environment: ${{ needs.pre_job.outputs.env_name }}-frontend
     concurrency: ${{ needs.pre_job.outputs.env_name }}-frontend
     runs-on: ubuntu-latest
@@ -214,7 +214,7 @@ jobs:
       always() &&
       !cancelled() &&
       !failure() &&
-      needs.pre_job.outputs.has_frontend_change == 'true'
+      needs.pre_job.outputs.str_has_frontend_change == 'true'
     environment: ${{ needs.pre_job.outputs.env_name }}
     concurrency: ${{ needs.pre_job.outputs.env_name }}
     runs-on: ubuntu-latest
