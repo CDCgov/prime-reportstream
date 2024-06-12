@@ -1,3 +1,5 @@
+# $schema: ./../../../metadata/json_schema/organizations/organizations.json
+
 ---
 - name: "ri-phd"
   description: "Rhode Island Public Health Department"
@@ -80,7 +82,7 @@
           onlyOncePerDay: false
       description: ""
       # TODO: Fill in transport before applying
-      transport: !<SFTP>
+      transport:
         type: SFTP
         host: sftp
         port: 22

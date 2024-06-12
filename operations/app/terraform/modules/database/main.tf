@@ -35,6 +35,7 @@ resource "azurerm_postgresql_server" "postgres_server" {
     # validated 5/21/2024
     ignore_changes = [
       storage_mb,                  # Auto-grow will change the size
+      administrator_login,         # This can't change without a redeploy
       administrator_login_password # This can't change without a redeploy
     ]
   }
@@ -100,6 +101,7 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
     # validated 5/21/2024
     ignore_changes = [
       storage_mb,                  # Auto-grow will change the size
+      administrator_login,         # This can't change without a redeploy
       administrator_login_password # This can't change without a redeploy
     ]
   }
