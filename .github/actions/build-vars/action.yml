@@ -245,3 +245,7 @@ runs:
         DNS_IP=$(az container show -g prime-data-hub-${{ steps.build_result.outputs.env_name }} \
         --name pdh${{ steps.build_result.outputs.env_name }}-dns --query 'ipAddress.ip' -o tsv)
         echo "dns_ip=$DNS_IP" >> $GITHUB_OUTPUT
+
+    - name: debug
+      shell: bash
+      run: echo '${{ steps.deployment_pr_result.outputs.is_deployment_pr }}'; echo '${{ steps.frontend_change_result.outputs.has_frontend_change }}';
