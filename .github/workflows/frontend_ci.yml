@@ -1,11 +1,8 @@
+# SHOULD CONDITIONALLY NOT RUN IF NOT A NON-DEPOLYMENT PR
 name: Frontend CI
 
 on:
-  pull_request:
-    branches-ignore:
-      - production
-    paths: 
-      - frontend-react/**
+  pull_request
 
 concurrency:
   group: ${{ github.ref }}
@@ -25,8 +22,23 @@ env:
     TEST_RECEIVER_PASSWORD: ${{ secrets.TEST_RECEIVER_PASSWORD }}
 
 jobs:
+  pre-job:
+    name: Pre Job
+    runs-on: ubuntu-latest
+    outputs:
+      has_frontend_change: ${{ steps.build_vars.outputs.has_frontend_change }}
+      is_deployment_pr: ${{ steps.build_vars.outputs.is_deployment_pr }}
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
+
   lint:
     name: Lint
+    needs: pre-job
+    if: needs.pre-job.outputs.has_frontend_change && github.event_name == 'pull_request' && !needs.pre-job.outputs.is_deployment_pr
     runs-on: ubuntu-latest
 
     steps:
