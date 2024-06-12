@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       # Should not run for deployment PRs
-      str_is_permitted: ${{ steps.build_vars.outputs.str_has_frontend_change == 'true' && github.event_name == 'pull_request' && steps.build_vars.outputs.str_is_deployment_pr == 'false' }}
+      str_is_permitted: ${{ github.event_name == 'pull_request' && steps.build_vars.outputs.str_has_frontend_change == 'true' && steps.build_vars.outputs.str_is_deployment_pr == 'false' }}
     steps:
       - name: "Check out changes"
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
