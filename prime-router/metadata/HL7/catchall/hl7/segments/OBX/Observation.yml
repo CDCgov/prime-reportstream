@@ -22,20 +22,11 @@ id:
   valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
-code_noCE:
+code_obx:
   vars:
     obx2: STRING, OBX.2
-  condition: $obx2 NOT_EQUALS CE || $obx2 NULL
   expressionType: resource
   valueOf: datatypes/CWE/CodeableConcept
-  specs: OBX.3
-
-code_supportsCE:
-  vars:
-    obx2: STRING, OBX.2
-  condition: $obx2 EQUALS CE
-  expressionType: resource
-  valueOf: datatypes/CE/CodeableConcept
   specs: OBX.3
 
 valueString_obx:
@@ -77,7 +68,7 @@ valueCodeableConcept:
       specs: OBX.5
       expressionType: resource
     - condition: $obx2 EQUALS CE
-      valueOf: datatypes/CE/CodeableConcept
+      valueOf: datatypes/CWE/CodeableConcept
       specs: OBX.5
       expressionType: resource
     - condition: $obx2 EQUALS IS
