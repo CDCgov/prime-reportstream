@@ -26,7 +26,7 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-      is_permitted: false
+      str_is_permitted: false
       # Should not run for deployment PRs
       # is_permitted: ${{ steps.build_vars.outputs.str_has_frontend_change == 'true' && github.event_name == 'pull_request' && steps.build_vars.outputs.str_is_deployment_pr == 'false' }}
     steps:
@@ -35,18 +35,11 @@ jobs:
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
-      - name: Debug
-        shell: bash
-        run: |
-          echo 'str_has_frontend_change=${{ steps.build_vars.outputs.str_has_frontend_change }}';
-          echo 'github.event_name=${{ github.event_name }}';
-          echo 'str_is_deployment_pr=${{ steps.build_vars.outputs.str_is_deployment_pr }}'
-          echo 'is_permitted=${{ steps.build_vars.outputs.str_has_frontend_change == 'true' && github.event_name == 'pull_request' && steps.build_vars.outputs.str_is_deployment_pr == 'false' }}'
 
   lint:
     name: Lint
     needs: pre-job
-    if: needs.pre-job.outputs.is_permitted
+    if: needs.pre-job.outputs.str_is_permitted == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -126,7 +119,7 @@ jobs:
   # Merge reports after e2e-tests, even if some shards have failed
   merge_e2e_data:
       name: Merge E2E Data
-      if: ${{ !cancelled() && needs.pre-job.outputs.is_permitted }}
+      if: ${{ !cancelled() && needs.pre-job.outputs.str_is_permitted == 'true' }}
       needs: [pre-job, e2e_tests]
       runs-on: ubuntu-latest
 

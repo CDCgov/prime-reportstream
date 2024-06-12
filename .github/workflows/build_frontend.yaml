@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       # Should not run for PRs (except deployment)
-      is_permitted: ${{ steps.build_vars.outputs.str_has_frontend_change == 'true' && (github.event_name != 'pull_request' || steps.build_vars.outputs.str_is_deployment_pr == 'true') }}
+      str_is_permitted: ${{ steps.build_vars.outputs.str_has_frontend_change == 'true' && (github.event_name != 'pull_request' || steps.build_vars.outputs.str_is_deployment_pr == 'true') }}
       env_name: ${{ steps.build_vars.outputs.env_name }}
       version: ${{ steps.build_vars.outputs.version }}
     steps:
@@ -29,18 +29,11 @@ jobs:
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
-      - name: Debug
-        shell: bash
-        run: |
-          echo 'str_has_frontend_change=${{ steps.build_vars.outputs.str_has_frontend_change }}';
-          echo 'github.event_name=${{ github.event_name }}';
-          echo 'str_is_deployment_pr=${{ steps.build_vars.outputs.str_is_deployment_pr }}'
-          echo 'is_permitted=${{ steps.build_vars.outputs.str_has_frontend_change == 'true' && (github.event_name != 'pull_request' || steps.build_vars.outputs.str_is_deployment_pr == 'true') }}'
 
   build_frontend_react:
     name: Build Frontend React
     needs: pre_job
-    if: needs.pre_job.outputs.is_permitted
+    if: needs.pre_job.outputs.str_is_permitted == 'true'
     runs-on: ubuntu-latest
 
     defaults:
