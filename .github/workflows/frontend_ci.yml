@@ -26,8 +26,7 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-      has_frontend_change: ${{ steps.build_vars.outputs.has_frontend_change }}
-      is_deployment_pr: ${{ steps.build_vars.outputs.is_deployment_pr }}
+      is_permitted: ${{ steps.build_vars.outputs.str_has_frontend_change == 'true' && github.event_name == 'pull_request' && steps.build_vars.outputs.str_is_deployment_pr == 'false' }}
     steps:
       - name: "Check out changes"
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
@@ -39,7 +38,7 @@ jobs:
     name: Lint
     needs: pre-job
     if: false
-    #if: needs.pre-job.outputs.has_frontend_change == 'true' && github.event_name == 'pull_request' && needs.pre-job.outputs.is_deployment_pr == 'false'
+    #if: needs.pre-job.outputs.is_permitted
     runs-on: ubuntu-latest
 
     steps:
@@ -116,8 +115,8 @@ jobs:
   # Merge reports after e2e-tests, even if some shards have failed
   merge_e2e_data:
       name: Merge E2E Data
-      if: ${{ !failure() }}
-      needs: [e2e_tests]
+      if: ${{ !cancelled() && needs.pre-job.outputs.is_permitted }}
+      needs: [pre-job, e2e_tests]
       runs-on: ubuntu-latest
 
       steps:

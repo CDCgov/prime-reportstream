@@ -20,8 +20,7 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-      has_frontend_change: ${{ steps.build_vars.outputs.has_frontend_change }}
-      is_deployment_pr: ${{ steps.build_vars.outputs.is_deployment_pr }}
+      is_permitted: ${{ steps.build_vars.outputs.has_frontend_change == 'true' && (github.event_name != 'pull_request' || steps.build_vars.outputs.is_deployment_pr == 'true') }}
       env_name: ${{ steps.build_vars.outputs.env_name }}
       version: ${{ steps.build_vars.outputs.version }}
     steps:
@@ -34,7 +33,7 @@ jobs:
   build_frontend_react:
     name: Build Frontend React
     needs: pre_job
-    if: needs.pre_job.outputs.has_frontend_change == 'true' && (github.event_name != 'pull_request' || needs.pre_job.outputs.is_deployment_pr == 'true')
+    if: needs.pre_job.outputs.is_permitted
     runs-on: ubuntu-latest
 
     defaults:

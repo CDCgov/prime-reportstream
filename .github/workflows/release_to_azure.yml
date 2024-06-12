@@ -23,7 +23,7 @@ jobs:
       env_name: ${{ steps.build_vars.outputs.env_name }}
       version: ${{ steps.build_vars.outputs.version }}
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
-      has_frontend_change: ${{ steps.build_vars.outputs.has_frontend_change }}
+      str_has_frontend_change: ${{ steps.build_vars.outputs.has_frontend_change }}
       dns_ip: ${{ steps.build_vars.outputs.dns_ip }}
     steps:
       - name: Check out changes
@@ -54,7 +54,7 @@ jobs:
     name: "Release: Build Frontend (React)"
     needs:
       - pre_job
-    if: needs.pre_job.outputs.has_frontend_change == 'true'
+    if: needs.pre_job.outputs.str_has_frontend_change == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:

@@ -12,13 +12,13 @@ outputs:
   version:
     value: ${{ steps.version_result.outputs.version }}
     description: 'Tag name'
-  is_deployment_pr:
+  str_is_deployment_pr:
     value: ${{ steps.deployment_pr_result.outputs.is_deployment_pr }}
     description: 'Is deployment PR'
   has_router_change:
     value: ${{ steps.backend_change_result.outputs.has_router_change }}
     description: 'For non-prod, do not build if no changes'
-  has_frontend_change:
+  str_has_frontend_change:
     value: ${{ steps.frontend_change_result.outputs.has_frontend_change }}
     description: 'For non-prod, do not build if no changes'
   has_terraform_change:
