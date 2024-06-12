@@ -13,13 +13,13 @@ outputs:
     value: ${{ steps.version_result.outputs.version }}
     description: 'Tag name'
   str_is_deployment_pr:
-    value: ${{ steps.deployment_pr_result.outputs.is_deployment_pr }}
+    value: ${{ steps.deployment_pr_result.outputs.str_is_deployment_pr }}
     description: 'Is deployment PR'
   has_router_change:
     value: ${{ steps.backend_change_result.outputs.has_router_change }}
     description: 'For non-prod, do not build if no changes'
   str_has_frontend_change:
-    value: ${{ steps.frontend_change_result.outputs.has_frontend_change }}
+    value: ${{ steps.frontend_change_result.outputs.str_has_frontend_change }}
     description: 'For non-prod, do not build if no changes'
   has_terraform_change:
     value: ${{ steps.filter.outputs.terraform }}
@@ -187,14 +187,14 @@ runs:
       id: deployment_pr_result
       shell: bash
       run: |
-        echo "is_deployment_pr=false" >> $GITHUB_OUTPUT;
+        echo "str_is_deployment_pr=false" >> $GITHUB_OUTPUT;
         if [[ \
           '${{ github.event_name }}' == 'pull_request' && \
           '${{ github.ref_name }}' == demo* || \
           '${{ github.ref_name }}' == trialfrontend* || \
           '${{ github.ref_name }}' == 'production' \
         ]]; then
-          echo "is_deployment_pr=true" >> $GITHUB_OUTPUT
+          echo "str_is_deployment_pr=true" >> $GITHUB_OUTPUT
         fi
 
     - name: Force backend change if prod
@@ -227,9 +227,9 @@ runs:
         '${{ steps.build_result.outputs.env_name }}' == 'demo2' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo3' \
         ]]; then
-          echo "has_frontend_change=true" >> $GITHUB_OUTPUT
+          echo "str_has_frontend_change=true" >> $GITHUB_OUTPUT
         else
-            echo "has_frontend_change=${{ steps.filter.outputs.frontend_react }}" >> $GITHUB_OUTPUT
+            echo "str_has_frontend_change=${{ steps.filter.outputs.frontend_react }}" >> $GITHUB_OUTPUT
         fi
 
     - uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a
