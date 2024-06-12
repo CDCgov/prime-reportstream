@@ -3,9 +3,8 @@ hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
 constants:
   PID: '/PATIENT_RESULT/PATIENT/PID'
-  ORC: '/PATIENT_RESULT/ORDER_OBSERVATION*/ORC'
-  OBR: '/PATIENT_RESULT/ORDER_OBSERVATION*/OBR'
-  OBX: '/PATIENT_RESULT/ORDER_OBSERVATION*/OBSERVATION*/OBX'
+  ORC: '/PATIENT_RESULT/ORDER_OBSERVATION/ORC'
+  OBR: '/PATIENT_RESULT/ORDER_OBSERVATION/OBR'
 
 elements:
 
@@ -77,11 +76,104 @@ elements:
     value: [ '""' ]
     hl7Spec: [ '%{PID}-10-1' , '%{PID}-10-2' , '%{PID}-10-3' , '%{PID}-10-7' , '%{PID}-10-9' ]
 
+  - name: ar-patient-county-codes-out-of-state
+    resource: 'Bundle.entry.resource.ofType(Patient).address'
+    condition: '%resource.state != "AR"'
+    value: [ '""' ]
+    hl7Spec: [ '%{PID}-11-6' ]
+  - name: ar-patient-county-codes
+    value: [ 'Bundle.entry.resource.ofType(Patient).address.district' ]
+    valueSet:
+      values:
+        Arkansas: 05001
+        Ashley: 05003
+        Baxter: 05005
+        Benton: 05007
+        Boone: 05009
+        Bradley: 05011
+        Calhoun: 05013
+        Carroll: 05015
+        Chicot: 05017
+        Clark: 05019
+        Clay: 05021
+        Cleburne: 05023
+        Cleveland: 05025
+        Columbia: 05027
+        Conway: 05029
+        Craighead: 05031
+        Crawford: 05033
+        Crittenden: 05035
+        Cross: 05037
+        Dallas: 05039
+        Desha: 05041
+        Drew: 05043
+        Faulkner: 05045
+        Franklin: 05047
+        Fulton: 05049
+        Garland: 05051
+        Grant: 05053
+        Greene: 05055
+        Hempstead: 05057
+        Hot Spring: 05059
+        Howard: 05061
+        Independence: 05063
+        Izard: 05065
+        Jackson: 05067
+        Jefferson: 05069
+        Johnson: 05071
+        Lafayette: 05073
+        Lawrence: 05075
+        Lee: 05077
+        Lincoln: 05079
+        Little River: 05081
+        Logan: 05083
+        Lonoke: 05085
+        Madison: 05087
+        Marion: 05089
+        Miller: 05091
+        Mississippi: 05093
+        Monroe: 05095
+        Montgomery: 05097
+        Nevada: 05099
+        Newton: 05101
+        Ouachita: 05103
+        Perry: 05105
+        Phillips: 05107
+        Pike: 05109
+        Poinsett: 05111
+        Polk: 05113
+        Pope: 05115
+        Prairie: 05117
+        Pulaski: 05119
+        Randolph: 05121
+        St. Francis: 05123
+        Saline: 05125
+        Scott: 05127
+        Searcy: 05129
+        Sebastian: 05131
+        Sevier: 05133
+        Sharp: 05135
+        Stone: 05137
+        Union: 05139
+        Van Buren: 05141
+        Washington: 05143
+        White: 05145
+        Woodruff: 05147
+        Yell: 05149
+    hl7Spec: [ '%{PID}-11-9' ]
+
+  # converts value "PRS" to "PRN" for AR who uses table HL70201 from Ver 2.5.1. RS default is Ver 2.7
+  - name: ar-patient-telecommunication-use-code
+    resource: 'Bundle.entry.resource.ofType(Patient).telecom.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point").extension("XTN.2")'
+    condition: '%resource.value = "PRS"'
+    value: [ "'PRN'"]
+    hl7Spec: [ '%{PID}-13-2' ]
+
     # add "NPI" to ORC-12-9-1, ORC-12-9-2, OBR-16-9-1 and OBR-16-9-2
   - name: ar-ordering-provider-assigning-authority-id
     condition: 'Bundle.entry.resource.ofType(Practitioner).identifier.system = "http://hl7.org/fhir/sid/us-npi"'
     value: [ '"NPI"']
-    hl7Spec: ['%{ORC}-12-9-1', '%{ORC}-12-9-2' , '%{OBR}-16-9-1' , '%{OBR}-16-9-2']
+    hl7Spec: [ '%{ORC}-12-9-1', '%{ORC}-12-9-2' , '%{OBR}-16-9-1' , '%{OBR}-16-9-2' ]
 
     # add "ISO" to ORC-12-9-3 and OBR-16-9-3
   - name: ar-ordering-provider-assigning-authority-namespace-universal-id-type
@@ -95,38 +187,36 @@ elements:
     value: [ '"NPI"' ]
     hl7Spec: [ '%{ORC}-12-13-1' , '%{OBR}-16-13-1' ]
 
-    # remove ORC-2-1, ORC-2-2, ORC-2-3, ORC-2-4, ORC-4-1, ORC-4-2, ORC-4-3, ORC-4-4, ORB-2-1, OBR-2-2, OBR-2-3, OBR-2-4, OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4
+   # add assigning authority to ORC-12-6-1
+  - name: ar-ordering-facility-assigning-authority
+    condition: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.type.coding.code = "CLIA"'
+    value: [ '"CLIA"']
+    hl7Spec: [ '%{ORC}-21-6-1' ]
+
+  - name: ar-ordering-facility-assigning-authority-id
+    condition: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.type.coding.code = "CLIA"'
+    value: [ '"2.16.840.1.113883.4.7"' ]
+    hl7Spec: [ '%{ORC}-21-6-2' ]
+
+  - name: ar-ordering-facility-assigning-authority-id-type
+    condition: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.type.coding.code = "CLIA"'
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{ORC}-21-6-3' ]
+
+  - name: ar-ordering-facility-identifier-type-code
+    condition: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.type.coding.code = "CLIA"'
+    value: [ '"XX"']
+    hl7Spec: [ '%{ORC}-21-7']
+
+    # remove ORC-2-1, ORC-2-2, ORC-2-3, ORC-2-4, ORC-4-1, ORC-4-2, ORC-4-3, ORC-4-4, ORB-2-1, OBR-2-2, OBR-2-3, OBR-2-4
   - name: remove-hl7-fields
     value: [ '""' ]
-    hl7Spec: [ 'MSH-19-1' , 'MSH-19-2' , 'MSH-19-3' , '%{ORC}-2-1' , '%{ORC}-2-2' , '%{ORC}-2-3' , '%{ORC}-2-4' , '%{ORC}-4-1' , '%{ORC}-4-2' , '%{ORC}-4-3' , '%{ORC}-4-4' , '%{OBR}-2-1' , '%{OBR}-2-2' , '%{OBR}-2-3' , '%{OBR}-2-4' , '%{OBX}-18-1' , '%{OBX}-18-2' , '%{OBX}-18-3' , '%{OBX}-18-4' ]
+    hl7Spec: [ 'MSH-19-1' , 'MSH-19-2' , 'MSH-19-3' , '%{ORC}-2-1' , '%{ORC}-2-2' , '%{ORC}-2-3' , '%{ORC}-2-4' , '%{ORC}-4-1' , '%{ORC}-4-2' , '%{ORC}-4-3' , '%{ORC}-4-4' , '%{OBR}-2-1' , '%{OBR}-2-2' , '%{OBR}-2-3' , '%{OBR}-2-4' ]
+
+    # removes equipment instance identifier from OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4
+  - name: obx-equipment-instance-identifier
+    condition: false
 
     # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
   - name: observation-result-with-aoe
     resource: '%resource.result.resolve()'
-
-    # limit CWE-1 fields to 20 characters
-  - name: identifier
-    condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "coding").exists()'
-    value: [ '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "coding").code.substring(0,20)' ]
-
-    # limit EI-2 fields to 20 characters
-  - name: identifier-ei-namespace-id
-    value: [ '%resource.extension(%`rsext-assigning-authority`).extension(%`rsext-namespace-id`).value.substring(0,20)' ]
-
-    # limit EI-2 fields to 20 characters
-  - name: ei-namespace-id-backup
-    value: [ '%resource.extension(%`rsext-namespace-id`).value.substring(0,20)' ]
-
-    # limit EIP-2 fields to 20 characters
-  - name: eip-placer-namespace-id
-    value: [ '%resource.extension(%`rsext-namespace-id`).value.substring(0,20)' ]
-
-    # limit EIP-2 fields to 20 characters
-  - name: eip-filler-namespace-id-backup
-    value: [ '%resource.extension(%`rsext-namespace-id`).value.substring(0,20)' ]
-
-    # limit HD-1 fields to 20 characters
-  - name: namespace-id
-    value: [ '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "HD.1").value.substring(0,20)' ]
-
-
