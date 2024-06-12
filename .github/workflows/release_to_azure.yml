@@ -111,7 +111,7 @@ jobs:
           env-name: ${{ needs.pre_job.outputs.env_name }}
           github-token: ${{ secrets.DEMO_ENV }}
           backup-age-limit: 7200
-          backup-from: prod
+          backup-from: staging
 
   approve_router_release:
     name: "Approve Router Release: ${{ needs.pre_job.outputs.env_name }}"
