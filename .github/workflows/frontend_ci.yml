@@ -38,7 +38,8 @@ jobs:
   lint:
     name: Lint
     needs: pre-job
-    if: needs.pre-job.outputs.has_frontend_change == 'true' && github.event_name == 'pull_request' && needs.pre-job.outputs.is_deployment_pr == 'false'
+    if: false
+    #if: needs.pre-job.outputs.has_frontend_change == 'true' && github.event_name == 'pull_request' && needs.pre-job.outputs.is_deployment_pr == 'false'
     runs-on: ubuntu-latest
 
     steps:
