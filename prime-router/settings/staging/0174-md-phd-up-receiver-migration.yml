@@ -1,6 +1,6 @@
 # To submit this to localhost, run:
 #
-# ./prime multiple-settings set --input ./setting/staging/md-doh.yml
+# ./prime multiple-settings set --input ./settings/staging/0174-md-phd-up-receiver-migration.yml
 #
 ---
 - name: "md-phd"
