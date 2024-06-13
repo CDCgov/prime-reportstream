@@ -1,6 +1,6 @@
 # To submit this to localhost, run:
 #
-# ./prime multiple-settings set --input ./settings/staging/0171-nd-doh-up-receiver-migration.yml
+# ./prime multiple-settings set --input ./settings/STLTs/ND/nd-doh.yml
 #
 ---
 - name: "nd-doh"
