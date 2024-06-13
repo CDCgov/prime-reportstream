@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
 
   # This mapping relies on the inventory https://docs.google.com/spreadsheets/d/1zLANrSl_qRMGtJED5BnklU9EipB4xeU4rgmtr03hbIA/edit#gid=0
