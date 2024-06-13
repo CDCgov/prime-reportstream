@@ -80,7 +80,8 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Patient).address'
     condition: '%resource.state != "AR"'
     value: [ '""' ]
-    hl7Spec: [ '%{PID}-11-6' ]
+    hl7Spec: [ '%{PID}-11-9' ]
+
   - name: ar-patient-county-codes
     value: [ 'Bundle.entry.resource.ofType(Patient).address.district' ]
     valueSet:
