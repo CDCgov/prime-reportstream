@@ -680,3 +680,57 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Observation)'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.29").value[x]'
     value: [ '"QST"' ]
+
+  - name: sr-observation-method
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    value: [ '%resource.method.coding.display' ] # this is what we get the message from ./prime fhirpath -i /Users/jessicawillis/git/prime-reportstream/prime-router/build/sftp/makingsure.fhir
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.17").valueCodeableConcept.coding.display' # we get this one from ./prime fhirpath -i /Users/jessicawillis/git/prime-reportstream/prime-router/build/sftp/output.fhir
+
+    # use this to test ./prime fhirdata -i /Users/jessicawillis/git/prime-reportstream/prime-router/build/sftp/test1copy.hl7 --output-format FHIR -o /Users/jessicawillis/git/prime-reportstream/prime-router/build/sftp/output.fhir
+
+  - name: sr-device-identifier-code
+    resource: 'Bundle.entry.resource.ofType(Device)'
+    value: [ '%resource.identifier.type.coding.code' ]
+    bundleProperty: '%resource.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+
+  # We can assume this value because SimpleReport validates the value and will only populate it if it is an NPI
+  - name: sr-provider-namespace-id
+    condition: '%resource.identifier.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id")[0].value[x]'
+    value: [ '"NPI"' ]
+
+  # We can assume this value because SimpleReport validates the value and will only populate it if it is an NPI
+  - name: sr-provider-universal-id
+    condition: '%resource.identifier.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id")[0].value[x]'
+    value: [ '"2.16.840.1.113883.4.6"' ]
+
+  - name: sr-provider-universal-id-type
+    condition: '%resource.identifier.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type")[0].value[x]'
+    value: [ '"ISO"' ]
+
+  - name: sr-provider-identifier-type-coding
+    condition: '%resource.identifier.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    bundleProperty: '%resource.identifier.type.coding.code'
+    value: [ '"NPI"' ]
+
+  - name: sr-provider-identifier-system
+    condition: '%resource.identifier.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    bundleProperty: '%resource.identifier.system'
+    value: [ '"NPI"' ]
+
+  - name: sr-observation-method-code
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.method.coding[0].code'
+    value: [ '%resource.method.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id").value.code' ]
+
+  - name: sr-observation-method-text
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.method.text'
+    value: [ '%resource.method.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id").value.code' ]

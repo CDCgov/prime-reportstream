@@ -26,10 +26,18 @@ To start migrating the receiver to the UP their most current settings need to be
 After retrieving the settings they will be updated to be able to route a message through the UP.
 
 * To begin create a new branch in git for your changes.
-* Fetch the STLTs production settings by running this command: `./prime multiple-settings get -f <filter> --output <output file>`
-  * Example: `./prime multiple-settings get -f tx-doh --output tx-doh.yml`
-  * To append the receiver settings to your local organizations.yml and also load them into the local database
-  run the command with these options: `./prime multiple-settings get -f tx-doh -l -a`
+* Login to prod: `./prime login --env prod`
+* Fetch the STLTs production settings, append the receiver settings to your local organizations.yml, put them in a local file, and also load them into the local database: `./prime multiple-settings get -f mt-doh --output mt-doh.yml --env prod -l -a`
+* Change the `numberPerDay` setting to `1440` (one per minute) so that you are not stuck waiting on the message to send. 
+  * Change the transport to go to your local machine:      
+`transport:
+    host: "sftp"
+    port: "22"
+    filePath: "./upload"
+    credentialName: "DEFAULT-SFTP"
+    type: "SFTP"`
+* Then `./gradlew reloadSettings`.
+
 
 ### 2. Update receiver settings to route messages through UP
 

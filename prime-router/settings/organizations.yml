@@ -1278,3 +1278,226 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+#- name: "mt-doh"
+#  description: "Montana Department of Health"
+#  jurisdiction: "STATE"
+#  stateCode: "MT"
+#  countyName: null
+#  filters: null
+#  featureFlags: null
+#  keys: null
+#  senders: []
+#  receivers:
+#    - name: "elr"
+#      organizationName: "mt-doh"
+#      topic: "covid-19"
+#      customerStatus: "active"
+#      translation:
+#        schemaName: "covid-19"
+#        useTestProcessingMode: false
+#        useBatchHeaders: true
+#        receivingApplicationName: null
+#        receivingApplicationOID: null
+#        receivingFacilityName: null
+#        receivingFacilityOID: null
+#        messageProfileId: null
+#        replaceValue: {}
+#        replaceValueAwithB: {}
+#        reportingFacilityName: null
+#        reportingFacilityId: null
+#        reportingFacilityIdType: null
+#        suppressQstForAoe: false
+#        suppressHl7Fields: null
+#        suppressAoe: true
+#        defaultAoeToUnknown: false
+#        replaceUnicodeWithAscii: false
+#        useBlankInsteadOfUnknown: null
+#        truncateHDNamespaceIds: false
+#        truncateHl7Fields: null
+#        usePid14ForPatientEmail: false
+#        convertTimestampToDateTime: null
+#        cliaForOutOfStateTesting: null
+#        cliaForSender: {}
+#        phoneNumberFormatting: "STANDARD"
+#        suppressNonNPI: false
+#        processingModeCode: null
+#        replaceDiiWithOid: null
+#        applyOTCDefault: false
+#        useOrderingFacilityName: "STANDARD"
+#        valueSetOverrides: {}
+#        nameFormat: "STANDARD"
+#        receivingOrganization: null
+#        convertPositiveDateTimeOffsetToNegative: false
+#        stripInvalidCharsRegex: null
+#        convertDateTimesToReceiverLocalTime: false
+#        useHighPrecisionHeaderDateTimeFormat: false
+#        type: "HL7"
+#        truncationConfig:
+#          truncateHDNamespaceIds: false
+#          truncateHl7Fields: []
+#          customLengthHl7Fields: {}
+#      jurisdictionalFilter:
+#        - "orEquals(patient_state, MT, ordering_facility_state, MT)"
+#      qualityFilter: []
+#      routingFilter:
+#        - "DoesNotMatch(test_performed_code, 85478-6,76080-1,92141-1,80383-3,82170-2,85477-8,76078-5,77026-3,77028-9,77027-1,92142-9,80382-5,82166-0,82167-8,82169-4,82168-6,92809-3,92808-5,95423-0)"
+#      processingModeFilter: []
+#      reverseTheQualityFilter: false
+#      conditionFilter: []
+#      mappedConditionFilter: []
+#      deidentify: false
+#      deidentifiedValue: ""
+#      timing:
+#        operation: "MERGE"
+#        numberPerDay: 1440
+#        initialTime: "09:50"
+#        timeZone: "EASTERN"
+#        maxReportCount: 100
+#        whenEmpty:
+#          action: "NONE"
+#          onlyOncePerDay: false
+#      description: ""
+#      transport:
+#        host: "sftp"
+#        port: "22"
+#        filePath: "./upload"
+#        credentialName: "DEFAULT-SFTP"
+#        type: "SFTP"
+#      externalName: "Primary HL7 Feed"
+#      enrichmentSchemaNames: []
+#      timeZone: null
+#      dateTimeFormat: "OFFSET"
+#    - name: "elr-csv"
+#      organizationName: "mt-doh"
+#      topic: "covid-19"
+#      customerStatus: "inactive"
+#      translation:
+#        schemaName: "mt/mt-covid-19-csv"
+#        format: "CSV"
+#        useBatching: false
+#        defaults: {}
+#        nameFormat: "STANDARD"
+#        receivingOrganization: null
+#        type: "CUSTOM"
+#      jurisdictionalFilter:
+#        - "orEquals(patient_state, balh, ordering_facility_state,blah)"
+#      qualityFilter: []
+#      routingFilter:
+#        - "DoesNotMatch(test_performed_code, 85478-6,76080-1,92141-1,80383-3,82170-2,85477-8,76078-5,77026-3,77028-9,77027-1,92142-9,80382-5,82166-0,82167-8,82169-4,82168-6,92809-3,92808-5,95423-0)"
+#      processingModeFilter: []
+#      reverseTheQualityFilter: false
+#      conditionFilter: []
+#      mappedConditionFilter: []
+#      deidentify: false
+#      deidentifiedValue: ""
+#      timing:
+#        operation: "MERGE"
+#        numberPerDay: 1440
+#        initialTime: "09:50"
+#        timeZone: "EASTERN"
+#        maxReportCount: 100
+#        whenEmpty:
+#          action: "NONE"
+#          onlyOncePerDay: false
+#      description: ""
+#      transport: null
+#      externalName: "Secondary CSV Feed"
+#      enrichmentSchemaNames: []
+#      timeZone: null
+#      dateTimeFormat: "OFFSET"
+- name: "mt-doh"
+  description: "Montana Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "MT"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+    - name: "full-elr"
+      organizationName: "mt-doh"
+      topic: "full-elr"
+      customerStatus: "testing"
+      translation:
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/MT/MT-receiver-transform.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: null
+        receivingApplicationOID: null
+        receivingFacilityName: null
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB: {}
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: true
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: false
+          truncateHl7Fields: []
+          customLengthHl7Fields: {}
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'MT') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'MT')"
+      qualityFilter:
+        - "Bundle.identifier.value.exists()"
+        - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
+        - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
+        - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
+        - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists())
+           or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      conditionFilter: []
+      mappedConditionFilter: []
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "09:50"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport:
+        host: "sftp"
+        port: "22"
+        filePath: "./upload"
+        credentialName: "DEFAULT-SFTP"
+        type: "SFTP"
+      externalName: "Primary HL7 Feed"
+      enrichmentSchemaNames: []
+      timeZone: null
+      dateTimeFormat: "OFFSET"
