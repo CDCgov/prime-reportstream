@@ -405,7 +405,6 @@ class Report : Logging {
     ) {
         this.id = UUID.randomUUID()
         // UP submissions do not need a schema, but it is required by the database to maintain legacy functionality
-        // topics with isSendOriginal set to true will use this name when generating the filename
         this.schema = Schema("None", topic)
         this.sources = sources
         this.bodyFormat = bodyFormat
