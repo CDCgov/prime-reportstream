@@ -44,6 +44,7 @@ export abstract class BasePage {
     protected _mockRouteCache: MockRouteCache;
 
     readonly heading: Locator;
+    readonly footer: Locator;
 
     constructor(
         { url, title, heading }: BasePageProps,
@@ -56,6 +57,7 @@ export abstract class BasePage {
         this.routeHandlers = new Map();
         this._mockRouteCache = {};
         this.heading = heading ?? this.page.locator("INVALID");
+        this.footer = this.page.locator("footer");
     }
 
     get isMocked() {
