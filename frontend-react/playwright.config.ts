@@ -1,60 +1,21 @@
 import { defineConfig } from "@playwright/test";
 import dotenvflow from "dotenv-flow";
-import process from "process";
-
-import type { CustomFixtures } from "./e2e/test.ts";
+import process from "node:process";
 
 dotenvflow.config({
     purge_dotenv: true,
     silent: true,
     default_node_env: "test",
+    // in case IDE testing extensions call this with a different CWD
+    path: import.meta.dirname,
 });
 
 const isCi = Boolean(process.env.CI);
-const isMockDisabled = Boolean(process.env.MOCK_DISABLED);
-
-function createLogins<const T extends Array<string>>(
-    loginTypes: T,
-): {
-    [K in T extends ReadonlyArray<infer U> ? U : never]: {
-        username: string;
-        password: string;
-        totpCode: string;
-        path: string;
-    };
-} {
-    const logins = Object.fromEntries(
-        loginTypes.map((type) => {
-            const username = process.env[`TEST_${type.toUpperCase()}_USERNAME`];
-            const password = process.env[`TEST_${type.toUpperCase()}_PASSWORD`];
-            const totpCode =
-                process.env[`TEST_${type.toUpperCase()}_TOTP_CODE`];
-
-            if (!username)
-                throw new TypeError(`Missing username for login type: ${type}`);
-            if (!password)
-                throw new TypeError(`Missing password for login type: ${type}`);
-
-            return [
-                type,
-                {
-                    username,
-                    password,
-                    totpCode,
-                    path: `e2e/.auth/${type}.json`,
-                },
-            ];
-        }),
-    );
-    return logins as any;
-}
-
-const logins = createLogins(["admin", "receiver", "sender"]);
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
-export default defineConfig<CustomFixtures>({
+export default defineConfig({
     testDir: "e2e",
     fullyParallel: true,
     forbidOnly: isCi,
@@ -68,19 +29,6 @@ export default defineConfig<CustomFixtures>({
         baseURL: "http://localhost:4173",
         trace: "on-first-retry",
         screenshot: "only-on-failure",
-        adminLogin: {
-            ...logins.admin,
-            landingPage: "/admin/settings",
-        },
-        senderLogin: {
-            ...logins.sender,
-            landingPage: "/submissions",
-        },
-        receiverLogin: {
-            ...logins.receiver,
-            landingPage: "/",
-        },
-        isMockDisabled,
     },
 
     projects: [
@@ -97,19 +45,19 @@ export default defineConfig<CustomFixtures>({
             name: "chromium",
             use: { browserName: "chromium" },
             dependencies: ["setup"],
-            testMatch: "spec/*.spec.ts",
+            testMatch: "spec/all/**/*.spec.ts",
         },
         {
             name: "firefox",
             use: { browserName: "firefox" },
             dependencies: ["setup"],
-            testMatch: "spec/*.spec.ts",
+            testMatch: "spec/all/**/*.spec.ts",
         },
         {
             name: "webkit",
             use: { browserName: "webkit" },
             dependencies: ["setup"],
-            testMatch: "spec/*.spec.ts",
+            testMatch: "spec/all/**/*.spec.ts",
         },
     ],
     webServer: {

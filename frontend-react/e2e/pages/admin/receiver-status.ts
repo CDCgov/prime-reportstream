@@ -5,7 +5,7 @@ import {
     createStatusTimePeriodData,
     SUCCESS_RATE_CLASSNAME_MAP,
 } from "../../../src/pages/admin/receiver-dashboard/utils";
-import { DatePair } from "../../../src/utils/DateTimeUtils";
+import { DatePair, dateShortFormat } from "../../../src/utils/DateTimeUtils";
 import { createMockGetReceiverStatus } from "../../mocks/receiverStatus";
 import {
     BasePage,
@@ -490,9 +490,9 @@ export class AdminReceiverStatusPage extends BasePage {
         );
 
         const expectedDaysText = [
-            startDate.toLocaleDateString(),
-            subDays(endDate, 1).toLocaleDateString(),
-            endDate.toLocaleDateString(),
+            dateShortFormat(startDate),
+            dateShortFormat(subDays(endDate, 1)),
+            dateShortFormat(endDate),
         ].join("            ");
         for (const [
             i,
@@ -539,5 +539,7 @@ export class AdminReceiverStatusPage extends BasePage {
                 }
             }
         }
+
+        return true;
     }
 }

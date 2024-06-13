@@ -153,7 +153,7 @@ export function createStatusTimePeriodData({
                             if (
                                 connectionCheckResult
                                     .toLowerCase()
-                                    .includes(filterResultMessage)
+                                    .includes(filterResultMessage.toLowerCase())
                             ) {
                                 agg.isResultFilterMatch = true;
                             }

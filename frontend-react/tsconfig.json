@@ -19,6 +19,6 @@
         "noImplicitAny": true,
         "inlineSourceMap": true
     },
-    "include": ["./src", "./e2e", "./__mocks__"],
+    "include": ["./src", "./e2e", "./__mocks__", "playwright.config.ts"],
     "references": [{ "path": "./tsconfig.node.json" }]
 }

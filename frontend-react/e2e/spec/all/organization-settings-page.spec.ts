@@ -2,8 +2,8 @@ import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../mocks/organizations";
-import * as organization from "../pages/organization";
+import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../../mocks/organizations";
+import * as organization from "../../pages/organization";
 
 const __dirname = fileURLToPath(import.meta.url);
 

@@ -1,12 +1,9 @@
 import { addDays, endOfDay, startOfDay, subDays } from "date-fns";
-import { fileURLToPath } from "node:url";
-import { SuccessRate } from "../../../src/pages/admin/receiver-dashboard/utils";
-import { durationFormatShort } from "../../../src/utils/DateTimeUtils";
-import { formatDate } from "../../../src/utils/misc";
-import { AdminReceiverStatusPage } from "../../pages/admin/receiver-status";
-import { test as baseTest, expect } from "../../test";
-
-const __dirname = fileURLToPath(import.meta.url);
+import { SuccessRate } from "../../../../src/pages/admin/receiver-dashboard/utils";
+import { durationFormatShort } from "../../../../src/utils/DateTimeUtils";
+import { formatDate } from "../../../../src/utils/misc";
+import { AdminReceiverStatusPage } from "../../../pages/admin/receiver-status";
+import { test as baseTest, expect, logins } from "../../../test";
 
 export interface AdminReceiverStatusPageFixtures {
     adminReceiverStatusPage: AdminReceiverStatusPage;
@@ -45,7 +42,7 @@ test.describe("Admin Receiver Status Page", () => {
     });
 
     test.describe("authenticated receiver", () => {
-        test.use({ storageState: "e2e/.auth/receiver.json" });
+        test.use({ storageState: logins.receiver.path });
         test("returns Page Not Found", async ({ adminReceiverStatusPage }) => {
             await expect(adminReceiverStatusPage.page).toHaveTitle(
                 /Page Not Found/,
@@ -54,7 +51,7 @@ test.describe("Admin Receiver Status Page", () => {
     });
 
     test.describe("authenticated sender", () => {
-        test.use({ storageState: "e2e/.auth/sender.json" });
+        test.use({ storageState: logins.sender.path });
         test("returns Page Not Found", async ({ adminReceiverStatusPage }) => {
             await expect(adminReceiverStatusPage.page).toHaveTitle(
                 /Page Not Found/,
@@ -63,7 +60,7 @@ test.describe("Admin Receiver Status Page", () => {
     });
 
     test.describe("authenticated admin", () => {
-        test.use({ storageState: "e2e/.auth/admin.json" });
+        test.use({ storageState: logins.admin.path });
 
         test("If there is an error, the error is shown on the page", async ({
             adminReceiverStatusPage,
@@ -172,7 +169,9 @@ test.describe("Admin Receiver Status Page", () => {
                     test("time periods", async ({
                         adminReceiverStatusPage,
                     }) => {
-                        await adminReceiverStatusPage.testReceiverStatusDisplay();
+                        const result =
+                            await adminReceiverStatusPage.testReceiverStatusDisplay();
+                        expect(result).toBe(true);
                     });
                 });
             });
@@ -289,7 +288,7 @@ test.describe("Admin Receiver Status Page", () => {
                         adminReceiverStatusPage,
                     }) => {
                         // get first entry's result from all-fail receiver's first day -> third time period
-                        const receiverI = 1;
+                        const receiverI = 0;
                         const dayI = 0;
                         const timePeriodI = 2;
                         const entryI = 0;
@@ -344,7 +343,7 @@ test.describe("Admin Receiver Status Page", () => {
                     test("success type", async ({
                         adminReceiverStatusPage,
                     }) => {
-                        const [, failRow, mixedRow] =
+                        const [failRow, , mixedRow] =
                             adminReceiverStatusPage.timePeriodData;
                         const failRowTitle =
                             adminReceiverStatusPage.getExpectedReceiverStatusRowTitle(
