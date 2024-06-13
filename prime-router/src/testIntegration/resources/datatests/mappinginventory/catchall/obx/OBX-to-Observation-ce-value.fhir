@@ -43,16 +43,6 @@
         "sender" : {
           "reference" : "Organization/1707833522529013000.71839647-8a77-4ab7-b07f-3eeca9d876c0"
         },
-        "source" : {
-          "_endpoint" : {
-            "extension" : [
-              {
-                "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
-                "valueCode" : "unknown"
-              }
-            ]
-          }
-        }
       }
     },
     {
@@ -196,11 +186,11 @@
             {
               "extension" : [
                 {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/ce-coding",
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
                   "valueString" : "coding"
                 },
                 {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/ce-coding-system",
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
                   "valueString" : "LN"
                 }
               ],
@@ -218,7 +208,7 @@
             {
               "extension" : [
                 {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/ce-coding",
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
                   "valueString" : "coding"
                 }
               ],
@@ -248,6 +238,20 @@
         "resourceType" : "ServiceRequest",
         "id" : "1707833523072854000.c0cb0538-421f-49fb-b5d7-8f06a1c119ec",
         "status" : "unknown",
+        "code" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "coding"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString" : "LN"
+            } ],
+            "system" : "http://loinc.org",
+            "code" : "68991-9",
+            "display" : "Epidemiologically Important Information"
+          } ]
+        },
         "subject" : {
           "reference" : "Patient/1707833522904978000.56797cb1-9add-4791-a27e-b6072ea55aa2"
         }
@@ -264,6 +268,20 @@
           }
         ],
         "status" : "final",
+        "code" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "coding"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString" : "LN"
+            } ],
+            "system" : "http://loinc.org",
+            "code" : "68991-9",
+            "display" : "Epidemiologically Important Information"
+          } ]
+        },
         "subject" : {
           "reference" : "Patient/1707833522904978000.56797cb1-9add-4791-a27e-b6072ea55aa2"
         },
