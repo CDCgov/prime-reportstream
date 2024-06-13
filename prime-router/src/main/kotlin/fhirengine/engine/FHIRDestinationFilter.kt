@@ -128,9 +128,8 @@ class FHIRDestinationFilter(
             )
 
             // get the receivers that this bundle should go to
-            val failingFilters = mutableListOf<String>()
             val receivers = findTopicReceivers(queueMessage.topic).filter { receiver ->
-                receiver.jurisdictionalFilter.filterNot { filter ->
+                receiver.jurisdictionalFilter.all { filter ->
                     FhirPathUtils.evaluateCondition(
                         CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
                         bundle,
@@ -138,9 +137,6 @@ class FHIRDestinationFilter(
                         bundle,
                         filter
                     )
-                }.let {
-                    failingFilters.addAll(it)
-                    it.isEmpty()
                 }
             }
 
@@ -253,7 +249,6 @@ class FHIRDestinationFilter(
                         rootReport.reportId,
                         queueMessage.topic,
                         sender,
-                        failingFilters.distinct(),
                         fhirJson.length,
                         AzureEventUtils.getIdentifier(bundle)
                     )

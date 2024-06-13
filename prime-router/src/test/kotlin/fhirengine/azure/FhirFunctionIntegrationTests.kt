@@ -1399,7 +1399,6 @@ class FhirFunctionIntegrationTests() {
 
     @Test
     fun `test successfully processes a route message`() {
-//        val reportServiceMock = mockk<ReportService>()
         val report = seedTask(
             Report.Format.HL7,
             TaskAction.receive,

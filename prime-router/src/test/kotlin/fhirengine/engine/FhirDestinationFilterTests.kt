@@ -450,7 +450,6 @@ class FhirDestinationFilterTests {
                 submittedId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
-                emptyList(),
                 36995,
                 AzureEventUtils.MessageID(
                     "1234d1d1-95fe-462c-8ac6-46728dba581c",

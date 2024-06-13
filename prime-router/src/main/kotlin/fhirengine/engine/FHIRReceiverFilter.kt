@@ -100,8 +100,8 @@ class FHIRReceiverFilter(
     ) : ActionLogDetail {
         override val scope: ActionLogScope = ActionLogScope.item
 
-        @Suppress("ktlint:standard:max-line-length")
-        override val message: String = "Item was not routed to $receiverOrg.$receiverName because it did not pass the $filterType. Item failed on: $filter"
+        override val message: String = "Item was not routed to $receiverOrg.$receiverName because it did not pass the" +
+            " $filterType. Item failed on: $filter"
 
         override val errorCode: ErrorCode = ErrorCode.UNKNOWN
     }
@@ -278,7 +278,7 @@ class FHIRReceiverFilter(
             )
         }
         if (!filtersEvaluated.all { (passes, _) -> passes }) {
-            filtersEvaluated.filter { (passes, _) -> !passes }.map { (_, filter) ->
+            val failingFilters = filtersEvaluated.filter { (passes, _) -> !passes }.map { (_, filter) ->
                 actionLogger.getItemLogger(1, trackingId).warn(
                     ReceiverItemFilteredActionLogDetail(
                         filter,
@@ -289,15 +289,14 @@ class FHIRReceiverFilter(
                     )
                 )
                 filter
-            }.also { failingFilters ->
-                return FhirExpressionEvaluationResult(true, FilterDetails(failingFilters, filterType))
             }
+            return FhirExpressionEvaluationResult(true, FilterDetails(failingFilters, filterType))
         }
         return FhirExpressionEvaluationResult(false, null)
     }
 
     /**
-     * Process a [queueMessage] azure queue
+     * Process a [queueMessage] from the azure queue
      *
      * [actionHistory] and [actionHistory] ensure all activities are logged.
      */

@@ -51,6 +51,7 @@ to the configured Microsoft AppInsights instance.
 ## Event Glossery
 
 ### ReportCreatedEvent
+This event is emitted by the convert step when a report is successfully translated into a FHIR bundle.
 - reportId
     - The ID assigned to the created report
 - topic
@@ -58,7 +59,7 @@ to the configured Microsoft AppInsights instance.
 
 
 ### ReportAcceptedEvent
-This is a routing event emitted during the destination filter step, _before_ any filters are evaluated
+This event is emitted by the destination filter step, _before_ any filters are evaluated
 - reportId
   - The report ID from the preceding function (convert step)
 - submittedReportId
@@ -76,7 +77,7 @@ This is a routing event emitted during the destination filter step, _before_ any
 
 
 ### ReportNotRoutedEvent
-This is a routing event emitted during the destination filter step if a bundle not routed to any receivers.
+This is event is emitted by the destination filter step if a bundle not routed to any receivers.
 
 - reportId
     - The ID of the empty report that terminated this lineage
@@ -97,7 +98,7 @@ This is a routing event emitted during the destination filter step if a bundle n
 
 
 ### ReportRouteEvent
-This is a routing event emitted during the receiver filter step, _after_ all filters have passed and a report has been
+This event is emitted by the receiver filter step, _after_ all filters have passed and a report has been
 routed to a receiver. Many `ReportRouteEvent` can correspond to a `ReportAcceptedEvent` and can be "joined" on:
 
 `ReportAcceptedEvent.reportId == ReportRouteEvent.parentReportId`
@@ -127,7 +128,7 @@ routed to a receiver. Many `ReportRouteEvent` can correspond to a `ReportAccepte
 
 
 ### ReceiverFilterFailedEvent
-This is a routing event emitted during the receiver filter step if a bundle fails a receiver filter.
+This event is emitted by the receiver filter step if a bundle fails a receiver filter.
 
 - reportId
     - The ID of the empty report that terminated this lineage

@@ -13,7 +13,6 @@ data class ReportNotRoutedEvent(
     val submittedReportId: ReportId,
     val topic: Topic,
     val sender: String,
-    val failingFilters: List<String>,
     val bundleSize: Int,
     val messageId: AzureEventUtils.MessageID,
 ) : AzureCustomEvent
