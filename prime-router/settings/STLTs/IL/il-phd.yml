@@ -1,7 +1,6 @@
 # To submit this to localhost, run:
 #
-# ./prime multiple-settings set --input ./src/main/resources/metadata/hl7_mapping/receivers/STLTs/IL/il-doh.yml
-# ./prime multiple-settings set --input ./junk/IL/UP/Transform/il-phd.yml
+# ./prime multiple-settings set --input ./settings/STLTs/IL/il-phd.yml
 #
 ---
 - name: "il-phd"
@@ -72,14 +71,15 @@
         - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
         - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
         - "Bundle.entry.resource.ofType(Specimen).type.exists()"
-      routingFilter: []
+      routingFilter:
+        # - "matches(test_result_status, F, C, P)"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).where(status in 'final'|'corrected'|'preliminary'|'amended').exists()"
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
         # Accept COVID only
         - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
 #        - "matches(test_type, Mol, Antigen, Breath)"
-#        - "matches(test_result_status, F, C, P)"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""

@@ -26,7 +26,7 @@ elements:
 
   - name: il-indicates-that-5.2-is-an-OID
     condition: true
-    value: [ '""' ]
+    value: [ '"CLIA"' ]
     hl7Spec: [ 'MSH-4-3' ]
 
   - name: il-name-of-the-receiving-application
