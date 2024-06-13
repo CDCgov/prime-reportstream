@@ -1,6 +1,6 @@
 # To submit this to localhost, run:
 #
-# ./prime multiple-settings set --input ./settings/staging/170-mn-doh-up-receiver-migration.yml
+# ./prime multiple-settings set --input ./settings/STLTs/MN/mn-doh.yml
 #
 - name: "mn-doh"
   description: "Minnesota Department of Health"
