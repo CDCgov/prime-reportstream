@@ -1,6 +1,6 @@
 # To submit this to localhost, run:
 #
-# ./prime multiple-settings set --input ./settings/staging/0173-fl-phd-up-receiver-migration.yml
+# ./prime multiple-settings set --input ./settings/STLTs/FL/fl-phd.yml
 ---
 - name: "fl-phd"
   description: "Florida Department of Health"
