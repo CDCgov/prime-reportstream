@@ -107,8 +107,16 @@ class FHIRReceiverFilter(
     }
 
     data class FilterDetails(val filters: List<String>, val filterType: ReportStreamFilterType)
-    data class ReceiverFilterEvaluationResult(val bundle: Bundle?, val failingFilter: FilterDetails?)
-    data class FhirExpressionEvaluationResult(val fails: Boolean, val failingFilter: FilterDetails?)
+
+    sealed class ReceiverFilterEvaluationResult {
+        data class Success(val bundle: Bundle) : ReceiverFilterEvaluationResult()
+        data class Failure(val failingFilter: FilterDetails) : ReceiverFilterEvaluationResult()
+    }
+
+    sealed class FhirExpressionEvaluationResult {
+        data object Success : FhirExpressionEvaluationResult()
+        data class Failure(val failingFilter: FilterDetails) : FhirExpressionEvaluationResult()
+    }
 
     /**
      * Runs a [receiver]'s filters on a [bundle], returning a data class with the pruned bundle or
@@ -140,8 +148,8 @@ class FHIRReceiverFilter(
                 it.first,
                 it.second
             )
-            if (result.fails) {
-                return ReceiverFilterEvaluationResult(null, result.failingFilter)
+            if (result is FhirExpressionEvaluationResult.Failure) {
+                return ReceiverFilterEvaluationResult.Failure(result.failingFilter)
             }
         }
 
@@ -199,8 +207,7 @@ class FHIRReceiverFilter(
                         1
                     )
                 )
-                ReceiverFilterEvaluationResult(
-                    null,
+                ReceiverFilterEvaluationResult.Failure(
                     FilterDetails(conditionFilters, ReportStreamFilterType.CONDITION_FILTER)
                 )
             } else {
@@ -209,7 +216,9 @@ class FHIRReceiverFilter(
                         logger.info("Observations were filtered from the bundle")
                     }
                 }
-                ReceiverFilterEvaluationResult(bundle.filterObservations(conditionFilters, shorthandLookupTable), null)
+                ReceiverFilterEvaluationResult.Success(
+                    bundle.filterObservations(conditionFilters, shorthandLookupTable)
+                )
             }
         } else if (mappedConditionFilters.isNotEmpty()) {
             val codes = mappedConditionFilters.codes()
@@ -227,8 +236,7 @@ class FHIRReceiverFilter(
                         1
                     )
                 )
-                ReceiverFilterEvaluationResult(
-                    null,
+                ReceiverFilterEvaluationResult.Failure(
                     FilterDetails(
                         mappedConditionFilters.map { it.value },
                         ReportStreamFilterType.MAPPED_CONDITION_FILTER
@@ -243,10 +251,10 @@ class FHIRReceiverFilter(
                         logger.info("Observations were filtered from the bundle")
                     }
                 }
-                ReceiverFilterEvaluationResult(filteredBundle, null)
+                ReceiverFilterEvaluationResult.Success(filteredBundle)
             }
         } else {
-            ReceiverFilterEvaluationResult(bundle, null)
+            ReceiverFilterEvaluationResult.Success(bundle)
         }
 
         return result
@@ -290,9 +298,9 @@ class FHIRReceiverFilter(
                 )
                 filter
             }
-            return FhirExpressionEvaluationResult(true, FilterDetails(failingFilters, filterType))
+            return FhirExpressionEvaluationResult.Failure(FilterDetails(failingFilters, filterType))
         }
-        return FhirExpressionEvaluationResult(false, null)
+        return FhirExpressionEvaluationResult.Success
     }
 
     /**
@@ -330,139 +338,142 @@ class FHIRReceiverFilter(
 
             actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
 
-            val filterResult = evaluateReceiverFilters(receiver, bundle, actionLogger)
-            val receiverBundle = filterResult.bundle
-            return if (receiverBundle != null) {
-                logger.info("Bundle was returned after evaluating receiver filters.")
-                val report = Report(
-                    Report.Format.FHIR,
-                    emptyList(),
-                    parentItemLineageData = listOf(
-                        Report.ParentItemLineageData(queueMessage.reportId, 1)
-                    ),
-                    metadata = this.metadata,
-                    topic = queueMessage.topic,
-                    nextAction = TaskAction.translate
-                )
-
-                val nextEvent = ProcessEvent(
-                    Event.EventAction.TRANSLATE,
-                    report.id,
-                    Options.None,
-                    emptyMap(),
-                    emptyList()
-                )
-
-                // upload new copy to blobstore
-                val bodyString = FhirTranscoder.encode(receiverBundle)
-                val blobInfo = BlobAccess.uploadBody(
-                    Report.Format.FHIR,
-                    bodyString.toByteArray(),
-                    report.name,
-                    queueMessage.blobSubFolderName,
-                    nextEvent.eventAction
-                )
-                // ensure tracking is set
-                actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
-
-                // send event to Azure AppInsights
-                val receiverObservationSummary = AzureEventUtils.getObservationSummaries(receiverBundle)
-
-                val filteredObservationSummary = AzureEventUtils.getObservationSummaries(
-                    bundle.getObservations().filter { observation ->
-                        receiverBundle.getObservations().none { receiverObservation ->
-                            observation == receiverObservation ||
-                                observation.id == receiverObservation.id ||
-                                observation.identifier == receiverObservation.identifier
-                        }
-                    }
-                )
-
-                azureEventService.trackEvent(
-                    ReportRouteEvent(
-                        report.id,
-                        queueMessage.reportId,
-                        rootReport.reportId,
-                        queueMessage.topic,
-                        sender,
-                        receiver.fullName,
-                        receiverObservationSummary,
-                        filteredObservationSummary,
-                        bodyString.length,
-                        AzureEventUtils.getIdentifier(receiverBundle)
+            when (val filterResult = evaluateReceiverFilters(receiver, bundle, actionLogger)) {
+                is ReceiverFilterEvaluationResult.Success -> {
+                    logger.info("Bundle was returned after evaluating receiver filters.")
+                    val receiverBundle = filterResult.bundle
+                    val report = Report(
+                        Report.Format.FHIR,
+                        emptyList(),
+                        parentItemLineageData = listOf(
+                            Report.ParentItemLineageData(queueMessage.reportId, 1)
+                        ),
+                        metadata = this.metadata,
+                        topic = queueMessage.topic,
+                        nextAction = TaskAction.translate
                     )
-                )
 
-                listOf(
-                    FHIREngineRunResult(
-                        nextEvent,
-                        report,
-                        blobInfo.blobUrl,
-                        FhirTranslateQueueMessage(
+                    val nextEvent = ProcessEvent(
+                        Event.EventAction.TRANSLATE,
+                        report.id,
+                        Options.None,
+                        emptyMap(),
+                        emptyList()
+                    )
+
+                    // upload new copy to blobstore
+                    val bodyString = FhirTranscoder.encode(receiverBundle)
+                    val blobInfo = BlobAccess.uploadBody(
+                        Report.Format.FHIR,
+                        bodyString.toByteArray(),
+                        report.name,
+                        queueMessage.blobSubFolderName,
+                        nextEvent.eventAction
+                    )
+                    // ensure tracking is set
+                    actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
+
+                    // send event to Azure AppInsights
+                    val receiverObservationSummary = AzureEventUtils.getObservationSummaries(receiverBundle)
+
+                    val filteredObservationSummary = AzureEventUtils.getObservationSummaries(
+                        bundle.getObservations().filter { observation ->
+                            receiverBundle.getObservations().none { receiverObservation ->
+                                observation == receiverObservation ||
+                                    observation.id == receiverObservation.id ||
+                                    observation.identifier == receiverObservation.identifier
+                            }
+                        }
+                    )
+
+                    azureEventService.trackEvent(
+                        ReportRouteEvent(
                             report.id,
-                            blobInfo.blobUrl,
-                            BlobAccess.digestToString(blobInfo.digest),
-                            queueMessage.blobSubFolderName,
+                            queueMessage.reportId,
+                            rootReport.reportId,
                             queueMessage.topic,
-                            receiver.fullName
+                            sender,
+                            receiver.fullName,
+                            receiverObservationSummary,
+                            filteredObservationSummary,
+                            bodyString.length,
+                            AzureEventUtils.getIdentifier(receiverBundle)
                         )
                     )
-                )
-            } else {
-                logger.info("Report did not pass receiver filters. Terminating lineage.")
-                // this bundle does not have receivers; only perform the work necessary to track the routing action
-                // create none event
-                val nextEvent = ProcessEvent(
-                    Event.EventAction.NONE,
-                    queueMessage.reportId,
-                    Options.None,
-                    emptyMap(),
-                    emptyList()
-                )
-                val emptyReport = Report(
-                    Report.Format.FHIR,
-                    emptyList(),
-                    1,
-                    metadata = this.metadata,
-                    topic = queueMessage.topic
-                )
 
-                // create item lineage
-                emptyReport.itemLineages = listOf(
-                    ItemLineage(
-                        null,
-                        queueMessage.reportId,
-                        1,
-                        emptyReport.id,
-                        1,
-                        null,
-                        null,
-                        null,
-                        emptyReport.getItemHashForRow(1)
+                    return listOf(
+                        FHIREngineRunResult(
+                            nextEvent,
+                            report,
+                            blobInfo.blobUrl,
+                            FhirTranslateQueueMessage(
+                                report.id,
+                                blobInfo.blobUrl,
+                                BlobAccess.digestToString(blobInfo.digest),
+                                queueMessage.blobSubFolderName,
+                                queueMessage.topic,
+                                receiver.fullName
+                            )
+                        )
                     )
-                )
+                }
 
-                // ensure tracking is set
-                actionHistory.trackCreatedReport(nextEvent, emptyReport)
-
-                val observationSummary = AzureEventUtils.getObservationSummaries(bundle)
-                azureEventService.trackEvent(
-                    ReceiverFilterFailedEvent(
-                        emptyReport.id,
+                is ReceiverFilterEvaluationResult.Failure -> {
+                    logger.info("Report did not pass receiver filters. Terminating lineage.")
+                    // this bundle does not have receivers; only perform the work necessary to track the routing action
+                    // create none event
+                    val nextEvent = ProcessEvent(
+                        Event.EventAction.NONE,
                         queueMessage.reportId,
-                        rootReport.reportId,
-                        queueMessage.topic,
-                        sender,
-                        receiver.fullName,
-                        observationSummary,
-                        filterResult.failingFilter!!.filters,
-                        filterResult.failingFilter.filterType,
-                        fhirJson.length,
-                        AzureEventUtils.getIdentifier(bundle)
+                        Options.None,
+                        emptyMap(),
+                        emptyList()
                     )
-                )
+                    val emptyReport = Report(
+                        Report.Format.FHIR,
+                        emptyList(),
+                        1,
+                        metadata = this.metadata,
+                        topic = queueMessage.topic
+                    )
 
-                emptyList()
+                    // create item lineage
+                    emptyReport.itemLineages = listOf(
+                        ItemLineage(
+                            null,
+                            queueMessage.reportId,
+                            1,
+                            emptyReport.id,
+                            1,
+                            null,
+                            null,
+                            null,
+                            emptyReport.getItemHashForRow(1)
+                        )
+                    )
+
+                    // ensure tracking is set
+                    actionHistory.trackCreatedReport(nextEvent, emptyReport)
+
+                    val observationSummary = AzureEventUtils.getObservationSummaries(bundle)
+                    azureEventService.trackEvent(
+                        ReceiverFilterFailedEvent(
+                            emptyReport.id,
+                            queueMessage.reportId,
+                            rootReport.reportId,
+                            queueMessage.topic,
+                            sender,
+                            receiver.fullName,
+                            observationSummary,
+                            filterResult.failingFilter.filters,
+                            filterResult.failingFilter.filterType,
+                            fhirJson.length,
+                            AzureEventUtils.getIdentifier(bundle)
+                        )
+                    )
+
+                    return emptyList()
+                }
             }
         }
     }
