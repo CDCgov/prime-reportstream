@@ -1,9 +1,8 @@
-import { Locator, Page, Request, Route } from "@playwright/test";
 import appInsightsConfig from "../mocks/appInsightsConfig.json" assert { type: "json" };
-import { TestArgs } from "../test";
+import { Locator, Page, Request, Response, Route, TestArgs } from "../test";
 
 export type RouteHandlers = Record<string, Parameters<Page["route"]>[1]>;
-export type MockRouteCache = Record<string, Response>;
+export type MockRouteCache = Record<string, RouteFulfillOptions>;
 export type GotoOptions = Parameters<Page["goto"]>[1];
 
 export interface BasePageProps {
@@ -16,7 +15,9 @@ export type RouteFulfillOptions = Exclude<
     Parameters<Route["fulfill"]>[0],
     undefined
 > & { isMock?: boolean };
-export type RouteFulfillOptionsFn = (request: Request) => RouteFulfillOptions;
+export type RouteFulfillOptionsFn = (
+    request: Request,
+) => Promise<RouteFulfillOptions> | RouteFulfillOptions;
 export type RouteHandlerFn = (route: Route, request: Request) => Promise<void>;
 export type RouteHandlerFulfillOptions =
     | RouteFulfillOptions
@@ -84,6 +85,10 @@ export abstract class BasePage {
                   };
     }
 
+    /**
+     * Override this method as needed to ensure tests do not hang waiting
+     * for responses to network requests that will never occur.
+     */
     get isErrorExpected() {
         return !!this.mockError;
     }
@@ -91,53 +96,74 @@ export abstract class BasePage {
     async reload() {
         await this.route();
 
-        return await this.page.reload();
+        return await this.handlePageLoad(this.page.reload());
     }
 
     async goto(opts?: GotoOptions) {
         await this.route();
 
-        return await this.page.goto(this.url, {
-            waitUntil: "domcontentloaded",
-            ...opts,
-        });
+        return await this.handlePageLoad(
+            this.page.goto(this.url, {
+                waitUntil: "domcontentloaded",
+                ...opts,
+            }),
+        );
     }
 
+    /**
+     * Override this method to add additional route handlers.
+     */
+    resetRouteHandler() {
+        this.routeHandlers.clear();
+        this.addDefaultRouteHandlers();
+    }
+
+    /**
+     * Route handler object is reset before routing (to allow for tests
+     * to change conditions on the fly and then initiate a navigation
+     * to see the new conditions).
+     */
     async route() {
+        this.resetRouteHandler();
+
         for (const [url, handler] of this.routeHandlers.entries()) {
             await this.page.route(url, handler);
         }
     }
 
+    /**
+     * Takes the promise of a page navigation action (ex: goto, reload, etc.). Override
+     * this method if you need to set up access to network request responses before
+     * awaiting the navigation.
+     */
+    async handlePageLoad(res: Promise<Response | null>) {
+        return await res;
+    }
+
+    /**
+     * Adds additional logic check to ensure mock handlers do not run when explicitly
+     * disabled.
+     */
     addRouteHandlers(items: RouteHandlerEntry[]) {
         for (const [url, _fulfillOptions] of items) {
             const handler: RouteHandlerFn = async (route, request) => {
                 const { isMock, ...fulfillOptions } =
                     typeof _fulfillOptions === "function"
-                        ? _fulfillOptions(request)
+                        ? await _fulfillOptions(request)
                         : _fulfillOptions;
-                const mockErrorFulfillOptions = isMock
-                    ? typeof this.mockError === "function"
-                        ? this.mockError(request)
-                        : this.mockError
-                    : undefined;
-                const mockCacheFulfillOptions = isMock
-                    ? await this.getMockCacheFulfillOptions(url)
-                    : undefined;
-                const mockOverrideFulfillOptions =
-                    mockErrorFulfillOptions ?? mockCacheFulfillOptions;
 
                 if (isMock && !this.isMocked)
                     throw new Error("Mocks are disabled");
 
-                return await route.fulfill(
-                    mockOverrideFulfillOptions ?? fulfillOptions,
-                );
+                return await route.fulfill(fulfillOptions);
             };
             this.routeHandlers.set(url, handler);
         }
     }
 
+    /**
+     * Adds additional logic for mock error overrides and caching.
+     */
     addMockRouteHandlers(items: RouteHandlerEntry[]) {
         return this.addRouteHandlers(
             items.map(([url, _fulfillOptions]) => {
@@ -151,10 +177,23 @@ export abstract class BasePage {
                     ];
                 }
 
-                const fn: RouteFulfillOptionsFn = (request) => {
+                const fn: RouteFulfillOptionsFn = async (request) => {
+                    const fulfillOptions =
+                        typeof _fulfillOptions === "function"
+                            ? await _fulfillOptions(request)
+                            : _fulfillOptions;
+                    const mockErrorFulfillOptions =
+                        typeof this.mockError === "function"
+                            ? await this.mockError(request)
+                            : this.mockError;
+                    const mockCacheFulfillOptions =
+                        this.getMockCacheFulfillOptions(url, fulfillOptions);
+                    const mockOverrideFulfillOptions =
+                        mockErrorFulfillOptions ?? mockCacheFulfillOptions;
+
                     return {
                         isMock: true,
-                        ..._fulfillOptions(request),
+                        ...mockOverrideFulfillOptions,
                     };
                 };
                 return [url, fn];
@@ -162,6 +201,9 @@ export abstract class BasePage {
         );
     }
 
+    /**
+     * Add misc network requests that we want to prevent for tests here (NOT API MOCKS).
+     */
     addDefaultRouteHandlers() {
         return this.addRouteHandlers([
             // Azure Application Insights Tracking
@@ -196,15 +238,20 @@ export abstract class BasePage {
         ]);
     }
 
-    async getMockCacheFulfillOptions(url: string) {
+    /**
+     * Get or warm the cache for a particular mock URL's fulfillOptions. This
+     * allows for dynamic options to persist across page reloads for consistency.
+     */
+    getMockCacheFulfillOptions(
+        url: string,
+        fulfillOptions: RouteFulfillOptions,
+    ) {
         const cache = this._mockRouteCache[url];
-        if (!cache) return cache;
+        if (!cache) {
+            this._mockRouteCache[url] = fulfillOptions;
+            return fulfillOptions;
+        }
 
-        return {
-            body: await cache.text(),
-            headers: Object.fromEntries(cache.headers.entries()),
-            path: cache.url,
-            status: cache.status,
-        };
+        return cache;
     }
 }

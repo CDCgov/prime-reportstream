@@ -6,6 +6,9 @@ import {
     PlaywrightWorkerOptions,
 } from "@playwright/test";
 
+// eslint-disable-next-line import/export
+export * from "@playwright/test";
+
 export interface TestLogin {
     username: string;
     password: string;
@@ -32,6 +35,7 @@ export type TestArgs<P extends keyof PlaywrightAllTestArgs> = Pick<
 > &
     CustomFixtures;
 
+// eslint-disable-next-line import/export
 export const test = base.extend<CustomFixtures>({
     // Define an option and provide a default value.
     // We can later override it in the config.
@@ -67,5 +71,3 @@ export const test = base.extend<CustomFixtures>({
     ],
     isMockDisabled: false,
 });
-
-export { expect } from "@playwright/test";

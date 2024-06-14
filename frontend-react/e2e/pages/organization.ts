@@ -1,11 +1,6 @@
 import { Response } from "@playwright/test";
 
-import {
-    BasePage,
-    BasePageTestArgs,
-    GotoOptions,
-    RouteHandlerEntry,
-} from "./BasePage";
+import { BasePage, BasePageTestArgs, RouteHandlerEntry } from "./BasePage";
 import { RSOrganizationSettings } from "../../src/config/endpoints/settings";
 import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../mocks/organizations";
 
@@ -37,8 +32,8 @@ export class OrganizationPage extends BasePage {
         );
     }
 
-    async handlePageLoad(res: Response | null) {
-        if (this.isErrorExpected) return res;
+    async handlePageLoad(res: Promise<Response | null>) {
+        if (this.isErrorExpected) return await res;
 
         const apiOrganizationSettingsRes = await this.page.waitForResponse(
             OrganizationPage.API_ORGANIZATIONS,
@@ -48,24 +43,13 @@ export class OrganizationPage extends BasePage {
             await apiOrganizationSettingsRes.json();
         this._organizationSettings = organizationSettingsData;
 
-        return res;
+        return await super.handlePageLoad(res);
     }
 
-    async reload() {
+    resetRouteHandler(): void {
         if (this.isMocked) {
             this.addMockRouteHandlers([this.createMockOrganizationHandler()]);
         }
-
-        return await this.handlePageLoad(await super.reload());
-    }
-
-    async goto(opts?: GotoOptions) {
-        console.log("this.isMocked ", this.isMocked);
-        if (this.isMocked) {
-            this.addMockRouteHandlers([this.createMockOrganizationHandler()]);
-        }
-
-        return await this.handlePageLoad(await super.goto(opts));
     }
 
     createMockOrganizationHandler(): RouteHandlerEntry {
