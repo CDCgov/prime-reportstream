@@ -14,7 +14,7 @@ data class ReportSentEvent(
     val rootReportId: List<ReportId>,
     val sentReportId: ReportId,
     val topic: Topic,
-    val senderName: List<String?>,
+    val senderName: List<String>,
     val receiverName: String,
     val transportType: String?,
     val externalFilename: String,
@@ -30,7 +30,7 @@ data class ReportSentEvent(
             reportFiles.map { it.reportId },
             reportId,
             receiver.topic,
-            reportFiles.map { Sender.createFullName(it.sendingOrg, it.sendingOrgClient) },
+            reportFiles.mapNotNull { Sender.createFullName(it.sendingOrg, it.sendingOrgClient) },
             receiver.fullName,
             receiver.transport?.type,
             externalFilename

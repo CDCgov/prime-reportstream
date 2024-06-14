@@ -77,7 +77,7 @@ open class SubmissionHistory(
      */
     val fileName: String
         get() {
-            return this.bodyUrl ?: ""
+            return this.bodyUrl?.substringAfter("%2F").orEmpty()
         }
 
     /**
@@ -210,9 +210,7 @@ class DetailedSubmissionHistory(
         ;
 
         @JsonValue
-        override fun toString(): String {
-            return printableName
-        }
+        override fun toString(): String = printableName
     }
 
     /**
