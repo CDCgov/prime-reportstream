@@ -77,7 +77,7 @@ export default defineConfig<CustomFixtures>({
         },
         receiverLogin: {
             ...logins.receiver,
-            landingPage: "/",
+            landingPage: "/daily-data",
         },
         isMockDisabled,
     },
