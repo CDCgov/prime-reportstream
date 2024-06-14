@@ -1,5 +1,5 @@
 import { BasePage, type BasePageTestArgs } from "../pages/BasePage";
-import { test as baseTest, expect, Response } from "../test";
+import { test as baseTest, expect } from "../test";
 
 export interface MockPageFixtures {
     mockPage: MockPage;
@@ -16,35 +16,37 @@ class MockPage extends BasePage {
             },
             testArgs,
         );
-    }
-
-    resetRouteHandler() {
-        super.resetRouteHandler();
-
-        if (this.isMocked) {
-            this.addMockRouteHandlers([["/fake", { json: { foo: "bar" } }]]);
-        } else {
-            this.addRouteHandlers([["/fake", { json: { bar: "foo" } }]]);
-        }
-
-        this.addRouteHandlers([
+        this.addResponseHandlers([
             [
-                "/",
-                () => {
-                    return {
-                        body: "<body><h1>Fake</h1><script>fetch('/fake')</script></body>",
-                        contentType: "text/html",
-                    };
+                "fake",
+                async (res) => {
+                    this.data = await res.json();
                 },
             ],
         ]);
     }
 
-    async handlePageLoad(res: Promise<Response | null>) {
-        const mockRes = await this.page.waitForResponse("fake");
-        this.data = await mockRes.json();
+    lifecycle_Route() {
+        if (this.isMocked) {
+            this.addMockRouteHandlers([["/fake", { json: { foo: "bar" } }]]);
+        } else {
+            const [url, handler] = this.createRouteHandlers([
+                ["/fake", { json: { bar: "foo" } }],
+            ])[0];
+            this.routeHandlers.set(url, handler);
+        }
 
-        return await super.handlePageLoad(res);
+        const [url, handler] = this.createRouteHandlers([
+            [
+                "/",
+                {
+                    body: "<body><h1>Fake</h1><script>fetch('/fake')</script></body>",
+                    contentType: "text/html",
+                },
+            ],
+        ])[0];
+
+        this.routeHandlers.set(url, handler);
     }
 }
 

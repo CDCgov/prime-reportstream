@@ -1,6 +1,8 @@
-import { Response } from "@playwright/test";
-
-import { BasePage, BasePageTestArgs, RouteHandlerEntry } from "./BasePage";
+import {
+    BasePage,
+    BasePageTestArgs,
+    type RouteHandlerFulfillEntry,
+} from "./BasePage";
 import { RSOrganizationSettings } from "../../src/config/endpoints/settings";
 import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../mocks/organizations";
 
@@ -20,39 +22,26 @@ export class OrganizationPage extends BasePage {
         );
 
         this._organizationSettings = [];
+        this.addResponseHandlers([
+            [
+                OrganizationPage.API_ORGANIZATIONS,
+                async (res) => (this._organizationSettings = await res.json()),
+            ],
+        ]);
+        this.addMockRouteHandlers([this.createMockOrganizationHandler()]);
     }
 
     /**
      * Error expected additionally if user context isn't admin
      */
-    get isErrorExpected() {
+    get isPageLoadExpected() {
         return (
-            super.isErrorExpected ||
+            super.isPageLoadExpected ||
             this.testArgs.storageState !== this.testArgs.adminLogin.path
         );
     }
 
-    async handlePageLoad(res: Promise<Response | null>) {
-        if (this.isErrorExpected) return await res;
-
-        const apiOrganizationSettingsRes = await this.page.waitForResponse(
-            OrganizationPage.API_ORGANIZATIONS,
-        );
-
-        const organizationSettingsData: RSOrganizationSettings[] =
-            await apiOrganizationSettingsRes.json();
-        this._organizationSettings = organizationSettingsData;
-
-        return await super.handlePageLoad(res);
-    }
-
-    resetRouteHandler(): void {
-        if (this.isMocked) {
-            this.addMockRouteHandlers([this.createMockOrganizationHandler()]);
-        }
-    }
-
-    createMockOrganizationHandler(): RouteHandlerEntry {
+    createMockOrganizationHandler(): RouteHandlerFulfillEntry {
         return [
             OrganizationPage.API_ORGANIZATIONS,
             () => {
