@@ -63,11 +63,7 @@ valueCodeableConcept:
       valueOf: datatypes/CNE/CodeableConcept
       specs: OBX.5
       expressionType: resource
-    - condition: $obx2 EQUALS CWE
-      valueOf: datatypes/CWE/CodeableConcept
-      specs: OBX.5
-      expressionType: resource
-    - condition: $obx2 EQUALS CE
+    - condition: $obx2 EQUALS CWE || $obx2 EQUALS CE
       valueOf: datatypes/CWE/CodeableConcept
       specs: OBX.5
       expressionType: resource
