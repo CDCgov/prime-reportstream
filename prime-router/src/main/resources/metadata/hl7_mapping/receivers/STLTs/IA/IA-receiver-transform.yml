@@ -11,52 +11,52 @@ elements:
     value: [ '"NET"' ]
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
-  - name: ma-name-of-the-sender-application-Namespace-Id
+  - name: ia-name-of-the-sender-application-Namespace-Id
     condition: true
-    value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
+    value: [ '"CDC PRIME - Atlanta,"' ]
     hl7Spec: [ 'MSH-3-1' ]
 
-  - name: ma-sender-application-Universal-Id
+  - name: ia-sender-application-Universal-Id
     condition: true
     value: [ '"2.16.840.1.114222.4.1.237821"' ]
     hl7Spec: [ 'MSH-3-2' ]
 
-  - name: ma-sender-application-Universal-Id-Type
+  - name: ia-sender-application-Universal-Id-Type
     condition: true
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-3-3' ]
 
-  - name: ma-name-of-the-receiving-application
+  - name: ia-name-of-the-receiving-application
     condition: true
-    value: [ '"MSDH-ELR"' ]
+    value: [ '"IA.DOH.IDSS"' ]
     hl7Spec: [ 'MSH-5-1' ]
 
-  - name: ma-OID-of-the-receiving-application
+  - name: ia-OID-of-the-receiving-application
     condition: true
-    value: [ '"2.16.840.1.114222.4.3.3.8.1.3"' ]
+    value: [ '"2.16.840.1.114222.4.3.3.19"' ]
     hl7Spec: [ 'MSH-5-2' ]
 
-  - name: ma-indicates-that-5.2-is-an-OID
+  - name: ia-indicates-that-5.2-is-an-OID
     condition: true
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-5-3' ]
 
-  - name: ma-receiving-facility-namespace-ID
+  - name: ia-receiving-facility-namespace-ID
     condition: true
-    value: [ '"MSDOH"' ]
+    value: [ '"IA DOH"' ]
     hl7Spec: [ 'MSH-6-1' ]
 
-  - name: ma-receiving-facility-universal-ID
+  - name: ia-receiving-facility-universal-ID
     condition: true
-    value: [ '"2.16.840.1.114222.1.3645"' ]
+    value: [ '"2.16.840.1.114222.4.1.3650"' ]
     hl7Spec: [ 'MSH-6-2' ]
 
-  - name: ma-receiving-facility-universal-ID-Type
+  - name: ia-receiving-facility-universal-ID-Type
     condition: true
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-6-3' ]
 
-  - name: ma-patient-race-coding-system
+  - name: ia-patient-race-coding-system
     resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
     condition: '%resource.code.exists()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
