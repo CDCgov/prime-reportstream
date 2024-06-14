@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
 constants:
@@ -8,10 +10,10 @@ constants:
 extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
 elements:
   - name: patient-race-codeable-concept
-    condition: false
+    condition: 'false'
 
   - name: patient-race-identifier
-    condition: true
+    condition: 'true'
     value:
       - '%radxMarsPatient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].code'
     hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-1 ]
@@ -80,7 +82,7 @@ elements:
       %service.supportingInfo.resolve().where(code.coding.code = %illnessOnsetAoeLoinc)
 
   - name: specimen-observation
-    condition: false
+    condition: 'false'
 
   # OBX-2
   - name: result-value-type-ce
@@ -91,11 +93,11 @@ elements:
 
     #OBX-3
   - name: observation-identifier-code
-    condition: false
+    condition: 'false'
 
   # OBR-4
   - name: universal-service-identifier
-    condition: false
+    condition: 'false'
 
   # XTN
   - name: xtn-use-code-from-system
