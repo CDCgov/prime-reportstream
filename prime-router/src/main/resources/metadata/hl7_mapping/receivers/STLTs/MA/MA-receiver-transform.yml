@@ -61,3 +61,8 @@ elements:
     condition: '%resource.code.exists()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '%{PID}-10-3' ]
+
+  - name: ma-suppress-Hl7-Fields
+    condition: true
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{PID}-20' ]
