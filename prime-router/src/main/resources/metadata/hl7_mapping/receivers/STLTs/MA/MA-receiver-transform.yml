@@ -28,12 +28,12 @@ elements:
 
   - name: ma-name-of-the-receiving-application
     condition: true
-    value: [ '"MSDH-ELR"' ]
+    value: [ '"MA-MDPH"' ]
     hl7Spec: [ 'MSH-5-1' ]
 
   - name: ma-OID-of-the-receiving-application
     condition: true
-    value: [ '"2.16.840.1.114222.4.3.3.8.1.3"' ]
+    value: [ '"2.16.840.1.113883.19.3.2"' ]
     hl7Spec: [ 'MSH-5-2' ]
 
   - name: ma-indicates-that-5.2-is-an-OID
@@ -43,12 +43,12 @@ elements:
 
   - name: ma-receiving-facility-namespace-ID
     condition: true
-    value: [ '"MSDOH"' ]
+    value: [ '"MA-MDPH"' ]
     hl7Spec: [ 'MSH-6-1' ]
 
   - name: ma-receiving-facility-universal-ID
     condition: true
-    value: [ '"2.16.840.1.114222.1.3645"' ]
+    value: [ '"2.16.840.1.113883.19.3.2"' ]
     hl7Spec: [ 'MSH-6-2' ]
 
   - name: ma-receiving-facility-universal-ID-Type
