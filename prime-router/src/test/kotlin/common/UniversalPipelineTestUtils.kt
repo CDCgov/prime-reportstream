@@ -227,7 +227,19 @@ object UniversalPipelineTestUtils {
             .fetchInto(gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage::class.java)
         assertThat(itemLineages).hasSize(expectedNumberOfItems)
         assertThat(itemLineages.map { it.childIndex }).isEqualTo(MutableList(expectedNumberOfItems) { 1 })
-        assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expectedNumberOfItems).toList())
+
+        // if the previousStepReport had multiple items, then the parent indexes will be a list of numbers
+        // starting at "1" and ascending by one for every item. if the previousStepReport had one item but
+        // that item goes to multiple places then the parent index will always be "1".
+        // for example - the result of the "convert" step will fall into the if block. The result of a "route"
+        // step will fall into the "else" block because the preceding "convert" step will always create
+        // reports with one and only one item to be routed.
+        if (previousStepReport.itemCount > 1) {
+            assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expectedNumberOfItems).toList())
+        } else {
+            assertThat(itemLineages.map { it.parentIndex }).isEqualTo(MutableList(expectedNumberOfItems) { 1 })
+        }
+
         val reportLineages = DSL
             .using(txn)
             .select(ReportLineage.REPORT_LINEAGE.asterisk())
@@ -249,8 +261,8 @@ object UniversalPipelineTestUtils {
             )
             .fetchInto(ReportFile::class.java)
         assertThat(reportFiles).hasSize(expectedNumberOfItems)
-        assertThat(itemLineages).transform { lineages -> lineages.map { it.childReportId } }
-            .isEqualTo(reportFiles.map { it.reportId })
+        assertThat(itemLineages).transform { lineages -> lineages.map { it.childReportId }.sorted() }
+            .isEqualTo(reportFiles.map { it.reportId }.sorted())
         childReportIds.forEach {
             val rootReport = reportService.getRootReport(it)
             assertThat(rootReport.reportId).isEqualTo(expectedRootReport.id)
