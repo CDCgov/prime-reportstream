@@ -70,7 +70,9 @@
       routingFilter: []
       processingModeFilter: []
       reverseTheQualityFilter: false
-      conditionFilter: []
+      conditionFilter:
+        # Accept COVID only
+        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
