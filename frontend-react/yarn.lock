@@ -13288,7 +13288,7 @@ __metadata:
     ts-node: ^10.9.2
     tslib: ^2.6.2
     typescript: ^5.4.5
-    undici: ^6.18.2
+    undici: ^6.19.0
     use-deep-compare-effect: ^1.8.1
     uuid: ^9.0.1
     vite: ^5.2.13
@@ -15546,10 +15546,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:^6.18.2":
-  version: 6.18.2
-  resolution: "undici@npm:6.18.2"
-  checksum: c20e47bd4f959c00d24516756b178190f0a9ae000007e875f1f68c8e7f3f9a68b0a7faa03f3d030ddd71a9e3feb558fbce661b5229a0aa8380cfbe1cea4281e4
+"undici@npm:^6.19.0":
+  version: 6.19.0
+  resolution: "undici@npm:6.19.0"
+  checksum: 3c775d4312bd3c1090a2081e5384a82cfc2e90b7b53ec0f89d95a61634db7ea2755cd2efbab832bce3a5d6ca966bf2ca79a0443793b7af4fdaf30d48bfa1be80
   languageName: node
   linkType: hard
 
