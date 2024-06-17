@@ -4,14 +4,15 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 
 /**
- * Event definition for when a report gets routed to a receiver
+ * Event definition for when a report does not get routed to any receivers
  */
 
-data class ReportReceiverSelectedEvent(
-    val parentReportId: ReportId,
+data class ReportNotRoutedEvent(
     val reportId: ReportId,
+    val parentReportId: ReportId,
+    val submittedReportId: ReportId,
     val topic: Topic,
     val sender: String,
-    val receiver: String,
     val bundleSize: Int,
+    val messageId: AzureEventUtils.MessageID,
 ) : AzureCustomEvent
