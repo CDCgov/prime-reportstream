@@ -74,6 +74,7 @@
         "test:e2e": "playwright test",
         "test:e2e-smoke": "MOCK_DISABLED=true playwright test --grep @smoke",
         "test:e2e-ui": "playwright test --ui",
+        "test:e2e-ui:smoke": "MOCK_DISABLED=true playwright test --grep @smoke --ui",
         "test:e2e-ui:debug": "PWDEBUG=1 playwright test --ui",
         "lint": "eslint \"**/*.{js,ts,jsx,tsx}\" && prettier \"*\" --check --ignore-unknown && tsc",
         "lint:errors-only": "eslint \"**/*.{js,ts,jsx,tsx}\" --quiet && prettier \"*\" --check --ignore-unknown && tsc",

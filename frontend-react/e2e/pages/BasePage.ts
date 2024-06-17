@@ -1,5 +1,4 @@
-import appInsightsConfig from "../mocks/appInsightsConfig.json" assert { type:
-    "json" };
+import appInsightsConfig from "../mocks/appInsightsConfig.json" assert { type: "json" };
 import { Locator, Page, Request, Response, Route, TestArgs } from "../test";
 
 export type RouteHandlers = Record<string, Parameters<Page["route"]>[1]>;
@@ -85,7 +84,6 @@ export abstract class BasePage {
     }
 
     get isMocked() {
-        console.log("isMockDisabled", this.testArgs.isMockDisabled);
         return !this.testArgs.isMockDisabled;
     }
 

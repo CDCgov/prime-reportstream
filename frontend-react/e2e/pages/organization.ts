@@ -33,13 +33,12 @@ export class OrganizationPage extends BasePage {
 
     get isPageLoadExpected() {
         return (
-            super.isPageLoadExpected ||
-            this.testArgs.storageState !== this.testArgs.adminLogin.path
+            super.isPageLoadExpected &&
+            this.testArgs.storageState === this.testArgs.adminLogin.path
         );
     }
 
     createMockOrganizationHandler(): RouteHandlerFulfillEntry {
-        console.log("createMockOrganizationHandler ");
         return [
             OrganizationPage.API_ORGANIZATIONS,
             () => {
