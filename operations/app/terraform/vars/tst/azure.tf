@@ -1,5 +1,5 @@
 terraform {
-    required_version = ">= 1.7.4, <2" # This version must also be changed in other environments
+    required_version = ">= 1.8.5, <2" # This version must also be changed in other environments
 
     required_providers {
         azurerm = {
@@ -25,5 +25,5 @@ provider "azurerm" {
         }
     }
     skip_provider_registration = true
-    subscription_id            = "7d1e3999-6577-4cd5-b296-f518e5c8e677"
+    subscription_id            = "320d8d57-c87c-4434-827f-59ee7d86687a"
 }
