@@ -1,11 +1,10 @@
 locals {
   environment = "tst"
-  address_id  = 211
   init = {
     environment           = local.environment
     location              = "eastus"
     is_metabase_env       = true
-    resource_group_name   = "ddphss-prim-trn-moderate-rg"
+    resource_group_name   = "ophdst-prim-tst-moderate-rest-rg"
     resource_prefix       = "pdh${local.environment}"
     okta_redirect_url     = "https://${local.environment}.prime.cdc.gov/download"
     okta_base_url         = "hhs-prime.oktapreview.com"
@@ -57,7 +56,7 @@ locals {
   }
   network = {
     use_cdc_managed_vnet        = true
-    dns_vnet                    = "East-vnet"
+    dns_vnet                    = "ophdst-prim-tst-moderate-rest-app-vnet"
     dns_ip                      = "172.17.0.135"
     terraform_caller_ip_address = jsondecode(data.azurerm_key_vault_secret.caller_ip_addresses.value)
     config = {
@@ -66,7 +65,7 @@ locals {
         "address_space"           = "172.18.211.64/26"
         "dns_servers"             = ["172.17.0.135"]
         "location"                = "East Us"
-        "nsg_prefix"              = "eastus-"
+        "nsg_prefix"              = "ophdst-prim-"
         "network_security_groups" = ["ophdst-prim-tst-moderate-rest-default-sg"]
         "subnets"                 = ["ophdst-prim-tst-moderate-rest-app-subnet"]
       },
@@ -75,7 +74,7 @@ locals {
             "address_space"           = "172.18.211.32/27"
             "dns_servers"             = ["172.17.0.135"]
             "location"                = "East Us"
-            "nsg_prefix"              = "eastus-"
+            "nsg_prefix"              = "ophdst-prim-"
             "network_security_groups" = ["ophdst-prim-tst-moderate-rest-default-sg"]
             "subnets"                 = ["ophdst-prim-tst-moderate-rest-db-subnet"]
         }
