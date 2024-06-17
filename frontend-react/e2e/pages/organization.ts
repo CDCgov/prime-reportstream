@@ -31,9 +31,6 @@ export class OrganizationPage extends BasePage {
         this.addMockRouteHandlers([this.createMockOrganizationHandler()]);
     }
 
-    /**
-     * Error expected additionally if user context isn't admin
-     */
     get isPageLoadExpected() {
         return (
             super.isPageLoadExpected ||
@@ -42,6 +39,7 @@ export class OrganizationPage extends BasePage {
     }
 
     createMockOrganizationHandler(): RouteHandlerFulfillEntry {
+        console.log("createMockOrganizationHandler ");
         return [
             OrganizationPage.API_ORGANIZATIONS,
             () => {

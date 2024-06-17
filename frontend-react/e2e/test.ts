@@ -5,10 +5,12 @@ import {
     PlaywrightWorkerArgs,
     PlaywrightWorkerOptions,
 } from "@playwright/test";
+import process from "process";
 
 // eslint-disable-next-line import/export
 export * from "@playwright/test";
 
+const isMockDisabled = Boolean(process.env.MOCK_DISABLED);
 export interface TestLogin {
     username: string;
     password: string;
@@ -69,5 +71,5 @@ export const test = base.extend<CustomFixtures>({
         },
         { option: true },
     ],
-    isMockDisabled: false,
+    isMockDisabled,
 });
