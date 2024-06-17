@@ -216,7 +216,7 @@ module "sftp_container" {
     resource_group        = local.init.resource_group_name
     resource_prefix       = local.init.resource_prefix
     location              = local.init.location
-    use_cdc_managed_vnet  = local.network.use_cdc_managed_vnet,
+    use_cdc_managed_vnet  = local.network.use_cdc_managed_vnet
     vnet                  = local.network.config.app-vnet.name
     sa_primary_access_key = module.storage.sa_primary_access_key
     dns_zones             = module.network.dns_zones
