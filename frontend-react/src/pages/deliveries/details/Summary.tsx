@@ -2,8 +2,8 @@ import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
 import Title from "../../../components/Title";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import useOrganizationSettings from "../../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings";
+import ReportFileDownloadButton from "../../../shared/ReportFileDownloadButton/ReportFileDownloadButton";
 import { FeatureName } from "../../../utils/FeatureName";
-import ReportLink from "../daily-data/ReportLink";
 
 interface Props {
     /* REQUIRED
@@ -30,11 +30,10 @@ function Summary(props: Props) {
                 <Title preTitle={description} title={report?.reportId ?? ""} />
             </div>
             <div className="grid-col-auto margin-bottom-5 margin-top-auto">
-                <ReportLink
+                <ReportFileDownloadButton
                     reportId={report!.reportId}
                     reportExpires={report!.expires}
                     fileType={report?.fileType}
-                    button
                 />
             </div>
         </div>

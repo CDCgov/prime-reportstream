@@ -1,7 +1,7 @@
 import classnames from "classnames";
 
 import { ReceiverData } from "../../config/endpoints/messageTracker";
-import ReportLink from "../../pages/deliveries/daily-data/ReportLink";
+import ReportFileDownloadButton from "../../shared/ReportFileDownloadButton/ReportFileDownloadButton";
 import Table from "../../shared/Table/Table";
 import { parseFileLocation } from "../../utils/misc";
 
@@ -123,12 +123,12 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                 columnKey: "fileLocationFileName",
                 columnHeader: "File Name",
                 content: (
-                    <ReportLink reportId={row?.reportId}>
+                    <ReportFileDownloadButton reportId={row?.reportId} unstyled>
                         {
                             parseFileLocation(row?.fileUrl ?? NO_DATA_STRING)
                                 .fileName
                         }
-                    </ReportLink>
+                    </ReportFileDownloadButton>
                 ),
             },
             {

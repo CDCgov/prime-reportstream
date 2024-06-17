@@ -1,7 +1,5 @@
-import { Button } from "@trussworks/react-uswds";
 import { Dispatch, FC, SetStateAction } from "react";
 
-import { getReportAndDownload } from "./ReportsUtils";
 import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
 import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 import Spinner from "../../../components/Spinner";
@@ -14,7 +12,6 @@ import TableFilters, {
 import { USLink } from "../../../components/USLink";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import { RSReceiver } from "../../../config/endpoints/settings";
-import useSessionContext from "../../../contexts/Session/useSessionContext";
 import useOrgDeliveries, {
     DeliveriesDataAttr,
 } from "../../../hooks/api/deliveries/UseOrgDeliveries/UseOrgDeliveries";
@@ -27,6 +24,7 @@ import usePagination, {
     ResultsFetcher,
 } from "../../../hooks/UsePagination/UsePagination";
 import { Table } from "../../../shared";
+import ReportFileDownloadButton from "../../../shared/ReportFileDownloadButton/ReportFileDownloadButton";
 import { EventName } from "../../../utils/AppInsights";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
@@ -46,19 +44,8 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
     isLoading,
     serviceReportsList,
 }) => {
-    const { authState, activeMembership } = useSessionContext();
-    const handleFetchAndDownload = (id: string) => {
-        getReportAndDownload(
-            id,
-            authState.accessToken?.accessToken ?? "",
-            activeMembership?.parsedName ?? "",
-        );
-    };
     const transformDate = (s: string) => {
         return new Date(s).toLocaleString();
-    };
-    const handleExpirationDate = (expiresDate: string) => {
-        return !isDateExpired(expiresDate);
     };
     const onColumnCustomSort = (columnID: string) => {
         filterManager?.updateSort({
@@ -74,79 +61,85 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
     if (isLoading || !serviceReportsList || !paginationProps)
         return <Spinner />;
 
-    const data = serviceReportsList.map((dataRow) => [
-        {
-            columnKey: DeliveriesDataAttr.REPORT_ID,
-            columnHeader: "Report ID",
-            content: (
-                <USLink href={`/report-details/${dataRow.reportId}`}>
-                    {dataRow.reportId}
-                </USLink>
-            ),
-        },
-        {
-            columnKey: DeliveriesDataAttr.BATCH_READY,
-            columnHeader: "Time received",
-            content: (
-                <span className="text-no-wrap">
-                    {transformDate(dataRow.batchReadyAt)}
-                </span>
-            ),
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesDataAttr.BATCH_READY),
-            columnCustomSortSettings: filterManager.sortSettings,
-        },
-        {
-            columnKey: DeliveriesDataAttr.EXPIRES,
-            columnHeader: "File available until",
-            content: (
-                <span className="text-no-wrap">
-                    {transformDate(dataRow.expires)}
-                </span>
-            ),
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesDataAttr.EXPIRES),
-            columnCustomSortSettings: filterManager.sortSettings,
-        },
-        {
-            columnKey: DeliveriesDataAttr.ITEM_COUNT,
-            columnHeader: "Items",
-            content: dataRow.reportItemCount,
-        },
-        {
-            columnKey: DeliveriesDataAttr.FILE_NAME,
-            columnHeader: "Filename",
-            content: (
-                <>
-                    {handleExpirationDate(dataRow.expires) ? (
-                        <Button
-                            className="font-mono-2xs line-height-alt-4"
-                            type="button"
-                            unstyled
-                            onClick={() =>
-                                handleFetchAndDownload(dataRow.reportId)
-                            }
-                        >
-                            {dataRow.fileName}
-                        </Button>
-                    ) : (
-                        <div>{dataRow.fileName}</div>
-                    )}
-                </>
-            ),
-        },
-        {
-            columnKey: DeliveriesDataAttr.RECEIVER,
-            columnHeader: "Receiver",
-            content: (
-                <span className="text-no-wrap">
-                    {dataRow.receiver.includes(".")
-                        ? dataRow.receiver.split(/\.(.*)/)[1]
-                        : dataRow.receiver}
-                </span>
-            ),
-        },
-    ]);
+    const data = serviceReportsList.map(
+        ({
+            reportId,
+            expires,
+            batchReadyAt,
+            reportItemCount,
+            fileName,
+            receiver,
+        }) => [
+            {
+                columnKey: DeliveriesDataAttr.REPORT_ID,
+                columnHeader: "Report ID",
+                content: (
+                    <USLink href={`/report-details/${reportId}`}>
+                        {reportId}
+                    </USLink>
+                ),
+            },
+            {
+                columnKey: DeliveriesDataAttr.BATCH_READY,
+                columnHeader: "Time received",
+                content: (
+                    <span className="text-no-wrap">
+                        {transformDate(batchReadyAt)}
+                    </span>
+                ),
+                columnCustomSort: () =>
+                    onColumnCustomSort(DeliveriesDataAttr.BATCH_READY),
+                columnCustomSortSettings: filterManager.sortSettings,
+            },
+            {
+                columnKey: DeliveriesDataAttr.EXPIRES,
+                columnHeader: "File available until",
+                content: (
+                    <span className="text-no-wrap">
+                        {transformDate(expires)}
+                    </span>
+                ),
+                columnCustomSort: () =>
+                    onColumnCustomSort(DeliveriesDataAttr.EXPIRES),
+                columnCustomSortSettings: filterManager.sortSettings,
+            },
+            {
+                columnKey: DeliveriesDataAttr.ITEM_COUNT,
+                columnHeader: "Items",
+                content: reportItemCount,
+            },
+            {
+                columnKey: DeliveriesDataAttr.FILE_NAME,
+                columnHeader: "Filename",
+                content: (
+                    <>
+                        {!isDateExpired(expires) ? (
+                            <ReportFileDownloadButton
+                                unstyled
+                                reportId={reportId}
+                                className="font-mono-2xs line-height-alt-4"
+                            >
+                                {fileName}
+                            </ReportFileDownloadButton>
+                        ) : (
+                            <div>{fileName}</div>
+                        )}
+                    </>
+                ),
+            },
+            {
+                columnKey: DeliveriesDataAttr.RECEIVER,
+                columnHeader: "Receiver",
+                content: (
+                    <span className="text-no-wrap">
+                        {receiver.includes(".")
+                            ? receiver.split(/\.(.*)/)[1]
+                            : receiver}
+                    </span>
+                ),
+            },
+        ],
+    );
 
     return (
         <>

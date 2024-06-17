@@ -1,8 +1,9 @@
-import { Breadcrumb, BreadcrumbBar, Icon } from "@trussworks/react-uswds";
-import { ReactChild } from "react";
+import { Breadcrumb, BreadcrumbBar } from "@trussworks/react-uswds";
+import { ReactNode } from "react";
 
-import { IconButton } from "./IconButton";
 import { USCrumbLink } from "./USLink";
+import { Button } from "../shared/Button/Button";
+import Icon from "../shared/Icon/Icon";
 
 interface CrumbConfig {
     label: string;
@@ -20,13 +21,12 @@ const Crumbs = ({ crumbList, previousPage }: CrumbsProps) => {
             <div>
                 {previousPage ? (
                     <div className="font-sans-lg line-height-sans-4 margin-top-8">
-                        <IconButton
+                        <Button
                             size="big"
                             type="button"
                             onClick={() => window.history.back()}
-                        >
-                            <Icon.ArrowBack />
-                        </IconButton>
+                            icon={<Icon name="ArrowBack" />}
+                        ></Button>
                         Return to {previousPage}
                     </div>
                 ) : null}
@@ -64,7 +64,7 @@ const Crumbs = ({ crumbList, previousPage }: CrumbsProps) => {
 };
 
 interface WithCrumbsProps extends CrumbsProps {
-    page: ReactChild;
+    page: ReactNode;
 }
 /** HOC to provide Crumbs at top of page
  * @param props {WithCrumbsProps} Pass in an array of CrumbConfigs for rendering and

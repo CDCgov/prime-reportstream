@@ -1,14 +1,14 @@
 import { format, parseISO } from "date-fns";
 
-import ReportLink from "./ReportLink";
 import { USLink } from "../../../components/USLink";
-import ReportResource from "../../../resources/ReportResource";
+import { RSReportHistory } from "../../../hooks/api/UseReportHistory/UseReportHistory";
+import ReportFileDownloadButton from "../../../shared/ReportFileDownloadButton/ReportFileDownloadButton";
 
 interface Props {
     /* REQUIRED
     To populate the <DailyData> component with data, you must pass in an array of
     ReportResource items to be mapped with the TableReportsData (this) component. */
-    reports: ReportResource[];
+    reports: RSReportHistory[];
 }
 
 /*
@@ -43,10 +43,11 @@ function TableReportsData(props: Props) {
                     </th>
                     <th scope="row">{report.total}</th>
                     <th scope="row">
-                        <ReportLink
+                        <ReportFileDownloadButton
                             reportId={report.reportId}
                             reportExpires={report.expires}
                             fileType={report.fileType}
+                            unstyled
                         />
                     </th>
                 </tr>

@@ -1,5 +1,4 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { RSOrganizationSettings } from "../../../config/endpoints/settings";
 import useSessionContext from "../../../contexts/Session/useSessionContext";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -36,8 +35,8 @@ const useReportHistory = (params: RSReportHistorySearchParams) => {
     const { authorizedFetch } = useSessionContext();
 
     const fn = () => {
-        return authorizedFetch<RSOrganizationSettings[]>({
-            url: `/history/report`,
+        return authorizedFetch<RSReportHistory[]>({
+            url: `/history/report/`,
             params,
         });
     };
