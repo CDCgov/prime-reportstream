@@ -20,6 +20,7 @@ import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.ReportReceivedEvent
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -36,7 +37,8 @@ private const val PROCESSING_TYPE_PARAMETER = "processing"
 class ReportFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive),
-) : Logging, RequestFunction(workflowEngine) {
+) : RequestFunction(workflowEngine),
+    Logging {
 
     /**
      * POST a report to the router
@@ -172,7 +174,7 @@ class ReportFunction(
                         }
                     val rawBody = content.toByteArray()
                     // send report on its way, either via the COVID pipeline or the full ELR pipeline
-                    receiver.validateAndMoveToProcessing(
+                    val report = receiver.validateAndMoveToProcessing(
                         sender,
                         content,
                         validatedRequest.defaults,
@@ -182,6 +184,48 @@ class ReportFunction(
                         allowDuplicates,
                         rawBody,
                         payloadName
+                    )
+
+                    // list of values to search and filter
+                    val notAllowedHeaderParts = listOf("key", "cookie", "auth")
+                    val notAllowedParameterParts = listOf("code")
+
+                    // Extract query parameters
+                    val filteredParams = request.queryParameters.entries
+                        .filter { (key, _) ->
+                            notAllowedParameterParts.none { part ->
+                                key.contains(part, ignoreCase = true)
+                            }
+                        }
+                        .joinToString("\n") { (key, value) -> "  $key: $value" }
+
+                    // Extract query parameters
+                    val filteredHeaders = request.headers.entries
+                        .filter { (key, _) ->
+                            notAllowedHeaderParts.none { part ->
+                                key.contains(part, ignoreCase = true)
+                            }
+                        }
+                        .joinToString("\n") { (key, value) -> "  $key: $value" }
+
+                    val resultString = buildString {
+                        appendLine("Method: ${request.httpMethod.name}")
+                        appendLine("URL: ${request.uri}")
+                        appendLine("Parameters:")
+                        appendLine(filteredParams)
+                        appendLine("Headers:")
+                        append(filteredHeaders)
+                    }
+
+                    workflowEngine.azureEventService.trackEvent(
+                        ReportReceivedEvent(
+                            report.id,
+                            sender,
+                            resultString,
+                            request.headers["x-forwarded-for"]?.split(",")?.first()
+                                ?: request.headers["x-azure-clientip"].toString(),
+                            request.headers["content-length"].toString()
+                        )
                     )
                     // return CREATED status, report submission was successful
                     HttpStatus.CREATED

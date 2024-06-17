@@ -9,7 +9,6 @@ import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.ReportWriter
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.observability.event.ReportReceivedEvent
 import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -54,7 +53,7 @@ abstract class SubmissionReceiver(
         rawBody: ByteArray,
         payloadName: String?,
         metadata: Metadata? = null,
-    )
+    ): Report
 
     companion object {
         /**
@@ -156,7 +155,7 @@ class TopicReceiver : SubmissionReceiver {
         rawBody: ByteArray,
         payloadName: String?,
         metadata: Metadata?,
-    ) {
+    ): Report {
         // parse, check for parse errors
         val (report, actionLogs) = this.workflowEngine.parseTopicReport(
             sender as LegacyPipelineSender,
@@ -207,16 +206,7 @@ class TopicReceiver : SubmissionReceiver {
             )
             actionHistory.trackLogs(routingWarnings)
         }
-
-        workflowEngine.azureEventService.trackEvent(
-            ReportReceivedEvent(
-                report.id,
-                sender.topic,
-                sender.format.name,
-                sender.fullName,
-                payloadName,
-            )
-        )
+        return report
     }
 
     /**
@@ -272,7 +262,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         rawBody: ByteArray,
         payloadName: String?,
         metadata: Metadata?,
-    ) {
+    ): Report {
         check(sender is UniversalPipelineSender)
         val actionLogs = ActionLogger()
         val sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name))
@@ -373,15 +363,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
             )
         }
 
-        workflowEngine.azureEventService.trackEvent(
-            ReportReceivedEvent(
-                report.id,
-                sender.topic,
-                sender.format.name,
-                sender.fullName,
-                payloadName,
-            )
-        )
+        return report
     }
 
     enum class MessageType {
