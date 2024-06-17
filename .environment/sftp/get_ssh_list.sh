@@ -13,11 +13,14 @@ upper_env=$(echo ${environment} | tr '[a-z]' '[A-Z]')
 
 # CDC departed from our naming convention when creating a resource group for the BCR environment, which means
 # we have to handle it in a special way here.
-if [[ $upper_env == *"BCR"* ]]; then
-  rg="DDPHSS-PRIM-TRN-MODERATE-RG"
-else
-  rg="PRIME-DATA-HUB-$upper_env"
-fi
+#if [[ $upper_env == *"BCR"* ]]; then
+#  rg="ophdst-prim-tst-moderate-rest-rg"
+#else
+#  rg="PRIME-DATA-HUB-$upper_env"
+#fi
+
+# This is temporary while we only have one "new" CDC environment to work with
+rg="OPHDST-PRIM-$upper_env-MODERATE-REST-RG"
 
 # Query user SFTP SSH keys
 SSH=$(az sshkey list --query "[?resourceGroup=='$rg']" | jq -c '[.[] | select( .name | test("sftp.*-") ).name | (. / "-" | {instance: .[-2], user: .[-1]})]')

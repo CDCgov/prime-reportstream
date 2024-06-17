@@ -97,13 +97,13 @@ runs:
       shell: bash
       run: echo "env_name=test" >> $GITHUB_OUTPUT
 
-    - name: Set Build Environment - BCR
-      id: build_bcr
+    - name: Set Build Environment - TST
+      id: build_tst
       if: |
-        (github.event_name != 'pull_request' && github.ref_name == 'bcr') ||
-        (github.event_name == 'pull_request' && github.base_ref == 'bcr')
+        (github.event_name != 'pull_request' && github.ref_name == 'tst') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'tst')
       shell: bash
-      run: echo "env_name=bcr" >> $GITHUB_OUTPUT
+      run: echo "env_name=tst" >> $GITHUB_OUTPUT
 
     - name: Set Build Environment - STAGING
       id: build_staging
@@ -136,7 +136,7 @@ runs:
         ${{ steps.build_demo2.outputs.env_name }}\
         ${{ steps.build_demo3.outputs.env_name }}\
         ${{ steps.build_test.outputs.env_name }}\
-        ${{ steps.build_bcr.outputs.env_name }}\
+        ${{ steps.build_tst.outputs.env_name }}\
         ${{ steps.build_staging.outputs.env_name }}\
         ${{ steps.build_trialfrontend01.outputs.env_name }}\
         ${{ steps.build_trialfrontend02.outputs.env_name }}\

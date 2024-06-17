@@ -21,17 +21,17 @@ runs:
   using: "composite"
   steps:
 
-    - name: Set environment variables - bcr
-      if: inputs.env-name == 'bcr'
+    - name: Set environment variables - tst
+      if: inputs.env-name == 'tst'
       shell: bash
       run: |
-        echo "RESOURCE_GROUP=ddphss-prim-trn-moderate-rg" >> $GITHUB_ENV
-        echo "TERRAFORM_ENV=bcr" >> $GITHUB_ENV
-        echo "ACR_NAME=pdhbcr01containerregistry.azurecr.io" >> $GITHUB_ENV
-        echo "IMAGE_REPO=pdhbcr01" >> $GITHUB_ENV
+        echo "RESOURCE_GROUP=ophdst-prim-tst-moderate-rest-rg" >> $GITHUB_ENV
+        echo "TERRAFORM_ENV=tst" >> $GITHUB_ENV
+        echo "ACR_NAME=pdhtstcontainerregistry.azurecr.io" >> $GITHUB_ENV
+        echo "IMAGE_REPO=pdhtst" >> $GITHUB_ENV
         echo "IMAGE_SWAGGER_UI_REPO=swaggeruiapidocsstg" >> $GITHUB_ENV
         echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
-        echo "FUNCTION_APP=pdhbcr01-functionapp" >> $GITHUB_ENV
+        echo "FUNCTION_APP=pdhtst-functionapp" >> $GITHUB_ENV
 
     - name: Set environment variables - demo1
       if: inputs.env-name == 'demo1'

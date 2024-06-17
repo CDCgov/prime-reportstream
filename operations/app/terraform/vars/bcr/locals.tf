@@ -1,6 +1,6 @@
 locals {
-  environment = "bcr01"
-  address_id  = 8
+  environment = "tst"
+  address_id  = 211
   init = {
     environment           = local.environment
     location              = "eastus"
@@ -14,7 +14,8 @@ locals {
     RS_okta_base_url      = "reportstream.oktapreview.com"
     RS_OKTA_scope         = "reportstream_dev"
     storage_queue_name    = ["process", "batch", "batch-poison", "elr-fhir-convert", "process-poison", "send", "send-poison", "elr-fhir-convert", "elr-fhir-convert-poison", "elr-fhir-route", "elr-fhir-translate", "elr-fhir-translate-poison", "process-elr"]
-    sftp_container_module = true
+    sftp_container_module = true,
+    etor_ti_base_url      = "https://cdcti-prd-api.azurewebsites.net"
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig"
@@ -60,122 +61,24 @@ locals {
     dns_ip                      = "172.17.0.135"
     terraform_caller_ip_address = jsondecode(data.azurerm_key_vault_secret.caller_ip_addresses.value)
     config = {
-      "East-vnet" = {
-        "name" = "ddphss-prim-trn-moderate-pdhbcr01-east-app-vnet"
-        "address_space"           = "172.18.3.128/25"
+      "app-vnet" = {
+        "name" = "ophdst-prim-tst-moderate-rest-app-vnet"
+        "address_space"           = "172.18.211.64/26"
         "dns_servers"             = ["172.17.0.135"]
         "location"                = "East Us"
         "nsg_prefix"              = "eastus-"
-        "network_security_groups" = ["private", "public", "container", "endpoint"]
-        "subnets"                 = ["public", "private", "container", "endpoint"]
-        "subnet_cidrs" = [
-          {
-            name     = "public"
-            new_bits = 3
-          },
-          {
-            name     = "container"
-            new_bits = 3
-          },
-          {
-            name     = "private"
-            new_bits = 3
-          },
-          {
-            name     = "endpoint"
-            new_bits = 2
-          },
-        ]
+        "network_security_groups" = ["ophdst-prim-tst-moderate-rest-default-sg"]
+        "subnets"                 = ["ophdst-prim-tst-moderate-rest-app-subnet"]
       },
-      "West-vnet" = {
-        "name" = "ddphss-prim-trn-moderate-pdhbcr01-west-app-vnet"
-        "address_space"           = "172.17.${local.address_id}.128/25"
-        "dns_servers"             = ["172.17.0.135"]
-        "location"                = "West Us"
-        "subnets"                 = ["public", "private", "container", "endpoint"]
-        "nsg_prefix"              = "westus-"
-        "network_security_groups" = ["private", "public", "container", "endpoint"]
-        "subnet_cidrs" = [
-          {
-            name     = "public"
-            new_bits = 3
-          },
-          {
-            name     = "container"
-            new_bits = 3
-          },
-          {
-            name     = "private"
-            new_bits = 3
-          },
-          {
-            name     = "endpoint"
-            new_bits = 2
-          },
-        ]
-      },
-      "vnet" = {
-        "name" = "${local.init.resource_prefix}-vnet"
-        "address_space"           = "10.0.0.0/16"
-        "dns_server"              = [""]
-        "location"                = "East Us"
-        "subnets"                 = ["public", "private", "container", "endpoint", "GatewaySubnet"]
-        "nsg_prefix"              = ""
-        "network_security_groups" = ["public", "private", "container"]
-        "subnet_cidrs" = [
-          {
-            name     = "GatewaySubnet"
-            new_bits = 8
-          },
-          {
-            name     = "public"
-            new_bits = 8
-          },
-          {
-            name     = "container"
-            new_bits = 8
-          },
-          {
-            name     = "private"
-            new_bits = 8
-          },
-          {
-            name     = "unused"
-            new_bits = 8
-          },
-          {
-            name     = "endpoint"
-            new_bits = 8
-          }
-        ]
-      },
-      "vnet-peer" = {
-        "name" = "${local.init.resource_prefix}-vnet-peer"
-        "address_space"           = "10.1.0.0/16"
-        "dns_servers"             = [""]
-        "location"                = "West Us"
-        "subnets"                 = ["private", "endpoint"]
-        "nsg_prefix"              = ""
-        "network_security_groups" = [""]
-        "subnet_cidrs" = [
-          {
-            name     = "public"
-            new_bits = 3
-          },
-          {
-            name     = "container"
-            new_bits = 3
-          },
-          {
-            name     = "private"
-            new_bits = 3
-          },
-          {
-            name     = "endpoint"
-            new_bits = 2
-          },
-        ]
-      }
+      "db-vnet" = {
+            "name" = "ophdst-prim-tst-moderate-rest-db-vnet"
+            "address_space"           = "172.18.211.32/27"
+            "dns_servers"             = ["172.17.0.135"]
+            "location"                = "East Us"
+            "nsg_prefix"              = "eastus-"
+            "network_security_groups" = ["ophdst-prim-tst-moderate-rest-default-sg"]
+            "subnets"                 = ["ophdst-prim-tst-moderate-rest-db-subnet"]
+        }
     }
   }
 }
