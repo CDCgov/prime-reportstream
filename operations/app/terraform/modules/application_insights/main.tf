@@ -75,7 +75,7 @@ resource "azurerm_monitor_action_group" "action_group_dummy" {
 
   webhook_receiver {
     name                    = "Dummy URL"
-    service_uri             = "https://foo.local"
+    service_uri             = "https://events.pagerduty.com/integration"
     use_common_alert_schema = false
   }
 

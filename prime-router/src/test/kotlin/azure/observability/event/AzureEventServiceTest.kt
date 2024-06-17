@@ -13,7 +13,7 @@ class AzureEventServiceTest {
             25
         )
         val mockedTelemetryClient = mockk<TelemetryClient>(relaxed = true)
-        val azureEventService = AzureEventService(mockedTelemetryClient)
+        val azureEventService = AzureEventServiceImpl(mockedTelemetryClient)
     }
 
     @Test

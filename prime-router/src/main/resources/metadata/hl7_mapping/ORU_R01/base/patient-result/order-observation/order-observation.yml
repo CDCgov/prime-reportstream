@@ -1,0 +1,19 @@
+# $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: common-order-service-request
+    resource: '%resource.basedOn.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/ServiceRequest/ORC.yml
+
+  - name: common-order-diagnostic-report
+    resource: '%resource'
+    schema: classpath:/metadata/hl7_mapping/resources/DiagnosticReport/ORC.yml
+
+  - name: observation-request-service-request
+    resource: '%resource.basedOn.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/ServiceRequest/OBR.yml
+
+  - name: observation-request-diagnostic-report
+    resource: '%resource'
+    schema: classpath:/metadata/hl7_mapping/resources/DiagnosticReport/OBR.yml

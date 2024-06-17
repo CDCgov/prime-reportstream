@@ -1,0 +1,12 @@
+resources:
+
+  - resourceName: MessageHeader
+    segment: MSH
+    resourcePath: segments/MSH/MessageHeader
+    repeats: false
+    isReferenced: true
+    additionalSegments:
+      - SFT
+
+
+# This test should only process MSH to produce minimal results

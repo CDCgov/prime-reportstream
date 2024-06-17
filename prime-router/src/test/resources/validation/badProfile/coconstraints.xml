@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CoConstraintContext ID="8663a2a7-0bdf-4560-85cb-50bfe25221d017089524135331708952415921">
+   <ByMessage ID="6494460e8b87bc0007492d42">
+      <Context Name="PATIENT_RESULT.ORDER_OBSERVATION.OBSERVATION" Path="3[*].2[*].6[*]">
+         <Segment Name="OBX" Path="1[*]">
+            <SimpleTable>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <ValueSet Name="OBX-3" Path="3[*]">
+                        <ValueSetBinding BindingStrength="R" Target=".">
+                           <BindingLocations>
+                              <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+                              <ComplexBindingLocation CodeLocation="4[1]" CodeSystemLocation="6[1]"/>
+                           </BindingLocations>
+                           <Bindings>
+                              <Binding BindingIdentifier="OBX3.1"/>
+                           </Bindings>
+                        </ValueSetBinding>
+                     </ValueSet>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-2" Path="2[*]" Value="CWE"/>
+                     <ValueSet Name="OBX-5" Path="5[*]">
+                        <ValueSetBinding BindingStrength="R" Target=".">
+                           <BindingLocations>
+                              <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+                              <ComplexBindingLocation CodeLocation="4[1]" CodeSystemLocation="6[1]"/>
+                           </BindingLocations>
+                           <Bindings>
+                              <Binding BindingIdentifier="OBX5.1"/>
+                           </Bindings>
+                        </ValueSetBinding>
+                     </ValueSet>
+                  </Constraints>
+               </CoConstraint>
+            </SimpleTable>
+         </Segment>
+      </Context>
+      <Context Name="ORU_R01" Path=".">
+         <Segment Name="OBR" Path="3[*].2[*].2[*]">
+            <SimpleTable>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBR-4.1" Path="4[*].1[*]" Value="97097-0"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBR-4.2" Path="4[*].2[*]"
+                                Value="SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBR-4.1" Path="4[*].1[*]" Value="94558-4"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBR-4.2" Path="4[*].2[*]"
+                                Value="SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBR-4.1" Path="4[*].1[*]" Value="95409-9"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBR-4.2" Path="4[*].2[*]"
+                                Value="SARS coronavirus 2 (COVID19) N gene [Presence] in Nose by NAA with probe detection"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBR-4.1" Path="4[*].1[*]" Value="94559-2"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBR-4.2" Path="4[*].2[*]"
+                                Value="SARS-CoV-2 (COVID-19) ORF1ab region [Presence] in Respiratory specimen by NAA with probe detection"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBR-4.1" Path="4[*].1[*]" Value="95209-3"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBR-4.2" Path="4[*].2[*]"
+                                Value="SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBR-4.1" Path="4[*].1[*]" Value="96986-5"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBR-4.2" Path="4[*].2[*]"
+                                Value="SARS-CoV-2 (COVID-19) N gene [Presence] in Nose by NAA with non-probe detection"/>
+                  </Constraints>
+               </CoConstraint>
+            </SimpleTable>
+         </Segment>
+         <Segment Name="OBX" Path="3[*].2[*].6[*].1[*]">
+            <SimpleTable>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-3.2" Path="3[*].2[*]"
+                                Value="SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="94558-4"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-3.2" Path="3[*].2[*]"
+                                Value="SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="95409-9"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-3.2" Path="3[*].2[*]"
+                                Value="SARS coronavirus 2 (COVID19) N gene [Presence] in Nose by NAA with probe detection"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="94559-2"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-3.2" Path="3[*].2[*]"
+                                Value="SARS-CoV-2 (COVID-19) ORF1ab region [Presence] in Respiratory specimen by NAA with probe detection"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="95209-3"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-3.2" Path="3[*].2[*]"
+                                Value="SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="96986-5"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-3.2" Path="3[*].2[*]"
+                                Value="SARS-CoV-2 (COVID-19) N gene [Presence] in Nose by NAA with non-probe detection"/>
+                  </Constraints>
+               </CoConstraint>
+            </SimpleTable>
+            <SimpleTable>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="Flowflex COVID-19 Antigen Home Test_ACON Laboratories, Inc_EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="BD Veritor At-Home COVID-19 Test_Becton, Dickinson and Company (BD)_EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000043"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="Celltrion DiaTrust COVID-19 Ag Home Test_Celltrion USA, Inc._EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="Cue COVID-19 Test for Home and Over The Counter (OTC) Use_Cue Health Inc._EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000043"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="95409-9"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="Ellume COVID-19 Home Test_Ellume Limited_EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000043"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="95209-3"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]" Value="Detect Covid-19 Test_Detect, Inc._EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="94559-2"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="iHealth COVID-19 Antigen Rapid Test_iHealth Labs, Inc._EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="SCoV-2 Ag Detect Rapid Self-Test_InBios International Inc._EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="Lucira CHECK-IT COVID-19 Test Kit_Lucira Health, Inc._EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000043"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="96986-5"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]" Value="00810055970001_DIT"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000015"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="96986-5"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="MaximBio ClearDetect COVID-19 Antigen Home Test_Maxim Biomedical, Inc._EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="InteliSwab COVID-19 Rapid Test_OraSure Technologies, Inc._EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="InteliSwab COVID-19 Rapid Test Rx_OraSure Technologies, Inc._EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000015"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="INDICAID COVID-19 Rapid Antigen At-Home Test_PHASE Scientific International, Ltd._EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="QuickVue At-Home COVID-19 Test_Quidel Corporation_EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000015"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="95209-3"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="QuickVue At-Home OTC COVID-19 Test_Quidel Corporation_EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="95209-3"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="CLINITEST Rapid COVID-19 Antigen Self-Test_Siemens Healthineers_EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="Pilot COVID-19 At-Home Test_SD Biosensor, Inc._EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="BinaxNOW COVID-19 Antigen Self Test_Abbott Diagnostics Scarborough, Inc._EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="94558-4"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="CareStart COVID-19 Antigen Home Test_Access Bio, Inc._EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]" Value="10811877011337_DIT"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000016"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="94558-4"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-17.1" Path="17[*].1[*]"
+                                Value="Rapid SARS-CoV-2 Antigen Test Card_Xiamen Boson Biotech Co., Ltd._EUA"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
+                     <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                  </Constraints>
+               </CoConstraint>
+            </SimpleTable>
+            <SimpleTable>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-23.1" Path="23[*].1[*]" Value="SA.OTCSelfReport"/>
+                     <PlainText Name="OBX-24.1.1" Path="24[*].1[*].1[*]" Value="14 Fake AtHome Test Street"/>
+                     <PlainText Name="OBX-24.3" Path="24[*].3[*]" Value="Fake City"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000043"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-23.1" Path="23[*].1[*]" Value="SA.OTCInstrument"/>
+                     <PlainText Name="OBX-24.1.1" Path="24[*].1[*].1[*]" Value="15 Fake AtHome Test Street"/>
+                     <PlainText Name="OBX-24.3" Path="24[*].3[*]" Value="Fake City"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000015"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-23.1" Path="23[*].1[*]" Value="SA.Prescription"/>
+                     <PlainText Name="OBX-24.1.1" Path="24[*].1[*].1[*]" Value="12 Fake AtHome Test Street"/>
+                     <PlainText Name="OBX-24.3" Path="24[*].3[*]" Value="Fake City"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000016"/>
+                  </Selectors>
+                  <Constraints>
+                     <PlainText Name="OBX-23.1" Path="23[*].1[*]" Value="SA.Proctor"/>
+                     <PlainText Name="OBX-24.1.1" Path="24[*].1[*].1[*]" Value="13 Fake AtHome Test Street"/>
+                     <PlainText Name="OBX-24.3" Path="24[*].3[*]" Value="Fake City"/>
+                  </Constraints>
+               </CoConstraint>
+            </SimpleTable>
+         </Segment>
+      </Context>
+   </ByMessage>
+</CoConstraintContext>

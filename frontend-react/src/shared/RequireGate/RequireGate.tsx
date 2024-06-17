@@ -1,10 +1,10 @@
+import { lazy, PropsWithChildren, ReactElement } from "react";
 import { Navigate, useLocation } from "react-router";
-import React, { PropsWithChildren, ReactElement, lazy } from "react";
 
-import { PERMISSIONS } from "../../utils/UsefulTypes";
-import { useSessionContext } from "../../contexts/Session";
+import useFeatureFlags from "../../contexts/FeatureFlag/useFeatureFlags";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
-import { useFeatureFlags } from "../../contexts/FeatureFlag";
+import { PERMISSIONS } from "../../utils/UsefulTypes";
 
 const ErrorNoPage = lazy(
     () => import("../../pages/error/legacy-content/ErrorNoPage"),
@@ -60,10 +60,12 @@ export function RequireGateBase({
             return anonymousElement;
         }
         const match = (
-            authState.accessToken?.claims.organization as string[] | undefined
-        )?.find((g: string) =>
+            authState.accessToken?.claims.organization as
+                | PERMISSIONS[]
+                | undefined
+        )?.find((g) =>
             perms.find((t) => {
-                if (t === PERMISSIONS.PRIME_ADMIN) {
+                if (g === PERMISSIONS.PRIME_ADMIN) {
                     isAdmin = true;
                     return g === t;
                 }
@@ -82,8 +84,10 @@ export function RequireGateBase({
     return <>{children}</>;
 }
 
-export interface RequireGateProps
-    extends Omit<RequireGateBaseProps, "anonymousElement" | "failElement"> {}
+export type RequireGateProps = Omit<
+    RequireGateBaseProps,
+    "anonymousElement" | "failElement"
+>;
 
 export function RequireGate(props: RequireGateProps) {
     const location = useLocation();

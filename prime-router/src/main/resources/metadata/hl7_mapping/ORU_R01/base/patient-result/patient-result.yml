@@ -1,0 +1,11 @@
+elements:
+
+  - name: patient-base
+    schema: classpath:/metadata/hl7_mapping/ORU_R01/base/patient-result/patient/patient-base.yml
+
+  - name: order-observation-base
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = %resource.id)'
+    condition: '%resource.count() > 0'
+    required: true
+    schema: classpath:/metadata/hl7_mapping/ORU_R01/base/patient-result/order-observation/order-observation-base.yml
+    resourceIndex: orderIndex

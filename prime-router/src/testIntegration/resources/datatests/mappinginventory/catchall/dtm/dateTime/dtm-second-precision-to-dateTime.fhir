@@ -1,0 +1,120 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "1710799080279404000.c267bf81-a1ee-4a28-844e-5a681fd820ee",
+  "meta" : {
+    "lastUpdated" : "2024-03-18T15:58:00.288-06:00"
+  },
+  "identifier" : {
+    "system" : "https://reportstream.cdc.gov/prime-router",
+    "value" : "20230816123358"
+  },
+  "type" : "message",
+  "timestamp" : "2023-08-16T11:33:58.000-06:00",
+  "entry" : [ {
+    "fullUrl" : "MessageHeader/bb504ecd-c2ab-3be3-91d8-6065e2bce435",
+    "resource" : {
+      "resourceType" : "MessageHeader",
+      "id" : "bb504ecd-c2ab-3be3-91d8-6065e2bce435",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+        "valueString" : "^~\\&#"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
+        "extension" : [ {
+          "url" : "MSH.7",
+          "valueString" : "20230816123358-0500"
+        } ]
+      } ],
+      "eventCoding" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+        "code" : "R01",
+        "display" : "ORU^R01^ORU_R01"
+      }
+    }
+  }, {
+    "fullUrl" : "Provenance/1710799080947089000.4200eb63-301e-483b-8809-b1cf8a18e1a7",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1710799080947089000.4200eb63-301e-483b-8809-b1cf8a18e1a7",
+      "target" : [ {
+        "reference" : "MessageHeader/bb504ecd-c2ab-3be3-91d8-6065e2bce435"
+      } ],
+      "recorded" : "2023-08-16T12:33:58-05:00",
+      "activity" : {
+        "coding" : [ {
+          "display" : "ORU^R01^ORU_R01"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Provenance/1710799080961584000.213e2af4-fcbf-4882-a53b-c4d7f3e3aa31",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1710799080961584000.213e2af4-fcbf-4882-a53b-c4d7f3e3aa31",
+      "recorded" : "2024-03-18T15:58:00Z",
+      "policy" : [ "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle" ],
+      "activity" : {
+        "coding" : [ {
+          "code" : "v2-FHIR transformation"
+        } ]
+      },
+      "agent" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+            "code" : "assembler"
+          } ]
+        },
+        "who" : {
+          "reference" : "Organization/1710799080960419000.b888a78a-7ba9-4e39-847a-700e558e5a2e"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/1710799080960419000.b888a78a-7ba9-4e39-847a-700e558e5a2e",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1710799080960419000.b888a78a-7ba9-4e39-847a-700e558e5a2e",
+      "identifier" : [ {
+        "value" : "CDC PRIME - Atlanta"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
+          } ]
+        },
+        "system" : "urn:ietf:rfc:3986",
+        "value" : "2.16.840.1.114222.4.1.237821"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Patient/1710799080991757000.2aba259b-8666-4d73-93c9-466413ae058b",
+    "resource" : {
+      "resourceType" : "Patient",
+      "id" : "1710799080991757000.2aba259b-8666-4d73-93c9-466413ae058b",
+      "deceasedDateTime" : "2023-11-02T11:04:05Z",
+      "_deceasedDateTime" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+          "valueString" : "20231102110405"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Provenance/1710799080993308000.9aaa5fc4-f522-4bfd-b72a-bbae5cfe8798",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1710799080993308000.9aaa5fc4-f522-4bfd-b72a-bbae5cfe8798",
+      "target" : [ {
+        "reference" : "Patient/1710799080991757000.2aba259b-8666-4d73-93c9-466413ae058b"
+      } ],
+      "recorded" : "2024-03-18T15:58:00Z",
+      "activity" : {
+        "coding" : [ {
+          "system" : "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
+          "code" : "UPDATE"
+        } ]
+      }
+    }
+  } ]
+}

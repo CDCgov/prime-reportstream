@@ -1,16 +1,14 @@
-import React from "react";
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-
-import { renderApp } from "../../utils/CustomRenderUtils";
-import {
-    SettingRevision,
-    SettingRevisionParams,
-} from "../../network/api/Organizations/SettingRevisions";
+import { userEvent } from "@testing-library/user-event";
 
 import { _exportForTesting } from "./AdminRevHistory";
+import {
+    RSSettingRevision,
+    RSSettingRevisionParams,
+} from "../../hooks/api/UseSettingsRevisions/UseSettingsRevisions";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
-const fakeRows: SettingRevision[] = [
+const fakeRows: RSSettingRevision[] = [
     {
         id: 72,
         name: "ignore",
@@ -47,18 +45,15 @@ const fakeRows: SettingRevision[] = [
 ];
 
 // router path
-jest.mock("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"),
+vi.mock("react-router-dom", async (importActual) => ({
+    ...(await importActual<typeof import("react-router-dom")>()),
     useParams: () => ({ org: "ignore", settingType: "organization" }),
 }));
 
 // replace this call to return our mock data
-jest.mock("../../network/api/Organizations/SettingRevisions", () => {
+vi.mock("../../hooks/api/UseSettingsRevisions/UseSettingsRevisions", () => {
     return {
-        ...jest.requireActual(
-            "../../network/api/Organizations/SettingRevisions",
-        ),
-        useSettingRevisionEndpointsQuery: (_params: SettingRevisionParams) => {
+        default: (_params: RSSettingRevisionParams) => {
             // The results set (data, isLoading, error) needs to match what the component
             // expects to get back from the call to useSettingRevisionEndpointsQuery()
             return {
@@ -120,13 +115,13 @@ describe("AdminRevHistory", () => {
         // look for the unique "Description" text in each diff.
         {
             const leftDiffText =
-                screen.getByTestId("left-compare-text").textContent || "";
+                screen.getByTestId("left-compare-text").textContent ?? "";
             expect(/ORIGINAL/.test(leftDiffText)).toBe(true);
             expect(/FIRST_REVISION/.test(leftDiffText)).toBe(false);
         }
         {
             const rightDiffText =
-                screen.getByTestId("right-compare-text").textContent || "";
+                screen.getByTestId("right-compare-text").textContent ?? "";
             expect(/ORIGINAL/.test(rightDiffText)).toBe(false);
             expect(/FIRST_REVISION/.test(rightDiffText)).toBe(true);
         }

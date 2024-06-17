@@ -4,11 +4,14 @@ package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.completion.completionOption
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.mordant.rendering.AnsiLevel
+import com.github.ajalt.mordant.terminal.Terminal
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CsvComparer
 import gov.cdc.prime.router.FileSettings
@@ -293,6 +296,9 @@ fun main(args: Array<String>) = RouterCli()
         ProcessFhirCommands(),
         FhirPathCommand(),
         ConvertValuesetsYamlToCSV(),
-        ProcessHl7Commands()
-    )
+        ProcessHl7Commands(),
+        ValidateTranslationSchemaCommand(),
+        SyncTranslationSchemaCommand(),
+        ValidateYAMLCommand()
+    ).context { terminal = Terminal(ansiLevel = AnsiLevel.TRUECOLOR) }
     .main(args)

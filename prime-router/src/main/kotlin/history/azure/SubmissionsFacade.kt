@@ -95,7 +95,7 @@ class SubmissionsFacade(
             "Invalid organization."
         }
 
-        return dbSubmissionAccess.fetchActions(
+        return dbSubmissionAccess.fetchActionsForSubmissions(
             organization,
             sendingOrgService,
             sortDir,

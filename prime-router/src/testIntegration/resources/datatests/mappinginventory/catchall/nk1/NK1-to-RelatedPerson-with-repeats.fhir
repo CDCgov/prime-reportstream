@@ -1,0 +1,1453 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "1710883383556873000.61020c48-bd83-4cbb-acfd-7c0a97ba14c1",
+  "meta" : {
+    "lastUpdated" : "2024-03-19T15:23:03.567-06:00"
+  },
+  "identifier" : {
+    "system" : "https://reportstream.cdc.gov/prime-router",
+    "value" : "3003786103_4988249_33033"
+  },
+  "type" : "message",
+  "timestamp" : "2023-05-01T08:25:31.000-06:00",
+  "entry" : [ {
+    "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
+    "resource" : {
+      "resourceType" : "MessageHeader",
+      "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+        "valueString" : "^~\\&#"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
+        "extension" : [ {
+          "url" : "MSH.7",
+          "valueString" : "20230501102531-0400"
+        } ]
+      } ],
+      "eventCoding" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+        "code" : "R01",
+        "display" : "ORU^R01^ORU_R01"
+      }
+    }
+  }, {
+    "fullUrl" : "Provenance/1710883384365295000.067bc17a-9ccf-4e74-9c14-2648201906d8",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1710883384365295000.067bc17a-9ccf-4e74-9c14-2648201906d8",
+      "target" : [ {
+        "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
+      } ],
+      "recorded" : "2023-05-01T10:25:31-04:00",
+      "activity" : {
+        "coding" : [ {
+          "display" : "ORU^R01^ORU_R01"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Provenance/1710883384385543000.862cd540-fd6e-449d-b22b-d9d70a8725c4",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1710883384385543000.862cd540-fd6e-449d-b22b-d9d70a8725c4",
+      "recorded" : "2024-03-19T15:23:04Z",
+      "policy" : [ "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle" ],
+      "activity" : {
+        "coding" : [ {
+          "code" : "v2-FHIR transformation"
+        } ]
+      },
+      "agent" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+            "code" : "assembler"
+          } ]
+        },
+        "who" : {
+          "reference" : "Organization/1710883384383670000.5b637593-03a4-41e4-b6e7-dee1718cbbdc"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/1710883384383670000.5b637593-03a4-41e4-b6e7-dee1718cbbdc",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1710883384383670000.5b637593-03a4-41e4-b6e7-dee1718cbbdc",
+      "identifier" : [ {
+        "value" : "CDC PRIME - Atlanta"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
+          } ]
+        },
+        "system" : "urn:ietf:rfc:3986",
+        "value" : "2.16.840.1.114222.4.1.237821"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Patient/1710883384475758000.d24e4a21-ccb6-4e00-9b0d-e01c9411ee5f",
+    "resource" : {
+      "resourceType" : "Patient",
+      "id" : "1710883384475758000.d24e4a21-ccb6-4e00-9b0d-e01c9411ee5f",
+      "contact" : [ {
+        "extension" : [ {
+          "url" : "https://hl7.org/fhir/StructureDefinition/relationship",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "HL70063"
+              } ],
+              "code" : "OTH",
+              "display" : "Other"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "L"
+              } ],
+              "system" : "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+              "code" : "OT",
+              "display" : "OTHER RELATIONSHIP"
+            } ]
+          }
+        }, {
+          "url" : "https://hl7.org/fhir/StructureDefinition/relationship",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "HL70063"
+              } ],
+              "code" : "OTH",
+              "display" : "Other"
+            }, {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "alt-coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "L"
+              } ],
+              "system" : "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+              "code" : "OT",
+              "display" : "OTHER RELATIONSHIP"
+            } ]
+          }
+        } ],
+        "relationship" : [ {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "coding"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString" : "HL70063"
+            } ],
+            "code" : "ASC",
+            "display" : "Associate"
+          } ]
+        } ],
+        "name" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+            "extension" : [ {
+              "url" : "XPN.2",
+              "valueString" : "GENARO"
+            }, {
+              "url" : "XPN.7",
+              "valueString" : "L"
+            } ]
+          } ],
+          "use" : "official",
+          "family" : "SURYAN",
+          "given" : [ "GENARO" ]
+        },
+        "telecom" : [ {
+          "extension" : [ {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+            "valueString" : "1"
+          }, {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+            "valueString" : "720"
+          }, {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+            "valueString" : "3013954"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+            "extension" : [ {
+              "url" : "XTN.2",
+              "valueString" : "PRN"
+            }, {
+              "url" : "XTN.3",
+              "valueString" : "PH"
+            }, {
+              "url" : "XTN.7",
+              "valueString" : "3013954"
+            }, {
+              "url" : "XTN.12",
+              "valueString" : "+1 720 301 3954"
+            } ]
+          } ],
+          "system" : "phone",
+          "value" : "+1 720 301 3954",
+          "use" : "home"
+        }, {
+          "extension" : [ {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+            "valueString" : "1"
+          }, {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+            "valueString" : "720"
+          }, {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+            "valueString" : "3013999"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+            "extension" : [ {
+              "url" : "XTN.2",
+              "valueString" : "PRN"
+            }, {
+              "url" : "XTN.3",
+              "valueString" : "PH"
+            }, {
+              "url" : "XTN.7",
+              "valueString" : "3013999"
+            }, {
+              "url" : "XTN.12",
+              "valueString" : "+1 720 301 3999"
+            } ]
+          } ],
+          "system" : "phone",
+          "value" : "+1 720 301 3999",
+          "use" : "home"
+        }, {
+          "extension" : [ {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+            "valueString" : "1"
+          }, {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+            "valueString" : "720"
+          }, {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+            "valueString" : "3013954"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+            "extension" : [ {
+              "url" : "XTN.2",
+              "valueString" : "PRN"
+            }, {
+              "url" : "XTN.3",
+              "valueString" : "PH"
+            }, {
+              "url" : "XTN.7",
+              "valueString" : "3013954"
+            }, {
+              "url" : "XTN.12",
+              "valueString" : "+1 720 301 3954"
+            } ]
+          } ],
+          "system" : "phone",
+          "value" : "+1 720 301 3954",
+          "use" : "home"
+        }, {
+          "extension" : [ {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+            "valueString" : "1"
+          }, {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+            "valueString" : "555"
+          }, {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+            "valueString" : "4672293"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+            "extension" : [ {
+              "url" : "XTN.2",
+              "valueString" : "WPN"
+            }, {
+              "url" : "XTN.3",
+              "valueString" : "PH"
+            }, {
+              "url" : "XTN.7",
+              "valueString" : "4672293"
+            }, {
+              "url" : "XTN.12",
+              "valueString" : "+1 555 467 2293"
+            } ]
+          } ],
+          "system" : "phone",
+          "value" : "+1 555 467 2293",
+          "use" : "work"
+        }, {
+          "extension" : [ {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+            "valueString" : "1"
+          }, {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+            "valueString" : "555"
+          }, {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+            "valueString" : "4672222"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+            "extension" : [ {
+              "url" : "XTN.2",
+              "valueString" : "WPN"
+            }, {
+              "url" : "XTN.3",
+              "valueString" : "PH"
+            }, {
+              "url" : "XTN.7",
+              "valueString" : "4672222"
+            }, {
+              "url" : "XTN.12",
+              "valueString" : "+1 555 467 2222"
+            } ]
+          } ],
+          "system" : "phone",
+          "value" : "+1 555 467 2222",
+          "use" : "work"
+        }, {
+          "extension" : [ {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+            "valueString" : "1"
+          }, {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+            "valueString" : "555"
+          }, {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+            "valueString" : "4672293"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+            "extension" : [ {
+              "url" : "XTN.2",
+              "valueString" : "WPN"
+            }, {
+              "url" : "XTN.3",
+              "valueString" : "PH"
+            }, {
+              "url" : "XTN.7",
+              "valueString" : "4672293"
+            }, {
+              "url" : "XTN.12",
+              "valueString" : "+1 555 467 2293"
+            } ]
+          } ],
+          "system" : "phone",
+          "value" : "+1 555 467 2293",
+          "use" : "work"
+        } ],
+        "address" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+              "extension" : [ {
+                "url" : "SAD.1",
+                "valueString" : "4861 20TH AVE"
+              } ]
+            }, {
+              "url" : "XAD.7",
+              "valueCode" : "H"
+            } ]
+          } ],
+          "use" : "home",
+          "line" : [ "4861 20TH AVE" ],
+          "city" : "THUNDER MOUNTAIN",
+          "state" : "NV",
+          "postalCode" : "99999",
+          "country" : "USA"
+        },
+        "gender" : "male",
+        "organization" : {
+          "reference" : "Organization/1710883384458128000.3247c6f7-5956-4d20-ba3b-29fc62eb5112"
+        },
+        "period" : {
+          "start" : "2022-05-01T10:25:31-04:00",
+          "_start" : {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20220501102531-0400"
+            } ]
+          },
+          "end" : "2023-05-01T10:25:31-04:00",
+          "_end" : {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230501102531-0400"
+            } ]
+          }
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/1710883384458128000.3247c6f7-5956-4d20-ba3b-29fc62eb5112",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1710883384458128000.3247c6f7-5956-4d20-ba3b-29fc62eb5112",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCoding" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueCodeableConcept" : {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString" : "XON.2"
+              } ],
+              "coding" : [ {
+                "extension" : [ {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                }, {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                } ],
+                "system" : "http://loinc.org",
+                "version" : "1",
+                "code" : "1234-5",
+                "display" : "TestText"
+              }, {
+                "extension" : [ {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "alt-coding"
+                }, {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                } ],
+                "system" : "http://loinc.org",
+                "version" : "2",
+                "code" : "1234-5",
+                "display" : "TestAltText"
+              } ],
+              "text" : "OriginalText"
+            }
+          } ],
+          "system" : "LN",
+          "version" : "1",
+          "code" : "1234-5",
+          "display" : "TestText"
+        }
+      } ],
+      "name" : "Org",
+      "contact" : [ {
+        "name" : { },
+        "telecom" : [ {
+          "extension" : [ {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+            "valueString" : "1"
+          }, {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+            "valueString" : "720"
+          }, {
+            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+            "valueString" : "3013954"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+            "extension" : [ {
+              "url" : "XTN.2",
+              "valueString" : "WPN"
+            }, {
+              "url" : "XTN.3",
+              "valueString" : "PH"
+            }, {
+              "url" : "XTN.7",
+              "valueString" : "3013954"
+            }, {
+              "url" : "XTN.12",
+              "valueString" : "+1 720 301 3954"
+            } ]
+          } ],
+          "system" : "phone",
+          "value" : "+1 720 301 3954",
+          "use" : "work"
+        } ],
+        "address" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+              "extension" : [ {
+                "url" : "SAD.1",
+                "valueString" : "4861 20TH AVE"
+              } ]
+            }, {
+              "url" : "XAD.7",
+              "valueCode" : "H"
+            } ]
+          } ],
+          "use" : "home",
+          "line" : [ "4861 20TH AVE" ],
+          "city" : "AURORA",
+          "state" : "IG",
+          "postalCode" : "99999",
+          "country" : "USA"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Provenance/1710883384491734000.0a407f53-3b7e-47f8-83d1-62ab0812dbb5",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1710883384491734000.0a407f53-3b7e-47f8-83d1-62ab0812dbb5",
+      "target" : [ {
+        "reference" : "Patient/1710883384475758000.d24e4a21-ccb6-4e00-9b0d-e01c9411ee5f"
+      } ],
+      "recorded" : "2024-03-19T15:23:04Z",
+      "activity" : {
+        "coding" : [ {
+          "system" : "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
+          "code" : "UPDATE"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "RelatedPerson/1710883384523581000.57f77580-8ba4-4ee7-aec3-115cc5964fcb",
+    "resource" : {
+      "resourceType" : "RelatedPerson",
+      "id" : "1710883384523581000.57f77580-8ba4-4ee7-aec3-115cc5964fcb",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
+        "valueString" : "NK1"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-related-person",
+        "extension" : [ {
+          "url" : "NK1.16",
+          "valueString" : "20100622"
+        } ]
+      } ],
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
+          "valueString" : "checkdigit"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit",
+          "valueString" : "checkdigitscheme"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.12"
+        } ],
+        "value" : "IDNumber"
+      }, {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
+          "valueString" : "checkdigit2"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit",
+          "valueString" : "checkdigitscheme2"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.33"
+        } ],
+        "value" : "IDNumber2"
+      }, {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
+          "valueString" : "checkdigit3"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit",
+          "valueString" : "checkdigitscheme3"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.33"
+        } ],
+        "value" : "IDNumber3"
+      }, {
+        "system" : "http://hl7.org/fhir/sid/us-ssn",
+        "value" : "111-11-1111"
+      } ],
+      "patient" : {
+        "reference" : "Patient/1710883384475758000.d24e4a21-ccb6-4e00-9b0d-e01c9411ee5f"
+      },
+      "relationship" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.3"
+        } ],
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString" : "coding"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+            "valueString" : "HL70063"
+          } ],
+          "code" : "OTH",
+          "display" : "Other"
+        }, {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString" : "alt-coding"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+            "valueString" : "L"
+          } ],
+          "system" : "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+          "code" : "OT",
+          "display" : "OTHER RELATIONSHIP"
+        } ]
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.7"
+        } ],
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString" : "coding"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+            "valueString" : "HL70063"
+          } ],
+          "code" : "ASC",
+          "display" : "Associate"
+        } ]
+      } ],
+      "name" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.2"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+          "extension" : [ {
+            "url" : "XPN.2",
+            "valueString" : "GENARO"
+          }, {
+            "url" : "XPN.7",
+            "valueString" : "L"
+          } ]
+        } ],
+        "use" : "official",
+        "family" : "SURYAN",
+        "given" : [ "GENARO" ]
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.2"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+          "extension" : [ {
+            "url" : "XPN.2",
+            "valueString" : "GENARO"
+          } ]
+        } ],
+        "family" : "SURY",
+        "given" : [ "GENARO" ]
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.30"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+          "extension" : [ {
+            "url" : "XPN.7",
+            "valueString" : "L"
+          } ]
+        } ],
+        "use" : "official",
+        "family" : "Plato"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.30"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+          "extension" : [ {
+            "url" : "XPN.7",
+            "valueString" : "L"
+          } ]
+        } ],
+        "use" : "official",
+        "family" : "Bob"
+      } ],
+      "telecom" : [ {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+          "valueString" : "1"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+          "valueString" : "720"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+          "valueString" : "3013954"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+          "extension" : [ {
+            "url" : "XTN.2",
+            "valueString" : "PRN"
+          }, {
+            "url" : "XTN.3",
+            "valueString" : "PH"
+          }, {
+            "url" : "XTN.7",
+            "valueString" : "3013954"
+          }, {
+            "url" : "XTN.12",
+            "valueString" : "+1 720 301 3954"
+          } ]
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.5"
+        } ],
+        "system" : "phone",
+        "value" : "+1 720 301 3954",
+        "use" : "home"
+      }, {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+          "valueString" : "1"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+          "valueString" : "720"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+          "valueString" : "3013999"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+          "extension" : [ {
+            "url" : "XTN.2",
+            "valueString" : "PRN"
+          }, {
+            "url" : "XTN.3",
+            "valueString" : "PH"
+          }, {
+            "url" : "XTN.7",
+            "valueString" : "3013999"
+          }, {
+            "url" : "XTN.12",
+            "valueString" : "+1 720 301 3999"
+          } ]
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.5"
+        } ],
+        "system" : "phone",
+        "value" : "+1 720 301 3999",
+        "use" : "home"
+      }, {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+          "valueString" : "1"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+          "valueString" : "555"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+          "valueString" : "4672293"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+          "extension" : [ {
+            "url" : "XTN.2",
+            "valueString" : "WPN"
+          }, {
+            "url" : "XTN.3",
+            "valueString" : "PH"
+          }, {
+            "url" : "XTN.7",
+            "valueString" : "4672293"
+          }, {
+            "url" : "XTN.12",
+            "valueString" : "+1 555 467 2293"
+          } ]
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.6"
+        } ],
+        "system" : "phone",
+        "value" : "+1 555 467 2293",
+        "use" : "work"
+      }, {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+          "valueString" : "1"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+          "valueString" : "555"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+          "valueString" : "4672222"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+          "extension" : [ {
+            "url" : "XTN.2",
+            "valueString" : "WPN"
+          }, {
+            "url" : "XTN.3",
+            "valueString" : "PH"
+          }, {
+            "url" : "XTN.7",
+            "valueString" : "4672222"
+          }, {
+            "url" : "XTN.12",
+            "valueString" : "+1 555 467 2222"
+          } ]
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.6"
+        } ],
+        "system" : "phone",
+        "value" : "+1 555 467 2222",
+        "use" : "work"
+      }, {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+          "valueString" : "1"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+          "valueString" : "720"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+          "valueString" : "3013954"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+          "extension" : [ {
+            "url" : "XTN.2",
+            "valueString" : "WPN"
+          }, {
+            "url" : "XTN.3",
+            "valueString" : "PH"
+          }, {
+            "url" : "XTN.7",
+            "valueString" : "3013954"
+          }, {
+            "url" : "XTN.12",
+            "valueString" : "+1 720 301 3954"
+          } ]
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.31"
+        } ],
+        "system" : "phone",
+        "value" : "+1 720 301 3954",
+        "use" : "work"
+      }, {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+          "valueString" : "1"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+          "valueString" : "720"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+          "valueString" : "3013333"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+          "extension" : [ {
+            "url" : "XTN.2",
+            "valueString" : "WPN"
+          }, {
+            "url" : "XTN.3",
+            "valueString" : "PH"
+          }, {
+            "url" : "XTN.7",
+            "valueString" : "3013333"
+          }, {
+            "url" : "XTN.12",
+            "valueString" : "+1 720 301 3333"
+          } ]
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.31"
+        } ],
+        "system" : "phone",
+        "value" : "+1 720 301 3333",
+        "use" : "work"
+      }, {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+          "valueString" : "1"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+          "valueString" : "123"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+          "valueString" : "3013454"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+          "extension" : [ {
+            "url" : "XTN.2",
+            "valueString" : "PRN"
+          }, {
+            "url" : "XTN.3",
+            "valueString" : "PH"
+          }, {
+            "url" : "XTN.7",
+            "valueString" : "3013454"
+          }, {
+            "url" : "XTN.12",
+            "valueString" : "+1 123 301 3454"
+          } ]
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.40"
+        } ],
+        "system" : "phone",
+        "value" : "+1 123 301 3454",
+        "use" : "home"
+      }, {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+          "valueString" : "1"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+          "valueString" : "456"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+          "valueString" : "3013454"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+          "extension" : [ {
+            "url" : "XTN.2",
+            "valueString" : "PRN"
+          }, {
+            "url" : "XTN.3",
+            "valueString" : "PH"
+          }, {
+            "url" : "XTN.7",
+            "valueString" : "3013454"
+          }, {
+            "url" : "XTN.12",
+            "valueString" : "+1 456 301 3454"
+          } ]
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.41"
+        } ],
+        "system" : "phone",
+        "value" : "+1 456 301 3454",
+        "use" : "home"
+      } ],
+      "gender" : "male",
+      "_gender" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-15-administrative-sex",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                "valueString" : "coding"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                "valueString" : "HL70001"
+              } ],
+              "code" : "M",
+              "display" : "Male"
+            } ]
+          }
+        } ]
+      },
+      "birthDate" : "2010-06-22",
+      "address" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.4"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+            "extension" : [ {
+              "url" : "SAD.1",
+              "valueString" : "4861 20TH AVE"
+            } ]
+          }, {
+            "url" : "XAD.7",
+            "valueCode" : "H"
+          } ]
+        } ],
+        "use" : "home",
+        "line" : [ "4861 20TH AVE" ],
+        "city" : "THUNDER MOUNTAIN",
+        "state" : "NV",
+        "postalCode" : "99999",
+        "country" : "USA"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.4"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+            "extension" : [ {
+              "url" : "SAD.1",
+              "valueString" : "600 5TH AVE"
+            } ]
+          }, {
+            "url" : "XAD.7",
+            "valueCode" : "H"
+          } ]
+        } ],
+        "use" : "home",
+        "line" : [ "600 5TH AVE" ],
+        "city" : "THUNDER VALLEY",
+        "state" : "NV",
+        "postalCode" : "12345",
+        "country" : "USA"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.32"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+            "extension" : [ {
+              "url" : "SAD.1",
+              "valueString" : "4861 20TH AVE"
+            } ]
+          }, {
+            "url" : "XAD.7",
+            "valueCode" : "H"
+          } ]
+        } ],
+        "use" : "home",
+        "line" : [ "4861 20TH AVE" ],
+        "city" : "AURORA",
+        "state" : "IG",
+        "postalCode" : "99999",
+        "country" : "USA"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.32"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+            "extension" : [ {
+              "url" : "SAD.1",
+              "valueString" : "4 10TH AVE"
+            } ]
+          }, {
+            "url" : "XAD.7",
+            "valueCode" : "H"
+          } ]
+        } ],
+        "use" : "home",
+        "line" : [ "4 10TH AVE" ],
+        "city" : "RIDGE",
+        "state" : "IG",
+        "postalCode" : "99999",
+        "country" : "USA"
+      } ],
+      "period" : {
+        "start" : "2022-05-01T10:25:31-04:00",
+        "_start" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+            "valueString" : "20220501102531-0400"
+          } ]
+        },
+        "end" : "2023-05-01T10:25:31-04:00",
+        "_end" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+            "valueString" : "20230501102531-0400"
+          } ]
+        }
+      },
+      "communication" : [ {
+        "language" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "coding"
+            } ],
+            "code" : "en",
+            "display" : "English"
+          } ]
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "RelatedPerson/1710883384542238000.c088e4f6-d7c6-4aa9-9bbb-01354cb192de",
+    "resource" : {
+      "resourceType" : "RelatedPerson",
+      "id" : "1710883384542238000.c088e4f6-d7c6-4aa9-9bbb-01354cb192de",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
+        "valueString" : "NK1"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-related-person",
+        "extension" : [ {
+          "url" : "NK1.13",
+          "valueReference" : {
+            "reference" : "Organization/1710883384531129000.27493f13-cc7c-4cd0-9149-7dc4f48d1c97"
+          }
+        }, {
+          "url" : "NK1.13",
+          "valueReference" : {
+            "reference" : "Organization/1710883384533749000.ec4ca262-70b0-460e-8377-012811de5814"
+          }
+        }, {
+          "url" : "NK1.16",
+          "valueString" : "20100622"
+        } ]
+      } ],
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
+          "valueString" : "checkdigit"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit",
+          "valueString" : "checkdigitscheme"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.12"
+        } ],
+        "value" : "IDNumber"
+      }, {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit",
+          "valueString" : "checkdigit2"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit",
+          "valueString" : "checkdigitscheme2"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.33"
+        } ],
+        "value" : "IDNumber2"
+      }, {
+        "system" : "http://hl7.org/fhir/sid/us-ssn",
+        "value" : "111-11-1111"
+      } ],
+      "patient" : {
+        "reference" : "Patient/1710883384475758000.d24e4a21-ccb6-4e00-9b0d-e01c9411ee5f"
+      },
+      "relationship" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.3"
+        } ],
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString" : "coding"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+            "valueString" : "HL70063"
+          } ],
+          "code" : "OTH",
+          "display" : "Other"
+        }, {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString" : "alt-coding"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+            "valueString" : "L"
+          } ],
+          "system" : "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+          "code" : "OT",
+          "display" : "OTHER RELATIONSHIP"
+        } ]
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.7"
+        } ],
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString" : "coding"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+            "valueString" : "HL70063"
+          } ],
+          "code" : "ASC",
+          "display" : "Associate"
+        } ]
+      } ],
+      "name" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.30"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+          "extension" : [ {
+            "url" : "XPN.7",
+            "valueString" : "L"
+          } ]
+        } ],
+        "use" : "official",
+        "family" : "Plato"
+      } ],
+      "telecom" : [ {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+          "valueString" : "1"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+          "valueString" : "720"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+          "valueString" : "3013954"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+          "extension" : [ {
+            "url" : "XTN.2",
+            "valueString" : "PRN"
+          }, {
+            "url" : "XTN.3",
+            "valueString" : "PH"
+          }, {
+            "url" : "XTN.7",
+            "valueString" : "3013954"
+          }, {
+            "url" : "XTN.12",
+            "valueString" : "+1 720 301 3954"
+          } ]
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.5"
+        } ],
+        "system" : "phone",
+        "value" : "+1 720 301 3954",
+        "use" : "home"
+      }, {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+          "valueString" : "1"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+          "valueString" : "555"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+          "valueString" : "4672293"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+          "extension" : [ {
+            "url" : "XTN.2",
+            "valueString" : "WPN"
+          }, {
+            "url" : "XTN.3",
+            "valueString" : "PH"
+          }, {
+            "url" : "XTN.7",
+            "valueString" : "4672293"
+          }, {
+            "url" : "XTN.12",
+            "valueString" : "+1 555 467 2293"
+          } ]
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.6"
+        } ],
+        "system" : "phone",
+        "value" : "+1 555 467 2293",
+        "use" : "work"
+      }, {
+        "extension" : [ {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+          "valueString" : "1"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+          "valueString" : "720"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+          "valueString" : "3013954"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+          "extension" : [ {
+            "url" : "XTN.2",
+            "valueString" : "WPN"
+          }, {
+            "url" : "XTN.3",
+            "valueString" : "PH"
+          }, {
+            "url" : "XTN.7",
+            "valueString" : "3013954"
+          }, {
+            "url" : "XTN.12",
+            "valueString" : "+1 720 301 3954"
+          } ]
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.31"
+        } ],
+        "system" : "phone",
+        "value" : "+1 720 301 3954",
+        "use" : "work"
+      } ],
+      "birthDate" : "2010-06-22",
+      "address" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.4"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+            "extension" : [ {
+              "url" : "SAD.1",
+              "valueString" : "4861 20TH AVE"
+            } ]
+          }, {
+            "url" : "XAD.7",
+            "valueCode" : "H"
+          } ]
+        } ],
+        "use" : "home",
+        "line" : [ "4861 20TH AVE" ],
+        "city" : "THUNDER MOUNTAIN",
+        "state" : "NV",
+        "postalCode" : "99999",
+        "country" : "USA"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "NK1.32"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+            "extension" : [ {
+              "url" : "SAD.1",
+              "valueString" : "4861 20TH AVE"
+            } ]
+          }, {
+            "url" : "XAD.7",
+            "valueCode" : "H"
+          } ]
+        } ],
+        "use" : "home",
+        "line" : [ "4861 20TH AVE" ],
+        "city" : "AURORA",
+        "state" : "IG",
+        "postalCode" : "99999",
+        "country" : "USA"
+      } ],
+      "period" : {
+        "start" : "2022-05-01T10:25:31-04:00",
+        "_start" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+            "valueString" : "20220501102531-0400"
+          } ]
+        },
+        "end" : "2023-05-01T10:25:31-04:00",
+        "_end" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+            "valueString" : "20230501102531-0400"
+          } ]
+        }
+      }
+    }
+  }, {
+    "fullUrl" : "Organization/1710883384531129000.27493f13-cc7c-4cd0-9149-7dc4f48d1c97",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1710883384531129000.27493f13-cc7c-4cd0-9149-7dc4f48d1c97",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCoding" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueCodeableConcept" : {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString" : "XON.2"
+              } ],
+              "coding" : [ {
+                "extension" : [ {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                }, {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                } ],
+                "system" : "http://loinc.org",
+                "version" : "1",
+                "code" : "1234-5",
+                "display" : "TestText"
+              }, {
+                "extension" : [ {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "alt-coding"
+                }, {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                } ],
+                "system" : "http://loinc.org",
+                "version" : "2",
+                "code" : "1234-5",
+                "display" : "TestAltText"
+              } ],
+              "text" : "OriginalText"
+            }
+          } ],
+          "system" : "LN",
+          "version" : "1",
+          "code" : "1234-5",
+          "display" : "TestText"
+        }
+      } ],
+      "name" : "Org"
+    }
+  }, {
+    "fullUrl" : "Organization/1710883384533749000.ec4ca262-70b0-460e-8377-012811de5814",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1710883384533749000.ec4ca262-70b0-460e-8377-012811de5814",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCoding" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueCodeableConcept" : {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString" : "XON.2"
+              } ],
+              "coding" : [ {
+                "extension" : [ {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                }, {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                } ],
+                "system" : "http://loinc.org",
+                "version" : "1",
+                "code" : "6789-0",
+                "display" : "TestText2"
+              }, {
+                "extension" : [ {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "alt-coding"
+                }, {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                } ],
+                "system" : "http://loinc.org",
+                "version" : "2",
+                "code" : "9876-5",
+                "display" : "TestAltText2"
+              } ],
+              "text" : "OriginalText2"
+            }
+          } ],
+          "system" : "LN",
+          "version" : "1",
+          "code" : "6789-0",
+          "display" : "TestText2"
+        }
+      } ],
+      "name" : "Org2"
+    }
+  } ]
+}

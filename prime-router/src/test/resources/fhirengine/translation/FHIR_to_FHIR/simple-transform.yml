@@ -1,0 +1,10 @@
+elements:
+  - name: sft-3-software-name
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.software'
+    value: [ '"Purple PRIME ReportStream"' ]
+
+  - name: sft-2-software-version
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.version'
+    value: [ '"0.2-YELLOW"' ]

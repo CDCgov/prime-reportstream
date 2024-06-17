@@ -19,7 +19,7 @@ jobs:
       enable_builds: 'true'
     steps:
       - name: Check out changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
         with:
           fetch-depth: 0
       - name: Build vars
@@ -36,7 +36,7 @@ jobs:
         working-directory: prime-router
     steps:
       - name: Check out changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - name: Build backend
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
         uses: ./.github/actions/build-backend
@@ -53,7 +53,7 @@ jobs:
         working-directory: frontend-react
     steps:
       - name: Check out changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - name: Build frontend
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
         uses: ./.github/actions/build-frontend
@@ -62,6 +62,12 @@ jobs:
           appinsights-staging-key: ${{ secrets.APPINSIGHTS_STAGING_KEY }}
           appinsights-prod-key: ${{ secrets.APPINSIGHTS_PROD_KEY }}
           version: ${{ needs.wf_vars.outputs.version }}
+          test-admin-user: ${{ secrets.TEST_ADMIN_USERNAME }}
+          test-admin-password: ${{ secrets.TEST_ADMIN_PASSWORD }}
+          test-sender-user: ${{ secrets.TEST_SENDER_USERNAME }}
+          test-sender-password: ${{ secrets.TEST_SENDER_PASSWORD }}
+          test-receiver-user: ${{ secrets.TEST_RECEIVER_USERNAME }}
+          test-receiver-password: ${{ secrets.TEST_RECEIVER_PASSWORD }}
 
   publish_github_release:
     name: Publish to Github
@@ -72,18 +78,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
         with:
           fetch-depth: 0
       - name: Download router artifact
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
-        uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe
+        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
         with:
           name: prime-router-build-${{ needs.wf_vars.outputs.version }}
           path: archives/
       - name: Download frontend artifact
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
-        uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe
+        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
         with:
           name: static-website-react-${{ needs.wf_vars.outputs.version }}
           path: archives/
@@ -91,7 +97,7 @@ jobs:
         if: |
           ${{ needs.wf_vars.outputs.env_name == 'staging' }} ||
           ${{ needs.wf_vars.outputs.env_name == 'prod' }}
-        uses: dev-drprasad/delete-older-releases@5494cd8b61c31b3c7a15f6267901195ec7df64e8
+        uses: dev-drprasad/delete-older-releases@dfbe6be2a006e9475dfcbe5b8d201f1824c2a9fe
         with:
           keep_latest: 0
           delete_tags: true
@@ -108,7 +114,7 @@ jobs:
           prerelease: ${{ needs.wf_vars.outputs.prerelease }}
       - name: Build changelog
         id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@5f3409748e2230350e149a7f7b5b8e9bcd785d44
+        uses: mikepenz/release-changelog-builder-action@32e3c96f29a6532607f638797455e9e98cfc703d
         with:
           configuration: '.github/changelog_config.json'
           # Allow changelog tests in forks
@@ -126,7 +132,7 @@ jobs:
           prerelease: ${{ needs.wf_vars.outputs.prerelease }}
       - name: Delete older releases
         if: ${{ needs.wf_vars.outputs.env_name == 'prod' }}
-        uses: dev-drprasad/delete-older-releases@5494cd8b61c31b3c7a15f6267901195ec7df64e8
+        uses: dev-drprasad/delete-older-releases@dfbe6be2a006e9475dfcbe5b8d201f1824c2a9fe
         with:
           keep_latest: 24
           delete_tags: false

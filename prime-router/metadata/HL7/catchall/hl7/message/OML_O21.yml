@@ -1,0 +1,48 @@
+resources:
+
+  - resourceName: MessageHeader
+    segment: MSH
+    resourcePath: segments/MSH/MessageHeader
+    repeats: false
+    isReferenced: false
+
+  - resourceName: Patient
+    segment: .PID
+    group: PATIENT
+    resourcePath: segments/PID/Patient
+    isReferenced: true
+    repeats: false
+
+  - resourceName: ServiceRequest
+    segment: .ORC
+    group: ORDER
+    resourcePath: segments/ORC/ServiceRequest
+    repeats: true
+    isReferenced: true
+    additionalSegments:
+      - .OBSERVATION_REQUEST.OBR
+      - .OBSERVATION_REQUEST.NTE
+      - PATIENT.PATIENT_VISIT.PV1
+      - MSH
+      - PATIENT.PID
+
+  - resourceName: Observation
+    segment: .OBSERVATION_REQUEST.OBSERVATION.OBX
+    group: ORDER
+    resourcePath: segments/OBX/Observation
+    repeats: true
+    isReferenced: true
+    additionalSegments:
+      - .ORC
+      - .OBSERVATION_REQUEST.OBR
+      - .OBSERVATION_REQUEST.OBSERVATION.NTE
+      - MSH
+
+  - resourceName: Specimen
+    segment: SPECIMEN.SPM
+    group: ORDER.OBSERVATION_REQUEST
+    resourcePath: segments/SPM/Specimen
+    repeats: true
+    isReferenced: true
+    additionalSegments:
+      - MSH

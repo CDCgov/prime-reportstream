@@ -1,19 +1,30 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
-import { FacilityResource } from "../../../config/endpoints/dataDashboard";
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
+import FacilitiesProvidersTable from "./FacilitiesProvidersTable";
+import { makeRSReceiverSubmitterResponseFixture } from "../../../__mockServers__/DataDashboardMockServer";
 import {
     orgServer,
     receiversGenerator,
-} from "../../../__mocks__/OrganizationMockServer";
-import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
-import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
-import { makeRSReceiverSubmitterResponseFixture } from "../../../__mocks__/DataDashboardMockServer";
-import { mockUseReceiverSubmitter } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverSubmitter";
+} from "../../../__mockServers__/OrganizationMockServer";
+import { FacilityResource } from "../../../config/endpoints/dataDashboard";
+import useReceiverSubmitter from "../../../hooks/api/deliveries/UseReceiverSubmitters/UseReceiverSubmitters";
+import useOrganizationReceivers from "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers";
+import { filterManagerFixture } from "../../../hooks/filters/filters.fixtures";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 
-import FacilitiesProvidersTable from "./FacilitiesProvidersTable";
+vi.mock(
+    "../../../hooks/api/deliveries/UseReceiverSubmitters/UseReceiverSubmitters",
+);
+vi.mock(
+    "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers",
+);
+
+const mockUseReceiverSubmitter = vi.mocked(useReceiverSubmitter);
+const mockUseOrganizationReceivers = vi.mocked(useOrganizationReceivers);
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../../contexts/Session/__mocks__/useSessionContext")
+>("../../../contexts/Session/useSessionContext");
 
 const mockData: FacilityResource[] = [
     {
@@ -41,9 +52,10 @@ const mockData: FacilityResource[] = [
 
 const mockReceivers = receiversGenerator(5);
 const mockActiveReceiver = mockReceivers[0];
+const mockFilterManager = { ...filterManagerFixture };
 
-jest.mock("rest-hooks", () => ({
-    ...jest.requireActual("rest-hooks"),
+vi.mock("rest-hooks", async (importActual) => ({
+    ...(await importActual<typeof import("rest-hooks")>()),
     useResource: () => {
         return mockData;
     },
@@ -57,19 +69,18 @@ jest.mock("rest-hooks", () => ({
     },
 }));
 
-describe("FacilitiesProvidersTable", () => {
+describe("useOrganizationReceiversFeed", () => {
     beforeAll(() => orgServer.listen());
     afterEach(() => orgServer.resetHandlers());
     afterAll(() => orgServer.close());
 
-    describe("useOrganizationReceiversFeed without data", () => {
+    describe("useOrganizationReceivers without data", () => {
         function setup() {
             // Mock our receiverServices feed data
-            mockUseOrganizationReceiversFeed.mockReturnValue({
-                activeService: undefined,
+            mockUseOrganizationReceivers.mockReturnValue({
+                allReceivers: [],
+                activeReceivers: [],
                 isLoading: false,
-                data: [],
-                setActiveService: () => {},
                 isDisabled: false,
             } as any);
 
@@ -117,12 +128,10 @@ describe("FacilitiesProvidersTable", () => {
 describe("FacilitiesProvidersTable", () => {
     describe("with receiver services and data", () => {
         function setup() {
-            mockUseOrganizationReceiversFeed.mockReturnValue({
-                activeService: mockActiveReceiver,
+            mockUseOrganizationReceivers.mockReturnValue({
+                allReceivers: [mockActiveReceiver],
+                activeReceivers: [mockActiveReceiver],
                 isLoading: false,
-                data: mockReceivers,
-                setActiveService: () => {},
-                isDisabled: false,
             } as any);
 
             // Mock our SessionProvider's data
@@ -156,7 +165,7 @@ describe("FacilitiesProvidersTable", () => {
             renderApp(<FacilitiesProvidersTable />);
         }
 
-        test("renders with no error", async () => {
+        test("renders with no error", () => {
             setup();
             // Column headers render
             expect(screen.getByText("Name")).toBeInTheDocument();
@@ -167,7 +176,7 @@ describe("FacilitiesProvidersTable", () => {
             ).toBeInTheDocument();
         });
 
-        test("renders Facility type column with transformed name", async () => {
+        test("renders Facility type column with transformed name", () => {
             setup();
             expect(screen.getAllByText("SUBMITTER")[0]).toBeInTheDocument();
         });

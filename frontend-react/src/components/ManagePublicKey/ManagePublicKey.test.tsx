@@ -1,19 +1,21 @@
-import { screen, fireEvent, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-
-import { renderApp } from "../../utils/CustomRenderUtils";
-import * as useCreateOrganizationPublicKeyExports from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
-import { UseCreateOrganizationPublicKeyResult } from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
-import { RSSender } from "../../config/endpoints/settings";
-import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
-import * as useOrganizationPublicKeysExports from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
-import { UseOrganizationPublicKeysResult } from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
-import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
-import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
-import { MemberType } from "../../utils/OrganizationUtils";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
 
 import { ManagePublicKeyPage } from "./ManagePublicKey";
+import { sendersGenerator } from "../../__mockServers__/OrganizationMockServer";
+import { RSSender } from "../../config/endpoints/settings";
+import * as useCreateOrganizationPublicKeyExports from "../../hooks/api/organizations/UseCreateOrganizationPublicKey/UseCreateOrganizationPublicKey";
+import { UseCreateOrganizationPublicKeyResult } from "../../hooks/api/organizations/UseCreateOrganizationPublicKey/UseCreateOrganizationPublicKey";
+import * as useOrganizationPublicKeysExports from "../../hooks/api/organizations/UseOrganizationPublicKeys/UseOrganizationPublicKeys";
+import { UseOrganizationPublicKeysResult } from "../../hooks/api/organizations/UseOrganizationPublicKeys/UseOrganizationPublicKeys";
+import * as useOrganizationSendersExports from "../../hooks/api/organizations/UseOrganizationSenders/UseOrganizationSenders";
+import { UseOrganizationSendersResult } from "../../hooks/api/organizations/UseOrganizationSenders/UseOrganizationSenders";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import { MemberType } from "../../utils/OrganizationUtils";
+
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
 
 const DEFAULT_SENDERS: RSSender[] = sendersGenerator(2);
 
@@ -50,11 +52,11 @@ describe("ManagePublicKey", () => {
     function mockUseCreateOrganizationPublicKey(
         result: Partial<UseCreateOrganizationPublicKeyResult>,
     ) {
-        jest.spyOn(
+        vi.spyOn(
             useCreateOrganizationPublicKeyExports,
             "default",
         ).mockReturnValue({
-            mutateAsync: jest.fn(),
+            mutateAsync: vi.fn(),
             ...result,
         } as UseCreateOrganizationPublicKeyResult);
     }
@@ -62,7 +64,7 @@ describe("ManagePublicKey", () => {
     function mockUseOrganizationSenders(
         result: Partial<UseOrganizationSendersResult> = {},
     ) {
-        jest.spyOn(useOrganizationSendersExports, "default").mockReturnValue({
+        vi.spyOn(useOrganizationSendersExports, "default").mockReturnValue({
             data: DEFAULT_SENDERS,
             ...result,
         } as UseOrganizationSendersResult);
@@ -71,12 +73,10 @@ describe("ManagePublicKey", () => {
     function mockUseOrganizationPublicKeys(
         result: Partial<UseOrganizationPublicKeysResult> = {},
     ) {
-        jest.spyOn(useOrganizationPublicKeysExports, "default").mockReturnValue(
-            {
-                data: { orgName: "elr-0", keys: [] },
-                ...result,
-            } as UseOrganizationPublicKeysResult,
-        );
+        vi.spyOn(useOrganizationPublicKeysExports, "default").mockReturnValue({
+            data: { orgName: "elr-0", keys: [] },
+            ...result,
+        } as UseOrganizationPublicKeysResult);
     }
 
     beforeEach(() => {
@@ -93,10 +93,6 @@ describe("ManagePublicKey", () => {
                 isUserTransceiver: false,
             } as any,
         });
-    });
-
-    afterEach(() => {
-        jest.resetAllMocks();
     });
 
     describe("when the Organization has more than one Sender", () => {
@@ -135,7 +131,7 @@ describe("ManagePublicKey", () => {
                     await userEvent.selectOptions(selectSender, ["elr-1"]);
                     expect(submit).toBeEnabled();
                 });
-                await waitFor(async () => {
+                await waitFor(() => {
                     // eslint-disable-next-line testing-library/no-wait-for-side-effects
                     fireEvent.submit(screen.getByTestId("form"));
                     expect(
@@ -204,7 +200,7 @@ describe("ManagePublicKey", () => {
             expect(screen.getByText("Submit")).toBeDisabled();
         });
 
-        test("shows the configured screen and displays a message to the user", async () => {
+        test("shows the configured screen and displays a message to the user", () => {
             setup();
             expect(
                 screen.getByText(/Your public key is already configured./),
@@ -241,7 +237,7 @@ describe("ManagePublicKey", () => {
                 await chooseFile(fakeFile);
                 expect(screen.getByText("Submit")).toBeVisible();
             });
-            await waitFor(async () => {
+            await waitFor(() => {
                 // eslint-disable-next-line testing-library/no-wait-for-side-effects
                 fireEvent.submit(screen.getByTestId("form"));
                 expect(

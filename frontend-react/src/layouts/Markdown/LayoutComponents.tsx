@@ -1,8 +1,7 @@
 import { ReactNode, useContext, useLayoutEffect } from "react";
 
-import { USSmartLink } from "../../components/USLink";
-
 import MarkdownLayoutContext from "./Context";
+import { USSmartLink } from "../../components/USLink";
 
 export const LayoutSidenav = ({ children }: { children: ReactNode }) => {
     const { setSidenavContent } = useContext(MarkdownLayoutContext);

@@ -2,15 +2,18 @@ package gov.cdc.prime.router.cli
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.github.ajalt.clikt.core.PrintMessage
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
+import io.ktor.client.HttpClient
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.io.IOException
 import java.net.URL
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 
 /**
  * Utilities for commands.
@@ -20,19 +23,24 @@ class CommandUtilities {
         /**
          * The API endpoint to check for.  This needs to be a simple operation.
          */
-        private const val waitForApiEndpointPath = "api/lookuptables/list"
+        const val waitForApiEndpointPath = "api/lookuptables/list"
 
         /**
          * Waits for the endpoint at [environment] to become available. This function will retry [retries] number of
          * times waiting [pollIntervalSecs] seconds between retries.
          * @throws IOException if a connection was not made
          */
-        internal fun waitForApi(environment: Environment, retries: Int = 30, pollIntervalSecs: Long = 1) {
+        internal fun waitForApi(
+            environment: Environment,
+            retries: Int = 30,
+            pollIntervalSecs: Long = 1,
+            httpClient: HttpClient? = null,
+        ) {
             val url = environment.formUrl(waitForApiEndpointPath)
             val accessToken = OktaCommand.fetchAccessToken(environment.oktaApp)
                 ?: error("Unable to obtain Okta access token for environment $environment")
             var retryCount = 0
-            while (!isEndpointAvailable(url, accessToken)) {
+            while (!isEndpointAvailable(url, accessToken, httpClient = httpClient)) {
                 retryCount++
                 if (retryCount > retries) {
                     throw IOException("Unable to connect to the API at $url")
@@ -46,25 +54,25 @@ class CommandUtilities {
         /**
          * Is the service running the environment
          */
-        internal fun isApiAvailable(environment: Environment): Boolean {
+        internal fun isApiAvailable(environment: Environment, httpClient: HttpClient? = null): Boolean {
             val url = environment.formUrl(waitForApiEndpointPath)
             val accessToken = OktaCommand.fetchAccessToken(environment.oktaApp)
                 ?: error("Unable to obtain Okta access token for environment $environment")
-            return isEndpointAvailable(url, accessToken)
+            return isEndpointAvailable(url, accessToken, httpClient = httpClient)
         }
 
         /**
          * Checks if the API can be connected to.
          * @return true is the API is available, false otherwise
          */
-        private fun isEndpointAvailable(url: URL, accessToken: String): Boolean {
-            val (_, _, result) = Fuel.head(url.toString())
-                .authentication()
-                .bearer(accessToken)
-                .response()
-            return when (result) {
-                is Result.Success -> true
-                else -> false
+        private fun isEndpointAvailable(url: URL, accessToken: String, httpClient: HttpClient? = null): Boolean {
+            return runBlocking {
+                val response = HttpClientUtils.head(
+                    url.toString(),
+                    accessToken = accessToken,
+                    httpClient = httpClient
+                )
+                response.status == HttpStatusCode.OK
             }
         }
 
@@ -90,6 +98,7 @@ class CommandUtilities {
                             walkTree(element, "$path[$index]", visitor)
                         }
                     }
+
                     node.isObject -> {
                         val parentPath = if (path.isBlank()) "" else "$path."
                         node.fields().forEach { entry ->

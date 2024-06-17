@@ -1,0 +1,120 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "1710799013369396000.d2a6255d-bcda-4f6d-97e0-5a38b87cb98b",
+  "meta" : {
+    "lastUpdated" : "2024-03-18T15:56:53.379-06:00"
+  },
+  "identifier" : {
+    "system" : "https://reportstream.cdc.gov/prime-router",
+    "value" : "20230816123358"
+  },
+  "type" : "message",
+  "timestamp" : "2023-08-16T11:33:58.000-06:00",
+  "entry" : [ {
+    "fullUrl" : "MessageHeader/bb504ecd-c2ab-3be3-91d8-6065e2bce435",
+    "resource" : {
+      "resourceType" : "MessageHeader",
+      "id" : "bb504ecd-c2ab-3be3-91d8-6065e2bce435",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+        "valueString" : "^~\\&#"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
+        "extension" : [ {
+          "url" : "MSH.7",
+          "valueString" : "20230816123358-0500"
+        } ]
+      } ],
+      "eventCoding" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+        "code" : "R01",
+        "display" : "ORU^R01^ORU_R01"
+      }
+    }
+  }, {
+    "fullUrl" : "Provenance/1710799014071745000.34cb813e-258e-47f2-a62b-0f1b36bf0ab5",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1710799014071745000.34cb813e-258e-47f2-a62b-0f1b36bf0ab5",
+      "target" : [ {
+        "reference" : "MessageHeader/bb504ecd-c2ab-3be3-91d8-6065e2bce435"
+      } ],
+      "recorded" : "2023-08-16T12:33:58-05:00",
+      "activity" : {
+        "coding" : [ {
+          "display" : "ORU^R01^ORU_R01"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Provenance/1710799014086308000.e3479a5e-a274-4e74-986c-1a6ffe924d9e",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1710799014086308000.e3479a5e-a274-4e74-986c-1a6ffe924d9e",
+      "recorded" : "2024-03-18T15:56:54Z",
+      "policy" : [ "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle" ],
+      "activity" : {
+        "coding" : [ {
+          "code" : "v2-FHIR transformation"
+        } ]
+      },
+      "agent" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+            "code" : "assembler"
+          } ]
+        },
+        "who" : {
+          "reference" : "Organization/1710799014085088000.b1dc6465-14df-45e5-848a-b704d101b894"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/1710799014085088000.b1dc6465-14df-45e5-848a-b704d101b894",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1710799014085088000.b1dc6465-14df-45e5-848a-b704d101b894",
+      "identifier" : [ {
+        "value" : "CDC PRIME - Atlanta"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
+          } ]
+        },
+        "system" : "urn:ietf:rfc:3986",
+        "value" : "2.16.840.1.114222.4.1.237821"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Patient/1710799014118165000.d4161d17-ffd2-4f77-a5ce-a120023df1b6",
+    "resource" : {
+      "resourceType" : "Patient",
+      "id" : "1710799014118165000.d4161d17-ffd2-4f77-a5ce-a120023df1b6",
+      "deceasedDateTime" : "2023-11-02T11:04:00Z",
+      "_deceasedDateTime" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+          "valueString" : "202311021104"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Provenance/1710799014119561000.a3e6ed1e-2b5e-436d-9b4a-95dc9db5229f",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1710799014119561000.a3e6ed1e-2b5e-436d-9b4a-95dc9db5229f",
+      "target" : [ {
+        "reference" : "Patient/1710799014118165000.d4161d17-ffd2-4f77-a5ce-a120023df1b6"
+      } ],
+      "recorded" : "2024-03-18T15:56:54Z",
+      "activity" : {
+        "coding" : [ {
+          "system" : "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
+          "code" : "UPDATE"
+        } ]
+      }
+    }
+  } ]
+}

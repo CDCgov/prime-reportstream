@@ -12,10 +12,9 @@ inputs:
 runs:
   using: composite
   steps:
-
     - name: Run Default SonarCloud Scan
       if: inputs.scan-level == 'default'
-      uses: sonarsource/sonarcloud-github-action@49e6cd3b187936a73b8280d59ffd9da69df63ec9
+      uses: sonarsource/sonarcloud-github-action@4006f663ecaf1f8093e8e4abb9227f6041f52216
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         SONAR_TOKEN: ${{ inputs.sonar-token }}
@@ -26,13 +25,14 @@ runs:
           -Dsonar.sources=frontend-react/src,prime-router/src
           -Dsonar.projectKey=CDCgov_prime-data-hub
           -Dsonar.organization=cdcgov
+          -Dsonar.java.binaries=prime-router/build/classes/java/main,prime-router/build/classes/kotlin/main
           -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
           -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
           -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
 
     - name: Run Frontend SonarCloud Scan
       if: inputs.scan-level == 'frontend'
-      uses: sonarsource/sonarcloud-github-action@49e6cd3b187936a73b8280d59ffd9da69df63ec9
+      uses: sonarsource/sonarcloud-github-action@4006f663ecaf1f8093e8e4abb9227f6041f52216
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         SONAR_TOKEN: ${{ inputs.sonar-token }}
@@ -46,10 +46,11 @@ runs:
           -Dsonar.organization=cdcgov
           -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
           -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
+          -Dsonar.exclusions=prime-router/src/main/java/**
 
     - name: Run Backend SonarCloud Scan
       if: inputs.scan-level == 'backend'
-      uses: sonarsource/sonarcloud-github-action@49e6cd3b187936a73b8280d59ffd9da69df63ec9
+      uses: sonarsource/sonarcloud-github-action@4006f663ecaf1f8093e8e4abb9227f6041f52216
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         SONAR_TOKEN: ${{ inputs.sonar-token }}
@@ -60,5 +61,6 @@ runs:
           -Dsonar.sources=prime-router/src,frontend-react/src
           -Dsonar.projectKey=CDCgov_prime-data-hub
           -Dsonar.organization=cdcgov
+          -Dsonar.java.binaries=prime-router/build/classes/java/main,prime-router/build/classes/kotlin/main
           -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
           -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml

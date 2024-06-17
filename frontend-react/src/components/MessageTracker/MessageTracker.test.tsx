@@ -1,10 +1,11 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { MOCK_MESSAGE_SENDER_DATA } from "../../__mocks__/MessageTrackerMockServer";
-import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
-
 import { MessageTracker } from "./MessageTracker";
+import { MOCK_MESSAGE_SENDER_DATA } from "../../__mockServers__/MessageTrackerMockServer";
+import useMessageSearch from "../../hooks/api/messages/UseMessageSearch/UseMessageSearch";
+import { renderApp } from "../../utils/CustomRenderUtils";
+
+vi.mock("../../hooks/api/messages/UseMessageSearch/UseMessageSearch");
 
 const mockUseMessageSearchInitial = {
     mutateAsync: () => Promise.resolve(MOCK_MESSAGE_SENDER_DATA),
@@ -12,16 +13,7 @@ const mockUseMessageSearchInitial = {
     error: null,
 };
 
-jest.mock<
-    typeof import("../../hooks/network/MessageTracker/MessageTrackerHooks")
->("../../hooks/network/MessageTracker/MessageTrackerHooks", () => ({
-    ...jest.requireActual(
-        "../../hooks/network/MessageTracker/MessageTrackerHooks",
-    ),
-    useMessageSearch: jest.fn(),
-}));
-
-const mockUseMessageSearch = jest.mocked(useMessageSearch);
+const mockUseMessageSearch = vi.mocked(useMessageSearch);
 
 describe("MessageTracker component", () => {
     function setup() {
@@ -79,13 +71,13 @@ describe("MessageTracker component", () => {
         const rows = await screen.findAllByRole("row");
         expect(rows).toHaveLength(4); // 2 warnings + header
 
-        const firstCells = await within(rows[1]).findAllByRole("cell");
+        const firstCells = await within(rows[1]).findAllByRole("link");
         expect(firstCells[0]).toHaveTextContent("12-234567");
 
-        const secondCells = await within(rows[2]).findAllByRole("cell");
+        const secondCells = await within(rows[2]).findAllByRole("link");
         expect(secondCells[0]).toHaveTextContent("12-234567");
 
-        const thirdCells = await within(rows[3]).findAllByRole("cell");
+        const thirdCells = await within(rows[3]).findAllByRole("link");
         expect(thirdCells[0]).toHaveTextContent("12-234567");
     });
 

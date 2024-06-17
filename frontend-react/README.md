@@ -12,9 +12,9 @@ Use the directions here to install nvm: https://github.com/nvm-sh/nvm#install--u
 Then:
 
 ```bash
-nvm install 18.15.x # refer to nvmrc for exact current version
-node -v # v18.15.x
-npm -v # v9.5.x
+nvm install 20.x.x # refer to nvmrc for exact current version
+node -v # v20.x.x
+npm -v # v10.2.x
 
 npm install --global yarn
 ```
@@ -27,7 +27,7 @@ and use `yarn` to serve it on `localhost:3000`
 ```bash
 cd ../frontend-react
 yarn
-yarn start:localdev
+yarn run dev
 ```
 
 ### Refreshing & stopping
@@ -47,14 +47,17 @@ for any error status codes.
 ```bash
 yarn # Will install all dependencies in package.json
 
-yarn start:localdev # Runs the React app use for localdev
-yarn build:staging # Builds the React app for staging
-yarn build:production # Builds the React app for production
+yarn run dev # Runs the React app use for localdev
+yarn run build:staging # Builds the React app for staging
+yarn run build:production # Builds the React app for production
 
 yarn run storybook # Runs a local instance of Storybook showcase of all of the components within our .stories files
 
-yarn lint # Runs the front-end linter
-yarn lint:write # Runs the front-end linter and fixes style errors
+yarn run lint # Runs the front-end linter
+yarn run lint:fix # Runs the front-end linter and fixes style errors
+
+yarn run test:e2e-ui # Runs a local instance of Playwright UI where you can view and run the e2e tests
+CI=true yarn run test:e2e-ui # Runs a local instance of Playwright UI that mimics Github integration
 ```
 
 ## Static build info
@@ -80,10 +83,8 @@ CSP
 
 To use it:
 
-1. Build using yarn command `build:dev:csp`
-2. Local server-side env must be running locally on port 7071
-3. Run using yarn command `run:build-dir`
-4. Open browser debugger and watch console for errors/warnings as you use the site.
+1. Build and run using yarn command `preview:build:csp`
+2. Open browser debugger and watch console for errors/warnings as you use the site.
 
 Example error would look like this:
 
@@ -97,10 +98,6 @@ index.js:2 Refused to apply inline style because it violates the
  style attributes and javascript: navigations unless the 'unsafe-hashes' keyword is present.
 ```
 
-(FYI. The error is on `index.js:2` because minification removes line feeds.)
-
-NOTE: This only works `run:build-dir` because webpack's dynamic runtime updating does injection that violates CSP
-
 ## Chromatic and CI Autobuilds
 
 [Chromatic](https://www.chromatic.com/) is a tool for hosting and publishing different versions of a given repository's Storybook. We use Chromatic to host an up-to-date version of all of our Storybook components (any file that ends with `**.stories.tsx` syntax) so that our non-technical folks can see all of our components on the web. All of our CI Autobuild Github workflows can be found in both `.github/workflows/chromatic-master.yml` and `.github/workflows/chromatic-pr.yml`.
@@ -108,6 +105,47 @@ NOTE: This only works `run:build-dir` because webpack's dynamic runtime updating
 `.github/workflows/chromatic-master.yml` triggers a Chromatic build anytime a PR gets merged into our `master` branch.
 
 `.github/workflows/chromatic-pr.yml` triggers a Chromatic build anytime a file with `// AutoUpdateFileChromatic` comment on its FIRST LINE is checked in to a PR. The goal here is to automatically update our Chromatic anytime a file that has an associated Storybook is modified.
+
+=======
+
+## Running the e2e tests
+
+[Playwright](https://playwright.dev/) is the framework used to create and run our e2e tests.
+
+To get started you will need to create three separate OKTA users. An admin, sender, and receiver.
+
+1. Assign the admin, sender, and receiver users to the Test Users Group
+2. Assign the sender user to the DHSender_ignore Group.
+3. Assign the receiver user to the DHak-phd Group and make sure that you have data locally to support that organization.
+4. Create a `.env.test.local` file within frontend-react and add the following properties along with the values created from step #1:
+
+```
+TEST_ADMIN_USERNAME=""
+TEST_ADMIN_PASSWORD=""
+TEST_ADMIN_TOTP_CODE=""
+
+TEST_SENDER_USERNAME=""
+TEST_SENDER_PASSWORD=""
+TEST_SENDER_TOTP_CODE=""
+
+TEST_RECEIVER_USERNAME=""
+TEST_RECEIVER_PASSWORD=""
+TEST_RECEIVER_TOTP_CODE=""
+```
+
+_Check with an Okta administrator on the usage of the TOTP code_
+
+```bash
+npx playwright install # Installs supported default browsers
+
+npx playwright install-deps # Installs system dependencies
+
+yarn run test:e2e-ui # Runs a local instance of Playwright UI where you can view and run the e2e tests
+
+CI=true yarn run test:e2e-ui # Runs a local instance of Playwright UI that mimics Github integration
+```
+
+Currently, the tests are running each time a pull request is made and must pass before the pull request can be merged into master.
 
 ## CSS Norms
 

@@ -1,10 +1,9 @@
 import { fireEvent, screen } from "@testing-library/react";
-import React, { useState } from "react";
-
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { ProcessingType } from "../../utils/TemporarySettingsAPITypes";
+import { useState } from "react";
 
 import { DropdownComponent, DropdownProps } from "./AdminFormEdit";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import { ProcessingType } from "../../utils/TemporarySettingsAPITypes";
 
 const DropdownComponentHelper = () => {
     const [state, setState] = useState("");
@@ -40,11 +39,13 @@ describe("Render DropdownComponent", () => {
         expect(screen.getByText("tooltip")).toBeInTheDocument();
     });
 
-    test("test savefunc", () => {
+    test("savefunc", () => {
         setup();
         fireEvent.change(screen.getByRole("combobox"), {
             target: { value: ProcessingType.SYNC },
         });
-        expect(screen.getByText(`${ProcessingType.SYNC} value saved`));
+        expect(
+            screen.getByText(`${ProcessingType.SYNC} value saved`),
+        ).toBeInTheDocument();
     });
 });

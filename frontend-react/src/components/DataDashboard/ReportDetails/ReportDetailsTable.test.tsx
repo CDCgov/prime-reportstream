@@ -1,21 +1,25 @@
-import { screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-
-import { renderApp } from "../../../utils/CustomRenderUtils";
-import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
-import { makeFacilityFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
-import {
-    mockAppInsights,
-    mockAppInsightsContextReturnValue,
-} from "../../../contexts/__mocks__/AppInsightsContext";
+import { screen } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
 
 import ReportDetailsTable from "./ReportDetailsTable";
+import { makeFacilityFixtureArray } from "../../../__mockServers__/DeliveriesMockServer";
+import useReportsFacilities from "../../../hooks/api/deliveries/UseReportFacilities/UseReportFacilities";
+import useAppInsightsContext from "../../../hooks/UseAppInsightsContext/UseAppInsightsContext";
+import { renderApp } from "../../../utils/CustomRenderUtils";
+import { selectDatesFromRange } from "../../../utils/TestUtils";
+
+vi.mock(
+    "../../../hooks/api/deliveries/UseReportFacilities/UseReportFacilities",
+);
+
+const mockUseAppInsightsContext = vi.mocked(useAppInsightsContext);
+const mockAppInsights = mockUseAppInsightsContext();
+const mockUseReportFacilities = vi.mocked(useReportsFacilities);
 
 const TEST_ID = "123";
 
 describe("ReportDetailsTable", () => {
     test("url param (reportId) feeds into network hook", () => {
-        mockAppInsightsContextReturnValue();
         mockUseReportFacilities.mockReturnValue({
             data: [],
         } as any);
@@ -25,7 +29,6 @@ describe("ReportDetailsTable", () => {
 
     describe("with data", () => {
         function setup() {
-            mockAppInsightsContextReturnValue();
             const mockUseReportFacilitiesCallback = {
                 data: makeFacilityFixtureArray(10),
             };
@@ -58,18 +61,17 @@ describe("ReportDetailsTable", () => {
         describe("TableFilter", () => {
             test("Clicking on filter invokes the trackAppInsightEvent", async () => {
                 setup();
-                await waitFor(async () => {
-                    await userEvent.click(screen.getByText("Filter"));
+                await selectDatesFromRange("20", "23");
+                await userEvent.click(screen.getByText("Filter"));
 
-                    expect(mockAppInsights.trackEvent).toBeCalledWith({
-                        name: "Report Details | Table Filter",
-                        properties: {
-                            tableFilter: {
-                                endRange: "3000-01-01T23:59:59.999Z",
-                                startRange: "2000-01-01T00:00:00.000Z",
-                            },
+                expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
+                    name: "Report Details | Table Filter",
+                    properties: {
+                        tableFilter: {
+                            endRange: "3000-01-23T23:59:59.999Z",
+                            startRange: "2000-01-20T00:00:00.000Z",
                         },
-                    });
+                    },
                 });
             });
         });
@@ -77,7 +79,6 @@ describe("ReportDetailsTable", () => {
 
     describe("without data", () => {
         function setup() {
-            mockAppInsightsContextReturnValue();
             const mockUseReportFacilitiesCallback = {
                 data: [],
             };

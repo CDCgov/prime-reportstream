@@ -1,12 +1,10 @@
-import { useResource } from "rest-hooks";
 import { ButtonGroup, Table } from "@trussworks/react-uswds";
-import React from "react";
+import { useResource } from "rest-hooks";
 
+import { DisplayMeta } from "./DisplayMeta";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import Spinner from "../Spinner";
 import { USLink, USNavLink } from "../USLink";
-
-import { DisplayMeta } from "./DisplayMeta";
 
 interface OrgSettingsTableProps {
     orgname: string;

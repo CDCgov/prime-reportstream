@@ -4,9 +4,9 @@ import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.AbstractMessage
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
+import fhirengine.utils.ReportStreamCanonicalModelClassFactory
 import org.apache.logging.log4j.kotlin.Logging
 
 /**
@@ -36,7 +36,7 @@ object HL7Utils : Logging {
                 // but the compiler does not know that, so we have to cast
                 @Suppress("UNCHECKED_CAST")
                 val context =
-                    DefaultHapiContext(CanonicalModelClassFactory(messageClass as Class<out Message>))
+                    DefaultHapiContext(ReportStreamCanonicalModelClassFactory(messageClass as Class<out Message>))
                 context.validationContext = ValidationContextFactory.noValidation()
                 val message = context.newMessage(messageClass)
                 message

@@ -16,6 +16,7 @@ locals {
     "RS_OKTA_redirect" = var.RS_okta_redirect_url
     "RS_OKTA_authkey"  = var.RS_OKTA_authKey
     "RS_OKTA_ClientId" = var.RS_OKTA_clientId
+    "ETOR_TI_baseurl"  = var.etor_ti_base_url
     # Manage client secrets via a Key Vault
     "CREDENTIAL_STORAGE_METHOD" = "AZURE"
     "CREDENTIAL_KEY_VAULT_NAME" = "${var.resource_prefix}-clientconfig"
@@ -121,15 +122,17 @@ locals {
     "POSTGRES_URL"         = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
     "POSTGRES_REPLICA_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql-replica.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
     # HHS Protect Storage Account
-    "PartnerStorage" = var.sa_partner_connection_string
-    "OKTA_scope"     = var.OKTA_scope
+    "PartnerStorage"                         = var.sa_partner_connection_string
+    "OKTA_scope"                             = var.OKTA_scope
+    "AzureFunctionsJobHost__functionTimeout" = " 01:00:00"
   })
 
   candidate_slot_settings = merge(local.all_app_settings, {
     "POSTGRES_URL"         = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub_candidate?sslmode=require"
     "POSTGRES_REPLICA_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql-replica.postgres.database.azure.com:5432/prime_data_hub_candidate?sslmode=require"
     # HHS Protect Storage Account
-    "PartnerStorage" = var.primary_connection_string
-    "OKTA_scope"     = var.OKTA_scope
+    "PartnerStorage"                         = var.primary_connection_string
+    "OKTA_scope"                             = var.OKTA_scope
+    "AzureFunctionsJobHost__functionTimeout" = " 01:00:00"
   })
 }

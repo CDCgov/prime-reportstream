@@ -1,0 +1,14 @@
+# $schema: ./../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+hl7Class: ca.uhn.hl7v2.model.v27.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+elements:
+  - name: message-header
+    condition: 'true'
+
+  - name: order-observation-base
+    required: false
+
+  - name: patient-result
+    required: false

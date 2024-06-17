@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import gov.cdc.prime.router.fhirengine.translation.hl7.ValueSetCollection
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElement
+import org.hl7.fhir.r4.model.Bundle
 import java.util.SortedMap
 
 /**
@@ -18,16 +19,11 @@ class FhirTransformSchema(
     elements: MutableList<FhirTransformSchemaElement> = mutableListOf(),
     constants: SortedMap<String, String> = sortedMapOf(),
     extends: String? = null,
-) : ConfigSchema<FhirTransformSchemaElement>(elements = elements, constants = constants, extends = extends) {
-    override fun override(overrideSchema: ConfigSchema<FhirTransformSchemaElement>):
-        ConfigSchema<FhirTransformSchemaElement> =
-        apply {
-            check(overrideSchema is FhirTransformSchema) {
-                "Child schema ${overrideSchema.name} not a FHIRTransformSchema."
-            }
-            super.override(overrideSchema)
-        }
-}
+) : ConfigSchema<Bundle, Bundle, FhirTransformSchema, FhirTransformSchemaElement>(
+    elements = elements,
+    constants = constants,
+    extends = extends
+)
 
 /**
  * A FHIR transform template (schema) element, the basic building block of a schema that describes a particular
@@ -70,7 +66,7 @@ class FhirTransformSchemaElement(
     valueSet: ValueSetCollection? = null,
     debug: Boolean = false,
     var bundleProperty: String? = null,
-) : ConfigSchemaElement(
+) : ConfigSchemaElement<Bundle, Bundle, FhirTransformSchemaElement, FhirTransformSchema>(
     name = name,
     condition = condition,
     required = required,
@@ -94,11 +90,9 @@ class FhirTransformSchemaElement(
         return super.validate()
     }
 
-    override fun merge(overwritingElement: ConfigSchemaElement): ConfigSchemaElement = apply {
-        check(overwritingElement is FhirTransformSchemaElement) {
-            "Overwriting element ${overwritingElement.name} was not a FHIRTransformSchemaElement."
+    override fun merge(overwritingElement: FhirTransformSchemaElement): FhirTransformSchemaElement =
+        apply {
+            overwritingElement.bundleProperty?.let { this.bundleProperty = overwritingElement.bundleProperty }
+            super.merge(overwritingElement)
         }
-        overwritingElement.bundleProperty?.let { this.bundleProperty = overwritingElement.bundleProperty }
-        super.merge(overwritingElement)
-    }
 }

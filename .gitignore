@@ -28,6 +28,7 @@ hs_err_pid*
 **/node_modules/**
 **/_site/**
 **/dist/**
+/yarn.lock
 
 # IDEA files
 **/.idea/**

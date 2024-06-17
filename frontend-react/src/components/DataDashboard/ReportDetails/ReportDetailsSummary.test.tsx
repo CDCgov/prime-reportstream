@@ -1,17 +1,18 @@
 import { screen } from "@testing-library/react";
 
+import { ReportDetailsSummary } from "./ReportDetailsSummary";
 import { renderApp } from "../../../utils/CustomRenderUtils";
-import { FileType } from "../../../utils/TemporarySettingsAPITypes";
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
+import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import {
     AccessTokenWithRSClaims,
     MemberType,
 } from "../../../utils/OrganizationUtils";
-import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
+import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 
-import { ReportDetailsSummary } from "./ReportDetailsSummary";
-
-const mockGetUser = jest.fn();
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../../contexts/Session/__mocks__/useSessionContext")
+>("../../../contexts/Session/useSessionContext");
+const mockGetUser = vi.fn();
 
 const currentDate = new Date();
 const futureDate = new Date(currentDate.setDate(currentDate.getDate() + 1));
@@ -32,12 +33,11 @@ const DEFAULT_RSDELIVERY = {
 beforeEach(() => {
     // Mock our SessionProvider's data
     mockSessionContentReturnValue({
-        //@ts-ignore
         oktaAuth: {
             getUser: mockGetUser.mockResolvedValue({
                 email: "test@test.org",
             }),
-        },
+        } as any,
         authState: {
             isAuthenticated: true,
             accessToken: {
@@ -85,7 +85,10 @@ describe("ReportDetailsSummary", () => {
     test("Does not display the download button if the date has expired", () => {
         renderApp(
             <ReportDetailsSummary
-                report={{ ...DEFAULT_RSDELIVERY, expires: pastDate.toString() }}
+                report={{
+                    ...DEFAULT_RSDELIVERY,
+                    expires: pastDate.toISOString(),
+                }}
             />,
         );
 

@@ -26,12 +26,13 @@ function ServicesDropdown(props: Props) {
         <select
             className="usa-select"
             id="services-dropdown"
+            data-testid="services-dropdown"
             name="services-dropdown"
             defaultValue={props.active}
             onChange={(event) => props.chosenCallback(event.target.value)}
         >
             {props.services.map((service, idx) => (
-                <option key={`${service}.${idx}`} value={service.name}>
+                <option key={`${service.name}.${idx}`} value={service.name}>
                     {service.name}
                 </option>
             ))}

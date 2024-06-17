@@ -1,14 +1,12 @@
 /* Renders the header row of the table from columns.values() */
-import React from "react";
 import { Icon } from "@trussworks/react-uswds";
 
-import { FilterManager } from "../../hooks/filters/UseFilterManager";
+import { ColumnConfig, TableConfig } from "./Table";
+import { FilterManager } from "../../hooks/filters/UseFilterManager/UseFilterManager";
 import {
     SortOrder,
     SortSettingsActionType,
-} from "../../hooks/filters/UseSortOrder";
-
-import { ColumnConfig, TableConfig } from "./Table";
+} from "../../hooks/filters/UseSortOrder/UseSortOrder";
 
 interface TableHeaderProps {
     config: TableConfig;
@@ -25,7 +23,7 @@ export const TableHeaders = ({
         filterManager?.sortSettings.column === colConfig.dataAttr;
 
     const renderArrow = () => {
-        const { order, localOrder, locally } = filterManager?.sortSettings || {
+        const { order, localOrder, locally } = filterManager?.sortSettings ?? {
             order: "DESC",
             locally: false,
             localOrder: "DESC",

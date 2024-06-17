@@ -1,8 +1,7 @@
 import { screen, within } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import { QualityFilters } from "./QualityFilters";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("QualityFilters component", () => {
     test("renders expected content", async () => {

@@ -1,8 +1,7 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../utils/CustomRenderUtils";
-
 import Spinner from "./Spinner";
+import { renderApp } from "../utils/CustomRenderUtils";
 
 describe("Spinner", () => {
     test("default", () => {

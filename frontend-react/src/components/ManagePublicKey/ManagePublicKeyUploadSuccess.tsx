@@ -1,5 +1,3 @@
-import React from "react";
-
 import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import { USLink } from "../USLink";
 

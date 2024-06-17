@@ -1,4 +1,3 @@
-import React, { useRef, useCallback } from "react";
 import {
     Alert,
     Button,
@@ -7,14 +6,13 @@ import {
     Label,
     TextInput,
 } from "@trussworks/react-uswds";
+import { useCallback, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 
-import { showToast } from "../../contexts/Toast";
-import {
-    FeatureFlagActionType,
-    useFeatureFlags,
-} from "../../contexts/FeatureFlag";
 import config from "../../config";
+import { FeatureFlagActionType } from "../../contexts/FeatureFlag/FeatureFlagProvider";
+import useFeatureFlags from "../../contexts/FeatureFlag/useFeatureFlags";
+import { showToast } from "../../contexts/Toast";
 
 const { DEFAULT_FEATURE_FLAGS } = config;
 
@@ -28,7 +26,7 @@ export function FeatureFlagsPage() {
     const { featureFlags, checkFlags, dispatch } = useFeatureFlags();
 
     const addFlagClick = useCallback(() => {
-        const newFlag = newFlagInputText.current?.value || "";
+        const newFlag = newFlagInputText.current?.value ?? "";
         if (checkFlags(newFlag)) {
             // already added.
             showToast(`Item '${newFlag}' is already a feature flag.`, "info");

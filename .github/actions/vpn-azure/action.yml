@@ -13,7 +13,6 @@ inputs:
     description: "User key"
   sp-creds:
     description: "Azure Service Principal creds"
-    required: true
   env-name:
     required: true
   tf-auth:
@@ -27,60 +26,25 @@ runs:
   using: "composite"
   steps:
 
-    - name: Set environment variables - demo1
-      if: inputs.env-name == 'demo1'
-      shell: bash
-      run: echo "VPN_ENV=demo1" >> $GITHUB_ENV
-
-    - name: Set environment variables - demo2
-      if: inputs.env-name == 'demo2'
-      shell: bash
-      run: echo "VPN_ENV=demo2" >> $GITHUB_ENV
-
-    - name: Set environment variables - demo3
-      if: inputs.env-name == 'demo3'
-      shell: bash
-      run: echo "VPN_ENV=demo3" >> $GITHUB_ENV
-
-    - name: Set environment variables - dev
-      if: inputs.env-name == 'dev'
-      shell: bash
-      run: echo "VPN_ENV=dev" >> $GITHUB_ENV
-
-    - name: Set environment variables - test
-      if: inputs.env-name == 'test'
-      shell: bash
-      run: echo "VPN_ENV=test" >> $GITHUB_ENV
-
-    - name: Set environment variables - staging
-      if: inputs.env-name == 'staging'
-      shell: bash
-      run: echo "VPN_ENV=staging" >> $GITHUB_ENV
-
-    - name: Set environment variables - production
-      if: inputs.env-name == 'prod'
-      shell: bash
-      run: echo "VPN_ENV=prod" >> $GITHUB_ENV
-
     - name: Install OpenVPN
       if: inputs.ca-cert != 'false'
       run: |
         sudo apt-get update
         sudo apt-get install openvpn
-        sudo apt install openvpn-systemd-resolved
+        sudo apt-get install openvpn-systemd-resolved
       shell: bash
 
     - name: Update VPN DNS IP
       if: inputs.dns-ip != '127.0.0.1' && inputs.ca-cert != 'false'
       run: |
-        sed -i "s/\(dhcp-option DNS \).*/\1${{ inputs.dns-ip }}/" .github/vpn/${{ env.VPN_ENV }}.ovpn
+        sed -i "s/\(dhcp-option DNS \).*/\1${{ inputs.dns-ip }}/" .github/vpn/${{ inputs.env-name }}.ovpn
       shell: bash
 
     - uses: josiahsiegel/action-connect-ovpn@794339aff94452216c97f609476c367a43a31295
-      if: env.VPN_ENV && inputs.ca-cert != 'false'
+      if: inputs.env-name && inputs.ca-cert != 'false'
       id: connect_vpn
       with:
-        FILE_OVPN: .github/vpn/${{ env.VPN_ENV }}.ovpn
+        FILE_OVPN: .github/vpn/${{ inputs.env-name }}.ovpn
         TLS_KEY: ${{ inputs.tls-key }}
         PING_URL: ${{ inputs.dns-ip }}
       env:
@@ -88,19 +52,24 @@ runs:
         USER_CRT: ${{ inputs.user-crt }}
         USER_KEY: ${{ inputs.user-key }}
 
-    - name: Check VPN status
-      if: env.VPN_ENV && inputs.ca-cert != 'false' && steps.connect_vpn.outputs.STATUS != 'true'
+    - name: VPN Status
+      if: inputs.env-name && inputs.ca-cert != 'false'
       run: |
-        echo "VPN connected: ${{ steps.connect_vpn.outputs.STATUS }}"
-        exit 1
+        if [[ ${{ steps.connect_vpn.outputs.STATUS }} == 'true' ]]; then
+          echo "## ✅ VPN connected: \`${{ steps.connect_vpn.outputs.STATUS }}\` ✅" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "## ❌ VPN connected: \`${{ steps.connect_vpn.outputs.STATUS }}\` ❌" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
       shell: bash
 
-    - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d
+    - uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a
+      if: inputs.sp-creds
       with:
         creds: ${{ inputs.sp-creds }}
 
     - name: Terraform Auth
-      if: inputs.tf-auth == 'true'
+      if: inputs.tf-auth == 'true' && inputs.sp-creds
       env:
         AZURE_CREDENTIALS: ${{ inputs.sp-creds }}
       run: |

@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { SuspenseQueryHook, Middleware, Fetcher } from "react-query-kit";
 import axios, { AxiosRequestConfig } from "axios";
+import { Fetcher, Middleware, SuspenseQueryHook } from "react-query-kit";
 
-import { useSessionContext } from "../contexts/Session";
-import { useAppInsightsContext } from "../contexts/AppInsights";
 import { RSEndpoint } from "../config/endpoints";
+import useSessionContext from "../contexts/Session/useSessionContext";
+import useAppInsightsContext from "../hooks/UseAppInsightsContext/UseAppInsightsContext";
 
 export type AuthMiddleware<TData> = Middleware<
     SuspenseQueryHook<TData, FetchVariables>
@@ -20,10 +20,10 @@ export const authMiddleware: Middleware<
 > = (useQueryNext) => {
     return (options, qc) => {
         if (!options.variables?.endpoint) throw new Error("Endpoint not found");
-        const { fetchHeaders } = useAppInsightsContext();
+        const { properties } = useAppInsightsContext();
         const { authState, activeMembership } = useSessionContext();
         const authHeaders = {
-            ...fetchHeaders(),
+            "x-ms-session-id": properties.context.getSessionId(),
             "authentication-type": "okta",
             authorization: `Bearer ${
                 authState?.accessToken?.accessToken ?? ""
@@ -39,7 +39,7 @@ export const authMiddleware: Middleware<
             headers,
         });
         const fetchConfig =
-            options.variables?.fetchConfig || axiosConfig
+            options.variables?.fetchConfig ?? axiosConfig
                 ? {
                       ...options.variables?.fetchConfig,
                       ...axiosConfig,
@@ -57,10 +57,10 @@ export const authMiddleware: Middleware<
     };
 };
 
-export type FetchVariables = {
+export interface FetchVariables {
     endpoint: RSEndpoint;
     fetchConfig?: Partial<AxiosRequestConfig> & { enabled?: boolean };
-};
+}
 export type AuthFetch<TData> = Fetcher<TData, FetchVariables>;
 
 /**

@@ -1,0 +1,8 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+  - name: assigning-authority
+    resource: '%resource.assigner.resolve().identifier.where(extension(%`rsext-hl7v2Field`).value = "HD.1")'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.substring(0,20)' ]
+    hl7Spec: [ '%{hl7PIDField}-3(%{cxIndex})-4-1' ]

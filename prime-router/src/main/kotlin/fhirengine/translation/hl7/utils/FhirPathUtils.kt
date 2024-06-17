@@ -33,7 +33,16 @@ object FhirPathUtils : Logging {
     private val fhirContext = FhirContext.forR4()
 
     /**
-     * The FHIR path engine.
+     * The FHIR path engine
+     *
+     * For each call to the functions in this object, the path engine evaluation context is being
+     * set to support additional constants outside the base specification.
+     *
+     * Be very careful that you set this to the appropriate value for your use case!
+     *
+     * ex: pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
+     *
+     * TODO: Think about changing this pattern to avoid future bugs if a new function was written incorrectly
      */
     val pathEngine = FHIRPathEngine(HapiWorkerContext(fhirContext, fhirContext.validationSupport))
 
@@ -57,6 +66,15 @@ object FhirPathUtils : Logging {
             null
         } else {
             pathEngine.parse(fhirPath)
+        }
+    }
+
+    /**
+     * Is the provided path a valid FHIR path given the evaluation context?
+     */
+    fun validatePath(path: String, evaluationContext: FHIRPathEngine.IEvaluationContext): Boolean {
+        return withEvaluationContext(evaluationContext) {
+            runCatching { parsePath(path) }.isSuccess
         }
     }
 
@@ -136,7 +154,7 @@ object FhirPathUtils : Logging {
                         "Setting value of condition to false."
             }
             logger.error(msg, e)
-            throw SchemaException(msg)
+            throw SchemaException(msg, e)
         }
         logger.trace("Evaluated condition '$expression' to '$retVal'")
         return retVal
@@ -244,5 +262,24 @@ object FhirPathUtils : Logging {
             else -> hl7Date.setYearMonthDayPrecision(date.year, date.month + 1, date.day)
         }
         return hl7Date.toString()
+    }
+
+    /**
+     * Stores the previous evaluation context in a temporary variable and then
+     * runs the lambda with the new evaluation context.
+     *
+     * After executing the lambda, it will set the evaluation context back to the initial value.
+     */
+    private fun <T> withEvaluationContext(
+        evaluationContext: FHIRPathEngine.IEvaluationContext,
+        block: () -> T,
+    ): T {
+        val previousEvaluationContext = pathEngine.hostServices
+        pathEngine.hostServices = evaluationContext
+        return try {
+            block()
+        } finally {
+            pathEngine.hostServices = previousEvaluationContext
+        }
     }
 }

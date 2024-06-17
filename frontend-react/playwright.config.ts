@@ -1,87 +1,121 @@
 import { defineConfig } from "@playwright/test";
 import dotenvflow from "dotenv-flow";
+import process from "process";
 
-import type { TestOptions } from "./e2e/helpers/rs-test";
+import type { CustomFixtures } from "./e2e/test.ts";
 
-dotenvflow.config();
+dotenvflow.config({
+    purge_dotenv: true,
+    silent: true,
+    default_node_env: "test",
+});
+
+const isCi = Boolean(process.env.CI);
+const isMockDisabled = Boolean(process.env.MOCK_DISABLED);
+
+function createLogins<const T extends Array<string>>(
+    loginTypes: T,
+): {
+    [K in T extends ReadonlyArray<infer U> ? U : never]: {
+        username: string;
+        password: string;
+        totpCode: string;
+        path: string;
+    };
+} {
+    const logins = Object.fromEntries(
+        loginTypes.map((type) => {
+            const username = process.env[`TEST_${type.toUpperCase()}_USERNAME`];
+            const password = process.env[`TEST_${type.toUpperCase()}_PASSWORD`];
+            const totpCode =
+                process.env[`TEST_${type.toUpperCase()}_TOTP_CODE`];
+
+            if (!username)
+                throw new TypeError(`Missing username for login type: ${type}`);
+            if (!password)
+                throw new TypeError(`Missing password for login type: ${type}`);
+
+            return [
+                type,
+                {
+                    username,
+                    password,
+                    totpCode,
+                    path: `e2e/.auth/${type}.json`,
+                },
+            ];
+        }),
+    );
+    return logins as any;
+}
+
+const logins = createLogins(["admin", "receiver", "sender"]);
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
-export default defineConfig<TestOptions>({
+export default defineConfig<CustomFixtures>({
     testDir: "e2e",
-    /* Run tests in files in parallel */
     fullyParallel: true,
-    /* Fail the build on CI if you accidentally left test.only in the source code. */
-    forbidOnly: !!process.env.CI,
-    /* Retry on CI only */
-    retries: process.env.CI ? 2 : 0,
-    /* Opt out of parallel tests on CI. */
-    workers: process.env.CI ? 1 : undefined,
-    /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-    reporter: "html",
-    /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+    forbidOnly: isCi,
+    retries: isCi ? 2 : 0,
+    workers: isCi ? "100%" : undefined,
+    reporter: [["html", { outputFolder: "e2e-data/report" }]],
+    outputDir: "e2e-data/results",
     use: {
-        /* Base URL to use in actions like `await page.goto('/')`. */
+        timezoneId: "UTC",
         baseURL: "http://localhost:4173",
-
-        /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: "on-first-retry",
-
+        screenshot: "only-on-failure",
         adminLogin: {
-            username: process.env.TEST_ADMIN_USERNAME ?? "",
-            password: process.env.TEST_ADMIN_PASSWORD ?? "",
-            totpCode: process.env.TEST_ADMIN_TOTP_CODE ?? "",
+            ...logins.admin,
+            landingPage: "/admin/settings",
         },
+        senderLogin: {
+            ...logins.sender,
+            landingPage: "/submissions",
+        },
+        receiverLogin: {
+            ...logins.receiver,
+            landingPage: "/",
+        },
+        isMockDisabled,
     },
 
-    /* Configure projects for major browsers */
     projects: [
-        // { name: "setup", testMatch: /.*\.setup\.ts/ },
+        { name: "setup", testMatch: /\w+\.setup\.ts$/ },
+        // We have a suite of tests that are ONLY checking links so to
+        // save bandwidth, we only need to utilize a single browser
+        {
+            name: "chromium-only",
+            use: { browserName: "chromium" },
+            dependencies: ["setup"],
+            testMatch: "spec/chromium-only/*.spec.ts",
+        },
         {
             name: "chromium",
             use: { browserName: "chromium" },
-            // dependencies: ["setup"],
+            dependencies: ["setup"],
+            testMatch: "spec/*.spec.ts",
         },
-
         {
             name: "firefox",
             use: { browserName: "firefox" },
-            // dependencies: ["setup"],
+            dependencies: ["setup"],
+            testMatch: "spec/*.spec.ts",
         },
-
         {
             name: "webkit",
             use: { browserName: "webkit" },
-            // dependencies: ["setup"],
+            dependencies: ["setup"],
+            testMatch: "spec/*.spec.ts",
         },
-
-        /* Test against mobile viewports. */
-        // {
-        //   name: 'Mobile Chrome',
-        //   use: { ...devices['Pixel 5'] },
-        // },
-        // {
-        //   name: 'Mobile Safari',
-        //   use: { ...devices['iPhone 12'] },
-        // },
-
-        /* Test against branded browsers. */
-        // {
-        //   name: 'Microsoft Edge',
-        //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-        // },
-        // {
-        //   name: 'Google Chrome',
-        //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-        // },
     ],
-
-    /* Run the local dev server and start the tests */
     webServer: {
-        command: "yarn run preview",
+        command: `yarn cross-env yarn run preview:build:${isCi ? "ci" : "test"}`,
         url: "http://localhost:4173",
         timeout: 1000 * 180,
+        stdout: "pipe",
         // reuseExistingServer: !process.env.CI,
     },
 });

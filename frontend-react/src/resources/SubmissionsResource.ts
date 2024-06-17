@@ -1,10 +1,9 @@
-import config from "../config";
-
 import AuthResource from "./AuthResource";
+import config from "../config";
 
 const { RS_API_URL } = config;
 
-type SubmissionsResourceParams = {
+interface SubmissionsResourceParams {
     organization: string;
     sortdir: string;
     sortcol: string;
@@ -13,7 +12,8 @@ type SubmissionsResourceParams = {
     until: string;
     pageSize: number;
     showFailed: boolean;
-};
+    [k: string]: string | number | boolean;
+}
 
 const FALLBACKDATE = "2020-01-01T00:00:00.000Z";
 
@@ -23,6 +23,9 @@ export default class SubmissionsResource extends AuthResource {
     readonly sender: string = "";
     readonly httpStatus: number = 0;
     readonly externalName: string = "";
+    fileDisplayName = "";
+    readonly fileName: string = "";
+    readonly fileType: string = "";
     readonly id: string | undefined;
     readonly topic: string = "";
     readonly reportItemCount: number = 0;
@@ -35,9 +38,7 @@ export default class SubmissionsResource extends AuthResource {
         return `${this.timestamp} ${this.id}`;
     }
 
-    static get key() {
-        return "SubmissionsResource";
-    }
+    static readonly key = "SubmissionsResource";
 
     static listUrl(searchParams: SubmissionsResourceParams): string {
         const url = new URL(`

@@ -38,7 +38,7 @@ export class RSNetworkError<T = unknown> extends Error {
                 return ErrorName.UNAUTHORIZED;
             case statusCode === 404:
                 return ErrorName.NOT_FOUND;
-            case statusCode!! >= 500 && statusCode!! <= 599:
+            case statusCode! >= 500 && statusCode! <= 599:
                 return ErrorName.SERVER_ERROR;
             case statusCode === undefined:
             default:

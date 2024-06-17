@@ -1,6 +1,11 @@
 ---
-metaTitle: Getting started with ReportStream's API
-metaDescription: Resources and support to set up your connection and format your data. Our onboarding guide will walk you through the steps needed to get started.
+meta:
+    title: Getting started with ReportStream's API
+    description: Resources and support to set up your connection and format your data. Our onboarding guide will walk you through the steps needed to get started.
+    openGraph:
+        image:
+            src: /assets/img/opengraph/reportstream-tagline.png
+            altText: "A collection of lines extend out from a central point. Each line ends in a circle of square, some green and some white."
 ---
 
 import Step1 from "./Step1.mdx";
@@ -19,7 +24,7 @@ import Sidenav from "../Sidenav.mdx";
 Examples in this guide use curl commands for simplicity with the assumption you’ll be coding these calls into your sending system.
 You can also use a program like Postman to test submissions.
 
-<p className="text-base">**Last updated:** 11/14/23</p>
+<p className="text-base">**Last updated:** 1/4/24</p>
 
 ***
 
@@ -115,7 +120,7 @@ For troubleshooting on your own, here is the complete endpoint input and respons
 
 <h2 className="rs-numbered">Test real data in production</h2>
 
-The ReportStream team will onboard you to the production system in training mode. If using a shared secret key, you’ll receive API keys or tokens and the URL via Keybase. ReportStream won’t forward or transport data received in training mode. However, the response message provides detailed information on where your data would have flowed if production mode was active.
+The ReportStream team will onboard you to the production system in training mode. ReportStream won’t forward or transport data received in training mode. However, the response message provides detailed information on where your data would have flowed if production mode was active.
 
 <h2 className="rs-numbered">Start sending data in production</h2>
 

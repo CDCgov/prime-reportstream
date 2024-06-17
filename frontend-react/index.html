@@ -5,40 +5,22 @@
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
-        <meta name="description" content="%VITE_DESCRIPTION%" />
-        <meta name="buidinfo" content="%VITE_CLIENT_ENV%" />
-        <meta name="google-site-verification" content="qZbBdujV5kZQv_pCqV2wpfSU25odH35HQukm5ACyLNs" />
-        <script src="/src/unsupportedBrowser.ts" type="module"></script>
-        <!--
         <meta
-            http-equiv="Content-Security-Policy"
-            content="
-        default-src 'self';
-        script-src 'self'
-            https://reportstream.oktapreview.com
-            https://global.oktacdn.com
-            https://www.google-analytics.com
-            https://*.in.applicationinsights.azure.com;
-        style-src 'self'
-            https://global.oktacdn.com
-            https://cdnjs.cloudflare.com;
-        frame-src 'self'
-            https://reportstream.oktapreview.com;
-        img-src 'self'
-            https://reportstream.oktapreview.com
-            https://*.oktacdn.com/assets/img/*
-            https://staging.reportstream.cdc.gov data: ;
-        connect-src 'self'
-            https://www.google-analytics.com
-            https://*.in.applicationinsights.azure.com
-            https://reportstream.oktapreview.com
-            https://staging.reportstream.cdc.gov/api/
-            https://staging.prime.cdc.gov/api/
-            http://localhost:7071 ;"
-        />-->
-        <link rel="apple-touch-icon" href="/logo192.png" />
-        <link rel="manifest" href="/manifest.json" />
+            name="google-site-verification"
+            content="qZbBdujV5kZQv_pCqV2wpfSU25odH35HQukm5ACyLNs"
+        />
         <title>%VITE_TITLE%</title>
+        <meta name="description" content="%VITE_DESCRIPTION%" />
+        <meta
+            property="og:image"
+            content="%VITE_OPENGRAPH_DEFAULT_IMAGE_SRC%"
+        />
+        <meta
+            property="og:image:alt"
+            content="%VITE_OPENGRAPH_DEFAULT_IMAGE_ALTTEXT%"
+        />
+        <script src="/src/unsupportedBrowser.ts" type="module"></script>
+        <link rel="manifest" href="/manifest.json" />
     </head>
     <body>
         <noscript>

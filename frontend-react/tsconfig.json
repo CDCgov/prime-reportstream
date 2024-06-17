@@ -15,10 +15,10 @@
         "isolatedModules": true,
         "noEmit": true,
         "jsx": "react-jsx",
-        "types": ["jest", "mdx", "vite/client"],
+        "types": ["vitest/globals", "mdx", "vite/client"],
         "noImplicitAny": true,
         "inlineSourceMap": true
     },
-    "include": ["./src", "./e2e"],
+    "include": ["./src", "./e2e", "./__mocks__"],
     "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -73,7 +73,7 @@ PERFORM_CLEAN=${PERFORM_CLEAN:-0}
 
 while [[ -n "${1}" && "${1:0:1}" == "-" ]]; do
 
-  # Tripwire, anything you pass after a blanket '--' (or -c) will be passed into docker-compose run
+  # Tripwire, anything you pass after a blanket '--' (or -c) will be passed into docker compose run
   if [[ "${1}" == "--" || "${1}" == "-c" ]]; then
     shift
     break
@@ -114,12 +114,12 @@ ensure_build_dir
 
 if [[ ${PERFORM_CLEAN?} != 0 || ${REFRESH_BUILDER?} != 0 ]]; then
   echo -e "${WHITE?}INFO:${PLAIN?} Bringing down builder docker composition"
-  docker-compose --force --file "${DOCKER_COMPOSE?}" down
+  docker compose --force --file "${DOCKER_COMPOSE?}" down
 
   if [[ ${REFRESH_BUILDER?} != 0 ]]; then
     echo -e "${WHITE?}INFO:${PLAIN?} Refreshing the builder container image"
     docker image rm --force "${BUILDER_IMAGE_NAME?}"
-    docker-compose --file "${DOCKER_COMPOSE?}" build
+    docker compose --file "${DOCKER_COMPOSE?}" build
   fi
 
   if [[ ${PERFORM_CLEAN?} != 0 ]]; then
@@ -132,15 +132,15 @@ if [[ ${PERFORM_CLEAN?} != 0 || ${REFRESH_BUILDER?} != 0 ]]; then
     fi
     ensure_build_dir
     docker volume rm prime-router_vol_postgresql_data
-    docker-compose \
+    docker compose \
       --file "${DOCKER_COMPOSE?}" \
       run builder gradle clean
   fi
 fi
 
 # Run (which will build if cleaned earlier)
-echo -e "${WHITE?}INFO:${PLAIN?} Running ${ACTION?} $(get_gradle_command $*) through docker-compose"
-docker-compose \
+echo -e "${WHITE?}INFO:${PLAIN?} Running ${ACTION?} $(get_gradle_command $*) through docker compose"
+docker compose \
   --file "${DOCKER_COMPOSE?}" \
   run "${ACTION?}" $(get_gradle_command $*)
 RC=$?

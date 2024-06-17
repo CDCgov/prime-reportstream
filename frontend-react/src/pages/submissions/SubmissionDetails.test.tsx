@@ -1,19 +1,18 @@
-import { MatcherFunction, screen } from "@testing-library/react";
+import { MatcherFunction, screen, within } from "@testing-library/react";
 
+import SubmissionDetailsPage, { DestinationItem } from "./SubmissionDetails";
+import { DetailItem } from "../../components/DetailItem/DetailItem";
 import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import { renderApp } from "../../utils/CustomRenderUtils";
-import { DetailItem } from "../../components/DetailItem/DetailItem";
 import { FeatureName } from "../../utils/FeatureName";
-
-import SubmissionDetailsPage, { DestinationItem } from "./SubmissionDetails";
 
 /*
     Using the included regex can end up pulling various elements where the
     value has the parsed timestamp. Use a function
 */
 const dateRegex = /\d{1,2} [a-z,A-Z]{3} \d{4}/;
-const timeRegex: RegExp = /\d{1,2}:\d{2}/;
+const timeRegex = /\d{1,2}:\d{2}/;
 
 /*
     We can only mock one behavior for useResource currently. This is a major
@@ -22,8 +21,8 @@ const timeRegex: RegExp = /\d{1,2}:\d{2}/;
 const mockData: ActionDetailsResource = new TestResponse(
     ResponseType.ACTION_DETAIL,
 ).data;
-jest.mock("rest-hooks", () => ({
-    ...jest.requireActual("rest-hooks"),
+vi.mock("rest-hooks", async (importActual) => ({
+    ...(await importActual<typeof import("rest-hooks")>()),
     useResource: () => {
         return mockData;
     },
@@ -87,7 +86,7 @@ describe("SubmissionDetails", () => {
             recordsTransmitted,
         ];
 
-        for (let i of testElements) {
+        for (const i of testElements) {
             expect(i).toBeInTheDocument();
         }
     });
@@ -118,16 +117,44 @@ describe("DetailItem", () => {
 describe("DestinationItem", () => {
     function setup() {
         renderApp(
-            <DestinationItem destinationObj={mockData.destinations[0]} />,
+            <>
+                <div data-testid="first-section">
+                    <DestinationItem
+                        destinationObj={mockData.destinations[0]}
+                    />
+                </div>
+                <div data-testid="second-section">
+                    <DestinationItem
+                        destinationObj={mockData.destinations[1]}
+                    />
+                </div>
+            </>,
         );
     }
 
     test("renders content", () => {
         setup();
-        expect(screen.getByText(/transmission date/i)).toBeInTheDocument();
-        expect(screen.getByText(/transmission time/i)).toBeInTheDocument();
-        expect(screen.getByText(/records/i)).toBeInTheDocument();
-        expect(screen.getByText(/primary/i)).toBeInTheDocument();
+        const firstSection = screen.getByTestId("first-section");
+        const secondSection = screen.getByTestId("second-section");
+        expect(
+            within(firstSection).getByText(/transmission date/i),
+        ).toBeInTheDocument();
+        expect(
+            within(firstSection).getByText(/transmission time/i),
+        ).toBeInTheDocument();
+        expect(within(firstSection).getByText(/records/i)).toBeInTheDocument();
+        expect(within(firstSection).getByText(/primary/i)).toBeInTheDocument();
+        expect(
+            within(secondSection).getByText(/transmission date/i),
+        ).toBeInTheDocument();
+        expect(
+            within(secondSection).getByText(/transmission time/i),
+        ).toBeInTheDocument();
+        expect(within(secondSection).getByText(/records/i)).toBeInTheDocument();
+        expect(
+            within(secondSection).getByText(/secondary/i),
+        ).toBeInTheDocument();
+        expect(within(secondSection).getAllByText(/N\/A/i)).toHaveLength(2);
         /*
             These must change if we ever change the sending_at property of
             our test ActionDetailResource in TestResponse.ts

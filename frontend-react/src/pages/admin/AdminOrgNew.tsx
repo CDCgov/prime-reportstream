@@ -1,19 +1,19 @@
-import React, { Suspense, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
-import { NetworkErrorBoundary, useController } from "rest-hooks";
-import { useNavigate } from "react-router-dom";
+import { Suspense, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { useNavigate } from "react-router-dom";
+import { NetworkErrorBoundary, useController } from "rest-hooks";
 
-import { ErrorPage } from "../error/ErrorPage";
-import { showToast } from "../../contexts/Toast";
-import Spinner from "../../components/Spinner";
 import {
     TextAreaComponent,
     TextInputComponent,
 } from "../../components/Admin/AdminFormEdit";
+import Spinner from "../../components/Spinner";
+import useSessionContext from "../../contexts/Session/useSessionContext";
+import { showToast } from "../../contexts/Toast";
 import OrganizationResource from "../../resources/OrganizationResource";
 import { getErrorDetailFromResponse } from "../../utils/misc";
-import { useSessionContext } from "../../contexts/Session";
+import { ErrorPage } from "../error/ErrorPage";
 
 const fallbackPage = () => <ErrorPage type="page" />;
 
@@ -22,7 +22,7 @@ export function AdminOrgNewPage() {
     const [loading, setLoading] = useState(false);
     const { rsConsole } = useSessionContext();
     let orgSetting: object = [];
-    let orgName: string = "";
+    let orgName = "";
 
     const { fetch: fetchController } = useController();
 
@@ -39,7 +39,7 @@ export function AdminOrgNewPage() {
             navigate(`/admin/orgsettings/org/${orgName}`);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
+            const errorDetail = await getErrorDetailFromResponse(e);
             rsConsole.trace(e, errorDetail);
             showToast(
                 `Creating item '${orgName}' failed. ${errorDetail}`,
@@ -55,6 +55,14 @@ export function AdminOrgNewPage() {
         <NetworkErrorBoundary fallbackComponent={fallbackPage}>
             <Helmet>
                 <title>New organization - Admin</title>
+                <meta
+                    property="og:image"
+                    content="/assets/img/opengraph/reportstream.png"
+                />
+                <meta
+                    property="og:image:alt"
+                    content='"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'
+                />
             </Helmet>
             <section className="grid-container margin-bottom-5">
                 <Suspense
@@ -95,7 +103,7 @@ export function AdminOrgNewPage() {
                                 form="create-organization"
                                 type="submit"
                                 data-testid="submit"
-                                onClick={() => saveData()}
+                                onClick={() => void saveData()}
                                 disabled={loading}
                             >
                                 Create

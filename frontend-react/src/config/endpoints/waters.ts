@@ -41,7 +41,7 @@ export interface ResponseError {
     scope: string | undefined;
     errorCode: ErrorCode;
     trackingIds: string[] | undefined;
-    details: any | undefined;
+    details: any;
     rowList?: string;
 }
 

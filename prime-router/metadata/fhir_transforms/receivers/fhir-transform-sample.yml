@@ -1,5 +1,0 @@
-elements:
-  - name: test-element
-    resource: 'Bundle.entry.resource.ofType(Patient)'
-    bundleProperty: '%resource.name.text'
-    value: [ '"TestValue"' ]

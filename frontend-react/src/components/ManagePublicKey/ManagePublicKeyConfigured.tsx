@@ -1,7 +1,5 @@
-import React from "react";
-
-import { USLink } from "../USLink";
 import site from "../../content/site.json";
+import { USLink } from "../USLink";
 
 export default function ManagePublicKeyConfigured() {
     return (

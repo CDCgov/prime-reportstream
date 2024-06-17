@@ -1,0 +1,87 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+
+elements:
+
+  # XTN
+  - name: xtn-use-code-from-system
+    condition: '%resource.system = "email"'
+    value: [ '"NET"' ]
+    hl7Spec: [ '%{hl7TelecomPath}-2' ]
+
+  - name: hi-receiving-application
+    condition: 'true'
+    value: [ '"HIDOH"' ]
+    hl7Spec: [ 'MSH-5-1' ]
+
+  - name: hi-receiving-facility
+    condition: 'true'
+    value: [ '"HIDOH"' ]
+    hl7Spec: [ 'MSH-6-1' ]
+
+  - name: message_profile_id
+    value: [ '"PHLabReport-NoAck"' ]
+    hl7Spec: [ MSH-21-1 ]
+
+  - name: message_profile_id_namespace_id
+    value: [ '"ELR_Receiver"' ]
+    hl7Spec: [ MSH-21-2 ]
+
+  - name: message_profile_id_universal_id
+    value: [ '"2.16.840.1.113883.9.11"' ]
+    hl7Spec: [ MSH-21-3 ]
+
+  - name: message_profile_id_universal_id_type
+    value: [ '"ISO"' ]
+    hl7Spec: [ MSH-21-4 ]
+
+  - name: software-version
+    value: [ '"0.2-SNAPSHOT"' ]
+    hl7Spec: [ SFT-2 ]
+
+  - name: software-name
+    value: [ '"PRIME ReportStream"' ]
+    hl7Spec: [ SFT-3 ]
+
+  - name: software-id
+    value: [ '"0.2-SNAPSHOT"' ]
+    hl7Spec: [ SFT-4 ]
+
+  - name: hi-patient-race-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+    condition: '%resource.code.exists()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
+
+  - name: hi-patient-ethnicity-identifier-code
+    value:
+      - 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding[0].code'
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-22-1' ]
+    valueSet:
+      values:
+        H: 2135-2
+        N: 2186-5
+
+  - name: hi-patient-ethnicity-group-name-of-code-system
+    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.code = "U"'
+    value: [ '"NULLFL"' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-3 ]
+
+  - name: hi-patient-ethnicity-group-name-of-code-system
+    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.code != "U"'
+    value: [ '"CDCREC"' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-3 ]
+
+  # Needed to convert HL7 timestamp to HL7 date for OBX-5
+  - name: obx-value-dtm-dt
+    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "OBX.2").value = "DT"'
+    value: [ '%resource.value.extension(%`rsext-hl7v2-date-time`).value.toString().replace("-","")' ]
+    hl7Spec: [ '%{hl7OBXField}-5' ]
+
+  - name: hi-specimen-source-site-text
+    condition: 'true'
+    value: [ 'Bundle.entry.resource.ofType(Specimen).collection.bodySite.text' ]
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-8-2' ]

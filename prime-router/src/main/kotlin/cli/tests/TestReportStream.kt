@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.max
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.OffsetDateTime
@@ -331,6 +332,7 @@ Examples:
             LivdApiTest(),
             End2End(),
             End2EndUniversalPipeline(),
+            SyncTranslationSchemasTest()
         )
     }
 }
@@ -737,8 +739,11 @@ abstract class CoolTest {
                     actionsList.add(TaskAction.route)
                     actionsList.add(TaskAction.translate)
                 }
-                if (receiver.timing != null) actionsList.add(TaskAction.batch)
+                if (!receiver.topic.isSendOriginal && receiver.timing != null) {
+                    actionsList.add(TaskAction.batch)
+                }
                 if (receiver.transport != null) actionsList.add(TaskAction.send)
+                echo("actions we are checking: $actionsList")
                 actionsList.forEach { action ->
                     val useRecevingServiceName = !(
                         (action == TaskAction.receive && asyncProcessMode) ||
@@ -813,7 +818,8 @@ abstract class CoolTest {
                         Topic.COVID_19.jsonVal,
                         Topic.FULL_ELR.jsonVal,
                         Topic.ETOR_TI.jsonVal,
-                        Topic.ELR_ELIMS.jsonVal
+                        Topic.ELR_ELIMS.jsonVal,
+                        Topic.MARS_OTC_ELR.jsonVal
                     ).contains(topic.textValue())
                     )
             ) {
@@ -866,19 +872,35 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $fullELRSenderName for organization ${org1.name}")
         }
 
-        const val etorTISenderName = "ignore-etor-ti"
-        val etorTISender by lazy {
-            settings.findSender("$org1Name.$etorTISenderName") as? UniversalPipelineSender
-                ?: error("Unable to find sender $etorTISenderName for organization ${org1.name}")
+        const val fullELRE2ESenderName = "ignore-full-elr-e2e"
+        val fullELRE2ESender by lazy {
+            settings.findSender("$org1Name.$fullELRE2ESenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $fullELRE2ESenderName for organization ${org1.name}")
         }
 
-        /* TODO: enable with PR: #13232
+        const val fhirSenderName = "ignore-fhir-e2e"
+        val fhirFULLELRSender by lazy {
+            settings.findSender("$org1Name.$fhirSenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $fhirSenderName for organization ${org1.name}")
+        }
+
         const val elrElimsSenderName = "ignore-elr-elims"
         val elrElimsSender by lazy {
             settings.findSender("$org1Name.$elrElimsSenderName") as? UniversalPipelineSender
                 ?: error("Unable to find sender $elrElimsSenderName for organization ${org1.name}")
         }
-         */
+
+        const val marsOTCELRSenderName = "ignore-mars-otc"
+        val marsOTCELRSender by lazy {
+            settings.findSender("$org1Name.$marsOTCELRSenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $marsOTCELRSenderName for organization ${org1.name}")
+        }
+
+        const val fhirMarsOTCELRSenderName = "ignore-fhir-mars-otc-e2e"
+        val fhirMarsOTCELRSender by lazy {
+            settings.findSender("$org1Name.$fhirMarsOTCELRSenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $fhirMarsOTCELRSenderName for organization ${org1.name}")
+        }
 
         const val simpleReportSenderName = "ignore-simple-report"
         val simpleRepSender by lazy {
@@ -910,38 +932,36 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $hl7SenderName for organization ${org1.name}")
         }
 
-        const val hl7MonkeypoxSenderName = "ignore-monkeypox"
-        val hl7MonkeypoxSender by lazy {
-            settings.findSender("$org1Name.$hl7MonkeypoxSenderName") as? LegacyPipelineSender
-                ?: error("Unable to find sender $hl7MonkeypoxSenderName for organization ${org1.name}")
-        }
-
-        val universalPipelineReceiver1 = settings.receivers.filter {
-            it.organizationName == org1Name && it.name == "FULL_ELR"
+        val hl7FullELRReceiver = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "FULL_ELR_E2E"
         }[0]
-        val universalPipelineReceiver2 = settings.receivers.filter {
-            it.organizationName == org1Name && it.name == "FULL_ELR_FHIR"
+        val fhirFullELRE2EReceiverA = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "FULL_ELR_FHIR_A_E2E"
         }[0]
-        val etorReceiver = settings.receivers.first { it.topic == Topic.ETOR_TI }
-
-        // TODO: This breaks with the introduction of isSendOriginal, a topic property presently only set on ELR_ELIMS.
-        //  is isSendOriginal is true, a batch step will not get generated and so the test will fail. This will be fixed
-        //  as part of PR: #13232
-        // val elimsReceiver = settings.receivers.first { it.topic == Topic.ELR_ELIMS }
+        val fhirFullELRE2EReceiverB = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "FULL_ELR_FHIR_B_E2E"
+        }[0]
+        val fhirMarsReceiverA = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "MARS_OTC_ELR_FHIR_A_E2E"
+        }[0]
+        val fhirMarsReceiverB = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "MARS_OTC_ELR_FHIR_B_E2E"
+        }[0]
+        val elimsReceiver = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "ELR_ELIMS"
+        }[0]
+        val hl7MarsOTCReceiver = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "MARS_OTC_ELR_E2E"
+        }[0]
         val csvReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "CSV" }[0]
         val hl7Receiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7" }[0]
         val hl7BatchReceiver =
             settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7_BATCH" }[0]
         val hl7NullReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7_NULL" }[0]
-        val hl7PpkReceiver = settings.receivers.filter {
-            it.organizationName == org1Name && it.name == "HL7_BATCH_PPK"
-        }[0]
-        val hl7PemReceiver = settings.receivers.filter {
-            it.organizationName == org1Name && it.name == "HL7_BATCH_PEM"
-        }[0]
 
         lateinit var allGoodReceivers: MutableList<Receiver>
         lateinit var allGoodCounties: String
+
         const val historyTestOrgName = "historytest"
         val historyTestSender = (
             settings.findSender("$historyTestOrgName.default")
@@ -960,10 +980,63 @@ abstract class CoolTest {
             allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
         }
 
-        fun initListOfGoodReceiversAndCountiesForUniversalPipeline() {
-            allGoodReceivers = mutableListOf(universalPipelineReceiver1)
-            allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
+        fun testDataForUniversalPipeline(): ArrayList<E2EData> {
+            val smoketestDir = "src/test/resources/fhirengine/smoketest"
+
+            return arrayListOf(
+                E2EData(
+                    "Sending HL7 Report, Receiving HL7/FHIR (full-elr)",
+                    File("$smoketestDir/valid_hl7_e2e.hl7"),
+                    fullELRE2ESender,
+                    arrayListOf(
+                        Pair(hl7FullELRReceiver, File("$smoketestDir/Expected_HL7_to_HL7_FULLELR.hl7")),
+                        Pair(fhirFullELRE2EReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_FULLELR.fhir"))
+                    )
+                ),
+                E2EData(
+                    "Sending HL7 Report, Receiving HL7 (elr-elims)",
+                    File("$smoketestDir/valid_hl7_e2e.hl7"),
+                    elrElimsSender,
+                    arrayListOf(
+                        Pair(elimsReceiver, File("$smoketestDir/Expected_HL7_to_HL7_ELIMS.hl7"))
+                    )
+                ),
+                E2EData(
+                    "Sending FHIR Report, Receiving FHIR (full-elr)",
+                    File("$smoketestDir/valid_fhir.fhir"),
+                    fhirFULLELRSender,
+                    arrayListOf(
+                        Pair(fhirFullELRE2EReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_FULLELR.fhir"))
+                    )
+                ),
+                E2EData(
+                    "Sending HL7 Report, Receiving HL7/FHIR (mars-otc-elr); Invalid HL7 Items Filtered Out",
+                    File("$smoketestDir/valid_mars.hl7"),
+                    marsOTCELRSender,
+                    arrayListOf(
+                        Pair(hl7MarsOTCReceiver, File("$smoketestDir/Expected_HL7_to_HL7_MARSOTC.hl7")),
+                        Pair(fhirMarsReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_MARSOTC.fhir"))
+                    )
+                ),
+                E2EData(
+                    "Sending FHIR Report, Receiving FHIR (mars-otc-elr)",
+                    File("$smoketestDir/valid_mars.fhir"),
+                    fhirMarsOTCELRSender,
+                    arrayListOf(
+                        Pair(fhirMarsReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_MARSOTC.fhir"))
+                    )
+                )
+            )
         }
+
+        data class E2EData(
+            val name: String,
+            val baseFile: File,
+            val sender: UniversalPipelineSender,
+            val expectedResults: List<Pair<Receiver, File>>,
+            var reportId: ReportId? = null,
+            var historyResponse: String = "",
+        )
 
         val blobstoreReceiver = settings.receivers.filter {
             it.organizationName == org1Name && it.name == "BLOBSTORE"

@@ -12,14 +12,17 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.Tables
-import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.observability.context.MDCUtils
+import gov.cdc.prime.router.azure.observability.context.withLoggingContext
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
@@ -27,6 +30,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.report.ReportService
 import org.hl7.fhir.r4.model.Bundle
 import org.jooq.Field
 import java.time.OffsetDateTime
@@ -44,12 +48,14 @@ class FHIRTranslator(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-) : FHIREngine(metadata, settings, db, blob) {
-
+    azureEventService: AzureEventService = AzureEventServiceImpl(),
+    reportService: ReportService = ReportService(),
+) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
     /**
-     * Accepts a FHIR [message], parses it, and generates translated output files for each item in the destinations
-     *  element.
-     * [actionHistory] and [actionLogger] ensure all activities are logged.
+     * Accepts a [FhirTranslateQueueMessage] [message] and, based on its parameters, sends a report to the next pipeline
+     * step containing either the first ancestor's blob or a new blob that has been translated per
+     * the receiver's settings, pending the passed topic's (found in [message]) isSendOriginal property
+     * [actionHistory] and [actionLogger] ensure all activities are recorded to the database and logged
      */
     override fun <T : QueueMessage> doWork(
         message: T,
@@ -57,86 +63,105 @@ class FHIRTranslator(
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
         message as ReportPipelineMessage
-
-        logger.trace("Translating FHIR file for receivers.")
-        // pull fhir document and parse FHIR document
-        val bundle = FhirTranscoder.decode(message.downloadContent())
-
-        // track input report
-        actionHistory.trackExistingInputReport(message.reportId)
-
-        when (message) {
-            is FhirTranslateQueueMessage -> {
-                val receiver = settings.findReceiver(message.receiverFullName)
-                    ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
-                actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
-
-                var nextAction = Event.EventAction.BATCH
-                var externalName: String? = null
-                var queueMessage: ReportEventQueueMessage? = null
-                val bodyBytes = if (message.topic.isSendOriginal) {
-                    nextAction = Event.EventAction.SEND
-                    val originalReport = getOriginalReport(message.reportId)
-                    externalName = originalReport.externalName
-                    queueMessage = ReportEventQueueMessage(nextAction, false, message.reportId, "")
-                    BlobAccess.downloadBlobAsByteArray(originalReport.bodyUrl)
-                } else {
-                    getByteArrayFromBundle(receiver, bundle)
+        val contextMap = mapOf(
+            MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
+            MDCUtils.MDCProperty.REPORT_ID to message.reportId,
+            MDCUtils.MDCProperty.TOPIC to message.topic,
+            MDCUtils.MDCProperty.BLOB_URL to message.blobURL
+        )
+        withLoggingContext(contextMap) {
+            logger.trace("Starting translate work")
+            actionHistory.trackExistingInputReport(message.reportId)
+            when (message) {
+                is FhirTranslateQueueMessage -> {
+                    val receiver = settings.findReceiver(message.receiverFullName)
+                        ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
+                    actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
+                    return if (message.topic.isSendOriginal) {
+                        listOf(sendOriginal(message, receiver, actionHistory))
+                    } else {
+                        listOf(sendTranslated(message, receiver, actionHistory))
+                    }
                 }
-
-                // get a Report from the message
-                val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
-                    nextAction,
-                    bodyBytes,
-                    listOf(message.reportId),
-                    receiver,
-                    this.metadata,
-                    actionHistory,
-                    topic = message.topic,
-                    externalName
-                )
-
-                if (queueMessage != null) {
-                    queueMessage = queueMessage.copy(reportId = report.id)
-                }
-
-                return listOf(
-                    FHIREngineRunResult(
-                        event,
-                        report,
-                        blobInfo.blobUrl,
-                        queueMessage
+                else -> {
+                    throw RuntimeException(
+                        "Message was not a FhirTranslateQueueMessage and cannot be " +
+                            "processed by FHIRTranslator: $message"
                     )
-                )
-            }
-            else -> {
-                throw RuntimeException(
-                    "Message was not a FhirTranslateQueueMessage and cannot be processed by FHIRTranslator: $message"
-                )
+                }
             }
         }
     }
 
     /**
-     * Takes a [reportId] and returns the content of the first ancestor as submitted by the sender as a ByteArray
+     * Get the greatest ancestor of the report and send the blob associated with it to the receiver. This is the
+     * "original message pass through" feature, documented here:
+     *  prime-router/docs/design/proposals/0024-original-message-passthrough.md
+     * [message] defines reportId and topic
+     * [receiver] the receiver to send the original message to
+     * [actionHistory] ensures all activities are recorded to the database
      */
-    internal fun getOriginalReport(
-        reportId: ReportId,
-    ): ReportFile {
-        val rootReportId = findRootReportId(reportId)
-        return db.fetchReportFile(rootReportId)
+    internal fun sendOriginal(
+        message: FhirTranslateQueueMessage,
+        receiver: Receiver,
+        actionHistory: ActionHistory,
+    ): FHIREngineRunResult {
+        logger.trace("Preparing to send original message")
+        val originalReport = reportService.getRootReport(message.reportId)
+        val bodyBytes = BlobAccess.downloadBlobAsByteArray(originalReport.bodyUrl)
+
+        // get a Report from the message
+        val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
+            Event.EventAction.SEND,
+            bodyBytes,
+            listOf(message.reportId),
+            receiver,
+            this.metadata,
+            actionHistory,
+            topic = message.topic,
+            originalReport.externalName,
+            Report.Format.valueOfFromExt(originalReport.bodyFormat)
+        )
+
+        return FHIREngineRunResult(
+            event,
+            report,
+            blobInfo.blobUrl,
+            ReportEventQueueMessage(Event.EventAction.SEND, false, report.id, OffsetDateTime.now().toString())
+        )
     }
 
     /**
-     * Takes a [reportId] and returns the ReportId of the original message that was sent
+     * Translate the FHIR bundle associated with the report ID to the format the receiver specified and let the
+     *  batch step pick it up.
+     * [message] defines reportId, topic, and the FHIR bundle to translate
+     * [receiver] the receiver to send the translated message to
+     * [actionHistory] ensures all activities are recorded to the database
      */
-    fun findRootReportId(reportId: ReportId): ReportId {
-        val itemLineages = db.fetchItemLineagesForReport(reportId, 1)
-        return if (itemLineages != null && itemLineages[0].parentReportId != null) {
-            findRootReportId(itemLineages[0].parentReportId)
-        } else {
-            return reportId
-        }
+    internal fun sendTranslated(
+        message: FhirTranslateQueueMessage,
+        receiver: Receiver,
+        actionHistory: ActionHistory,
+    ): FHIREngineRunResult {
+        logger.trace("Preparing to send translated message")
+        val bodyBytes = getByteArrayFromBundle(receiver, FhirTranscoder.decode(message.downloadContent()))
+
+        val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
+            Event.EventAction.BATCH,
+            bodyBytes,
+            listOf(message.reportId),
+            receiver,
+            this.metadata,
+            actionHistory,
+            topic = message.topic
+        )
+
+        return FHIREngineRunResult(
+            event,
+            report,
+            blobInfo.blobUrl,
+            null
+        )
     }
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.TRANSLATED_AT
@@ -153,15 +178,19 @@ class FHIRTranslator(
         if (receiver.enrichmentSchemaNames.isNotEmpty()) {
             receiver.enrichmentSchemaNames.forEach { enrichmentSchemaName ->
                 logger.info("Applying enrichment schema $enrichmentSchemaName")
-                val transformer = FhirTransformer(enrichmentSchemaName)
-                transformer.transform(bundle)
+                val transformer = FhirTransformer(
+                    enrichmentSchemaName,
+                )
+                transformer.process(bundle)
             }
         }
         when (receiver.format) {
             Report.Format.FHIR -> {
                 if (receiver.schemaName.isNotEmpty()) {
-                    val transformer = FhirTransformer(receiver.schemaName)
-                    transformer.transform(bundle)
+                    val transformer = FhirTransformer(
+                        receiver.schemaName,
+                    )
+                    transformer.process(bundle)
                 }
                 return FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
             }
@@ -188,11 +217,13 @@ class FHIRTranslator(
                 receiver
             )
         }
+
         val converter = FhirToHl7Converter(
             receiver.schemaName,
+            BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().blobEnvVar),
             context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions())
         )
-        val hl7Message = converter.convert(bundle)
+        val hl7Message = converter.process(bundle)
 
         // if receiver is 'testing' or useTestProcessingMode is true, set to 'T', otherwise leave it as is
         if (receiver.customerStatus == CustomerStatus.TESTING ||

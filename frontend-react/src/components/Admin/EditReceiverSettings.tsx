@@ -1,33 +1,8 @@
-import React, { FC, useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
-import { useController, useResource } from "rest-hooks";
+import { FC, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useController, useResource } from "rest-hooks";
 
-import Title from "../../components/Title";
-import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
-import { showToast } from "../../contexts/Toast";
-import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
-import {
-    getErrorDetailFromResponse,
-    getVersionWarning,
-    VersionWarningType,
-} from "../../utils/misc";
-import { EnumTooltip, ObjectTooltip } from "../tooltips/ObjectTooltip";
-import {
-    getListOfEnumValues,
-    SampleTimingObj,
-    SampleTranslationObj,
-    SampleTransportObject,
-} from "../../utils/TemporarySettingsAPITypes";
-import config from "../../config";
-import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
-import { useSessionContext } from "../../contexts/Session";
-import { useAppInsightsContext } from "../../contexts/AppInsights";
-
-import {
-    ConfirmSaveSettingModal,
-    ConfirmSaveSettingModalRef,
-} from "./CompareJsonModal";
 import {
     CheckboxComponent,
     DropdownComponent,
@@ -35,21 +10,45 @@ import {
     TextInputComponent,
 } from "./AdminFormEdit";
 import { AdminFormWrapper } from "./AdminFormWrapper";
+import {
+    ConfirmSaveSettingModal,
+    ConfirmSaveSettingModalRef,
+} from "./CompareJsonModal";
+import Title from "../../components/Title";
+import config from "../../config";
+import useSessionContext from "../../contexts/Session/useSessionContext";
+import { showToast } from "../../contexts/Toast";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
+import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
+import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
+import {
+    getErrorDetailFromResponse,
+    getVersionWarning,
+    VersionWarningType,
+} from "../../utils/misc";
+import {
+    getListOfEnumValues,
+    SampleTimingObj,
+    SampleTranslationObj,
+    SampleTransportObject,
+} from "../../utils/TemporarySettingsAPITypes";
+import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
+import { EnumTooltip, ObjectTooltip } from "../tooltips/ObjectTooltip";
 
 const { RS_API_URL } = config;
 
-type EditReceiverSettingsFormProps = {
+interface EditReceiverSettingsFormProps {
     orgname: string;
     receivername: string;
     action: "edit" | "clone";
-};
+}
 
 const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
     orgname,
     receivername,
     action,
 }) => {
-    const { fetchHeaders } = useAppInsightsContext();
+    const { properties } = useAppInsightsContext();
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { activeMembership, authState } = useSessionContext();
@@ -106,7 +105,7 @@ const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
             `${RS_API_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
             {
                 headers: {
-                    ...fetchHeaders(),
+                    "x-ms-session-id": properties.context.getSessionId(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },
@@ -142,7 +141,7 @@ const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
             setLoading(false);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
+            const errorDetail = await getErrorDetailFromResponse(e);
             showToast(
                 `Reloading receiver '${receivername}' failed with: ${errorDetail}`,
                 "error",
@@ -196,7 +195,7 @@ const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
             navigate(-1);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
+            const errorDetail = await getErrorDetailFromResponse(e);
             showToast(
                 `Updating receiver '${receivername}' failed with: ${errorDetail}`,
                 "error",
@@ -375,8 +374,10 @@ const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
                         <Button
                             type="button"
                             outline={true}
-                            onClick={async () =>
-                                (await resetReceiverList()) && navigate(-1)
+                            onClick={() =>
+                                void resetReceiverList().then(() =>
+                                    navigate(-1),
+                                )
                             }
                         >
                             Cancel
@@ -386,7 +387,7 @@ const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
                             type="submit"
                             data-testid="submit"
                             disabled={loading}
-                            onClick={showCompareConfirm}
+                            onClick={() => void showCompareConfirm()}
                         >
                             Edit json and save...
                         </Button>
@@ -399,29 +400,29 @@ const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
                             : orgReceiverSettings.name
                     }
                     ref={confirmModalRef}
-                    onConfirm={saveReceiverData}
+                    onConfirm={() => void saveReceiverData()}
                     oldjson={orgReceiverSettingsOldJson}
                     newjson={orgReceiverSettingsNewJson}
                 />
             </GridContainer>
             <ModalConfirmDialog
                 id={"deleteConfirm"}
-                onConfirm={doDelete}
+                onConfirm={(id) => void doDelete(id)}
                 ref={modalRef}
             ></ModalConfirmDialog>
         </section>
     );
 };
 
-type EditReceiverSettingsProps = {
+interface EditReceiverSettingsParams extends Record<string, string> {
     orgname: string;
     receivername: string;
     action: "edit" | "clone";
-};
+}
 
 export function EditReceiverSettingsPage() {
     const { orgname, receivername, action } =
-        useParams<EditReceiverSettingsProps>();
+        useParams<EditReceiverSettingsParams>();
 
     return (
         <AdminFormWrapper

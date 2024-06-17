@@ -1,0 +1,153 @@
+resourceType: RelatedPerson
+
+# Not implementing NK1.6: not in mapping, not in NIST
+# Not implementing NK1.7: not in mapping, not in NIST
+# Not implementing NK1.8: not in mapping, not in NIST
+# Not implementing NK1.9: not in mapping, not in NIST
+# Not implementing NK1.10: not in mapping, not in NIST
+# Not implementing NK1.11: not in mapping, not in NIST
+# Not implementing NK1.12: not in mapping, not in NIST
+# Not implementing NK1.14: not in mapping, not in NIST
+# Not implementing NK1.15: not in mapping, not in NIST
+# Not implementing NK1.16: not in mapping, not in NIST
+# Not implementing NK1.17: not in mapping, not in NIST
+# Not implementing NK1.18: not in mapping, not in NIST
+# Not implementing NK1.19: not in mapping, not in NIST
+# Not implementing NK1.21: not in mapping, not in NIST
+# Not implementing NK1.22: not in mapping, not in NIST
+# Not implementing NK1.23: not in mapping, not in NIST
+# Not implementing NK1.24: not in mapping, not in NIST
+# Not implementing NK1.25: not in mapping, not in NIST
+# Not implementing NK1.26: not in mapping, not in NIST
+# Not implementing NK1.27: not in mapping, not in NIST
+# Not implementing NK1.28: not in mapping, not in NIST
+# Not implementing NK1.29: not in mapping, not in NIST
+# Not implementing NK1.33: not in mapping, not in NIST
+# Not implementing NK1.34: not in mapping, not in NIST
+# Not implementing NK1.35: not in mapping, not in NIST
+# Not implementing NK1.36: not in mapping, not in NIST
+# Not implementing NK1.37: not in mapping, not in NIST
+# Not implementing NK1.38: not in mapping, not in NIST
+# Not implementing NK1.39: not in mapping, not in NIST
+# Not implementing NK1.40: not in mapping, not in NIST
+# Not implementing NK1.41: not in mapping, not in NIST
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+patient:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Patient
+  useGroup: true
+
+name:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - valueOf: datatypes/XPN_ELR/HumanName
+      expressionType: resource
+      condition: $nk1-2 NOT_NULL
+      generateList: true
+      vars:
+        nk1-2: NK1.2
+      specs: NK1.2 *
+      constants:
+        hl7v2Field: "NK1.2"
+    - valueOf: datatypes/XPN_ELR/HumanName
+      expressionType: resource
+      condition: $nk1-30 NOT_NULL
+      generateList: true
+      vars:
+        nk1-30: NK1.30
+      specs: NK1.30 *
+      constants:
+        hl7v2Field: "NK1.30"
+
+relationship:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - valueOf: datatypes/CWE_ELR/CodeableConcept
+      expressionType: resource
+      condition: $nk1-3 NOT_NULL
+      vars:
+        nk1-3: NK1.3
+      specs: NK1.3
+      constants:
+        hl7v2Field: "NK1.3"
+
+address:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - valueOf: ../../datatypes/v251/hl7/datatypes/XAD/Address
+      generateList: true
+      expressionType: resource
+      condition: $nk1-4 NOT_NULL
+      vars:
+        nk1-4: NK1.4
+      specs: NK1.4 *
+      constants:
+        hl7v2Field: "NK1.4"
+    - valueOf: ../../datatypes/v251/hl7/datatypes/XAD/Address
+      generateList: true
+      expressionType: resource
+      condition: $nk1-32 NOT_NULL
+      vars:
+        nk1-32: NK1.32
+      specs: NK1.32 *
+      constants:
+        hl7v2Field: "NK1.32"
+
+telecom:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - condition: $valueIn NOT_NULL
+      valueOf: ../../datatypes/v251/hl7/datatypes/XTN/ContactPoint
+      generateList: true
+      expressionType: resource
+      specs: NK1.5 *
+      vars:
+        valueIn: NK1.5
+      constants:
+        hl7v2Field: "NK1.5"
+    - condition: $valueIn NOT_NULL
+      valueOf: ../../datatypes/v251/hl7/datatypes/XTN/ContactPoint
+      generateList: true
+      expressionType: resource
+      specs: NK1.31 *
+      vars:
+        valueIn: NK1.31
+      constants:
+        hl7v2Field: "NK1.31"
+
+communication:
+  expressionType: nested
+  vars:
+    nk1-20: STRING_ALL, NK1.20
+  condition: $nk1-20 NOT_NULL
+  expressionsMap:
+    language:
+      valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
+      expressionType: resource
+      specs: NK1.20
+
+extension:
+  expressionType: nested
+  generateList: true
+  vars:
+    nk1-13: STRING_ALL, NK1.13
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: hl7v2Segment
+        valueString:
+          valueOf: 'NK1'
+    - expressionType: resource
+      valueOf: segments/NK1/NK1Extension

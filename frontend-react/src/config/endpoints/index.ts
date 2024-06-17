@@ -1,8 +1,8 @@
-import { Method, AxiosRequestConfig } from "axios";
+import { AxiosRequestConfig, Method } from "axios";
 import { omit } from "lodash";
 
-import { StringIndexed } from "../../utils/UsefulTypes";
 import config from "..";
+import { StringIndexed } from "../../utils/UsefulTypes";
 
 const { API_ROOT } = config;
 
@@ -26,9 +26,7 @@ export interface AxiosOptionsWithSegments extends AxiosRequestConfig {
     segments: StringIndexed<string>;
 }
 
-export type RSApiEndpoints = {
-    [endpointName: string]: RSEndpoint;
-};
+export type RSApiEndpoints = Record<string, RSEndpoint>;
 
 export class RSEndpoint {
     path: string;
@@ -70,7 +68,7 @@ export class RSEndpoint {
         );
         if (pathWithSegments.indexOf("/:") > -1) {
             throw new Error(
-                `missing dynamic path param: ${this.url}, ${segments}`,
+                `missing dynamic path param: ${this.url}, ${JSON.stringify(segments)}`,
             );
         }
         return pathWithSegments;

@@ -1,10 +1,11 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Pagination Renders the expected markup when the current page is between two other pages 1`] = `
+exports[`Pagination > Renders the expected markup when the current page is between two other pages 1`] = `
 <DocumentFragment>
   <nav
     aria-label="Pagination"
     class="usa-pagination"
+    data-testid="Pagination"
   >
     <ul
       class="usa-pagination__list"
@@ -15,7 +16,7 @@ exports[`Pagination Renders the expected markup when the current page is between
         <button
           aria-label="Previous page"
           class="usa-button usa-button--unstyled rs-pagination-arrow-button usa-pagination__previous-page"
-          data-testid="button"
+          data-testid="Previous page"
           type="button"
         >
           <svg
@@ -44,7 +45,7 @@ exports[`Pagination Renders the expected markup when the current page is between
         <button
           aria-label="Page 1"
           class="usa-button usa-button--unstyled usa-pagination__button"
-          data-testid="button"
+          data-testid="Page 1"
           type="button"
         >
           1
@@ -64,7 +65,7 @@ exports[`Pagination Renders the expected markup when the current page is between
         <button
           aria-label="Page 6"
           class="usa-button usa-button--unstyled usa-pagination__button"
-          data-testid="button"
+          data-testid="Page 6"
           type="button"
         >
           6
@@ -77,7 +78,7 @@ exports[`Pagination Renders the expected markup when the current page is between
           aria-current="page"
           aria-label="Page 7"
           class="usa-button usa-button--unstyled usa-pagination__button usa-current"
-          data-testid="button"
+          data-testid="Page 7"
           type="button"
         >
           7
@@ -89,7 +90,7 @@ exports[`Pagination Renders the expected markup when the current page is between
         <button
           aria-label="Page 8"
           class="usa-button usa-button--unstyled usa-pagination__button"
-          data-testid="button"
+          data-testid="Page 8"
           type="button"
         >
           8
@@ -101,7 +102,7 @@ exports[`Pagination Renders the expected markup when the current page is between
         <button
           aria-label="Page 9"
           class="usa-button usa-button--unstyled usa-pagination__button"
-          data-testid="button"
+          data-testid="Page 9"
           type="button"
         >
           9
@@ -121,7 +122,7 @@ exports[`Pagination Renders the expected markup when the current page is between
         <button
           aria-label="Next page"
           class="usa-button usa-button--unstyled rs-pagination-arrow-button usa-pagination__next-page"
-          data-testid="button"
+          data-testid="Next page"
           type="button"
         >
           <span
@@ -149,11 +150,12 @@ exports[`Pagination Renders the expected markup when the current page is between
 </DocumentFragment>
 `;
 
-exports[`Pagination Renders the expected markup when the current page is the last page 1`] = `
+exports[`Pagination > Renders the expected markup when the current page is the last page 1`] = `
 <DocumentFragment>
   <nav
     aria-label="Pagination"
     class="usa-pagination"
+    data-testid="Pagination"
   >
     <ul
       class="usa-pagination__list"
@@ -164,7 +166,7 @@ exports[`Pagination Renders the expected markup when the current page is the las
         <button
           aria-label="Previous page"
           class="usa-button usa-button--unstyled rs-pagination-arrow-button usa-pagination__previous-page"
-          data-testid="button"
+          data-testid="Previous page"
           type="button"
         >
           <svg
@@ -193,7 +195,7 @@ exports[`Pagination Renders the expected markup when the current page is the las
         <button
           aria-label="Page 1"
           class="usa-button usa-button--unstyled usa-pagination__button"
-          data-testid="button"
+          data-testid="Page 1"
           type="button"
         >
           1
@@ -206,7 +208,7 @@ exports[`Pagination Renders the expected markup when the current page is the las
           aria-current="page"
           aria-label="last page, Page 2"
           class="usa-button usa-button--unstyled usa-pagination__button usa-current"
-          data-testid="button"
+          data-testid="last page, Page 2"
           type="button"
         >
           2

@@ -10,6 +10,19 @@ import org.slf4j.MDC
  * method on a Java class
  */
 object MDCUtils {
+    /**
+     * Declare the names of the properties so the same ones are used throughout the codebase
+     */
+    enum class MDCProperty {
+        ACTION_ID,
+        ACTION_NAME,
+        USERNAME,
+        SENDING_ORGANIZATION,
+        REPORT_ID,
+        TOPIC,
+        BLOB_URL,
+        OBSERVATION_ID,
+    }
 
     /**
      * Add all fields in a data class as a separate MDC map entry
@@ -80,9 +93,9 @@ inline fun <T> withLoggingContext(context: AzureLoggingContext, body: () -> T): 
  * // MDC is empty
  * ```
  */
-inline fun <T> withLoggingContext(contextMap: Map<String, Any>, body: () -> T): T {
+inline fun <T> withLoggingContext(contextMap: Map<MDCUtils.MDCProperty, Any>, body: () -> T): T {
     val mapper = JacksonMapperUtilities.jacksonObjectMapper
-    val serializedMap = contextMap.mapValues { mapper.writeValueAsString(it.value) }
+    val serializedMap = contextMap.entries.associate { it.key.toString() to mapper.writeValueAsString(it.value) }
     return io.github.oshai.kotlinlogging.withLoggingContext(
         map = serializedMap,
         body = body
@@ -92,6 +105,6 @@ inline fun <T> withLoggingContext(contextMap: Map<String, Any>, body: () -> T): 
 /**
  * vararg convenience function for `withLoggingContext(contextMap, body)`
  */
-inline fun <T> withLoggingContext(vararg pairs: Pair<String, Any>, body: () -> T): T {
+inline fun <T> withLoggingContext(vararg pairs: Pair<MDCUtils.MDCProperty, Any>, body: () -> T): T {
     return withLoggingContext(pairs.toMap(), body)
 }

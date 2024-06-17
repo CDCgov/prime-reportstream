@@ -1,0 +1,163 @@
+---
+title: Product roadmap
+subtitle: What we have planned and current progress toward our goals
+meta:
+    title: Product roadmap
+    description: Read the latest ways ReportStream is helping to improve public health.
+    openGraph:
+        image:
+            src: /assets/img/opengraph/reportstream-tagline.png
+            altText: "ReportStream. CDC's free, single connection to streamline your data transfer and improve public health. The words are surrounded by illustration of lines and boxes connected by colorful dots."
+---
+import Sidenav from "./sidenav.mdx"
+
+import site from "../../content/site.json"
+
+<LayoutSidenav>
+<Sidenav />
+</LayoutSidenav>
+
+## Objectives for FY24
+Learn about our goals and how we are measuring success for this fiscal year (FY), which runs from October 2023 through September 2024.
+
+<hr className="rs-hr--base-lighter-alternate" />
+
+### Support public health entities with time-sensitive, reportable condition electronic laboratory reporting (ELR) data and broader response readiness.
+* 100% of the 64 <A href="https://www.cdc.gov/epidemiology-laboratory-capacity/php/about/" target="_blank">ELC-funded</A> state, tribal, local, or territorial public health agencies (STLTs) are connected to ReportStream.
+* At least 15 <A href="https://www.cdc.gov/epidemiology-laboratory-capacity/php/about/" target="_blank">ELC-funded</A> STLTs receive live data for two or more reportable conditions from ReportStream via ELR.
+* Complete connection updates for all STLTs currently receiving COVID data so they are able to receive more conditions.
+* Begin updating the connection of organizations sending COVID data so they are able to send additional conditions through ReportStream.
+* Identify one or more new health care organizations, labs, or testing facilities for collaboration on their data reporting needs.
+
+### Pilot faster, simpler electronic test orders and results (ETOR) data transfer with federal and state public health labs.
+* Complete successful test delivery of ELR from CDC’s infectious disease labs to STLTs.
+* Support pilots for newborn screening ETOR with one or more hospital systems and state public health labs.
+
+## Roadmap
+<hr className="rs-hr--base-lighter-alternate" />
+
+<ReleaseNote
+    isDivided={false}
+    sections={[
+        {
+            title: "Enable STLTs to use ReportStream for conditions beyond COVID and mpox.",
+            tag: "recently-completed",
+            body: (
+                <p>
+                    Alaska, California, Hawaii, Los Angeles County, Nevada, New York, New York City, Rhode Island and U.S. Virgin Islands are able to receive flu and RSV data from ReportStream.
+                </p>
+            ),
+        },
+        {
+            tag: "working-on-now",
+            body: (
+                <p>
+                    Onboard or update current connections for Colorado, South Carolina, Texas, and Virginia.
+                </p>
+            ),
+        },
+        {
+            tag: "working-on-now",
+            body: (
+                <p>
+                    Work with Maine, Kentucky, Washington D.C., and Connecticut on their needs and requirements.
+                </p>
+            ),
+        },
+        {
+            tag: "next",
+            body: (
+                <p>
+                    Support Delaware, Florida, New Jersey, and Wyoming by updating their connections to be able to receive additional conditions.
+                </p>
+            ),
+        },
+        {
+            title:<p>Partner with <A href="https://www.simplereport.gov/">SimpleReport</A> to help nontraditional and lower-resourced testing sites and facilities report test results and send data to STLTs and the CDC.</p>,
+            tag: "recently-completed",
+            body: (
+                <p>Alaska, California, Nevada, and New York are receiving flu A/B or RSV data.</p>
+            ),
+        },
+        {
+            tag: "working-on-now",
+            body: (
+                <p>Transmit HIV test results to Los Angeles County.</p>
+            ),
+        },
+        {
+            tag: "next",
+            body: (
+                <p>Transmit syphilis and hepatitis test results to Los Angeles County.</p>
+            ),
+        },
+        {
+            title: "Help at-home test takers and test manufacturers easily report results to STLTs and CDC.",
+            tag: "recently-completed",
+            body: (
+                <p>Define product requirements, using the <A href="https://www.nibib.nih.gov/covid-19/radx-tech-program/mars" _blank>RADx MARS</A> HL7 standard, for supporting results from tests that diagnosis multiple conditions (multiplex tests).</p>
+            ),
+        },
+        {
+            tag: "working-on-now",
+            body: (
+                <p>Support file validation against different HL7 profiles, starting with the RADx MARS custom <A href="https://www.cdc.gov/vaccines/programs/iis/technical-guidance/downloads/hl7guide-1-5-2014-11.pdf" target="_blank">NIST HL7 2.5.1</A> profile.</p>
+            ),
+        },
+        {
+            tag: "next",
+            body: (
+                <p>Handle test results from <A href="http://makemytestcount.org">MakeMyTestCount.org</A>. </p>
+            ),
+        },
+        {
+            title: "Facilitate electronic laboratory reporting (ELR) for the CDC infectious disease labs and transmit to STLTs. ",
+            tag: "recently-completed",
+            body: (
+                <p>Complete internal testing by successfully transmitting lab result data from the CDC labs to two state public health labs. </p>
+            ),
+        },
+        {
+            tag: "working-on-now",
+            body: (
+                <p>Test data pipeline with two STLT partners.</p>
+            ),
+        },
+        {
+            tag: "next",
+            body: (
+                <p>Complete final internal review before moving to production.</p>
+            ),
+        },
+    ]}
+/>
+
+## Additional resources
+
+<CardGroup>
+<Card gridLayout={{tablet: {col: 4}}}>
+
+<CardHeader>
+### [News](/about/news)
+</CardHeader>
+<CardBody>
+Learn the latest ways ReportStream is helping to improve public health.
+</CardBody>
+</Card>
+<Card gridLayout={{tablet: {col: 4}}}>
+<CardHeader>
+### [Release notes](/about/release-notes)
+</CardHeader>
+<CardBody>
+Stay up to date with new features, enhancements, and fixes.
+</CardBody>
+</Card>
+<Card gridLayout={{tablet: {col: 4}}}>
+<CardHeader>
+### [Developer resources](/developer-resources)
+</CardHeader>
+<CardBody>
+Explore the technical documentation for ReportStream.
+</CardBody>
+</Card>
+</CardGroup>

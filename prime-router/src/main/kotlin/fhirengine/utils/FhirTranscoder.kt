@@ -7,10 +7,12 @@ import gov.cdc.prime.router.InvalidReportMessage
 import io.github.linuxforhealth.fhir.FHIRContext
 import io.github.linuxforhealth.hl7.ConverterOptions
 import io.github.linuxforhealth.hl7.message.HL7MessageEngine
+import io.github.oshai.kotlinlogging.withLoggingContext
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
 import java.io.BufferedReader
 import java.io.StringReader
+import kotlin.time.TimeSource
 
 /**
  * A set of behaviors and defaults for FHIR encoding and decoding.
@@ -31,7 +33,9 @@ object FhirTranscoder : Logging {
             finalOptions.zoneIdText
         )
 
-        return HL7MessageEngine(context, finalOptions.bundleType)
+        return HL7MessageEngine(
+            context, finalOptions.bundleType
+        )
     }
 
     /**
@@ -63,6 +67,7 @@ object FhirTranscoder : Logging {
      * @returns a list of list of [Bundle]
      */
     fun getBundles(rawMessage: String, actionLogger: ActionLogger): List<Bundle> {
+        val timeSource = TimeSource.Monotonic
         val bundles: MutableList<Bundle> = mutableListOf()
         if (rawMessage.isBlank()) {
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
@@ -86,8 +91,16 @@ object FhirTranscoder : Logging {
                 index++
             }
             bufferedReader.close()
+            val end = timeSource.markNow()
+            withLoggingContext(
+                mapOf(
+                    "timeInMs" to end.elapsedNow().inWholeMilliseconds.toString(),
+                    "numberOfLines" to index.toString()
+                )
+            ) {
+                logger.info("Finished decoding FHIR bundles")
+            }
         }
-
         return bundles
     }
 }

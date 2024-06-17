@@ -1,18 +1,17 @@
 import { fireEvent, screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { settingsServer } from "../../__mocks__/SettingsMockServer";
-import { ResponseType, TestResponse } from "../../resources/TestResponse";
-import OrganizationResource from "../../resources/OrganizationResource";
-
 import { AdminOrgNewPage } from "./AdminOrgNew";
+import { settingsServer } from "../../__mockServers__/SettingsMockServer";
+import OrganizationResource from "../../resources/OrganizationResource";
+import { ResponseType, TestResponse } from "../../resources/TestResponse";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 const mockData: OrganizationResource = new TestResponse(
     ResponseType.NEW_ORGANIZATION,
 ).data;
 
-jest.mock("rest-hooks", () => ({
-    ...jest.requireActual("rest-hooks"),
+vi.mock("rest-hooks", async (importActual) => ({
+    ...(await importActual<typeof import("rest-hooks")>()),
     useResource: () => {
         return mockData;
     },
@@ -26,10 +25,10 @@ jest.mock("rest-hooks", () => ({
     },
 }));
 
-jest.mock("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"),
+vi.mock("react-router-dom", async (importActual) => ({
+    ...(await importActual<typeof import("react-router-dom")>()),
     __esModule: true,
-    useNavigate: () => jest.fn(),
+    useNavigate: () => vi.fn(),
 }));
 
 const testNewOrgJson = JSON.stringify({

@@ -1,4 +1,6 @@
-import React, {
+import { Icon, Tooltip } from "@trussworks/react-uswds";
+import classnames from "classnames";
+import {
     PropsWithChildren,
     ReactNode,
     useCallback,
@@ -6,8 +8,6 @@ import React, {
     useRef,
     useState,
 } from "react";
-import { Icon, Tooltip } from "@trussworks/react-uswds";
-import classnames from "classnames";
 
 import styles from "./CodeSnippet.module.scss";
 
@@ -15,7 +15,7 @@ interface CodeSnippetProps extends PropsWithChildren {
     children?: ReactNode;
 }
 
-export const CodeSnippet = ({ children }: CodeSnippetProps) => {
+const CodeSnippet = ({ children }: CodeSnippetProps) => {
     const [isCopied, setIsCopied] = useState(false);
     const containerRef = useRef<HTMLElement>(null);
 
@@ -31,7 +31,7 @@ export const CodeSnippet = ({ children }: CodeSnippetProps) => {
                 label={isCopied ? "Copied" : "Copy to clipboard"}
                 onClick={() => {
                     if (containerRef.current?.textContent)
-                        navigator.clipboard.writeText(
+                        void navigator.clipboard.writeText(
                             containerRef.current.textContent,
                         );
 
@@ -62,3 +62,5 @@ export const CodeSnippet = ({ children }: CodeSnippetProps) => {
         </pre>
     );
 };
+
+export default CodeSnippet;

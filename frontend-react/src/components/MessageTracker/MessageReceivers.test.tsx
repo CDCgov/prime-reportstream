@@ -1,9 +1,8 @@
 import { fireEvent, screen } from "@testing-library/react";
 
+import { MessageReceivers } from "./MessageReceivers";
 import { ReceiverData } from "../../config/endpoints/messageTracker";
 import { renderApp } from "../../utils/CustomRenderUtils";
-
-import { MessageReceivers } from "./MessageReceivers";
 
 const MOCK_RECEIVER_DATA: ReceiverData[] = [
     {
@@ -31,7 +30,7 @@ const MOCK_RECEIVER_DATA: ReceiverData[] = [
 ];
 
 describe("MessageReceivers component", () => {
-    test("renders expected content", async () => {
+    test("renders expected content", () => {
         renderApp(<MessageReceivers receiverDetails={MOCK_RECEIVER_DATA} />);
 
         expect(screen.getByText(/Receivers/)).toBeInTheDocument();
@@ -40,9 +39,7 @@ describe("MessageReceivers component", () => {
         expect(screen.getByText(/Service/)).toBeInTheDocument();
         expect(screen.getByText("elr")).toBeInTheDocument();
         expect(screen.getByText("Date")).toBeInTheDocument();
-        expect(
-            screen.getByText(/09\/28\/2022, 07:55:12 PM/),
-        ).toBeInTheDocument();
+        expect(screen.getByText(/9\/28\/2022, 7:55:12 PM/)).toBeInTheDocument();
         expect(screen.getByText(/Report Id/)).toBeInTheDocument();
         expect(
             screen.getByText(/578eae4e-b24d-45aa-bc5c-4d96a0bfef96/),

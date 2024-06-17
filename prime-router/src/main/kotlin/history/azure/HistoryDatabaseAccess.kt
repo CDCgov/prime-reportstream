@@ -1,8 +1,10 @@
 package gov.cdc.prime.router.history.azure
 
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
+import gov.cdc.prime.router.azure.db.Tables.SETTING
 import gov.cdc.prime.router.common.BaseEngine
 import org.jooq.Condition
 import org.jooq.SortField
@@ -55,9 +57,11 @@ abstract class HistoryDatabaseAccess(
      * @param pageSize is an Integer used for setting the number of results per page.
      * @param showFailed whether to include actions that failed to be sent.
      * @param klass the class that the found data will be converted to.
+     * @param reportId is the reportId to get results for.
+     * @param fileName is the fileName to get results for.
      * @return a list of results matching the SQL Query.
      */
-    fun <T> fetchActions(
+    fun <T> fetchActionsForSubmissions(
         organization: String,
         orgService: String?,
         sortDir: SortDir,
@@ -68,9 +72,12 @@ abstract class HistoryDatabaseAccess(
         pageSize: Int,
         showFailed: Boolean,
         klass: Class<T>,
+        reportId: UUID? = null,
+        fileName: String? = null,
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, sortDir)
-        val whereClause = createWhereCondition(organization, orgService, since, until, showFailed)
+        val whereClause =
+            createWhereCondition(organization, orgService, null, reportId, fileName, since, until, showFailed)
 
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
@@ -85,6 +92,82 @@ abstract class HistoryDatabaseAccess(
                     ACTION.join(REPORT_FILE).on(
                         REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID)
                     )
+                )
+                .where(whereClause)
+                .orderBy(sortedColumn)
+
+            if (cursor != null) {
+                query.seek(cursor)
+            }
+
+            query.limit(pageSize)
+                .fetchInto(klass)
+        }
+    }
+
+    /**
+     * Get multiple results based on a particular organization.
+     *
+     * @param organization is the Organization Name returned from the Okta JWT Claim.
+     * @param orgService is a specifier for an organization, such as the client or service used to send/receive
+     * @param sortDir sort the table in ASC or DESC order.
+     * @param sortColumn sort the table by specific column; default created_at.
+     * @param cursor is the OffsetDateTime of the last result in the previous list.
+     * @param since is the OffsetDateTime that dictates how far back returned results date.
+     * @param until is the OffsetDateTime that dictates how recently returned results date.
+     * @param pageSize is an Integer used for setting the number of results per page.
+     * @param showFailed whether to include actions that failed to be sent.
+     * @param klass the class that the found data will be converted to.
+     * @param reportId is the reportId to get results for.
+     * @param fileName is the fileName to get results for.
+     * @param receivingOrgSvcStatus is the status of the receiving organization's service.
+     * @return a list of results matching the SQL Query.
+     */
+    fun <T> fetchActionsForDeliveries(
+        organization: String,
+        orgService: String?,
+        sortDir: SortDir,
+        sortColumn: SortColumn,
+        cursor: OffsetDateTime?,
+        since: OffsetDateTime?,
+        until: OffsetDateTime?,
+        pageSize: Int,
+        showFailed: Boolean,
+        klass: Class<T>,
+        reportId: UUID? = null,
+        fileName: String? = null,
+        receivingOrgSvcStatus: List<CustomerStatus>? = null,
+    ): List<T> {
+        val sortedColumn = createColumnSort(sortColumn, sortDir)
+        val whereClause =
+            createWhereCondition(
+                organization, orgService, receivingOrgSvcStatus, reportId, fileName, since, until, showFailed
+            )
+
+        return db.transactReturning { txn ->
+            val query = DSL.using(txn)
+                // Note the report file and action tables have columns with the same name, so we must specify what we need.
+                .select(
+                    ACTION.ACTION_ID, ACTION.CREATED_AT, ACTION.SENDING_ORG, ACTION.SENDING_ORG_CLIENT,
+                    REPORT_FILE.RECEIVING_ORG, REPORT_FILE.RECEIVING_ORG_SVC,
+                    DSL.jsonbGetAttributeAsText(SETTING.VALUES, "customerStatus").`as`("receiving_org_svc_status"),
+                    ACTION.HTTP_STATUS, ACTION.EXTERNAL_NAME, REPORT_FILE.REPORT_ID, REPORT_FILE.SCHEMA_TOPIC,
+                    REPORT_FILE.ITEM_COUNT, REPORT_FILE.BODY_URL, REPORT_FILE.SCHEMA_NAME, REPORT_FILE.BODY_FORMAT
+                )
+                .from(
+                    ACTION.join(REPORT_FILE).on(
+                        REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID),
+                    )
+                        .join(SETTING)
+                        .on(
+                            REPORT_FILE.RECEIVING_ORG
+                            .eq(DSL.jsonbGetAttributeAsText(SETTING.VALUES, "organizationName"))
+                        )
+                        .and(
+                            REPORT_FILE.RECEIVING_ORG_SVC
+                            .eq(DSL.jsonbGetAttributeAsText(SETTING.VALUES, "name"))
+                        )
+                        .and(SETTING.IS_ACTIVE)
                 )
                 .where(whereClause)
                 .orderBy(sortedColumn)
@@ -128,6 +211,7 @@ abstract class HistoryDatabaseAccess(
      *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
      * @param orgService is a specifier for an organization, such as the client or service used to send/receive
+     * @param receivingOrgSvcStatus is the status for the receiving service in an organization, i.e. active/inactive
      * @param since is the OffsetDateTime that dictates how far back returned results date.
      * @param until is the OffsetDateTime that dictates how recently returned results date.
      * @param showFailed filter out submissions that failed to send.
@@ -136,11 +220,30 @@ abstract class HistoryDatabaseAccess(
     private fun createWhereCondition(
         organization: String,
         orgService: String?,
+        receivingOrgSvcStatus: List<CustomerStatus>?,
+        reportId: UUID?,
+        fileName: String?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
         showFailed: Boolean,
     ): Condition {
         var filter = this.organizationFilter(organization, orgService)
+
+        if (receivingOrgSvcStatus != null) {
+            var statusList = receivingOrgSvcStatus.map { it.name.lowercase() }
+            filter = filter.and(
+                DSL.jsonbGetAttributeAsText(SETTING.VALUES, "customerStatus")
+                    .`in`(statusList)
+            )
+        }
+
+        if (reportId != null) {
+            filter = filter.and(REPORT_FILE.REPORT_ID.eq(reportId))
+        }
+
+        if (fileName != null) {
+            filter = filter.and(REPORT_FILE.BODY_URL.likeIgnoreCase("%$fileName"))
+        }
 
         if (since != null) {
             filter = filter.and(ACTION.CREATED_AT.ge(since))

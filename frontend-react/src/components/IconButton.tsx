@@ -31,7 +31,7 @@ export interface ButtonProps {
     unstyled?: boolean;
 }
 
-export interface IconButtonProps extends ButtonProps {}
+export type IconButtonProps = ButtonProps;
 
 export const IconButton = ({
     children,

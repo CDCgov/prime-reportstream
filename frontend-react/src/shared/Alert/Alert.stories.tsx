@@ -1,8 +1,7 @@
 // AutoUpdateFileChromatic
-
-import React, { ComponentProps, ReactElement } from "react";
-import { Button } from "@trussworks/react-uswds";
 import { Meta, StoryObj } from "@storybook/react";
+import { Button } from "@trussworks/react-uswds";
+import { ComponentProps, ReactElement } from "react";
 
 import { AlertSimple } from "./Alert";
 

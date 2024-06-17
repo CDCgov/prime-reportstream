@@ -1,12 +1,11 @@
 import { screen } from "@testing-library/react";
 
+import { ErrorPage } from "./ErrorPage";
 import {
     GENERIC_ERROR_PAGE_CONFIG,
     GENERIC_ERROR_STRING,
 } from "../../content/error/ErrorMessages";
 import { renderApp } from "../../utils/CustomRenderUtils";
-
-import { ErrorPage } from "./ErrorPage";
 
 describe("ErrorPage tests", () => {
     test("Renders as message with no props", () => {

@@ -1,4 +1,4 @@
-import { BreadcrumbBar, Breadcrumb, Icon } from "@trussworks/react-uswds";
+import { Breadcrumb, BreadcrumbBar, Icon } from "@trussworks/react-uswds";
 import { ReactChild } from "react";
 
 import { IconButton } from "./IconButton";
@@ -15,10 +15,10 @@ interface CrumbsProps {
 }
 
 const Crumbs = ({ crumbList, previousPage }: CrumbsProps) => {
-    if (crumbList || previousPage) {
+    if (crumbList ?? previousPage) {
         return (
             <div>
-                {Boolean(previousPage) ? (
+                {previousPage ? (
                     <div className="font-sans-lg line-height-sans-4 margin-top-8">
                         <IconButton
                             size="big"

@@ -1,6 +1,8 @@
-import { minimumBrowsersRegex } from "./utils/SupportedBrowsers";
+import { minimum } from "./browsers.json";
 
-if (!minimumBrowsersRegex.test(navigator.userAgent)) {
+const minUseragent = new RegExp(minimum.useragent);
+
+if (!minUseragent.test(navigator.userAgent)) {
     // eslint-disable-next-line no-restricted-globals
     location.assign("/unsupported-browser.html");
 }

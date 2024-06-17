@@ -428,12 +428,17 @@ class CompareHl7Data(
             val actualMsg = actualMsgs.next()
             val expectedMsg = try {
                 expectedMsgs.next()
-            } catch (e: NoSuchElementException) {
-                result.errors.add(
-                    "The number of expected messages is less than the actual $recordNum messages."
-                )
-                passed = false
-                break
+            } catch (e: Exception) {
+                when (e) {
+                    is NoSuchElementException, is IllegalStateException -> {
+                        result.errors.add(
+                            "The number of expected messages is less than the actual $recordNum messages."
+                        )
+                        passed = false
+                        break
+                    }
+                    else -> throw e
+                }
             }
             val actualTerser = Terser(actualMsg)
             val expectedTerser = Terser(expectedMsg)

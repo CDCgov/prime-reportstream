@@ -134,6 +134,7 @@ data class ReportStreamFilterResult(
     val filterArgs: List<String>,
     val filteredTrackingElement: String,
     val filterType: ReportStreamFilterType?,
+    val filteredObservationDetails: String? = null,
 ) : ActionLogDetail {
     override val scope = ActionLogScope.translation
     override val errorCode = ErrorCode.UNKNOWN
@@ -143,8 +144,11 @@ data class ReportStreamFilterResult(
         const val DEFAULT_TRACKING_VALUE = "MissingID"
     }
 
-    override val message = "For $receiverName, filter $filterName$filterArgs" +
-        " filtered out item $filteredTrackingElement"
+    override val message = """
+        For $receiverName, filter $filterName$filterArgs filtered out item $filteredTrackingElement. 
+        $filteredObservationDetails 
+    }
+    """.trimIndent()
 
     // Used for deserializing to a JSON response
     override fun toString(): String {
@@ -269,7 +273,7 @@ class Report : Logging {
             schema.baseName,
             bodyFormat,
             createdDateTime,
-            translationConfig = destination?.translation,
+            translationConfig = if (destination?.topic?.isSendOriginal == true) null else destination?.translation,
             metadata = this.metadata
         )
 
@@ -412,6 +416,56 @@ class Report : Logging {
         this.itemCount = numberOfMessages
         this.metadata = metadata ?: Metadata.getInstance()
         this.itemCountBeforeQualFilter = numberOfMessages
+        this.nextAction = nextAction
+    }
+
+    data class ParentItemLineageData(val parentReportId: UUID, val parentReportIndex: Int)
+
+    /**
+     * This constructor can be used to generate a report with its item lineage constructed as
+     * well by passing in a list of [ParentItemLineageData] which includes the parent report id and parent report indes
+     *
+     * @param bodyFormat is the format for this report. Should be HL7
+     * @param sources is the ClientSource or TestSource, where this data came from
+     * @param metadata the metadata used with the report
+     * @param parentItemLineageData lineage data for the parent that is used to construct item lineage
+     * @param destination where this report is going
+     * @param nextAction the next action to be performed on this report
+     */
+    constructor(
+        bodyFormat: Format,
+        sources: List<Source>,
+        metadata: Metadata? = null,
+        parentItemLineageData: List<ParentItemLineageData>,
+        destination: Receiver? = null,
+        nextAction: TaskAction,
+        topic: Topic,
+    ) {
+        this.id = UUID.randomUUID()
+        // UP submissions do not need a schema, but it is required by the database to maintain legacy functionality
+        this.schema = Schema("None", topic)
+        this.sources = sources
+        this.bodyFormat = bodyFormat
+        this.destination = destination
+        this.createdDateTime = OffsetDateTime.now()
+        this.itemLineages = parentItemLineageData.mapIndexed { index, parentItemLineage ->
+            ItemLineage(
+                null,
+                parentItemLineage.parentReportId,
+                parentItemLineage.parentReportIndex,
+                this.id,
+                index + 1,
+                null,
+                null,
+                null,
+                UUID.randomUUID().toString()
+            )
+        }
+        // we do not need the 'table' representation in this instance
+        this.table = createTable(emptyMap<String, List<String>>())
+        this.itemCount = parentItemLineageData.size
+        this.metadata = metadata ?: Metadata.getInstance()
+        this.itemCountBeforeQualFilter = parentItemLineageData.size
         this.nextAction = nextAction
     }
 
@@ -1554,20 +1608,13 @@ class Report : Logging {
             header: WorkflowEngine.Header,
             metadata: Metadata? = null,
         ): String {
-            // extract the filename from the blob url.
-            val filename = if (header.reportFile.bodyUrl != null) {
+            return if (header.reportFile.bodyUrl != null) {
                 BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl)
             } else {
-                ""
-            }
-            return if (filename.isNotEmpty()) {
-                filename
-            } else {
-                // todo: extend this to use the APHL naming convention
                 formFilename(
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
-                    header.receiver?.format ?: error("Internal Error: ${header.receiver?.name} does not have a format"),
+                    Format.valueOfFromExt(header.reportFile.bodyFormat),
                     header.reportFile.createdAt,
                     metadata = metadata ?: Metadata.getInstance()
                 )
@@ -1586,14 +1633,9 @@ class Report : Logging {
             createdAt: OffsetDateTime,
             metadata: Metadata? = null,
         ): String {
-            // extract the filename from the blob url.
-            val filename = if (bodyUrl != null) {
+            return if (bodyUrl != null) {
                 BlobAccess.BlobInfo.getBlobFilename(bodyUrl)
             } else {
-                ""
-            }
-            return filename.ifEmpty {
-                // todo: extend this to use the APHL naming convention
                 formFilename(
                     reportId,
                     schemaName,
@@ -1652,13 +1694,15 @@ class Report : Logging {
             actionHistory: ActionHistory,
             topic: Topic,
             externalName: String? = null,
+            format: Format? = null,
         ): Triple<Report, Event, BlobAccess.BlobInfo> {
             check(messageBody.isNotEmpty())
             check(sourceReportIds.isNotEmpty())
 
             // create report object
             val sources = emptyList<Source>()
-            val reportFormat = when (receiver.format) {
+            // determine format based off the receiver's specified format if format is not specified
+            val reportFormat = format ?: when (receiver.format) {
                 Report.Format.HL7, Report.Format.HL7_BATCH -> {
                     if (sourceReportIds.size > 1) {
                         Report.Format.HL7_BATCH
@@ -1719,7 +1763,7 @@ class Report : Logging {
             val blobInfo = BlobAccess.uploadBody(
                 reportFormat,
                 messageBody,
-                if (!externalName.isNullOrEmpty()) "$externalName-${report.name}" else report.name,
+                if (!externalName.isNullOrEmpty()) "${report.id}-$externalName" else report.name,
                 receiver.fullName,
                 event.eventAction
             )

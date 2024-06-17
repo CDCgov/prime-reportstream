@@ -1,50 +1,51 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { Suspense } from "react";
 
-import { INITIAL_STATE } from "../../hooks/UseFileHandler";
-import {
-    CustomerStatus,
-    FileType,
-    Format,
-} from "../../utils/TemporarySettingsAPITypes";
-import { RSSender } from "../../config/endpoints/settings";
-import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
-import { renderApp } from "../../utils/CustomRenderUtils";
-import * as useSenderResourceExports from "../../hooks/UseSenderResource";
-import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
+import FileHandlerFileUploadStep, {
+    getClientHeader,
+} from "./FileHandlerFileUploadStep";
 import {
     fakeFile,
     mockSendFileWithErrors,
     mockSendValidFile,
 } from "../../__mocks__/validation";
-import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import { sendersGenerator } from "../../__mockServers__/OrganizationMockServer";
+import { RSSender } from "../../config/endpoints/settings";
+import { UseSenderResourceHookResult } from "../../hooks/api/organizations/UseOrganizationSender/UseOrganizationSender";
+import * as useSenderResourceExports from "../../hooks/api/organizations/UseOrganizationSender/UseOrganizationSender";
+import * as useWatersUploaderExports from "../../hooks/api/UseWatersUploader/UseWatersUploader";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
+import { INITIAL_STATE } from "../../hooks/UseFileHandler/UseFileHandler";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import { MembershipSettings, MemberType } from "../../utils/OrganizationUtils";
 import {
-    mockAppInsightsContextReturnValue,
-    mockAppInsights,
-} from "../../contexts/__mocks__/AppInsightsContext";
-import { MemberType, MembershipSettings } from "../../utils/OrganizationUtils";
+    CustomerStatus,
+    FileType,
+    Format,
+} from "../../utils/TemporarySettingsAPITypes";
 
-import FileHandlerFileUploadStep, {
-    getClientHeader,
-} from "./FileHandlerFileUploadStep";
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
+const mockUseAppInsightsContext = vi.mocked(useAppInsightsContext);
+const mockAppInsights = mockUseAppInsightsContext();
 
 describe("FileHandlerFileUploadStep", () => {
     const DEFAULT_PROPS = {
         ...INITIAL_STATE,
-        onFileChange: jest.fn(),
-        onFileSubmitError: jest.fn(),
-        onFileSubmitSuccess: jest.fn(),
-        onPrevStepClick: jest.fn(),
-        onNextStepClick: jest.fn(),
+        onFileChange: vi.fn(),
+        onFileSubmitError: vi.fn(),
+        onFileSubmitSuccess: vi.fn(),
+        onPrevStepClick: vi.fn(),
+        onNextStepClick: vi.fn(),
     };
     const DEFAULT_SENDERS: RSSender[] = sendersGenerator(2);
 
     function mockUseSenderResource(
         result: Partial<UseSenderResourceHookResult> = {},
     ) {
-        jest.spyOn(useSenderResourceExports, "default").mockReturnValue({
+        vi.spyOn(useSenderResourceExports, "default").mockReturnValue({
             isInitialLoading: false,
             isLoading: false,
             data: DEFAULT_SENDERS,
@@ -59,7 +60,6 @@ describe("FileHandlerFileUploadStep", () => {
                 isLoading: false,
             });
             mockSessionContentReturnValue();
-            mockAppInsightsContextReturnValue();
         });
 
         describe("when a CSV schema is chosen", () => {
@@ -123,7 +123,7 @@ describe("FileHandlerFileUploadStep", () => {
         });
 
         describe("when a file is selected", () => {
-            const onFileChangeSpy = jest.fn();
+            const onFileChangeSpy = vi.fn();
             async function setup() {
                 renderApp(
                     <Suspense>
@@ -159,10 +159,7 @@ describe("FileHandlerFileUploadStep", () => {
 
         describe("when a file is being submitted", () => {
             function setup() {
-                jest.spyOn(
-                    useWatersUploaderExports,
-                    "useWatersUploader",
-                ).mockReturnValue({
+                vi.spyOn(useWatersUploaderExports, "default").mockReturnValue({
                     isPending: true,
                     error: null,
                     mutateAsync: () => Promise.resolve({}),
@@ -195,16 +192,14 @@ describe("FileHandlerFileUploadStep", () => {
         });
 
         describe("when a valid file is submitted", () => {
-            const onFileSubmitSuccessSpy = jest.fn();
-            const onNextStepClickSpy = jest.fn();
+            const onFileSubmitSuccessSpy = vi.fn();
+            const onNextStepClickSpy = vi.fn();
             async function setup() {
-                jest.spyOn(
-                    useWatersUploaderExports,
-                    "useWatersUploader",
-                ).mockReturnValue({
+                vi.spyOn(useWatersUploaderExports, "default").mockReturnValue({
                     isPending: false,
                     error: null,
-                    mutateAsync: () => Promise.resolve(mockSendValidFile),
+                    mutateAsync: async () =>
+                        await Promise.resolve(mockSendValidFile),
                 } as any);
 
                 renderApp(
@@ -218,26 +213,34 @@ describe("FileHandlerFileUploadStep", () => {
                                 value: "whatever",
                             }}
                             fileContent="whatever"
+                            fileName="whatever.csv"
+                            file={
+                                new File(
+                                    [new Blob(["whatever"])],
+                                    "whatever.csv",
+                                )
+                            }
                             onFileSubmitSuccess={onFileSubmitSuccessSpy}
                             onNextStepClick={onNextStepClickSpy}
                         />
                     </Suspense>,
                 );
 
-                await waitFor(async () => {
-                    await userEvent.upload(
-                        screen.getByTestId("file-input-input"),
-                        fakeFile,
-                    );
-                    await userEvent.click(screen.getByText("Submit"));
+                const input = await screen.findByTestId("file-input-input");
+                await userEvent.upload(input, fakeFile);
+                await userEvent.click(screen.getByText("Submit"));
+                const form = screen.getByTestId("form");
+                await waitFor(() => {
                     // eslint-disable-next-line testing-library/no-wait-for-side-effects
-                    fireEvent.submit(screen.getByTestId("form"));
-                    await new Promise((res) => setTimeout(res, 100));
+                    fireEvent.submit(form);
                 });
+                await waitFor(() =>
+                    expect(onFileSubmitSuccessSpy).toHaveBeenCalled(),
+                );
             }
 
             afterEach(() => {
-                jest.restoreAllMocks();
+                vi.restoreAllMocks();
             });
 
             test("it calls onFileSubmitSuccess with the response", async () => {
@@ -271,16 +274,13 @@ describe("FileHandlerFileUploadStep", () => {
         });
 
         describe("when an invalid file is submitted", () => {
-            const onFileSubmitErrorSpy = jest.fn();
+            const onFileSubmitErrorSpy = vi.fn();
             async function setup() {
-                jest.spyOn(
-                    useWatersUploaderExports,
-                    "useWatersUploader",
-                ).mockReturnValue({
+                vi.spyOn(useWatersUploaderExports, "default").mockReturnValue({
                     isPending: false,
                     error: null,
-                    mutateAsync: () =>
-                        Promise.reject({
+                    mutateAsync: async () =>
+                        await Promise.reject({
                             data: mockSendFileWithErrors,
                         }),
                 } as any);
@@ -295,25 +295,33 @@ describe("FileHandlerFileUploadStep", () => {
                                 value: "whatever",
                             }}
                             fileContent="whatever"
+                            fileName="whatever.csv"
+                            file={
+                                new File(
+                                    [new Blob(["whatever"])],
+                                    "whatever.csv",
+                                )
+                            }
                             onFileSubmitError={onFileSubmitErrorSpy}
                         />
                     </Suspense>,
                 );
 
-                await waitFor(async () => {
-                    await userEvent.upload(
-                        screen.getByTestId("file-input-input"),
-                        fakeFile,
-                    );
-                    await userEvent.click(screen.getByText("Submit"));
+                const input = await screen.findByTestId("file-input-input");
+                await userEvent.upload(input, fakeFile);
+                await userEvent.click(screen.getByText("Submit"));
+                const form = screen.getByTestId("form");
+                await waitFor(() => {
                     // eslint-disable-next-line testing-library/no-wait-for-side-effects
-                    fireEvent.submit(screen.getByTestId("form"));
-                    await new Promise((res) => setTimeout(res, 100));
+                    fireEvent.submit(form);
                 });
+                await waitFor(() =>
+                    expect(onFileSubmitErrorSpy).toHaveBeenCalled(),
+                );
             }
 
             afterEach(() => {
-                jest.restoreAllMocks();
+                vi.restoreAllMocks();
             });
 
             test("it calls onFileSubmitErrorSpy with the response", async () => {
@@ -358,6 +366,9 @@ describe("getClientHeader", () => {
         processingType: "sync",
         schemaName: DEFAULT_SCHEMA_NAME,
         topic: "covid-19",
+        version: 0,
+        createdAt: "",
+        createdBy: "",
     };
 
     describe("when selectedSchemaName is falsy", () => {
@@ -384,13 +395,15 @@ describe("getClientHeader", () => {
     });
 
     describe("when sender is falsy", () => {
-        expect(
-            getClientHeader(
-                DEFAULT_SCHEMA_NAME,
-                DEFAULT_ACTIVE_MEMBERSHIP,
-                undefined,
-            ),
-        ).toEqual("");
+        test("returns an empty string", () => {
+            expect(
+                getClientHeader(
+                    DEFAULT_SCHEMA_NAME,
+                    DEFAULT_ACTIVE_MEMBERSHIP,
+                    undefined,
+                ),
+            ).toEqual("");
+        });
     });
 
     describe("when activeMembership.parsedName is falsy", () => {

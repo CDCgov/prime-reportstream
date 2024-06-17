@@ -1,9 +1,8 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import Alert, { getAriaRole } from "./Alert";
 import type { AlertProps } from "./Alert";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("Alert", () => {
     test("renders with defaults (div heading wrap, div body wrap)", () => {

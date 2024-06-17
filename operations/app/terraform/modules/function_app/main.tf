@@ -8,7 +8,7 @@ resource "azurerm_function_app" "function_app" {
   https_only                 = true
   os_type                    = "linux"
   version                    = var.function_runtime_version
-  enable_builtin_logging     = false
+  enable_builtin_logging     = true
 
   site_config {
     ip_restriction {
@@ -57,9 +57,9 @@ resource "azurerm_function_app" "function_app" {
 
   lifecycle {
     ignore_changes = [
+      # validated 5/29/2024
       # Allows Docker versioning via GitHub Actions
       site_config[0].linux_fx_version,
-      storage_account_access_key,
       tags
     ]
   }
@@ -138,6 +138,11 @@ TEMPLATE
     }
   })
 
+  lifecycle {
+    ignore_changes = [
+
+    ]
+  }
   depends_on = [
     azurerm_function_app.function_app,
     azurerm_function_app_slot.candidate,

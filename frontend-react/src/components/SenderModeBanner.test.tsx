@@ -1,11 +1,13 @@
 import { screen } from "@testing-library/react";
 
-import { orgServer } from "../__mocks__/OrganizationMockServer";
+import SenderModeBanner from "./SenderModeBanner";
+import { orgServer } from "../__mockServers__/OrganizationMockServer";
 import { renderApp } from "../utils/CustomRenderUtils";
-import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 import { MemberType } from "../utils/OrganizationUtils";
 
-import SenderModeBanner from "./SenderModeBanner";
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../contexts/Session/__mocks__/useSessionContext")
+>("../contexts/Session/useSessionContext");
 
 describe("SenderModeBanner", () => {
     beforeAll(() => {

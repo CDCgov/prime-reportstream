@@ -31,6 +31,7 @@ import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.ServiceRequest
 import org.hl7.fhir.r4.model.TimeType
+import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
 import java.util.Date
 import kotlin.test.Test
 
@@ -71,6 +72,20 @@ class FhirPathUtilsTests {
 
         // Empty string
         assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, "")).isFalse()
+    }
+
+    @Test
+    fun `test evaluate condition error thrown`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+
+        val path = "Bundle.entry[0].resource.blah('blah')"
+        try {
+            FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, path)
+        } catch (e: Exception) {
+            assertThat(e).isInstanceOf<SchemaException>()
+            assertThat(e.cause).isNotNull().isInstanceOf<FHIRLexerException>()
+        }
     }
 
     @Test

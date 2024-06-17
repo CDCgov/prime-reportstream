@@ -1,0 +1,65 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: OBX.2
+    value: [ '%resource.extension.where(url = "OBX.2").value' ]
+    hl7Spec: [ '%{hl7OBXField}-2' ]
+
+  - name: OBX.6
+    resource: '%resource.extension.where(url = "OBX.6").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7OBXField}-6'
+
+  - name: OBX.9
+    value: [ '%resource.extension.where(url = "OBX.9").value' ]
+    hl7Spec: [ '%{hl7OBXField}-9' ]
+
+  - name: OBX.11
+    value: [ '%resource.extension.where(url = "OBX.11").value' ]
+    hl7Spec: [ '%{hl7OBXField}-11' ]
+
+  - name: OBX.12
+    value: [ '%resource.extension.where(url = "OBX.12").value' ]
+    hl7Spec: [ '%{hl7OBXField}-12' ]
+
+  - name: OBX.13
+    value: [ '%resource.extension.where(url = "OBX.13").value' ]
+    hl7Spec: [ '%{hl7OBXField}-13' ]
+
+  - name: OBX.26
+    value: [ '%resource.extension.where(url = "OBX.26").value' ]
+    hl7Spec: [ '%{hl7OBXField}-26' ]
+
+  - name: OBX.27
+    resource: '%resource.extension.where(url = "OBX.27").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7OBXField}-27'
+
+  - name: OBX.28
+    resource: '%resource.extension.where(url = "OBX.28").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7OBXField}-28'
+
+  - name: OBX.29
+    value: [ '%resource.extension.where(url = "OBX.29").value' ]
+    hl7Spec: [ '%{hl7OBXField}-29' ]
+
+  - name: OBX.31
+    value: [ '%resource.extension.where(url = "OBX.31").value' ]
+    hl7Spec: [ '%{hl7OBXField}-31' ]
+
+  - name: OBX.32
+    resource: '%resource.extension.where(url = "OBX.32").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7OBXField}-32'
+
+  - name: OBX.33
+    resource: '%resource.extension.where(url = "OBX.33").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-placerAssignedIdentifier/EIP.yml
+    constants:
+      eipFieldPath: '%{hl7OBXField}-33'

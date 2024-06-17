@@ -1,11 +1,10 @@
-import classnames from "classnames";
-import React, { ReactNode, useState } from "react";
 import { Icon } from "@trussworks/react-uswds";
-
-import { SortSettings } from "../../hooks/filters/UseSortOrder";
-import { NoServicesBanner } from "../../components/alerts/NoServicesAlert";
+import classnames from "classnames";
+import { ReactNode, useState } from "react";
 
 import styles from "./Table.module.scss";
+import { NoServicesBanner } from "../../components/alerts/NoServicesAlert";
+import { SortSettings } from "../../hooks/filters/UseSortOrder/UseSortOrder";
 
 enum FilterOptions {
     NONE = "NONE",
@@ -16,7 +15,7 @@ enum FilterOptions {
 interface SortableTableHeaderProps {
     columnHeaderData: RowData;
     activeColumn: string;
-    sortOrder: string;
+    sortOrder: FilterOptions;
     onSortOrderChange: (sortOrder: FilterOptions) => void;
     onActiveColumnChange: (column: string) => void;
     sticky?: boolean;
@@ -51,7 +50,9 @@ export interface TableProps {
 }
 
 const TableHeader = ({ dataContent }: { dataContent: RowData["content"] }) => (
-    <td className="column-data">{dataContent}</td>
+    <th className="column-header">
+        <p className="column-header-text">{dataContent}</p>
+    </th>
 );
 
 const SortableTableHeader = ({
@@ -96,7 +97,7 @@ const SortableTableHeader = ({
                 })}
                 onClick={handleHeaderClick}
             >
-                <div className="column-header column-header--sortable">
+                <div className="column-header--sortable">
                     <p className="column-header-text">
                         {columnHeaderData.columnHeader}
                     </p>
@@ -139,7 +140,7 @@ const CustomSortableTableHeader = ({
                 className="column-header-button"
                 onClick={handleHeaderClick}
             >
-                <div className="column-header column-header--sortable">
+                <div className="column-header--sortable">
                     <p className="column-header-text">
                         {columnHeaderData.columnHeader}
                     </p>
@@ -158,9 +159,9 @@ function sortTableData(
     return sortOrder !== FilterOptions.NONE && activeColumn
         ? rowData.sort((a, b): number => {
               const contentColA =
-                  a.find((item) => item.columnKey === activeColumn) || "";
+                  a.find((item) => item.columnKey === activeColumn) ?? "";
               const contentColB =
-                  b.find((item) => item.columnKey === activeColumn) || "";
+                  b.find((item) => item.columnKey === activeColumn) ?? "";
               if (sortOrder === FilterOptions.ASC) {
                   return contentColA < contentColB ? 1 : -1;
               } else {
@@ -255,7 +256,7 @@ const SortableTable = ({
     );
 };
 
-export const Table = ({
+const Table = ({
     apiSortable,
     borderless,
     compact,
@@ -296,7 +297,7 @@ export const Table = ({
         >
             {rowData.length ? (
                 <table className={classes}>
-                    {sortable || apiSortable ? (
+                    {sortable ?? apiSortable ? (
                         <SortableTable
                             sticky={sticky}
                             rowData={rowData}
@@ -333,12 +334,9 @@ export const Table = ({
                                         <tr key={index}>
                                             {row.map((data, dataIndex) => {
                                                 return (
-                                                    <TableHeader
-                                                        key={dataIndex}
-                                                        dataContent={
-                                                            data.content
-                                                        }
-                                                    />
+                                                    <td key={dataIndex}>
+                                                        <p>{data.content}</p>
+                                                    </td>
                                                 );
                                             })}
                                         </tr>
@@ -356,3 +354,5 @@ export const Table = ({
         </div>
     );
 };
+
+export default Table;

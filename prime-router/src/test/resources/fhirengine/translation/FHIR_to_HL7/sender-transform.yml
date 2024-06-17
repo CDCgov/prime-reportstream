@@ -1,0 +1,15 @@
+hl7Class: ca.uhn.hl7v2.model.v27.message.ORU_R01
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+
+elements:
+  - name: receiving-application-namespace-id
+    condition: true
+    resource: 'Bundle'
+    value: [ '"Purple"' ]
+    hl7Spec: [ "MSH-5-1" ]
+
+  - name: receiving-application-universal-id
+    condition: true
+    resource: 'Bundle'
+    value: [ '"2.16.840.1.114222.4.3.3.10.1.13444444"' ]
+    hl7Spec: [ "MSH-5-2" ]

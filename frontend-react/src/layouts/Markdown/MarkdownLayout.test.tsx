@@ -1,9 +1,8 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-
-import MarkdownLayout from "./MarkdownLayout";
 import { LayoutMain, LayoutSidenav } from "./LayoutComponents";
+import MarkdownLayout from "./MarkdownLayout";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("MarkdownLayout", () => {
     test("no sidenav", () => {
@@ -28,7 +27,7 @@ describe("MarkdownLayout", () => {
         expect(screen.getByRole("navigation")).toHaveTextContent("Test");
         expect(screen.getByRole("article")).toHaveTextContent("Test");
     });
-    test("main", async () => {
+    test("main", () => {
         renderApp(
             <MarkdownLayout>
                 <>

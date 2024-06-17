@@ -3,13 +3,6 @@
 .ReleaseNote {
     margin-top: 0px;
     :global {
-        .header {
-            color: color("gray-cool-50");
-            font-size: 32px;
-            font-weight: 700;
-            margin: 64px 0 32px;
-        }
-
         .section-title {
             font-size: 22px;
             font-weight: 700;
@@ -34,7 +27,8 @@
             text-align: center;
             width: fit-content;
 
-            &--feature {
+            &--feature,
+            &--recently-completed {
                 background-color: color("cyan-10v");
             }
 
@@ -42,19 +36,32 @@
                 background-color: color("red-cool-30v");
             }
 
-            &--announcement {
+            &--announcement,
+            &--next {
                 background-color: color("indigo-cool-20v");
             }
 
-            &--improvement {
+            &--improvement,
+            &--working-on-now {
                 background-color: color("mint-cool-10v");
             }
         }
+    }
 
-        & .section-container:last-child {
-            border-bottom: 1px solid color("gray-cool-10");
-            margin-bottom: 0;
-            padding-bottom: 64px;
+    &:global(.divider) {
+        :global {
+            .header {
+                color: color("gray-cool-50");
+                font-size: 32px;
+                font-weight: 700;
+                margin: 54px 0 32px;
+            }
+
+            .section-container:last-child {
+                border-bottom: 1px solid color("gray-cool-10");
+                margin-bottom: 0;
+                padding-bottom: 64px;
+            }
         }
     }
 
@@ -97,11 +104,5 @@
         &--improvement {
             background-color: color("mint-cool-10v");
         }
-    }
-
-    & .section-container:last-child {
-        border-bottom: 1px solid color("gray-cool-10");
-        margin-bottom: 0;
-        padding-bottom: 64px;
     }
 }

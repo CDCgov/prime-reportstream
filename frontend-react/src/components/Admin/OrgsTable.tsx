@@ -1,36 +1,37 @@
-import React, { useState } from "react";
-import { useResource } from "rest-hooks";
 import { Button, ButtonGroup, Label, TextInput } from "@trussworks/react-uswds";
-import { useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { useNavigate } from "react-router-dom";
 
-import OrgSettingsResource from "../../resources/OrgSettingsResource";
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
+import useOrganizationSettingsList from "../../hooks/api/organizations/UseOrganizationSettingsList/UseOrganizationSettingsList";
+import Table from "../../shared/Table/Table";
+import { searchOrganizationSettingsList } from "../../utils/filters/organizationSettingsListFilters";
+import { MembershipSettings, MemberType } from "../../utils/OrganizationUtils";
 import { USNavLink } from "../USLink";
-import { Table } from "../../shared/Table/Table";
-import { MemberType, MembershipSettings } from "../../utils/OrganizationUtils";
 
 export function OrgsTable() {
-    const orgs: OrgSettingsResource[] = useResource(
-        OrgSettingsResource.list(),
-        {},
-    ).sort((a, b) => a.name.localeCompare(b.name));
+    const { data } = useOrganizationSettingsList();
+    const orgs = useMemo(
+        () => data.toSorted((a, b) => a.name.localeCompare(b.name)),
+        [data],
+    );
     const [filter, setFilter] = useState("");
     const navigate = useNavigate();
     const { activeMembership, setActiveMembership } = useSessionContext();
     const currentOrg = activeMembership?.parsedName;
 
     const handleSelectOrgClick = (orgName: string) => {
-        const { service, memberType } = activeMembership || {};
+        const { service, memberType } = activeMembership ?? {};
 
-        let payload: Partial<MembershipSettings> = {
+        const payload: Partial<MembershipSettings> = {
             parsedName: orgName,
         };
         if (
             memberType === MemberType.SENDER ||
             memberType === MemberType.PRIME_ADMIN
         ) {
-            payload.service = service || "default";
+            payload.service = service ?? "default";
         }
         setActiveMembership(payload);
     };
@@ -43,7 +44,9 @@ export function OrgsTable() {
 
     const saveListToCSVFile = () => {
         const csvbody = orgs
-            .filter((eachOrg) => eachOrg.filterMatch(filter))
+            .filter((eachOrg) =>
+                searchOrganizationSettingsList(eachOrg, filter),
+            )
             .map((eachOrg) =>
                 [
                     `"`,
@@ -64,16 +67,28 @@ export function OrgsTable() {
         // should be added back whenever this API handler is adjusted to send back metadata - DWS
         const csvheader = `Name,Description,Jurisdiction,State,County\n`;
         const filecontent = [
-            "data:text/csv;charset=utf-8,", // this makes it a csv file
+            // this makes it a csv file
             csvheader,
             csvbody,
         ].join("");
-        window.open(encodeURI(filecontent), "prime-orgs.csv", "noopener");
+
+        // Create a temp link to initiate a download of our in-memory file
+        const blob = new Blob([filecontent], { type: "text/csv" });
+        const ele = document.createElement("a");
+        const dataUrl = URL.createObjectURL(blob);
+        ele.setAttribute("href", dataUrl);
+        ele.setAttribute("download", "prime-orgs.csv");
+        document.body.appendChild(ele);
+        ele.click();
+        document.body.removeChild(ele);
+        URL.revokeObjectURL(dataUrl);
     };
 
     const formattedTableData = () => {
         return orgs
-            .filter((eachOrg) => eachOrg.filterMatch(filter))
+            .filter((eachOrg) =>
+                searchOrganizationSettingsList(eachOrg, filter),
+            )
             .map((eachOrg) => [
                 {
                     columnKey: "Name",
@@ -103,12 +118,12 @@ export function OrgsTable() {
                 {
                     columnKey: "State",
                     columnHeader: "State",
-                    content: eachOrg.stateCode || "",
+                    content: eachOrg.stateCode ?? "",
                 },
                 {
                     columnKey: "County",
                     columnHeader: "County",
-                    content: eachOrg.countyName || "",
+                    content: eachOrg.countyName ?? "",
                 },
                 {
                     columnKey: "ButtonAction",
@@ -116,6 +131,7 @@ export function OrgsTable() {
                     content: (
                         <ButtonGroup type="segmented">
                             <Button
+                                data-testid={`${eachOrg.name}_set`}
                                 key={`${eachOrg.name}_select`}
                                 onClick={() =>
                                     handleSelectOrgClick(`${eachOrg.name}`)
@@ -126,6 +142,7 @@ export function OrgsTable() {
                                 Set
                             </Button>
                             <Button
+                                data-testid={`${eachOrg.name}_edit`}
                                 key={`${eachOrg.name}_edit`}
                                 onClick={() =>
                                     handleEditOrgClick(`${eachOrg.name}`)
@@ -162,7 +179,6 @@ export function OrgsTable() {
                             type="text"
                             autoComplete="off"
                             aria-autocomplete="none"
-                            autoFocus
                             onChange={(evt) => setFilter(evt.target.value)}
                         />
                     </div>

@@ -1,27 +1,31 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
-import { rest } from "msw";
+import { screen, waitFor } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
+import { http, HttpResponse } from "msw";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
-import { settingsServer } from "../../__mocks__/SettingsMockServer";
-import { ResponseType, TestResponse } from "../../resources/TestResponse";
-import config from "../../config";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
-import { mockCtx } from "../../contexts/__mocks__/ToastContext";
-
+import { useResource } from "rest-hooks";
 import { EditSenderSettingsPage } from "./EditSenderSettings";
+import { settingsServer } from "../../__mockServers__/SettingsMockServer";
+import config from "../../config";
+import { useToast } from "../../contexts/Toast";
+import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
+import { ResponseType, TestResponse } from "../../resources/TestResponse";
+import { renderApp } from "../../utils/CustomRenderUtils";
+
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
 
 const mockData: OrgSenderSettingsResource = new TestResponse(
     ResponseType.SENDER_SETTINGS,
 ).data;
 let editJsonAndSaveButton: HTMLElement;
-let nameField: HTMLElement;
+const mockUseToast = vi.mocked(useToast);
+const mockCtx = mockUseToast();
+const mockUseResource = vi.mocked(useResource);
 
-jest.mock("rest-hooks", () => ({
-    ...jest.requireActual("rest-hooks"),
-    useResource: () => {
-        return mockData;
-    },
+vi.mock("rest-hooks", async (importActual) => ({
+    ...(await importActual<typeof import("rest-hooks")>()),
+    useResource: vi.fn(),
     useController: () => {
         // fetch is destructured as fetchController in component
         return { fetch: () => mockData };
@@ -32,10 +36,10 @@ jest.mock("rest-hooks", () => ({
     },
 }));
 
-jest.mock("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"),
+vi.mock("react-router-dom", async (importActual) => ({
+    ...(await importActual<typeof import("react-router-dom")>()),
     useNavigate: () => {
-        return jest.fn();
+        return vi.fn();
     },
     useParams: () => {
         return {
@@ -46,102 +50,54 @@ jest.mock("react-router-dom", () => ({
     },
 }));
 
-const testKeys = JSON.stringify([
-    {
-        keys: [
-            {
-                x: "asdfasdasdfasdfasdasdfasdf",
-                y: "asdfasdfasdfasdfasdasdfasdfasdasdfasdf",
-                crv: "P-384",
-                kid: "hca.default",
-                kty: "EC",
-            },
-            {
-                e: "AQAB",
-                n: "asdfaasdfffffffffffffffffffffffffasdfasdfasdfasdf",
-                kid: "hca.default",
-                kty: "RSA",
-            },
-        ],
-        scope: "hca.default.report",
-    },
-]);
-
-const testProcessingType = "sync";
+vi.mock("../../contexts/Toast");
 
 describe("EditSenderSettings", () => {
-    function setup() {
+    async function setup(data: Partial<OrgSenderSettingsResource> = mockData) {
+        if (data) mockUseResource.mockReturnValue(data as any);
         renderApp(<EditSenderSettingsPage />);
-        nameField = screen.getByTestId("name");
-        editJsonAndSaveButton = screen.getByTestId("submit");
+        editJsonAndSaveButton = screen.getByRole("button", {
+            name: "Edit json and save...",
+        });
+        await waitFor(() => expect(editJsonAndSaveButton).toBeEnabled());
     }
     beforeAll(() => {
         mockSessionContentReturnValue();
         settingsServer.listen();
         settingsServer.use(
-            rest.get(
+            http.get(
                 `${config.API_ROOT}/settings/organizations/abbott/senders/user1234`,
-                (req, res, ctx) => res(ctx.json(mockData)),
+                () => HttpResponse.json(mockData),
             ),
         );
     });
     afterAll(() => settingsServer.close());
-    test("toggle allowDuplicates", () => {
-        setup();
-        const checkbox = screen.getByTestId("allowDuplicates");
-        expect(checkbox).toBeInTheDocument();
-        expect(checkbox).not.toBeChecked();
-        fireEvent.click(checkbox);
-        expect(checkbox).toBeChecked();
-    });
-    test("should be able to edit keys field", () => {
-        setup();
-        const keysField = screen.getByTestId("keys");
-
-        expect(keysField).toBeInTheDocument();
-
-        fireEvent.change(keysField, { target: { value: testKeys } });
-
-        expect(keysField).toHaveValue(testKeys);
-    });
-
-    test("should be able to edit processing type field", () => {
-        setup();
-        const processingTypeField = screen.getByTestId("processingType");
-
-        expect(processingTypeField).toBeInTheDocument();
-
-        fireEvent.change(processingTypeField, {
-            target: { value: testProcessingType },
-        });
-
-        expect(processingTypeField).toHaveValue(testProcessingType);
-        fireEvent.click(editJsonAndSaveButton);
-        fireEvent.click(screen.getByTestId("editCompareCancelButton"));
-        fireEvent.click(screen.getByTestId("senderSettingDeleteButton"));
-    });
 
     describe("should validate name", () => {
-        test("should display an error if name value contains a disallowed char", async () => {
-            setup();
-            fireEvent.change(nameField, {
-                target: { value: "a\\nlinefeed" },
-            });
-            expect(nameField).toHaveValue("a\\nlinefeed");
-
-            fireEvent.click(editJsonAndSaveButton);
-            await waitFor(() => expect(mockCtx.toast).toHaveBeenCalled());
+        test("name field disabled", async () => {
+            await setup();
+            expect(
+                screen.getByLabelText("Name:", { exact: true }),
+            ).toBeDisabled();
         });
-
-        test("should not display error if name value is valid", async () => {
-            setup();
-            fireEvent.change(nameField, {
-                target: { value: "test" },
+        describe("on Edit json and save", () => {
+            async function editSetup(
+                data?: Partial<OrgSenderSettingsResource>,
+            ) {
+                await setup(data);
+                await userEvent.click(editJsonAndSaveButton);
+            }
+            afterEach(() => void vi.clearAllMocks());
+            test("should display an error if name value contains a disallowed char", async () => {
+                await editSetup({ ...mockData, name: "a\\nlinefeed" });
+                await waitFor(() => expect(mockCtx.toast).toHaveBeenCalled());
             });
-            expect(nameField).toHaveValue("test");
-
-            fireEvent.click(editJsonAndSaveButton);
-            await waitFor(() => expect(mockCtx.toast).not.toHaveBeenCalled());
+            test("should not display error if name value is valid", async () => {
+                await editSetup();
+                await waitFor(() =>
+                    expect(mockCtx.toast).not.toHaveBeenCalled(),
+                );
+            });
         });
     });
 });

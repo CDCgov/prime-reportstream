@@ -1,10 +1,6 @@
 import { expect, Page } from "@playwright/test";
 
-export class Security {
-    constructor(private readonly page: Page) {}
-
-    async onLoad() {
-        await expect(this.page).toHaveURL(/security/);
-        await expect(this.page).toHaveTitle(/ReportStream security/);
-    }
+export async function onLoad(page: Page) {
+    await expect(page).toHaveURL(/security/);
+    await expect(page).toHaveTitle(/ReportStream security/);
 }

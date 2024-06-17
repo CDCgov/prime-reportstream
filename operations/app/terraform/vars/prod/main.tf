@@ -159,6 +159,7 @@ module "function_app" {
   OKTA_authKey                      = data.azurerm_key_vault_secret.OKTA_authKey.value
   RS_OKTA_clientId                  = data.azurerm_key_vault_secret.RS_OKTA_clientId.value
   RS_OKTA_authKey                   = data.azurerm_key_vault_secret.RS_OKTA_authKey.value
+  etor_ti_base_url                  = local.init.etor_ti_base_url
 }
 
 module "front_door" {
@@ -286,6 +287,7 @@ module "log_analytics_workspace" {
   data_factory_id            = module.data_factory.data_factory_id
   sftp_instance_01_id        = module.sftp.sftp_instance_ids[0]
   law_retention_period       = local.log_analytics_workspace.law_retention_period
+  action_group_id            = module.application_insights.action_group_id
 }
 
 module "application_insights" {

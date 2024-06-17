@@ -1,7 +1,7 @@
 // AutoUpdateFileChromatic
-import React, { ReactElement } from "react";
+import { ReactElement } from "react";
 
-import { Tile } from "./Tile";
+import Tile from "./Tile";
 
 export default {
     title: "components/Tile",

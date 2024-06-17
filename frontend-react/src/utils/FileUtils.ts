@@ -17,7 +17,7 @@ export const parseCsvForError = (
     fileContent: string,
 ): string | undefined => {
     // count the number of lines
-    const lineCount = (fileContent.match(/\n/g) || []).length + 1;
+    const lineCount = (fileContent.match(/\n/g) ?? []).length + 1;
     if (lineCount > REPORT_MAX_ITEMS) {
         return `The file '${fileName}' has too many rows. The maximum number of rows allowed is ${REPORT_MAX_ITEMS}.`;
     }
@@ -26,12 +26,12 @@ export const parseCsvForError = (
     }
 
     // get the first line and examine it
-    const firstLine = (fileContent.match(/^(.*)\n/) || [""])[0];
+    const firstLine = (fileContent.match(/^(.*)\n/) ?? [""])[0];
     // ideally, the columns would be comma seperated, but they may be tabs, because the first
     // line is a header, we don't have to worry about escaped delimiters in strings (e.g. ,"Smith, John",)
     const columnCount =
-        (firstLine.match(/,/g) || []).length ||
-        (firstLine.match(/\t/g) || []).length;
+        (firstLine.match(/,/g) ?? []).length ||
+        (firstLine.match(/\t/g) ?? []).length;
 
     if (columnCount > REPORT_MAX_ITEM_COLUMNS) {
         return `The file '${fileName}' has too many columns. The maximum number of allowed columns is ${REPORT_MAX_ITEM_COLUMNS}.`;

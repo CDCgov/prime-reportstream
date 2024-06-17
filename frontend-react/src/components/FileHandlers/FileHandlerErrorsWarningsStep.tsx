@@ -6,18 +6,17 @@ import {
     ModalHeading,
     ModalRef,
 } from "@trussworks/react-uswds";
-import { useRef } from "react";
 import classnames from "classnames";
+import { useRef } from "react";
 
-import { OverallStatus } from "../../config/endpoints/waters";
-import { ErrorType } from "../../hooks/UseFileHandler";
-
+import { FileHandlerStepProps } from "./FileHandler";
 import {
     FileQualityFilterDisplay,
     RequestedChangesDisplay,
     RequestLevel,
 } from "./FileHandlerMessaging";
-import { FileHandlerStepProps } from "./FileHandler";
+import { OverallStatus } from "../../config/endpoints/waters";
+import { ErrorType } from "../../hooks/UseFileHandler/UseFileHandler";
 
 const SERVER_ERROR_MESSAGING = {
     heading: OverallStatus.ERROR,
@@ -49,7 +48,7 @@ export default function FileHandlerErrorsWarningsStep({
     warnings,
 }: FileHandlerErrorsWarningsStepProps) {
     // default to FILE messaging here, partly to simplify typecheck
-    const errorMessaging = ERROR_MESSAGING_MAP[errorType || ErrorType.FILE];
+    const errorMessaging = ERROR_MESSAGING_MAP[errorType ?? ErrorType.FILE];
 
     // Array containing only qualityFilterMessages that have filteredReportItems.
     const qualityFilterMessages = reportItems?.filter(

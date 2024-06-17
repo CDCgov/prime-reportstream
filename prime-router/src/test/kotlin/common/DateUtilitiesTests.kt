@@ -3,7 +3,7 @@ package gov.cdc.prime.router.common
 import assertk.assertThat
 import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
-import assertk.assertions.isSameAs
+import assertk.assertions.isSameInstanceAs
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Hl7Configuration
@@ -143,7 +143,7 @@ class DateUtilitiesTests {
         val offsetDateTime: TemporalAccessor = OffsetDateTime.now()
         assertThat(offsetDateTime).isEqualTo(offsetDateTime.toOffsetDateTime())
         // do the references match?
-        assertThat(offsetDateTime).isSameAs(offsetDateTime.toOffsetDateTime())
+        assertThat(offsetDateTime).isSameInstanceAs(offsetDateTime.toOffsetDateTime())
         // now local date time to offset date time also matches
         LocalDateTime.from(offsetDateTime).run {
             assertThat(this.toOffsetDateTime(ZoneId.systemDefault())).isEqualTo(offsetDateTime)
@@ -171,7 +171,7 @@ class DateUtilitiesTests {
         val localDateTime = LocalDateTime.now()
         assertThat(localDateTime).isEqualTo(localDateTime.toLocalDateTime())
         // do the references match
-        assertThat(localDateTime).isSameAs(localDateTime.toLocalDateTime())
+        assertThat(localDateTime).isSameInstanceAs(localDateTime.toLocalDateTime())
         OffsetDateTime.from(localDateTime.atZone(ZoneId.systemDefault())).run {
             assertThat(this.toLocalDateTime()).isEqualTo(localDateTime)
         }
@@ -193,7 +193,7 @@ class DateUtilitiesTests {
         // changing a zoned date time to a zoned date time should return the exact same object
         zonedDateTime.toZonedDateTime(ZoneId.of("US/Eastern")).run {
             assertThat(this).isEqualTo(zonedDateTime)
-            assertThat(this).isSameAs(zonedDateTime)
+            assertThat(this).isSameInstanceAs(zonedDateTime)
         }
         // convert the zoned date time to an offset date time
         zonedDateTime.toOffsetDateTime().run {

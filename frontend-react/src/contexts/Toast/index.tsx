@@ -1,14 +1,14 @@
-import { toast } from "react-toastify";
-import React, {
+import {
+    createContext,
     PropsWithChildren,
     ReactNode,
-    createContext,
     useCallback,
     useContext,
     useMemo,
 } from "react";
+import { toast } from "react-toastify";
 
-import { useSessionContext } from "../Session";
+import useSessionContext from "../Session/useSessionContext";
 
 export interface ToastCtx {
     toast: (
@@ -23,7 +23,9 @@ export const showToast = (
     message: ReactNode,
     type: "success" | "warning" | "error" | "info",
 ) => {
-    const toastId = `id_${message}`.replace(/\W/gi, "_").substring(0, 512);
+    const toastId = `id_${message?.toString()}`
+        .replace(/\W/gi, "_")
+        .substring(0, 512);
     const msg = message instanceof Error ? message.message : message;
 
     // basically the USWDS Alert UI
@@ -50,7 +52,7 @@ export const showToast = (
 
 export const useToast = () => useContext(ToastContext);
 
-export function ToastProvider({ children }: PropsWithChildren) {
+function ToastProvider({ children }: PropsWithChildren) {
     const { rsConsole } = useSessionContext();
     const fn = useCallback(
         (

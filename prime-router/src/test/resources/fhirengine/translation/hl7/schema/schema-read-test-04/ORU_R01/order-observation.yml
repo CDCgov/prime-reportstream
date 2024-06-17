@@ -8,4 +8,4 @@ elements:
       - '%{hl7Order}/OBR-1'
 
   - name: circular-reference-trigger
-    schema: order-observation
+    schema: classpath:/fhirengine/translation/hl7/schema/schema-read-test-04/ORU_R01/order-observation.yml

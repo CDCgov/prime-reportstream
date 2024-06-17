@@ -28,10 +28,12 @@ resource "azurerm_container_group" "sftp" {
   }]
 
   container {
-    name   = "sftp-source"
-    image  = "atmoz/sftp:latest"
-    cpu    = var.cpu
-    memory = var.memory
+    name         = "sftp-source"
+    image        = "atmoz/sftp:latest"
+    cpu          = var.cpu
+    cpu_limit    = 0
+    memory       = var.memory
+    memory_limit = 0
     environment_variables = {
       "SFTP_USERS" = join(" ", local.sftp_users)
     }

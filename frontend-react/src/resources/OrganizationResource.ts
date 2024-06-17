@@ -1,6 +1,5 @@
-import config from "../config";
-
 import AuthResource from "./AuthResource";
+import config from "../config";
 
 const { RS_API_URL } = config;
 

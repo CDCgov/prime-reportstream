@@ -1,4 +1,4 @@
-import moment from "moment";
+import { format, parseISO } from "date-fns";
 
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 
@@ -21,15 +21,16 @@ function DeliveryInfo(props: Props) {
                     <h4 className="text-base-darker text-normal margin-bottom-0">
                         Report type
                     </h4>
-                    <p className="text-bold margin-top-0">{report!.fileType}</p>
+                    <p className="text-bold margin-top-0">{report.fileType}</p>
                     <h4 className="text-base-darker text-normal margin-bottom-0">
                         Available to download
                     </h4>
                     <p className="text-bold margin-top-0">
-                        {moment
-                            .utc(report!.batchReadyAt)
-                            .local()
-                            .format("dddd, MMM DD, YYYY  HH:mm")}
+                        {/* eslint-disable-next-line import/no-named-as-default-member */}
+                        {format(
+                            parseISO(report.batchReadyAt),
+                            "eeee, LLL dd, yyyy HH:mm",
+                        )}
                     </p>
                 </div>
                 <div className="tablet:grid-col">
@@ -37,16 +38,17 @@ function DeliveryInfo(props: Props) {
                         Total tests reported
                     </h4>
                     <p className="text-bold margin-top-0">
-                        {report!.reportItemCount}
+                        {report.reportItemCount}
                     </p>
                     <h4 className="text-base-darker text-normal margin-bottom-0">
                         Download expires
                     </h4>
                     <p className="text-bold margin-top-0">
-                        {moment
-                            .utc(report!.expires)
-                            .local()
-                            .format("dddd, MMM DD, YYYY  HH:mm")}
+                        {/* eslint-disable-next-line import/no-named-as-default-member */}
+                        {format(
+                            parseISO(report.expires),
+                            "eeee, LLL dd, yyyy HH:mm",
+                        )}
                     </p>
                 </div>
             </div>

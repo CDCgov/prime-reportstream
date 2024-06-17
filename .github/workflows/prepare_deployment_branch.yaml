@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
 
       - name: Set Environment Variables
         run: |
@@ -27,26 +27,24 @@ jobs:
           echo "Branch name: \"${BRANCH_NAME}\""
 
       - name: "Create branch '${{ env.BRANCH_NAME }}' to contain the changes for the deployment on ${{ env.DEPLOYMENT_DATE }}"
-        uses: peterjgrainger/action-create-branch@08259812c8ebdbf1973747f9297e332fa078d3c1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: JosiahSiegel/remote-branch-action@dbe7a2138eb064fbfdb980abee918091a7501fbe
         with:
           branch: "${{ env.BRANCH_NAME }}"
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
-        uses: k3rnels-actions/pr-update@7d7d8852095b87e6fa255ced7433f1d79737e0b1
         id: pr
+        uses: JosiahSiegel/reliable-pull-request-action@ae8d0c88126329ee363a35392793d0bc94cb82e7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pr_title: "Deployment of ${{ env.DEPLOYMENT_DATE }}"
-          pr_source: "${{ env.BRANCH_NAME }}"
-          pr_target: "production"
-          pr_labels: devops,chore,deployment
-          pr_body: |
+          title: "Deployment of ${{ env.DEPLOYMENT_DATE }}"
+          sourceBranch: "${{ env.BRANCH_NAME }}"
+          targetBranch: "production"
+          labels: DevOps,chore,deployment
+          body: |
             ## Deployment of ${{ env.DEPLOYMENT_DATE }}
             This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}.
 
       - name: "Produce Pull Request URL"
         run: |
-          echo "PR URL: https://github.com/CDCgov/prime-reportstream/pull/${{ steps.pr.outputs.pr_nr }}"
-          echo "PR Id:  ${{ steps.pr.outputs.pr_nr }}"
+          echo "PR URL: ${{ steps.pr.outputs.PRURL }}"

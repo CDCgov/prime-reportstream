@@ -1,5 +1,5 @@
-import classnames from "classnames";
 import { Button, Icon } from "@trussworks/react-uswds";
+import classnames from "classnames";
 import { FC } from "react";
 
 export const OVERFLOW_INDICATOR = "…";
@@ -37,6 +37,9 @@ const PaginationPageNumber: FC<PaginationPageNumberProps> = ({
                 type="button"
                 unstyled
                 {...(isCurrentPage && { "aria-current": "page" })}
+                data-testid={`${
+                    isLastPage ? "last page, " : ""
+                }Page ${pageNum}`}
                 aria-label={`${isLastPage ? "last page, " : ""}Page ${pageNum}`}
                 className={classnames("usa-pagination__button", {
                     "usa-current": isCurrentPage,
@@ -70,6 +73,7 @@ const PaginationArrow: FC<PaginationArrowProps> = ({
     return (
         <li className="usa-pagination__item usa-pagination__arrow">
             <Button
+                data-testid={`${label} page`}
                 aria-label={`${label} page`}
                 className={buttonClassName}
                 onClick={() => setSelectedPage(pageNum)}
@@ -89,6 +93,8 @@ export interface PaginationProps {
     setSelectedPage: (pageNum: number) => void;
     currentPageNum: number;
     label?: string;
+    resultLength?: number;
+    isPaginationLoading?: boolean;
 }
 
 const Pagination: FC<PaginationProps> = ({
@@ -106,7 +112,7 @@ const Pagination: FC<PaginationProps> = ({
             : undefined;
 
     return (
-        <nav aria-label={label} className="usa-pagination">
+        <nav aria-label={label} data-testid={label} className="usa-pagination">
             <ul className="usa-pagination__list">
                 {previousPageNum && (
                     <PaginationArrow

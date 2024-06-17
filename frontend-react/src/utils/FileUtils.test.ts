@@ -1,7 +1,7 @@
 import {
     parseCsvForError,
-    REPORT_MAX_ITEMS,
     REPORT_MAX_ITEM_COLUMNS,
+    REPORT_MAX_ITEMS,
 } from "./FileUtils";
 
 describe("parseCsvForError", () => {
@@ -23,7 +23,7 @@ describe("parseCsvForError", () => {
         );
     });
 
-    test("returns expected error string if max number of lines is exceeded", () => {
+    test("returns expected error string if max number of columns is exceeded", () => {
         const fakeFileContent = Array(REPORT_MAX_ITEM_COLUMNS + 1)
             .fill(",")
             .concat("\n")

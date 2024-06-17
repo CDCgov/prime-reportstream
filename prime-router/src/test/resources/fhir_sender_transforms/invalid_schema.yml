@@ -9,7 +9,7 @@
   valueSet:
     key: value
     key2: value
-    - name: report-index
-      resource: ‘Bundle.entry.resource.ofType(DiagnosticReport)’
-      resourceIndex: orderIndex
-      schema: order
+      - name: report-index
+        resource: ‘Bundle.entry.resource.ofType(DiagnosticReport)’
+        resourceIndex: orderIndex
+        schema: classpath:/fhir_sender_transforms/order.yml

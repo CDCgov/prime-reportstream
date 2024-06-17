@@ -1,0 +1,27 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+  - name: patient-assigned-location-point-of-care
+    value: [ '%resource.extension(%`rsext-point-of-care`).value' ]
+    hl7Spec: [ '%{hl7PLField}-1' ]
+
+  - name: patient-assigned-location-room
+    resource: '%resource.identifier.value[0]'
+    value: [ '%resource.substring(0, %resource.indexOf(","))' ]
+    hl7Spec: [ '%{hl7PLField}-2' ]
+
+  - name: patient-assigned-location-bed
+    resource: '%resource.identifier.value[0]'
+    condition: '%resource.indexOf(",") > -1'
+    value: [ '%resource.substring(%resource.indexOf(",") + 1)' ]
+    hl7Spec: [ '%{hl7PLField}-3' ]
+
+  - name: patient-assigned-location-facility
+    resource: '%resource.extension(%`rsext-location-facility`)'
+    constants:
+      hl7HDField: '%{hl7PLField}-4'
+      # cannot use %`rext due to mix of constant and fhirpath substitution syntax
+      namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id"'
+      universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id"'
+      universalIdTypeExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"'
+    schema: classpath:/metadata/hl7_mapping/common/datatype/hd-hierarchic-designator.yml

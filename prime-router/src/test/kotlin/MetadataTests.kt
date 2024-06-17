@@ -7,10 +7,10 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
-import assertk.assertions.isNotSameAs
+import assertk.assertions.isNotSameInstanceAs
 import assertk.assertions.isNull
 import assertk.assertions.isNullOrEmpty
-import assertk.assertions.isSameAs
+import assertk.assertions.isSameInstanceAs
 import assertk.assertions.isTrue
 import assertk.assertions.prop
 import assertk.assertions.support.appendName
@@ -238,8 +238,8 @@ class MetadataTests {
         val shouldBeExtended = valueSet.mergeAltValues(additionalValues)
 
         // assert
-        assertThat(valueSet).isSameAs(shouldBeSame)
-        assertThat(valueSet).isNotSameAs(shouldBeDifferent)
+        assertThat(valueSet).isSameInstanceAs(shouldBeSame)
+        assertThat(valueSet).isNotSameInstanceAs(shouldBeDifferent)
 
         assertThat(shouldBeSame.values.find { it.code.equals("UNK", ignoreCase = true) }).isNotNull()
         assertThat(shouldBeDifferent.values.find { it.code.equals("U", ignoreCase = true) }).isNotNull()

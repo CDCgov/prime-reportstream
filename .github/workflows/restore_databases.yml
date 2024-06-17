@@ -60,7 +60,7 @@ jobs:
       sink_backup_storage: ${{ env.SINK_BACKUP_STORAGE }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
 
       - name: Set env variables
         shell: bash
@@ -90,7 +90,7 @@ jobs:
           echo "SINK_BACKUP_STORAGE=pdh${{ env.SINK_ENV_NAME }}terraform" >> $GITHUB_ENV
 
       # Login to Azure
-      - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d
+      - uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
@@ -137,9 +137,9 @@ jobs:
        backup_age_valid: ${{ env.BACKUP_AGE_VALID }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
 
-      - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d
+      - uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
@@ -228,9 +228,9 @@ jobs:
       sink_db_server: ${{ needs.pre_job.outputs.sink_db_server }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
 
-      - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d
+      - uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
@@ -311,7 +311,7 @@ jobs:
         if: |
           needs.pre_job.outputs.sink_env_name != 'prod' &&
           (${{ matrix.db }} == 'prime_data_hub' || ${{ matrix.db }} == 'prime_data_hub_candidate')
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: clean_output_${{ matrix.db }}
           path: clean_output_${{ matrix.db }}.html

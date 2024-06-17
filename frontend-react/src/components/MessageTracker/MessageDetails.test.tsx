@@ -1,10 +1,9 @@
 import { screen } from "@testing-library/react";
 
-import { mockUseMessageDetails } from "../../hooks/network/MessageTracker/__mocks__/MessageTrackerHooks";
-import { RSMessageDetail } from "../../config/endpoints/messageTracker";
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import { MessageDetailsPage } from "./MessageDetails";
+import { RSMessageDetail } from "../../config/endpoints/messageTracker";
+import useMessageDetails from "../../hooks/api/messages/UseMessageDetails/UseMessageDetails";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 const TEST_ID = 1;
 const MOCK_MESSAGE_WARNINGS = [
@@ -156,15 +155,18 @@ const DEFAULT_MESSAGE_DETAIL: RSMessageDetail = {
     receiverData: MOCK_RECEIVER_DATA,
 };
 
-jest.mock("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"), // use actual for all non-hook parts
+vi.mock("react-router-dom", async (importActual) => ({
+    ...(await importActual<typeof import("react-router-dom")>()), // use actual for all non-hook parts
     useNavigate: () => {
-        return jest.fn();
+        return vi.fn();
     },
     useParams: () => ({
         id: TEST_ID,
     }),
 }));
+vi.mock("../../hooks/api/messages/UseMessageDetails/UseMessageDetails");
+
+const mockUseMessageDetails = vi.mocked(useMessageDetails);
 
 describe("RSMessageDetail component", () => {
     test("url param (messageId) feeds into network hook", () => {
@@ -190,7 +192,7 @@ describe("RSMessageDetail component", () => {
             screen.getByText(/29038fca-e521-4af8-82ac-6b9fafd0fd58/),
         ).toBeVisible();
         expect(screen.getAllByText("Date/Time Submitted")[0]).toBeVisible();
-        expect(screen.getByText("09/28/2022, 10:21:33 PM")).toBeVisible();
+        expect(screen.getByText("9/28/2022, 10:21:33 PM")).toBeVisible();
         expect(screen.getAllByText("File Location")[0]).toBeVisible();
         expect(screen.getByText("RECEIVE")).toBeVisible();
         expect(screen.getByText("simple_report.csvuploader")).toBeVisible();

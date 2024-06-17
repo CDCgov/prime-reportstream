@@ -26,8 +26,8 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.TestcontainersUtils
 import io.mockk.CapturingSlot
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -38,8 +38,9 @@ import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.testcontainers.containers.GenericContainer
-import org.testcontainers.utility.DockerImageName
+import org.junit.jupiter.api.assertThrows
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -55,26 +56,28 @@ class BlobAccessTests {
         unmockkAll()
     }
 
+    @Testcontainers(parallel = true)
     @Nested
-    class BlobAccessIntegrationTests {
-        val azuriteContainer1 =
-            GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
-                .withEnv("AZURITE_ACCOUNTS", "devstoreaccount1:keydevstoreaccount1")
-                .withExposedPorts(10000, 10001, 10002)
+    inner class BlobAccessIntegrationTests {
+        @Container
+        val azuriteContainer1 = TestcontainersUtils.createAzuriteContainer(
+            customImageName = "azurite_blobaccess1",
+            customEnv = mapOf(
+                "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
+            )
+        )
 
-        val azuriteContainer2 =
-            GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite"))
-                .withEnv("AZURITE_ACCOUNTS", "devstoreaccount2:keydevstoreaccount2")
-                .withExposedPorts(10000, 10001, 10002)
-
-        init {
-            azuriteContainer1.start()
-            azuriteContainer2.start()
-        }
+        @Container
+        val azuriteContainer2 = TestcontainersUtils.createAzuriteContainer(
+            customImageName = "azurite_blobaccess2",
+            customEnv = mapOf(
+                "AZURITE_ACCOUNTS" to "devstoreaccount2:keydevstoreaccount2"
+            )
+        )
 
         @AfterEach
         fun afterEach() {
-            clearAllMocks()
+            unmockkAll()
         }
 
         @Test
@@ -171,28 +174,30 @@ class BlobAccessTests {
         fun `copyDir should overwrite any existing files`() {
             val sourceBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
                 "container1",
-                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10000
-                    )
-                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10001
-                    )
-                }/devstoreaccount1;"""
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
+                    """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                        azuriteContainer1.getMappedPort(
+                            10000
+                        )
+                    }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                        azuriteContainer1.getMappedPort(
+                            10001
+                        )
+                    }/devstoreaccount1;"""
             )
 
             val destinationBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
                 "container1",
-                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount2;AccountKey=keydevstoreaccount2;BlobEndpoint=http://${azuriteContainer2.host}:${
-                    azuriteContainer2.getMappedPort(
-                        10000
-                    )
-                }/devstoreaccount2;QueueEndpoint=http://${azuriteContainer2.host}:${
-                    azuriteContainer2.getMappedPort(
-                        10001
-                    )
-                }/devstoreaccount2;"""
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount2;""" +
+                    """AccountKey=keydevstoreaccount2;BlobEndpoint=http://${azuriteContainer2.host}:${
+                        azuriteContainer2.getMappedPort(
+                            10000
+                        )
+                    }/devstoreaccount2;QueueEndpoint=http://${azuriteContainer2.host}:${
+                        azuriteContainer2.getMappedPort(
+                            10001
+                        )
+                    }/devstoreaccount2;"""
             )
 
             BlobAccess.uploadBlob(
@@ -223,15 +228,16 @@ class BlobAccessTests {
             val testContent = "test content"
             val blobContainerMetadata1 = BlobAccess.BlobContainerMetadata(
                 "container1",
-                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10000
-                    )
-                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10001
-                    )
-                }/devstoreaccount1;"""
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
+                    """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                        azuriteContainer1.getMappedPort(
+                            10000
+                        )
+                    }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                        azuriteContainer1.getMappedPort(
+                            10001
+                        )
+                    }/devstoreaccount1;"""
             )
             val url = BlobAccess.uploadBlob(
                 "test.txt",
@@ -249,15 +255,16 @@ class BlobAccessTests {
         fun `can list blobs in a directory`() {
             val blobContainerMetadata1 = BlobAccess.BlobContainerMetadata(
                 "container1",
-                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10000
-                    )
-                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10001
-                    )
-                }/devstoreaccount1;"""
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
+                    """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                        azuriteContainer1.getMappedPort(
+                            10000
+                        )
+                    }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                        azuriteContainer1.getMappedPort(
+                            10001
+                        )
+                    }/devstoreaccount1;"""
             )
             val contentToUpload = listOf("foo/item1.txt", "bar/item2.txt", "foo/baz/item3.txt")
             contentToUpload.forEach { content ->
@@ -299,15 +306,16 @@ class BlobAccessTests {
         fun `can list blobs with their versions`() {
             val blobContainerMetadata1 = BlobAccess.BlobContainerMetadata(
                 "container1",
-                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10000
-                    )
-                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10001
-                    )
-                }/devstoreaccount1;"""
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
+                    """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                        azuriteContainer1.getMappedPort(
+                            10000
+                        )
+                    }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                        azuriteContainer1.getMappedPort(
+                            10001
+                        )
+                    }/devstoreaccount1;"""
             )
 
             val now = OffsetDateTime.now()
@@ -372,15 +380,16 @@ class BlobAccessTests {
         fun `listBlobs with versions should not include a result that has been soft-deleted`() {
             val blobContainerMetadata1 = BlobAccess.BlobContainerMetadata(
                 "container1",
-                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10000
-                    )
-                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                    azuriteContainer1.getMappedPort(
-                        10001
-                    )
-                }/devstoreaccount1;"""
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;""" +
+                    """AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                        azuriteContainer1.getMappedPort(
+                            10000
+                        )
+                    }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                        azuriteContainer1.getMappedPort(
+                            10001
+                        )
+                    }/devstoreaccount1;"""
             )
 
             val now = OffsetDateTime.now()
@@ -428,6 +437,47 @@ class BlobAccessTests {
             assertThat(results).hasSize(1)
             assertThat(results[0].currentBlobItem.name).isEqualTo(blobName2)
         }
+    }
+
+    @Test
+    fun `test get blob endpoint URL from BlobContainerMetadata`() {
+        val localEndpoint =
+            """
+                DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://localhost:54321/devstoreaccount1;QueueEndpoint=http://localhost:12345/devstoreaccount1;
+                """.trimIndent()
+
+        val metadata = BlobAccess.BlobContainerMetadata("test", localEndpoint)
+        assertThat(metadata.getBlobEndpoint()).isEqualTo("http://localhost:54321/devstoreaccount1/test")
+    }
+
+    @Test
+    fun `test get blob endpoint when accountname and suffix are used`() {
+        val deployedEndpoint =
+            """
+                DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;EndpointSuffix=core.windows.net
+                """.trimIndent()
+
+        val metadata = BlobAccess.BlobContainerMetadata("test", deployedEndpoint)
+        assertThat(metadata.getBlobEndpoint()).isEqualTo("https://devstoreaccount1.blob.core.windows.net/test")
+
+        val deployedEndpoint2 =
+            """
+                DefaultEndpointsProtocol=http;AccountKey=keydevstoreaccount1;EndpointSuffix=core.windows.net;AccountName=devstoreaccount1;
+                """.trimIndent()
+
+        val metadata2 = BlobAccess.BlobContainerMetadata("test", deployedEndpoint2)
+        assertThat(metadata2.getBlobEndpoint()).isEqualTo("https://devstoreaccount1.blob.core.windows.net/test")
+    }
+
+    @Test
+    fun `test blob endpoint URL missing from connection string for BlobContainerMetadata`() {
+        val endpoint =
+            """
+            DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;QueueEndpoint=http://localhost:12345/devstoreaccount1;
+            """.trimIndent()
+
+        val metadata = BlobAccess.BlobContainerMetadata("test", endpoint)
+        assertThrows<RuntimeException> { metadata.getBlobEndpoint() }
     }
 
     @Test
@@ -749,5 +799,88 @@ class BlobAccessTests {
         assertThat(defaultBlobMetadata.connectionString).isEqualTo("defaultconnection")
         assertThat(testBlobMetadata.containerName).isEqualTo(testContainer)
         assertThat(testBlobMetadata.connectionString).isEqualTo("testconnection")
+    }
+
+    @Test
+    fun `restorePreviousVersion success`() {
+        val mockBlobContainerMetadata = mockk<BlobAccess.BlobContainerMetadata>()
+        val mockBlobContainer = mockk<BlobContainerClient>()
+        val mockBlobClient = mockk<BlobClient>()
+        val mockVersionClient = mockk<BlobClient>()
+        every { mockVersionClient.blobUrl } returns "http://foo.com/foo.txt"
+        val currentBlob = BlobItem()
+        currentBlob.name = "foo.txt"
+        val previousVersionBlob = BlobItem()
+        previousVersionBlob.name = "foo.txt"
+        previousVersionBlob.versionId = "af-123"
+        val blobItemAndPreviousVersions = BlobAccess.Companion.BlobItemAndPreviousVersions(
+            currentBlob,
+            listOf(previousVersionBlob)
+        )
+        mockkObject(BlobAccess)
+        every { BlobAccess.getBlobContainer(mockBlobContainerMetadata) } returns mockBlobContainer
+        every { mockBlobContainer.getBlobClient(currentBlob.name) } returns mockBlobClient
+        every {
+            mockBlobContainer.getBlobVersionClient(
+                currentBlob.name,
+                previousVersionBlob.versionId
+            )
+        } returns mockVersionClient
+        every { mockBlobClient.copyFromUrl("http://foo.com/foo.txt") } returns ""
+
+        BlobAccess.restorePreviousVersion(blobItemAndPreviousVersions, mockBlobContainerMetadata)
+
+        verify(exactly = 1) {
+            BlobAccess.getBlobContainer(mockBlobContainerMetadata)
+            mockBlobContainer.getBlobClient(currentBlob.name)
+            mockBlobContainer.getBlobVersionClient(
+                currentBlob.name,
+                previousVersionBlob.versionId
+            )
+            mockBlobClient.copyFromUrl("http://foo.com/foo.txt")
+        }
+    }
+
+    @Test
+    fun `restorePreviousVersion missing previous versions`() {
+        val mockBlobContainerMetadata = mockk<BlobAccess.BlobContainerMetadata>()
+        val mockBlobContainer = mockk<BlobContainerClient>()
+        val mockBlobClient = mockk<BlobClient>()
+
+        val currentBlob = BlobItem()
+        currentBlob.name = "foo.txt"
+        val previousVersionBlob = BlobItem()
+        previousVersionBlob.name = "foo.txt"
+        previousVersionBlob.versionId = "af-123"
+        val blobItemAndPreviousVersions = BlobAccess.Companion.BlobItemAndPreviousVersions(
+            currentBlob,
+            emptyList()
+        )
+        mockkObject(BlobAccess)
+        every { BlobAccess.getBlobContainer(mockBlobContainerMetadata) } returns mockBlobContainer
+        every { mockBlobContainer.getBlobClient(currentBlob.name) } returns mockBlobClient
+
+        BlobAccess.restorePreviousVersion(blobItemAndPreviousVersions, mockBlobContainerMetadata)
+
+        verify(exactly = 1) {
+            BlobAccess.getBlobContainer(mockBlobContainerMetadata)
+            mockBlobContainer.getBlobClient(currentBlob.name)
+        }
+
+        verify(exactly = 0) {
+            mockBlobContainer.getBlobVersionClient(
+                currentBlob.name,
+                previousVersionBlob.versionId
+            )
+            mockBlobClient.copyFromUrl(any())
+        }
+    }
+
+    @Test
+    fun `BlobItemAndPreviousVersions#blobName returns name of current blob`() {
+        val currentBlob = BlobItem()
+        currentBlob.name = "foo.txt"
+        val blobItemAndPreviousVersions = BlobAccess.Companion.BlobItemAndPreviousVersions(currentBlob, emptyList())
+        assertThat(blobItemAndPreviousVersions.blobName).isEqualTo("foo.txt")
     }
 }

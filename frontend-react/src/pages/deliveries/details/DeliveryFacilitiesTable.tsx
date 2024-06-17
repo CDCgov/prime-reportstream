@@ -1,5 +1,5 @@
-import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
 import Table, { TableConfig } from "../../../components/Table/Table";
+import useReportsFacilities from "../../../hooks/api/deliveries/UseReportFacilities/UseReportFacilities";
 
 interface FacilitiesTableProps {
     /* REQUIRED
@@ -20,12 +20,12 @@ function DeliveryFacilitiesTable(props: FacilitiesTableProps) {
             { dataAttr: "total", columnHeader: "Total tests" },
             { dataAttr: "positive", columnHeader: "Total positive" },
         ],
-        rows: reportFacilities!!,
+        rows: reportFacilities!,
     };
 
     return (
         <section id="facilities" className="margin-bottom-5">
-            <h2>Facilities reporting ({reportFacilities?.length || 0})</h2>
+            <h2>Facilities reporting ({reportFacilities?.length ?? 0})</h2>
             <Table config={tableConfig} />
         </section>
     );

@@ -2,16 +2,14 @@ package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.result.Result
-import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
+import io.ktor.http.HttpStatusCode
 import java.net.HttpURLConnection
 import java.time.OffsetDateTime
 
@@ -24,6 +22,8 @@ data class ExpectedSubmissionList(
     val topic: String?,
     val reportItemCount: Int?,
     val externalName: String? = "",
+    val fileName: String? = "",
+    val fileType: String? = "",
 )
 
 /**
@@ -57,7 +57,7 @@ data class HistoryApiTestCase(
     val headers: Map<String, String>,
     val parameters: List<Pair<String, Any?>>?,
     val bearer: String,
-    val expectedHttpStatus: HttpStatus,
+    val expectedHttpStatus: HttpStatusCode,
     val expectedReports: Set<ReportId>,
     val jsonResponseChecker: HistoryJsonResponseChecker,
     val doMinimalChecking: Boolean,
@@ -121,32 +121,33 @@ class HistoryApiTest : CoolTest() {
      * The json body may be null even if the test passed, in cases of an expected error code.
      */
     private fun historyApiQuery(testCase: HistoryApiTestCase): Pair<Boolean, String?> {
-        val (_, response, result) = Fuel.get(testCase.path, testCase.parameters)
-            .authentication()
-            .bearer(testCase.bearer)
-            .header(testCase.headers)
-            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
-            .responseString()
-        if (response.statusCode != testCase.expectedHttpStatus.value()) {
+        val (response, respStr) = HttpClientUtils.getWithStringResponse(
+            url = testCase.path,
+            accessToken = testCase.bearer,
+            timeout = 45000,
+            queryParameters = testCase.parameters?.associate {
+                Pair(it.first, it.second.toString())
+            }
+        )
+        return if (response.status != testCase.expectedHttpStatus) {
             bad(
                 "***$name Test '${testCase.name}' FAILED:" +
-                    " Expected HttpStatus ${testCase.expectedHttpStatus}. Got ${response.statusCode}"
+                        " Expected HttpStatus ${testCase.expectedHttpStatus}. Got ${response.status.value}"
             )
-            return Pair(false, null)
+            Pair(false, null)
+        } else if (testCase.expectedHttpStatus != HttpStatusCode.OK) {
+            Pair(true, null)
+        } else if (response.status != HttpStatusCode.OK) {
+            bad("***$name Test '${testCase.name}' FAILED:  Result is $respStr")
+            Pair(false, null)
+        } else {
+            val json: String = respStr
+            if (json.isEmpty()) {
+                bad("***$name Test '${testCase.name}' FAILED: empty body")
+                Pair(false, null)
+            }
+            Pair(true, json)
         }
-        if (testCase.expectedHttpStatus != HttpStatus.OK) {
-            return Pair(true, null)
-        }
-        if (result !is Result.Success) {
-            bad("***$name Test '${testCase.name}' FAILED:  Result is $result")
-            return Pair(false, null)
-        }
-        val json: String = result.value
-        if (json.isEmpty()) {
-            bad("***$name Test '${testCase.name}' FAILED: empty body")
-            return Pair(false, null)
-        }
-        return Pair(true, json)
     }
 
     /**
@@ -166,7 +167,7 @@ class HistoryApiTest : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to options.submits),
                 bearer,
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = reportIds,
                 SubmissionListChecker(this),
                 doMinimalChecking = true,
@@ -177,7 +178,7 @@ class HistoryApiTest : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to options.submits),
                 bearer,
-                HttpStatus.NOT_FOUND,
+                HttpStatusCode.NotFound,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true,
@@ -188,7 +189,7 @@ class HistoryApiTest : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to options.submits),
                 bearer,
-                HttpStatus.NOT_FOUND,
+                HttpStatusCode.NotFound,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true,
@@ -199,7 +200,7 @@ class HistoryApiTest : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to options.submits),
                 bearer,
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = reportIds,
                 SubmissionListChecker(this),
                 doMinimalChecking = true,
@@ -219,7 +220,7 @@ class HistoryApiTest : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to options.submits),
                 bearer,
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = reportIds,
                 SubmissionListChecker(this),
                 doMinimalChecking = true,
@@ -240,7 +241,7 @@ class HistoryApiTest : CoolTest() {
                     emptyMap(),
                     listOf("pagesize" to options.submits),
                     bearer + "x",
-                    HttpStatus.UNAUTHORIZED,
+                    HttpStatusCode.Unauthorized,
                     expectedReports = emptySet(),
                     SubmissionListChecker(this),
                     doMinimalChecking = true,
@@ -305,8 +306,8 @@ class SubmissionListChecker(testBeingRun: CoolTest) : HistoryJsonResponseChecker
             if (submissionsHistories.size != testCase.expectedReports.size) {
                 return testBeingRun.bad(
                     "*** ${testBeingRun.name}: TEST '${testCase.name}' FAILED: " +
-                        "${testCase.expectedReports.size} reports submitted" +
-                        " but got ${submissionsHistories.size} submission histories."
+                            "${testCase.expectedReports.size} reports submitted" +
+                            " but got ${submissionsHistories.size} submission histories."
                 )
             }
 
@@ -314,7 +315,7 @@ class SubmissionListChecker(testBeingRun: CoolTest) : HistoryJsonResponseChecker
             if (missingReportIds.isNotEmpty()) {
                 return testBeingRun.bad(
                     "*** ${testBeingRun.name}: TEST '${testCase.name}' FAILED: " +
-                        "These ReportIds are missing from the history: ${missingReportIds.joinToString(",")}"
+                            "These ReportIds are missing from the history: ${missingReportIds.joinToString(",")}"
                 )
             }
         }
@@ -355,14 +356,15 @@ class ReportDetailsChecker(testBeingRun: CoolTest) : HistoryJsonResponseChecker(
                 if (testCase.expectedReports.first() != submissionDetails.reportId) {
                     testBeingRun.bad(
                         "Expecting reportId ${testCase.expectedReports.toList()[0]} but " +
-                            " got reportId ${submissionDetails.reportId} in submission details response"
+                                " got reportId ${submissionDetails.reportId} in submission details response"
                     )
                     return false
                 }
             } else {
                 testBeingRun.bad(
                     "Test is not written correctly - please fix:" +
-                        " For DetailedSubmissionHistory tests, Pass exactly one reportId in the expectedReports set."
+                            " For DetailedSubmissionHistory tests, Pass exactly " +
+                            "one reportId in the expectedReports set."
                 )
                 return false
             }

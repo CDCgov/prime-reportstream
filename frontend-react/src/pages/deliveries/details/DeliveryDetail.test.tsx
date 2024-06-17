@@ -1,16 +1,19 @@
-import { mockUseReportDetail } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { DeliveryDetailPage } from "./DeliveryDetail";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
+import useReportsDetail from "../../../hooks/api/deliveries/UseReportDetail/UseReportDetail";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 
-import { DeliveryDetailPage } from "./DeliveryDetail";
-
 const TEST_ID = "test-id-123";
-jest.mock("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"), // use actual for all non-hook parts
+vi.mock("react-router-dom", async (importActual) => ({
+    ...(await importActual<typeof import("react-router-dom")>()), // use actual for all non-hook parts
     useParams: () => ({
         reportId: TEST_ID,
     }),
 }));
+
+vi.mock("../../../hooks/api/deliveries/UseReportDetail/UseReportDetail");
+
+const mockUseReportDetail = vi.mocked(useReportsDetail);
 
 describe("DeliveryDetails", () => {
     /* Render tests for the Table component cover the generation of a table via config. The only untested

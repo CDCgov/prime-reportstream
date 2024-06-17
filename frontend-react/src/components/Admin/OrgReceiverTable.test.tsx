@@ -1,9 +1,8 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { settingsServer } from "../../__mocks__/SettingsMockServer";
-
 import { OrgReceiverTable } from "./OrgReceiverTable";
+import { settingsServer } from "../../__mockServers__/SettingsMockServer";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 const mockData = [
     {
@@ -77,8 +76,8 @@ const mockData = [
     },
 ];
 
-jest.mock("rest-hooks", () => ({
-    ...jest.requireActual("rest-hooks"),
+vi.mock("rest-hooks", async (importActual) => ({
+    ...(await importActual<typeof import("rest-hooks")>()),
     useResource: () => {
         return mockData;
     },

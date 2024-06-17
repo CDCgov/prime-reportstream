@@ -1,19 +1,18 @@
-import OrgSettingsBaseResource from "../resources/OrgSettingsBaseResource";
-
 import {
+    capitalizeFirst,
+    checkJson,
     formatDate,
     getErrorDetailFromResponse,
     getVersionWarning,
-    splitOn,
-    VersionWarningType,
-    toHumanReadable,
-    capitalizeFirst,
     groupBy,
-    checkJson,
     isValidServiceName,
     parseFileLocation,
+    splitOn,
+    toHumanReadable,
+    VersionWarningType,
 } from "./misc";
 import { mockEvent } from "./TestUtils";
+import OrgSettingsBaseResource from "../resources/OrgSettingsBaseResource";
 
 test("splitOn test", () => {
     const r1 = splitOn("foo", 1);
@@ -39,12 +38,13 @@ test("verify checking json for errors", () => {
     expect(checkJson(`{`)).toStrictEqual({
         valid: false,
         offset: 1,
-        errorMsg: "Unexpected end of JSON input",
+        errorMsg: "Expected property name or '}' in JSON at position 1",
     });
     expect(checkJson(`{ "foo": [1,2,3 }`)).toStrictEqual({
         valid: false,
         offset: 16,
-        errorMsg: "Unexpected token } in JSON at position 16",
+        errorMsg:
+            "Expected ',' or ']' after array element in JSON at position 16",
     });
 });
 
@@ -63,14 +63,14 @@ test("getErrorDetailFromResponse test", async () => {
 
 const objResource: OrgSettingsBaseResource = {
     name: "test setting",
-    url: "http://localhost",
+    url: "http://localhost:3000",
     pk: () => "10101",
     version: 5,
     createdBy: "test@example.com",
     createdAt: "1/1/2000 00:00",
 };
 
-test("getVersionWarning test", async () => {
+test("getVersionWarning test", () => {
     const fullWarning = getVersionWarning(VersionWarningType.FULL, objResource);
     expect(fullWarning).toContain(objResource.createdBy);
 
@@ -87,7 +87,7 @@ test("formatDate test", () => {
         ":23", // check the minutes are at least correct
     );
 
-    expect(() => formatDate("bad date")).toThrowError("Invalid time value");
+    expect(() => formatDate("bad date")).toThrow("Invalid time value");
 });
 
 describe("toHumanReadable", () => {
@@ -116,7 +116,7 @@ describe("capitalizeFirst", () => {
     });
 });
 
-describe("groupBy ", () => {
+describe("groupBy", () => {
     test("groupBy basic", () => {
         expect(
             groupBy(

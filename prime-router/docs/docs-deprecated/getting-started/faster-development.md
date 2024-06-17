@@ -19,7 +19,7 @@ test changes more quickly and/or save memory you can then run the Azure function
 a one time procedure and only needs to be run at workstation startup or when you perform a clean:
 
 ```bash
-docker-compose -f docker-compose.build.yml up --detach
+docker compose -f docker-compose.build.yml up --detach
 ```
 
 ### Running the Azure functions

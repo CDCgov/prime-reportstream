@@ -1,57 +1,54 @@
 import { expect, Page } from "@playwright/test";
 
-export class Header {
-    constructor(private readonly page: Page) {}
+export async function clickOnHome(page: Page) {
+    await page.getByTestId("header").getByTitle("Home").click();
+    await expect(page).toHaveURL("/");
+}
 
-    async clickOnHome() {
-        await this.page.getByTestId("header").getByTitle("Home").click();
-        await expect(this.page).toHaveURL("/");
-    }
+export async function clickOnAbout(page: Page) {
+    await page
+        .getByTestId("header")
+        .getByTestId("navDropDownButton")
+        .getByText("About")
+        .click();
 
-    async clickOnAbout() {
-        await this.page
-            .getByTestId("header")
-            .getByTestId("navDropDownButton")
-            .click();
+    expect(page.getByText("About ReportStream")).toBeTruthy();
+    expect(page.getByText("Our network")).toBeTruthy();
+    expect(page.getByText("News")).toBeTruthy();
+    expect(page.getByText("Case studies")).toBeTruthy();
+    expect(page.getByText("Security")).toBeTruthy();
+    expect(page.getByText("Release notes")).toBeTruthy();
+}
 
-        await expect(this.page.getByText("About ReportStream")).toBeTruthy();
-        await expect(this.page.getByText("Our network")).toBeTruthy();
-        await expect(this.page.getByText("News")).toBeTruthy();
-        await expect(this.page.getByText("Case studies")).toBeTruthy();
-        await expect(this.page.getByText("Security")).toBeTruthy();
-        await expect(this.page.getByText("Release notes")).toBeTruthy();
-    }
+export async function clickOnGettingStarted(page: Page) {
+    await page
+        .getByTestId("header")
+        .getByRole("link", { name: "Getting Started" })
+        .click();
 
-    async clickOnGettingStarted() {
-        await this.page
-            .getByTestId("header")
-            .getByRole("link", { name: "Getting Started" })
-            .click();
+    await expect(page).toHaveURL(/getting-started/);
+}
 
-        await expect(this.page).toHaveURL(/getting-started/);
-    }
+export async function clickOnDevelopers(page: Page) {
+    await page
+        .getByTestId("header")
+        .getByRole("link", { name: "Developers" })
+        .click();
+    await expect(page).toHaveURL(/.*developer-resources/);
+}
 
-    async clickOnDevelopers() {
-        await this.page
-            .getByTestId("header")
-            .getByRole("link", { name: "Developers" })
-            .click();
-        await expect(this.page).toHaveURL(/.*developer-resources/);
-    }
+export async function clickOnYourConnection(page: Page) {
+    await page
+        .getByTestId("header")
+        .getByRole("link", { name: "Your Connection" })
+        .click();
+    await expect(page).toHaveURL(/.*managing-your-connection/);
+}
 
-    async clickOnYourConnection() {
-        await this.page
-            .getByTestId("header")
-            .getByRole("link", { name: "Your Connection" })
-            .click();
-        await expect(this.page).toHaveURL(/.*managing-your-connection/);
-    }
-
-    async clickOnSupport() {
-        await this.page
-            .getByTestId("header")
-            .getByRole("link", { name: "Support" })
-            .click();
-        await expect(this.page).toHaveURL(/.*support/);
-    }
+export async function clickOnSupport(page: Page) {
+    await page
+        .getByTestId("header")
+        .getByRole("link", { name: "Support" })
+        .click();
+    await expect(page).toHaveURL(/.*support/);
 }

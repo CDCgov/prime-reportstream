@@ -27,6 +27,11 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
+import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -34,9 +39,10 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
-import gov.cdc.prime.router.fhirengine.utils.getMappedConditions
+import gov.cdc.prime.router.fhirengine.utils.getMappedConditionCodes
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservationsWithCondition
+import gov.cdc.prime.router.report.ReportService
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Observation
@@ -55,65 +61,13 @@ class FHIRRouter(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-) : FHIREngine(metadata, settings, db, blob) {
-
-    /**
-     * The name of the lookup table to load the shorthand replacement key/value pairs from
-     */
-    private val fhirPathFilterShorthandTableName = "fhirpath_filter_shorthand"
-
-    /**
-     * The name of the column in the shorthand replacement lookup table that will be used as the key.
-     */
-    private val fhirPathFilterShorthandTableKeyColumnName = "variable"
-
-    /**
-     * The name of the column in the shorthand replacement lookup table that will be used as the value.
-     */
-    private val fhirPathFilterShorthandTableValueColumnName = "fhirPath"
-
-    /**
-     * Lookup table `fhirpath_filter_shorthand` containing all the shorthand fhirpath replacements for filtering.
-     */
-    private val shorthandLookupTable by lazy { loadFhirPathShorthandLookupTable() }
-
+    azureEventService: AzureEventService = AzureEventServiceImpl(),
+    reportService: ReportService = ReportService(),
+) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
     /**
      * Adds logs for reports that pass through various methods in the FHIRRouter
      */
     private var actionLogger: ActionLogger? = null
-
-    /**
-     * Load the fhirpath_filter_shorthand lookup table into a map if it can be found and has the expected columns,
-     * otherwise log warnings and return an empty lookup table with the correct columns. This is valid since having
-     * a populated lookup table is not required to run the universal pipeline routing
-     *
-     * @returns Map containing all the values in the fhirpath_filter_shorthand lookup table. Empty map if the
-     * lookup table was not found, or it does not contain the expected columns. If an empty map is returned, a
-     * warning indicating why will be logged.
-     */
-    internal fun loadFhirPathShorthandLookupTable(): MutableMap<String, String> {
-        val lookup = metadata.findLookupTable(fhirPathFilterShorthandTableName)
-        // log a warning and return an empty table if either lookup table is missing or has incorrect columns
-        return if (lookup != null &&
-            lookup.hasColumn(fhirPathFilterShorthandTableKeyColumnName) &&
-            lookup.hasColumn(fhirPathFilterShorthandTableValueColumnName)
-        ) {
-            lookup.table.associate {
-                it.getString(fhirPathFilterShorthandTableKeyColumnName) to
-                    it.getString(fhirPathFilterShorthandTableValueColumnName)
-            }.toMutableMap()
-        } else {
-            if (lookup == null) {
-                logger.warn("Unable to find $fhirPathFilterShorthandTableName lookup table")
-            } else {
-                logger.warn(
-                    "$fhirPathFilterShorthandTableName does not contain " +
-                        "expected columns 'variable' and 'fhirPath'"
-                )
-            }
-            emptyMap<String, String>().toMutableMap()
-        }
-    }
 
     /**
      * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
@@ -131,12 +85,31 @@ class FHIRRouter(
 
         // track input report
         actionHistory.trackExistingInputReport(message.reportId)
+        val rootReportId = reportService.getRootReport(message.reportId).reportId
 
         // pull fhir document and parse FHIR document
-        val bundle = FhirTranscoder.decode(message.downloadContent())
+        val fhirJson = message.downloadContent()
+        val bundle = FhirTranscoder.decode(fhirJson)
 
         // get the receivers that this bundle should go to
         val listOfReceivers = findReceiversForBundle(bundle, message.reportId, actionHistory, message.topic)
+
+        // go up the report lineage to get the sender of the root report
+        val sender = reportService.getSenderName(message.reportId)
+
+        // send event to Azure AppInsights
+        val observationSummary = AzureEventUtils.getObservationSummaries(bundle)
+        azureEventService.trackEvent(
+            ReportAcceptedEvent(
+                message.reportId,
+                rootReportId,
+                message.topic,
+                sender,
+                observationSummary,
+                fhirJson.length,
+                AzureEventUtils.getIdentifier(bundle)
+            )
+        )
 
         // check if there are any receivers
         if (listOfReceivers.isNotEmpty()) {
@@ -167,7 +140,6 @@ class FHIRRouter(
                     )
                 )
 
-                // TODO: merge with mapped condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
                 // If the receiver does not have a condition filter set send the entire bundle to the translate step
                 var receiverBundle = if (receiver.conditionFilter.isEmpty()) {
                     bundle
@@ -196,16 +168,34 @@ class FHIRRouter(
                 )
 
                 // upload new copy to blobstore
-                val bodyBytes = FhirTranscoder.encode(receiverBundle).toByteArray()
+                val bodyString = FhirTranscoder.encode(receiverBundle)
                 val blobInfo = BlobAccess.uploadBody(
                     Report.Format.FHIR,
-                    bodyBytes,
+                    bodyString.toByteArray(),
                     report.name,
                     message.blobSubFolderName,
                     nextEvent.eventAction
                 )
                 // ensure tracking is set
                 actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
+
+                // send event to Azure AppInsights
+                val bundleObservationSummary = AzureEventUtils.getObservationSummaries(bundle)
+                val receiverObservationSummary = AzureEventUtils.getObservationSummaries(receiverBundle)
+                azureEventService.trackEvent(
+                    ReportRouteEvent(
+                        report.id,
+                        message.reportId,
+                        rootReportId,
+                        message.topic,
+                        sender,
+                        receiver.fullName,
+                        receiverObservationSummary,
+                        bundleObservationSummary,
+                        bodyString.length,
+                        AzureEventUtils.getIdentifier(bundle)
+                    )
+                )
 
                 listOf(
                     FHIREngineRunResult(
@@ -260,6 +250,23 @@ class FHIRRouter(
 
             // ensure tracking is set
             actionHistory.trackCreatedReport(nextEvent, report)
+
+            // send event to Azure AppInsights
+            val receiverObservationSummary = AzureEventUtils.getObservationSummaries(bundle)
+            azureEventService.trackEvent(
+                ReportRouteEvent(
+                    report.id,
+                    message.reportId,
+                    rootReportId,
+                    message.topic,
+                    sender,
+                    null,
+                    receiverObservationSummary,
+                    receiverObservationSummary,
+                    fhirJson.length,
+                    AzureEventUtils.getIdentifier(bundle)
+                )
+            )
 
             return emptyList()
         }
@@ -338,11 +345,10 @@ class FHIRRouter(
                 defaultResponse = true
             )
 
-            // TODO: merge with mapped condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
             // CONDITION FILTER
             //  default: allowAll
             val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
-            var allObservations = FhirPathUtils.evaluate(
+            val allObservations = FhirPathUtils.evaluate(
                 CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
                 bundle,
                 bundle,
@@ -370,7 +376,6 @@ class FHIRRouter(
                 }
                 )
 
-            // TODO: merge with condition filter (see https://github.com/CDCgov/prime-reportstream/issues/12705)
             // MAPPED CONDITION FILTER
             //  default: allowAll
             if (bundle.getObservations().isNotEmpty() && receiver.mappedConditionFilter.isNotEmpty()) {
@@ -388,7 +393,7 @@ class FHIRRouter(
                     )
                 }
                 passes = passes && filteredObservations.isNotEmpty() && // don't pass a bundle with only AOEs
-                    !filteredObservations.all { it.getMappedConditions().all { code -> code == "AOE" } }
+                    !filteredObservations.all { it.getMappedConditionCodes().all { code -> code == "AOE" } }
             }
 
             // if all filters pass, add this receiver to the list of valid receivers
@@ -406,7 +411,7 @@ class FHIRRouter(
      * that specific [filterType].
      * @param filters Filters that will be evaluated
      * @param bundle FHIR Bundle that will be evaluated
-     * @param report Report object passed for logging purposes
+     * @param reportId Report ID passed for logging purposes
      * @param receiver Receiver of the report passed for logging purposes
      * @param filterType Type of filter passed for logging purposes
      * @param defaultResponse Response returned if the filter is null or empty
@@ -574,7 +579,7 @@ class FHIRRouter(
      * "route" step for a [receiver], tracking the [filterType] and tying the results to a [receiver] and [bundle].
      * @param filterName Name of evaluated filter
      * @param bundle FHIR Bundle that was evaluated
-     * @param report Report object passed for logging purposes
+     * @param reportId Report ID passed for logging purposes
      * @param receiver Receiver of the report
      * @param filterType Type of filter used
      * @param focusResource Starting point for the evaluation, used for logging
@@ -588,18 +593,7 @@ class FHIRRouter(
         filterType: ReportStreamFilterType,
         focusResource: Base,
     ) {
-        var filteredTrackingElement = bundle.identifier.value ?: ""
-        if (focusResource != bundle) {
-            filteredTrackingElement += " at " + focusResource.idBase
-
-            if (focusResource is Observation) {
-                // for Observation-type elements, we use the code property when available
-                // if more elements need specific logic, consider extending the FHIR libraries
-                // instead of adding more if/else statements
-                val coding = focusResource.code.coding.firstOrNull()
-                if (coding != null) filteredTrackingElement += " with " + coding.system + " code: " + coding.code
-            }
-        }
+        val filteredTrackingElement = bundle.identifier.value ?: ""
         val filterResult = ReportStreamFilterResult(
             receiver.fullName,
             // The FHIR router will only ever process a single item
@@ -607,7 +601,14 @@ class FHIRRouter(
             filterName,
             emptyList(),
             filteredTrackingElement,
-            filterType
+            filterType,
+            filteredObservationDetails = if (focusResource is Observation) {
+                "${focusResource.id} with system: |" +
+                "${focusResource.code.coding.firstOrNull()?.system} |" +
+                "and code: ${focusResource.code.coding.firstOrNull()?.code}"
+            } else {
+                null
+            }
         )
         actionHistory.trackLogs(
             ActionLog(

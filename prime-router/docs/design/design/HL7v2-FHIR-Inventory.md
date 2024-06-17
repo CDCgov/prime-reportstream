@@ -57,7 +57,7 @@ that ReportStream does not think match the reality of the data the application r
 the ReportStream
 implementation differs from what is in the spreadsheets.
 
-### MSH/SFT -> MessageHeader
+### MSH -> MessageHeader
 
 - MSH.24 vs MSH.3: The inventory prefers MSH.24 over MSH.3, but ReportStream prefers MSH.3 as from experience it has
   better information
@@ -65,9 +65,6 @@ implementation differs from what is in the spreadsheets.
   better information
 - MSH.23 vs MSH.6: The inventory prefers MSH.23 over MSH.6, but the ReportStream prefers MSH.5 as from experience it has
   better information
-- The inventory specifies two different, contradicting mappings for MessageHeader.source and the team opted to
-  use [HD[MessageHeader.source.endpoint]](https://docs.google.com/spreadsheets/d/18o2QLSHQPkRr1S0vax7G4tuuXQnhE9wJl0n1kjupS7U/edit#gid=0)
-  as it is more specific
 - The inventory specifies two different, contradicting mappings for MessageHeader.destination and the team opted to
   use [HD[MessageHeader.destination.endpoint]](https://docs.google.com/spreadsheets/d/1T99UdnCSjoGpbamAvfVEZMDN5wKRtc0gUlWZ0ufRd6c/edit#gid=0)
   as it is more specific
@@ -94,8 +91,26 @@ implementation differs from what is in the spreadsheets.
   both include entity values to contain the original HL7v2 message. Since we currently don't have a good way to include
   real references to those messages, we've omitted the associated `entity` fields altogether.
 
+### SFT -> Provenance -> Device
+
+- The
+  inventory [SFT[Device]](https://docs.google.com/spreadsheets/d/1wSSB1L4LrwVFEqDYzoB6zv4Iuvsh3YxhxNBPq2oB4g8/edit#gid=0)
+  specifies an FHIR R5 extension for SFT.6 but this implementation is using R4. A custom extension has been implemented
+  in
+  place of the R5 extension.
+- Entity.role is required if SFT exists. The mapping inventory has the following direction:
+  > - If the software does not represent the original source system then Entity.role=derivation
+  >
+  > - If the software does represent the original source system then Entity.role=source
+
+  The source system cannot currently be derived from messages sent to the system. As such, this implementation has opted
+  to default `Entity.role=source`.
+
 ### OBR/ORC -> ServiceRequest
 
+- The inventory lists ORC as a required segment with a DiagnosticReport created for each ORC. However, NIST lists
+  ORC is an optional segment. Both sources list OBR as a required segment. Thus, this implementation DiagnosticReport
+  created for each OBR.
 - There is a discrepancy on where to pull identifiers from, for ORC/OBR 2,3 the mapping contradictorily states that both
   should be preferred over the other.
   The implementation opts to operate with the same logic for mapping to DiagnosticReport and to prefer ORC when
@@ -110,7 +125,9 @@ implementation differs from what is in the spreadsheets.
 - The inventory mentions OBR.29, ORC.8 and ORC.31 mention that they should be mapped onto a `basedOn` value which is not
   defined in the mapping, the implementation maps them to extensions
 - The inventory specifies to prefer OBR.53 over ORC.33 as an identifier which does not align with any of the other
-  identifiers, the implementations prefer ORC in all casses
+  identifiers, the implementations prefer ORC in all cases
+- ORC.34 is listed as type CWE in the mapping inventory but most sources state EI is the correct datatype. We have
+  chosen to treat this field as EI.
 
 ### PID -> Patient
 
@@ -152,3 +169,13 @@ implementation differs from what is in the spreadsheets.
 - The inventory does not have a record for the FC datatype and the implementation does not map PV1.20
 - PV1.52 should be mapped as it's in NIST and has a mapping in the inventory but, the HAPI 2.7 structures have it as
   NULLDT so this implementation does not map it
+
+### NTE -> Annotation
+
+- There isn't a specific NTE to Annotation mapping in the inventory; we used the ones for Observation and
+  ServiceRequest.
+- The inventory specifies NTE.3 (a repeatable field) maps to note.text (non-repeatable) without specifying how to handle
+  repetitions. We may want to consider concatenating repetitions together, delimited with a newline `\n`.
+- Additionally, there is handling that performs a union between note.text and the RS note-comment extension. We may want
+  to consider using only an NTE.3 extension when converting HL7 -> FHIR -> HL7.
+    - This is as opposed to a FHIR sender, where instead the text and author fields are used.

@@ -30,6 +30,26 @@ paths:
           required: true
           schema:
             type: string
+        - name: reportId
+          in: query
+          description: the reportId within the deliveries of the organization and client
+          schema:
+            type: string
+        - name: fileName
+          in: query
+          description: the fileName within the deliveries of the organization and client
+          schema:
+            type: string
+        - name: receivingOrgSvcStatus
+          in: query
+          description: "Customer status of the service used by the organization. Can append the parameter multiple times for more than one status."
+          example: "ACTIVE"
+          schema:
+            type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+              - TESTING
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/cursor'
@@ -70,6 +90,26 @@ paths:
           required: true
           schema:
             type: string
+        - name: reportId
+          in: query
+          description: the reportId within the deliveries of the organization and client
+          schema:
+            type: string
+        - name: fileName
+          in: query
+          description: the fileName within the deliveries of the organization and client
+          schema:
+            type: string
+        - name: receivingOrgSvcStatus
+          in: query
+          description: "Customer status of the service used by the organization. Can append the parameter multiple times for more than one status."
+          example: "ACTIVE"
+          schema:
+            type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+              - TESTING
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/cursor'

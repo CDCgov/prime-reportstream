@@ -27,6 +27,15 @@ outputs:
   dns_ip:
     value: ${{ steps.fetch_vpn_ip.outputs.dns_ip }}
     description: 'VPN DNS IP'
+  backend_files:
+    value: ${{ steps.filter.outputs.router_files }}
+    description: 'JSON array of changed backend files'
+  frontend_files:
+    value: ${{ steps.filter.outputs.frontend_react_files }}
+    description: 'JSON array of changed frontend files'
+  terraform_files:
+    value: ${{ steps.filter.outputs.terraform_files }}
+    description: 'JSON array of changed terraform files'
 
 runs:
   using: "composite"
@@ -150,27 +159,35 @@ runs:
         ${{ steps.build_staging.outputs.version }}\
         ${{ steps.build_prod.outputs.version }}" >> $GITHUB_OUTPUT
 
-    - uses: dorny/paths-filter@0bc4621a3135347011ad047f9ecf449bf72ce2bd
+    - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
       if: github.event_name != 'schedule'
       id: filter
       with:
-        list-files: csv
+        list-files: json
         filters: |
           router:
-            - 'prime-router/**'
-            - 'operations/**'
+            - 'prime-router/**/**.!(md)'
+            - 'operations/!((app|readme-assets|slack-boltjs-app|vpn))/**'
             - '.github/actions/build-backend/action.yml'
             - '.github/actions/deploy-backend/action.yml'
             - '.github/actions/build-vars/action.yml'
             - '.github/workflows/build_hub.yml'
           frontend_react:
-            - 'frontend-react/**'
+            - 'frontend-react/**/**.!(md)'
             - '.github/actions/build-vars/action.yml'
             - '.github/actions/build-frontend/action.yml'            
           terraform:
-            - 'operations/app/terraform/**'
+            - 'operations/app/terraform/**/**.!(md)'
             - '.github/workflows/validate_terraform.yml'
             - '.github/workflows/deploy_terraform.yml'
+
+    - name: Files changed
+      shell: bash
+      run: |
+        printf "## NEW OR CHANGED FILES" >> $GITHUB_STEP_SUMMARY
+        printf "\n<details><summary>Backend</summary>\n\n\`${{ steps.filter.outputs.router_files }}\`</details>" >> $GITHUB_STEP_SUMMARY
+        printf "\n<details><summary>Frontend</summary>\n\n\`${{ steps.filter.outputs.frontend_react_files }}\`</details>" >> $GITHUB_STEP_SUMMARY
+        printf "\n<details><summary>Terraform</summary>\n\n\`${{ steps.filter.outputs.terraform_files }}\`</details>" >> $GITHUB_STEP_SUMMARY
 
     - name: Force backend change if prod
       if: github.event_name != 'schedule'
@@ -206,7 +223,7 @@ runs:
           echo "has_react_change=${{ steps.filter.outputs.frontend_react }}" >> $GITHUB_OUTPUT
         fi
 
-    - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d
+    - uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a
       if: inputs.sp-creds != 'false'
       with:
         creds: ${{ inputs.sp-creds }}

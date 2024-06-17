@@ -13,13 +13,16 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import io.mockk.every
 import io.mockk.mockk
 import java.time.OffsetDateTime
+import java.util.UUID
 import kotlin.test.Test
 
 class DeliveryFacadeTests {
@@ -40,7 +43,8 @@ class DeliveryFacadeTests {
             null,
             "",
             "covid-19",
-            "HL7_BATCH"
+            "HL7_BATCH",
+            "active"
         )
 
         val delivery2 = DeliveryHistory(
@@ -54,13 +58,14 @@ class DeliveryFacadeTests {
             "elr-secondary",
             "",
             "primedatainput/pdi-covid-19",
-            "CSV"
+            "CSV",
+            "inactive"
         )
 
         val goodReturn = listOf(delivery1, delivery2)
 
         every {
-            mockDeliveryAccess.fetchActions(
+            mockDeliveryAccess.fetchActionsForDeliveries(
                 any(),
                 any(),
                 any(),
@@ -70,7 +75,9 @@ class DeliveryFacadeTests {
                 any(),
                 any(),
                 any(),
-                DeliveryHistory::class.java
+                DeliveryHistory::class.java,
+                any(),
+                any()
             )
         } returns goodReturn
 
@@ -82,7 +89,10 @@ class DeliveryFacadeTests {
             null,
             null,
             null,
-            10
+            10,
+            null,
+            null,
+            null
         )
 
         assertThat(deliveries.first().reportId).isEqualTo(delivery1.reportId)
@@ -98,7 +108,10 @@ class DeliveryFacadeTests {
                 null,
                 null,
                 null,
-                10
+                10,
+                null,
+                null,
+                null
             )
         }.hasMessage("Invalid organization.")
 
@@ -112,7 +125,10 @@ class DeliveryFacadeTests {
                 null,
                 null,
                 null,
-                -10
+                -10,
+                null,
+                null,
+                null
             )
         }.hasMessage("pageSize must be a positive integer.")
 
@@ -126,7 +142,10 @@ class DeliveryFacadeTests {
                 null,
                 OffsetDateTime.now(),
                 OffsetDateTime.now().minusDays(1),
-                10
+                10,
+                null,
+                null,
+                null
             )
         }.hasMessage("End date must be after start date.")
 
@@ -140,7 +159,10 @@ class DeliveryFacadeTests {
                 null,
                 OffsetDateTime.now(),
                 null,
-                10
+                10,
+                null,
+                null,
+                null
             )
         )
 
@@ -154,7 +176,10 @@ class DeliveryFacadeTests {
                 null,
                 OffsetDateTime.now(),
                 null,
-                10
+                10,
+                null,
+                null,
+                null
             )
         )
 
@@ -168,7 +193,27 @@ class DeliveryFacadeTests {
                 null,
                 OffsetDateTime.now().minusDays(1),
                 OffsetDateTime.now(),
-                10
+                10,
+                null,
+                null,
+                null
+            )
+        )
+
+        // Happy Path: reportId is valid
+        assertThat(
+            facade.findDeliveries(
+                "ca-dph",
+                "elr",
+                HistoryDatabaseAccess.SortDir.ASC,
+                HistoryDatabaseAccess.SortColumn.CREATED_AT,
+                null,
+                null,
+                null,
+                10,
+                "b9f63105-bbed-4b41-b1ad-002a90f07e62",
+                null,
+                null
             )
         )
     }
@@ -176,8 +221,9 @@ class DeliveryFacadeTests {
     @Test
     fun `test findDetailedDeliveryHistory`() {
         val mockDeliveryAccess = mockk<DatabaseDeliveryAccess>()
+        val mockReportService = mockk<ReportService>()
         val mockDbAccess = mockk<DatabaseAccess>()
-        val facade = DeliveryFacade(mockDeliveryAccess, mockDbAccess)
+        val facade = DeliveryFacade(mockDeliveryAccess, mockDbAccess, mockReportService)
 
         val delivery = DeliveryHistory(
             284,
@@ -190,8 +236,13 @@ class DeliveryFacadeTests {
             "elr-secondary",
             "",
             "covid-19",
-            "HL7_BATCH"
+            "HL7_BATCH",
+            "active"
         )
+        val reportFile = ReportFile()
+        reportFile.createdAt = OffsetDateTime.parse("2022-04-13T17:06:10.534Z")
+        reportFile.reportId = UUID.fromString("b3c8e304-8eff-4882-9000-3645054a30b7")
+        reportFile.sendingOrg = "DogCow Associates"
 
         every {
             mockDeliveryAccess.fetchAction(
@@ -200,12 +251,20 @@ class DeliveryFacadeTests {
                 DeliveryHistory::class.java
             )
         } returns delivery
+        every {
+            mockReportService.getRootReports(
+                any(),
+            )
+        } returns listOf(reportFile)
 
         val result = facade.findDetailedDeliveryHistory(
             delivery.actionId,
         )
 
         assertThat(delivery.reportId).isEqualTo(result?.reportId)
+        assertThat(delivery.originalIngestion?.first()?.get("ingestionTime")).isEqualTo(reportFile.createdAt)
+        assertThat(delivery.originalIngestion?.first()?.get("reportId")).isEqualTo(reportFile.reportId)
+        assertThat(delivery.originalIngestion?.first()?.get("sendingOrg")).isEqualTo(reportFile.sendingOrg)
     }
 
     @Test

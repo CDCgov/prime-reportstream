@@ -24,11 +24,9 @@ data "azurerm_client_config" "current" {}
 # Ticket tracking rules engine in Terraform: https://github.com/terraform-providers/terraform-provider-azurerm/issues/7455
 
 resource "azurerm_frontdoor" "front_door" {
-  name                                         = local.name
-  resource_group_name                          = var.resource_group
-  enforce_backend_pools_certificate_name_check = true
-  backend_pools_send_receive_timeout_seconds   = 90
-  friendly_name                                = local.name
+  name                = local.name
+  resource_group_name = var.resource_group
+  friendly_name       = local.name
 
   /* General */
 
@@ -46,6 +44,11 @@ resource "azurerm_frontdoor" "front_door" {
   }
 
   /* Function app */
+
+  backend_pool_settings {
+    enforce_backend_pools_certificate_name_check = true
+    backend_pools_send_receive_timeout_seconds   = 90
+  }
 
   backend_pool {
     name                = "functions"
@@ -269,13 +272,6 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_default_https"
   frontend_endpoint_id              = azurerm_frontdoor.front_door.frontend_endpoints["DefaultFrontendEndpoint"]
   custom_https_provisioning_enabled = false
 
-  lifecycle {
-    ignore_changes = [
-      # Avoid cert updates blocking tf
-      custom_https_configuration[0].azure_key_vault_certificate_secret_version
-    ]
-  }
-
   depends_on = [
     azurerm_frontdoor.front_door,
     azurerm_key_vault_access_policy.frontdoor_access_policy
@@ -292,13 +288,6 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" 
     certificate_source                      = "AzureKeyVault"
     azure_key_vault_certificate_secret_name = each.value
     azure_key_vault_certificate_vault_id    = var.application_key_vault_id
-  }
-
-  lifecycle {
-    ignore_changes = [
-      # Avoid cert updates blocking tf
-      custom_https_configuration[0].azure_key_vault_certificate_secret_version
-    ]
   }
 
   depends_on = [

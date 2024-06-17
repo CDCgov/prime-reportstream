@@ -1,8 +1,7 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import { SluggedTocEntry, TableOfContents } from "./TableOfContents";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("TableOfContents", () => {
     const tocItems: SluggedTocEntry[] = [

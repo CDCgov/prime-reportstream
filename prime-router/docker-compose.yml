@@ -1,4 +1,4 @@
-# This docker-compose file is intended to set up a developer environment
+# This docker compose file is intended to set up a developer environment
 version: "3.3"
 services:
   # This container runs our Azure function code.
@@ -15,7 +15,7 @@ services:
     # start server regardless of apidocs setup
     command: bash -c "/prime-data-hub-router/upload_swaggerui.sh ; /prime-data-hub-router/start_func.sh"
     env_file:
-      # On first run of docker-compose, create this file, it will get populated, but docker-compose doesn't allow optional env_file
+      # On first run of docker compose create this file, it will get populated, but docker compose doesn't allow optional env_file
       # Example: touch .vault/env/.env.local
       # https://github.com/docker/compose/pull/3955
       - ./.vault/env/.env.local
@@ -56,6 +56,21 @@ services:
     ports:
       - "10000:10000"
       - "10001:10001"
+    networks:
+      - prime-router_build
+
+  azurite-stage:
+    build:
+      context: ../.environment/docker/docker-compose/
+      dockerfile: Dockerfile.azurite
+    # uncomment the line below to skip x-ms-version checks
+    # command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
+    volumes:
+      # map to Azurite data objects to the build directory
+      - ./build/azurite-stage:/data
+    ports:
+      - "11000:10000"
+      - "11001:10001"
     networks:
       - prime-router_build
 

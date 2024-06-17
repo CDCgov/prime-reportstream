@@ -1,29 +1,32 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
+import FileHandler from "./FileHandler";
 import {
     mockSendFileWithErrors,
     mockSendFileWithWarnings,
     mockSendValidFile,
 } from "../../__mocks__/validation";
-import * as useFileHandlerExports from "../../hooks/UseFileHandler";
-import { FileHandlerState, INITIAL_STATE } from "../../hooks/UseFileHandler";
-import * as useSenderSchemaOptionsExports from "../../senders/hooks/UseSenderSchemaOptions";
-import {
-    STANDARD_SCHEMA_OPTIONS,
-    UseSenderSchemaOptionsHookResult,
-} from "../../senders/hooks/UseSenderSchemaOptions";
-import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
+import { RSSender } from "../../config/endpoints/settings";
+import * as useWatersUploaderExports from "../../hooks/api/UseWatersUploader/UseWatersUploader";
 import {
     UseWatersUploaderResult,
     UseWatersUploaderSendFileMutation,
-} from "../../hooks/network/WatersHooks";
-import { RSSender } from "../../config/endpoints/settings";
+} from "../../hooks/api/UseWatersUploader/UseWatersUploader";
+import * as useFileHandlerExports from "../../hooks/UseFileHandler/UseFileHandler";
+import {
+    calculateRequestCompleteState,
+    FileHandlerState,
+    INITIAL_STATE,
+} from "../../hooks/UseFileHandler/UseFileHandler";
+import * as useSenderSchemaOptionsExports from "../../hooks/UseSenderSchemaOptions/UseSenderSchemaOptions";
+import {
+    STANDARD_SCHEMA_OPTIONS,
+    UseSenderSchemaOptionsHookResult,
+} from "../../hooks/UseSenderSchemaOptions/UseSenderSchemaOptions";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
-import FileHandler from "./FileHandler";
-
-export const CSV_SCHEMA_SELECTED = {
+const _CSV_SCHEMA_SELECTED = {
     fileInputResetValue: 0,
     fileContent: "",
     fileName: "",
@@ -39,10 +42,11 @@ export const CSV_SCHEMA_SELECTED = {
     selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
 } satisfies FileHandlerState;
 
-export const VALID_CSV_FILE_SELECTED = {
+const VALID_CSV_FILE_SELECTED = {
     fileInputResetValue: 0,
     fileContent: "FAKE",
     fileName: "fake.csv",
+    file: new File([new Blob(["FAKE"])], "fake.csv"),
     errors: [],
     destinations: "",
     reportItems: [],
@@ -55,10 +59,11 @@ export const VALID_CSV_FILE_SELECTED = {
     selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
 } satisfies FileHandlerState;
 
-export const INVALID_CSV_FILE_SELECTED = {
+const INVALID_CSV_FILE_SELECTED = {
     fileInputResetValue: 0,
     fileContent: "INVALID",
     fileName: "invalid.csv",
+    file: new File([new Blob(["INVALID"])], "invalid.csv"),
     errors: [{} as any],
     destinations: "",
     reportItems: [],
@@ -71,10 +76,11 @@ export const INVALID_CSV_FILE_SELECTED = {
     selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
 } satisfies FileHandlerState;
 
-export const WARNING_CSV_FILE_SELECTED = {
+const WARNING_CSV_FILE_SELECTED = {
     fileInputResetValue: 0,
     fileContent: "WARNING",
     fileName: "warning.csv",
+    file: new File([new Blob(["WARNING"])], "warning.csv"),
     errors: [],
     destinations: "",
     reportItems: [],
@@ -87,39 +93,44 @@ export const WARNING_CSV_FILE_SELECTED = {
     selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
 };
 
-jest.mock("../../hooks/UseOrganizationSettings", () => ({
-    useOrganizationSettings: () => {
-        return {
-            data: {
-                description: "wow, cool organization",
-                createdAt: "2023-01-10T21:23:14.467Z",
-                createdBy: "local@test.com",
-                filters: [],
-                jurisdiction: "FEDERAL",
-                name: "aegis",
-                version: 0,
-            },
-            isLoading: false,
-        };
-    },
-}));
-
-jest.mock("../../hooks/UseSenderResource", () => ({
-    __esModule: true,
-    default: () => ({
-        data: {
-            name: "default",
-            organizationName: "aegis",
-        } satisfies Partial<RSSender>,
+vi.mock(
+    "../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings",
+    () => ({
+        default: () => {
+            return {
+                data: {
+                    description: "wow, cool organization",
+                    createdAt: "2023-01-10T21:23:14.467Z",
+                    createdBy: "local@test.com",
+                    filters: [],
+                    jurisdiction: "FEDERAL",
+                    name: "aegis",
+                    version: 0,
+                },
+                isLoading: false,
+            };
+        },
     }),
-}));
+);
 
-export async function chooseSchema(schemaName: string) {
+vi.mock(
+    "../../hooks/api/organizations/UseOrganizationSender/UseOrganizationSender",
+    () => ({
+        default: () => ({
+            data: {
+                name: "default",
+                organizationName: "aegis",
+            } satisfies Partial<RSSender>,
+        }),
+    }),
+);
+
+async function _chooseSchema(schemaName: string) {
     expect(screen.getByText(/Select data model/)).toBeVisible();
     await userEvent.selectOptions(screen.getByRole("combobox"), [schemaName]);
 }
 
-export async function chooseFile(file: File) {
+async function _chooseFile(file: File) {
     expect(screen.getByText("Drag file here or")).toBeVisible();
     await userEvent.upload(screen.getByTestId("file-input-input"), file);
     await screen.findByTestId("file-input-preview-image");
@@ -130,19 +141,19 @@ describe("FileHandler", () => {
     function mockUseFileHandler(
         fileHandlerState: Partial<FileHandlerState> = {},
     ) {
-        jest.spyOn(useFileHandlerExports, "default").mockReturnValue({
+        vi.spyOn(useFileHandlerExports, "default").mockReturnValue({
             state: {
                 // TODO: any sensible defaults?
                 ...fileHandlerState,
             } as FileHandlerState,
-            dispatch: () => {},
+            dispatch: () => void 0,
         });
     }
 
     function mockUseSenderSchemaOptions(
         result: Partial<UseSenderSchemaOptionsHookResult> = {},
     ) {
-        jest.spyOn(useSenderSchemaOptionsExports, "default").mockReturnValue({
+        vi.spyOn(useSenderSchemaOptionsExports, "default").mockReturnValue({
             isLoading: false,
             data: STANDARD_SCHEMA_OPTIONS,
             ...result,
@@ -152,10 +163,7 @@ describe("FileHandler", () => {
     function mockUseWatersUploader(
         result: Partial<UseWatersUploaderResult> = {},
     ) {
-        jest.spyOn(
-            useWatersUploaderExports,
-            "useWatersUploader",
-        ).mockReturnValue({
+        vi.spyOn(useWatersUploaderExports, "default").mockReturnValue({
             isPending: false,
             error: null,
             mutateAsync: (() =>
@@ -172,12 +180,12 @@ describe("FileHandler", () => {
     }
 
     async function fileContinue() {
-        await waitFor(async () => {
-            const form = screen.getByTestId("form");
+        const form = screen.getByTestId("form");
+        await waitFor(() => {
             // eslint-disable-next-line testing-library/no-wait-for-side-effects
             fireEvent.submit(form);
-            await waitFor(() => expect(form).not.toBeInTheDocument());
         });
+        await waitFor(() => expect(form).not.toBeInTheDocument());
     }
 
     describe("by default", () => {
@@ -190,7 +198,7 @@ describe("FileHandler", () => {
             mockUseWatersUploader({
                 isWorking: false,
                 uploaderError: null,
-                sendFile: jest.fn(),
+                sendFile: vi.fn(),
             });
 
             renderApp(<FileHandler />);
@@ -210,7 +218,12 @@ describe("FileHandler", () => {
 
     describe("when a valid CSV file is being submitted with no warnings or errors", () => {
         function setup() {
-            mockUseFileHandler(VALID_CSV_FILE_SELECTED);
+            mockUseFileHandler({
+                ...VALID_CSV_FILE_SELECTED,
+                ...calculateRequestCompleteState(VALID_CSV_FILE_SELECTED, {
+                    response: mockSendValidFile,
+                }),
+            });
             mockUseSenderSchemaOptions({
                 isLoading: false,
                 data: STANDARD_SCHEMA_OPTIONS,
@@ -218,7 +231,7 @@ describe("FileHandler", () => {
             mockUseWatersUploader({
                 isWorking: false,
                 uploaderError: null,
-                sendFile: () => Promise.resolve(mockSendValidFile),
+                sendFile: async () => await Promise.resolve(mockSendValidFile),
             });
 
             renderApp(<FileHandler />);
@@ -231,11 +244,11 @@ describe("FileHandler", () => {
             // Step 2: file upload
             await fileContinue();
             // Step 3: success
-            await waitFor(() => {
-                return screen.getByText(
+            expect(
+                await screen.findByText(
                     "Your file is correctly formatted for ReportStream.",
-                );
-            });
+                ),
+            ).toBeInTheDocument();
         });
     });
 

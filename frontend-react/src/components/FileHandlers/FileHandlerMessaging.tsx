@@ -1,14 +1,14 @@
-import React, { ReactNode } from "react";
 import { Button, Icon } from "@trussworks/react-uswds";
+import { ReactNode } from "react";
 import { renderToString } from "react-dom/server";
 
-import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
-import { USExtLink } from "../USLink";
-import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import { saveToCsv } from "../../utils/FileUtils";
 import { removeHTMLFromString } from "../../utils/misc";
+import { FileType } from "../../utils/TemporarySettingsAPITypes";
+import { StaticAlert, StaticAlertType } from "../StaticAlert";
+import { USExtLink } from "../USLink";
 
 const HL7_PRODUCT_MATRIX_URL =
     "https://www.hl7.org/implement/standards/product_brief.cfm";
@@ -19,14 +19,14 @@ export enum RequestLevel {
     ERROR = "Errors",
 }
 
-type RequestedChangesDisplayProps = {
+interface RequestedChangesDisplayProps {
     title: RequestLevel;
     data: ResponseError[];
     message: string;
     heading: string;
     schemaColumnHeader: FileType;
     file?: File;
-};
+}
 
 /**
  * Given a filename and the alert type, generate a safe filename for the errors/warnings CSV
@@ -57,9 +57,7 @@ export const RequestedChangesDisplay = ({
             : StaticAlertType.Error;
 
     const showTable =
-        data &&
-        data.length &&
-        data.some((responseItem) => responseItem.message);
+        data?.length && data.some((responseItem) => responseItem.message);
 
     function handleSaveToCsvClick() {
         // Since the detailed error code messaging is stored on the client,
@@ -81,7 +79,7 @@ export const RequestedChangesDisplay = ({
             };
         });
         return saveToCsv(dataWithErrorMessage, {
-            filename: getSafeFileName(file?.name || "", title),
+            filename: getSafeFileName(file?.name ?? "", title),
         });
     }
 
@@ -151,11 +149,11 @@ export const RequestedChangesDisplay = ({
     );
 };
 
-export type ValidationErrorMessageProps = {
+export interface ValidationErrorMessageProps {
     errorCode: ErrorCode;
     field?: string;
     message?: string;
-};
+}
 
 export function ValidationErrorMessage({
     errorCode,
@@ -242,7 +240,7 @@ export function ValidationErrorMessage({
             );
             break;
         default:
-            child = <>{message || ""}</>;
+            child = <>{message ?? ""}</>;
             break;
     }
 
@@ -256,7 +254,7 @@ export function ValidationErrorMessage({
 interface ErrorRowProps {
     error: ResponseError;
     index: number;
-    schemaColumnHeader: string;
+    schemaColumnHeader: FileType;
 }
 
 const ErrorRow = ({ error, index, schemaColumnHeader }: ErrorRowProps) => {
@@ -286,11 +284,11 @@ const ErrorRow = ({ error, index, schemaColumnHeader }: ErrorRowProps) => {
     );
 };
 
-type FileQualityFilterDisplayProps = {
+interface FileQualityFilterDisplayProps {
     destinations: Destination[] | undefined;
     message: string;
     heading: string;
-};
+}
 
 export const FileQualityFilterDisplay = ({
     destinations,
@@ -299,7 +297,7 @@ export const FileQualityFilterDisplay = ({
 }: FileQualityFilterDisplayProps) => {
     function handleJurisdictionSaveToCsvClick() {
         function reformatJurisdictionData() {
-            for (const item of destinations || []) {
+            for (const item of destinations ?? []) {
                 return item.filteredReportRows.map((row) => {
                     return { jurisdiction: item.organization, errorCode: row };
                 });

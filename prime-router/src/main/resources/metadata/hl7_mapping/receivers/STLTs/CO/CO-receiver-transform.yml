@@ -1,0 +1,45 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+elements:
+  # MSH 3-1
+  - name: co-sending-application-namespace-id
+    value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
+    hl7Spec: [ MSH-3-1 ]
+
+  # MSH 3-2
+  - name: co-sending-application-universal-id
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+    hl7Spec: [ MSH-3-2 ]
+
+  # MSH 3-3
+  - name: co-sending-application-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ MSH-3-3 ]
+
+  # MSH 4-1
+  - name: co-reporting-facility-name
+    value: [ '"CDC PRIME"' ]
+    hl7Spec: [ MSH-4-1 ]
+
+  # MSH 4-2
+  - name: co-reporting-facility-id
+    value: [ '"11D2030855"' ]
+    hl7Spec: [ MSH-4-2 ]
+
+  # MSH 4-3
+  - name: co-reporting-facility-id-type
+    value: [ '"CLIA"' ]
+    hl7Spec: [ MSH-4-3 ]
+
+  # MSH 5
+  - name: co-receiving-application
+    value: [ '"CO-ELR"' ]
+    hl7Spec: [ MSH-5-1 ]
+
+  # MSH 6
+  - name: co-receiving-facility-name
+    value: [ '"CO"' ]
+    hl7Spec: [ MSH-6-1 ]

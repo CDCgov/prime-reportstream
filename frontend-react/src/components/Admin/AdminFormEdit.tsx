@@ -1,28 +1,32 @@
 import {
-    Grid,
     Checkbox,
+    Grid,
     Label,
+    Select,
     Textarea,
     TextInput,
-    Select,
 } from "@trussworks/react-uswds";
 import { useRef } from "react";
 
+import { showToast } from "../../contexts/Toast";
 import { checkJson } from "../../utils/misc";
 import {
     getListOfEnumValues,
     ReportStreamSettingsEnum,
 } from "../../utils/TemporarySettingsAPITypes";
-import { showToast } from "../../contexts/Toast";
 
-export const TextInputComponent = (params: {
+export interface TextInputComponentProps {
     fieldname: string;
     label: string;
     defaultvalue: string | null;
     savefunc: (val: string) => void;
     disabled?: boolean;
     toolTip?: JSX.Element;
-}): JSX.Element => {
+}
+
+export const TextInputComponent = (
+    params: TextInputComponentProps,
+): JSX.Element => {
     const key = params.fieldname;
     return (
         <Grid row>
@@ -35,7 +39,7 @@ export const TextInputComponent = (params: {
                     id={key}
                     name={key}
                     type="text"
-                    defaultValue={params.defaultvalue || ""}
+                    defaultValue={params.defaultvalue ?? ""}
                     data-testid={key}
                     maxLength={255}
                     className="rs-input"
@@ -85,8 +89,7 @@ export const TextAreaComponent = (params: {
                     data-testid={key}
                     className="rs-input"
                     onBlur={(e) => {
-                        const text =
-                            e?.target?.value || (defaultnullvalue as string);
+                        const text = e?.target?.value || defaultnullvalue!;
                         const { valid, errorMsg } = checkJson(text);
                         if (valid) {
                             // checkJson made sure the following JSON.parse won't throw.

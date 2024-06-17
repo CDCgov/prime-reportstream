@@ -1,0 +1,3 @@
+# $schema: ./../../../../metadata/json_schema/testing/person.json
+firstName: "First"
+lastName: "Last"

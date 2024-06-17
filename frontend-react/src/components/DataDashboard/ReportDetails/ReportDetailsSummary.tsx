@@ -1,14 +1,12 @@
-import React from "react";
 import { Grid } from "@trussworks/react-uswds";
 
+import styles from "./ReportDetailsSummary.module.scss";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import ReportLink from "../../../pages/deliveries/daily-data/ReportLink";
 import {
     formatDateWithoutSeconds,
     isDateExpired,
 } from "../../../utils/DateTimeUtils";
-
-import styles from "./ReportDetailsSummary.module.scss";
 
 interface Props {
     report: RSDelivery | undefined;

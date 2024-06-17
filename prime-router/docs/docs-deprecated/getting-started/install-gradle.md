@@ -20,7 +20,7 @@ If your package manager contains a gradle version >=8.0.0, feel free to install 
 ```bash
 mkdir -p ${HOME?}/bin/gradle-bins/
 cd ${HOME?}/bin/gradle-bins/
-VERSION=8.3
+VERSION=8.7
 wget https://services.gradle.org/distributions/gradle-${VERSION?}-bin.zip
 unzip "gradle-${VERSION?}-bin.zip"
 rm "gradle-${VERSION?}-bin.zip"

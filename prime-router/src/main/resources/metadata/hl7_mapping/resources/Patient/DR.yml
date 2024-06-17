@@ -1,0 +1,10 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+  - name: dr-start-date-time
+    value: [ '%resource.start.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{hl7DRField}-1' ]
+
+  - name: dr-end-date-time
+    value: [ '%resource.end.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{hl7DRField}-2' ]

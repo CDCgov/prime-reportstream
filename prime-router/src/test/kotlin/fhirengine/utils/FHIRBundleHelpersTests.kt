@@ -1,10 +1,15 @@
 package gov.cdc.prime.router.fhirengine.utils
 
 import assertk.assertThat
+import assertk.assertions.containsExactlyInAnyOrder
+import assertk.assertions.each
+import assertk.assertions.extracting
+import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isGreaterThan
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -44,6 +49,7 @@ import org.hl7.fhir.r4.model.PractitionerRole
 import org.hl7.fhir.r4.model.Property
 import org.hl7.fhir.r4.model.Provenance
 import org.hl7.fhir.r4.model.Reference
+import org.hl7.fhir.r4.model.StringType
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -733,7 +739,7 @@ class FHIRBundleHelpersTests {
         code.addCoding(Coding("system", "some-unmapped-code", "display"))
         entry.setCode(code)
 
-        val logs = entry.addMappedCondition(metadata)
+        val logs = entry.addMappedConditions(metadata)
         assertThat(logs.size).isEqualTo(1)
         assertThat(logs[0].message).isEqualTo("Missing mapping for code(s): some-unmapped-code")
         assertThat((logs[0] as UnmappableConditionMessage).fieldMapping).isEqualTo("observation.code.coding.code")
@@ -775,11 +781,153 @@ class FHIRBundleHelpersTests {
         code.addCoding(Coding("system", "some-unmapped-code", "display"))
         entry.setCode(code)
 
-        val logs = entry.addMappedCondition(metadata)
+        val logs = entry.addMappedConditions(metadata)
         assertThat(logs.size).isEqualTo(0)
 
         val extension = code.coding.first().extension.first()
         assertThat(extension.url).isEqualTo(conditionCodeExtensionURL)
         assertThat((extension.value as? Coding)?.code).isEqualTo("6142004")
+    }
+
+    @Test
+    fun `Ensure a mapped observation is stamped with all condition codes if there are multiple`() {
+        val metadata = Metadata(UnitTestUtils.simpleSchema)
+
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable(
+                "observation-mapping",
+                listOf(
+                    listOf(
+                        ObservationMappingConstants.TEST_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
+                        ObservationMappingConstants.CONDITION_NAME_KEY
+                    ),
+                    listOf(
+                        "80382-5",
+                        "6142004",
+                        "SNOMEDCT",
+                        "Influenza (disorder)"
+                    ),
+                    listOf(
+                        "80382-5",
+                        "Some Condition Code",
+                        "Condition Code System",
+                        "Condition Name"
+                    )
+                )
+            )
+        )
+
+        val entry = Observation()
+        val code = CodeableConcept()
+        code.addCoding(Coding("system", "80382-5", "display"))
+        entry.setCode(code)
+
+        val logs = entry.addMappedConditions(metadata)
+        assertThat(logs.size).isEqualTo(0)
+
+        val conditions = entry.getMappedConditions()
+        assertThat(conditions).hasSize(2)
+        assertThat(conditions)
+            .extracting { it.code }
+            .containsExactlyInAnyOrder("6142004", "Some Condition Code")
+
+        val extensions = entry.getMappedConditionExtensions()
+        assertThat(extensions)
+            .extracting { it.url }
+            .each { it.isEqualTo(conditionCodeExtensionURL) }
+    }
+
+    @Test
+    fun `addMappedCondition supports processing values other than codeable concept`() {
+        val metadata = Metadata(UnitTestUtils.simpleSchema)
+
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable(
+                "observation-mapping",
+                listOf(
+                    listOf(
+                        ObservationMappingConstants.TEST_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
+                        ObservationMappingConstants.CONDITION_NAME_KEY
+                    ),
+                    listOf(
+                        "80382-5",
+                        "6142004",
+                        "SNOMEDCT",
+                        "Influenza (disorder)"
+                    ),
+                    listOf(
+                        "260373001",
+                        "Some Condition Code",
+                        "Condition Code System",
+                        "Condition Name"
+                    )
+                )
+            )
+        )
+
+        val entry = Observation()
+        val code = CodeableConcept()
+        code.addCoding(Coding("system", "80382-5", "display"))
+        entry.setCode(code)
+
+        entry.setValue(StringType("A string value"))
+
+        entry.addMappedConditions(metadata)
+
+        val extension = code.coding.first().extension.first()
+        assertThat(extension.url).isEqualTo(conditionCodeExtensionURL)
+        assertThat(extension.value)
+            .isInstanceOf<Coding>()
+            .transform { it.code }
+            .isEqualTo("6142004")
+    }
+
+    @Test
+    fun `addMappedCondition supports adding a condition when code is null`() {
+        val metadata = Metadata(UnitTestUtils.simpleSchema)
+
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable(
+                "observation-mapping",
+                listOf(
+                    listOf(
+                        ObservationMappingConstants.TEST_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
+                        ObservationMappingConstants.CONDITION_NAME_KEY
+                    ),
+                    listOf(
+                        "80382-5",
+                        "6142004",
+                        "SNOMEDCT",
+                        "Influenza (disorder)"
+                    ),
+                    listOf(
+                        "260373001",
+                        "Some Condition Code",
+                        "Condition Code System",
+                        "Condition Name"
+                    )
+                )
+            )
+        )
+
+        val entry = Observation()
+        val code = CodeableConcept()
+        code.addCoding(Coding("system", "80382-5", "display"))
+        entry.setValue(code)
+
+        entry.addMappedConditions(metadata)
+
+        val extension = code.coding.first().extension.first()
+        assertThat(extension.url).isEqualTo(conditionCodeExtensionURL)
+        assertThat(extension.value)
+            .isInstanceOf<Coding>()
+            .transform { it.code }
+            .isEqualTo("6142004")
     }
 }

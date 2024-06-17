@@ -1,0 +1,119 @@
+# $schema: ./../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+constants:
+  hl7PV1Field: '%{hl7SegmentGroup}/PV1'
+  hl7PV2Field: '%{hl7SegmentGroup}/PV2'
+elements:
+  - name: patient-visit-set-id
+    value: [ '"1"' ]
+    hl7Spec: [ '%{hl7PV1Field}-1' ]
+
+  - name: patient-class
+    condition: '%resource.class.code.exists()'
+    value: [ '%resource.class.code' ]
+    hl7Spec: [ '%{hl7PV1Field}-2' ]
+    valueSet:
+      values:
+        emer: E
+        imp: I
+        prenc: P
+        amb: O
+
+  - name: patient-assigned-location
+    condition: '%context.location.where(extension(%`rsext-hl7-use`).exists().not()).exists()'
+    resource: '%resource.location[0].location.resolve()'
+    constants:
+      hl7PLField: '%{hl7PV1Field}-3'
+    schema: classpath:/metadata/hl7_mapping/common/datatype/pl-location.yml
+
+  - name: patient-admission-type
+    value: [ '%resource.type.coding.code' ]
+    hl7Spec: [ '%{hl7PV1Field}-4' ]
+
+  - name: prior-patient-location
+    resource: '%resource.location.where(extension(%`rsext-hl7-use`).value = "prior-patient-location").location.resolve()'
+    constants:
+      hl7PLField: '%{hl7PV1Field}-6'
+    schema: classpath:/metadata/hl7_mapping/resources/Location/PL/PL.yml
+
+  - name: patient-attending-doctor
+    resource: '%resource.participant.where(type.coding.code = "ATND").where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v3-ParticipationType").individual.resolve()'
+    constants:
+      hl7XCNField: '%{hl7PV1Field}-7'
+    schema: classpath:/metadata/hl7_mapping/common/datatype/xcn-contact.yml
+    resourceIndex: contactIndex
+
+  - name: patient-referring-doctor
+    resource: '%resource.participant.where(type.coding.code = "REF").where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v3-ParticipationType").individual.resolve()'
+    constants:
+      hl7XCNField: '%{hl7PV1Field}-8'
+    schema: classpath:/metadata/hl7_mapping/common/datatype/xcn-contact.yml
+    resourceIndex: contactIndex
+
+  - name: patient-consulting-doctor
+    resource: '%resource.participant.where(type.coding.code = "CON").where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v3-ParticipationType").individual.resolve()'
+    constants:
+      hl7XCNField: '%{hl7PV1Field}-9'
+    schema: classpath:/metadata/hl7_mapping/common/datatype/xcn-contact.yml
+    resourceIndex: contactIndex
+
+  - name: patient-hospital-service
+    value: [ '%resource.serviceType.coding.code' ]
+    hl7Spec: [ '%{hl7PV1Field}-10' ]
+
+  - name: patient-admit-source
+    value: [ '%resource.hospitalization.admitSource.coding.code' ]
+    hl7Spec: [ '%{hl7PV1Field}-14' ]
+
+  - name: patient-admitting-doctor
+    resource: '%resource.participant.where(type.coding.code = "ADM").where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v3-ParticipationType").individual.resolve()'
+    constants:
+      hl7XCNField: '%{hl7PV1Field}-17'
+    schema: classpath:/metadata/hl7_mapping/common/datatype/xcn-contact.yml
+    resourceIndex: contactIndex
+
+  - name: patient-type
+    value: [ '%resource.extension(%`rsext-patient-type`).value' ]
+    hl7Spec: [ '%{hl7PV1Field}-18' ]
+
+  - name: patient-financial-class
+    value: [ '%resource.extension(%`rsext-financial-class`).value' ]
+    hl7Spec: [ '%{hl7PV1Field}-20' ]
+
+  - name: patient-discharge-disposition
+    value: [ '%resource.hospitalization.dischargeDisposition.coding.code' ]
+    hl7Spec: [ '%{hl7PV1Field}-36' ]
+
+  - name: patient-discharge-location
+    resource: '%resource.hospitalization.destination.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Location/DLD.yml
+    constants:
+      hl7DLDField: '%{hl7PV1Field}-37'
+
+  - name: patient-servicing-facility
+    value: [ '%resource.extension(%`rsext-servicing-facility`).value' ]
+    hl7Spec: [ '%{hl7PV1Field}-39' ]
+
+  - name: patient-account-status
+    value: [ '%resource.extension(%`rsext-account-status`).value' ]
+    hl7Spec: [ '%{hl7PV1Field}-41' ]
+
+  - name: patient-admit-datetime-start
+    value: [ '%resource.period.start' ]
+    hl7Spec: [ '%{hl7PV1Field}-44' ]
+
+  - name: patient-admit-datetime-end
+    value: [ '%resource.period.end' ]
+    hl7Spec: [ '%{hl7PV1Field}-45' ]
+
+  - name: actual-length-of-inpatient-stay
+    value: [ '%resource.length.value' ]
+    hl7Spec: [ '%{hl7PV2Field}-11' ]
+
+  - name: visit-protection-indicator
+    value: [ '%resource.meta.security.code' ]
+    hl7Spec: [ '%{hl7PV2Field}-22' ]
+    valueSet:
+      values:
+        true: Y
+        false: N

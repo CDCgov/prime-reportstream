@@ -1,22 +1,21 @@
-import React, { useCallback } from "react";
+import type { Tokens } from "@okta/okta-auth-js";
+import { useCallback } from "react";
+import { Helmet } from "react-helmet-async";
 import { Navigate, useLocation } from "react-router-dom";
 import type { Location } from "react-router-dom";
-import type { Tokens } from "@okta/okta-auth-js";
-import { Helmet } from "react-helmet-async";
 
-import { oktaSignInConfig } from "../oktaConfig";
 import { USLink } from "../components/USLink";
+import useSessionContext from "../contexts/Session/useSessionContext";
 import OktaSignInWidget from "../shared/OktaSignInWidget/OktaSignInWidget";
-import { useSessionContext } from "../contexts/Session";
 
 export function Login() {
-    const { oktaAuth, authState } = useSessionContext();
+    const { oktaAuth, authState, config } = useSessionContext();
     const location: Location<{ originalUrl?: string } | undefined> =
         useLocation();
 
     const onSuccess = useCallback(
         (tokens: Tokens) => {
-            oktaAuth.handleLoginRedirect(
+            void oktaAuth.handleLoginRedirect(
                 tokens,
                 location.state?.originalUrl ?? "/",
             );
@@ -25,7 +24,7 @@ export function Login() {
         [location.state?.originalUrl, oktaAuth],
     );
 
-    const onError = useCallback((_: any) => {}, []);
+    const onError = useCallback((_: any) => void 0, []);
 
     if (authState.isAuthenticated) {
         return <Navigate replace to={"/"} />;
@@ -35,10 +34,18 @@ export function Login() {
         <>
             <Helmet>
                 <title>ReportStream login</title>
+                <meta
+                    property="og:image"
+                    content="/assets/img/opengraph/reportstream.png"
+                />
+                <meta
+                    property="og:image:alt"
+                    content='"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'
+                />
             </Helmet>
             <OktaSignInWidget
                 className="margin-top-6 margin-x-auto width-mobile-lg padding-x-8"
-                config={oktaSignInConfig}
+                config={config.OKTA_WIDGET}
                 onSuccess={onSuccess}
                 onError={onError}
             >

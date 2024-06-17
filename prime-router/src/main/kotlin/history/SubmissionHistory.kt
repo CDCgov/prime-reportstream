@@ -11,6 +11,8 @@ import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
@@ -29,8 +31,17 @@ import java.time.OffsetDateTime
  * @property reportItemCount number of tests (data rows) contained in the report
  * @property sendingOrg the name of the organization that sent this submission
  * @property httpStatus response code for the user fetching this submission
+ * @property bodyUrl url used for generating the filename
+ * @property schemaName schema used for generating the filename
+ * @property bodyFormat filetype, used for generating the filename
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder(
+    value = [
+        "submissionId", "timestamp", "sender", "httpStatus",
+        "id", "topic", "reportItemCount", "fileName", "fileType"
+    ]
+)
 open class SubmissionHistory(
     @JsonProperty("submissionId")
     actionId: Long,
@@ -49,6 +60,12 @@ open class SubmissionHistory(
     val httpStatus: Int? = null,
     @JsonIgnore
     val sendingOrgClient: String? = "",
+    @JsonIgnore
+    val bodyUrl: String? = "",
+    @JsonIgnore
+    val schemaName: String,
+    @JsonProperty("fileType")
+    val bodyFormat: String,
 ) : ReportHistory(
     actionId,
     createdAt,
@@ -57,6 +74,23 @@ open class SubmissionHistory(
     schemaTopic,
     itemCount,
 ) {
+    /**
+     * The actual download path for the file.
+     */
+    val fileName: String
+        get() {
+            if (this.reportId != null) {
+                return Report.formExternalFilename(
+                    this.bodyUrl,
+                    ReportId.fromString(this.reportId),
+                    this.schemaName,
+                    Report.Format.safeValueOf(this.bodyFormat),
+                    this.createdAt
+                )
+            }
+            return ""
+        }
+
     /**
      * The sender of the input report.
      */
@@ -108,7 +142,11 @@ class DetailedSubmissionHistory(
     null,
     null,
     null,
-    httpStatus
+    httpStatus,
+    "",
+    "",
+    "",
+    ""
 ) {
     /**
      * Alias for the reportId
@@ -300,6 +338,7 @@ class DetailedSubmissionHistory(
         return consolidatedList
     }
 
+    // TODO: https://github.com/CDCgov/prime-reportstream/issues/14350
     /**
      * Enrich the submission history with various other related bits of history.
      *
@@ -319,6 +358,9 @@ class DetailedSubmissionHistory(
             }
             descendants.filter { it.actionName == TaskAction.route }.forEach { descendant ->
                 enrichWithRouteAction(descendant)
+            }
+            descendants.filter { it.actionName == TaskAction.convert }.forEach { descendant ->
+                enrichWithConvertAction(descendant)
             }
         } else {
             descendants.filter {
@@ -370,6 +412,23 @@ class DetailedSubmissionHistory(
                 destinations += descendantDest
             }
         }
+    }
+
+    /**
+     * Enrich a parent detailed history with details from the convert action.
+     * Add errors, and warnings, to the history details.
+     *
+     * @param descendant route action that will be used to enrich
+     */
+    private fun enrichWithConvertAction(descendant: DetailedSubmissionHistory) {
+        require(
+            topic?.isUniversalPipeline == true &&
+                descendant.actionName == TaskAction.convert
+        ) {
+            "Must be route action. Enrichment is only available for the Universal Pipeline"
+        }
+        errors += descendant.errors
+        warnings += descendant.warnings
     }
 
     /**
@@ -544,7 +603,10 @@ class DetailedSubmissionHistory(
              * The most likely scenario for that is when the item does not pass the jurisdictional filter for any of
              * the receivers.
              */
-            return if (actionsPerformed.contains(TaskAction.route) && !nextActionScheduled) {
+            return if (
+                (actionsPerformed.contains(TaskAction.route) || actionsPerformed.contains(TaskAction.convert)) &&
+                !nextActionScheduled
+            ) {
                 Status.NOT_DELIVERING
             } else {
                 Status.RECEIVED

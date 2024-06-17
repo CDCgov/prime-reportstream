@@ -1,24 +1,28 @@
 import { screen } from "@testing-library/react";
 
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
-import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { RequireGateBase } from "./RequireGate";
+import useFeatureFlags from "../../contexts/FeatureFlag/useFeatureFlags";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { PERMISSIONS } from "../../utils/UsefulTypes";
 
-import { RequireGateBase } from "./RequireGate";
+vi.mock("../../contexts/FeatureFlag/useFeatureFlags");
 
-const mockUseNavigate = jest.fn();
+const mockFeatureFlagContext = vi.mocked(useFeatureFlags);
+const mockUseNavigate = vi.fn();
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
 
-jest.mock("react-router", () => ({
-    ...jest.requireActual("react-router"),
+vi.mock("react-router", async (importActual) => ({
+    ...(await importActual<typeof import("react-router")>()),
     useNavigate: () => mockUseNavigate,
 }));
 
 const TestElement = () => <h1>Test Passed</h1>;
 const TestElementWithProp = (props: { test: string }) => <h1>{props.test}</h1>;
 
-let mockCheckFlags = jest.fn();
+let mockCheckFlags = vi.fn();
 
 const Anonymous = () => <>Anonymous</>;
 const Fail = () => <>Failure</>;
@@ -26,13 +30,13 @@ const Fail = () => <>Failure</>;
 describe("RequireGate", () => {
     beforeEach(() => {
         mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
+            dispatch: () => void 0,
             checkFlags: () => true,
             featureFlags: [],
         });
     });
     test("Renders component when all checks pass", () => {
-        mockCheckFlags = jest.fn((flag) => flag === FeatureFlagName.FOR_TEST);
+        mockCheckFlags = vi.fn((flag) => flag === FeatureFlagName.FOR_TEST);
         mockSessionContentReturnValue({
             authState: {
                 isAuthenticated: true,
@@ -99,7 +103,7 @@ describe("RequireGate", () => {
         expect(screen.getByText("Failure")).toBeInTheDocument();
     });
     test("Fails when user lacks feature flag", () => {
-        mockCheckFlags = jest.fn(() => false);
+        mockCheckFlags = vi.fn(() => false);
         mockSessionContentReturnValue({});
         mockFeatureFlagContext.mockReturnValue({
             checkFlags: mockCheckFlags,

@@ -1,5 +1,5 @@
-import { Oval } from "react-loader-spinner";
 import { ReactNode } from "react";
+import { Oval } from "react-loader-spinner";
 
 interface SpinnerProps {
     size?: "default" | "fullpage" | "insidebutton";

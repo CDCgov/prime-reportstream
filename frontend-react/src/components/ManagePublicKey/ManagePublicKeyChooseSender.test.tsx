@@ -1,11 +1,10 @@
 import { screen } from "@testing-library/react";
 
-import { RSSender } from "../../config/endpoints/settings";
-import { renderApp } from "../../utils/CustomRenderUtils";
-
 import ManagePublicKeyChooseSender, {
     ManagePublicKeyChooseSenderProps,
 } from "./ManagePublicKeyChooseSender";
+import { RSSender } from "../../config/endpoints/settings";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 const DEFAULT_SENDERS: RSSender[] = [
     {
@@ -17,6 +16,9 @@ const DEFAULT_SENDERS: RSSender[] = [
         processingType: "sync",
         allowDuplicates: true,
         topic: "covid-19",
+        version: 0,
+        createdAt: "",
+        createdBy: "",
     },
     {
         name: "ignore-full-elr",
@@ -27,17 +29,20 @@ const DEFAULT_SENDERS: RSSender[] = [
         processingType: "sync",
         allowDuplicates: true,
         topic: "full-elr",
+        version: 0,
+        createdAt: "",
+        createdBy: "",
     },
 ];
 
 describe("ManagePublicKeyChooseSender", () => {
     const DEFAULT_PROPS: ManagePublicKeyChooseSenderProps = {
         senders: DEFAULT_SENDERS,
-        onSenderSelect: () => {},
+        onSenderSelect: () => void 0,
     };
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
     });
 
     describe("when the sender options have been loaded", () => {

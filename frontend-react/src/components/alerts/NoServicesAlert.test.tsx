@@ -1,9 +1,8 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-import site from "../../content/site.json";
-
 import { NoServicesBanner } from "./NoServicesAlert";
+import site from "../../content/site.json";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("NoServicesAlert", () => {
     test("displays", () => {

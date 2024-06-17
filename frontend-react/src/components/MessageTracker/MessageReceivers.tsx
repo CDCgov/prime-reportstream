@@ -1,16 +1,15 @@
-import React from "react";
 import classnames from "classnames";
 
 import { ReceiverData } from "../../config/endpoints/messageTracker";
-import { parseFileLocation } from "../../utils/misc";
-import { Table } from "../../shared/Table/Table";
 import ReportLink from "../../pages/deliveries/daily-data/ReportLink";
+import Table from "../../shared/Table/Table";
+import { parseFileLocation } from "../../utils/misc";
 
 const NO_DATA_STRING = "N/A";
 
-export type MessageReceiverProps = {
+export interface MessageReceiverProps {
     receiverDetails: ReceiverData[];
-};
+}
 
 export interface NormalizedReceiverData {
     name: string;
@@ -81,7 +80,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
             {
                 columnKey: "date",
                 columnHeader: "Date",
-                content: dateTimeFormatter.format(new Date(row.createdAt)),
+                content: new Date(row.createdAt).toLocaleString(),
             },
             {
                 columnKey: "reportId",
@@ -93,7 +92,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                 columnHeader: "Main",
                 content: (() => {
                     const status = parseFileLocation(
-                        row?.fileUrl || NO_DATA_STRING,
+                        row?.fileUrl ?? NO_DATA_STRING,
                     ).folderLocation;
                     return (
                         <p
@@ -117,7 +116,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
             {
                 columnKey: "fileLocationSub",
                 columnHeader: "Sub",
-                content: parseFileLocation(row?.fileUrl || NO_DATA_STRING)
+                content: parseFileLocation(row?.fileUrl ?? NO_DATA_STRING)
                     .sendingOrg,
             },
             {
@@ -126,7 +125,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                 content: (
                     <ReportLink reportId={row?.reportId}>
                         {
-                            parseFileLocation(row?.fileUrl || NO_DATA_STRING)
+                            parseFileLocation(row?.fileUrl ?? NO_DATA_STRING)
                                 .fileName
                         }
                     </ReportLink>

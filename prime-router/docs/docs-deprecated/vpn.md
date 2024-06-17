@@ -111,17 +111,7 @@ If you are using OpenVPN Connect, uninstall it and install the [OpenVPN Client](
 
 ## Generate a VPN Profile (Automatic)
 
-1. Download the following files from our Keybase team `prime_dev_ops`: [keybase://team/prime_dev_ops/vpn](keybase://team/prime_dev_ops/vpn)
-   * `caCert.pem`
-   * `caKey.pem`
-   * `prime-data-hub-prod.ovpn`
-   * `prime-data-hub-staging.ovpn`
-   * `prime-data-hub-test.ovpn`
-   * `createKey.sh`
-   > If **new** Virtual Network Gateway, update the appropriate `.ovpn` file above with new `remote`, `verify-x509-name`, and `<tls-auth>` values.
-2. Run `createKey.sh` and follow the prompts
-3. The user's VPN profile with be outputted in a folder with their name
-4. Securely transmit the VPN profile to the recipient
+ * [Instructions](../../../operations/vpn/README.md)
 
 ## Generate a VPN Profile (Manual)
 
@@ -156,8 +146,8 @@ To generate keys for a VPN profile, follow the below steps. These steps [are der
     * `${VPN_USERNAME}Key.pem` to `<key></key>`
 * Securely transmit the VPN profile to the recipient
 
-**Note:** GitHub environment VPN credentials are [stored as base64](https://github.com/golfzaptw/action-connect-ovpn#how-to-prepare-file-ovpn).
+**Note:** GitHub environment VPN credentials are [stored as base64](https://github.com/JosiahSiegel/action-connect-ovpn?#how-to-prepare-file-ovpn).
 
 ## Revoke a VPN Profile
 
- * [Instructions](../../operations/vpn/README.md)
+ * [Instructions](../../../operations/vpn/README.md)

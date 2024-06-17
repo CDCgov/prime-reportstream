@@ -1,24 +1,23 @@
-import React, { Suspense, useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
+import { Suspense, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 
+import FileHandlerErrorsWarningsStep from "./FileHandlerErrorsWarningsStep";
+import FileHandlerFileUploadStep from "./FileHandlerFileUploadStep";
+import FileHandlerSchemaSelectionStep from "./FileHandlerSchemaSelectionStep";
+import FileHandlerSuccessStep from "./FileHandlerSuccessStep";
+import { WatersResponse } from "../../config/endpoints/waters";
+import site from "../../content/site.json";
 import { showToast } from "../../contexts/Toast";
+import useOrganizationSettings from "../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings";
 import useFileHandler, {
     FileHandlerActionType,
     FileHandlerState,
-} from "../../hooks/UseFileHandler";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
-import site from "../../content/site.json";
-import { USExtLink, USLink } from "../USLink";
-import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
-import { WatersResponse } from "../../config/endpoints/waters";
+} from "../../hooks/UseFileHandler/UseFileHandler";
+import { SchemaOption } from "../../hooks/UseSenderSchemaOptions/UseSenderSchemaOptions";
 import Alert from "../../shared/Alert/Alert";
 import Spinner from "../Spinner";
-
-import FileHandlerFileUploadStep from "./FileHandlerFileUploadStep";
-import FileHandlerSchemaSelectionStep from "./FileHandlerSchemaSelectionStep";
-import FileHandlerErrorsWarningsStep from "./FileHandlerErrorsWarningsStep";
-import FileHandlerSuccessStep from "./FileHandlerSuccessStep";
+import { USExtLink, USLink } from "../USLink";
 
 export interface FileHandlerStepProps extends FileHandlerState {
     isValid?: boolean;
@@ -142,6 +141,14 @@ export default function FileHandler() {
                 <meta
                     name="description"
                     content="Check that public health entities can receive your data through ReportStream by validating your file format."
+                />
+                <meta
+                    property="og:image"
+                    content="/assets/img/opengraph/howwehelpyou-3.png"
+                />
+                <meta
+                    property="og:image:alt"
+                    content="An abstract illustration of screens and a document."
                 />
             </Helmet>
 

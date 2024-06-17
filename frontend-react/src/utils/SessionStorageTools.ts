@@ -12,7 +12,7 @@ const FEATURE_FLAG_LOCALSTORAGE_KEY = "featureFlags";
 
 export function getSavedFeatureFlags(): string[] {
     const saved =
-        window.localStorage.getItem(FEATURE_FLAG_LOCALSTORAGE_KEY) || "";
+        window.localStorage.getItem(FEATURE_FLAG_LOCALSTORAGE_KEY) ?? "";
     if (saved === "") {
         return [];
     }

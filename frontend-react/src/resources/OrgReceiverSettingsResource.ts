@@ -1,34 +1,31 @@
-import config from "../config";
-
 import OrgSettingsBaseResource from "./OrgSettingsBaseResource";
+import config from "../config";
 
 const { RS_API_URL } = config;
 
 export default class OrgReceiverSettingsResource extends OrgSettingsBaseResource {
-    organizationName: string = "";
-    topic: string = "";
-    customerStatus: string = "";
+    organizationName = "";
+    topic = "";
+    customerStatus = "";
     translation: object = {};
-    description: string = "";
+    description = "";
     jurisdictionalFilter: object = [];
     qualityFilter: object = [];
     routingFilter: object = [];
     processingModeFilter: object = [];
-    reverseTheQualityFilter: boolean = false;
-    deidentify: boolean = false;
+    reverseTheQualityFilter = false;
+    deidentify = false;
     timing: object = [];
     transport: object = [];
-    externalName: string = "";
-    timeZone: string = "";
-    dateTimeFormat: string = "";
+    externalName = "";
+    timeZone = "";
+    dateTimeFormat = "";
 
     pk() {
         return this.name;
     }
 
-    static get key() {
-        return "OrgReceiverSettingsResource";
-    }
+    static readonly key = "OrgReceiverSettingsResource";
 
     static listUrl(params: { orgname: string }): string {
         return `${RS_API_URL}/api/settings/organizations/${params.orgname}/receivers`;

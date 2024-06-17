@@ -1,40 +1,38 @@
-import React, {
-    useState,
+import {
     Dispatch,
-    SetStateAction,
-    useMemo,
-    useEffect,
     ReactNode,
+    SetStateAction,
     useCallback,
+    useEffect,
+    useMemo,
+    useState,
 } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 
+import { withCatchAndSuspense } from "../../../components/RSErrorBoundary/RSErrorBoundary";
+import Spinner from "../../../components/Spinner";
+import { StaticAlert, StaticAlertType } from "../../../components/StaticAlert";
 import Table, {
     ColumnConfig,
     TableConfig,
 } from "../../../components/Table/Table";
-import {
-    useValueSetActivation,
-    useValueSetsMeta,
-    useValueSetsTable,
-    useValueSetUpdate,
-} from "../../../hooks/UseValueSets";
-import { toHumanReadable } from "../../../utils/misc";
+import { DatasetAction } from "../../../components/Table/TableInfo";
+import { TableRowData } from "../../../components/Table/TableRows";
 import {
     LookupTable,
     ValueSetRow,
 } from "../../../config/endpoints/lookupTables";
-import { StaticAlert, StaticAlertType } from "../../../components/StaticAlert";
+import useSessionContext from "../../../contexts/Session/useSessionContext";
+import useValueSetActivation from "../../../hooks/api/lookuptables/UseValueSetActivation/UseValueSetActivation";
+import useValueSetsMeta from "../../../hooks/api/lookuptables/UseValueSetsMeta/UseValueSetsMeta";
+import useValueSetsTable from "../../../hooks/api/lookuptables/UseValueSetsTable/UseValueSetsTable";
+import useValueSetUpdate from "../../../hooks/api/lookuptables/UseValueSetsUpdate/UseValueSetUpdate";
 import {
     handleErrorWithAlert,
     ReportStreamAlert,
 } from "../../../utils/ErrorUtils";
-import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
-import Spinner from "../../../components/Spinner";
-import { TableRowData } from "../../../components/Table/TableRows";
-import { DatasetAction } from "../../../components/Table/TableInfo";
-import { useSessionContext } from "../../../contexts/Session";
+import { toHumanReadable } from "../../../utils/misc";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -234,6 +232,15 @@ const ValueSetsDetailContent = () => {
     const { data: valueSetArray } =
         useValueSetsTable<ValueSetRow[]>(valueSetName);
     const { data: valueSetMeta } = useValueSetsMeta(valueSetName);
+    const meta = valueSetMeta ?? {
+        lookupTableVersionId: 0,
+        tableName: "",
+        tableVersion: 0,
+        isActive: false,
+        createdBy: "",
+        createdAt: "",
+        tableSha256Checksum: "",
+    };
 
     const readableName = useMemo(
         () => toHumanReadable(valueSetName),
@@ -244,12 +251,17 @@ const ValueSetsDetailContent = () => {
         <>
             <Helmet>
                 <title>{`Value Sets | Admin | ${readableName}`}</title>
+                <meta
+                    property="og:image"
+                    content="/assets/img/opengraph/reportstream.png"
+                />
+                <meta
+                    property="og:image:alt"
+                    content='"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'
+                />
             </Helmet>
             <section className="grid-container">
-                <ValueSetsDetailHeader
-                    name={readableName}
-                    meta={valueSetMeta!!}
-                />
+                <ValueSetsDetailHeader name={readableName} meta={meta} />
                 {/* ONLY handles success messaging now */}
                 {alert && (
                     <StaticAlert

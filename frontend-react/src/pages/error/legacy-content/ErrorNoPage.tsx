@@ -1,6 +1,5 @@
-import { Helmet } from "react-helmet-async";
-import React from "react";
 import { Button } from "@trussworks/react-uswds";
+import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 
 import site from "../../../content/site.json";
@@ -21,7 +20,7 @@ export const ErrorNoPage = () => {
                         <div className="usa-prose">
                             <h1>Page not found</h1>
                             <p className="usa-intro">
-                                We’re sorry, we can’t find the page you're
+                                We’re sorry, we can’t find the page you&apos;re
                                 looking for. It might have been removed, changed
                                 names, or is otherwise unavailable.
                             </p>

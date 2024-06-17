@@ -8,6 +8,11 @@ on:
   push:
     branches:
       - master
+  merge_group:
+    types:
+      - checks_requested
+    branches:
+      - master
 
 jobs:
   pre_job:
@@ -19,7 +24,7 @@ jobs:
       version: ${{ steps.build_vars.outputs.version }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -36,7 +41,7 @@ jobs:
 
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
 
       - name: Build frontend
         uses: ./.github/actions/build-frontend
@@ -46,3 +51,9 @@ jobs:
           appinsights-prod-key: ${{ secrets.APPINSIGHTS_PROD_KEY }}
           version: ${{ needs.pre_job.outputs.version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          test-admin-user: ${{ secrets.TEST_ADMIN_USERNAME }}
+          test-admin-password: ${{ secrets.TEST_ADMIN_PASSWORD }}
+          test-sender-user: ${{ secrets.TEST_SENDER_USERNAME }}
+          test-sender-password: ${{ secrets.TEST_SENDER_PASSWORD }}
+          test-receiver-user: ${{ secrets.TEST_RECEIVER_USERNAME }}
+          test-receiver-password: ${{ secrets.TEST_RECEIVER_PASSWORD }}

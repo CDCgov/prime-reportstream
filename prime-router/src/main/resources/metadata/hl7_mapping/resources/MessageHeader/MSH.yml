@@ -1,0 +1,99 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+  - name: encoding-characters
+    condition: '%resource.extension(%`rsext-encoding-characters`).exists()'
+    value: [ '%resource.extension(%`rsext-encoding-characters`).value' ]
+    hl7Spec: [ MSH-2 ]
+
+  - name: sending-application-source
+    condition: '%resource.extension(%`rsext-hl7v2Field`).value = "MSH.3"'
+    resource: '%resource.source'
+    schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/Source/HD.yml
+    constants:
+      hl7HDField: 'MSH-3'
+
+  - name: sending-facility
+    resource: '%resource.sender.resolve()'
+    condition: '%resource.exists()'
+    constants:
+      hl7HDField: 'MSH-4'
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/HD.yml
+
+  - name: receiving-application
+    resource: '%resource.destination.where(extension(%`rsext-hl7v2Field`).value = "MSH.5")'
+    schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/Destination/HD.yml
+    constants:
+      hl7HDField: 'MSH-5'
+
+  - name: receiving-facility
+    resource: '%resource.destination.receiver.resolve().where(extension(%`rsext-hl7v2Field`).value = "MSH.6")'
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/HD.yml
+    constants:
+      hl7HDField: 'MSH-6'
+
+  - name: security
+    value: [ '%resource.meta.security.code' ]
+    hl7Spec: [ MSH-8-1 ]
+
+  - name: message-event-coding
+    schema: classpath:/metadata/hl7_mapping/datatypes/coding/MSG.yml
+    condition: '%resource.is(Coding)'
+    resource: '%resource.event'
+    constants:
+      hl7MSGField: MSH-9
+
+  - name: message-control-id
+    value: [ 'Bundle.identifier.value' ]
+    required: true
+    hl7Spec: [ MSH-10 ]
+
+  - name: message-processing
+    schema: classpath:/metadata/hl7_mapping/datatypes/meta/PT.yml
+    resource: '%resource.meta'
+    constants:
+      hl7PTField: MSH-11
+
+  - name: version-id
+    value: [ '"2.5.1"' ]
+    hl7Spec: [ MSH-12 ]
+
+  - name: country-code
+    value: [ '%resource.sender.resolve().address.country' ]
+    hl7Spec: [ MSH-17 ]
+
+  - name: message-character-set
+    resource: '%resource.extension(%`rsext-character-set`).value'
+    resourceIndex: characterSetIndex
+    schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/extensionCharacterSetList/ID.yml
+
+  - name: responsible
+    resource: '%resource.responsible.resolve()'
+    condition: '%resource.exists()'
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
+    constants:
+      hl7XONField: 'MSH-22'
+
+  - name: receiving-responsible-organization
+    resource: '%resource.destination.receiver.resolve().where(extension(%`rsext-hl7v2Field`).value = "MSH.23")'
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
+    constants:
+      hl7XONField: 'MSH-23'
+
+  - name: sending-network-address-from-source
+    resource: '%resource.source'
+    condition: '%resource.extension(%`rsext-hl7v2Field`).value = "MSH.24"'
+    schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/Source/HD.yml
+    constants:
+      hl7HDField: 'MSH-24'
+
+  - name: receiving-network-address
+    resource: '%resource.destination.where(extension(%`rsext-hl7v2Field`).value = "MSH.25")'
+    schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/Destination/HD.yml
+    constants:
+      hl7HDField: 'MSH-25'
+
+  - name: msh-extension-values
+    resource: '%resource.extension(%`rsext-msh-message-header`)'
+    schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/MSHExtension.yml
+

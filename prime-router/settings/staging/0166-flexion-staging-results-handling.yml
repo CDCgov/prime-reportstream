@@ -6,9 +6,10 @@
 # ./prime multiple-settings set --env staging --input ./settings/staging/0166-flexion-staging-results-handling.yml
 #
 # Then add keys to it, as needed, like this:
-#  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.simulated-hospital --doit
-#  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.etor-service-sender --doit
-#  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.simulated-lab --doit
+#  ./prime organization addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-hospital --doit
+#  ./prime organization addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.etor-service-sender --doit
+#  ./prime organization addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-lab --doit
+#
 #
 # This FHIR ndjson (aka 'FHIR all on one line') data submission curl works for me, with a valid token in `TOK` env var:
 #
@@ -29,12 +30,12 @@
       format: "HL7"
     # TI => RS
     - name: "etor-service-sender"
-      externalName: "ETOR Service Sender Channel to ReportStream - Sending FHIR orders"
+      externalName: "ETOR Service Sender Channel to ReportStream - Sending FHIR orders and results"
       organizationName: "flexion"
       topic: "etor-ti"
       customerStatus: "active"
       format: "FHIR"
-      schemaName: "metadata/fhir_transforms/senders/Flexion/TILabOrder"
+      schemaName: "classpath:/metadata/fhir_transforms/senders/Flexion/TILabOrder.yml"
     # Results Senders
     # PHL => RS
     - name: "simulated-lab"
@@ -45,14 +46,15 @@
       format: "HL7"
   receivers:
     # Orders Receivers
-    # RS => TI: translates OML_O21 from HL7 to FHIR and sends the message to the TI service orders API
+    # RS => TI: translates ORM_O01 from HL7 to FHIR and sends the message to the TI service orders API
     - name: "etor-service-receiver-orders"
-      externalName: "ETOR Service Receiver Channel from ReportStream - Receiving ORM_O01 FHIR orders"
+      externalName: "ETOR Service Receiver Channel from ReportStream - Receiving ORM_O01 and OML_O21 FHIR orders"
       organizationName: "flexion"
       topic: "etor-ti"
       customerStatus: "active"
       jurisdictionalFilter:
-        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01'" # ORM_O01
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01') or (Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21')" # ORM_O01 or OML_O21
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.exists(system = 'http://localcodes.org/ETOR').not()"
       qualityFilter:
         - true
       timing:
@@ -61,7 +63,7 @@
         initialTime: "00:00"
       translation: !<FHIR>
         type: "FHIR"
-        schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
+        schemaName: "classpath:/metadata/fhir_transforms/receivers/fhir-transform-sample.yml"
         useBatching: false
       transport: !<REST>
         type: "REST"
@@ -91,6 +93,8 @@
       customerStatus: "active"
       jurisdictionalFilter:
         - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'" # OML_O21
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"
+        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = 'simulated-lab-id').exists()"
       qualityFilter:
         - true
       timing:
@@ -99,7 +103,7 @@
         initialTime: "00:00"
       translation: !<HL7>
         type: "HL7"
-        schemaName: "metadata/hl7_mapping/receivers/Flexion/TILabOrder"
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/Flexion/TILabOrder.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
       transport:
@@ -117,6 +121,7 @@
       customerStatus: "active"
       jurisdictionalFilter:
         - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'" # ORU_R01
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.exists(system = 'http://localcodes.org/ETOR').not()"
       qualityFilter:
         - true
       timing:
@@ -125,8 +130,47 @@
         initialTime: "00:00"
       translation: !<FHIR>
         type: "FHIR"
-        schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
+        schemaName: "classpath:/metadata/fhir_transforms/receivers/fhir-transform-sample.yml"
         useBatching: false
+      transport: !<REST>
+        type: "REST"
+        authType: "two-legged"
+        authTokenUrl: "https://cdcti-stg-api.azurewebsites.net/v1/auth/token"
+        reportUrl: "https://cdcti-stg-api.azurewebsites.net/v1/etor/results"
+        # Uncomment below for local Trusted-Intermediary server
+        # authTokenUrl: "http://host.docker.internal:8080/v1/auth/token"
+        # reportUrl: "http://host.docker.internal:8080/v1/etor/results"
+        tlsKeystore: null
+        parameters:
+          scope: "report-stream"
+          client_assertion: "client_secret"
+        headers:
+          Content-Type: "text/fhir+ndjson"
+          RecordId: "header.reportFile.reportId"
+        authHeaders:
+          Content-Type: "application/x-www-form-urlencoded"
+          Host: "cdcti-stg-api.azurewebsites.net"
+    # RS => Hospital: translates ORU_R01 from FHIR to HL7 and uploads the message to the SFTP folder
+    - name: "simulated-hospital"
+      externalName: "Simulated Hospital ETOR Receiver - Receiving ORU_R01 HL7 results"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
+      jurisdictionalFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'" # ORU_R01
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"
+        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = 'simulated-hospital-id').exists()"
+      qualityFilter:
+        - true
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440 # Every minute
+        initialTime: "00:00"
+      translation: !<HL7>
+        type: "HL7"
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: false
       transport:
         type: "SFTP"
         host: "172.17.6.20" # use "sftp" if running locally

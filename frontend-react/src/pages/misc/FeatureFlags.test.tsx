@@ -1,13 +1,12 @@
-import { screen, fireEvent } from "@testing-library/react";
-
-import { FeatureFlagActionType } from "../../contexts/FeatureFlag";
-import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
-import { renderApp } from "../../utils/CustomRenderUtils";
+import { fireEvent, screen } from "@testing-library/react";
 
 import { FeatureFlagsPage } from "./FeatureFlags";
+import { FeatureFlagActionType } from "../../contexts/FeatureFlag/FeatureFlagProvider";
+import useFeatureFlags from "../../contexts/FeatureFlag/useFeatureFlags";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
-jest.mock("../../config", () => {
-    const originalModule = jest.requireActual("../../config");
+vi.mock("../../config", async (importActual) => {
+    const originalModule = await importActual<typeof import("../../config")>();
     return {
         ...originalModule,
         default: {
@@ -18,11 +17,13 @@ jest.mock("../../config", () => {
     };
 });
 
+const mockFeatureFlagContext = vi.mocked(useFeatureFlags);
+
 describe("FeatureFlags", () => {
     test("displays a list of current feature flags", () => {
         mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
-            checkFlags: jest.fn(),
+            dispatch: () => void 0,
+            checkFlags: vi.fn(),
             featureFlags: ["flag-1", "flag-2", "flag-3"],
         });
         renderApp(<FeatureFlagsPage />);
@@ -41,8 +42,8 @@ describe("FeatureFlags", () => {
     });
     test("displays a remove button for feature flags not set at env level", () => {
         mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
-            checkFlags: jest.fn(),
+            dispatch: () => void 0,
+            checkFlags: vi.fn(),
             featureFlags: ["flag-1", "flag-2", "flag-3"],
         });
         renderApp(<FeatureFlagsPage />);
@@ -57,10 +58,10 @@ describe("FeatureFlags", () => {
         expect(screen.getAllByRole("button")[2]).toContainHTML("Delete");
     });
     test("calls dispatch on add button click with new feature flag name", () => {
-        const mockDispatch = jest.fn();
+        const mockDispatch = vi.fn();
         mockFeatureFlagContext.mockReturnValue({
             dispatch: mockDispatch,
-            checkFlags: jest.fn(),
+            checkFlags: vi.fn(),
             featureFlags: ["flag-1"],
         });
         renderApp(<FeatureFlagsPage />);
@@ -76,10 +77,10 @@ describe("FeatureFlags", () => {
         });
     });
     test("does not call dispatch on add button click if flag already exists", () => {
-        const mockDispatch = jest.fn();
+        const mockDispatch = vi.fn();
         mockFeatureFlagContext.mockReturnValue({
             dispatch: mockDispatch,
-            checkFlags: jest.fn(() => true),
+            checkFlags: vi.fn(() => true),
             featureFlags: ["flag-1"],
         });
         renderApp(<FeatureFlagsPage />);

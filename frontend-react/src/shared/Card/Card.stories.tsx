@@ -1,5 +1,4 @@
 // AutoUpdateFileChromatic
-import React from "react";
 import {
     Button,
     CardBody,

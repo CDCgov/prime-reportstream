@@ -75,7 +75,8 @@ published through the [CDC web site](http://www.cdc.gov).
 * [Disclaimer](DISCLAIMER.md)
 * [Contribution Notice](CONTRIBUTING.md)
 * [Code of Conduct](code-of-conduct.md)
-* [Getting Started as a Dev](./prime-router/docs/getting-started/getting-started.md)
+* [Development: Getting Started on the backend](./prime-router/docs/README.md)
+* [Development: Getting Started on the frontend](./frontend-react/README.md)
 
 ## Additional Standard Notices
 Please refer to [CDC's Template Repository](https://github.com/CDCgov/template)

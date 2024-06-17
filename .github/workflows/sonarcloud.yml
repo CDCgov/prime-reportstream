@@ -31,24 +31,24 @@ jobs:
       - name: Increase swapfile
         run: |
           sudo swapoff -a
-          sudo fallocate -l 10G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+          sudo fallocate -l 15G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
           sudo swapon --show
 
       - name: "Check out everything"
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
         with:
           fetch-depth: 0
 
       - name: Get branch name
         id: branch-name
-        uses: tj-actions/branch-names@6b29454859d080290fc5e9c05ee4e82b9156404b
+        uses: tj-actions/branch-names@6871f53176ad61624f978536bbf089c574dc19a2
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
-        uses: tj-actions/changed-files@90a06d6ba9543371ab4df8eeca0be07ca6054959
+        uses: tj-actions/changed-files@d6babd6899969df1a11d14c368283ea4436bca78
         with:
           files_yaml: |
             frontend:
@@ -58,7 +58,7 @@ jobs:
 
       - name: Set up JDK 17
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93
+        uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9
         with:
           java-version: "17"
           distribution: "temurin"
@@ -66,33 +66,40 @@ jobs:
 
       - name: Gradle Validation
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: gradle/wrapper-validation-action@27152f6fa06a6b8062ef7195c795692e51fc2c81
+        uses: gradle/actions/wrapper-validation@db19848a5fa7950289d3668fb053140cf3028d43
 
       - name: Spin up build containers
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         working-directory: prime-router
-        run: docker-compose -f docker-compose.postgres.yml up -d
+        run: docker compose -f docker-compose.postgres.yml up -d
 
       - name: Initialize CodeQL
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: github/codeql-action/init@df32e399139a3050671466d7d9b3cbacc1cfd034
+        uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
 
       - name: Build Prime Router Package
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        working-directory: prime-router
-        run: ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x fatjar
+        uses: ./.github/actions/retry
+        with:
+          timeout_minutes: 30
+          max_attempts: 2
+          retry_wait_seconds: 30
+          command: |
+            cd prime-router
+            ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x fatjar
+          shell: bash
 
       - name: Perform Java CodeQL Analysis
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: github/codeql-action/analyze@df32e399139a3050671466d7d9b3cbacc1cfd034
+        uses: github/codeql-action/analyze@v3
 
       - name: Use Node.js with yarn
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
-          node-version-file: "frontend-react/package.json"
+          node-version-file: "frontend-react/.nvmrc"
 
       - name: Yarn
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
@@ -101,8 +108,15 @@ jobs:
 
       - name: Frontend Coverage
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        run: yarn jest --coverage --silent --maxWorkers=100%
-        working-directory: frontend-react
+        uses: ./.github/actions/retry
+        with:
+          timeout_minutes: 30
+          max_attempts: 2
+          retry_wait_seconds: 30
+          command: |
+            cd frontend-react
+            yarn run test:ci
+          shell: bash
 
       - name: Run SonarCloud Scan master or full
         if: ( steps.changed-files-yaml.outputs.frontend_any_changed == 'true' && steps.changed-files-yaml.outputs.backend_any_changed == 'true' ) || steps.branch-name.outputs.is_default == 'true'

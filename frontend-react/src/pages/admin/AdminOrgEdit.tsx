@@ -1,48 +1,49 @@
-import React, { Suspense, useRef, useState } from "react";
-import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
-import { useParams } from "react-router-dom";
+import { Suspense, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { useParams } from "react-router-dom";
+import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 
-import HipaaNotice from "../../components/HipaaNotice";
-import Spinner from "../../components/Spinner";
-import { ErrorPage } from "../error/ErrorPage";
-import OrgSettingsResource from "../../resources/OrgSettingsResource";
-import { OrgSenderTable } from "../../components/Admin/OrgSenderTable";
-import { OrgReceiverTable } from "../../components/Admin/OrgReceiverTable";
 import {
     DropdownComponent,
     TextAreaComponent,
     TextInputComponent,
 } from "../../components/Admin/AdminFormEdit";
-import { useToast } from "../../contexts/Toast";
-import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     ConfirmSaveSettingModal,
     ConfirmSaveSettingModalRef,
 } from "../../components/Admin/CompareJsonModal";
 import { DisplayMeta } from "../../components/Admin/DisplayMeta";
+import { OrgReceiverTable } from "../../components/Admin/OrgReceiverTable";
+import { OrgSenderTable } from "../../components/Admin/OrgSenderTable";
+import HipaaNotice from "../../components/HipaaNotice";
+import Spinner from "../../components/Spinner";
+import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
+import { USLink } from "../../components/USLink";
+import config from "../../config";
+import useSessionContext from "../../contexts/Session/useSessionContext";
+import { useToast } from "../../contexts/Toast";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
+import OrgSettingsResource from "../../resources/OrgSettingsResource";
+import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     getErrorDetailFromResponse,
     getVersionWarning,
     VersionWarningType,
 } from "../../utils/misc";
-import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
 import { SampleFilterObject } from "../../utils/TemporarySettingsAPITypes";
-import config from "../../config";
-import { USLink } from "../../components/USLink";
-import { useSessionContext } from "../../contexts/Session";
-import { useAppInsightsContext } from "../../contexts/AppInsights";
+import { ErrorPage } from "../error/ErrorPage";
 
 const { RS_API_URL } = config;
 
-type AdminOrgEditProps = {
+interface AdminOrgEditProps {
     orgname: string;
-};
+    [k: string]: string | undefined;
+}
 
 export function AdminOrgEditPage() {
     const { toast: showAlertNotification } = useToast();
-    const { fetchHeaders } = useAppInsightsContext();
+    const { properties } = useAppInsightsContext();
     const { orgname } = useParams<AdminOrgEditProps>();
     const { activeMembership, authState } = useSessionContext();
 
@@ -65,7 +66,7 @@ export function AdminOrgEditPage() {
             `${RS_API_URL}/api/settings/organizations/${orgname}`,
             {
                 headers: {
-                    ...fetchHeaders(),
+                    "x-ms-session-id": properties.context.getSessionId(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },
@@ -102,7 +103,7 @@ export function AdminOrgEditPage() {
             setLoading(false);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
+            const errorDetail = await getErrorDetailFromResponse(e);
             showAlertNotification(
                 new Error(
                     `Reloading org '${orgname}' failed with: ${errorDetail}`,
@@ -148,7 +149,7 @@ export function AdminOrgEditPage() {
             showAlertNotification(`Saved '${orgname}' setting.`, "success");
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
+            const errorDetail = await getErrorDetailFromResponse(e);
             showAlertNotification(
                 new Error(
                     `Updating org '${orgname}' failed with: ${errorDetail}`,
@@ -168,6 +169,14 @@ export function AdminOrgEditPage() {
         >
             <Helmet>
                 <title>Organization edit - Admin</title>
+                <meta
+                    property="og:image"
+                    content="/assets/img/opengraph/reportstream.png"
+                />
+                <meta
+                    property="og:image:alt"
+                    content='"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'
+                />
             </Helmet>
             <section className="grid-container margin-top-3 margin-bottom-5">
                 <h2>
@@ -208,7 +217,7 @@ export function AdminOrgEditPage() {
                             <TextInputComponent
                                 fieldname={"countyName"}
                                 label={"County Name"}
-                                defaultvalue={orgSettings.countyName || null}
+                                defaultvalue={orgSettings.countyName ?? null}
                                 savefunc={(v) =>
                                     (orgSettings.countyName =
                                         v === "" ? null : v)
@@ -217,7 +226,7 @@ export function AdminOrgEditPage() {
                             <TextInputComponent
                                 fieldname={"stateCode"}
                                 label={"State Code"}
-                                defaultvalue={orgSettings.stateCode || null}
+                                defaultvalue={orgSettings.stateCode ?? null}
                                 savefunc={(v) =>
                                     (orgSettings.stateCode =
                                         v === "" ? null : v)
@@ -241,14 +250,14 @@ export function AdminOrgEditPage() {
                                     type="submit"
                                     data-testid="submit"
                                     disabled={loading}
-                                    onClick={() => ShowCompareConfirm()}
+                                    onClick={() => void ShowCompareConfirm()}
                                 >
                                     Preview save...
                                 </Button>
                             </Grid>
                             <ConfirmSaveSettingModal
-                                uniquid={orgname || ""}
-                                onConfirm={saveOrgData}
+                                uniquid={orgname ?? ""}
+                                onConfirm={() => void saveOrgData()}
                                 ref={confirmModalRef}
                                 oldjson={orgSettingsOldJson}
                                 newjson={orgSettingsNewJson}
@@ -256,8 +265,8 @@ export function AdminOrgEditPage() {
                         </GridContainer>
                         <br />
                     </section>
-                    <OrgSenderTable orgname={orgname || ""} />
-                    <OrgReceiverTable orgname={orgname || ""} />
+                    <OrgSenderTable orgname={orgname ?? ""} />
+                    <OrgReceiverTable orgname={orgname ?? ""} />
                 </Suspense>
             </NetworkErrorBoundary>
             <HipaaNotice />

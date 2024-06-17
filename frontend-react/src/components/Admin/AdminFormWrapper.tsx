@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, ReactNode, Suspense } from "react";
+import { PropsWithChildren, ReactNode, Suspense } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
 
 import { ErrorPage } from "../../pages/error/ErrorPage";

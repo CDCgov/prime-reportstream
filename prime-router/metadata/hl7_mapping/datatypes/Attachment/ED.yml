@@ -1,9 +1,0 @@
-elements:
-
-  - name: ed-data-subtype
-    value: [ '%resource.contentType' ]
-    hl7Spec: [ '%{hl7EDField}-3' ]
-
-  - name: ed-extension-value
-    resource: '%resource.extension(%`rsext-ed-attachment`)'
-    schema: ./EDExtension

@@ -1,6 +1,5 @@
-import config from "../../../config";
-
 import { reportDetailURL } from "./ReportsUtils";
+import config from "../../../config";
 
 describe("ReportsUtils", () => {
     test("reportDetailURL", () => {

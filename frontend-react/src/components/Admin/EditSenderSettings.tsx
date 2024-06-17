@@ -1,24 +1,7 @@
-import React, { FC, useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
-import { useController, useResource } from "rest-hooks";
+import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
-import Title from "../../components/Title";
-import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
-import { useToast } from "../../contexts/Toast";
-import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
-import {
-    getErrorDetailFromResponse,
-    getVersionWarning,
-    isValidServiceName,
-    VersionWarningType,
-} from "../../utils/misc";
-import { ObjectTooltip } from "../tooltips/ObjectTooltip";
-import { SampleKeysObj } from "../../utils/TemporarySettingsAPITypes";
-import config from "../../config";
-import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
-import { useSessionContext } from "../../contexts/Session";
-import { useAppInsightsContext } from "../../contexts/AppInsights";
+import { useController, useResource } from "rest-hooks";
 
 import {
     CheckboxComponent,
@@ -31,21 +14,37 @@ import {
     ConfirmSaveSettingModal,
     ConfirmSaveSettingModalRef,
 } from "./CompareJsonModal";
+import Title from "../../components/Title";
+import config from "../../config";
+import useSessionContext from "../../contexts/Session/useSessionContext";
+import { useToast } from "../../contexts/Toast";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
+import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
+import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
+import {
+    getErrorDetailFromResponse,
+    getVersionWarning,
+    isValidServiceName,
+    VersionWarningType,
+} from "../../utils/misc";
+import { SampleKeysObj } from "../../utils/TemporarySettingsAPITypes";
+import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
+import { ObjectTooltip } from "../tooltips/ObjectTooltip";
 
 const { RS_API_URL } = config;
 
-type EditSenderSettingsFormProps = {
+interface EditSenderSettingsFormProps {
     orgname: string;
     sendername: string;
     action: "edit" | "clone";
-};
-const EditSenderSettingsForm: FC<EditSenderSettingsFormProps> = ({
+}
+const EditSenderSettingsForm = ({
     orgname,
     sendername,
     action,
-}) => {
+}: EditSenderSettingsFormProps) => {
     const { toast: showAlertNotification } = useToast();
-    const { fetchHeaders } = useAppInsightsContext();
+    const { properties } = useAppInsightsContext();
     const navigate = useNavigate();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
     const { activeMembership, authState, rsConsole } = useSessionContext();
@@ -109,7 +108,7 @@ const EditSenderSettingsForm: FC<EditSenderSettingsFormProps> = ({
             `${RS_API_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
             {
                 headers: {
-                    ...fetchHeaders(),
+                    "x-ms-session-id": properties.context.getSessionId(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },
@@ -159,7 +158,7 @@ const EditSenderSettingsForm: FC<EditSenderSettingsFormProps> = ({
             setLoading(false);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
+            const errorDetail = await getErrorDetailFromResponse(e);
             rsConsole.trace(e, errorDetail);
             showAlertNotification(
                 new Error(
@@ -223,7 +222,7 @@ const EditSenderSettingsForm: FC<EditSenderSettingsFormProps> = ({
             navigate(-1);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetailFromResponse(e);
+            const errorDetail = await getErrorDetailFromResponse(e);
             rsConsole.trace(e, errorDetail);
             showAlertNotification(
                 new Error(
@@ -312,8 +311,8 @@ const EditSenderSettingsForm: FC<EditSenderSettingsFormProps> = ({
                     <Grid col={6} className={"text-right"}>
                         <Button
                             type="button"
-                            onClick={async () =>
-                                (await resetSenderList()) && navigate(-1)
+                            onClick={() =>
+                                void resetSenderList().then(() => navigate(-1))
                             }
                         >
                             Cancel
@@ -323,7 +322,7 @@ const EditSenderSettingsForm: FC<EditSenderSettingsFormProps> = ({
                             type="submit"
                             data-testid="submit"
                             disabled={loading}
-                            onClick={() => ShowCompareConfirm()}
+                            onClick={() => void ShowCompareConfirm()}
                         >
                             Edit json and save...
                         </Button>
@@ -333,7 +332,7 @@ const EditSenderSettingsForm: FC<EditSenderSettingsFormProps> = ({
                     uniquid={
                         action === "edit" ? sendername : orgSenderSettings.name
                     }
-                    onConfirm={saveSenderData}
+                    onConfirm={() => void saveSenderData()}
                     ref={confirmModalRef}
                     oldjson={orgSenderSettingsOldJson}
                     newjson={orgSenderSettingsNewJson}
@@ -341,18 +340,19 @@ const EditSenderSettingsForm: FC<EditSenderSettingsFormProps> = ({
             </GridContainer>
             <ModalConfirmDialog
                 id={"deleteConfirm"}
-                onConfirm={doDelete}
+                onConfirm={(id) => void doDelete(id)}
                 ref={modalRef}
             ></ModalConfirmDialog>
         </section>
     );
 };
 
-export type EditSenderSettingsProps = {
+export interface EditSenderSettingsProps {
     orgname: string;
     sendername: string;
     action: "edit" | "clone";
-};
+    [k: string]: string | undefined;
+}
 
 export function EditSenderSettingsPage() {
     const { orgname, sendername, action } =
@@ -368,9 +368,9 @@ export function EditSenderSettingsPage() {
             }
         >
             <EditSenderSettingsForm
-                orgname={orgname || ""}
-                sendername={sendername || ""}
-                action={action || "edit"}
+                orgname={orgname ?? ""}
+                sendername={sendername ?? ""}
+                action={action ?? "edit"}
             />
         </AdminFormWrapper>
     );

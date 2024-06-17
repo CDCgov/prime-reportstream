@@ -13,7 +13,5 @@ fi
 cd frontend-react
 
 ./scripts/approuter-check.sh
-./scripts/yarn-check.sh
-./scripts/yarn-dedupe.sh
+
 yarn lint-staged
-yarn test -o --silent

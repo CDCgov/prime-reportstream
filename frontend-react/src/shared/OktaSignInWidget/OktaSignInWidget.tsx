@@ -1,11 +1,6 @@
-import React, {
-    HTMLAttributes,
-    PropsWithChildren,
-    useEffect,
-    useRef,
-} from "react";
-import OktaSignIn, { WidgetOptions } from "@okta/okta-signin-widget";
 import type { Tokens } from "@okta/okta-auth-js";
+import { OktaSignIn, WidgetOptions } from "@okta/okta-signin-widget";
+import { HTMLAttributes, PropsWithChildren, useEffect, useRef } from "react";
 
 import "@okta/okta-signin-widget/css/okta-sign-in.min.css";
 import "./OktaSignInWidget.scss";
@@ -44,7 +39,7 @@ const OktaSignInWidget = ({
             })
             .then(onSuccess)
             .catch((e: any) => {
-                onError?.(e);
+                void onError?.(e);
             });
 
         return () => widget.remove();

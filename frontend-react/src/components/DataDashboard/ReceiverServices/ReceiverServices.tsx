@@ -1,5 +1,3 @@
-import React from "react";
-
 import { RSReceiver } from "../../../config/endpoints/settings";
 
 interface Props {
@@ -35,7 +33,10 @@ function ReceiversDropdown(props: Props) {
                 onChange={(event) => props.chosenCallback(event.target.value)}
             >
                 {props.receiverServices.map((receiver, idx) => (
-                    <option key={`${receiver}.${idx}`} value={receiver.name}>
+                    <option
+                        key={`${receiver.name}.${idx}`}
+                        value={receiver.name}
+                    >
                         {receiver.name}
                     </option>
                 ))}
@@ -58,7 +59,7 @@ export default function ReceiverServices({
             {receiverServices?.length > 1 ? (
                 <ReceiversDropdown
                     receiverServices={receiverServices}
-                    active={activeService?.name || ""}
+                    active={activeService?.name ?? ""}
                     chosenCallback={handleSetActive}
                 />
             ) : (

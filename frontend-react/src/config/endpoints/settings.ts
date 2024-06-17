@@ -8,35 +8,36 @@ export enum ServicesUrls {
     PUBLIC_KEYS = "/settings/organizations/:orgName/public-keys",
 }
 
+export interface RSSettings {
+    version: number;
+    createdAt: string;
+    createdBy: string;
+}
+
 /** Response is much larger than this but not all of it is used for front-end yet */
-export interface RSService {
+export interface RSService extends RSSettings {
     name: string;
     organizationName: string;
     topic?: string;
     customerStatus?: string;
 }
 
-export interface RSOrganizationSettings {
-    createdAt: string;
-    createdBy: string;
+export interface RSOrganizationSettings extends RSSettings {
     description: string;
     filters: string[];
     jurisdiction: string;
     name: string;
-    version: number;
     stateCode?: string;
     countyName?: string;
 }
 
 interface SenderKeys {
     scope: string;
-    keys: {}[];
+    keys: object[];
 }
 
 export interface RSSender extends RSService {
     allowDuplicates: boolean;
-    createdAt?: string;
-    createdBy?: string;
     customerStatus: string;
     format: string;
     keys?: SenderKeys;
@@ -47,10 +48,9 @@ export interface RSSender extends RSService {
     schemaName: string;
     senderType?: string;
     topic: string;
-    version?: number;
 }
 
-export interface RSReceiver extends RSService {}
+export type RSReceiver = RSService;
 
 export interface ApiKey {
     kty: string;

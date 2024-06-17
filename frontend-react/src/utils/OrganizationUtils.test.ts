@@ -1,20 +1,20 @@
 import {
     AccessTokenWithRSClaims,
     getOktaGroups,
-    parseOrgName,
-    MemberType,
     membershipsFromToken,
+    MemberType,
+    parseOrgName,
 } from "./OrganizationUtils";
 import { mockAccessToken } from "./TestUtils";
 
-let mockGetSessionMembershipState = jest.fn();
-let mockGetOrganizationOverride = jest.fn();
+const mockGetSessionMembershipState = vi.fn();
+const mockGetOrganizationOverride = vi.fn();
 
-const mockStoreSessionMembershipState = jest.fn();
-const mockStoreOrganizationOverride = jest.fn();
-const mockUpdateApiSessions = jest.fn();
+const mockStoreSessionMembershipState = vi.fn();
+const mockStoreOrganizationOverride = vi.fn();
+const mockUpdateApiSessions = vi.fn();
 
-jest.mock("../utils/SessionStorageTools", () => {
+vi.mock("../utils/SessionStorageTools", () => {
     return {
         storeSessionMembershipState: (value: string) =>
             mockStoreSessionMembershipState(value),
@@ -26,7 +26,7 @@ jest.mock("../utils/SessionStorageTools", () => {
 });
 
 // Unused value, but required mock for test running
-jest.mock("../network/Apis", () => {
+vi.mock("../network/Apis", () => {
     return {
         updateApiSessions: () => mockUpdateApiSessions(),
     };

@@ -1,0 +1,162 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: pv1-set-id
+    value: [ '"1"' ]
+    hl7Spec: [ '%{hl7PV1Field}-1' ]
+
+  - name: pv1-patient-class
+    resource: '%resource.class.extension(%`rsext-pv1-2-patient-class`).value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7PV1Field}-2'
+
+  - name: pv1-assigned-patient-location
+    resource: '%resource.location.where(extension(%`rsext-hl7v2Field`).value = "PV1.3").location.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Location/PL/PL.yml
+    constants:
+      hl7PLField: '%{hl7PV1Field}-3'
+
+  - name: pv1-admission-type
+    resource: '%resource.type'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7PV1Field}-4'
+
+  - name: pv1-preadmit-number
+    resource: '%resource.hospitalization.preAdmissionIdentifier'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
+    constants:
+      cxField: '%{hl7PV1Field}-5'
+
+  - name: pv1-assigned-patient-location
+    resource: '%resource.location.where(extension(%`rsext-hl7v2Field`).value = "PV1.6").location.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Location/PL/PL.yml
+    constants:
+      hl7PLField: '%{hl7PV1Field}-6'
+
+  - name: pv1-attending-doctor
+    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Field`).value = "PV1.7").individual.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
+    resourceIndex: xcnIndex
+    constants:
+      hl7XCNField: '%{hl7PV1Field}-7(%{xcnIndex})'
+
+  - name: pv1-referring-doctor
+    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Field`).value = "PV1.8").individual.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
+    resourceIndex: xcnIndex
+    constants:
+      hl7XCNField: '%{hl7PV1Field}-8(%{xcnIndex})'
+
+  - name: pv1-consulting-doctor
+    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Field`).value = "PV1.9").individual.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
+    resourceIndex: xcnIndex
+    constants:
+      hl7XCNField: '%{hl7PV1Field}-9(%{xcnIndex})'
+
+  - name: pv1-assigned-patient-location
+    resource: '%resource.serviceType'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7PV1Field}-10'
+
+  - name: pv1-assigned-patient-location
+    resource: '%resource.location.where(extension(%`rsext-hl7v2Field`).value = "PV1.11").location.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Location/PL/PL.yml
+    constants:
+      hl7PLField: '%{hl7PV1Field}-11'
+
+  - name: pv1-admission-type
+    resource: '%resource.hospitalization.reAdmission'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7PV1Field}-13'
+
+  - name: pv1-admit-source
+    resource: '%resource.hospitalization.admitSource'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7PV1Field}-14'
+
+  - name: pv1-admit-source
+    resource: '%resource.hospitalization.specialCourtesy'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    resourceIndex: specialCourtesyIndex
+    constants:
+      cweField: '%{hl7PV1Field}-16(%{specialCourtesyIndex})'
+
+  - name: pv1-consulting-doctor
+    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Field`).value = "PV1.17").individual.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
+    resourceIndex: cxIndex
+    constants:
+      hl7XCNField: '%{hl7PV1Field}-17(%{cxIndex})'
+
+  - name: pv1-visit-number
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "PV1.19")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
+    resourceIndex: cxIndex
+    constants:
+      cxField: '%{hl7PV1Field}-19(%{cxIndex})'
+
+  - name: pv1-discharge-disposition
+    resource: '%resource.hospitalization.dischargeDisposition'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7PV1Field}-36'
+
+  - name: pv1-discharged-to-location
+    resource: '%resource.hospitalization.destination.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Location/DLD.yml
+    constants:
+      hl7DLDField: '%{hl7PV1Field}-37'
+
+  - name: pv1-diet-preference
+    resource: '%resource.hospitalization.dietPreference'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7PV1Field}-38'
+
+  - name: pv1-pending-location
+    resource: '%resource.location.where(extension(%`rsext-hl7v2Field`).value = "PV1.42").location.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Location/PL/PL.yml
+    constants:
+      hl7PLField: '%{hl7PV1Field}-42'
+
+  - name: pv1-prior-temporary-location
+    resource: '%resource.location.where(extension(%`rsext-hl7v2Field`).value = "PV1.43").location.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Location/PL/PL.yml
+    constants:
+      hl7PLField: '%{hl7PV1Field}-43'
+
+  - name: pv1-admit-datetime
+    value: [ '%resource.period.start.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{hl7PV1Field}-44' ]
+
+  - name: pv1-discharge-datetime
+    value: [ '%resource.period.end.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{hl7PV1Field}-45' ]
+
+  - name: pv1-alternate-visit-id
+    resource: '%resource.identifier.where(extension(%`rsext-hl7v2Field`).value = "PV1.50")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
+    resourceIndex: cxIndex
+    constants:
+      cxField: '%{hl7PV1Field}-50(%{cxIndex})'
+
+  - name: pv1-service-episode-description
+    value: [ '%resource.episodeOfCare.resolve().where(extension(%`rsext-hl7v2Field`).value = "PV1.54").extension(%`rsext-episode-of-care-name`).value' ]
+    hl7Spec: [ '%{hl7PV1Field}-53' ]
+
+  - name: pv1-service-episode-identifier
+    resource: '%resource.episodeOfCare.resolve().where(extension(%`rsext-hl7v2Field`).value = "PV1.54").identifier'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
+    constants:
+      cxField: '%{hl7PV1Field}-54'
+
+  - name: pv1-extension-values
+    resource: '%resource.extension(%`rsext-pv1-patient-visit`)'
+    schema: classpath:/metadata/hl7_mapping/resources/Encounter/PV1Extension.yml

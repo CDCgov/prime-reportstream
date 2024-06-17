@@ -2,7 +2,6 @@
  * passed in from the Table's parent, or an addRow function defined by the Table.
  * in order to avoid problems around timing, takes a `disabled` prop. */
 import { Button } from "@trussworks/react-uswds";
-import React from "react";
 
 import { DatasetAction } from "./TableInfo";
 
@@ -11,7 +10,7 @@ type TableActionButtonProps = DatasetAction & {
 };
 export const TableActionButton = ({
     label,
-    method = () => {},
+    method = () => void 0,
     disabled,
 }: TableActionButtonProps) => (
     <Button type={"button"} onClick={() => method()} disabled={disabled}>

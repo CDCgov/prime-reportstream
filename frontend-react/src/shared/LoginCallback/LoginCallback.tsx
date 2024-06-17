@@ -1,13 +1,7 @@
 import type { OnAuthResumeFunction } from "@okta/okta-react/bundles/types/OktaContext";
-import React, {
-    ComponentType,
-    FC,
-    ReactElement,
-    useEffect,
-    useState,
-} from "react";
+import { ComponentType, FC, ReactElement, useEffect, useState } from "react";
 
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 
 const OktaError: FC<{ error: Error }> = ({ error }) => {
     if (error.name && error.message) {
@@ -42,7 +36,7 @@ const LoginCallback: FC<LoginCallbackProps> = ({
     const { oktaAuth, authState } = useSessionContext();
     const [callbackError, setCallbackError] = useState(null);
 
-    const ErrorReporter = errorComponent || OktaError;
+    const ErrorReporter = errorComponent ?? OktaError;
     useEffect(() => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore OKTA-464505: backward compatibility support for auth-js@5

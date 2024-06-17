@@ -1,22 +1,21 @@
-import config from "../config";
-
 import OrgSettingsBaseResource from "./OrgSettingsBaseResource";
+import config from "../config";
 
 const { RS_API_URL } = config;
 
 export default class OrgSettingsResource extends OrgSettingsBaseResource {
     // pulls in other fields from OrgSettingsBaseResource
-    description: string = "";
-    jurisdiction: string = "";
+    description = "";
+    jurisdiction = "";
     stateCode: string | null = "";
     countyName: string | null = "";
     filters: object = [];
 
-    static get key() {
-        return "OrgSettingsResource";
-    }
+    static readonly key = "OrgSettingsResource";
 
-    static listUrl(_params: {}): string {
+    static listUrl(
+        _params?: Readonly<Record<string, string | number | boolean>>,
+    ): string {
         return `${RS_API_URL}/api/settings/organizations`;
     }
 

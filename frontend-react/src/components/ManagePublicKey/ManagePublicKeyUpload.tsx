@@ -1,4 +1,3 @@
-import React, { ChangeEvent, FormEvent, useRef } from "react";
 import {
     Button,
     FileInput,
@@ -8,6 +7,7 @@ import {
     Grid,
     Label,
 } from "@trussworks/react-uswds";
+import { ChangeEvent, FormEvent, useRef } from "react";
 
 export interface ManagePublicKeyUploadProps {
     onPublicKeySubmit: (e: FormEvent<HTMLFormElement>) => void;

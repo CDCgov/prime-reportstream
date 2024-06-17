@@ -1,0 +1,16 @@
+# This segment does not appear in NIST or RADx MARS
+
+resourceType: Device
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+udiCarrier:
+  valueOf: datatypes/EI/Device-udiCarrier
+  expressionType: resource
+  generateList: true
+  specs: PRT.10
+  constants:
+    hl7v2Field: "PRT.10"

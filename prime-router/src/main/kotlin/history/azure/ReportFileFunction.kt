@@ -1,7 +1,11 @@
 package gov.cdc.prime.router.history.azure
 
+import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
+import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -9,11 +13,24 @@ import gov.cdc.prime.router.history.ReportHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
+import gov.cdc.prime.router.transport.RESTTransport
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
+import java.net.URLEncoder
+import java.nio.charset.Charset
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
 import java.util.UUID
+import java.util.logging.Logger
 
 /**
  * History API
@@ -26,6 +43,8 @@ abstract class ReportFileFunction(
     private val reportFileFacade: ReportFileFacade,
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
+
+    internal val intermediaryReceiverName = "flexion.etor-service-receiver-orders"
 
     /**
      * Helper to store currently loaded action to prevent extra DB calls
@@ -101,6 +120,12 @@ abstract class ReportFileFunction(
             logger.info(
                 "Authorized request by org ${claims.scopes} to getListByOrg on organization $userOrgName."
             )
+
+            if (HistoryApiParameters(request.queryParameters).reportId != null &&
+                HistoryApiParameters(request.queryParameters).fileName != null
+            ) {
+                return HttpUtilities.badRequestResponse(request, "Either reportId or fileName can be provided")
+            }
 
             return HttpUtilities.okResponse(request, this.historyAsJson(request.queryParameters, userOrgName))
         } catch (e: IllegalArgumentException) {
@@ -184,6 +209,87 @@ abstract class ReportFileFunction(
     }
 
     /**
+     * Function to return metadata of a single report from the CDC Intermediary.
+     * The [reportId] is a valid report UUID. This function is for the Intermediary only, please don't update
+     * without contacting that engineering team
+     */
+    fun retrieveETORIntermediaryMetadata(
+        request: HttpRequestMessage<String?>,
+        reportId: UUID,
+        context: ExecutionContext,
+        engine: HttpClientEngine?,
+        etorTiBaseUrl: String? = System.getenv("ETOR_TI_baseurl"),
+    ): HttpResponseMessage {
+        if (etorTiBaseUrl == null) {
+            return HttpUtilities.httpResponse(
+                request,
+                "Environment variable ETOR_TI_baseurl is not set. Set this variable and run the TI service.",
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
+        }
+
+        val authResult = this.authSingleBlocks(request, reportId.toString())
+
+        if (authResult != null) {
+            return authResult
+        }
+
+        var response: HttpResponse?
+        val receiver = workflowEngine.settings.findReceiver(this.intermediaryReceiverName)
+        val client = if (engine == null) HttpClient() else HttpClient(engine)
+        val restTransportInfo = receiver?.transport as RESTTransportType
+        val (credential, jksCredential) = RESTTransport().getCredential(restTransportInfo, receiver)
+        val logger: Logger = context.logger
+
+        val authPair = runBlocking {
+            async {
+                RESTTransport().getOAuthToken(
+                    restTransportInfo,
+                    reportId.toString(),
+                    jksCredential,
+                    credential,
+                    logger
+                )
+            }.await()
+        }
+
+        val lookupId = this.getLookupId(reportId)
+            ?: return HttpUtilities.notFoundResponse(request, "lookup Id not found")
+
+        val (status, responseBody) = runBlocking {
+            async {
+                response = client.get("$etorTiBaseUrl/v1/etor/metadata/" + lookupId) {
+                    authPair.first.forEach { entry ->
+                        headers.append(entry.key, entry.value)
+                    }
+
+                    headers.append(HttpHeaders.Authorization, "Bearer " + authPair.second!!)
+                }
+
+                Pair<HttpStatusCode, String>(response!!.status, response!!.body())
+            }.await()
+        }
+
+        if (status == HttpStatusCode.NotFound) {
+            return HttpUtilities.notFoundResponse(request, "metadata not found")
+        }
+
+        if (status.value >= 300) {
+            return HttpUtilities.internalErrorResponse(request)
+        }
+
+        return HttpUtilities.okResponse(request, responseBody)
+    }
+
+    /**
+     * Use the specified report ID to find the lookup ID for the ETOR TI to use to retrieve metadata
+     *
+     * @param reportId DB Action that we are reviewing
+     * @return the string lookup ID if found, otherwise and empty string
+     */
+    abstract fun getLookupId(reportId: UUID): UUID?
+
+    /**
      * Look for an action related to the given id.
      * To reduce DB hits, if this object has a value set on currentAction,
      * its id will be compared with the input id and returned.
@@ -191,7 +297,7 @@ abstract class ReportFileFunction(
      * @param id Either a reportId or actionId to look for matches on.
      * @return The action related to the given id.
      */
-    private fun actionFromId(id: String): Action {
+    fun actionFromId(id: String): Action {
         // Figure out whether we're dealing with an action_id or a report_id.
         val actionId = id.toLongOrNull()
         return if (currentAction != null && currentAction!!.actionId == actionId) {
@@ -214,6 +320,9 @@ abstract class ReportFileFunction(
      * @property until is the OffsetDateTime that dictates how recently returned results date.
      * @property pageSize is an Integer used for setting the number of results per page.
      * @property showFailed whether to include actions that failed to be sent.
+     * @property reportId is the reportId to get results for.
+     * @property fileName is the fileName to get results for.
+     * @property receivingOrgSvcStatus is the customer status of the receiver to get results for.
      */
     data class HistoryApiParameters(
         val sortDir: HistoryDatabaseAccess.SortDir,
@@ -223,6 +332,9 @@ abstract class ReportFileFunction(
         val until: OffsetDateTime?,
         val pageSize: Int,
         val showFailed: Boolean,
+        val reportId: String?,
+        val fileName: String?,
+        val receivingOrgSvcStatus: List<CustomerStatus>?,
     ) {
         constructor(query: Map<String, String>) : this(
             sortDir = extractSortDir(query),
@@ -231,7 +343,10 @@ abstract class ReportFileFunction(
             since = extractDateTime(query, "since"),
             until = extractDateTime(query, "until"),
             pageSize = extractPageSize(query),
-            showFailed = extractShowFailed(query)
+            showFailed = extractShowFailed(query),
+            reportId = query["reportId"],
+            fileName = extractFileName(query),
+            receivingOrgSvcStatus = extractReceivingOrgSvcStatus(query),
         )
 
         companion object {
@@ -300,6 +415,23 @@ abstract class ReportFileFunction(
              */
             fun extractShowFailed(query: Map<String, String>): Boolean {
                 return query["showfailed"]?.toBoolean() ?: false
+            }
+
+            /**
+             * Convert fileName from query into param used for the DB
+             * @param query Incoming query params
+             * @return encoded param
+             */
+            fun extractFileName(query: Map<String, String>): String? {
+                return if (query["fileName"] != null) {
+                    URLEncoder.encode(query["fileName"], Charset.defaultCharset())
+                } else {
+                    null
+                }
+            }
+
+            fun extractReceivingOrgSvcStatus(query: Map<String, String>): List<CustomerStatus>? {
+                return query["receivingOrgSvcStatus"]?.split(",")?.map { CustomerStatus.valueOf(it) }
             }
         }
     }

@@ -1,8 +1,0 @@
-elements:
-  - name: aoe-note
-    condition: '%resource is Observation'
-    schema: 'ca-aoe-note'
-
-  - name: note
-    condition: '%resource is string'
-    schema: '../../../datatypes/annotation/NTE'

@@ -1,0 +1,10 @@
+# $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: participation-information
+    resource: 'Bundle.entry.resource.ofType(Device).where(udiCarrier.exists())'
+    constants:
+      hl7SegmentGroup: '/PATIENT_RESULT(%{patientIndex})/PATIENT/PATIENT_OBSERVATION'
+    schema: classpath:/metadata/hl7_mapping/resources/Device/PRT.yml
+    resourceIndex: prtDeviceIndex

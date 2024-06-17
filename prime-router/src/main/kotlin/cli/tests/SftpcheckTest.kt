@@ -1,15 +1,10 @@
 package gov.cdc.prime.router.cli.tests
 
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.FuelError
-import com.github.kittinunf.fuel.core.Headers
-import com.github.kittinunf.fuel.core.Request
-import com.github.kittinunf.fuel.core.Response
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.json.responseJson
-import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.common.Environment
-import org.apache.http.HttpStatus
+import gov.cdc.prime.router.common.HttpClientUtils
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode
+import org.json.JSONObject
 
 private const val jsonMimeType = "application/json"
 
@@ -52,23 +47,23 @@ class SftpcheckTest : CoolTest() {
 
         // Start check the connection for each organization
         ignoreReceiversNameList.forEach { receiver ->
-
             // Obtain the URL/path endpoint per environment (localhost or staging)
-            val path = environment.formUrl(sftpcheckUri + receiver).toString()
-
             // Check the organization ignore receiver connections
             echo("SFTPCHECK Organizatin: $receiver...")
 
-            val (_, response, _) = sftpReceiverIgnoreOrganizationCheck(path, accessToken)
-            if (response.statusCode == HttpStatus.SC_OK) {
+            val (response, respStr) = sftpReceiverIgnoreOrganizationCheck(
+                environment.formUrl(sftpcheckUri + receiver).toString(), accessToken
+            )
+
+            if (response.status == HttpStatusCode.OK) {
                 good(
                     sftpcheckMessage + "PASSED with response code: " +
-                        " ${response.statusCode} "
+                            " ${response.status.value} "
                 )
             } else {
                 sftpcheckTestResult = bad(
                     sftpcheckMessage + "FAILED with error code: : " +
-                        "${response.statusCode} - ${response.responseMessage}..."
+                            "${response.status.value} - $respStr..."
                 )
             }
         }
@@ -91,24 +86,22 @@ class SftpcheckTest : CoolTest() {
         path: String,
         accessToken: String,
     ): List<String> {
-        val (_, _, result) = Fuel
-            .get(path)
-            .authentication()
-            .bearer(accessToken)
-            .header(Headers.CONTENT_TYPE to jsonMimeType)
-            .responseJson()
-        return when (result) {
-            is Result.Failure -> emptyList()
-            is Result.Success -> {
-                val receiverJsonArray = result.value.array()
+        val (response, respStr) = HttpClientUtils.getWithStringResponse(
+            url = path,
+            accessToken = accessToken
+        )
+        return when {
+            response.status != HttpStatusCode.OK -> emptyList()
+            else -> {
+                val receiverJsonArray = JSONObject(respStr)
                 (0 until receiverJsonArray.length())
-                    .map { receiverJsonArray.getJSONObject(it) }
+                    .map { receiverJsonArray.getJSONObject(it.toString()) }
                     .filter {
                         (
-                            !it.isNull("transport") &&
-                                !it.getJSONObject("transport").isNull("host") &&
-                                it.getJSONObject("transport").getString("host") == "sftp"
-                            )
+                                !it.isNull("transport") &&
+                                        !it.getJSONObject("transport").isNull("host") &&
+                                        it.getJSONObject("transport").getString("host") == "sftp"
+                                )
                     }
                     .map { "${it.getString("organizationName")}.${it.getString("name")}" }
             }
@@ -116,20 +109,16 @@ class SftpcheckTest : CoolTest() {
     }
 
     /**
-     * SftpReceiverIgnoreOrganizationCheck - Makes the GET Fuel call the given endpoint.
-     * @return: Triple
-     *		ERROR: 		Error getting organization's name.
-     *		SUCCESS: 	JSON payload body.
+     * Makes the GET call the given endpoint.
+     * @return: HttpResponse
      */
     private fun sftpReceiverIgnoreOrganizationCheck(
         path: String,
         accessToken: String,
-    ): Triple<Request, Response, Result<String, FuelError>> {
-        return Fuel
-            .get(path)
-            .authentication()
-            .bearer(accessToken)
-            .header(Headers.CONTENT_TYPE to jsonMimeType)
-            .responseString()
+    ): Pair<HttpResponse, String> {
+        return HttpClientUtils.getWithStringResponse(
+            url = path,
+            accessToken = accessToken
+        )
     }
 }

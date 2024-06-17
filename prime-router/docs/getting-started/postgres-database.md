@@ -130,9 +130,9 @@ but you get complete coverage of queries that run.
 2. Remove and rebuild your postgresql container using the build docker-file
 
 ```shell
-docker-compose -f docker-compose -f docker-compose.build.yml stop postgresql
-docker-compose -f docker-compose -f docker-compose.build.yml rm postgresql
-docker-compose -f docker-compose -f docker-compose.build.yml up -d postgresql
+docker compose -f docker-compose.build.yml stop postgresql
+docker compose -f docker-compose.build.yml rm postgresql
+docker compose -f docker-compose.build.yml up -d postgresql
 ```
 
 ## Logging In

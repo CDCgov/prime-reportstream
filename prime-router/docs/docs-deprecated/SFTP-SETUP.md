@@ -24,7 +24,7 @@
 ## Testing only SFTP
 
 ### Creating a Local SFTP Server using Docker
-Note that the docker-compose script already starts an SFTP server container.
+Note that the docker compose script already starts an SFTP server container.
 
 A simple and quick option is to create a local SFTP server using a Docker container.  With Docker installed and running, run the following commands to create a docker container instance with an SFTP server:
 ```

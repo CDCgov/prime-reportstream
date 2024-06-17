@@ -1,30 +1,25 @@
-import { ReactElement, ReactNode, Suspense } from "react";
+import { Fixture, MockResolver } from "@rest-hooks/test";
+import { QueryClientProvider } from "@tanstack/react-query";
 import {
-    render,
-    RenderOptions,
-    renderHook as renderHookOrig,
-    RenderHookOptions,
-    Queries,
     queries,
+    Queries,
+    render,
+    RenderHookOptions,
+    renderHook as renderHookOrig,
+    RenderOptions,
 } from "@testing-library/react";
+import { ReactElement, ReactNode, Suspense } from "react";
+import { HelmetProvider } from "react-helmet-async";
 import {
     createMemoryRouter,
     Outlet,
-    RouterProvider,
     RouteObject,
+    RouterProvider,
 } from "react-router-dom";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { HelmetProvider } from "react-helmet-async";
-import { Fixture, MockResolver } from "@rest-hooks/test";
 import { CacheProvider } from "rest-hooks";
 
-import { SessionProviderBase } from "../contexts/Session";
-import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetch";
-import { getTestQueryClient } from "../network/QueryClients";
-import { FeatureFlagProvider } from "../contexts/FeatureFlag";
 import { appRoutes } from "../AppRouter";
-import AppInsightsContextProvider from "../contexts/AppInsights";
-import config from "../config";
+import { getTestQueryClient } from "../network/QueryClients";
 
 interface AppWrapperProps {
     children: ReactNode;
@@ -46,6 +41,7 @@ function createTestRoutes(
     return routes.map((r) => ({
         ...r,
         lazy: undefined,
+        Component: undefined,
         element: r.path !== "/" ? element : <TestLayout />,
         children: r.children
             ? createTestRoutes(r.children, element)
@@ -60,7 +56,7 @@ export const AppWrapper = ({
     // in tests is made easier for better coverage as we'd be able to test through
     // any custom route wrappers.
     // FUTURE_TODO: Remove MockResolver and restHookFixtures when removing react-hooks.
-    return ({ children }: AppWrapperProps) => {
+    return function InnerAppWrapper({ children }: AppWrapperProps) {
         /**
          * Dynamically makes the supplied children the return element for all
          * routes.
@@ -77,37 +73,15 @@ export const AppWrapper = ({
             <Suspense>
                 <CacheProvider>
                     <HelmetProvider>
-                        <AppInsightsContextProvider>
-                            <SessionProviderBase
-                                oktaAuth={{} as any}
-                                authState={{}}
-                                config={config}
-                            >
-                                <QueryClientProvider
-                                    client={getTestQueryClient()}
-                                >
-                                    <AuthorizedFetchProvider
-                                        initializedOverride={true}
-                                    >
-                                        <FeatureFlagProvider>
-                                            {restHookFixtures ? (
-                                                <MockResolver
-                                                    fixtures={restHookFixtures}
-                                                >
-                                                    <RouterProvider
-                                                        router={router}
-                                                    />
-                                                </MockResolver>
-                                            ) : (
-                                                <RouterProvider
-                                                    router={router}
-                                                />
-                                            )}
-                                        </FeatureFlagProvider>
-                                    </AuthorizedFetchProvider>
-                                </QueryClientProvider>
-                            </SessionProviderBase>
-                        </AppInsightsContextProvider>
+                        <QueryClientProvider client={getTestQueryClient()}>
+                            {restHookFixtures ? (
+                                <MockResolver fixtures={restHookFixtures}>
+                                    <RouterProvider router={router} />
+                                </MockResolver>
+                            ) : (
+                                <RouterProvider router={router} />
+                            )}
+                        </QueryClientProvider>
                     </HelmetProvider>
                 </CacheProvider>
             </Suspense>

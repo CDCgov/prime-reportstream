@@ -20,13 +20,13 @@ jobs:
     name: Chromatic
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
         with:
           fetch-depth: 0
 
       - name: Get changed files
         id: changed_files
-        uses: tj-actions/changed-files@90a06d6ba9543371ab4df8eeca0be07ca6054959
+        uses: tj-actions/changed-files@d6babd6899969df1a11d14c368283ea4436bca78
 
       - name: List all changed files
         id: set_vars
@@ -54,7 +54,7 @@ jobs:
       - name: Find Comment
         id: comment_find
         if: steps.set_vars.outputs.chromatic == 'true'
-        uses: peter-evans/find-comment@d5fe37641ad8451bdd80312415672ba26c86575e
+        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: "github-actions[bot]"
@@ -73,13 +73,13 @@ jobs:
           reactions: rocket
           reactions-edit-mode: replace
 
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
         with:
           fetch-depth: 0 # need commit history for Chromatic
 
-      - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
-          node-version-file: frontend-react/package.json
+          node-version-file: "frontend-react/.nvmrc"
 
       - name: Install dependencies
         run: yarn
@@ -89,7 +89,7 @@ jobs:
       - name: Publish to Chromatic
         id: chromatic_publish
         if: steps.set_vars.outputs.chromatic == 'true'
-        uses: chromaui/action@v10
+        uses: chromaui/action@v11
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}

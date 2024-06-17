@@ -1,16 +1,14 @@
 import { GridContainer } from "@trussworks/react-uswds";
-import React from "react";
 import { useParams } from "react-router-dom";
-
-import { FeatureName } from "../../../utils/FeatureName";
-import Crumbs, { CrumbsProps } from "../../Crumbs";
-import { useReportsDetail } from "../../../hooks/network/History/DeliveryHooks";
-import { withCatchAndSuspense } from "../../RSErrorBoundary";
-import HipaaNotice from "../../HipaaNotice";
 
 import styles from "./ReportDetails.module.scss";
 import { ReportDetailsSummary } from "./ReportDetailsSummary";
 import ReportDetailsTable from "./ReportDetailsTable";
+import useReportsDetail from "../../../hooks/api/deliveries/UseReportDetail/UseReportDetail";
+import { FeatureName } from "../../../utils/FeatureName";
+import Crumbs, { CrumbsProps } from "../../Crumbs";
+import HipaaNotice from "../../HipaaNotice";
+import { withCatchAndSuspense } from "../../RSErrorBoundary/RSErrorBoundary";
 
 export function ReportDetailsPage() {
     const crumbProps: CrumbsProps = {
@@ -20,7 +18,7 @@ export function ReportDetailsPage() {
         ],
     };
     const { reportId } = useParams();
-    const { data: reportDetail } = useReportsDetail(reportId!!);
+    const { data: reportDetail } = useReportsDetail(reportId!);
 
     return (
         <div className={styles.ReportDetails}>
@@ -31,7 +29,7 @@ export function ReportDetailsPage() {
                 <article>
                     <ReportDetailsSummary report={reportDetail} />
                     {withCatchAndSuspense(
-                        <ReportDetailsTable reportId={reportId!!} />,
+                        <ReportDetailsTable reportId={reportId!} />,
                     )}
                     <HipaaNotice />
                 </article>

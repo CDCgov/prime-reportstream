@@ -1,18 +1,17 @@
 /* Makes row objects string-indexed */
-import React, { ReactNode, useMemo, useCallback, useState } from "react";
+import { ReactNode, useCallback, useMemo, useState } from "react";
 
-import Pagination, { PaginationProps } from "../../components/Table/Pagination";
-import { FilterManager } from "../../hooks/filters/UseFilterManager";
-import { NoServicesBanner } from "../alerts/NoServicesAlert";
-
-import { TableRowData, TableRows } from "./TableRows";
 import { TableHeaders } from "./TableHeaders";
 import { DatasetAction, TableInfo } from "./TableInfo";
+import { TableRowData, TableRows } from "./TableRows";
+import Pagination, { PaginationProps } from "../../components/Table/Pagination";
+import { FilterManager } from "../../hooks/filters/UseFilterManager/UseFilterManager";
+import { NoServicesBanner } from "../alerts/NoServicesAlert";
 
 export interface ActionableColumn {
-    action: Function;
+    action: (...args: any[]) => unknown;
     param?: string;
-    actionButtonHandler?: Function;
+    actionButtonHandler?: (...args: any[]) => unknown;
     actionButtonParam?: string;
 }
 
@@ -40,14 +39,14 @@ export interface ColumnConfig {
     feature?: ColumnFeature;
     sortable?: boolean;
     valueMap?: Map<string | number, any>;
-    transform?: Function;
+    transform?: (...args: any[]) => unknown;
     editable?: boolean;
     localSort?: boolean;
 }
 
 export interface TableConfig {
-    columns: Array<ColumnConfig>;
-    rows: Array<TableRowData>;
+    columns: ColumnConfig[];
+    rows: TableRowData[];
 }
 
 export type RowSideEffect = (row: TableRowData | null) => Promise<void>;
@@ -101,9 +100,9 @@ const Table = ({
         if (!config?.rows.length) {
             return null;
         }
-        const column = filterManager?.sortSettings?.column || "";
-        const locally = filterManager?.sortSettings?.locally || false;
-        const localOrder = filterManager?.sortSettings?.localOrder || "DESC";
+        const column = filterManager?.sortSettings?.column ?? "";
+        const locally = filterManager?.sortSettings?.locally ?? false;
+        const localOrder = filterManager?.sortSettings?.localOrder ?? "DESC";
         const valueType = typeof config?.rows[0]?.[column];
         if (locally) {
             switch (valueType) {
@@ -130,7 +129,7 @@ const Table = ({
     const wrapperClasses = `margin-bottom-10 ${classes}`;
 
     const addRow = useCallback(() => {
-        setRowToEdit(memoizedRows?.length || 0);
+        setRowToEdit(memoizedRows?.length ?? 0);
     }, [memoizedRows, setRowToEdit]);
 
     /** If a user provides a label with no method, we supply the basic "Add Row" method with whatever
@@ -145,7 +144,6 @@ const Table = ({
             return datasetAction;
         }
     }, [addRow, datasetAction]);
-
     return (
         <div className={wrapperClasses}>
             <TableInfo
@@ -155,16 +153,13 @@ const Table = ({
                 rowToEdit={rowToEdit}
             />
             <div>
-                <table
-                    className="usa-table usa-table--borderless usa-table--striped prime-table"
-                    aria-label="Submission history from the last 30 days"
-                >
+                <table className="usa-table usa-table--borderless usa-table--striped prime-table">
                     <TableHeaders
                         config={config}
                         filterManager={filterManager}
                         enableEditableRows={enableEditableRows}
                     />
-                    {!!memoizedRows ? (
+                    {memoizedRows ? (
                         <TableRows
                             className={tableRowsClassName}
                             rows={memoizedRows}

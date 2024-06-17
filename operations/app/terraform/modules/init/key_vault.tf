@@ -9,7 +9,7 @@ locals {
       vault  = azurerm_key_vault.init["appconfig"]
     },
     pagerduty-integration-url = {
-      secret = "https://foo.local",
+      secret = "https://events.pagerduty.com/integration",
       vault  = azurerm_key_vault.init["keyvault"]
     },
     hhsprotect-ip-ingress = {
@@ -81,7 +81,8 @@ resource "azurerm_key_vault_access_policy" "init" {
     "Get",
     "List",
     "Delete",
-    "Purge"
+    "Purge",
+    "GetRotationPolicy"
   ]
 
   secret_permissions = [
@@ -113,7 +114,8 @@ resource "azurerm_key_vault_access_policy" "init_tf" {
     "Get",
     "List",
     "Delete",
-    "Purge"
+    "Purge",
+    "GetRotationPolicy"
   ]
 
   secret_permissions = [

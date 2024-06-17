@@ -25,12 +25,14 @@ import java.time.OffsetDateTime
  * @property bodyUrl url used for generating the filename
  * @property schemaName schema used for generating the filename
  * @property bodyFormat filetype, used for generating the filename
+ * @property receivingOrgSvcStatus the customer status of the organization's service that's receiving this submission
+ * @property originalIngestion the report ID and ingestion/creation time of all root reports for this record
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder(
     value = [
-        "deliveryId", "batchReadyAt", "expires", "receiver",
-        "reportId", "topic", "reportItemCount", "fileName", "fileType"
+        "deliveryId", "batchReadyAt", "expires", "receiver", "receivingOrgSvcStatus",
+        "reportId", "topic", "reportItemCount", "fileName", "fileType", "originalIngestion"
     ]
 )
 class DeliveryHistory(
@@ -55,6 +57,8 @@ class DeliveryHistory(
     val schemaName: String,
     @JsonProperty("fileType")
     val bodyFormat: String,
+    val receivingOrgSvcStatus: String? = null,
+    var originalIngestion: List<Map<String, Any>>? = null,
 ) : ReportHistory(
     actionId,
     createdAt,

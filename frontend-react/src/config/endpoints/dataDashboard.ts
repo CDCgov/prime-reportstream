@@ -5,13 +5,13 @@ export interface FacilityResource {
     name: string | undefined;
     location: string | undefined;
     facilityType: string | undefined;
-    reportDate: string | "";
+    reportDate: string;
 }
 
 export interface SenderTypeDetailResource {
     reportId: string | undefined;
-    batchReadyAt: string | "";
-    expires: string | "";
+    batchReadyAt: string;
+    expires: string;
     total: string | undefined;
 }
 

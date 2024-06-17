@@ -14,6 +14,10 @@ hr {
         @include u-border("2px", "blue-warm-70v");
         margin-bottom: unset;
     }
+
+    &.rs-hr--base-lighter-alternate {
+        margin-block-start: 32px;
+    }
 }
 
 .usa-link--unstyled {

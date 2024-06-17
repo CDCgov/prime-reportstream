@@ -1,31 +1,33 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-import { FileType } from "../../utils/TemporarySettingsAPITypes";
-import { INITIAL_STATE } from "../../hooks/UseFileHandler";
-import { fakeError, fakeWarning } from "../../hooks/UseFileHandler.test";
-
-import type { RequestLevel } from "./FileHandlerMessaging";
 import FileHandlerErrorsWarningsStep, {
     FileHandlerErrorsWarningsStepProps,
 } from "./FileHandlerErrorsWarningsStep";
+import type { RequestLevel } from "./FileHandlerMessaging";
+import { INITIAL_STATE } from "../../hooks/UseFileHandler/UseFileHandler";
+import {
+    fakeError,
+    fakeWarning,
+} from "../../hooks/UseFileHandler/UseFileHandler.fixtures";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import { FileType } from "../../utils/TemporarySettingsAPITypes";
 
 function mockRequestedChangesDisplay({ title }: { title: RequestLevel }) {
     return <div data-testid={`RequestedChangesDisplay--${title}`} />;
 }
 
-jest.mock("./FileHandlerMessaging", () => ({
-    ...jest.requireActual("./FileHandlerMessaging"),
+vi.mock("./FileHandlerMessaging", async (importActual) => ({
+    ...(await importActual<typeof import("./FileHandlerMessaging")>()),
     RequestedChangesDisplay: mockRequestedChangesDisplay,
 }));
 
 describe("FileHandlerErrorsWarningsStep", () => {
     const DEFAULT_PROPS: FileHandlerErrorsWarningsStepProps = {
         ...INITIAL_STATE,
-        onPrevStepClick: jest.fn(),
-        onNextStepClick: jest.fn(),
-        onTestAnotherFileClick: jest.fn(),
+        onPrevStepClick: vi.fn(),
+        onNextStepClick: vi.fn(),
+        onTestAnotherFileClick: vi.fn(),
         selectedSchemaOption: {
             value: "CSV",
             format: FileType.CSV,
@@ -98,7 +100,7 @@ describe("FileHandlerErrorsWarningsStep", () => {
     });
 
     describe("when clicking on 'Test another file'", () => {
-        const onTestAnotherFileClickSpy = jest.fn();
+        const onTestAnotherFileClickSpy = vi.fn();
 
         async function setup() {
             renderApp(

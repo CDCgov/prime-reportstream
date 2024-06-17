@@ -1,19 +1,18 @@
-import { screen, act, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { act, screen, waitFor } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
 import { AxiosError, AxiosResponse } from "axios";
 
+import { ValueSetsDetailPage, ValueSetsDetailTable } from "./ValueSetsDetail";
+import useValueSetActivation from "../../../hooks/api/lookuptables/UseValueSetActivation/UseValueSetActivation";
+import useValueSetsMeta, {
+    UseValueSetsMetaResult,
+} from "../../../hooks/api/lookuptables/UseValueSetsMeta/UseValueSetsMeta";
+import useValueSetsTable, {
+    UseValueSetsTableResult,
+} from "../../../hooks/api/lookuptables/UseValueSetsTable/UseValueSetsTable";
+import useValueSetUpdate from "../../../hooks/api/lookuptables/UseValueSetsUpdate/UseValueSetUpdate";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
-import {
-    useValueSetActivation,
-    useValueSetUpdate,
-    useValueSetsMeta,
-    useValueSetsTable,
-    UseValueSetsMetaResult,
-    UseValueSetsTableResult,
-} from "../../../hooks/UseValueSets";
-
-import { ValueSetsDetailPage, ValueSetsDetailTable } from "./ValueSetsDetail";
 
 const fakeRows = [
     {
@@ -41,24 +40,20 @@ const fakeMeta = {
 };
 const mockError = new RSNetworkError(new AxiosError("test-error"));
 
-jest.mock<typeof import("../../../hooks/UseValueSets")>(
-    "../../../hooks/UseValueSets",
-    () => ({
-        ...jest.requireActual("../../../hooks/UseValueSets"),
-        useValueSetsTable: jest.fn(),
-        useValueSetUpdate: jest.fn(),
-        useValueSetActivation: jest.fn(),
-        useValueSetsMeta: jest.fn(),
-    }),
+vi.mock(
+    "../../../hooks/api/lookuptables/UseValueSetActivation/UseValueSetActivation",
 );
+vi.mock("../../../hooks/api/lookuptables/UseValueSetsMeta/UseValueSetsMeta");
+vi.mock("../../../hooks/api/lookuptables/UseValueSetsTable/UseValueSetsTable");
+vi.mock("../../../hooks/api/lookuptables/UseValueSetsUpdate/UseValueSetUpdate");
 
-const mockSaveData = jest.mocked(useValueSetUpdate);
-const mockActivateTable = jest.mocked(useValueSetActivation);
-const mockUseValueSetsTable = jest.mocked(useValueSetsTable);
-const mockUseValueSetsMeta = jest.mocked(useValueSetsMeta);
+const mockSaveData = vi.mocked(useValueSetUpdate);
+const mockActivateTable = vi.mocked(useValueSetActivation);
+const mockUseValueSetsTable = vi.mocked(useValueSetsTable);
+const mockUseValueSetsMeta = vi.mocked(useValueSetsMeta);
 
-jest.mock<typeof import("react-router-dom")>("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"),
+vi.mock("react-router-dom", async (importActual) => ({
+    ...(await importActual<typeof import("react-router-dom")>()),
     useParams: () => ({ valueSetName: "a-path" }) as any,
 }));
 
@@ -151,7 +146,7 @@ describe("ValueSetsDetail", () => {
 
 describe("ValueSetsDetailTable", () => {
     test("Handles fetch related errors", () => {
-        const mockSetAlert = jest.fn();
+        const mockSetAlert = vi.fn();
         mockSaveData.mockImplementation(() => ({}) as any);
         mockActivateTable.mockImplementation(() => ({}) as any);
         renderApp(
@@ -169,8 +164,8 @@ describe("ValueSetsDetailTable", () => {
         });
     });
     test("on row save, calls saveData and activateTable triggers with correct args", async () => {
-        const mockSaveDataMutate = jest.fn();
-        const mockActivateTableMutate = jest.fn();
+        const mockSaveDataMutate = vi.fn();
+        const mockActivateTableMutate = vi.fn();
         mockSaveData.mockImplementation(
             () =>
                 ({
@@ -188,7 +183,7 @@ describe("ValueSetsDetailTable", () => {
                     ),
                 }) as any,
         );
-        const mockSetAlert = jest.fn();
+        const mockSetAlert = vi.fn();
         const fakeRowsCopy = [...fakeRows];
 
         renderApp(

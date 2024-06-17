@@ -1,0 +1,13 @@
+value:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: HD.1
+extension:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: hl7v2Field
+    valueString:
+      valueOf: HD.1

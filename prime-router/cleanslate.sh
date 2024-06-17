@@ -145,7 +145,7 @@ function take_directory_ownership() {
 __SHOWN_VAULT_INFO=0
 function wait_for_vault_creds() {
   # Make sure the vault is brought up and that the credentials are present
-  docker-compose up --detach vault 1>/dev/null 2>/dev/null
+  docker compose up --detach vault 1>/dev/null 2>/dev/null
   if [[ ${?} != 0 ]]; then
     error "The vault could not be brought up"
   fi
@@ -178,7 +178,7 @@ function docker_decompose() {
 
   for target in ${TARGETS[*]}; do
     verbose "Taking down '${target?}'"
-    docker-compose --file "${target?}" down 2>/dev/null |
+    docker compose --file "${target?}" down 2>/dev/null |
       tee -a "${LOG?}"
     if [[ ${PIPESTATUS[0]} != 0 ]]; then
       warn "There was an error taking down '${target?}' (this is probably fine)."
@@ -237,7 +237,7 @@ function reset_vault() {
   fi
 }
 
-# Finds image references in docker-compose files and pulls those down
+# Finds image references in docker compose files and pulls those down
 function refresh_docker_images() {
   info "Pulling down pre-baked images"
   COMPOSE_FILES=(
@@ -266,7 +266,7 @@ function refresh_docker_images() {
 function ensure_build_dependencies() {
   info "Bringing up the minimum build dependencies"
   verbose "Starting a PostgreSQL container"
-  docker-compose --file "docker-compose.build.yml" up --detach "${BUILD_SERVICES[@]}" 1>>"${LOG?}" 2>&1
+  docker compose --file "docker-compose.build.yml" up --detach "${BUILD_SERVICES[@]}" 1>>"${LOG?}" 2>&1
   if [[ ${?} != 0 ]]; then
     error "The docker-compose.build.yml environment could not be brought up"
   fi
@@ -293,7 +293,7 @@ function ensure_binaries() {
 
 function activate_containers() {
   info "Bringing up your development containers"
-  docker-compose --file "docker-compose.build.yml" up --detach postgresql 1>>"${LOG?}" 2>&1
+  docker compose --file "docker-compose.build.yml" up --detach postgresql 1>>"${LOG?}" 2>&1
 
   # The very first time you run this, we are in a bit of pickle: you're loading the credentials
   # to the vault into the prime_dev container from an env-file .vault/env/.env.local but if you've never
@@ -303,13 +303,13 @@ function activate_containers() {
   # We spin up the vault and wait for it to populate your vault credentials
   wait_for_vault_creds
   # Then we make sure we have nothing running
-  docker-compose --file "docker-compose.yml" up --detach "${SERVICES[@]}" 1>>"${LOG?}" 2>&1
+  docker compose --file "docker-compose.yml" up --detach "${SERVICES[@]}" 1>>"${LOG?}" 2>&1
 
   # On mac, the prime_dev service sometimes crashes so we'll wait for a little while and then forcibly restart it
   if [[ "${OSTYPE?}" == "darwin"* ]] && [ $PROFILE = "amd64" ]; then
     info "Making sure the prime_dev container is actually running (circumvention of provider-is-null-bug)"
     sleep 5
-    docker-compose --file "docker-compose.yml" restart prime_dev 1>>"${LOG?}" 2>&1
+    docker compose --file "docker-compose.yml" restart prime_dev 1>>"${LOG?}" 2>&1
   fi
 
   if [ $PROFILE = "amd64" ]; then
@@ -359,8 +359,8 @@ function post_run_instructions() {
       echo ""
       echo "    \$ export \$(xargs < "${VAULT_ENV_LOCAL_FILE?}")"
       if [[ "${OSTYPE?}" == "darwin"* ]]; then
-        echo "    \$ docker-compose down"
-        echo "    \$ docker-compose up --detach"
+        echo "    \$ docker compose down"
+        echo "    \$ docker compose up --detach"
       fi
       echo "    \$ ./gradlew testEnd2End"
   fi
