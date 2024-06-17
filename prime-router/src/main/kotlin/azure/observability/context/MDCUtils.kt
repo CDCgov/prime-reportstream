@@ -21,6 +21,7 @@ object MDCUtils {
         REPORT_ID,
         TOPIC,
         BLOB_URL,
+        OBSERVATION_ID,
     }
 
     /**
