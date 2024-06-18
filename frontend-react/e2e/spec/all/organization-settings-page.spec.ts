@@ -159,7 +159,7 @@ test.describe("Admin Organization Settings Page", () => {
                 const download = await downloadProm;
 
                 const expectedFile = readFileSync(
-                    join(__dirname, "../../mocks/prime-orgs.csv"),
+                    join(__dirname, "../../../mocks/prime-orgs.csv"),
                     { encoding: "utf-8" },
                 );
                 const stream = await download.createReadStream();
