@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       # Should not run for PRs (except deployment)
-      is_permitted: ${{ steps.build_vars.outputs.has_frontend_change == 'true' && (github.event_name != 'pull_request' || steps.build_vars.outputs.str_is_deployment_pr == 'true') }}
+      is_permitted: ${{ steps.build_vars.outputs.has_frontend_change == 'true' && (github.event_name != 'pull_request' || steps.build_vars.outputs.is_deployment_pr == 'true') }}
       env_name: ${{ steps.build_vars.outputs.env_name }}
       version: ${{ steps.build_vars.outputs.version }}
     steps:

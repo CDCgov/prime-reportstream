@@ -12,8 +12,8 @@ outputs:
   version:
     value: ${{ steps.version_result.outputs.version }}
     description: 'Tag name'
-  str_is_deployment_pr:
-    value: ${{ steps.deployment_pr_result.outputs.str_is_deployment_pr }}
+  is_deployment_pr:
+    value: ${{ steps.deployment_pr_result.outputs.is_deployment_pr }}
     description: 'Is deployment PR'
   has_router_change:
     value: ${{ steps.backend_change_result.outputs.has_router_change }}
@@ -187,7 +187,7 @@ runs:
       id: deployment_pr_result
       shell: bash
       run: |
-        echo "str_is_deployment_pr=false" >> $GITHUB_OUTPUT;
+        echo "is_deployment_pr=false" >> $GITHUB_OUTPUT;
         if [[ \
           '${{ github.event_name }}' == 'pull_request' && \
           '${{ github.ref_name }}' == deployment* || \
@@ -195,7 +195,7 @@ runs:
           '${{ github.ref_name }}' == trialfrontend* || \
           '${{ github.ref_name }}' == 'production' \
         ]]; then
-          echo "str_is_deployment_pr=true" >> $GITHUB_OUTPUT
+          echo "is_deployment_pr=true" >> $GITHUB_OUTPUT
         fi
 
     - name: Force backend change if prod
