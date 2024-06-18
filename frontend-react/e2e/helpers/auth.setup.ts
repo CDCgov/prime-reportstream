@@ -17,14 +17,25 @@ async function logIntoOkta(page: Page, login: TestLogin) {
     await page.goto("/login", {
         waitUntil: "domcontentloaded",
     });
-    await page.getByLabel("Username").fill(login.username);
+    await page
+        .getByLabel("Username")
+        .or(page.getByLabel("Username or email"))
+        .fill(login.username);
+
+    const btnNext = page.getByRole("button", { name: "Next" });
+    if (btnNext) {
+        await btnNext.click();
+    }
 
     const pwd = page.getByLabel("Password");
     // Okta scripting will cause password input to fail if we don't
     // manually focus the field at this point
     await pwd.focus();
     await pwd.fill(login.password);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    const btnSubmit = page
+        .getByRole("button", { name: "Sign in" })
+        .or(page.getByRole("button", { name: "Verify" }));
+    await btnSubmit.click();
 
     if (login.totpCode !== "" && login.totpCode !== undefined) {
         await page.getByLabel("Enter Code ").fill(totp.generate());
