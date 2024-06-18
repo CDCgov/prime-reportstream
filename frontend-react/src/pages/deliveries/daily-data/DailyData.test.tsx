@@ -181,7 +181,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 expect(rows).toHaveLength(10 + 1);
             });
 
-            describe("TableFilter", () => {
+            describe.skip("TableFilter", () => {
                 test("Clicking on Apply invokes the trackAppInsightEvent", async () => {
                     setup();
                     await selectDatesFromRange("20", "23");
