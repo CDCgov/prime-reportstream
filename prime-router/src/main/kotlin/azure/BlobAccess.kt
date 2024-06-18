@@ -109,9 +109,13 @@ class BlobAccess() : Logging {
             val endpointSuffix = parameters["EndpointSuffix"]
             val accountName = parameters["AccountName"]
             if (blobEndpoint != null) {
-                return "$blobEndpoint/$containerName"
+                logger.warn("Endpoint $blobEndpoint")
+                logger.warn("Container name $containerName")
+                return "$blobEndpoint$containerName"
             } else if (accountName != null && endpointSuffix != null) {
-                return "https://$accountName.blob.$endpointSuffix/$containerName"
+                logger.warn("Account name $accountName")
+                logger.warn("Endpoint suffix $endpointSuffix")
+                return "https://$accountName.blob.$endpointSuffix$containerName"
             }
             throw RuntimeException("Connection string is misconfigured and does not contain a blob endpoint URL")
         }
