@@ -9,6 +9,7 @@ import {
 } from "date-fns";
 import { randomInt } from "crypto";
 import { RSReceiverStatus } from "../../src/hooks/api/UseReceiversConnectionStatus/UseReceiversConnectionStatus";
+import { SuccessRate } from "../../src/pages/admin/receiver-dashboard/utils";
 
 const mockFailResult = "ERROR";
 const mockSuccessResult = "SUCCESS";
@@ -23,13 +24,16 @@ export function createMockGetReceiverStatusSet({
     range,
     maxMinutesPerStatus = 2 * 60,
     receiver,
-    statusType = "mix",
+    statusType = SuccessRate.MIXED_SUCCESS,
     randomlySkip,
     statusIdStart = 1,
 }: {
     range?: [start: Date, end: Date];
     maxMinutesPerStatus?: number;
-    statusType?: "success" | "fail" | "mix";
+    statusType?:
+        | SuccessRate.ALL_SUCCESSFUL
+        | SuccessRate.ALL_FAILURE
+        | SuccessRate.MIXED_SUCCESS;
     randomlySkip?: boolean;
     statusIdStart?: number;
     receiver: {
@@ -39,6 +43,7 @@ export function createMockGetReceiverStatusSet({
         receiverId: number;
     };
 }) {
+    // ensure range is valid
     if (range) {
         interval(range[0], range[1], { assertPositive: true });
     }
@@ -53,9 +58,9 @@ export function createMockGetReceiverStatusSet({
     let i = statusIdStart;
     // limit skips and fails to a max of a third of total possible set
     const failLength =
-        statusType === "fail"
+        statusType === SuccessRate.ALL_FAILURE
             ? statusSetLength
-            : statusType === "mix"
+            : statusType === SuccessRate.MIXED_SUCCESS
               ? randomInt(3, Math.ceil(statusSetLength / 3))
               : 0;
     const skipLength = randomlySkip
@@ -129,7 +134,7 @@ export function createMockGetReceiverStatus(
             receiverId: 1,
             receiverName: "all-success",
         },
-        statusType: "success",
+        statusType: SuccessRate.ALL_SUCCESSFUL,
     });
 
     const fail = createMockGetReceiverStatusSet({
@@ -140,7 +145,7 @@ export function createMockGetReceiverStatus(
             receiverId: 2,
             receiverName: "all-fail",
         },
-        statusType: "fail",
+        statusType: SuccessRate.ALL_FAILURE,
         statusIdStart: 100,
     });
 
