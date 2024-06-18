@@ -28,6 +28,9 @@ data class MappingTemplateResource(
     val additionalSegments: List<HL7Segment>?,
 )
 
+/**
+ * Model with conditions extracted from the expression tree for easier validation
+ */
 data class HL7ToFHIRMappingResourceTemplate(
     val resourceType: String?,
     val expressions: Map<String, ExpressionAttributes>,

@@ -1,3 +1,5 @@
+# $schema: ./../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 type_1:
   condition: $identifierCoding NOT_NULL
   valueOf: datatype/CodeableConcept
@@ -63,7 +65,6 @@ extension_1:
     oidUrlPrefix: "urn:oid:"
     KEY_NAME_SUFFIX: Oid
     urlValue: universal-id
-# $schema: ./../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
 
 # Assigning facility OID
 extension_2:
