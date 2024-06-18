@@ -3,7 +3,7 @@ data "http" "icanhazip" {
 }
 
 locals {
-  public_ip = chomp(data.http.icanhazip.body)
+  public_ip = chomp(data.http.icanhazip.response_body)
 }
 
 locals {
