@@ -63,19 +63,21 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Generate New Schema Docs
+        working-directory: ./
         run: |
           # Clean the docs before regenerating
-          rm -rf docs/docs_deprecated/schema_documentation/*
-          ./gradlew generatedocs
+          rm -rf prime-router/docs/docs_deprecated/schema_documentation/*
+          ./gradlew :prime-router:generatedocs
 
       - name: Validate YAML
+        working-directory: ./
         run: |
           # Add more YAML checks here
-          ./gradlew primeCLI --args='validate-yaml --type Organizations --file settings/organizations.yml --dir settings/STLTs'
-          ./gradlew primeCLI --args='validate-yaml --type FhirToFhirTransform --dir src/main/resources/metadata/fhir_transforms'
-          ./gradlew primeCLI --args='validate-yaml --type FhirToHL7Mapping --dir src/main/resources/metadata/hl7_mapping'
-          ./gradlew primeCLI --args='validate-yaml --type HL7ToFhirMappingMessageTemplate --dir metadata/HL7/catchall/hl7/message metadata/HL7/v251-elr/hl7/message'
-          ./gradlew primeCLI --args='validate-yaml --type HL7ToFhirMappingResourceTemplate --dir metadata/HL7 --exclude-dir metadata/HL7/catchall/hl7/message metadata/HL7/v251-elr/hl7/message metadata/HL7/v251-elr/hl7/codesystem metadata/HL7/catchall/hl7/codesystem --exclude-file metadata/HL7/catchall/fhir/resourcemapping.yml metadata/HL7/v251-elr/fhir/resourcemapping.yml metadata/HL7/catchall/hl7/resource/Common.yml metadata/HL7/v251-elr/hl7/resource/Common.yml'
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type Organizations --file settings/organizations.yml --dir settings/STLTs'
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToFhirTransform --dir src/main/resources/metadata/fhir_transforms'
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToHL7Mapping --dir src/main/resources/metadata/hl7_mapping'
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingMessageTemplate --dir metadata/HL7/catchall/hl7/message metadata/HL7/v251-elr/hl7/message'
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingResourceTemplate --dir metadata/HL7 --exclude-dir metadata/HL7/catchall/hl7/message metadata/HL7/v251-elr/hl7/message metadata/HL7/v251-elr/hl7/codesystem metadata/HL7/catchall/hl7/codesystem --exclude-file metadata/HL7/catchall/fhir/resourcemapping.yml metadata/HL7/v251-elr/fhir/resourcemapping.yml metadata/HL7/catchall/hl7/resource/Common.yml metadata/HL7/v251-elr/hl7/resource/Common.yml'
 
       - name: Check for Uncommited Schema Docs
         id: check_changes
