@@ -136,7 +136,7 @@ class FHIRFunctions(
 
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
-                elrDestinationFilterQueueName,
+                elrReceiverFilterQueueName,
                 it.serialize()
             )
         }
@@ -171,7 +171,7 @@ class FHIRFunctions(
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
-                elrReceiverFilterQueueName,
+                elrTranslationQueueName,
                 it.serialize()
             )
         }
