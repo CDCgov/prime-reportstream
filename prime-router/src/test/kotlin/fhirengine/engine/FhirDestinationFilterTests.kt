@@ -27,11 +27,12 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
-import gov.cdc.prime.router.azure.observability.event.ConditionSummary
+import gov.cdc.prime.router.azure.observability.event.CodeSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
 import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportNotRoutedEvent
+import gov.cdc.prime.router.azure.observability.event.TestSummary
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -323,9 +324,19 @@ class FhirDestinationFilterTests {
                 "sendingOrg.sendingOrgClient",
                 listOf(
                     ObservationSummary(
-                        ConditionSummary(
-                            "840539006",
-                            "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                        listOf(
+                            TestSummary(
+                                listOf(
+                                    CodeSummary(
+                                        "SNOMEDCT",
+                                        "840539006",
+                                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                    )
+                                ),
+                                "http://loinc.org",
+                                "94558-4",
+                                "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
+                            )
                         )
                     ),
                     ObservationSummary.EMPTY,
@@ -428,15 +439,53 @@ class FhirDestinationFilterTests {
                 "sendingOrg.sendingOrgClient",
                 listOf(
                     ObservationSummary(
-                        ConditionSummary(
-                            "840539006",
-                            "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                        listOf(
+                            TestSummary(
+                                listOf(
+                                    CodeSummary(
+                                        "SNOMEDCT",
+                                        "840539006",
+                                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                    )
+                                ),
+                                "http://loinc.org",
+                                "94558-4",
+                                "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
+                            )
                         )
                     ),
-                    ObservationSummary(code = "95418-0"),
-                    ObservationSummary(code = "95417-2"),
-                    ObservationSummary(code = "95421-4"),
-                    ObservationSummary(code = "95419-8"),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95418-0",
+                                testPerformedSystem = "http://loinc.org"
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95417-2",
+                                testPerformedSystem = "http://loinc.org"
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95421-4",
+                                testPerformedSystem = "http://loinc.org"
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95419-8",
+                                testPerformedSystem = "http://loinc.org"
+                            )
+                        )
+                    ),
                 ),
                 38803,
                 AzureEventUtils.MessageID(
@@ -551,16 +600,16 @@ class FhirDestinationFilterTests {
         // verify error when using non-UP topic
         assertFailure {
             engine.doWork(
-            FhirDestinationFilterQueueMessage(
-                UUID.randomUUID(),
-                BLOB_URL,
-                "test",
-                BLOB_SUB_FOLDER_NAME,
-                topic = Topic.COVID_19
-            ),
-            actionLogger,
-            actionHistory
-        )
+                FhirDestinationFilterQueueMessage(
+                    UUID.randomUUID(),
+                    BLOB_URL,
+                    "test",
+                    BLOB_SUB_FOLDER_NAME,
+                    topic = Topic.COVID_19
+                ),
+                actionLogger,
+                actionHistory
+            )
         }.hasClass(java.lang.IllegalStateException::class.java)
     }
 }

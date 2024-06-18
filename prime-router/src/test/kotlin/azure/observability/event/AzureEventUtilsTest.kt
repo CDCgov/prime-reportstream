@@ -18,17 +18,53 @@ class AzureEventUtilsTest {
 
         val expected = listOf(
             ObservationSummary(
-                ConditionSummary(
-                    "840539006",
-                    "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
-                ),
-                "94558-4",
-                "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
+                listOf(
+                    TestSummary(
+                        listOf(
+                            CodeSummary(
+                                "SNOMEDCT",
+                                "840539006",
+                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                            )
+                        ),
+                        "http://loinc.org",
+                        "94558-4",
+                        "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
+                    )
+                )
             ),
-            ObservationSummary(code = "95418-0"),
-            ObservationSummary(code = "95417-2"),
-            ObservationSummary(code = "95421-4"),
-            ObservationSummary(code = "95419-8")
+            ObservationSummary(
+                listOf(
+                    TestSummary(
+                        testPerformedCode = "95418-0",
+                        testPerformedSystem = "http://loinc.org"
+                    )
+                )
+            ),
+            ObservationSummary(
+                listOf(
+                    TestSummary(
+                        testPerformedCode = "95417-2",
+                        testPerformedSystem = "http://loinc.org"
+                    )
+                )
+            ),
+            ObservationSummary(
+                listOf(
+                    TestSummary(
+                        testPerformedCode = "95421-4",
+                        testPerformedSystem = "http://loinc.org"
+                    )
+                )
+            ),
+            ObservationSummary(
+                listOf(
+                    TestSummary(
+                        testPerformedCode = "95419-8",
+                        testPerformedSystem = "http://loinc.org"
+                    )
+                )
+            )
         )
         val actual = AzureEventUtils.getObservationSummaries(bundle)
 
