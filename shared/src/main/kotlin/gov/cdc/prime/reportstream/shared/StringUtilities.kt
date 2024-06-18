@@ -1,4 +1,5 @@
-package gov.cdc.prime.router.common
+package gov.cdc.prime.reportstream.shared
+
 
 import org.apache.commons.lang3.StringUtils
 
