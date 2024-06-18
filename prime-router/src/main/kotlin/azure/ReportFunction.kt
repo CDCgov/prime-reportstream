@@ -186,42 +186,11 @@ class ReportFunction(
                         payloadName
                     )
 
-                    // list of values to search and filter
-                    val notAllowedHeaderParts = listOf("key", "cookie", "auth")
-                    val notAllowedParameterParts = listOf("code")
-
-                    // Extract query parameters
-                    val filteredParams = request.queryParameters.entries
-                        .filter { (key, _) ->
-                            notAllowedParameterParts.none { part ->
-                                key.contains(part, ignoreCase = true)
-                            }
-                        }
-                        .joinToString("\n") { (key, value) -> "  $key: $value" }
-
-                    // Extract query parameters
-                    val filteredHeaders = request.headers.entries
-                        .filter { (key, _) ->
-                            notAllowedHeaderParts.none { part ->
-                                key.contains(part, ignoreCase = true)
-                            }
-                        }
-                        .joinToString("\n") { (key, value) -> "  $key: $value" }
-
-                    val resultString = buildString {
-                        appendLine("Method: ${request.httpMethod.name}")
-                        appendLine("URL: ${request.uri}")
-                        appendLine("Parameters:")
-                        appendLine(filteredParams)
-                        appendLine("Headers:")
-                        append(filteredHeaders)
-                    }
-
                     workflowEngine.azureEventService.trackEvent(
                         ReportReceivedEvent(
                             report.id,
                             sender,
-                            resultString,
+                            actionHistory.filterParameters(request),
                             request.headers["x-forwarded-for"]?.split(",")?.first()
                                 ?: request.headers["x-azure-clientip"].toString(),
                             request.headers["content-length"].toString()

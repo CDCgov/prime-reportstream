@@ -60,6 +60,32 @@ class ActionHistoryTests {
     }
 
     @Test
+    fun `test filterParameters`() {
+        val actionHistory = ActionHistory(TaskAction.receive)
+        val parameters = mapOf(
+            "code" to "code1",
+            "test" to "test1"
+        )
+        val headers = mapOf(
+            "key1" to "key1",
+            "cookie" to "cookie1",
+            "auth-test" to "auth1",
+            "client" to "sender1"
+        )
+        val httpRequestMessage = MockHttpRequestMessage()
+        httpRequestMessage.httpHeaders += headers
+        httpRequestMessage.parameters += parameters
+
+        val actionParams = actionHistory.filterParameters(httpRequestMessage)
+
+        val testActionParams = """
+            {"method":"GET","url":"http://localhost/","queryParams":{"test":"test1"},"headers":{"client":"sender1"}}
+        """.trimIndent()
+
+        assertThat(actionParams).isEqualTo(testActionParams)
+    }
+
+    @Test
     fun `test trackActionParams`() {
         val actionHistory = ActionHistory(TaskAction.process)
 
