@@ -56,6 +56,7 @@ const config = {
         enableResponseHeaderTracking: true,
         disableTelemetry: !import.meta.env
             .VITE_APPLICATIONINSIGHTS_CONNECTION_STRING,
+        excludeRequestFromAutoTrackingPatterns: ["google-analytics.com"],
     } as const satisfies IConfiguration & IConfig,
     RSCONSOLE: {
         // Debug ignored by default
