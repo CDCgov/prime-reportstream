@@ -2594,6 +2594,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noble/hashes@npm:1.4.0":
+  version: 1.4.0
+  resolution: "@noble/hashes@npm:1.4.0"
+  checksum: 8ba816ae26c90764b8c42493eea383716396096c5f7ba6bea559993194f49d80a73c081f315f4c367e51bd2d5891700bcdfa816b421d24ab45b41cb03e4f3342
+  languageName: node
+  linkType: hard
+
 "@nodelib/fs.scandir@npm:2.1.5":
   version: 2.1.5
   resolution: "@nodelib/fs.scandir@npm:2.1.5"
@@ -10603,13 +10610,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jssha@npm:~3.3.1":
-  version: 3.3.1
-  resolution: "jssha@npm:3.3.1"
-  checksum: 4f2b636305710d5275d5e48a323ceaed80b6400fd545321fccdb4e904392a7b808fa79cdf355073766a290d731756eb5bd5ceb2341cc53e57b686c7bb3a18488
-  languageName: node
-  linkType: hard
-
 "jsx-ast-utils@npm:^2.4.1 || ^3.0.0, jsx-ast-utils@npm:^3.3.5":
   version: 3.3.5
   resolution: "jsx-ast-utils@npm:3.3.5"
@@ -12341,12 +12341,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"otpauth@npm:^9.2.4":
-  version: 9.2.4
-  resolution: "otpauth@npm:9.2.4"
+"otpauth@npm:^9.3.1":
+  version: 9.3.1
+  resolution: "otpauth@npm:9.3.1"
   dependencies:
-    jssha: ~3.3.1
-  checksum: c9cdd82f5cea4484c0a9304fe5308376976ee991e5118886ff7d741d11196e6c5c8d3fba7232b97e8cbd20289b570120c64c2a05c529bcbe4846067dc6fa00c2
+    "@noble/hashes": 1.4.0
+  checksum: 36542e12a6bb43d6d9d446fe567e41ecfb16dc914aed56ce1ba0a2d03e9445994685cfeb0dd125a91c47ab3f5e669f8ef47a8dc3847b75e43ba0dbac66633ee7
   languageName: node
   linkType: hard
 
@@ -13308,7 +13308,7 @@ __metadata:
     msw: ^2.3.1
     msw-storybook-addon: beta
     npm-run-all: ^4.1.5
-    otpauth: ^9.2.4
+    otpauth: ^9.3.1
     patch-package: ^8.0.0
     postcss: ^8.4.38
     prettier: ^3.3.0
