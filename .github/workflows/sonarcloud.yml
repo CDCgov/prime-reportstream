@@ -48,7 +48,7 @@ jobs:
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
-        uses: tj-actions/changed-files@a29e8b565651ce417abb5db7164b4a2ad8b6155c
+        uses: tj-actions/changed-files@d6babd6899969df1a11d14c368283ea4436bca78
         with:
           files_yaml: |
             frontend:
@@ -86,9 +86,7 @@ jobs:
           timeout_minutes: 30
           max_attempts: 2
           retry_wait_seconds: 30
-          command: |
-            cd prime-router
-            ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x fatjar
+          command: ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" :prime-router:package -x fatjar
           shell: bash
 
       - name: Perform Java CodeQL Analysis

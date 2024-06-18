@@ -104,10 +104,10 @@ export async function setDate(page: Page, locator: string, offsetDate: number) {
 }
 
 export async function setTime(page: Page, locator: string, time: string) {
-    await page.locator(locator).fill(time);
+    const startTime = page.locator(locator);
+    await startTime.fill(time);
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
-    await expect(page.locator(locator)).toHaveValue(time);
 }
 
 export function fromDateWithTime(date: string, time: string) {

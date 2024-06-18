@@ -7,19 +7,18 @@ import { useParams } from "react-router-dom";
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { StaticCompare } from "../../components/StaticCompare";
-import {
-    SettingRevision,
-    SettingRevisionParams,
-    SettingRevisionParamsRecord,
-    useSettingRevisionEndpointsQuery,
-} from "../../network/api/Organizations/SettingRevisions";
+import useSettingsRevisions, {
+    RSSettingRevision,
+    RSSettingRevisionParams,
+    RSSettingRevisionParamsRecord,
+} from "../../hooks/api/UseSettingsRevisions/UseSettingsRevisions";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import { formatDate, groupBy } from "../../utils/misc";
 
 type AccordionClickHandler = (
     key: string,
     itemClickedKey: string,
-    data: SettingRevision,
+    data: RSSettingRevision,
 ) => void;
 
 /**
@@ -30,7 +29,7 @@ const dataToAccordionItems = (props: {
     key: string; // used for React key and passed back to the onClickHandler
     selectedKey: string;
     onClickHandler: AccordionClickHandler;
-    data: SettingRevision[];
+    data: RSSettingRevision[];
 }): AccordionItemProps[] => {
     const results: AccordionItemProps[] = [];
     if (props.data.length === 0) {
@@ -88,7 +87,7 @@ const dataToAccordionItems = (props: {
 
 /** this extends SettingRevisionsParams so it can be passed down without having to be recomposed, these include
  * the org and settingType cgi params */
-interface MainComponentProps extends SettingRevisionParams {
+interface MainComponentProps extends RSSettingRevisionParams {
     leftSelectedListItem: string;
     rightSelectedListItem: string;
     onClickHandler: AccordionClickHandler;
@@ -104,8 +103,7 @@ const MainRevHistoryComponent = ({
     onClickHandler,
     ...props
 }: MainComponentProps) => {
-    const { data, isLoading, isError } =
-        useSettingRevisionEndpointsQuery(props);
+    const { data, isLoading, isError } = useSettingsRevisions(props);
     const msg = isError
         ? "Failed to load data"
         : isLoading
@@ -149,17 +147,17 @@ const MainRevHistoryComponent = ({
 
 /** main page, not exported here because it should only be loaded via AdminRevHistoryWithAuth() **/
 const AdminRevHistoryPage = () => {
-    const { org, settingType } = useParams<SettingRevisionParamsRecord>(); // props past to page via the route/url path args
+    const { org, settingType } = useParams<RSSettingRevisionParamsRecord>(); // props past to page via the route/url path args
     const [leftJson, setLeftJson] = useState("");
     const [rightJson, setRightJson] = useState("");
     // used to highlight which item is selected.
     const [leftSelectedListItem, setLeftSelectedListItem] = useState("");
     const [rightSelectedListItem, setRightSelectedListItem] = useState("");
-    const [leftItem, setLeftItem] = useState<SettingRevision | null>(null);
-    const [rightItem, setRightItem] = useState<SettingRevision | null>(null);
+    const [leftItem, setLeftItem] = useState<RSSettingRevision | null>(null);
+    const [rightItem, setRightItem] = useState<RSSettingRevision | null>(null);
 
     const onClickHandler: AccordionClickHandler = useCallback(
-        (key: string, itemClickedKey: string, data: SettingRevision) => {
+        (key: string, itemClickedKey: string, data: RSSettingRevision) => {
             const normalizeJson = (jsonStr: string): string =>
                 JSON.stringify(JSON.parse(jsonStr), jsonSortReplacer, 2);
             const prettyJson = normalizeJson(data.settingJson);

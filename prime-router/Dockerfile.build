@@ -13,7 +13,7 @@
 # (and in fact, probably less than the actual builder container image). This is a small optimization that will make your life
 # a tad bit easier when you are rebuilding the builder image
 #
-FROM alpine:3.19 AS downloader
+FROM alpine:3.20 AS downloader
 ARG GRADLE_VERSION=8.7
 ARG AFCT_VERSION=4.0.5198
 
@@ -40,7 +40,7 @@ RUN rm Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip
 #
 # STAGE 2: Build the actual container that does the build
 #
-FROM debian:bookworm AS builder
+FROM ubuntu:22-04 AS builder
 ARG JAVA_VERSION=17
 
 # Latest patches

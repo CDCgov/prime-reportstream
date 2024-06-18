@@ -131,11 +131,13 @@ resource "azurerm_application_insights_web_test" "sftp_test" {
     XML
   tags = {
     environment = var.environment
-    # This prevents terraform from seeing a tag change for each plan/apply
-    "hidden-link:/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/${var.resource_group}/providers/microsoft.insights/components/${var.resource_prefix}-appinsights" = "Resource"
   }
   lifecycle {
-    ignore_changes = [configuration, tags, application_insights_id]
+    # validated 5/21/2024
+    ignore_changes = [
+      tags,
+      configuration
+    ]
   }
 }
 resource "azurerm_application_insights_web_test" "livdapi_test" {

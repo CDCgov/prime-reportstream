@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
 
   - name: OBX.2
@@ -45,3 +47,19 @@ elements:
   - name: OBX.29
     value: [ '%resource.extension.where(url = "OBX.29").value' ]
     hl7Spec: [ '%{hl7OBXField}-29' ]
+
+  - name: OBX.31
+    value: [ '%resource.extension.where(url = "OBX.31").value' ]
+    hl7Spec: [ '%{hl7OBXField}-31' ]
+
+  - name: OBX.32
+    resource: '%resource.extension.where(url = "OBX.32").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7OBXField}-32'
+
+  - name: OBX.33
+    resource: '%resource.extension.where(url = "OBX.33").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-placerAssignedIdentifier/EIP.yml
+    constants:
+      eipFieldPath: '%{hl7OBXField}-33'

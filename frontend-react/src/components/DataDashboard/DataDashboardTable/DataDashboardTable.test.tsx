@@ -6,15 +6,24 @@ import {
     dataDashboardServer,
     makeRSReceiverDeliveryResponseFixture,
     receiverServicesGenerator,
-} from "../../../__mocks__/DataDashboardMockServer";
+} from "../../../__mockServers__/DataDashboardMockServer";
+import useReceiverDeliveries from "../../../hooks/api/deliveries/UseReceiverDeliveries/UseReceiverDeliveries";
+import useOrganizationReceivers from "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers";
 import { filterManagerFixture } from "../../../hooks/filters/filters.fixtures";
-import { mockUseReceiverDeliveries } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverDeliveries";
-import { mockUseOrganizationReceivers } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
-import useAppInsightsContext from "../../../hooks/UseAppInsightsContext";
+import useAppInsightsContext from "../../../hooks/UseAppInsightsContext/UseAppInsightsContext";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 import { selectDatesFromRange } from "../../../utils/TestUtils";
 
+vi.mock(
+    "../../../hooks/api/deliveries/UseReceiverDeliveries/UseReceiverDeliveries",
+);
+vi.mock(
+    "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers",
+);
+
+const mockUseReceiverDeliveries = vi.mocked(useReceiverDeliveries);
+const mockUseOrganizationReceivers = vi.mocked(useOrganizationReceivers);
 const { mockSessionContentReturnValue } = await vi.importMock<
     typeof import("../../../contexts/Session/__mocks__/useSessionContext")
 >("../../../contexts/Session/useSessionContext");

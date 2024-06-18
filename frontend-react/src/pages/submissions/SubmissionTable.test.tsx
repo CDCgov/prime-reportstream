@@ -2,7 +2,7 @@ import { Fixture } from "@rest-hooks/test";
 import { screen, within } from "@testing-library/react";
 
 import SubmissionTable from "./SubmissionTable";
-import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
+import { Organizations } from "../../hooks/UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { MemberType } from "../../utils/OrganizationUtils";

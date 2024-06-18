@@ -1,41 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CoConstraintContext ID="8663a2a7-0bdf-4560-85cb-50bfe25221d017089524135331708952415921">
+<CoConstraintContext ID="cfa17227-2a18-4715-852e-6e1795b03f4217150091143221715009115948">
    <ByMessage ID="6494460e8b87bc0007492d42">
-      <Context Name="PATIENT_RESULT.ORDER_OBSERVATION.OBSERVATION" Path="3[*].2[*].6[*]">
-         <Segment Name="OBX" Path="1[*]">
-            <SimpleTable>
-               <CoConstraint Max="*" Min="0" Usage="S">
-                  <Selectors>
-                     <ValueSet Name="OBX-3" Path="3[*]">
-                        <ValueSetBinding BindingStrength="R" Target=".">
-                           <BindingLocations>
-                              <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-                              <ComplexBindingLocation CodeLocation="4[1]" CodeSystemLocation="6[1]"/>
-                           </BindingLocations>
-                           <Bindings>
-                              <Binding BindingIdentifier="OBX3.1"/>
-                           </Bindings>
-                        </ValueSetBinding>
-                     </ValueSet>
-                  </Selectors>
-                  <Constraints>
-                     <PlainText Name="OBX-2" Path="2[*]" Value="CWE"/>
-                     <ValueSet Name="OBX-5" Path="5[*]">
-                        <ValueSetBinding BindingStrength="R" Target=".">
-                           <BindingLocations>
-                              <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-                              <ComplexBindingLocation CodeLocation="4[1]" CodeSystemLocation="6[1]"/>
-                           </BindingLocations>
-                           <Bindings>
-                              <Binding BindingIdentifier="OBX5.1"/>
-                           </Bindings>
-                        </ValueSetBinding>
-                     </ValueSet>
-                  </Constraints>
-               </CoConstraint>
-            </SimpleTable>
-         </Segment>
-      </Context>
       <Context Name="ORU_R01" Path=".">
          <Segment Name="OBR" Path="3[*].2[*].2[*]">
             <SimpleTable>
@@ -159,8 +124,8 @@
                                 Value="Flowflex COVID-19 Antigen Home Test_ACON Laboratories, Inc_EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -169,8 +134,8 @@
                                 Value="BD Veritor At-Home COVID-19 Test_Becton, Dickinson and Company (BD)_EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000043"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000043"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -179,8 +144,8 @@
                                 Value="Celltrion DiaTrust COVID-19 Ag Home Test_Celltrion USA, Inc._EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -189,8 +154,8 @@
                                 Value="Cue COVID-19 Test for Home and Over The Counter (OTC) Use_Cue Health Inc._EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000043"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="95409-9"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000043"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -199,8 +164,8 @@
                                 Value="Ellume COVID-19 Home Test_Ellume Limited_EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000043"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="95209-3"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000043"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -208,8 +173,8 @@
                      <PlainText Name="OBX-17.1" Path="17[*].1[*]" Value="Detect Covid-19 Test_Detect, Inc._EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="94559-2"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -218,8 +183,8 @@
                                 Value="iHealth COVID-19 Antigen Rapid Test_iHealth Labs, Inc._EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -228,8 +193,8 @@
                                 Value="SCoV-2 Ag Detect Rapid Self-Test_InBios International Inc._EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -238,8 +203,8 @@
                                 Value="Lucira CHECK-IT COVID-19 Test Kit_Lucira Health, Inc._EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000043"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="96986-5"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000043"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -247,8 +212,8 @@
                      <PlainText Name="OBX-17.1" Path="17[*].1[*]" Value="00810055970001_DIT"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000015"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="96986-5"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000015"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -257,8 +222,8 @@
                                 Value="MaximBio ClearDetect COVID-19 Antigen Home Test_Maxim Biomedical, Inc._EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -267,8 +232,8 @@
                                 Value="InteliSwab COVID-19 Rapid Test_OraSure Technologies, Inc._EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -277,8 +242,8 @@
                                 Value="InteliSwab COVID-19 Rapid Test Rx_OraSure Technologies, Inc._EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000015"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000015"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -287,8 +252,8 @@
                                 Value="INDICAID COVID-19 Rapid Antigen At-Home Test_PHASE Scientific International, Ltd._EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -297,8 +262,8 @@
                                 Value="QuickVue At-Home COVID-19 Test_Quidel Corporation_EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000015"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="95209-3"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000015"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -307,8 +272,8 @@
                                 Value="QuickVue At-Home OTC COVID-19 Test_Quidel Corporation_EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="95209-3"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -317,8 +282,8 @@
                                 Value="CLINITEST Rapid COVID-19 Antigen Self-Test_Siemens Healthineers_EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -327,8 +292,8 @@
                                 Value="Pilot COVID-19 At-Home Test_SD Biosensor, Inc._EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -337,8 +302,8 @@
                                 Value="BinaxNOW COVID-19 Antigen Self Test_Abbott Diagnostics Scarborough, Inc._EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="94558-4"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -347,8 +312,8 @@
                                 Value="CareStart COVID-19 Antigen Home Test_Access Bio, Inc._EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -356,8 +321,8 @@
                      <PlainText Name="OBX-17.1" Path="17[*].1[*]" Value="10811877011337_DIT"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000016"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="94558-4"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000016"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -366,8 +331,8 @@
                                 Value="Rapid SARS-CoV-2 Antigen Test Card_Xiamen Boson Biotech Co., Ltd._EUA"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                      <PlainText Name="OBX-3.1" Path="3[*].1[*]" Value="97097-0"/>
+                     <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                   </Constraints>
                </CoConstraint>
             </SimpleTable>
@@ -377,9 +342,9 @@
                      <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000042"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-23.1" Path="23[*].1[*]" Value="SA.OTCSelfReport"/>
                      <PlainText Name="OBX-24.1.1" Path="24[*].1[*].1[*]" Value="14 Fake AtHome Test Street"/>
                      <PlainText Name="OBX-24.3" Path="24[*].3[*]" Value="Fake City"/>
+                     <PlainText Name="OBX-23.1" Path="23[*].1[*]" Value="SA.OTCSelfReport"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -387,9 +352,9 @@
                      <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000043"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-23.1" Path="23[*].1[*]" Value="SA.OTCInstrument"/>
                      <PlainText Name="OBX-24.1.1" Path="24[*].1[*].1[*]" Value="15 Fake AtHome Test Street"/>
                      <PlainText Name="OBX-24.3" Path="24[*].3[*]" Value="Fake City"/>
+                     <PlainText Name="OBX-23.1" Path="23[*].1[*]" Value="SA.OTCInstrument"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -397,9 +362,9 @@
                      <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000015"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-23.1" Path="23[*].1[*]" Value="SA.Prescription"/>
                      <PlainText Name="OBX-24.1.1" Path="24[*].1[*].1[*]" Value="12 Fake AtHome Test Street"/>
                      <PlainText Name="OBX-24.3" Path="24[*].3[*]" Value="Fake City"/>
+                     <PlainText Name="OBX-23.1" Path="23[*].1[*]" Value="SA.Prescription"/>
                   </Constraints>
                </CoConstraint>
                <CoConstraint Max="*" Min="0" Usage="S">
@@ -407,9 +372,195 @@
                      <PlainText Name="OBX-15.1" Path="15[*].1[*]" Value="00Z0000016"/>
                   </Selectors>
                   <Constraints>
-                     <PlainText Name="OBX-23.1" Path="23[*].1[*]" Value="SA.Proctor"/>
                      <PlainText Name="OBX-24.1.1" Path="24[*].1[*].1[*]" Value="13 Fake AtHome Test Street"/>
                      <PlainText Name="OBX-24.3" Path="24[*].3[*]" Value="Fake City"/>
+                     <PlainText Name="OBX-23.1" Path="23[*].1[*]" Value="SA.Proctor"/>
+                  </Constraints>
+               </CoConstraint>
+            </SimpleTable>
+         </Segment>
+      </Context>
+      <Context Name="PATIENT_RESULT.ORDER_OBSERVATION.OBSERVATION" Path="3[*].2[*].6[*]">
+         <Segment Name="OBX" Path="1[*]">
+            <SimpleTable>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <Code Code="100973-7" CodeSystem="LN" Name="OBX-3" Path="3[*]">
+                        <BindingLocation CodePath="1[1]" CodeSystemPath="3[1]" Position="1"/>
+                     </Code>
+                  </Selectors>
+                  <Constraints>
+                     <ValueSet Name="OBX-5" Path="5[*]">
+                        <ValueSetBinding BindingStrength="R" Target=".">
+                           <BindingLocations>
+                              <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+                           </BindingLocations>
+                           <Bindings>
+                              <Binding BindingIdentifier="OBX5.1"/>
+                           </Bindings>
+                        </ValueSetBinding>
+                     </ValueSet>
+                     <PlainText Name="OBX-2" Path="2[*]" Value="CWE"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <Code Code="100974-5" CodeSystem="LN" Name="OBX-3" Path="3[*]">
+                        <BindingLocation CodePath="1[1]" CodeSystemPath="3[1]" Position="1"/>
+                     </Code>
+                  </Selectors>
+                  <Constraints>
+                     <ValueSet Name="OBX-5" Path="5[*]">
+                        <ValueSetBinding BindingStrength="R" Target=".">
+                           <BindingLocations>
+                              <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+                           </BindingLocations>
+                           <Bindings>
+                              <Binding BindingIdentifier="OBX5.1"/>
+                           </Bindings>
+                        </ValueSetBinding>
+                     </ValueSet>
+                     <PlainText Name="OBX-2" Path="2[*]" Value="CWE"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <Code Code="94558-4" CodeSystem="LN" Name="OBX-3" Path="3[*]">
+                        <BindingLocation CodePath="1[1]" CodeSystemPath="3[1]" Position="1"/>
+                     </Code>
+                  </Selectors>
+                  <Constraints>
+                     <ValueSet Name="OBX-5" Path="5[*]">
+                        <ValueSetBinding BindingStrength="R" Target=".">
+                           <BindingLocations>
+                              <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+                           </BindingLocations>
+                           <Bindings>
+                              <Binding BindingIdentifier="OBX5.1"/>
+                           </Bindings>
+                        </ValueSetBinding>
+                     </ValueSet>
+                     <PlainText Name="OBX-2" Path="2[*]" Value="CWE"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <Code Code="94559-2" CodeSystem="LN" Name="OBX-3" Path="3[*]">
+                        <BindingLocation CodePath="1[1]" CodeSystemPath="3[1]" Position="1"/>
+                     </Code>
+                  </Selectors>
+                  <Constraints>
+                     <ValueSet Name="OBX-5" Path="5[*]">
+                        <ValueSetBinding BindingStrength="R" Target=".">
+                           <BindingLocations>
+                              <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+                           </BindingLocations>
+                           <Bindings>
+                              <Binding BindingIdentifier="OBX5.1"/>
+                           </Bindings>
+                        </ValueSetBinding>
+                     </ValueSet>
+                     <PlainText Name="OBX-2" Path="2[*]" Value="CWE"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <Code Code="95209-3" CodeSystem="LN" Name="OBX-3" Path="3[*]">
+                        <BindingLocation CodePath="1[1]" CodeSystemPath="3[1]" Position="1"/>
+                     </Code>
+                  </Selectors>
+                  <Constraints>
+                     <ValueSet Name="OBX-5" Path="5[*]">
+                        <ValueSetBinding BindingStrength="R" Target=".">
+                           <BindingLocations>
+                              <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+                           </BindingLocations>
+                           <Bindings>
+                              <Binding BindingIdentifier="OBX5.1"/>
+                           </Bindings>
+                        </ValueSetBinding>
+                     </ValueSet>
+                     <PlainText Name="OBX-2" Path="2[*]" Value="CWE"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <Code Code="95409-9" CodeSystem="LN" Name="OBX-3" Path="3[*]">
+                        <BindingLocation CodePath="1[1]" CodeSystemPath="3[1]" Position="1"/>
+                     </Code>
+                  </Selectors>
+                  <Constraints>
+                     <ValueSet Name="OBX-5" Path="5[*]">
+                        <ValueSetBinding BindingStrength="R" Target=".">
+                           <BindingLocations>
+                              <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+                           </BindingLocations>
+                           <Bindings>
+                              <Binding BindingIdentifier="OBX5.1"/>
+                           </Bindings>
+                        </ValueSetBinding>
+                     </ValueSet>
+                     <PlainText Name="OBX-2" Path="2[*]" Value="CWE"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <Code Code="95608-6" CodeSystem="LN" Name="OBX-3" Path="3[*]">
+                        <BindingLocation CodePath="1[1]" CodeSystemPath="3[1]" Position="1"/>
+                     </Code>
+                  </Selectors>
+                  <Constraints>
+                     <ValueSet Name="OBX-5" Path="5[*]">
+                        <ValueSetBinding BindingStrength="R" Target=".">
+                           <BindingLocations>
+                              <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+                           </BindingLocations>
+                           <Bindings>
+                              <Binding BindingIdentifier="OBX5.1"/>
+                           </Bindings>
+                        </ValueSetBinding>
+                     </ValueSet>
+                     <PlainText Name="OBX-2" Path="2[*]" Value="CWE"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <Code Code="96986-5" CodeSystem="LN" Name="OBX-3" Path="3[*]">
+                        <BindingLocation CodePath="1[1]" CodeSystemPath="3[1]" Position="1"/>
+                     </Code>
+                  </Selectors>
+                  <Constraints>
+                     <ValueSet Name="OBX-5" Path="5[*]">
+                        <ValueSetBinding BindingStrength="R" Target=".">
+                           <BindingLocations>
+                              <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+                           </BindingLocations>
+                           <Bindings>
+                              <Binding BindingIdentifier="OBX5.1"/>
+                           </Bindings>
+                        </ValueSetBinding>
+                     </ValueSet>
+                     <PlainText Name="OBX-2" Path="2[*]" Value="CWE"/>
+                  </Constraints>
+               </CoConstraint>
+               <CoConstraint Max="*" Min="0" Usage="S">
+                  <Selectors>
+                     <Code Code="97097-0" CodeSystem="LN" Name="OBX-3" Path="3[*]">
+                        <BindingLocation CodePath="1[1]" CodeSystemPath="3[1]" Position="1"/>
+                     </Code>
+                  </Selectors>
+                  <Constraints>
+                     <ValueSet Name="OBX-5" Path="5[*]">
+                        <ValueSetBinding BindingStrength="R" Target=".">
+                           <BindingLocations>
+                              <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+                           </BindingLocations>
+                           <Bindings>
+                              <Binding BindingIdentifier="OBX5.1"/>
+                           </Bindings>
+                        </ValueSetBinding>
+                     </ValueSet>
+                     <PlainText Name="OBX-2" Path="2[*]" Value="CWE"/>
                   </Constraints>
                </CoConstraint>
             </SimpleTable>

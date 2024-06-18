@@ -24,7 +24,7 @@ import TableFilterStatus, { TableFilterData } from "./TableFilterStatus";
 import {
     CursorActionType,
     CursorManager,
-} from "../../hooks/filters/UseCursorManager";
+} from "../../hooks/filters/UseCursorManager/UseCursorManager";
 import {
     DEFAULT_FROM_TIME_STRING,
     DEFAULT_TO_TIME_STRING,
@@ -32,8 +32,10 @@ import {
     FALLBACK_TO_STRING,
     getEndOfDay,
     RangeSettingsActionType,
-} from "../../hooks/filters/UseDateRange";
-import { FilterManager } from "../../hooks/filters/UseFilterManager";
+} from "../../hooks/filters/UseDateRange/UseDateRange";
+import { FilterManager } from "../../hooks/filters/UseFilterManager/UseFilterManager";
+import { FeatureName } from "../../utils/FeatureName";
+import { appInsights } from "../../utils/TelemetryService/TelemetryService";
 
 export enum StyleClass {
     DATE_CONTAINER = "date-picker-container tablet:grid-col",
@@ -293,6 +295,10 @@ function TableFilters({
             resetFilterFields(e);
             setSearchReset(searchReset + 1);
             setSearchTerm("");
+
+            appInsights?.trackEvent({
+                name: `${FeatureName.DAILY_DATA} | Reset`,
+            });
         },
         [resetFilterFields, searchReset, setSearchTerm],
     );
@@ -313,6 +319,10 @@ function TableFilters({
                     filterDetails.rangeToWithTime,
                 );
             }
+
+            appInsights?.trackEvent({
+                name: `${FeatureName.DAILY_DATA} | Apply`,
+            });
         },
         [
             applyToFilterManager,
@@ -336,9 +346,9 @@ function TableFilters({
 
             <section
                 data-testid="filter-container"
-                className="filter-container"
+                className="filter-container flex-column"
             >
-                <p className="text-bold margin-top-0">
+                <p className="text-bold margin-top-0 grid-col-12">
                     View data from a specific receiver or date and time range
                 </p>
                 <form
@@ -348,9 +358,10 @@ function TableFilters({
                     key={filterReset}
                     autoComplete="off"
                     data-testid="filter-form"
+                    className="width-full"
                 >
                     <div className="grid-row">
-                        <div className="grid-col filter-column__one">
+                        <div className="grid-col-3 filter-column__one">
                             <label
                                 id="receiver-label"
                                 data-testid="label"
@@ -390,7 +401,7 @@ function TableFilters({
                                 ))}
                             </Select>
                         </div>
-                        <div className="grid-col-auto filter-column__two">
+                        <div className="grid-col-7 filter-column__two">
                             <DateRangePicker
                                 className={StyleClass.DATE_CONTAINER}
                                 startDateLabel={startDateLabel}
@@ -471,7 +482,7 @@ function TableFilters({
                                 </div>
                             </div>
                         </div>
-                        <div className="grid-col-fill filter-column__three">
+                        <div className="grid-col-2 filter-column__three">
                             <div className="button-container">
                                 <div>
                                     <Button

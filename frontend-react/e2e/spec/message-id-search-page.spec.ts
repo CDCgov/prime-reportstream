@@ -5,6 +5,7 @@ import * as messageIdSearch from "../pages/message-id-search";
 import { MESSAGE_ID, URL_MESSAGE_ID_SEARCH } from "../pages/message-id-search";
 import { openReportIdDetailPage } from "../pages/submission-history";
 import * as submissionHistory from "../pages/submission-history";
+
 test.describe("Message ID Search Page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
@@ -154,6 +155,38 @@ test.describe("Message ID Search Page", () => {
             test("shows no data", async ({ page }) => {
                 await expect(noData(page)).toBeAttached();
             });
+        });
+    });
+
+    test.describe("receiver user", () => {
+        test.use({ storageState: "e2e/.auth/receiver.json" });
+
+        test.beforeEach(async ({ page }) => {
+            await messageIdSearch.goto(page);
+        });
+
+        test("returns Page Not Found", async ({ page }) => {
+            await expect(page).toHaveTitle(/Page Not Found/);
+        });
+
+        test("has footer", async ({ page }) => {
+            await expect(page.locator("footer")).toBeAttached();
+        });
+    });
+
+    test.describe("sender user", () => {
+        test.use({ storageState: "e2e/.auth/sender.json" });
+
+        test.beforeEach(async ({ page }) => {
+            await messageIdSearch.goto(page);
+        });
+
+        test("returns Page Not Found", async ({ page }) => {
+            await expect(page).toHaveTitle(/Page Not Found/);
+        });
+
+        test("has footer", async ({ page }) => {
+            await expect(page.locator("footer")).toBeAttached();
         });
     });
 });

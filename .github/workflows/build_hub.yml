@@ -63,10 +63,19 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Generate New Schema Docs
+        working-directory: ./
         run: |
           # Clean the docs before regenerating
-          rm -rf docs/docs_deprecated/schema_documentation/*
-          ./gradlew generatedocs
+          rm -rf prime-router/docs/docs_deprecated/schema_documentation/*
+          ./gradlew :prime-router:generatedocs
+
+      - name: Validate YAML
+        working-directory: ./
+        run: |
+          # Add more YAML checks here
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type Organizations --file settings/organizations.yml --dir settings/STLTs'
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToFhirTransform --dir src/main/resources/metadata/fhir_transforms'
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToHL7Mapping --dir src/main/resources/metadata/hl7_mapping'
 
       - name: Check for Uncommited Schema Docs
         id: check_changes
