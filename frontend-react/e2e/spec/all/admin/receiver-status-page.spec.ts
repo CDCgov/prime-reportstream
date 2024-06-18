@@ -1,4 +1,5 @@
 import { addDays, endOfDay, startOfDay, subDays } from "date-fns";
+import type { RSOrganizationSettings } from "../../../../src/config/endpoints/settings";
 import { SuccessRate } from "../../../../src/pages/admin/receiver-dashboard/utils";
 import { durationFormatShort } from "../../../../src/utils/DateTimeUtils";
 import { formatDate } from "../../../../src/utils/misc";
@@ -501,15 +502,31 @@ test.describe("Admin Receiver Status Page", () => {
                             const link = row.title.getByRole("link", {
                                 name: organizationName,
                             });
+                            const expectedUrl =
+                                adminReceiverStatusPage.getExpectedStatusOrganizationUrl(
+                                    i,
+                                );
                             await expect(link).toBeVisible();
+                            const p = adminReceiverStatusPage.page.route(
+                                `api/settings/organizations/${organizationName}`,
+                                (route) =>
+                                    route.fulfill({
+                                        json: {
+                                            description: "fake",
+                                            filters: [],
+                                            name: organizationName,
+                                            jurisdiction: "fake",
+                                            version: 0,
+                                            createdAt: "",
+                                            createdBy: "",
+                                        } satisfies RSOrganizationSettings,
+                                    }),
+                            );
                             await link.click();
                             await expect(
                                 adminReceiverStatusPage.page,
-                            ).toHaveURL(
-                                adminReceiverStatusPage.getExpectedStatusOrganizationUrl(
-                                    i,
-                                ),
-                            );
+                            ).toHaveURL(expectedUrl);
+                            await p;
                             await adminReceiverStatusPage.page.goBack();
                         }
                     });
