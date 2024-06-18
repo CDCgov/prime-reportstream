@@ -11,11 +11,6 @@ elements:
     value: [ '"NET"' ]
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
-  - name: md-message-encoding-characters
-    condition: true
-    value: [ '"^~\\&"' ]
-    hl7Spec: [ 'MSH-2' ]
-
   - name: md-sending-application-namespace-id
     condition: true
     value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
