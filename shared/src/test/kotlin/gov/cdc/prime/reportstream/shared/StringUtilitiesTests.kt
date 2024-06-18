@@ -1,10 +1,11 @@
-package gov.cdc.prime.router.common
+package gov.cdc.prime.reportstream.shared
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
-import gov.cdc.prime.router.common.StringUtilities.toIntOrDefault
-import gov.cdc.prime.router.common.StringUtilities.trimToNull
+import gov.cdc.prime.reportstream.shared.StringUtilities.toIntOrDefault
+import gov.cdc.prime.reportstream.shared.StringUtilities.trimToNull
+
 import org.junit.jupiter.api.Test
 
 class StringUtilitiesTests {

@@ -7,9 +7,8 @@ echo "Checking for ktlint code violations in PRIME Router..."
 if [[ -z $(git status --porcelain prime-router/) ]] ; then
     echo "git status is reporting there are no uncommitted changes within 'prime-router'; hence, skipping ktlint checks."
 else
-  cd prime-router
   # If there is an error then those errors will be printed out
-  ./gradlew ktlintCheck >/dev/null
+  ./gradlew :prime-router:ktlintCheck >/dev/null
   RC=$?
 
   if [[ ${RC?} != 0 ]]; then

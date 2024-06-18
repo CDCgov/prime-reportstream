@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.reportstream.shared.StringUtilities.trimToNull
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
@@ -14,7 +15,6 @@ import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.toLocalDate
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.DateUtilities.toYears
-import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mappers
 import gov.cdc.prime.router.report.ReportService
