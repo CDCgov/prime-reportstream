@@ -76,7 +76,14 @@ class SchemaBaseName : FileNameElement {
     override val name = "schemaBaseName"
 
     override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String {
-        return Schema.formBaseName(translatorConfig?.schemaName ?: "")
+        val translationSchemaName = if (translatorConfig?.schemaName.isNullOrEmpty()) {
+            // FHIR receivers will not have a translation schema, should evaluate to "None" for consistent formatting
+            "None"
+        } else {
+            translatorConfig?.schemaName
+        }
+
+        return Schema.formBaseName(translationSchemaName.toString())
     }
 }
 
