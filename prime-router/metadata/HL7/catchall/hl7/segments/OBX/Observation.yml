@@ -22,9 +22,7 @@ id:
   valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
-code_obx:
-  vars:
-    obx2: STRING, OBX.2
+code:
   expressionType: resource
   valueOf: datatypes/CWE/CodeableConcept
   specs: OBX.3

@@ -159,10 +159,31 @@
                       "extension": [
                         {
                           "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString": "alt-coding"
+                          "valueString": "coding"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString": "LN"
                         }
                       ],
-                      "code": "AltCode"
+                      "code": "PrimaryCode",
+                      "system": "http://loinc.org",
+                      "display": "PrimaryText"
+                    },
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "alt-coding"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString": "L"
+                        }
+                      ],
+                      "code": "AltCode",
+                      "system": "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+                      "display": "AltText"
                     }
                   ]
                 }
@@ -216,10 +237,31 @@
               "extension": [
                 {
                   "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString": "alt-coding"
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
                 }
               ],
-              "code": "AltCode"
+              "code": "PrimaryCode",
+              "display": "PrimaryText",
+              "system": "http://loinc.org"
+            },
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "alt-coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "L"
+                }
+              ],
+              "code": "AltCode",
+              "display": "AltText",
+              "system": "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL"
             }
           ]
         },
@@ -232,10 +274,31 @@
               "extension": [
                 {
                   "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString": "alt-coding"
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
                 }
               ],
-              "code": "AltCode"
+              "code": "PrimaryCode",
+              "display": "PrimaryText",
+              "system": "http://loinc.org"
+            },
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "alt-coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "L"
+                }
+              ],
+              "code": "AltCode",
+              "display": "AltText",
+              "system": "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL"
             }
           ]
         }
