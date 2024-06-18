@@ -18,8 +18,8 @@ outputs:
   has_router_change:
     value: ${{ steps.backend_change_result.outputs.has_router_change }}
     description: 'For non-prod, do not build if no changes'
-  str_has_frontend_change:
-    value: ${{ steps.frontend_change_result.outputs.str_has_frontend_change }}
+  has_frontend_change:
+    value: ${{ steps.frontend_change_result.outputs.has_frontend_change }}
     description: 'For non-prod, do not build if no changes'
   has_terraform_change:
     value: ${{ steps.filter.outputs.terraform }}
@@ -220,7 +220,7 @@ runs:
       id: frontend_change_result
       shell: bash
       run: |
-        echo "str_has_frontend_change=false" >> $GITHUB_OUTPUT;
+        echo "has_frontend_change=false" >> $GITHUB_OUTPUT;
         if [[ \
         '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
         '${{ steps.build_result.outputs.env_name }}' == 'test' || \
@@ -228,9 +228,9 @@ runs:
         '${{ steps.build_result.outputs.env_name }}' == 'demo2' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo3' \
         ]]; then
-          echo "str_has_frontend_change=true" >> $GITHUB_OUTPUT
+          echo "has_frontend_change=true" >> $GITHUB_OUTPUT
         else
-          echo "str_has_frontend_change=${{ steps.filter.outputs.frontend_react }}" >> $GITHUB_OUTPUT
+          echo "has_frontend_change=${{ steps.filter.outputs.frontend_react }}" >> $GITHUB_OUTPUT
         fi
 
     - uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a
