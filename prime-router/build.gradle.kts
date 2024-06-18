@@ -22,21 +22,21 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jlleitschuh.gradle.ktlint.KtlintExtension
 import org.jooq.meta.jaxb.ForcedType
 import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 
+apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
+
 plugins {
     val kotlinVersion by System.getProperties()
-    kotlin("jvm") version "$kotlinVersion"
+    id("reportstream.project-conventions")
     id("org.flywaydb.flyway") version "10.13.0"
     id("nu.studer.jooq") version "9.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.15.0"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.8.20"
@@ -46,7 +46,7 @@ plugins {
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.22"
 }
 
-group = "gov.cdc.prime"
+group = "gov.cdc.prime.reportstream"
 version = "0.2-SNAPSHOT"
 description = "prime-router"
 val azureAppName = "prime-data-hub-router"
@@ -143,19 +143,6 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-// Set the compiler JVM target
-java {
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
-}
-
-val compileKotlin: KotlinCompile by tasks
-val compileTestKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions.jvmTarget = appJvmTarget
-compileKotlin.kotlinOptions.allWarningsAsErrors = true
-compileTestKotlin.kotlinOptions.jvmTarget = appJvmTarget
-compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
-
 tasks.clean {
     group = rootProject.description ?: ""
     description = "Clean the build artifacts"
@@ -182,7 +169,6 @@ tasks.test {
     group = rootProject.description ?: ""
     description = "Run the unit tests"
     // Use JUnit 5 for running tests
-    useJUnitPlatform()
 
     // Set the environment to local for the tests
     environment["PRIME_ENVIRONMENT"] = "local"
@@ -288,7 +274,6 @@ configurations["testIntegrationRuntimeOnly"].extendsFrom(configurations["runtime
 tasks.register<Test>("testIntegration") {
     group = rootProject.description ?: ""
     description = "Run the integration tests"
-    useJUnitPlatform()
     dependsOn("compile")
     dependsOn("compileTestIntegrationKotlin")
     dependsOn("compileTestIntegrationJava")
@@ -395,10 +380,6 @@ tasks.register("fatJar") {
     dependsOn("shadowJar")
 }
 
-configure<KtlintExtension> {
-    // See ktlint versions at https://github.com/pinterest/ktlint/releases
-    version.set("1.1.1")
-}
 tasks.ktlintCheck {
     // DB tasks are not needed by ktlint, but gradle adds them by automatic configuration
     tasks["generateJooq"].enabled = false
@@ -543,7 +524,7 @@ tasks.register("copyAzureResources") {
 }
 
 val azureScriptsTmpDir = File(buildDir, "$azureFunctionsDir-scripts/$azureAppName")
-val azureScriptsFinalDir = rootProject.layout.buildDirectory.asFile.get()
+val azureScriptsFinalDir = project.layout.buildDirectory.asFile.get()
 val primeScriptName = "prime"
 val startFuncScriptName = "start_func.sh"
 val apiDocsSetupScriptName = "upload_swaggerui.sh"
@@ -774,13 +755,6 @@ task<RunSQL>("clearDB") {
     }
 }
 
-repositories {
-    mavenCentral()
-    maven {
-        url = uri("https://hit-nexus.nist.gov/repository/releases/")
-    }
-}
-
 buildscript {
     configurations {
         classpath {
@@ -849,7 +823,7 @@ dependencies {
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.3")
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:4.4.0")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
@@ -950,15 +924,8 @@ dependencies {
 
     testImplementation(kotlin("test-junit5"))
     testImplementation("io.mockk:mockk:1.13.11")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
-    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.28.1")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
-    testImplementation("org.testcontainers:testcontainers:1.19.8")
-    testImplementation("org.testcontainers:junit-jupiter:1.19.8")
-    testImplementation("org.testcontainers:postgresql:1.19.8")
 
+    implementation(project(":shared"))
     implementation(kotlin("script-runtime"))
 }
