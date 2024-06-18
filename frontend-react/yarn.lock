@@ -10717,9 +10717,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lint-staged@npm:^15.2.5":
-  version: 15.2.5
-  resolution: "lint-staged@npm:15.2.5"
+"lint-staged@npm:^15.2.7":
+  version: 15.2.7
+  resolution: "lint-staged@npm:15.2.7"
   dependencies:
     chalk: ~5.3.0
     commander: ~12.1.0
@@ -10733,7 +10733,7 @@ __metadata:
     yaml: ~2.4.2
   bin:
     lint-staged: bin/lint-staged.js
-  checksum: 3025868d965eb401a5ebd903abd70cfebb8dbeb41eea1020c316f9c8c79083ea203f6cef95d32bfa8c9ec5486392b4ed08632ace6a5347b69cf238ba00e178f0
+  checksum: 0f21d1b44c046fcfc0388dab66d45d244818afdb24bdf57e7593640c7ca82cc55be7d75e086708e453fac0c0d9ab8760b2cde053944f7b2121c2dd65f6367ffe
   languageName: node
   linkType: hard
 
@@ -12894,12 +12894,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.1.1, prettier@npm:^3.3.0":
+"prettier@npm:^3.1.1":
   version: 3.3.0
   resolution: "prettier@npm:3.3.0"
   bin:
     prettier: bin/prettier.cjs
   checksum: 0d3a7fca9cab29828e189fefc10e8f6025d1208c84cd1e94def8a8f8a04eea341aa21d0af8c01253527632f8225b0b8482a62b64cafa26e9988cd6f9ff16a38b
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^3.3.2":
+  version: 3.3.2
+  resolution: "prettier@npm:3.3.2"
+  bin:
+    prettier: bin/prettier.cjs
+  checksum: 5557d8caed0b182f68123c2e1e370ef105251d1dd75800fadaece3d061daf96b1389141634febf776050f9d732c7ae8fd444ff0b4a61b20535e7610552f32c69
   languageName: node
   linkType: hard
 
@@ -13302,7 +13311,7 @@ __metadata:
     html-to-text: ^9.0.5
     husky: ^9.0.11
     jsdom: ^24.1.0
-    lint-staged: ^15.2.5
+    lint-staged: ^15.2.7
     lodash: ^4.17.21
     mockdate: ^3.0.5
     msw: ^2.3.1
@@ -13311,7 +13320,7 @@ __metadata:
     otpauth: ^9.3.1
     patch-package: ^8.0.0
     postcss: ^8.4.38
-    prettier: ^3.3.0
+    prettier: ^3.3.2
     react: ^18.3.1
     react-dom: ^18.3.1
     react-error-boundary: ^4.0.13
