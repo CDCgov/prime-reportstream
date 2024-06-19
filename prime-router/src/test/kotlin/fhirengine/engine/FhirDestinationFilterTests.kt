@@ -339,12 +339,40 @@ class FhirDestinationFilterTests {
                             )
                         )
                     ),
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95418-0",
+                                testPerformedSystem = "http://loinc.org"
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95417-2",
+                                testPerformedSystem = "http://loinc.org"
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95421-4",
+                                testPerformedSystem = "http://loinc.org"
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95419-8",
+                                testPerformedSystem = "http://loinc.org"
+                            )
+                        )
+                    ),
                 ),
-                36995,
+                38803,
                 AzureEventUtils.MessageID(
                     "1234d1d1-95fe-462c-8ac6-46728dba581c",
                     "https://reportstream.cdc.gov/prime-router"
@@ -499,7 +527,7 @@ class FhirDestinationFilterTests {
                 submittedId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
-                36995,
+                38803,
                 AzureEventUtils.MessageID(
                     "1234d1d1-95fe-462c-8ac6-46728dba581c",
                     "https://reportstream.cdc.gov/prime-router"

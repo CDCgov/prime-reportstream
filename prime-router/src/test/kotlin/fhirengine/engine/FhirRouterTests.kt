@@ -1454,11 +1454,9 @@ class FhirRouterTests {
                                     "6142004",
                                     "Influenza (disorder)"
                                 ),
-                                CodeSummary(
-                                    code = "Some Condition Code",
-                                    display = "Condition Name"
-                                )
                             ),
+                            testPerformedCode = "80382-5",
+                            testPerformedSystem = "http://loinc.org",
                         )
                     )
                 ),
@@ -1479,11 +1477,9 @@ class FhirRouterTests {
                                             "6142004",
                                             "Influenza (disorder)"
                                         ),
-                                        CodeSummary(
-                                            code = "Some Condition Code",
-                                            display = "Condition Name"
-                                        )
                                     ),
+                                    testPerformedCode = "80382-5",
+                                    testPerformedSystem = "http://loinc.org",
                                 )
                             )
                         ),
@@ -1642,6 +1638,10 @@ class FhirRouterTests {
                                         "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
                                     )
                                 ),
+                                testPerformedSystem = "http://loinc.org",
+                                testPerformedCode = "94558-4",
+                                testPerformedDisplay =
+                                "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
                             )
                         )
                     ),
@@ -1695,13 +1695,45 @@ class FhirRouterTests {
                                     "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
                                 ),
                             ),
+                            testPerformedSystem = "http://loinc.org",
+                            testPerformedCode = "94558-4",
+                            testPerformedDisplay =
+                            "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
                         )
                     )
                 ),
-                ObservationSummary.EMPTY,
-                ObservationSummary.EMPTY,
-                ObservationSummary.EMPTY,
-                ObservationSummary.EMPTY
+                ObservationSummary(
+                    listOf(
+                        TestSummary(
+                            testPerformedCode = "95418-0",
+                            testPerformedSystem = "http://loinc.org"
+                        )
+                    )
+                ),
+                ObservationSummary(
+                    listOf(
+                        TestSummary(
+                            testPerformedCode = "95417-2",
+                            testPerformedSystem = "http://loinc.org"
+                        )
+                    )
+                ),
+                ObservationSummary(
+                    listOf(
+                        TestSummary(
+                            testPerformedCode = "95421-4",
+                            testPerformedSystem = "http://loinc.org"
+                        )
+                    )
+                ),
+                ObservationSummary(
+                    listOf(
+                        TestSummary(
+                            testPerformedCode = "95419-8",
+                            testPerformedSystem = "http://loinc.org"
+                        )
+                    )
+                )
             )
             val expectedRoutedEvent = ReportRouteEvent(
                 UUID.randomUUID(),
@@ -1712,7 +1744,7 @@ class FhirRouterTests {
                 null,
                 observationSummaries,
                 observationSummaries,
-                36995,
+                38803,
                 AzureEventUtils.MessageID(
                     "1234d1d1-95fe-462c-8ac6-46728dba581c",
                     "https://reportstream.cdc.gov/prime-router"

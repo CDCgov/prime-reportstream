@@ -663,11 +663,9 @@ class FhirReceiverFilterTests {
                                     "6142004",
                                     "Influenza (disorder)"
                                 ),
-                                CodeSummary(
-                                    code = "Some Condition Code",
-                                    display = "Condition Name"
-                                )
                             ),
+                            testPerformedCode = "80382-5",
+                            testPerformedSystem = "http://loinc.org",
                         )
                     )
                 ),
