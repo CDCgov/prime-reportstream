@@ -18,6 +18,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
+import org.apache.logging.log4j.kotlin.logger
 import java.time.OffsetDateTime
 
 /**
@@ -378,12 +379,40 @@ class DetailedSubmissionHistory(
 //        }
     }
 
+    /*
+    existingDestination.itemCountBeforeQualFilter =
+                    existingDestination.itemCountBeforeQualFilter?.plus(
+                        descendantDest.itemCountBeforeQualFilter ?: 0
+                    ) ?: descendantDest.itemCountBeforeQualFilter
+     */
+
     private fun actionAgnosticEnrich(descendants: List<DetailedSubmissionHistory>) {
         descendants.forEach {
-            destinations += it.destinations
+            it.destinations.forEach { inboundDestinationObj ->
+                var existingIndex = this.destinations.indexOfFirst { existingDestinationObj ->
+                    existingDestinationObj.organizationId == inboundDestinationObj.organizationId
+                }
+                if (existingIndex > -1) {
+                    var existingDestinationObj = this.destinations[existingIndex]
+                    existingDestinationObj.itemCount += inboundDestinationObj.itemCount
+
+                    existingDestinationObj.itemCountBeforeQualFilter?.plus(
+                        inboundDestinationObj.itemCountBeforeQualFilter ?: 0
+                    )
+
+                    // if it's still null at this point just set it to the corresponding inbound value
+                    existingDestinationObj.itemCountBeforeQualFilter ?: run {
+                        existingDestinationObj.itemCountBeforeQualFilter =
+                            inboundDestinationObj.itemCountBeforeQualFilter
+                    }
+
+                } else {
+                    this.destinations.add(inboundDestinationObj)
+                }
+            }
+
             errors += it.errors
             warnings += it.warnings
-            overallStatus = it.overallStatus
         }
     }
 
