@@ -37,7 +37,7 @@ FHIR bundles are transformed (enriched) to FHIR during the [Convert](../../unive
 
 ## Transform Schemas
 
-RS Transform schemas are shared between FHIR-to-FHIR and FHIR-to-HL7v2 transformations. They are configured as `.yml` files which are presently located in the repository under `prime-router/metadata/fhir_transforms` and `prime-router/metadata/hl7_mappings`. Whereas HL7v2-to-FHIR and FHIR-to-HL7v2 schemas use a library on top of the respective HAPI library to perform the transformations, FHIR-to-FHIR transforms are performed using the HAPI FHIR library directly, with the logic for loading schemas contained in `ConfigSchemaReader.kt` and the logic for using the loaded schemas to perform the transformation contained in `FhirTransformer.kt`.
+RS Transform schemas are shared between FHIR-to-FHIR and FHIR-to-HL7v2 transformations. They are configured as `.yml` files which are presently located in the repository under `prime-router/src/main/resources/metadata/fhir_transforms` and `prime-router/src/main/resources/metadata/hl7_mappings`. Whereas HL7v2-to-FHIR and FHIR-to-HL7v2 schemas use a library on top of the respective HAPI library to perform the transformations, FHIR-to-FHIR transforms are performed using the HAPI FHIR library directly, with the logic for loading schemas contained in `ConfigSchemaReader.kt` and the logic for using the loaded schemas to perform the transformation contained in `FhirTransformer.kt`.
 
 #### Schema Structure
 
@@ -152,7 +152,7 @@ for that particular schema element
 - `%context` will always be the FHIR resource that schema as a whole is getting evaluated against
   - This allows for elements that look like this:
   ```yaml
-      - name: observation-note
+  - name: observation-note
     condition: '%context.note.exists()'
     resource: '%resource.note.text.split(''\n'')'
     schema: note

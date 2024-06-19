@@ -1,0 +1,93 @@
+# $schema: ./../../../metadata/json_schema/organizations/organizations.json
+
+---
+- name: "ri-phd"
+  description: "Rhode Island Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "RI"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: [ ]
+  receivers:
+    - name: "full-elr"
+      organizationName: "ri-phd"
+      topic: "full-elr"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/RI/RI-receiver-transform"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: null
+        receivingApplicationOID: null
+        receivingFacilityName: null
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: { }
+        replaceValueAwithB: { }
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: { }
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: { }
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: false
+          truncateHl7Fields: [ ]
+          customLengthHl7Fields: { }
+      jurisdictionalFilter:
+        - "(%performerState.exists() and %performerState = 'RI') or (%patientState.exists() and %patientState = 'RI')"
+      qualityFilter:
+        - "%patient.birthDate != 'Unknown' and %patient.birthDate.empty().not()"
+        - "%patient.name.given[0] != 'Unknown' and %patient.name.given[0].empty().not()"
+        - "%patient.name.family != 'Unknown' and %patient.name.family.empty().not()"
+      routingFilter: [ ]
+      processingModeFilter: [ ]
+      reverseTheQualityFilter: false
+      conditionFilter: [ ]
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:09"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      # TODO: Fill in transport before applying
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      externalName: null
+      timeZone: null
+      dateTimeFormat: "OFFSET"

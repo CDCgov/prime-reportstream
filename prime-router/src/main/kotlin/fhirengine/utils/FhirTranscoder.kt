@@ -33,7 +33,9 @@ object FhirTranscoder : Logging {
             finalOptions.zoneIdText
         )
 
-        return HL7MessageEngine(context, finalOptions.bundleType)
+        return HL7MessageEngine(
+            context, finalOptions.bundleType
+        )
     }
 
     /**

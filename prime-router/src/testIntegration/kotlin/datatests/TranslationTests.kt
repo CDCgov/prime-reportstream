@@ -5,6 +5,7 @@ import assertk.assertions.isTrue
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
+import gov.cdc.prime.reportstream.shared.StringUtilities.trimToNull
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.FileSettings
@@ -18,7 +19,6 @@ import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.cli.tests.CompareData
-import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
@@ -452,16 +452,16 @@ class TranslationTests {
          * @return a FHIR bundle as a JSON input stream
          */
         private fun translateToFhir(hl7: String, profile: String? = null): InputStream {
-            val hl7messages = HL7Reader(ActionLogger()).getMessages(hl7)
-            val fhirBundles = hl7messages.map { message ->
-                if (profile == null) {
-                    HL7toFhirTranslator().translate(message)
-                } else {
-                    HL7toFhirTranslator(profile).translate(message)
-                }
+            val hl7message = HL7Reader.parseHL7Message(
+                hl7,
+                null
+            )
+            val fhirBundle = if (profile == null) {
+                HL7toFhirTranslator().translate(hl7message)
+            } else {
+                HL7toFhirTranslator(profile).translate(hl7message)
             }
-            check(fhirBundles.size == 1)
-            val fhirJson = FhirTranscoder.encode(fhirBundles[0])
+            val fhirJson = FhirTranscoder.encode(fhirBundle)
             return fhirJson.byteInputStream()
         }
 

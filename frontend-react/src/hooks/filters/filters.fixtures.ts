@@ -1,10 +1,10 @@
 import { Dispatch } from "react";
 
-import { CursorManager } from "./UseCursorManager";
-import { RangeSettingsAction } from "./UseDateRange";
-import { FilterManager } from "./UseFilterManager";
-import { PageSettingsAction } from "./UsePages";
-import { SortSettingsAction } from "./UseSortOrder";
+import { CursorManager } from "./UseCursorManager/UseCursorManager";
+import { RangeSettingsAction } from "./UseDateRange/UseDateRange";
+import { FilterManager } from "./UseFilterManager/UseFilterManager";
+import { PageSettingsAction } from "./UsePages/UsePages";
+import { SortSettingsAction } from "./UseSortOrder/UseSortOrder";
 
 export const cursorManagerFixture: CursorManager = {
     cursors: {

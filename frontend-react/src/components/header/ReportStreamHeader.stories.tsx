@@ -2,7 +2,7 @@ import { FC, ReactElement } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 
 import ReportStreamHeader from "./ReportStreamHeader";
-import { SessionContext } from "../../contexts/Session";
+import { SessionContext } from "../../contexts/Session/SessionProvider";
 import { MemberType } from "../../utils/OrganizationUtils";
 
 export default {

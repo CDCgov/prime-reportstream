@@ -1,6 +1,12 @@
 import { expect, test } from "@playwright/test";
 
-import { selectTestOrg, tableData, TEST_ORG_IGNORE } from "../helpers/utils";
+import {
+    noData,
+    selectTestOrg,
+    tableDataCellValue,
+    tableRows,
+    TEST_ORG_IGNORE,
+} from "../helpers/utils";
 import * as submissionHistory from "../pages/submission-history";
 import { openReportIdDetailPage } from "../pages/submission-history";
 
@@ -45,9 +51,11 @@ test.describe("Submission history page", () => {
                 await submissionHistory.goto(page);
             });
 
-            test("nav contains the 'Submissions' option", async ({ page }) => {
+            test("nav contains the 'Submission History' option", async ({
+                page,
+            }) => {
                 const navItems = page.locator(".usa-nav  li");
-                await expect(navItems).toContainText(["Submissions"]);
+                await expect(navItems).toContainText(["Submission History"]);
             });
 
             test("has correct title", async ({ page }) => {
@@ -68,9 +76,7 @@ test.describe("Submission history page", () => {
                 test("table column 'ReportId' will open the report details", async ({
                     page,
                 }) => {
-                    const reportId = page
-                        .locator(".usa-table tbody")
-                        .locator("tr")
+                    const reportId = tableRows(page)
                         .nth(0)
                         .locator("td")
                         .nth(0);
@@ -83,17 +89,18 @@ test.describe("Submission history page", () => {
                 test("table column 'Date/time submitted' has expected data", async ({
                     page,
                 }) => {
-                    await tableData(page, 0, 1, "3/7/2024, 6:00:22 PM");
+                    expect(await tableDataCellValue(page, 0, 1)).toEqual(
+                        "3/7/2024, 6:00:22 PM",
+                    );
                 });
 
                 test("table column 'File' has expected data", async ({
                     page,
                 }) => {
-                    await tableData(page, 0, 2, "myfile.hl7");
-                    await tableData(
-                        page,
-                        1,
-                        2,
+                    expect(await tableDataCellValue(page, 0, 2)).toEqual(
+                        "myfile.hl7",
+                    );
+                    expect(await tableDataCellValue(page, 1, 2)).toEqual(
                         "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
                     );
                 });
@@ -101,13 +108,15 @@ test.describe("Submission history page", () => {
                 test("table column 'Records' has expected data", async ({
                     page,
                 }) => {
-                    await tableData(page, 0, 3, "1");
+                    expect(await tableDataCellValue(page, 0, 3)).toEqual("1");
                 });
 
                 test("table column 'Status' has expected data", async ({
                     page,
                 }) => {
-                    await tableData(page, 0, 4, "Success");
+                    expect(await tableDataCellValue(page, 0, 4)).toEqual(
+                        "Success",
+                    );
                 });
 
                 test("table has pagination", async ({ page }) => {
@@ -138,7 +147,7 @@ test.describe("Submission history page", () => {
         });
 
         test("displays no data message", async ({ page }) => {
-            await expect(page.getByText(/No available data/)).toBeAttached();
+            await expect(noData(page)).toBeAttached();
         });
 
         test("has correct title", async ({ page }) => {
@@ -162,9 +171,9 @@ test.describe("Submission history page", () => {
             await submissionHistory.goto(page);
         });
 
-        test("nav contains the Submissions option", async ({ page }) => {
+        test("nav contains the Submission History option", async ({ page }) => {
             const navItems = page.locator(".usa-nav  li");
-            await expect(navItems).toContainText(["Submissions"]);
+            await expect(navItems).toContainText(["Submission History"]);
         });
 
         test("has correct title", async ({ page }) => {
@@ -183,12 +192,7 @@ test.describe("Submission history page", () => {
             test("table column 'ReportId' will open the report details", async ({
                 page,
             }) => {
-                const reportId = page
-                    .locator(".usa-table tbody")
-                    .locator("tr")
-                    .nth(0)
-                    .locator("td")
-                    .nth(0);
+                const reportId = tableRows(page).nth(0).locator("td").nth(0);
                 await expect(reportId).toContainText(id);
                 await reportId.getByRole("link", { name: id }).click();
 
@@ -198,19 +202,21 @@ test.describe("Submission history page", () => {
             test("table column 'Date/time submitted' has expected data", async ({
                 page,
             }) => {
-                await tableData(page, 0, 1, "3/7/2024, 6:00:22 PM");
+                expect(await tableDataCellValue(page, 0, 1)).toEqual(
+                    "3/7/2024, 6:00:22 PM",
+                );
             });
 
             test("table column 'Records' has expected data", async ({
                 page,
             }) => {
-                await tableData(page, 0, 3, "1");
+                expect(await tableDataCellValue(page, 0, 3)).toEqual("1");
             });
 
             test("table column 'Status' has expected data", async ({
                 page,
             }) => {
-                await tableData(page, 0, 4, "Success");
+                expect(await tableDataCellValue(page, 0, 4)).toEqual("Success");
             });
 
             test("table has pagination", async ({ page }) => {

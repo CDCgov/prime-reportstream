@@ -15,6 +15,7 @@ locals {
     RS_OKTA_scope         = "reportstream_prod"
     storage_queue_name    = ["process"]
     sftp_container_module = false
+    etor_ti_base_url      = "https://cdcti-prd-api.azurewebsites.net"
 
   }
   key_vault = {
@@ -30,7 +31,7 @@ locals {
   }
   security = {
     rsa_key_2048                  = null
-    rsa_key_4096                  = null
+    rsa_key_4096                  = "pdh${local.init.environment}-4096-key"
     https_cert_names              = ["prime-cdc-gov", "reportstream-cdc-gov"]
     delete_pii_storage_after_days = 60
   }

@@ -4,7 +4,7 @@ import { ReactNode, useState } from "react";
 
 import styles from "./Table.module.scss";
 import { NoServicesBanner } from "../../components/alerts/NoServicesAlert";
-import { SortSettings } from "../../hooks/filters/UseSortOrder";
+import { SortSettings } from "../../hooks/filters/UseSortOrder/UseSortOrder";
 
 enum FilterOptions {
     NONE = "NONE",
@@ -50,7 +50,9 @@ export interface TableProps {
 }
 
 const TableHeader = ({ dataContent }: { dataContent: RowData["content"] }) => (
-    <td className="column-data">{dataContent}</td>
+    <th className="column-header">
+        <p className="column-header-text">{dataContent}</p>
+    </th>
 );
 
 const SortableTableHeader = ({
@@ -95,7 +97,7 @@ const SortableTableHeader = ({
                 })}
                 onClick={handleHeaderClick}
             >
-                <div className="column-header column-header--sortable">
+                <div className="column-header--sortable">
                     <p className="column-header-text">
                         {columnHeaderData.columnHeader}
                     </p>
@@ -138,7 +140,7 @@ const CustomSortableTableHeader = ({
                 className="column-header-button"
                 onClick={handleHeaderClick}
             >
-                <div className="column-header column-header--sortable">
+                <div className="column-header--sortable">
                     <p className="column-header-text">
                         {columnHeaderData.columnHeader}
                     </p>
@@ -332,12 +334,9 @@ const Table = ({
                                         <tr key={index}>
                                             {row.map((data, dataIndex) => {
                                                 return (
-                                                    <TableHeader
-                                                        key={dataIndex}
-                                                        dataContent={
-                                                            data.content
-                                                        }
-                                                    />
+                                                    <td key={dataIndex}>
+                                                        <p>{data.content}</p>
+                                                    </td>
                                                 );
                                             })}
                                         </tr>

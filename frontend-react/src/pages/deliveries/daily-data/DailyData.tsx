@@ -14,18 +14,17 @@ import TableFilters, {
 } from "../../../components/Table/TableFilters";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import { RSReceiver } from "../../../config/endpoints/settings";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../../contexts/AppInsights";
-import { useSessionContext } from "../../../contexts/Session";
-import { FilterManager } from "../../../hooks/filters/UseFilterManager";
-import {
+import useSessionContext from "../../../contexts/Session/useSessionContext";
+import useOrgDeliveries, {
     DeliveriesDataAttr,
-    useOrgDeliveries,
-} from "../../../hooks/network/History/DeliveryHooks";
-import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceivers";
-import usePagination, { ResultsFetcher } from "../../../hooks/UsePagination";
+} from "../../../hooks/api/deliveries/UseOrgDeliveries/UseOrgDeliveries";
+import useOrganizationReceivers from "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager/UseFilterManager";
+import useAppInsightsContext from "../../../hooks/UseAppInsightsContext/UseAppInsightsContext";
+import usePagination, {
+    ResultsFetcher,
+} from "../../../hooks/UsePagination/UsePagination";
+import { EventName } from "../../../utils/AppInsights";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
 
@@ -156,7 +155,7 @@ const DeliveriesFilterAndTable = ({
     });
 
     if (paginationProps) {
-        paginationProps.label = "Deliveries pagination";
+        paginationProps.label = "Pagination";
     }
 
     const receiverDropdown = [

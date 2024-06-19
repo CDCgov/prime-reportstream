@@ -3,7 +3,7 @@ name: Alert if upgrade is necessary
 on:
   workflow_dispatch:
   schedule:
-    - cron: "7 13 * * Mon" 
+    - cron: "7 13 * * Mon"
 
 jobs:
   alert_version_upgrade:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
         with:
           fetch-depth: 0
           
@@ -35,7 +35,7 @@ jobs:
             prefix: Schedules  
     
       - name: Slack Notification
-        if: ${{ env.Schedules_UpgradeDetails_0_UpgradeRequired }} == 'true' && ${{ env.Schedules_UpgradeDetails_0_UpgradeRequired }} !='null'
+        if: ${{ env.Schedules_UpgradeDetails_0_UpgradeRequired == 'true'}}
         uses: ./.github/actions/notifications
         with:
             method: slack

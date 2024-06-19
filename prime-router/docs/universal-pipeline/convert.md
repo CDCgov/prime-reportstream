@@ -10,13 +10,9 @@ The convert step is executed when the [Azure AQS message](README.md#aqs-usage) r
 The first and most significant aspect of the convert step is the conversion of a message into the FHIR format. The 
 process of this conversion depends on the incoming message's format:
 
-- If the incoming message is HL7v2, ReportStream uses the [LinuxForHealth HL7 to FHIR Converter library](https://github.com/LinuxForHealth/hl7v2-fhir-converter#linuxforhealth-hl7-to-fhir-converter) with custom configurations from the 
-- [fhir_mapping folder](https://github.com/CDCgov/prime-reportstream/tree/master/prime-router/metadata/fhir_mapping/hl7) 
--to handle the conversion. See the 
-- [HL7v2-to-FHIR configurations](../design/design/transformations.md#HL7v2-to-FHIR-configurations) section for more 
-- details.
-- If the incoming message is FHIR, then there's nothing to be done
-- Apply Sender transforms specified by Sender configuration 
+- If the incoming message is HL7v2, ReportStream uses the [LinuxForHealth HL7 to FHIR Converter library](https://github.com/LinuxForHealth/hl7v2-fhir-converter#linuxforhealth-hl7-to-fhir-converter) with custom configurations from the [HL7 Metadata](https://github.com/CDCgov/prime-reportstream/tree/master/prime-router/metadata/HL7) to handle the conversion.
+- If the incoming message is FHIR, then there's nothing to be done.
+- Apply Sender transforms specified by Sender configuration.
 
 > See [HL7v2-to-FHIR Transformations](../design/design/transformations.md#hl7v2-to-fhir-transformations) for more 
 > information regarding configuration of HL7 to FHIR transformations.
@@ -29,7 +25,7 @@ After the conversion of an Item to the FHIR format, an additional transform can 
 transform is called a "Sender Transform" because it is used to make sender-specific adjustments to the FHIR bundle.
 
 Sender Transforms are completely optional, but ReportStream has created a sender transform that mimics the behavior of 
-original pipeline (`prime-router/metadata/fhir_transforms/senders/original-pipeline-transforms.yml`). This is a good place 
+original pipeline (`prime-router/src/main/resources/metadata/fhir_transforms/senders/original-pipeline-transforms.yml`). This is a good place 
 to start to understand what kind of transforms a Sender may want performed on their messages.
 
 > See [FHIR-to-FHIR Transformations](../design/design/transformations.md#fhir-to-fhir-transformations) for more 

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { waitForAPIResponse } from "../helpers/utils";
+import { tableRows } from "../helpers/utils";
 import * as lastMileFailures from "../pages/last-mile-failures";
 
 test.describe("Last Mile Failure page", () => {
@@ -43,24 +43,14 @@ test.describe("Last Mile Failure page", () => {
 
         test("table column 'Failed At' has expected data", async ({ page }) => {
             await expect(
-                page
-                    .locator(".usa-table tbody")
-                    .locator("tr")
-                    .nth(0)
-                    .locator("td")
-                    .nth(0),
+                tableRows(page).nth(0).locator("td").nth(0),
             ).toHaveText("Tue, 2/20/2024, 9:35 PM");
         });
 
         test("table column 'ReportId' will open a modal with report details", async ({
             page,
         }) => {
-            const reportId = page
-                .locator(".usa-table tbody")
-                .locator("tr")
-                .nth(0)
-                .locator("td")
-                .nth(1);
+            const reportId = tableRows(page).nth(0).locator("td").nth(1);
             await expect(reportId).toContainText(
                 /e5ce49c0-b230-4364-8230-964273249fa1/,
             );
@@ -75,12 +65,7 @@ test.describe("Last Mile Failure page", () => {
         test("table column 'Receiver' will open receiver edit page", async ({
             page,
         }) => {
-            const receiver = page
-                .locator(".usa-table tbody")
-                .locator("tr")
-                .nth(0)
-                .locator("td")
-                .nth(2);
+            const receiver = tableRows(page).nth(0).locator("td").nth(2);
             await expect(receiver).toContainText(
                 /flexion.etor-service-receiver-results/,
             );
@@ -125,26 +110,8 @@ test.describe("Last Mile Failure page", () => {
             await lastMileFailures.goto(page);
         });
 
-        test("response returns 401", async ({ page }) => {
-            const response = await waitForAPIResponse(
-                page,
-                lastMileFailures.API_GET_SEND_FAILURES,
-            );
-
-            expect(response).toBe(401);
-        });
-
-        test("has correct title", async ({ page }) => {
-            await expect(page).toHaveTitle(/Last mile failures/);
-        });
-
-        test("has alert", async ({ page }) => {
-            await expect(page.getByTestId("alert")).toBeAttached();
-            await expect(
-                page.getByText(
-                    /Our apologies, there was an error loading this content./,
-                ),
-            ).toBeAttached();
+        test("returns Page Not Found", async ({ page }) => {
+            await expect(page).toHaveTitle(/Page Not Found/);
         });
 
         test("has footer", async ({ page }) => {
@@ -159,25 +126,8 @@ test.describe("Last Mile Failure page", () => {
             await lastMileFailures.goto(page);
         });
 
-        test("response returns 401", async ({ page }) => {
-            const response = await waitForAPIResponse(
-                page,
-                lastMileFailures.API_GET_SEND_FAILURES,
-            );
-            expect(response).toBe(401);
-        });
-
-        test("has correct title", async ({ page }) => {
-            await expect(page).toHaveTitle(/Last mile failures/);
-        });
-
-        test("has alert", async ({ page }) => {
-            await expect(page.getByTestId("alert")).toBeAttached();
-            await expect(
-                page.getByText(
-                    /Our apologies, there was an error loading this content./,
-                ),
-            ).toBeAttached();
+        test("returns Page Not Found", async ({ page }) => {
+            await expect(page).toHaveTitle(/Page Not Found/);
         });
 
         test("has footer", async ({ page }) => {

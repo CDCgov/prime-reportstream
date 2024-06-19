@@ -1,19 +1,18 @@
 import { expect, Page } from "@playwright/test";
 import { TOTP } from "otpauth";
 
-import { test as setup } from "./rs-test";
-import type { TestLogin } from "./rs-test";
+import { fulfillGoogleAnalytics } from "./utils";
+import { test as setup } from "../test";
+import type { TestLogin } from "../test";
 
 async function logIntoOkta(page: Page, login: TestLogin) {
     const totp = new TOTP({ secret: login.totpCode });
 
     // fulfill GA request so that we don't log to it and alter the metrics
-    await page.route("https://www.google-analytics.com/**", (route) =>
-        route.fulfill({ status: 204, body: "" }),
-    );
+    await fulfillGoogleAnalytics(page);
 
-    // abort all app insight calls
-    await page.route("**/v2/track", (route) => route.abort());
+    // block AI
+    await page.route("**/v2/track", (route) => route.abort("blockedbyclient"));
 
     await page.goto("/login", {
         waitUntil: "domcontentloaded",
@@ -35,7 +34,7 @@ async function logIntoOkta(page: Page, login: TestLogin) {
     await page.waitForLoadState("domcontentloaded");
 
     // Verify we are authenticated
-    await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
+    await expect(page.getByTestId("logout")).toBeVisible();
 }
 
 /**
@@ -48,10 +47,9 @@ setup(
         for (const login of [adminLogin, senderLogin, receiverLogin]) {
             await logIntoOkta(page, login);
 
-            const logoutBtn = page.getByRole("button", { name: "Logout" });
             await page.context().storageState({ path: login.path });
+            await page.getByTestId("logout").click();
 
-            await logoutBtn.click();
             await expect(
                 page.getByRole("link", { name: "Login" }),
             ).toBeAttached();

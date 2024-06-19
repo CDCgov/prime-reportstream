@@ -12,7 +12,7 @@ import styles from "./MarkdownLayout.module.scss";
 import { TableOfContents } from "./TableOfContents";
 import { createMeta } from "./utils";
 import { USNavLink, USSmartLink } from "../../components/USLink";
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import * as shared from "../../shared";
 
 /**

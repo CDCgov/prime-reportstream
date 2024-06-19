@@ -4,14 +4,17 @@ import ca.uhn.hl7v2.AbstractHL7Exception
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.ErrorCode
 import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.HapiContext
 import ca.uhn.hl7v2.model.AbstractMessage
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
+import ca.uhn.hl7v2.parser.ParserConfiguration
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
 import ca.uhn.hl7v2.validation.ValidationException
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
+import fhirengine.translation.hl7.structures.fhirinventory.message.ORU_R01
+import fhirengine.utils.ReportStreamCanonicalModelClassFactory
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import org.apache.commons.lang3.exception.ExceptionUtils
@@ -80,7 +83,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             val parseError = mutableListOf<Hl7InputStreamMessageStringIterator.ParseFailureError>()
             run modelLoop@{
                 messageModelsToTry.forEach { model ->
-                    val context = DefaultHapiContext(CanonicalModelClassFactory(model))
+                    val context = DefaultHapiContext(ReportStreamCanonicalModelClassFactory(model))
                     context.validationContext = validationContext
                     try {
                         val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream(), context)
@@ -211,9 +214,137 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
     }
 
     companion object {
+
+        // This regex is used to replace \n with \r while not replacing \r\n
+        val newLineRegex = Regex("(?<!\r)\n")
+
+        /**
+         * Class captures the details from the MSH segment and can be used to map
+         * to which instance of a Message and which HL7 -> FHIR mappings should be used
+         *
+         * @param msh93 the message structure, i.e. ORU_R01
+         * @param msh12 the message version id, i.e. 2.5.1
+         * @param msh213 message profile universal id, i.e. 2.16.840.1.113883.9.10
+         */
+        data class HL7MessageType(val msh93: String, val msh12: String, val msh213: String)
+
+        /**
+         * Configuration class that contains details on how to parse an HL7 message and then how
+         * to convert it to FHIR
+         *
+         * @param messageModelClass a class that inherits from [Message]
+         * @param hl7toFHIRMappingLocation the location of the mappings files to convert the message to FHIR
+         */
+        data class HL7MessageParseAndConvertConfiguration(
+            val messageModelClass: Class<out Message>,
+            val hl7toFHIRMappingLocation: String,
+        )
+
+        /**
+         * Map of configured message types to their configuration
+         */
+        val messageToConfigMap = mapOf(
+            // TODO: https://github.com/CDCgov/prime-reportstream/issues/14124
+            HL7MessageType(
+                "ORU_R01",
+                "2.5.1",
+                "2.16.840.1.113883.9.10"
+            ) to HL7MessageParseAndConvertConfiguration(
+                ORU_R01::class.java,
+                "./metadata/HL7/catchall"
+            ),
+            HL7MessageType(
+                "ORU_R01",
+                "2.5.1",
+                "2.16.840.1.113883.9.11"
+            ) to HL7MessageParseAndConvertConfiguration(
+                ORU_R01::class.java,
+                "./metadata/HL7/catchall"
+            )
+        )
+
+        // TODO: https://github.com/CDCgov/prime-reportstream/issues/14116
+        /**
+         * Accepts a raw HL7 string and uses the MSH segment to detect the [HL7MessageType] which is then used
+         * to parse the string into an instance of [Message]. If the type is not one that is configured in
+         * [messageToConfigMap] the default HAPI parsing logic is used
+         *
+         * @param rawHL7 the HL7 string to convert into a [Message]
+         *
+         * @return a [Pair<Message, HL7MessageParseAndConvertConfiguration?>] with parsed message and optional type
+         */
+        fun parseHL7Message(
+            rawHL7: String,
+            parseConfiguration: HL7MessageParseAndConvertConfiguration?,
+        ): Message {
+            // A carriage return is the official segment delimiter; a newline is not recognized so we replace
+            // them
+
+            val carriageReturnFixedHL7 = rawHL7.replace(newLineRegex, "\r")
+            val hl7MessageType = getMessageType(carriageReturnFixedHL7)
+            return getHL7ParsingContext(hl7MessageType, parseConfiguration).pipeParser.parse(carriageReturnFixedHL7)
+        }
+
+        /**
+         * Creates a HAPI context that can be used to parse an HL7 string.  If no configuration is passed, the function
+         * will return a context with the HAPI defaults which will defer to that library to determine the kind of message
+         *
+         * @param hl7MessageParseAndConvertConfiguration optional configuration to use when creating a context
+         */
+        private fun getHL7ParsingContext(
+            hl7MessageType: HL7MessageType?,
+            hl7MessageParseAndConvertConfiguration: HL7MessageParseAndConvertConfiguration?,
+        ): HapiContext {
+            return if (hl7MessageParseAndConvertConfiguration == null) {
+                if (hl7MessageType?.msh93 == "ORU_R01") {
+                    DefaultHapiContext(
+                        ParserConfiguration(),
+                        ValidationContextFactory.noValidation(),
+                        ReportStreamCanonicalModelClassFactory(ORU_R01::class.java),
+                    )
+                } else {
+                    DefaultHapiContext(ValidationContextFactory.noValidation())
+                }
+            } else {
+                DefaultHapiContext(
+                    ParserConfiguration(),
+                    ValidationContextFactory.noValidation(),
+                    ReportStreamCanonicalModelClassFactory(hl7MessageParseAndConvertConfiguration.messageModelClass),
+                )
+            }
+        }
+
+        /**
+         * Parses just the first line of an HL7 string to determine
+         * - the event trigger
+         * - the HL7 version
+         * - the conformance profile
+         *
+         * The returned type can be used to see if there is custom configuration set in [messageToConfigMap]
+         *
+         * @param rawHL7 the raw HL7 to determine the type for
+         *
+         * @return the details on the HL7 message type
+         */
+        @Throws(HL7Exception::class)
+        internal fun getMessageType(rawHL7: String): HL7MessageType {
+            val message = getHL7ParsingContext(null, null)
+                .pipeParser
+                // In order to determine the message configuration, only parse the MSH segment since the type of message
+                // is required in order to accurately parse the message in its entirety
+                // HL7 messages can use \n or \r for new lines, so split on either
+                .parse(rawHL7.lines()[0])
+            val terser = Terser(message)
+            return HL7MessageType(
+                terser.get("MSH-9-3") ?: "",
+                terser.get("MSH-12") ?: "",
+                terser.get("MSH-21-3") ?: ""
+            )
+        }
+
         // map of HL7 message profiles: maps profile to configuration directory path
         val profileDirectoryMap: Map<MessageProfile, String> = mapOf(
-            // TODO: NIST ELR mappings to be enabled in a future PR (uncomment the following line)
+            // TODO: https://github.com/CDCgov/prime-reportstream/issues/14124
             // Pair(MessageProfile("ORU", "NIST_ELR"), "./metadata/HL7/v251-elr"),
         )
 

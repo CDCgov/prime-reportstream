@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import { MessageTracker } from "../../components/MessageTracker/MessageTracker";
-import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
+import { withCatchAndSuspense } from "../../components/RSErrorBoundary/RSErrorBoundary";
 
 export function AdminMessageTracker() {
     return (

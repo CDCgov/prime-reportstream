@@ -91,7 +91,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_504errors" {
   resource_group_name = var.resource_group
 
   action {
-    action_group = [var.action_group_slack_id]
+    action_group = var.resource_prefix == "pdhstaging" ? [var.action_group_id] : [var.action_group_slack_id]
   }
   data_source_id = local.log_analytics_workspace_id
   description    = "Found 1 or more 504s errors in FunctionApp logs"
@@ -108,6 +108,37 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_504errors" {
     threshold = 1
   }
 }
+
+resource "azurerm_monitor_scheduled_query_rules_alert" "poison-queue-msg" {
+  name                = format("%s-alertrule-poison-queue-msg", var.resource_prefix)
+  location            = var.location
+  resource_group_name = var.resource_group
+
+  action {
+    action_group  = [var.action_group_slack_id]
+    email_subject = "Found a new message in a poison queue"
+  }
+  data_source_id = local.log_analytics_workspace_id
+  description    = "Found a new message in a poison queue"
+  enabled        = true
+  query          = <<-EOT
+            StorageQueueLogs
+             | where OperationName contains "PutMessage"
+             | where AccountName contains "storageaccount"
+             | where StatusText contains "Success"
+             | where ObjectKey contains "-poison/"
+        EOT
+  throttling     = 120
+  severity       = 2
+  frequency      = 15
+  time_window    = 30
+
+  trigger {
+    operator  = "GreaterThanOrEqual"
+    threshold = 1
+  }
+}
+
 
 locals {
   log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id

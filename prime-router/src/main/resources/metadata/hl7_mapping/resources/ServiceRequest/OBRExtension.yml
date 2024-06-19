@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
 
   - name: placer-order-number-from-extension
@@ -33,8 +35,10 @@ elements:
       cweField: '%{obrFieldPath}-12'
 
   - name: clinical-information
-    value: [ '%resource.extension.where(url = "OBR.13").value' ]
-    hl7Spec: [ '%{obrFieldPath}-13' ]
+    resource: '%resource.extension.where(url = "OBR.13").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{obrFieldPath}-13'
 
   - name: call-back-phone-number-obr-from-extension
     condition: '%context.requester.where(extension(%`rsext-callback-number`).value.extension(%`rsext-hl7v2Field`).value[%telecomIndex] = "OBR.17").exists().not()'
@@ -83,7 +87,7 @@ elements:
       hl7XCNField: '%{obrFieldPath}-28(%{xcnIndex})'
     resourceIndex: xcnIndex
 
-  - name: parent-order
+  - name: parent-observation-identifier
     resource: '%resource.extension.where(url = "OBR.29").value'
     schema: classpath:/metadata/hl7_mapping/datatypes/identifier-placerAssignedIdentifier/EIP.yml
     constants:
@@ -145,3 +149,9 @@ elements:
     constants:
       cxField: '%{obrFieldPath}-53(%{cxIndex})'
     resourceIndex: cxIndex
+
+  - name: parent-order
+    resource: '%resource.extension.where(url = "OBR.54").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-placerAssignedIdentifier/EIP.yml
+    constants:
+      eipFieldPath: '%{obrFieldPath}-54'

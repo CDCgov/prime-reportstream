@@ -4,9 +4,9 @@ import { Helmet } from "react-helmet-async";
 import styles from "./DataDashboard.module.scss";
 import DataDashboardTable from "../../components/DataDashboard/DataDashboardTable/DataDashboardTable";
 import HipaaNotice from "../../components/HipaaNotice";
-import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
+import { withCatchAndSuspense } from "../../components/RSErrorBoundary/RSErrorBoundary";
 import { USLink, USNavLink } from "../../components/USLink";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import useOrganizationSettings from "../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings";
 import { HeroWrapper } from "../../shared";
 import { FeatureName } from "../../utils/FeatureName";
 

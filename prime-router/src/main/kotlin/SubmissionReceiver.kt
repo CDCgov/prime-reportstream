@@ -284,14 +284,15 @@ class UniversalPipelineReceiver : SubmissionReceiver {
                     topic = sender.topic,
                 )
 
+                // TODO fix and re-enable https://github.com/CDCgov/prime-reportstream/issues/14103
                 // dupe detection if needed, and if we have not already produced an error
-                if (!allowDuplicates && !actionLogs.hasErrors()) {
-                    doDuplicateDetection(
-                        workflowEngine,
-                        report,
-                        actionLogs
-                    )
-                }
+//                if (!allowDuplicates && !actionLogs.hasErrors()) {
+//                    doDuplicateDetection(
+//                        workflowEngine,
+//                        report,
+//                        actionLogs
+//                    )
+//                }
 
                 // check for valid message type
                 messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }

@@ -29,3 +29,7 @@ output "action_group_slack_id" {
 output "action_group_metabase_id" {
   value = local.action_group_metabase_id
 }
+
+output "action_group_id" {
+  value = local.action_group_id
+}

@@ -4,13 +4,16 @@ import { http, HttpResponse } from "msw";
 
 import { useResource } from "rest-hooks";
 import { EditSenderSettingsPage } from "./EditSenderSettings";
-import { settingsServer } from "../../__mocks__/SettingsMockServer";
+import { settingsServer } from "../../__mockServers__/SettingsMockServer";
 import config from "../../config";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 import { useToast } from "../../contexts/Toast";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import { renderApp } from "../../utils/CustomRenderUtils";
+
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
 
 const mockData: OrgSenderSettingsResource = new TestResponse(
     ResponseType.SENDER_SETTINGS,

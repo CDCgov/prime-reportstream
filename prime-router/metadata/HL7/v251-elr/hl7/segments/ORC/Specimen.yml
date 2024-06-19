@@ -19,7 +19,7 @@ collection:
         dateTimeIn: OBR.7
         dateTimeOut: OBR.8
       expressions:
-        - valueOf: ../../datatypes/DR/Period
+        - valueOf: ../../datatypes/v251/hl7/datatypes/DR/Period
           expressionType: resource
     collectedDateTime:
       expressionType: nested
@@ -36,7 +36,7 @@ collection:
       vars:
         obr10: OBR.10
       expressionType: reference
-      valueOf: ../../datatypes/XCN/Practitioner
+      valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
       specs: OBR.10
 
 note_collectors-comment:
@@ -45,7 +45,7 @@ note_collectors-comment:
   vars:
     obr39: STRING_ALL, OBR.39
   specs: OBR.39 *
-  valueOf: ../../datatypes/CWE/Annotation
+  valueOf: ../../datatypes/v251/hl7/datatypes/CWE/Annotation
   expressionType: resource
 
 extension:
