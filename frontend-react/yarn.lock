@@ -19,6 +19,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@adobe/css-tools@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "@adobe/css-tools@npm:4.4.0"
+  checksum: 1f08fb49bf17fc7f2d1a86d3e739f29ca80063d28168307f1b0a962ef37501c5667271f6771966578897f2e94e43c4770fd802728a6e6495b812da54112d506a
+  languageName: node
+  linkType: hard
+
 "@ampproject/remapping@npm:^2.2.0":
   version: 2.2.1
   resolution: "@ampproject/remapping@npm:2.2.1"
@@ -2837,9 +2844,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-signin-widget@npm:^7.19.1":
-  version: 7.19.1
-  resolution: "@okta/okta-signin-widget@npm:7.19.1"
+"@okta/okta-signin-widget@npm:^7.19.4":
+  version: 7.19.4
+  resolution: "@okta/okta-signin-widget@npm:7.19.4"
   dependencies:
     "@okta/okta-auth-js": ^7.7.0
     "@sindresorhus/to-milliseconds": ^1.0.0
@@ -2863,7 +2870,7 @@ __metadata:
   dependenciesMeta:
     fsevents:
       optional: true
-  checksum: bb1aa21b306da2d5368981c811a8a479d294b6e43fb8f34f8fc761018a039f7673180a7fb6ad206e55b6ba550e6d91fab8dcf943733845c29df6ca657963cbad
+  checksum: 1550a589b9cd317e147a04e351f57b66cb4315a8517b67fe8ef5579b7a842d849ae7310dc2306f272fe3f72257e576dd33cdf2c70416bc9820ddab6046b1875e
   languageName: node
   linkType: hard
 
@@ -4410,10 +4417,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.40.0":
-  version: 5.40.0
-  resolution: "@tanstack/query-core@npm:5.40.0"
-  checksum: 3c94bc71dd2f80db1e8fdd6f201d9fed7a008636ad6a6a89d24f54824ceb38bbc8c05b24731b8eb7cd895b9e75e7851962660d0aa5fc0841f3295fe95630d70e
+"@tanstack/query-core@npm:5.45.0":
+  version: 5.45.0
+  resolution: "@tanstack/query-core@npm:5.45.0"
+  checksum: a3c13d90cfa12955d22fa754ebfddbea70081fc0128111083269bdd78ed0d25678f050007b753164a929a00fdef9ee5ebba945deb8e360120ae3cbae06e655a5
   languageName: node
   linkType: hard
 
@@ -4424,30 +4431,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:^5.40.1":
-  version: 5.40.1
-  resolution: "@tanstack/react-query-devtools@npm:5.40.1"
+"@tanstack/react-query-devtools@npm:^5.45.1":
+  version: 5.45.1
+  resolution: "@tanstack/react-query-devtools@npm:5.45.1"
   dependencies:
     "@tanstack/query-devtools": 5.37.1
   peerDependencies:
-    "@tanstack/react-query": ^5.40.1
+    "@tanstack/react-query": ^5.45.1
     react: ^18 || ^19
-  checksum: 638fc8e00951e8a648950e093515bf7ea395826c8b6eda8103063ce2a3e55fbb79ce03bcb835fc26952067a4913308d25005e488f22c0dfa631307641e2e4379
+  checksum: a13ca2451f1e199cc0db8f4fbf07a50de73413c25c0803d0bcd6b50ff54123ed20b84fcf89b98751405af4846a17d953746e1d13d67eec0b6ab54572f3cb623f
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.40.1":
-  version: 5.40.1
-  resolution: "@tanstack/react-query@npm:5.40.1"
+"@tanstack/react-query@npm:^5.45.1":
+  version: 5.45.1
+  resolution: "@tanstack/react-query@npm:5.45.1"
   dependencies:
-    "@tanstack/query-core": 5.40.0
+    "@tanstack/query-core": 5.45.0
   peerDependencies:
     react: ^18.0.0
-  checksum: 4d906101c797282969cd6cb89606ed4480efe3025eedea56846697f7df5218257eb147ec17c1565b4e8b6dc09a761b17b85b1a1fadb04f704304354e28899168
+  checksum: b5d8178ee1f4b1dd197a783e7f0eb4a7c0e9ef8fde18c73f71aee636cd57e742a1693a2cd2279fbfb3d6b04aa535212fba8b6c535f6ffc92d020938cc117796e
   languageName: node
   linkType: hard
 
-"@testing-library/dom@npm:^10.0.0, @testing-library/dom@npm:^10.1.0":
+"@testing-library/dom@npm:^10.1.0":
   version: 10.1.0
   resolution: "@testing-library/dom@npm:10.1.0"
   dependencies:
@@ -4479,7 +4486,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/jest-dom@npm:^6.4.2, @testing-library/jest-dom@npm:^6.4.5":
+"@testing-library/jest-dom@npm:^6.4.2":
   version: 6.4.5
   resolution: "@testing-library/jest-dom@npm:6.4.5"
   dependencies:
@@ -4512,6 +4519,39 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@testing-library/jest-dom@npm:^6.4.6":
+  version: 6.4.6
+  resolution: "@testing-library/jest-dom@npm:6.4.6"
+  dependencies:
+    "@adobe/css-tools": ^4.4.0
+    "@babel/runtime": ^7.9.2
+    aria-query: ^5.0.0
+    chalk: ^3.0.0
+    css.escape: ^1.5.1
+    dom-accessibility-api: ^0.6.3
+    lodash: ^4.17.21
+    redent: ^3.0.0
+  peerDependencies:
+    "@jest/globals": ">= 28"
+    "@types/bun": "*"
+    "@types/jest": ">= 28"
+    jest: ">= 28"
+    vitest: ">= 0.32"
+  peerDependenciesMeta:
+    "@jest/globals":
+      optional: true
+    "@types/bun":
+      optional: true
+    "@types/jest":
+      optional: true
+    jest:
+      optional: true
+    vitest:
+      optional: true
+  checksum: d70acbfc5d842065292dc1b4113ac2b4c2a2b83f9868e454d7f24d97ee92fddf7852e0e079b6eecaf21154bfe6e9ad03eb32e72f16854f64d7ce1ff42288828b
+  languageName: node
+  linkType: hard
+
 "@testing-library/react-hooks@npm:~8.0.0":
   version: 8.0.1
   resolution: "@testing-library/react-hooks@npm:8.0.1"
@@ -4534,21 +4574,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react@npm:^15.0.7":
-  version: 15.0.7
-  resolution: "@testing-library/react@npm:15.0.7"
+"@testing-library/react@npm:^16.0.0":
+  version: 16.0.0
+  resolution: "@testing-library/react@npm:16.0.0"
   dependencies:
     "@babel/runtime": ^7.12.5
-    "@testing-library/dom": ^10.0.0
-    "@types/react-dom": ^18.0.0
   peerDependencies:
+    "@testing-library/dom": ^10.0.0
     "@types/react": ^18.0.0
+    "@types/react-dom": ^18.0.0
     react: ^18.0.0
     react-dom: ^18.0.0
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: eb33fd82eb811bb8612aa154e430a2c1c251d5ed45a477ef57fe20095db494ea7dcfa6b1e1e2bffb0c7ee10c86e408745d95a879be8ca8fbe301bb91e5f2e5db
+    "@types/react-dom":
+      optional: true
+  checksum: 45a35f0b5f34b5a7f4dcefdd3f1d202d5421692e5cc7a491c9bc71e6ed9dd5872a182b80b4dfefb4a56d9c1df35e50f6fa2917bcf657cc26b4bc0d2259df0027
   languageName: node
   linkType: hard
 
@@ -5073,7 +5115,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^18.0.0, @types/react-dom@npm:^18.3.0":
+"@types/react-dom@npm:^18.3.0":
   version: 18.3.0
   resolution: "@types/react-dom@npm:18.3.0"
   dependencies:
@@ -13478,7 +13520,7 @@ __metadata:
     "@microsoft/applicationinsights-react-js": ^17.2.0
     "@microsoft/applicationinsights-web": ^3.2.1
     "@okta/okta-react": ^6.9.0
-    "@okta/okta-signin-widget": ^7.19.1
+    "@okta/okta-signin-widget": ^7.19.4
     "@playwright/test": ^1.44.1
     "@rest-hooks/rest": ^3.0.3
     "@rest-hooks/test": ^7.3.1
@@ -13495,11 +13537,11 @@ __metadata:
     "@storybook/react-vite": ^8.1.10
     "@storybook/testing-library": ^0.2.2
     "@storybook/theming": ^8.1.10
-    "@tanstack/react-query": ^5.40.1
-    "@tanstack/react-query-devtools": ^5.40.1
+    "@tanstack/react-query": ^5.45.1
+    "@tanstack/react-query-devtools": ^5.45.1
     "@testing-library/dom": ^10.1.0
-    "@testing-library/jest-dom": ^6.4.5
-    "@testing-library/react": ^15.0.7
+    "@testing-library/jest-dom": ^6.4.6
+    "@testing-library/react": ^16.0.0
     "@testing-library/user-event": ^14.5.2
     "@trussworks/react-uswds": ^9.0.0
     "@types/dompurify": ^3.0.5
@@ -13589,7 +13631,7 @@ __metadata:
     typescript: ^5.4.5
     undici: ^6.19.0
     use-deep-compare-effect: ^1.8.1
-    uuid: ^9.0.1
+    uuid: ^10.0.0
     vite: ^5.3.1
     vite-plugin-checker: ^0.6.4
     vite-plugin-svgr: ^4.2.0
@@ -16217,7 +16259,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^9.0.0, uuid@npm:^9.0.1":
+"uuid@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "uuid@npm:10.0.0"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 4b81611ade2885d2313ddd8dc865d93d8dccc13ddf901745edca8f86d99bc46d7a330d678e7532e7ebf93ce616679fb19b2e3568873ac0c14c999032acb25869
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^9.0.0":
   version: 9.0.1
   resolution: "uuid@npm:9.0.1"
   bin:
@@ -16868,8 +16919,8 @@ __metadata:
   linkType: hard
 
 "ws@npm:^8.17.0, ws@npm:^8.2.3":
-  version: 8.17.0
-  resolution: "ws@npm:8.17.0"
+  version: 8.17.1
+  resolution: "ws@npm:8.17.1"
   peerDependencies:
     bufferutil: ^4.0.1
     utf-8-validate: ">=5.0.2"
@@ -16878,7 +16929,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 147ef9eab0251364e1d2c55338ad0efb15e6913923ccbfdf20f7a8a6cb8f88432bcd7f4d8f66977135bfad35575644f9983201c1a361019594a4e53977bf6d4e
+  checksum: 442badcce1f1178ec87a0b5372ae2e9771e07c4929a3180321901f226127f252441e8689d765aa5cfba5f50ac60dd830954afc5aeae81609aefa11d3ddf5cecf
   languageName: node
   linkType: hard
 
