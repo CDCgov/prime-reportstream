@@ -55,6 +55,24 @@ test.describe("Admin Organization Settings Page", () => {
                 await organization.goto(page);
             });
 
+            test("nav contains the 'Admin tools' dropdown with 'Organization Settings' option", async ({
+                page,
+            }) => {
+                const navItems = page.locator(".usa-nav  li");
+                await expect(navItems).toContainText(["Admin tools"]);
+
+                await page
+                    .getByTestId("auth-header")
+                    .getByTestId("navDropDownButton")
+                    .getByText("Admin tools")
+                    .click();
+
+                expect(page.getByText("Organization Settings")).toBeTruthy();
+
+                await page.getByText("Organization Settings").click();
+                await expect(page).toHaveURL("/admin/settings");
+            });
+
             test("Has correct title", async ({ page }) => {
                 await expect(page).toHaveURL(/settings/);
                 await expect(page).toHaveTitle(/Admin-Organizations/);
