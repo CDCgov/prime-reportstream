@@ -1,33 +1,51 @@
-import { Page } from "@playwright/test";
-
 import {
-    MOCK_GET_RECEIVERS_AK,
-    MOCK_GET_RECEIVERS_IGNORE,
-} from "../mocks/organizations";
+    BasePage,
+    BasePageTestArgs,
+    type RouteHandlerFulfillEntry,
+} from "./BasePage";
+import { RSOrganizationSettings } from "../../src/config/endpoints/settings";
+import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../mocks/organizations";
 
-export const API_ORGANIZATIONS = "**/api/settings/organizations";
-export async function goto(page: Page) {
-    await page.goto("/admin/settings", {
-        waitUntil: "domcontentloaded",
-    });
-}
+export class OrganizationPage extends BasePage {
+    static readonly API_ORGANIZATIONS = "/api/settings/organizations";
+    protected _organizationSettings: RSOrganizationSettings[];
+    constructor(testArgs: BasePageTestArgs) {
+        super(
+            {
+                url: "/admin/settings",
+                title: "Organizations",
+                heading: testArgs.page.getByRole("heading", {
+                    name: "Organizations",
+                }),
+            },
+            testArgs,
+        );
 
-export async function mockGetOrgAlaskaReceiversResponse(
-    page: Page,
-    responseStatus = 200,
-) {
-    await page.route(`${API_ORGANIZATIONS}/ak-phd/receivers`, async (route) => {
-        const json = MOCK_GET_RECEIVERS_AK;
-        await route.fulfill({ json, status: responseStatus });
-    });
-}
+        this._organizationSettings = [];
+        this.addResponseHandlers([
+            [
+                OrganizationPage.API_ORGANIZATIONS,
+                async (res) => (this._organizationSettings = await res.json()),
+            ],
+        ]);
+        this.addMockRouteHandlers([this.createMockOrganizationHandler()]);
+    }
 
-export async function mockGetOrgIgnoreReceiversResponse(
-    page: Page,
-    responseStatus = 200,
-) {
-    await page.route(`${API_ORGANIZATIONS}/ignore/receivers`, async (route) => {
-        const json = MOCK_GET_RECEIVERS_IGNORE;
-        await route.fulfill({ json, status: responseStatus });
-    });
+    get isPageLoadExpected() {
+        return (
+            super.isPageLoadExpected &&
+            this.testArgs.storageState === this.testArgs.adminLogin.path
+        );
+    }
+
+    createMockOrganizationHandler(): RouteHandlerFulfillEntry {
+        return [
+            OrganizationPage.API_ORGANIZATIONS,
+            () => {
+                return {
+                    json: MOCK_GET_ORGANIZATION_SETTINGS_LIST,
+                };
+            },
+        ];
+    }
 }

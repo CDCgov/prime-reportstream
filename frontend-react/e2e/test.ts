@@ -5,7 +5,12 @@ import {
     PlaywrightWorkerArgs,
     PlaywrightWorkerOptions,
 } from "@playwright/test";
+import process from "process";
 
+// eslint-disable-next-line import/export
+export * from "@playwright/test";
+
+const isMockDisabled = Boolean(process.env.MOCK_DISABLED);
 export interface TestLogin {
     username: string;
     password: string;
@@ -32,6 +37,7 @@ export type TestArgs<P extends keyof PlaywrightAllTestArgs> = Pick<
 > &
     CustomFixtures;
 
+// eslint-disable-next-line import/export
 export const test = base.extend<CustomFixtures>({
     // Define an option and provide a default value.
     // We can later override it in the config.
@@ -65,7 +71,5 @@ export const test = base.extend<CustomFixtures>({
         },
         { option: true },
     ],
-    isMockDisabled: false,
+    isMockDisabled,
 });
-
-export { expect } from "@playwright/test";

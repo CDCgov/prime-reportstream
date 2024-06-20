@@ -11,7 +11,6 @@ dotenvflow.config({
 });
 
 const isCi = Boolean(process.env.CI);
-const isMockDisabled = Boolean(process.env.MOCK_DISABLED);
 
 function createLogins<const T extends Array<string>>(
     loginTypes: T,
@@ -77,9 +76,8 @@ export default defineConfig<CustomFixtures>({
         },
         receiverLogin: {
             ...logins.receiver,
-            landingPage: "/",
+            landingPage: "/daily-data",
         },
-        isMockDisabled,
     },
 
     projects: [
