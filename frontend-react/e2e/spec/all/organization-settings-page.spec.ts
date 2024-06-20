@@ -2,8 +2,8 @@ import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { mockOrganizationSettingsList } from "../mocks/organizations";
-import * as organization from "../pages/organization";
+import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../../mocks/organizations";
+import * as organization from "../../pages/organization";
 
 const __dirname = fileURLToPath(import.meta.url);
 
@@ -37,7 +37,7 @@ test.describe("Admin Organization Settings Page", () => {
         test("If there is an error, the error is shown on the page", async ({
             page,
         }) => {
-            await page.route("/api/settings/organizations", (route) =>
+            await page.route(organization.API_ORGANIZATIONS, (route) =>
                 route.fulfill({ status: 500 }),
             );
             await organization.goto(page);
@@ -49,7 +49,7 @@ test.describe("Admin Organization Settings Page", () => {
                 await page.route(organization.API_ORGANIZATIONS, (route) =>
                     route.fulfill({
                         status: 200,
-                        json: mockOrganizationSettingsList,
+                        json: MOCK_GET_ORGANIZATION_SETTINGS_LIST,
                     }),
                 );
                 await organization.goto(page);
@@ -82,7 +82,7 @@ test.describe("Admin Organization Settings Page", () => {
                 // Heading with result length
                 await expect(
                     page.getByRole("heading", {
-                        name: `Organizations (${mockOrganizationSettingsList.length})`,
+                        name: `Organizations (${MOCK_GET_ORGANIZATION_SETTINGS_LIST.length})`,
                     }),
                 ).toBeVisible();
 
@@ -97,7 +97,7 @@ test.describe("Admin Organization Settings Page", () => {
                     "",
                 ];
                 // include header row
-                const rowCount = mockOrganizationSettingsList.length + 1;
+                const rowCount = MOCK_GET_ORGANIZATION_SETTINGS_LIST.length + 1;
                 const table = page.getByRole("table");
                 await expect(table).toBeVisible();
                 const rows = await table.getByRole("row").all();
@@ -108,8 +108,8 @@ test.describe("Admin Organization Settings Page", () => {
 
                     const { description, jurisdiction, name, stateCode } =
                         i === 0
-                            ? mockOrganizationSettingsList[0]
-                            : mockOrganizationSettingsList.find(
+                            ? MOCK_GET_ORGANIZATION_SETTINGS_LIST[0]
+                            : MOCK_GET_ORGANIZATION_SETTINGS_LIST.find(
                                   (i) => i.name === cols[0],
                               ) ?? { name: "INVALID" };
                     // if first row, we expect column headers. else, the data row matching id (name)
@@ -159,7 +159,7 @@ test.describe("Admin Organization Settings Page", () => {
                 const download = await downloadProm;
 
                 const expectedFile = readFileSync(
-                    join(__dirname, "../../mocks/prime-orgs.csv"),
+                    join(__dirname, "../../../mocks/prime-orgs.csv"),
                     { encoding: "utf-8" },
                 );
                 const stream = await download.createReadStream();
@@ -171,7 +171,7 @@ test.describe("Admin Organization Settings Page", () => {
             test("Filtering works", async ({ page }) => {
                 const table = page.getByRole("table");
                 const { description, name, jurisdiction, stateCode } =
-                    mockOrganizationSettingsList[2];
+                    MOCK_GET_ORGANIZATION_SETTINGS_LIST[2];
                 const filterBox = page.getByRole("textbox", {
                     name: "Filter:",
                 });
