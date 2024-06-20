@@ -1,0 +1,78 @@
+name: Cleanup ACR images
+
+on:
+  push:
+    branches:
+      - josiahsiegel/optimize/acr-cleanup
+  schedule:
+    - cron:  "0 0 * * *" # Runs daily at midnight UTC
+
+jobs:
+  Cleanup_old_ACR_images:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        env: [test, staging, prod]
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+
+      - name: Connect to VPN & Login into Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: List ${{ matrix.env }} repository images
+        run: |
+          az acr login --name pdh${{ matrix.env }}containerregistry
+          az acr repository show-tags --name pdh${{ matrix.env }}containerregistry --repository pdh${{ matrix.env }} --orderby time_asc --output table | head -n -2 > ${{ matrix.env }}-images.txt
+          sed -i '1,2d' ${{ matrix.env }}-images.txt
+
+      - name: Delete old images in ${{ matrix.env }} env
+        env:
+          IMAGE_FILE: ${{ matrix.env }}-images.txt  
+        run: |
+          if [ -e "$IMAGE_FILE" ]; then
+            while IFS= read -r image_id; do
+                az acr repository delete --name pdh${{ matrix.env }}containerregistry --image pdh${{ matrix.env }}:$image_id --yes
+                if [ $? -eq 0 ]; then
+                    echo "Deleted image: pdh${{ matrix.env }}containerregistry:$image_id"
+                else
+                    echo "Failed to delete image: pdh${{ matrix.env }}containerregistry:$image_id"
+                fi
+            done < "$IMAGE_FILE"
+              else
+                echo "File not found: $IMAGE_FILE"
+          fi
+  
+        # Pushing a modified image using an existing tag untags the previously pushed image, 
+        # resulting in an orphaned (or "dangling") image. 
+        # The previously pushed image's manifest--and its layer data--remains in the registry.
+        # They still need to be removed
+
+      - name: List image manifests in ${{ matrix.env }} env
+        run: |
+          az acr login --name pdh${{ matrix.env }}containerregistry
+          az acr repository show-manifests --name pdh${{ matrix.env }}containerregistry --repository pdh${{ matrix.env }} --orderby time_asc --output tsv --query "[*].{Digest:digest}" | head -n -4 > ${{ matrix.env }}-untaged-images.txt
+
+      - name: Delete image manifest in ${{ matrix.env }} env
+        env:
+          UNTAGED_FILE: ${{ matrix.env }}-untaged-images.txt  
+        run: |
+          if [ -e "$UNTAGED_FILE" ]; then
+            while IFS= read -r manifest_id; do
+                az acr repository delete --name pdh${{ matrix.env }}containerregistry --image pdh${{ matrix.env }}@$manifest_id --yes
+                if [ $? -eq 0 ]; then
+                    echo "Deleted image: pdh${{ matrix.env }}:$manifest_id"
+                else
+                    echo "Failed to delete image: pdh${{ matrix.env }}:$manifest_id"
+                fi
+            done < "$UNTAGED_FILE"
+              else
+                echo "File not found: $UNTAGED_FILE"
+          fi
