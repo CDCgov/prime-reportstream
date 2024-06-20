@@ -1,8 +1,13 @@
 package gov.cdc.prime.router.fhirengine.translation
 
 import com.azure.storage.blob.models.BlobItem
+import fhirengine.engine.CustomFhirPathFunctions
+import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -417,7 +422,22 @@ class TranslationSchemaManager : Logging {
                     SchemaType.HL7 -> {
                         FhirToHl7Converter(
                             rawValidationInput.schemaUri,
-                            blobContainerInfo
+                            blobContainerInfo,
+                            context = FhirToHl7Context(
+                                CustomFhirPathFunctions(),
+                                config = HL7TranslationConfig(
+                                    Hl7Configuration(
+                                        receivingApplicationOID = null,
+                                        receivingFacilityOID = null,
+                                        messageProfileId = null,
+                                        receivingApplicationName = null,
+                                        receivingFacilityName = null,
+                                        receivingOrganization = null,
+                                    ),
+                                    null
+                                ),
+                                translationFunctions = CustomTranslationFunctions(),
+                            )
                         ).validate(
                             inputBundle,
                             hL7Reader.getMessages(rawValidationInput.output)[0]
