@@ -1,9 +1,8 @@
-import { expect, Page } from "@playwright/test";
+import { Page } from "@playwright/test";
 import { TOTP } from "otpauth";
 
 import { fulfillGoogleAnalytics } from "./utils";
-import { test as setup } from "../test";
-import type { TestLogin } from "../test";
+import { expect, test as setup, type TestLogin } from "../test";
 
 async function logIntoOkta(page: Page, login: TestLogin) {
     const totp = new TOTP({ secret: login.totpCode });
