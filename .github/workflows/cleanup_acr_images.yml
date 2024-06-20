@@ -1,19 +1,16 @@
 name: Cleanup ACR images
 
 on:
-  push:
-    branches:
-      - josiahsiegel/optimize/acr-cleanup
   schedule:
     - cron:  "0 0 * * *" # Runs daily at midnight UTC
 
 jobs:
-  Cleanup_old_ACR_images:
+  cleanup_images:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
       matrix:
-        env: [test, staging, prod]
+        env: [staging, prod]
     steps:
       - name: "Check out changes"
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
@@ -30,7 +27,10 @@ jobs:
       - name: List ${{ matrix.env }} repository images
         run: |
           az acr login --name pdh${{ matrix.env }}containerregistry
-          az acr repository show-tags --name pdh${{ matrix.env }}containerregistry --repository pdh${{ matrix.env }} --orderby time_asc --output table | head -n -2 > ${{ matrix.env }}-images.txt
+          images=$(az acr repository show-tags --name pdh${{ matrix.env }}containerregistry --repository pdh${{ matrix.env }} --orderby time_asc --output table)
+          echo "Reserving latest 2 from:"
+          echo "$images"
+          echo "$images" | head -n -2 > ${{ matrix.env }}-images.txt
           sed -i '1,2d' ${{ matrix.env }}-images.txt
 
       - name: Delete old images in ${{ matrix.env }} env
@@ -58,7 +58,10 @@ jobs:
       - name: List image manifests in ${{ matrix.env }} env
         run: |
           az acr login --name pdh${{ matrix.env }}containerregistry
-          az acr manifest list-metadata --name pdh${{ matrix.env }}containerregistry --repository pdh${{ matrix.env }} --orderby time_asc --output tsv --query "[*].{Digest:digest}" | head -n -4 > ${{ matrix.env }}-untaged-images.txt
+          manifest=$(az acr manifest list-metadata -r pdh${{ matrix.env }}containerregistry -n pdh${{ matrix.env }} --orderby time_asc --output tsv --query "[*].{Digest:digest}")
+          echo "Reserving latest 4 from:"
+          echo "$manifest"
+          echo "$manifest" | head -n -4 > ${{ matrix.env }}-untaged-images.txt
 
       - name: Delete image manifest in ${{ matrix.env }} env
         env:
