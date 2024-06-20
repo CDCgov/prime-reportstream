@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { selectTestOrg, tableDataCellValue } from "../helpers/utils";
-import { detailsTableHeaders, title } from "../pages/daily-data";
-import * as reportDetails from "../pages/report-details";
+import { selectTestOrg, tableDataCellValue } from "../../helpers/utils";
+import { detailsTableHeaders, title } from "../../pages/daily-data";
+import * as reportDetails from "../../pages/report-details";
 
 const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
 const fileName = `hhsprotect-covid-19-73e3cbc8-9920-4ab7-871f-843a1db4c074.csv`;

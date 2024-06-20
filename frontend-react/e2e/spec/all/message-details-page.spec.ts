@@ -1,13 +1,13 @@
 import { expect, test } from "@playwright/test";
 import fs from "node:fs";
-import { parseFileLocation } from "../../src/utils/misc";
-import { tableRows } from "../helpers/utils";
-import { MOCK_GET_MESSAGE } from "../mocks/messages";
-import * as messageDetails from "../pages/message-details";
-import { URL_MESSAGE_DETAILS } from "../pages/message-details";
-import * as messageIdSearch from "../pages/message-id-search";
-import { MESSAGE_ID } from "../pages/message-id-search";
-import { mockGetHistoryReportResponse } from "../pages/report-details";
+import { parseFileLocation } from "../../../src/utils/misc";
+import { tableRows } from "../../helpers/utils";
+import { MOCK_GET_MESSAGE } from "../../mocks/messages";
+import * as messageDetails from "../../pages/message-details";
+import { URL_MESSAGE_DETAILS } from "../../pages/message-details";
+import * as messageIdSearch from "../../pages/message-id-search";
+import { MESSAGE_ID } from "../../pages/message-id-search";
+import { mockGetHistoryReportResponse } from "../../pages/report-details";
 test.describe("Message Details Page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
