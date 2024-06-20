@@ -3,10 +3,10 @@
 # ./prime multiple-settings set --input ./setting/staging/ia-phd.yml
 #
 ---
-- name: "ma-phd"
-  description: "Massachusetts Public Health Department"
+- name: "ia-phd"
+  description: "Iowa Public Health Department"
   jurisdiction: "STATE"
-  stateCode: "MA"
+  stateCode: "IA"
   countyName: null
   filters: null
   featureFlags: null
@@ -14,36 +14,30 @@
   senders: []
   receivers:
     - name: "full-elr"
-      organizationName: "ma-phd"
+      organizationName: "ia-phd"
       topic: "full-elr"
       customerStatus: "active"
       translation: !<HL7>
-        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/MA/IA-receiver-transform.yml"
+        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/IA/IA-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
-        receivingApplicationName: "MA-MDPH"
-        receivingApplicationOID: "2.16.840.1.113883.19.3.2"
-        receivingFacilityName: "MA-MDPH"
-        receivingFacilityOID: "2.16.840.1.113883.19.3.2"
+        receivingApplicationName: "IA.DOH.IDSS"
+        receivingApplicationOID: "2.16.840.1.114222.4.3.3.19"
+        receivingFacilityName: "IA DOH"
+        receivingFacilityOID: "2.16.840.1.114222.4.1.3650"
         messageProfileId: null
-        replaceValue: {}
-        replaceValueAwithB:
-          MSH-3:
-            - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
-          MSH-5:
-            - '*': "MA-MDPH^2.16.840.1.113883.19.3.2^ISO"
-          MSH-6:
-            - '*': "MA-MDPH^2.16.840.1.113883.19.3.2^ISO"
+        replaceValue: []
+        replaceValueAwithB: []
         reportingFacilityName: null
         reportingFacilityId: null
         reportingFacilityIdType: null
         suppressQstForAoe: false
-        suppressHl7Fields: "PID-20"
+        suppressHl7Fields: null
         suppressAoe: false
         defaultAoeToUnknown: false
         replaceUnicodeWithAscii: false
         useBlankInsteadOfUnknown: null
-        truncateHDNamespaceIds: false
+        truncateHDNamespaceIds: true
         truncateHl7Fields: null
         usePid14ForPatientEmail: false
         convertTimestampToDateTime: null
@@ -56,7 +50,7 @@
         applyOTCDefault: false
         useOrderingFacilityName: "STANDARD"
         valueSetOverrides: {}
-        nameFormat: "MASSACHUSETTS"
+        nameFormat: "STANDARD"
         receivingOrganization: null
         convertPositiveDateTimeOffsetToNegative: false
         stripInvalidCharsRegex: null
@@ -64,11 +58,11 @@
         useHighPrecisionHeaderDateTimeFormat: false
         type: "HL7"
         truncationConfig:
-          truncateHDNamespaceIds: false
+          truncateHDNamespaceIds: true
           truncateHl7Fields: []
           customLengthHl7Fields: {}
       jurisdictionalFilter:
-        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'MA') or (Bundle.entry.resource.ofType(Patient).address.state = 'MA')"
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'IA') or (Bundle.entry.resource.ofType(Patient).address.state = 'IA')"
       qualityFilter:
         - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or Bundle.entry.resource.ofType(serviceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists())"
         - "(Bundle.entry.resource.ofType(Patient).address.line.exists() or Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or Bundle.entry.resource.ofType(Patient).telecom.exists())"
@@ -89,7 +83,7 @@
       timing:
         operation: "MERGE"
         numberPerDay: 12
-        initialTime: "09:50"
+        initialTime: "01:35"
         timeZone: "EASTERN"
         maxReportCount: 100
         whenEmpty:
@@ -97,12 +91,12 @@
           onlyOncePerDay: false
       description: ""
       transport: !<SFTP>
-        host: "sftp-dph.ehs.mass.gov"
+        host: "sftp.iowa.gov"
         port: "22"
-        filePath: "./"
+        filePath: "./inbound/prod"
         credentialName: null
         type: "SFTP"
-      externalName: null
+      externalName: "Iowa Primary Feed"
       enrichmentSchemaNames: []
       timeZone: null
       dateTimeFormat: "OFFSET"
