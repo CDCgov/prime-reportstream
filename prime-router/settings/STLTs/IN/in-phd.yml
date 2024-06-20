@@ -13,7 +13,7 @@
       topic: "full-elr"
       customerStatus: "testing"
       translation:
-        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/IN/IN-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: "IN-ELR"
@@ -89,10 +89,10 @@
           onlyOncePerDay: false
       description: ""
       transport:
-        host: "sftp"
+        host: "gasecuremft.in.gov"
         port: "22"
-        filePath: "./upload"
-        credentialName: "DEFAULT-SFTP"
+        filePath: "CDCRS/Prod"
+        credentialName: null
         type: "SFTP"
       externalName: "Indiana Public Health Department"
       enrichmentSchemaNames: []
