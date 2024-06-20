@@ -58,7 +58,7 @@ jobs:
       - name: List image manifests in ${{ matrix.env }} env
         run: |
           az acr login --name pdh${{ matrix.env }}containerregistry
-          az acr repository show-manifests --name pdh${{ matrix.env }}containerregistry --repository pdh${{ matrix.env }} --orderby time_asc --output tsv --query "[*].{Digest:digest}" | head -n -4 > ${{ matrix.env }}-untaged-images.txt
+          az acr manifest list-metadata --name pdh${{ matrix.env }}containerregistry --repository pdh${{ matrix.env }} --orderby time_asc --output tsv --query "[*].{Digest:digest}" | head -n -4 > ${{ matrix.env }}-untaged-images.txt
 
       - name: Delete image manifest in ${{ matrix.env }} env
         env:
