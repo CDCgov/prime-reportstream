@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import * as resources from "../pages/resources";
+import * as resources from "../../pages/resources";
 
 // eslint-disable-next-line playwright/no-skipped-test
 test.describe.skip("Developer Resources page", () => {
