@@ -36,9 +36,7 @@ const ReferHealthcareOrganizations = lazy(
             ),
     ),
 );
-const GettingStartedIndex = lazy(
-    lazyRouteMarkdown(() => import("./content/getting-started/index.mdx")),
-);
+
 const GettingStartedSendingData = lazy(
     lazyRouteMarkdown(
         () => import("./content/getting-started/sending-data.mdx"),
@@ -299,14 +297,6 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "getting-started",
                 children: [
-                    {
-                        index: true,
-                        element: <GettingStartedIndex />,
-                        handle: {
-                            isContentPage: true,
-                            isFullWidth: true,
-                        },
-                    },
                     {
                         path: "sending-data",
                         element: <GettingStartedSendingData />,
