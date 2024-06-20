@@ -318,20 +318,20 @@ function ReportStreamNavbar({
             dropdownList={[
                 <USSmartLink
                     href="/getting-started/sending-data"
-                    key="our-network"
+                    key="sending-data"
                 >
                     Sending Data
                 </USSmartLink>,
                 <USSmartLink
                     href="/getting-started/receiving-data"
-                    key="roadmap"
+                    key="receiving-data"
                 >
                     Receiving Data
                 </USSmartLink>,
             ]}
             activeDropdown={activeDropdown}
             setActiveDropdown={setActiveDropdown}
-            key="about"
+            key="getting-started"
         />,
     ];
     const navbarItemBuilder = () => {
