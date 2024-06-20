@@ -54,16 +54,16 @@ export const MOCK_GET_RECEIVERS_AK = [
             },
         },
         jurisdictionalFilter: [
-            "(%performerState.exists() and %performerState = 'AK') or (%patientState.exists() and %patientState = 'AK')",
+            "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'AK') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'AK')",
         ],
         qualityFilter: [
-            "%messageId.exists()",
-            "%patient.birthDate.exists()",
-            "%patient.name.family.exists()",
-            "%patient.name.given.count() > 0",
-            "%specimen.type.exists()",
-            "(%patient.address.line.exists() or %patient.address.postalCode.exists() or %patient.telecom.exists())",
-            "((%specimen.collection.collectedPeriod.exists() or %specimen.collection.collected.exists()) or %serviceRequest.occurrence.exists() or %observation.effective.exists())",
+            "Bundle.entry.resource.ofType(MessageHeader).id.exists()",
+            "Bundle.entry.resource.ofType(Patient).birthDate.exists()",
+            "Bundle.entry.resource.ofType(Patient).name.family.exists()",
+            "Bundle.entry.resource.ofType(Patient).name.given.count() > 0",
+            "Bundle.entry.resource.ofType(Specimen).type.exists()",
+            "(Bundle.entry.resource.ofType(Patient).address.line.exists() or Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or Bundle.entry.resource.ofType(Patient).telecom.exists())",
+            "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists())",
         ],
         routingFilter: [
             "Bundle.entry.resource.ofType(Organization).where(identifier.value in ('05D2201580')).exists()",
@@ -244,16 +244,16 @@ export const MOCK_GET_RECEIVERS_IGNORE = [
             },
         },
         jurisdictionalFilter: [
-            "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')",
+            "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'IG') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'IG')",
         ],
         qualityFilter: [
-            "%messageId.exists()",
-            "%patient.birthDate.exists()",
-            "%patient.name.family.exists()",
-            "%patient.name.given.count() > 0",
-            "%specimen.type.exists()",
-            "(%patient.address.line.exists() or %patient.address.postalCode.exists() or %patient.telecom.exists())",
-            "((%specimen.collection.collectedPeriod.exists() or %specimen.collection.collected.exists()) or %serviceRequest.occurrence.exists() or %observation.effective.exists())",
+            "Bundle.entry.resource.ofType(MessageHeader).id.exists()",
+            "Bundle.entry.resource.ofType(Patient).birthDate.exists()",
+            "Bundle.entry.resource.ofType(Patient).name.family.exists()",
+            "Bundle.entry.resource.ofType(Patient).name.given.count() > 0",
+            "Bundle.entry.resource.ofType(Specimen).type.exists()",
+            "(Bundle.entry.resource.ofType(Patient).address.line.exists() or Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or Bundle.entry.resource.ofType(Patient).telecom.exists())",
+            "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists())",
         ],
         routingFilter: [],
         processingModeFilter: [
@@ -344,7 +344,7 @@ export const MOCK_GET_RECEIVERS_IGNORE = [
             },
         },
         jurisdictionalFilter: [
-            "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')",
+            "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'IG') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'IG')",
         ],
         qualityFilter: ["true"],
         routingFilter: [],
@@ -418,10 +418,10 @@ export const mockOrganizationSettingsList = [
             {
                 topic: "full-elr",
                 jurisdictionalFilter: [
-                    "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')",
+                    "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'IG') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'IG')",
                 ],
                 qualityFilter: [
-                    "(%hl7MessageType.exists() and %hl7MessageType = 'R01')",
+                    "(Bundle.entry.resource.ofType(MessageHeader).event.code.exists() and Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01')",
                 ],
                 routingFilter: null,
                 processingModeFilter: null,
@@ -503,7 +503,7 @@ export const mockOrganizationSettingsList = [
             {
                 topic: "full-elr",
                 jurisdictionalFilter: [
-                    "(%performerState.exists() and %performerState = 'MD') or (%patientState.exists() and %patientState = 'MD')",
+                    "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'MD') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'MD')",
                 ],
                 qualityFilter: null,
                 routingFilter: null,

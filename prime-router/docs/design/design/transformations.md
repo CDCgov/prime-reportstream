@@ -159,7 +159,7 @@ for that particular schema element
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '%{hl7ObservationPath}'
-      noteDetails: '%observation.note'
+      noteDetails: 'Bundle.entry.resource.ofType(Observation).note'
   ```
   where `%resource` will be the list of strings from splitting the note text and `%context` will be the observation
 - `%rootResource` will always map to the FHIR bundle that is being converted
