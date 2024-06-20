@@ -1,5 +1,7 @@
 import { addDays } from "date-fns";
 import {
+    dateShortFormat,
+    durationFormatShort,
     formatDateWithoutSeconds,
     generateDateTitles,
     isDateExpired,
@@ -73,5 +75,39 @@ describe("formatDateWithoutSeconds", () => {
         });
         const date = formatDateWithoutSeconds("");
         expect(date).toBe(expectedDate.replace(/,/, ""));
+    });
+});
+
+describe("dateShortFormat", () => {
+    test("as expected", () => {
+        expect(dateShortFormat(new Date("2022-07-11T08:09:22.748Z"))).toBe(
+            "Mon, 7/11/2022",
+        );
+    });
+});
+
+describe("durationFormatShort", () => {
+    test("as expected", () => {
+        const now = new Date();
+        const before = new Date(now);
+        before.setHours(
+            before.getHours() - 1,
+            before.getMinutes() - 2,
+            before.getSeconds() - 3,
+        );
+
+        const result1 = durationFormatShort(now, before);
+        expect(result1).toBe("1h 02m 03s");
+
+        const future2 = new Date(now.getTime() + 5678);
+        const result2 = durationFormatShort(future2, now);
+        expect(result2).toBe("05.678s");
+
+        future2.setHours(future2.getHours() + 12, future2.getMinutes() + 34);
+        const result3 = durationFormatShort(future2, now);
+        expect(result3).toBe("12h 34m 05.678s");
+
+        const result4 = durationFormatShort(now, now);
+        expect(result4).toBe("");
     });
 });

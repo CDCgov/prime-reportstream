@@ -9,8 +9,8 @@ import {
     TEST_ORG_AK_RECEIVER,
     TEST_ORG_IGNORE_RECEIVER,
     waitForAPIResponse,
-} from "../helpers/utils";
-import * as dailyData from "../pages/daily-data";
+} from "../../helpers/utils";
+import * as dailyData from "../../pages/daily-data";
 import {
     applyButton,
     endDate,
@@ -28,15 +28,15 @@ import {
     startTime,
     startTimeClear,
     tableHeaders,
-} from "../pages/daily-data";
+} from "../../pages/daily-data";
 import {
     mockGetOrgAlaskaReceiversResponse,
     mockGetOrgIgnoreReceiversResponse,
-} from "../pages/organization";
+} from "../../pages/organization";
 import {
     mockGetDeliveriesForOrgAlaskaResponse,
     mockGetDeliveriesForOrgIgnoreResponse,
-} from "../pages/report-details";
+} from "../../pages/report-details";
 
 const defaultStartTime = "9:00am";
 const defaultEndTime = "11:30pm";
