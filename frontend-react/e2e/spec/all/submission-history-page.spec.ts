@@ -6,9 +6,9 @@ import {
     tableDataCellValue,
     tableRows,
     TEST_ORG_IGNORE,
-} from "../helpers/utils";
-import * as submissionHistory from "../pages/submission-history";
-import { openReportIdDetailPage } from "../pages/submission-history";
+} from "../../helpers/utils";
+import * as submissionHistory from "../../pages/submission-history";
+import { openReportIdDetailPage } from "../../pages/submission-history";
 
 const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
 test.describe("Submission history page", () => {

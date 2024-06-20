@@ -1,7 +1,7 @@
 import type { Tokens } from "@okta/okta-auth-js";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useSearchParams } from "react-router-dom";
 import type { Location } from "react-router-dom";
 
 import { USLink } from "../components/USLink";
@@ -12,6 +12,15 @@ export function Login() {
     const { oktaAuth, authState, config } = useSessionContext();
     const location: Location<{ originalUrl?: string } | undefined> =
         useLocation();
+    const [searchParams] = useSearchParams();
+    const finalConfig = useMemo(
+        () => ({
+            ...config.OKTA_WIDGET,
+            otp: searchParams.get("otp"),
+            token: searchParams.get("token"),
+        }),
+        [config.OKTA_WIDGET, searchParams],
+    );
 
     const onSuccess = useCallback(
         (tokens: Tokens) => {
@@ -45,7 +54,7 @@ export function Login() {
             </Helmet>
             <OktaSignInWidget
                 className="margin-top-6 margin-x-auto width-mobile-lg padding-x-8"
-                config={config.OKTA_WIDGET}
+                config={finalConfig}
                 onSuccess={onSuccess}
                 onError={onError}
             >
