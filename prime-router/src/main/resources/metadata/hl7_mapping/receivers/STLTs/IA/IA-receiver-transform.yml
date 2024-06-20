@@ -1,0 +1,63 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+constants:
+  PID: '/PATIENT_RESULT/PATIENT/PID'
+
+elements:
+
+  - name: xtn-use-code-from-system
+    condition: '%resource.system = "email"'
+    value: [ '"NET"' ]
+    hl7Spec: [ '%{hl7TelecomPath}-2' ]
+
+  - name: ia-name-of-the-sender-application-Namespace-Id
+    condition: true
+    value: [ '"CDC PRIME - Atlanta,"' ]
+    hl7Spec: [ 'MSH-3-1' ]
+
+  - name: ia-sender-application-Universal-Id
+    condition: true
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+    hl7Spec: [ 'MSH-3-2' ]
+
+  - name: ia-sender-application-Universal-Id-Type
+    condition: true
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-3-3' ]
+
+  - name: ia-name-of-the-receiving-application
+    condition: true
+    value: [ '"IA.DOH.IDSS"' ]
+    hl7Spec: [ 'MSH-5-1' ]
+
+  - name: ia-OID-of-the-receiving-application
+    condition: true
+    value: [ '"2.16.840.1.114222.4.3.3.19"' ]
+    hl7Spec: [ 'MSH-5-2' ]
+
+  - name: ia-indicates-that-5.2-is-an-OID
+    condition: true
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-5-3' ]
+
+  - name: ia-receiving-facility-namespace-ID
+    condition: true
+    value: [ '"IA DOH"' ]
+    hl7Spec: [ 'MSH-6-1' ]
+
+  - name: ia-receiving-facility-universal-ID
+    condition: true
+    value: [ '"2.16.840.1.114222.4.1.3650"' ]
+    hl7Spec: [ 'MSH-6-2' ]
+
+  - name: ia-receiving-facility-universal-ID-Type
+    condition: true
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-6-3' ]
+
+  - name: ia-patient-race-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+    condition: '%resource.code.exists()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '%{PID}-10-3' ]
