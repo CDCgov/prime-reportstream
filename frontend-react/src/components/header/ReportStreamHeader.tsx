@@ -250,7 +250,7 @@ function ReportStreamNavbar({
         <div className="primary-nav-link-container" key="getting-started">
             <USSmartLink
                 className={primaryLinkClasses(!!useMatch("/getting-started/*"))}
-                href="/getting-started"
+                href="https://www.cdc.gov/randomstring"
             >
                 Getting started
             </USSmartLink>
