@@ -148,9 +148,10 @@ class SubmissionFunctionTests : Logging {
     val connection = MockConnection(dataProvider)
     private val accessSpy = spyk(DatabaseAccess(connection))
 
-    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
+    private fun makeEngine(metadata: Metadata, settings: SettingsProvider, useMockDatabase: Boolean): WorkflowEngine {
+        val dbAccess = if (useMockDatabase) accessSpy else ReportStreamTestDatabaseContainer.testDatabaseAccess
         return spyk(
-            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy).build()
+            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(dbAccess).build()
         )
     }
 
@@ -320,6 +321,7 @@ class SubmissionFunctionTests : Logging {
     private fun setupSubmissionFunctionForTesting(
         oktaClaimsOrganizationName: String,
         facade: SubmissionsFacade,
+        useMockDatabase: Boolean = true,
     ): SubmissionFunction {
         val claimsMap = buildClaimsMap(oktaClaimsOrganizationName)
         val metadata = Metadata(schema = Schema(name = "one", topic = Topic.TEST))
@@ -359,7 +361,7 @@ class SubmissionFunctionTests : Logging {
 
         settings.senderStore[sender2.fullName] = sender2
         settings.receiverStore["flexion.etor-service-receiver-orders"] = receiver
-        val engine = makeEngine(metadata, settings)
+        val engine = makeEngine(metadata, settings, useMockDatabase)
         engine.settings.receivers.plus(receiver)
         mockkObject(OktaAuthentication.Companion)
         every { OktaAuthentication.Companion.decodeJwt(any()) } returns
@@ -520,100 +522,94 @@ class SubmissionFunctionTests : Logging {
     }
 
     private fun setupEtorTestData(): UUID {
-        var reportId: UUID = UUID.randomUUID()
+        var receiveReportId: UUID = UUID.randomUUID()
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val action = Action()
             action.actionName = TaskAction.receive
-            val actionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
-            val report = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
-                .setActionId(actionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1)
+            action.sendingOrg = "test org"
+            val receiveActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
+            val receiveReport = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
+                .setActionId(receiveActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1)
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
-                report, txn, action
+                receiveReport, txn, action
             )
 
-            reportId = report.reportId
+            receiveReportId = receiveReport.reportId
 
-            val action2 = Action()
-            // TODO - insert all the other steps
-            action2.actionName = TaskAction.batch
-            val actionId2 = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action2)
-            val report2 = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
-                .setActionId(actionId2).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1)
+            action.actionName = TaskAction.convert
+
+            val convertActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
+            val convertReport = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
+                .setActionId(convertActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1).setReceivingOrg("flexion")
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
-                report2, txn, action2
+                convertReport, txn, action
+            )
+
+            action.actionName = TaskAction.route
+
+            val routeActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
+            val routeReport = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
+                .setActionId(routeActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1).setReceivingOrg("flexion")
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
+                routeReport, txn, action
+            )
+
+            action.actionName = TaskAction.translate
+
+            val translateActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
+            val translateReport = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
+                .setActionId(translateActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1).setReceivingOrg("flexion")
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
+                translateReport, txn, action
+            )
+
+            action.actionName = TaskAction.batch
+
+            val batchActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
+            val batchReport = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
+                .setActionId(batchActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1).setReceivingOrg("flexion")
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
+                batchReport, txn, action
             )
 
             val reportLineage = ReportLineage()
-            reportLineage.actionId = actionId2
-            reportLineage.childReportId = report2.reportId
-            reportLineage.parentReportId = report.reportId
+            reportLineage.actionId = convertActionId
+            reportLineage.childReportId = convertReport.reportId
+            reportLineage.parentReportId = receiveReport.reportId
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportLineage(reportLineage, txn)
 
+            reportLineage.actionId = routeActionId
+            reportLineage.childReportId = routeReport.reportId
+            reportLineage.parentReportId = convertReport.reportId
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportLineage(reportLineage, txn)
+
+            reportLineage.actionId = translateActionId
+            reportLineage.childReportId = translateReport.reportId
+            reportLineage.parentReportId = routeReport.reportId
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportLineage(reportLineage, txn)
+
+            reportLineage.actionId = batchActionId
+            reportLineage.childReportId = batchReport.reportId
+            reportLineage.parentReportId = translateReport.reportId
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportLineage(reportLineage, txn)
         }
-        return reportId
+        return receiveReportId
     }
 
     @Test
     fun `test getEtorMetadata`() {
         val goodUuid = setupEtorTestData()
-//
-//        val reportFileDatabaseAccess =
-//            ReportFileDatabaseAccess(ReportStreamTestDatabaseContainer.testDatabaseAccess)
-//        val rows = reportFileDatabaseAccess.getReports(ReportFileApiSearch(emptyList(), null))
-//
 
-        // val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
         val mockRequest = MockHttpRequestMessage()
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
-        val mockSubmissionFacade = mockk<SubmissionsFacade>()
-        val function = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, mockSubmissionFacade)
+        val submissionFacade = SubmissionsFacade( DatabaseSubmissionsAccess(ReportStreamTestDatabaseContainer.testDatabaseAccess), ReportStreamTestDatabaseContainer.testDatabaseAccess)
+        val function = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, submissionFacade, false)
         mockkObject(AuthenticatedClaims.Companion)
         every { AuthenticatedClaims.authenticate(any()) } returns
             AuthenticatedClaims.generateTestClaims()
 
-        val detailedReport = DetailedReport(
-            UUID.randomUUID(),
-            "flexion", "flexion", "lab", "lab", Topic.ETOR_TI, "external",
-            null, null, 1, 1, true
-        )
-
-        // Good return
-        val returnBody = DetailedSubmissionHistory(
-            550, TaskAction.receive, OffsetDateTime.now(), 201,
-            mutableListOf(detailedReport)
-        )
-
-        returnBody.destinations = listOf(
-            Destination(
-                "flexion", "test", mutableListOf(), mutableListOf(),
-                OffsetDateTime.now(), 1, 1, mutableListOf(detailedReport), mutableListOf()
-            )
-        ).toMutableList()
-
         mockkConstructor(RESTTransport::class)
         mockkConstructor(HttpClient::class)
-        val action = Action()
-        action.actionId = 550
-        action.sendingOrg = organizationName
-        action.actionName = TaskAction.receive
-
-        // mockkConstructor(ReportGraph::class)
-
-        val firstReport = ReportFile()
-        firstReport.reportId = UUID.randomUUID()
-        firstReport.receivingOrg = "not-flexion"
-
-        val secondReport = ReportFile()
-        secondReport.reportId = UUID.randomUUID()
-        secondReport.receivingOrg = "flexion"
-
-//        every {
-//            anyConstructed<ReportGraph>().getDescendantReports(any(), any(), any())
-//        } returns listOf(firstReport, secondReport)
-        every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
-        every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
-        every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
 
         val restCreds = mockk<RestCredential>()
         val userCreds = mockk<UserJksCredential>()
