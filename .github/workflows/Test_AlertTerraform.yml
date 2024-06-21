@@ -40,10 +40,5 @@ jobs:
         id: format_out
         if: steps.stats1.outputs.change-count > 0
         run: |
-            EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-            echo "CHANGES<<$EOF" >> $GITHUB_OUTPUT
-            echo "resource-changes=$(echo '${{ steps.stats1.outputs.resource-changes }}' \
-                | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_OUTPUT
-            echo "resource-drifts=$(echo '${{ steps.stats1.outputs.resource-drifts }}' \
-                | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_OUTPUT
-            echo "$EOF" >> $GITHUB_OUTPUT
+            echo  "${{ steps.stats1.outputs.change-count }}"
+            echo "${{ steps.stats1.outputs.drift-count }}"
