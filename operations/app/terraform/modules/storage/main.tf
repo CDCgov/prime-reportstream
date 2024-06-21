@@ -18,7 +18,7 @@ resource "azurerm_storage_account" "storage_account" {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
     bypass         = ["AzureServices"]
     ip_rules = var.terraform_caller_ip_address
-    virtual_network_subnet_ids = var.subnets.primary_subnets
+    virtual_network_subnet_ids = var.subnets.app_subnets
   }
 
   # Required for customer-managed encryption
@@ -48,7 +48,7 @@ resource "azurerm_storage_queue" "storage_queue" {
 }
 
 module "storageaccount_blob_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
+  for_each = toset(var.subnets.app_subnets)
 
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_account.id
@@ -64,7 +64,7 @@ module "storageaccount_blob_private_endpoint" {
 }
 
 module "storageaccountpartner_blob_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
+  for_each = toset(var.subnets.app_subnets)
 
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_partner.id
@@ -80,7 +80,7 @@ module "storageaccountpartner_blob_private_endpoint" {
 }
 
 module "storageaccount_file_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
+  for_each = toset(var.subnets.app_subnets)
 
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_account.id
@@ -96,7 +96,7 @@ module "storageaccount_file_private_endpoint" {
 }
 
 module "storageaccount_queue_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
+  for_each = toset(var.subnets.app_subnets)
 
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_account.id
@@ -228,7 +228,7 @@ resource "azurerm_storage_account" "storage_partner" {
       var.terraform_caller_ip_address
     ))
 
-    virtual_network_subnet_ids = var.subnets.primary_public_endpoint_subnets
+    virtual_network_subnet_ids = var.subnets.app_subnets
   }
 
   # Required for customer-managed encryption

@@ -19,14 +19,14 @@ locals {
 ## START
 ##########
 locals {
-  public_subnet_ids = [for k, v in data.azurerm_subnet.public_subnet : v.id]
+  #public_subnet_ids = [for k, v in data.azurerm_subnet.public_subnet : v.id]
   #container_subnet_ids = [for k, v in data.azurerm_subnet.container_subnet : v.id]
   #private_subnet_ids   = [for k, v in data.azurerm_subnet.private_subnet : v.id]
   #endpoint_subnet_ids  = [for k, v in data.azurerm_subnet.endpoint_subnet : v.id]
   #gateway_subnet_ids   = [for k, v in data.azurerm_subnet.gateway_subnet : v.id]
   postgres_subnet_ids = [for k, v in data.azurerm_subnet.postgres_subnet : v.id]
-  app_vnet_subnets = values({
-    for id, details in data.azurerm_subnet.app_vnet :
+  app_subnets = values({
+    for id, details in data.azurerm_subnet.app_subnet :
     id => ({ "id" = details.id })
   }).*.id
   app_vnet    = data.azurerm_virtual_network.vnet["app-vnet"]
@@ -34,8 +34,8 @@ locals {
 }
 
 locals {
-  all_subnets             = concat(local.public_subnet_ids)
-  public_endpoint_subnets = concat(local.public_subnet_ids)
+  all_subnets             = concat(local.app_subnets, local.postgres_subnet_ids)
+  #public_endpoint_subnets = concat(local.public_subnet_ids)
   postgres_subnet         = local.postgres_subnet_ids
 }
 
@@ -43,7 +43,7 @@ locals {
   primary_subnets                                = local.all_subnets
   #primary_endpoint_subnets                       = setsubtract(local.endpoint_subnet_ids, local.replica_subnets)
   #replica_endpoint_subnets                       = setsubtract(local.endpoint_subnet_ids, local.primary_subnets)
-  primary_public_endpoint_subnets                = local.public_endpoint_subnets
+  #primary_public_endpoint_subnets                = local.public_endpoint_subnets
   #vnet_public_container_endpoint_private_subnets = setsubtract(local.vnet_subnets, local.gateway_subnet_ids)
   #vnet_public_container_endpoint_subnets         = setsubtract(local.vnet_public_container_endpoint_private_subnets, local.private_subnet_ids)
 }
@@ -52,13 +52,14 @@ locals {
   subnets = {
     all_subnets                            = local.all_subnets
     #vnet_subnets                           = local.vnet_subnets
-    public_subnets                         = local.public_subnet_ids
+    public_subnets                         = local.app_subnets
+    app_subnets                            = local.app_subnets
     #replica_subnets                        = local.replica_subnets
     primary_subnets                        = local.primary_subnets
     #primary_endpoint_subnets               = local.primary_endpoint_subnets
     #replica_endpoint_subnets               = local.replica_endpoint_subnets
-    public_endpoint_subnets                = local.public_endpoint_subnets
-    primary_public_endpoint_subnets        = local.primary_public_endpoint_subnets
+    #public_endpoint_subnets                = local.public_endpoint_subnets
+    #primary_public_endpoint_subnets        = local.primary_public_endpoint_subnets
     #vnet_endpoint_subnets                  = local.vnet_endpoint_subnet
     #vnet_public_container_endpoint_subnets = local.vnet_public_container_endpoint_subnets
     postgres_subnets                       = local.postgres_subnet

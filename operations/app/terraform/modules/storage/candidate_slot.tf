@@ -20,7 +20,7 @@ resource "azurerm_storage_account" "storage_account_candidate" {
 
     ip_rules = var.terraform_caller_ip_address
 
-    virtual_network_subnet_ids = var.subnets.vnet_public_container_endpoint_subnets
+    virtual_network_subnet_ids = var.subnets.app_subnets
   }
 
   # Required for customer-managed encryption
@@ -44,7 +44,7 @@ resource "azurerm_storage_account" "storage_account_candidate" {
 }
 
 module "storageaccount_candidate_blob_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
+  for_each = toset(var.subnets.app_subnets)
 
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_account_candidate.id
@@ -60,7 +60,7 @@ module "storageaccount_candidate_blob_private_endpoint" {
 }
 
 module "storageaccountcandidatepartner_blob_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
+  for_each = toset(var.subnets.app_subnets)
 
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_partner_candidate.id
@@ -76,7 +76,7 @@ module "storageaccountcandidatepartner_blob_private_endpoint" {
 }
 
 module "storageaccount_candidate_file_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
+  for_each = toset(var.subnets.app_subnets)
 
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_account_candidate.id
@@ -92,7 +92,7 @@ module "storageaccount_candidate_file_private_endpoint" {
 }
 
 module "storageaccount_candidate_queue_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
+  for_each = toset(var.subnets.app_subnets)
 
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_account_candidate.id
@@ -177,7 +177,7 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
 
     ip_rules = var.terraform_caller_ip_address
 
-    virtual_network_subnet_ids = var.subnets.primary_public_endpoint_subnets
+    virtual_network_subnet_ids = var.subnets.app_subnets
   }
 
   # Required for customer-managed encryption
