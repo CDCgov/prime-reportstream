@@ -54,11 +54,11 @@ data "azurerm_subnet" "west_vnet" {
   resource_group_name  = var.resource_group
 }
 
-data "azurerm_subnet" "east_vnet" {
-  for_each = toset(data.azurerm_virtual_network.vnet["east"].subnets)
+data "azurerm_subnet" "app_vnet" {
+  for_each = toset(data.azurerm_virtual_network.vnet["app-vnet"].subnets)
 
   name                 = each.value
-  virtual_network_name = "${var.azure_vns["East-vnet"].name}"
+  virtual_network_name = "${var.azure_vns["app-vnet"].name}"
   resource_group_name  = var.resource_group
 }
 
