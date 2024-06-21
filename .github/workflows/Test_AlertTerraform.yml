@@ -42,3 +42,8 @@ jobs:
         run: |
             echo  "${{ steps.stats1.outputs.change-count }}"
             echo "${{ steps.stats1.outputs.drift-count }}"
+
+      - name: Terraform plan 
+        shell: bash
+        run: |
+            terraform -chdir=operations/app/terraform/vars/${{ matrix.env }} plan -refresh=false -input=false -no-color -lock-timeout=120s
