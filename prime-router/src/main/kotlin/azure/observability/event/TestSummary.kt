@@ -5,11 +5,13 @@ import org.hl7.fhir.r4.model.Coding
 
 data class TestSummary(
     val conditions: List<CodeSummary> = emptyList(),
-    val testPerformedSystem: String = "Unknown",
-    val testPerformedCode: String = "Unknown",
-    val testPerformedDisplay: String = "Unknown",
+    val testPerformedSystem: String = UNKNOWN,
+    val testPerformedCode: String = UNKNOWN,
+    val testPerformedDisplay: String = UNKNOWN,
 ) {
     companion object {
+        const val UNKNOWN = "Unknown"
+
         /**
          * Create an instance of [TestSummary] from a [Coding]
          */
@@ -20,9 +22,9 @@ data class TestSummary(
                 .map(CodeSummary::fromCoding)
             return TestSummary(
                 conditions,
-                coding.system ?: "Unknown",
-                coding.code ?: "Unknown",
-                coding.display ?: "Unknown"
+                coding.system ?: UNKNOWN,
+                coding.code ?: UNKNOWN,
+                coding.display ?: UNKNOWN
             )
         }
     }
