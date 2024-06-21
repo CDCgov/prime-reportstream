@@ -95,6 +95,7 @@ runs:
     - name: Set LOG_FILE environment variable
       id: set-log-file
       run: echo "LOG_FILE=$(pwd)/playwright-warnings.log" >> $GITHUB_ENV
+      shell: bash
 
     - name: Run E2E tests
       working-directory: frontend-react
