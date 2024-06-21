@@ -40,10 +40,10 @@ data "azurerm_subnet" "gateway_subnet" {
 
 /* Postgres subnet */
 data "azurerm_subnet" "postgres_subnet" {
-  for_each             = { for k, v in var.azure_vns : k => v if contains(var.azure_vns[k].subnets, "postgres") }
-  name                 = "postgres"
+  for_each = toset(data.azurerm_virtual_network.vnet["db-vnet"].subnets)
+  name                 = each.value
   resource_group_name  = var.resource_group
-  virtual_network_name = "${var.azure_vns[each.key].name}"
+  virtual_network_name = var.azure_vns["db-vnet"].name
 }
 
 data "azurerm_subnet" "west_vnet" {

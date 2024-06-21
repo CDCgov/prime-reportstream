@@ -46,7 +46,7 @@ resource "azurerm_postgresql_server" "postgres_server" {
 }
 
 module "postgres_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
+  for_each = toset(var.subnets.postgres_subnets)
 
   source         = "../common/private_endpoint"
   resource_id    = azurerm_postgresql_server.postgres_server.id
@@ -117,7 +117,7 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
 }
 
 module "postgres_private_endpoint_replica" {
-  for_each = var.db_replica ? var.subnets.replica_endpoint_subnets : []
+  for_each = var.db_replica ? toset(var.subnets.postgres_subnets) : []
 
   source         = "../common/private_endpoint"
   resource_id    = azurerm_postgresql_server.postgres_server_replica[0].id
