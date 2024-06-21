@@ -260,7 +260,7 @@ function ReportStreamNavbar({
                 className={primaryLinkClasses(
                     !!useMatch("/developer-resources/*"),
                 )}
-                href="/developer-resources"
+                href="https://www.cdc.gov/randomstringtwo"
             >
                 Developers
             </USSmartLink>
