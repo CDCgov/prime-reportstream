@@ -22,7 +22,7 @@ import site from "../../content/site.json";
 
 Through each step of the process, our team will make sure your connection meets your needs and gets you the public health data you require.
 
-Connecting to ReportStream is similar to setting up an Electronic Lab Reporting (ELR) feed with a lab or hospital. Through ReportStream, you can also download data directly instead of using an ELR connection.
+Connecting to ReportStream is similar to setting up an Electronic Lab Reporting (ELR) feed with a lab or hospital. 
 
 <Accordion multiselectable={true} items={[
     {
@@ -55,13 +55,19 @@ Connecting to ReportStream is similar to setting up an Electronic Lab Reporting 
     {
         id: "4",
         headingLevel:"h3",
-        title: "4. Connect and test",
+        title: "4. Facility outreach begins",
+        content:(<p>ReportStream and SimpleReport support onboarding healthcare organizations for the data you need. Learn more about the [facility outreach process](https://reportstream.cdc.gov/managing-your-connection/refer-healthcare-organizations).</p>)
+    },
+    {
+        id: "5",
+        headingLevel:"h3",
+        title: "5. Connect and test",
         content: (<>
             <p>Through weekly technical syncs, we work through five phases of set up to ensure everything is working correctly.</p>
             <ol>
                 <li>Connecting ReportStream to your system and making sure that a message can be sent</li>
                 <li>Sending test messages to make sure the filters and formats are correct</li>
-                <li>Testing real data from ReportStream production to your validation system</li>
+                <li>(Optional) Testing real data from ReportStream production to your validation system</li>
                 <li>Beginning full production of sending real data into your system</li>
                 <li>Monitoring in close detail for the first few weeks to ensure everything is working correctly</li>
             </ol>
@@ -74,7 +80,7 @@ Connecting to ReportStream is similar to setting up an Electronic Lab Reporting 
         content: (<>
             <p>For an ELR connection, an optional ReportStream user account provides access to helpful <a href="/managing-your-connection">tools and features</a> like your Data Dashboard.</p>
             <p>If you are downloading data as your primary way of using ReportStream, then you will need a user account to access that Daily Data table.</p>
-            <p>Submit a <a href={site.forms.contactUs.url}>service request</a> to set up an account.</p>
+            <p>If you are working with an onboarding engineer, they can set up your account. You can also submit a <a href={site.forms.contactUs.url}>service request</a> to set up an account.</p>
         </>)
     }
 ]} />
@@ -120,11 +126,11 @@ Review what you need to gather to start onboarding.
                         <li>Receiving facility OID (MSH-6-2)</li>
                     </ul>
                 </li>
-                <li><b>Date and time:</b> What format and time zone do you require date/time fields to be in?</li>
+                <li><b>Date and time:</b> What format and time zone do you require date/time fields to be in? How should we process missing time zones?</li>
                 <li><b>Test data:</b> Do you need synthetic and/or real patient data before going live?</li>
                 <li><b>Local public health agency reporting:</b> Explain any local public health department reporting requirements that are different from the state.</li>
                 <li><b>Your implementation guide:</b> You can provide a link if your guide is publicly available or upload the document directly through the form.</li>
-                <li><b>Positive and negative results:</b> Do you require both positive and negative test results?</li>
+                <li><b>Positive and negative results:</b> For each condition you will receive from ReportStream, do you require both positive and negative test results?</li>
             </ul>
         </>)
     },
@@ -134,7 +140,7 @@ Review what you need to gather to start onboarding.
         title: "Authentication type and details",
         content: (<>
             <ul>
-                <li>Which method of authentication will you use? (Public/private key pair, OAuth 2.0, or username/password)</li>
+                <li>Which method of authentication will you use? (Public/private key pair, OAuth 2.0, username/password, or API key.)</li>
                 <li>How do we get credentials?</li>
                 <li>Do the credentials need to be rotated or do they expire?</li>
             </ul>
@@ -145,12 +151,13 @@ Review what you need to gather to start onboarding.
         headingLevel:"h3",
         title: "Transport type and details",
         content: (<>
-            <p>We will need to know if you are using SFTP, REST, SOAP, or download, and some additional details depending on your transport type.</p>
+            <p>We will need to know if you are using SFTP, REST, or SOAP, and some additional details depending on your transport type. We will need production and testing environment information for your transport type. If you need a different transport type than listed here, talk with our team about how we can help. </p>
             <ul>
                 <li>For SFTP:
                     <ul>
                         <li>Do you need to whitelist our IP addresses before we connect?</li>
                         <li>What file path do we need to write files to on the SFTP server?</li>
+                        <li>What is your SFTP server?</li>
                     </ul>
                 </li>
                 <li>For REST:
@@ -203,7 +210,7 @@ Once you have all the information you need, submit the onboarding form. We'll ge
 <CardGroup>
     <Card gridLayout={{ tablet: { col: 4 } }}>
         <CardHeader>
-            ### <A href="/assets/pdf/ReportStream_Onepager_20230621.pdf" target="_blank">ReportStream overview PDF <Icon name='FileDownload'/></A>
+            ### <A href="/assets/pdf/ReportStream_Onepager_20240605.pdf" target="_blank">ReportStream overview PDF <Icon name='FileDownload'/></A>
         </CardHeader>
         <CardBody>
             Download a quick summary of ReportStream that you can print and share.
@@ -219,10 +226,10 @@ Once you have all the information you need, submit the onboarding form. We'll ge
     </Card>
     <Card gridLayout={{ tablet: { col: 4 } }}>
         <CardHeader>
-            ### [Managing your connection](/managing-your-connection)
+            ### [Refer healthcare organizations](/refer-healthcare-organizations)
         </CardHeader>
         <CardBody>
-            Learn about tools and resources to help you monitor your data.
+            Help organizations report through CDC data exchange tools.
         </CardBody>
     </Card>
 </CardGroup>
