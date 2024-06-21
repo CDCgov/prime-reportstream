@@ -73,8 +73,8 @@
         - "Bundle.entry.resource.ofType(Specimen).type.exists()"
       routingFilter: []
       processingModeFilter:
-        - # "doesNotMatch(processing_mode_code,T,D)"
-          - "(Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P')"
+        # "doesNotMatch(processing_mode_code,T,D)"
+        - "(Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P')"
       reverseTheQualityFilter: false
       conditionFilter:
         # Accept COVID only
