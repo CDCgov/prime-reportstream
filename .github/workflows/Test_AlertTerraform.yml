@@ -46,4 +46,4 @@ jobs:
       - name: Terraform plan 
         shell: bash
         run: |
-            terraform -chdir=operations/app/terraform/vars/${{ matrix.env }} plan -refresh=false -input=false -no-color -lock-timeout=120s
+            terraform -chdir=operations/app/terraform/vars/${{ matrix.env }} plan -input=false -no-color -lock-timeout=120s
