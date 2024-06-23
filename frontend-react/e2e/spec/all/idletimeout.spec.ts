@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import process from "node:process";
 
-import * as organization from "../pages/organization";
+import * as organization from "../../pages/organization";
 
 const timeout = parseInt(process.env.VITE_IDLE_TIMEOUT ?? "20000");
 // Add/Sub 500 ms to account for variance
