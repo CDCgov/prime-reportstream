@@ -98,6 +98,8 @@ private const val PERFORMER_OR_PATIENT_CA = "(%performerState.exists() and %perf
 private const val PROVENANCE_COUNT_GREATER_THAN_10 = "Bundle.entry.resource.ofType(Provenance).count() > 10"
 private const val EXCEPTION_FOUND = "exception found"
 private const val CONDITION_FILTER = "%resource.code.coding.code = '95418-0'"
+private const val SNOMED_SYSTEM = "SNOMEDCT"
+private const val LOINC_SYSTEM = "http://loinc.org"
 
 data object SampleFilters {
     /**
@@ -535,7 +537,7 @@ class FhirRouterTests {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "6142004", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "6142004", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -600,7 +602,7 @@ class FhirRouterTests {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "6142004", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "6142004", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -664,7 +666,7 @@ class FhirRouterTests {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "foo", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "foo", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -1124,7 +1126,7 @@ class FhirRouterTests {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "foo", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "foo", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -1186,7 +1188,7 @@ class FhirRouterTests {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "6142004", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "6142004", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -1381,7 +1383,7 @@ class FhirRouterTests {
         bundle.getObservations().forEach { observation ->
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "6142004", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "6142004", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -1445,13 +1447,13 @@ class FhirRouterTests {
                         TestSummary(
                             listOf(
                                 CodeSummary(
-                                    "SNOMEDCT",
+                                    SNOMED_SYSTEM,
                                     "6142004",
                                     "Influenza (disorder)"
                                 ),
                             ),
                             testPerformedCode = "80382-5",
-                            testPerformedSystem = "http://loinc.org",
+                            testPerformedSystem = LOINC_SYSTEM,
                         )
                     )
                 ),
@@ -1468,13 +1470,13 @@ class FhirRouterTests {
                                 TestSummary(
                                     listOf(
                                         CodeSummary(
-                                            "SNOMEDCT",
+                                            SNOMED_SYSTEM,
                                             "6142004",
                                             "Influenza (disorder)"
                                         ),
                                     ),
                                     testPerformedCode = "80382-5",
-                                    testPerformedSystem = "http://loinc.org",
+                                    testPerformedSystem = LOINC_SYSTEM,
                                 )
                             )
                         ),
@@ -1628,12 +1630,12 @@ class FhirRouterTests {
                             TestSummary(
                                 listOf(
                                     CodeSummary(
-                                        "SNOMEDCT",
+                                        SNOMED_SYSTEM,
                                         "840539006",
                                         "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
                                     )
                                 ),
-                                testPerformedSystem = "http://loinc.org",
+                                testPerformedSystem = LOINC_SYSTEM,
                                 testPerformedCode = "94558-4",
                                 testPerformedDisplay =
                                 "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
@@ -1644,7 +1646,7 @@ class FhirRouterTests {
                         listOf(
                             TestSummary(
                                 testPerformedCode = "95418-0",
-                                testPerformedSystem = "http://loinc.org"
+                                testPerformedSystem = LOINC_SYSTEM
                             )
                         )
                     ),
@@ -1652,7 +1654,7 @@ class FhirRouterTests {
                         listOf(
                             TestSummary(
                                 testPerformedCode = "95417-2",
-                                testPerformedSystem = "http://loinc.org"
+                                testPerformedSystem = LOINC_SYSTEM
                             )
                         )
                     ),
@@ -1660,7 +1662,7 @@ class FhirRouterTests {
                         listOf(
                             TestSummary(
                                 testPerformedCode = "95421-4",
-                                testPerformedSystem = "http://loinc.org"
+                                testPerformedSystem = LOINC_SYSTEM
                             )
                         )
                     ),
@@ -1668,7 +1670,7 @@ class FhirRouterTests {
                         listOf(
                             TestSummary(
                                 testPerformedCode = "95419-8",
-                                testPerformedSystem = "http://loinc.org"
+                                testPerformedSystem = LOINC_SYSTEM
                             )
                         )
                     )
@@ -1685,12 +1687,12 @@ class FhirRouterTests {
                         TestSummary(
                             listOf(
                                 CodeSummary(
-                                    "SNOMEDCT",
+                                    SNOMED_SYSTEM,
                                     "840539006",
                                     "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
                                 ),
                             ),
-                            testPerformedSystem = "http://loinc.org",
+                            testPerformedSystem = LOINC_SYSTEM,
                             testPerformedCode = "94558-4",
                             testPerformedDisplay =
                             "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
@@ -1701,7 +1703,7 @@ class FhirRouterTests {
                     listOf(
                         TestSummary(
                             testPerformedCode = "95418-0",
-                            testPerformedSystem = "http://loinc.org"
+                            testPerformedSystem = LOINC_SYSTEM
                         )
                     )
                 ),
@@ -1709,7 +1711,7 @@ class FhirRouterTests {
                     listOf(
                         TestSummary(
                             testPerformedCode = "95417-2",
-                            testPerformedSystem = "http://loinc.org"
+                            testPerformedSystem = LOINC_SYSTEM
                         )
                     )
                 ),
@@ -1717,7 +1719,7 @@ class FhirRouterTests {
                     listOf(
                         TestSummary(
                             testPerformedCode = "95421-4",
-                            testPerformedSystem = "http://loinc.org"
+                            testPerformedSystem = LOINC_SYSTEM
                         )
                     )
                 ),
@@ -1725,7 +1727,7 @@ class FhirRouterTests {
                     listOf(
                         TestSummary(
                             testPerformedCode = "95419-8",
-                            testPerformedSystem = "http://loinc.org"
+                            testPerformedSystem = LOINC_SYSTEM
                         )
                     )
                 )
@@ -2158,7 +2160,7 @@ class FhirRouterTests {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "foo", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "foo", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,

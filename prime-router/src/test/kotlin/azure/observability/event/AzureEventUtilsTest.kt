@@ -10,6 +10,7 @@ class AzureEventUtilsTest {
 
     private val validFhirReport = "src/test/resources/fhirengine/engine/routing/valid.fhir"
     private val validFhirReportNoIdentifier = "src/test/resources/fhirengine/engine/routing/valid_no_identifier.fhir"
+    private val loincSystem = "http://loinc.org"
 
     @Test
     fun `get all observations from bundle and map them correctly`() {
@@ -27,7 +28,7 @@ class AzureEventUtilsTest {
                                 "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
                             )
                         ),
-                        "http://loinc.org",
+                        loincSystem,
                         "94558-4",
                         "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
                     )
@@ -37,7 +38,7 @@ class AzureEventUtilsTest {
                 listOf(
                     TestSummary(
                         testPerformedCode = "95418-0",
-                        testPerformedSystem = "http://loinc.org"
+                        testPerformedSystem = loincSystem
                     )
                 )
             ),
@@ -45,7 +46,7 @@ class AzureEventUtilsTest {
                 listOf(
                     TestSummary(
                         testPerformedCode = "95417-2",
-                        testPerformedSystem = "http://loinc.org"
+                        testPerformedSystem = loincSystem
                     )
                 )
             ),
@@ -53,7 +54,7 @@ class AzureEventUtilsTest {
                 listOf(
                     TestSummary(
                         testPerformedCode = "95421-4",
-                        testPerformedSystem = "http://loinc.org"
+                        testPerformedSystem = loincSystem
                     )
                 )
             ),
@@ -61,7 +62,7 @@ class AzureEventUtilsTest {
                 listOf(
                     TestSummary(
                         testPerformedCode = "95419-8",
-                        testPerformedSystem = "http://loinc.org"
+                        testPerformedSystem = loincSystem
                     )
                 )
             )

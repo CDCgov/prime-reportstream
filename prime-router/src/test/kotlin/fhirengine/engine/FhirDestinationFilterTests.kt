@@ -61,6 +61,9 @@ private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/routing
 private const val BLOB_URL = "https://blob.url"
 private const val BLOB_SUB_FOLDER_NAME = "test-sender"
 private const val BODY_URL = "https://anyblob.com"
+private const val loincSystem = "http://loinc.org"
+private const val snomedSystem = "SNOMEDCT"
+
 private val PASS_FILTER: ReportStreamFilter = listOf("true")
 private val FAIL_FILTER: ReportStreamFilter = listOf("false")
 
@@ -328,12 +331,12 @@ class FhirDestinationFilterTests {
                             TestSummary(
                                 listOf(
                                     CodeSummary(
-                                        "SNOMEDCT",
+                                        snomedSystem,
                                         "840539006",
                                         "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
                                     )
                                 ),
-                                "http://loinc.org",
+                                loincSystem,
                                 "94558-4",
                                 "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
                             )
@@ -343,7 +346,7 @@ class FhirDestinationFilterTests {
                         listOf(
                             TestSummary(
                                 testPerformedCode = "95418-0",
-                                testPerformedSystem = "http://loinc.org"
+                                testPerformedSystem = loincSystem
                             )
                         )
                     ),
@@ -351,7 +354,7 @@ class FhirDestinationFilterTests {
                         listOf(
                             TestSummary(
                                 testPerformedCode = "95417-2",
-                                testPerformedSystem = "http://loinc.org"
+                                testPerformedSystem = loincSystem
                             )
                         )
                     ),
@@ -359,7 +362,7 @@ class FhirDestinationFilterTests {
                         listOf(
                             TestSummary(
                                 testPerformedCode = "95421-4",
-                                testPerformedSystem = "http://loinc.org"
+                                testPerformedSystem = loincSystem
                             )
                         )
                     ),
@@ -367,7 +370,7 @@ class FhirDestinationFilterTests {
                         listOf(
                             TestSummary(
                                 testPerformedCode = "95419-8",
-                                testPerformedSystem = "http://loinc.org"
+                                testPerformedSystem = loincSystem
                             )
                         )
                     ),
@@ -471,12 +474,12 @@ class FhirDestinationFilterTests {
                             TestSummary(
                                 listOf(
                                     CodeSummary(
-                                        "SNOMEDCT",
+                                        snomedSystem,
                                         "840539006",
                                         "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
                                     )
                                 ),
-                                "http://loinc.org",
+                                loincSystem,
                                 "94558-4",
                                 "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
                             )
@@ -486,7 +489,7 @@ class FhirDestinationFilterTests {
                         listOf(
                             TestSummary(
                                 testPerformedCode = "95418-0",
-                                testPerformedSystem = "http://loinc.org"
+                                testPerformedSystem = loincSystem
                             )
                         )
                     ),
@@ -494,7 +497,7 @@ class FhirDestinationFilterTests {
                         listOf(
                             TestSummary(
                                 testPerformedCode = "95417-2",
-                                testPerformedSystem = "http://loinc.org"
+                                testPerformedSystem = loincSystem
                             )
                         )
                     ),
@@ -502,7 +505,7 @@ class FhirDestinationFilterTests {
                         listOf(
                             TestSummary(
                                 testPerformedCode = "95421-4",
-                                testPerformedSystem = "http://loinc.org"
+                                testPerformedSystem = loincSystem
                             )
                         )
                     ),
@@ -510,7 +513,7 @@ class FhirDestinationFilterTests {
                         listOf(
                             TestSummary(
                                 testPerformedCode = "95419-8",
-                                testPerformedSystem = "http://loinc.org"
+                                testPerformedSystem = loincSystem
                             )
                         )
                     ),
