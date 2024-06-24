@@ -34,3 +34,8 @@ variable "storage_account" {}
 variable "vnet" {
     type        = string
 }
+
+variable "subnet_name" {
+    type        = string
+    description = "Subnet name"
+}

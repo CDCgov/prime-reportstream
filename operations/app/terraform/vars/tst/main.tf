@@ -220,6 +220,7 @@ module "sftp_container" {
     location              = local.init.location
     use_cdc_managed_vnet  = local.network.use_cdc_managed_vnet
     vnet                  = local.network.config.app-vnet.name
+    subnet_name           = local.network.config.app-vnet.subnets[0]
     sa_primary_access_key = module.storage.sa_primary_access_key
     dns_zones             = module.network.dns_zones
     storage_account       = module.storage.storage_account
