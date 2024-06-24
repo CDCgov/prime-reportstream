@@ -540,7 +540,8 @@ class SubmissionFunctionTests : Logging {
 
             val convertActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
             val convertReport = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
-                .setActionId(convertActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1).setReceivingOrg("flexion")
+                .setActionId(convertActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1)
+                .setReceivingOrg("flexion")
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
                 convertReport, txn, action
             )
@@ -549,7 +550,8 @@ class SubmissionFunctionTests : Logging {
 
             val routeActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
             val routeReport = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
-                .setActionId(routeActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1).setReceivingOrg("flexion")
+                .setActionId(routeActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1)
+                .setReceivingOrg("flexion")
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
                 routeReport, txn, action
             )
@@ -558,7 +560,8 @@ class SubmissionFunctionTests : Logging {
 
             val translateActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
             val translateReport = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
-                .setActionId(translateActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1).setReceivingOrg("flexion")
+                .setActionId(translateActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1)
+                .setReceivingOrg("flexion")
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
                 translateReport, txn, action
             )
@@ -567,7 +570,8 @@ class SubmissionFunctionTests : Logging {
 
             val batchActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
             val batchReport = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
-                .setActionId(batchActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1).setReceivingOrg("flexion")
+                .setActionId(batchActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1)
+                .setReceivingOrg("flexion")
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
                 batchReport, txn, action
             )
@@ -602,7 +606,11 @@ class SubmissionFunctionTests : Logging {
 
         val mockRequest = MockHttpRequestMessage()
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
-        val submissionFacade = SubmissionsFacade( DatabaseSubmissionsAccess(ReportStreamTestDatabaseContainer.testDatabaseAccess), ReportStreamTestDatabaseContainer.testDatabaseAccess)
+
+        val submissionFacade = SubmissionsFacade(
+            DatabaseSubmissionsAccess(ReportStreamTestDatabaseContainer.testDatabaseAccess),
+            ReportStreamTestDatabaseContainer.testDatabaseAccess
+        )
         val function = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, submissionFacade, false)
         mockkObject(AuthenticatedClaims.Companion)
         every { AuthenticatedClaims.authenticate(any()) } returns
