@@ -47,8 +47,8 @@ locals {
   # Set ip restrictions within site_config
   ip_restrictions = [
     # Vnet access
-    { action = "Allow", name = "AllowVNetTraffic", priority = 100, virtual_network_subnet_id = var.subnets.public_subnets[2], service_tag = null, ip_address = null },
-    { action = "Allow", name = "AllowVNetEastTraffic", priority = 100, virtual_network_subnet_id = var.subnets.public_subnets[0], service_tag = null, ip_address = null },
+    { action = "Allow", name = "AllowVNetTraffic", priority = 100, virtual_network_subnet_id = var.subnets.app_subnets[0], service_tag = null, ip_address = null },
+    { action = "Allow", name = "AllowVNetEastTraffic", priority = 100, virtual_network_subnet_id = var.subnets.app_subnets[0], service_tag = null, ip_address = null },
     { action = "Allow", name = "AllowFrontDoorTraffic", priority = 110, virtual_network_subnet_id = null, service_tag = "AzureFrontDoor.Backend", ip_address = null },
     { action = "Allow", name = "AllowAppInsightsTraffic", priority = 110, virtual_network_subnet_id = null, service_tag = "ApplicationInsightsAvailability", ip_address = null },
     # Administrator access

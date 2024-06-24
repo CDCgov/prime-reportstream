@@ -281,7 +281,6 @@ module "log_analytics_workspace" {
     front_door_id              = module.front_door.front_door_id
     nat_gateway_id             = module.nat_gateway.nat_gateway_id
     primary_vnet_id            = module.network.primary_vnet_id
-    replica_vnet_id            = module.network.replica_vnet_id
     storage_account_id         = module.storage.storage_account_id
     storage_public_id          = module.storage.storage_public.id
     storage_partner_id         = module.storage.storage_partner_id

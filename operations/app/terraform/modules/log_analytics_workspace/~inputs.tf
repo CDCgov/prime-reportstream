@@ -69,11 +69,6 @@ variable "primary_vnet_id" {
   description = "Primary vnet resource id"
 }
 
-variable "replica_vnet_id" {
-  type        = string
-  description = "Replica vnet resource id"
-}
-
 variable "storage_account_id" {
   type        = string
   description = "Storage Account resource id"

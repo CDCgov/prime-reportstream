@@ -24,9 +24,6 @@ locals {
     "client_config_key_vault" = {
       resource_id = var.client_config_key_vault_id
     },
-    "west_vnet" = {
-      resource_id = var.replica_vnet_id
-    },
     "east_vnet" = {
       resource_id = var.primary_vnet_id
     },
