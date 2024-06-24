@@ -75,7 +75,7 @@ resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
 }
 
 module "application_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
+  for_each = toset(var.subnets.app_subnets)
 
   source         = "../common/private_endpoint"
   resource_id    = data.azurerm_key_vault.application.id
@@ -141,7 +141,7 @@ resource "azurerm_key_vault_access_policy" "terraform_app_config_access_policy" 
 }
 
 module "app_config_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
+  for_each = toset(var.subnets.app_subnets)
 
   source         = "../common/private_endpoint"
   resource_id    = data.azurerm_key_vault.app_config.id
@@ -175,7 +175,7 @@ resource "azurerm_key_vault" "client_config" {
 
     ip_rules = var.terraform_caller_ip_address
 
-    virtual_network_subnet_ids = var.subnets.primary_subnets
+    virtual_network_subnet_ids = var.subnets.app_subnets
   }
 
   lifecycle {
@@ -212,7 +212,7 @@ resource "azurerm_key_vault_access_policy" "dev_client_config_access_policy" {
 }
 
 module "client_config_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
+  for_each = toset(var.subnets.app_subnets)
 
   source         = "../common/private_endpoint"
   resource_id    = azurerm_key_vault.client_config.id
