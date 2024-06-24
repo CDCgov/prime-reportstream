@@ -65,3 +65,8 @@ variable "vnet_name" {
     type        = string
     description = "VNet name"
 }
+
+variable "subnet_name" {
+    type        = string
+    description = "Subnet name"
+}

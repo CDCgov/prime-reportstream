@@ -199,6 +199,7 @@ module "sftp" {
     key_vault_id                = module.key_vault.application_key_vault_id
     terraform_caller_ip_address = local.network.terraform_caller_ip_address
     vnet_name                   = local.network.config.app-vnet.name
+    subnet_name                 = local.network.config.app-vnet.subnets[0]
     nat_gateway_id              = module.nat_gateway.nat_gateway_id
     sshnames                    = module.ssh.sshnames
     sshinstances                = module.ssh.sshinstances
