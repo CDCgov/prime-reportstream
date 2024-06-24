@@ -138,7 +138,7 @@ const config = {
             showPasswordToggleOnSignInPage: true,
             //autoPush: true,
         } satisfies Partial<Record<Feature, boolean>>,
-        useClassicEngine: true,
+        useClassicEngine: false,
         helpLinks: {
             help: "https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599",
         },

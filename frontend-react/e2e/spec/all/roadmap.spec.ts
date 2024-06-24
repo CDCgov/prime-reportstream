@@ -1,16 +1,16 @@
 import { expect, test } from "@playwright/test";
 
-import * as externalLinks from "../helpers/external-links";
+import * as externalLinks from "../../helpers/external-links";
 import {
     MAKE_MY_TEST_COUNT,
     RADX_MARS,
     SIMPLEREPORT,
-} from "../helpers/external-links";
-import * as internalLinks from "../helpers/internal-links";
-import { ELC } from "../helpers/internal-links";
-import * as sideNav from "../pages/about-side-navigation";
-import * as roadmap from "../pages/roadmap";
-import { URL_ROADMAP } from "../pages/roadmap";
+} from "../../helpers/external-links";
+import * as internalLinks from "../../helpers/internal-links";
+import { ELC } from "../../helpers/internal-links";
+import * as sideNav from "../../pages/about-side-navigation";
+import * as roadmap from "../../pages/roadmap";
+import { URL_ROADMAP } from "../../pages/roadmap";
 test.describe("Product roadmap page", () => {
     test.beforeEach(async ({ page }) => {
         await roadmap.goto(page);
