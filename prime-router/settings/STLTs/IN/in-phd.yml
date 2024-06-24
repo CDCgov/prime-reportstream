@@ -80,7 +80,7 @@
       deidentifiedValue: ""
       timing:
         operation: "MERGE"
-        numberPerDay: 1440
+        numberPerDay: 12
         initialTime: "01:20"
         timeZone: "EASTERN"
         maxReportCount: 100
