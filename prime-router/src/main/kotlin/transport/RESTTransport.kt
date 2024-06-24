@@ -231,8 +231,9 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      * @param receiver the receiver setting
      */
     fun getCredential(transport: RESTTransportType, receiver: Receiver): Pair<RestCredential, UserJksCredential?> {
+        val jwtParams = transport.jwtParams
         val credential: RestCredential = if (transport.authType == "two-legged") {
-            lookupTwoLeggedCredential(receiver)
+            lookupTwoLeggedCredential(receiver, jwtParams)
         } else {
             lookupDefaultCredential(receiver)
         }
@@ -263,16 +264,22 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      * Get a credential using PrivateKey to generate signed JWT authentication token (senderToken)
      * @param receiver the fullName of the receiver is the label of the credential
      */
-    fun lookupTwoLeggedCredential(receiver: Receiver): RestCredential {
+    fun lookupTwoLeggedCredential(receiver: Receiver, jwtPamams: Map<String, String> = emptyMap()): RestCredential {
         val credential = lookupDefaultCredential(receiver)
         val privateKey = AuthUtils.readPrivateKeyPem((credential as UserApiKeyCredential).apiKey)
-        val senderToken = AuthUtils.generateOrganizationToken(
-            Organization(
-                receiver.name, receiver.fullName,
-                Organization.Jurisdiction.FEDERAL, null, null, null, null, null
-            ),
-            "", privateKey, ""
-        )
+        val senderToken = if (jwtPamams.isEmpty()) {
+            AuthUtils.generateOrganizationToken(
+                Organization(
+                    receiver.name, receiver.fullName,
+                    Organization.Jurisdiction.FEDERAL, null, null, null, null, null
+                ),
+                "", privateKey, ""
+            )
+        } else {
+            val issuer = jwtPamams["issuer"] ?: receiver.name
+            val audience = jwtPamams["audience"] ?: ""
+            AuthUtils.generateToken(issuer, audience, privateKey, "", null)
+        }
         return UserApiKeyCredential(credential.user, senderToken)
     }
 
