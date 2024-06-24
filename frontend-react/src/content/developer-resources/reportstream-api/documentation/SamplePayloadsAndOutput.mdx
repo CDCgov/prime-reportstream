@@ -20,47 +20,6 @@ import site from "../../../site.json";
 
 ***
 
-## Sample CSV payload and output
-
-Input
-
-<a href={site.assets.standardCsv.path} className="usa-button">Download a sample file <Icon name='FileDownload' /></a>
-
-Response
-
-```
-{
-  "id": "dbfbb65f-f6f0-4d85-a723-32b63283f068",
-  "submissionId": 2412,
-  "overallStatus": "Waiting to Deliver",
-  "timestamp": "2022-05-16T14:39:02.159Z",
-  "plannedCompletionAt": "2022-05-16T14:40:00.000Z",
-  "actualCompletionAt": null,
-  "sender": "csvuploadertest.default",
-  "reportItemCount": 5,
-  "errorCount": 0,
-  "warningCount": 0,
-  "httpStatus": 201,
-  "destinations": [ {
-    "organization": "Alabama Public Health Department",
-    "organization_id": "al-phd",
-    "service": "elr",
-    "itemCount": 5,
-    "itemCountBeforeQualityFiltering": 5,
-    "sending_at": "2022-05-16T14:40:00.000Z",
-    "filteredReportRows": [ ],
-    "filteredReportItems": [ ],
-    "sentReports": [ ],
-    "downloadedReports": [ ]
-  } ],
-  "errors": [ ],
-  "warnings": [ ],
-  "topic": "covid-19",
-  "externalName": null,
-  "destinationCount": 1
-}
-```
-
 ## Sample HL7 2.5.1 payload and output
 
 Input
