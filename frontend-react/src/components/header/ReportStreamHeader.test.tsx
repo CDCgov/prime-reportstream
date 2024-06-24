@@ -12,7 +12,7 @@ const mockUseSessionContext = vi.mocked(useSessionContext);
 describe("SignInOrUser", () => {
     // Every set of users should have access to the following Navbar items
     function testNav() {
-        expect(screen.getByText("Getting started")).toBeVisible();
+        expect(screen.getByText("Getting Started")).toBeVisible();
         expect(screen.getByText("Developers")).toBeVisible();
         expect(screen.getByText("Your connection")).toBeVisible();
         expect(screen.getByText("Support")).toBeVisible();

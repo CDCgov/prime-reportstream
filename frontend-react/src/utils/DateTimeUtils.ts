@@ -41,7 +41,9 @@ export function isDateExpired(dateTimeString: string | number) {
     // eslint-disable-next-line import/no-named-as-default-member
     const dateToCompare =
         typeof dateTimeString === "string"
-            ? !/^\d+$/.test(dateTimeString) ? parseISO(dateTimeString) : fromUnixTime(parseInt(dateTimeString))
+            ? !/^\d+$/.test(dateTimeString)
+                ? parseISO(dateTimeString)
+                : fromUnixTime(parseInt(dateTimeString))
             : fromUnixTime(dateTimeString);
     return dateToCompare < now;
 }
@@ -79,7 +81,10 @@ export const dateShortFormat = (d: Date) => {
  * @param dateNewer Date
  * @param dateOlder Date
  */
-export const durationFormatShort = (dateNewer: Date, dateOlder: Date): string => {
+export const durationFormatShort = (
+    dateNewer: Date,
+    dateOlder: Date,
+): string => {
     const msDiff = dateNewer.getTime() - dateOlder.getTime();
     const hrs = Math.floor(msDiff / (60 * 60 * 1000)).toString();
     const mins = Math.floor((msDiff / (60 * 1000)) % 60).toString();
@@ -101,4 +106,4 @@ export const durationFormatShort = (dateNewer: Date, dateOlder: Date): string =>
     return parts.join(" ");
 };
 
-export type DatePair = [start: Date, end: Date]
+export type DatePair = [start: Date, end: Date];
