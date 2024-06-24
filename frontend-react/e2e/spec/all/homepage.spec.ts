@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 import { scrollToFooter, scrollToTop } from "../../helpers/utils";
-import * as gettingStarted from "../../pages/getting-started";
 import * as header from "../../pages/header";
 import * as homepage from "../../pages/homepage";
 import * as managingYourConnection from "../../pages/managing-your-connection";
@@ -18,19 +17,6 @@ test.describe("Homepage", () => {
         await expect(page).toHaveTitle(
             /ReportStream - CDC's free, interoperable data transfer platform/,
         );
-    });
-
-    test("opens the Getting started page on 'how to set up transfer' click", async ({
-        page,
-    }) => {
-        await page
-            .getByRole("link", { name: "how to set up transfer" })
-            .click();
-        await gettingStarted.onLoad(page);
-        // Go back to the homepage
-        await header.clickOnHome(page);
-
-        expect(true).toBe(true);
     });
 
     test("opens the Security page on 'security of your data' click", async ({
