@@ -1,0 +1,97 @@
+---
+- name: "ia-phd"
+  description: "Iowa Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "IA"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+  - name: "elr"
+    organizationName: "ia-phd"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation:
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "IA.DOH.IDSS"
+      receivingApplicationOID: "2.16.840.1.114222.4.3.3.19"
+      receivingFacilityName: "IA DOH"
+      receivingFacilityOID: "2.16.840.1.114222.4.1.3650"
+      messageProfileId: null
+      replaceValue:
+        MSH-3-1: "CDC PRIME - Atlanta,"
+      replaceValueAwithB:
+        MSH-3:
+        - '*': "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO"
+        MSH-5:
+        - '*': "IA.DOH.IDSS^2.16.840.1.114222.4.3.3.19^ISO"
+        MSH-6:
+        - '*': "IA DOH^2.16.840.1.114222.4.1.3650^ISO"
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+    - "orEquals(ordering_facility_state, IA, patient_state, IA)"
+    qualityFilter: []
+    routingFilter:
+    - "DoesNotMatch(test_performed_code, 85478-6,76080-1,92141-1,80383-3,82170-2,85477-8,76078-5,77026-3,77028-9,77027-1,92142-9,80382-5,82166-0,82167-8,82169-4,82168-6,92809-3,92808-5,95423-0)"
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    mappedConditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:35"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport:
+      host: "sftp.iowa.gov"
+      port: "22"
+      filePath: "./inbound/prod"
+      credentialName: null
+      type: "SFTP"
+    externalName: "Iowa Primary Feed"
+    enrichmentSchemaNames: []
+    timeZone: null
+    dateTimeFormat: "OFFSET"
