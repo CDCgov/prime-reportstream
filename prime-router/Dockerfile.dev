@@ -38,4 +38,4 @@ CMD ["/bin/bash"]
 
 # COPY ./certs/CDC-G2-S1.crt $JAVA_HOME/conf/security
 # RUN cd $JAVA_HOME/conf/security \
-#     && keytool -cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias G2 -file certs\CDC-G2-S1.crt
+#     && keytool -cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias G2 -file certs\CDC-G2-S1.crtdock
