@@ -320,13 +320,13 @@ function ReportStreamNavbar({
                     href="/getting-started/sending-data"
                     key="sending-data"
                 >
-                    Sending Data
+                    Sending data
                 </USSmartLink>,
                 <USSmartLink
                     href="/getting-started/receiving-data"
                     key="receiving-data"
                 >
-                    Receiving Data
+                    Receiving data
                 </USSmartLink>,
             ]}
             activeDropdown={activeDropdown}
