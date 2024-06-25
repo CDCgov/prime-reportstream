@@ -1,0 +1,310 @@
+name: Frontend CI
+
+on:
+  pull_request
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: frontend-react
+    shell: bash
+
+env:
+    TEST_ADMIN_USERNAME: ${{ secrets.TEST_ADMIN_USERNAME }}
+    TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
+    TEST_SENDER_USERNAME: ${{ secrets.TEST_SENDER_USERNAME }}
+    TEST_SENDER_PASSWORD: ${{ secrets.TEST_SENDER_PASSWORD }}
+    TEST_RECEIVER_USERNAME: ${{ secrets.TEST_RECEIVER_USERNAME }}
+    TEST_RECEIVER_PASSWORD: ${{ secrets.TEST_RECEIVER_PASSWORD }}
+
+jobs:
+  pre-job:
+    name: Pre Job
+    runs-on: ubuntu-latest
+    outputs:
+      # Should not run for deployment PRs
+      is_permitted: ${{ github.event_name == 'pull_request' && steps.build_vars.outputs.has_frontend_change == 'true' && steps.build_vars.outputs.is_deployment_pr == 'false' }}
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
+
+  lint:
+    name: Lint
+    needs: pre-job
+    if: needs.pre-job.outputs.is_permitted == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Use Node.js with yarn
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        with:
+            node-version-file: frontend-react/.nvmrc
+            cache: yarn
+            cache-dependency-path: frontend-react/yarn.lock
+      - name: Yarn install
+        run: yarn install --immutable
+
+      - name: Run linting
+        run: yarn run lint
+
+  unit_tests:
+    name: Unit tests
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+        - name: Check out changes
+          uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        - name: Use Node.js with yarn
+          uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+          with:
+            node-version-file: "frontend-react/.nvmrc"
+            cache: yarn
+            cache-dependency-path: frontend-react/yarn.lock
+        - name: Yarn install
+          run: yarn install --immutable
+
+        - name: Unit tests
+          run: yarn run test:ci
+
+  e2e_tests:
+    name: E2E tests
+    needs: lint
+    runs-on: ubuntu-latest
+    # Keep shards under 6 minutes (1 minute dedicated to playwright install, 5 to tests)
+    timeout-minutes: 7
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2, 3, 4, 5, 6]
+        shardTotal: [6]
+
+    steps:
+        - name: Check out changes
+          uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        - name: Use Node.js with yarn
+          uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+          with:
+            node-version-file: "frontend-react/.nvmrc"
+            cache: yarn
+            cache-dependency-path: frontend-react/yarn.lock
+        - name: Yarn install
+          run: yarn install --immutable
+        - name: Install Playwright
+          run: npx playwright install --with-deps
+
+        - name: Run E2E tests
+          run: yarn run test:e2e --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        - name: Upload blob report to GitHub Actions Artifacts
+          if: ${{ !cancelled() }}
+          uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+          with:
+            name: frontend-e2e-data--shard-${{ matrix.shardIndex }}
+            path: frontend-react/e2e-data
+            retention-days: 1
+
+  # Merge reports after e2e-tests, even if some shards have failed
+  merge_e2e_data:
+      name: Merge E2E Data
+      if: ${{ !cancelled() && needs.pre-job.outputs.is_permitted == 'true' }}
+      needs: [pre-job, e2e_tests]
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Check out changes
+          uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        - name: Use Node.js with yarn
+          uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+          with:
+            node-version-file: "frontend-react/.nvmrc"
+            cache: yarn
+            cache-dependency-path: frontend-react/yarn.lock
+
+        - name: Download blob reports from GitHub Actions Artifacts
+          uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
+          with:
+            path: frontend-react/e2e-data
+            pattern: frontend-e2e-data--shard-*
+            merge-multiple: true
+        - name: Merge reports
+          run: npx playwright merge-reports --reporter html,github ./e2e-data/report
+        # merge-reports command has no cli option to change default output dir (playwright-report),
+        # so merge it into the e2e-data/report manually and do clean up before uploading
+        - name: Merge folders
+          run: mv ./playwright-report/* ./e2e-data/report && rmdir ./playwright-report && rm ./e2e-data/report/*.zip && rm -rf ./e2e-data/report/resources
+        - name: Upload final e2e-data
+          uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+          with:
+            name: frontend-e2e-data--attempt-${{ github.run_attempt }}
+            path: frontend-react/e2e-data
+            retention-days: 7
+  
+  chromatic:
+    name: Chromatic Analysis
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout - On Pull Request
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          fetch-depth: 0
+          # By default the pull_request event will run on a ephermeral merge commit which simulates a merge between the pull request
+          # and the target branch. This can cause issues with Chromatic https://www.chromatic.com/docs/turbosnap#github-pullrequest-triggers
+          # Hopefully by checking out the HEAD commit of a PR instead of the merge commit we can avoid some of those issues.
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Use Node.js with yarn
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        with:
+          node-version-file: "frontend-react/.nvmrc"
+          cache: yarn
+          cache-dependency-path: frontend-react/yarn.lock
+      - name: Yarn install
+        run: yarn install --immutable
+
+      - name: Run Chromatic
+        id: chromatic
+        uses: chromaui/action@ea1eee60c663ccb7e5d4cfd7a05fcc3a25b7c494
+        with:
+          workingDir: frontend-react
+          token: ${{ secrets.GITHUB_TOKEN }}
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          ignoreLastBuildOnBranch: true
+          onlyChanged: true
+          exitZeroOnChanges: true
+          exitOnceUploaded: true
+
+      - name: Find Previous Comment
+        id: comment_find
+        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: "github-actions[bot]"
+          body-regex: '\.*deployed to Chromatic.*\gi'
+      - name: Delete Previous Comment
+        if: ${{ steps.comment_find.outputs.comment-id }}
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.deleteComment({
+              comment_id: ${{ steps.comment_find.outputs.comment-id }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+      - name: Create New Comment
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Branch deployed to Chromatic 🚀. 
+            - ${{ steps.chromatic.outputs.changeCount && format('⚠️ Detected {0} tests with visual changes.', steps.chromatic.outputs.changeCount) }}
+            - ${{ steps.chromatic.outputs.errorCount > 0 && format('❌ {0} tests failed!', steps.chromatic.outputs.errorCount) || '✅ All tests passed.' }}
+
+            View via: 
+            - Chromatic: ${{ steps.chromatic.outputs.url }}
+            - Storybook: ${{ steps.chromatic.outputs.storybookUrl }}
+
+  # codeql:
+  #   name: CodeQL Analysis
+  #   needs: lint
+  #   if: github.actor != 'dependabot[bot]'
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     actions: read
+  #     contents: read
+  #     security-events: write
+
+  #   steps:
+  #     - name: Check out changes
+  #       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+  #     - name: Initialize CodeQL
+  #       uses: github/codeql-action/init@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
+  #       with:
+  #         languages: javascript
+  #         source-root: frontend-react
+
+  #     - name: Perform CodeQL Analysis
+  #       uses: github/codeql-action/analyze@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
+  #       with:
+  #         category: /language:javascript,typescript
+
+  # sonarcloud:
+  #   name: SonarCloud Analysis
+  #   needs: lint
+  #   if: github.actor != 'dependabot[bot]'
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Check out changes
+  #       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+  #       with:
+  #         fetch-depth: 0
+  #     - name: Use Node.js with yarn
+  #       uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+  #       with:
+  #         node-version-file: "frontend-react/.nvmrc"
+  #         cache: yarn
+  #         cache-dependency-path: frontend-react/yarn.lock
+  #     - name: Yarn install
+  #       run: yarn install --immutable
+
+  #     - name: Collect coverage
+  #       run: yarn run test:ci
+  #     - name: Run SonarCloud Scan
+  #       run: >
+  #         npx sonarqube-scanner 
+  #         -Dsonar.host.url=https://sonarcloud.io
+  #         -Dsonar.projectBaseDir=../
+  #         -Dsonar.token="${{ secrets.SONAR_TOKEN }}"
+  #         -Dsonar.coverage.exclusions=prime-router/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
+  #         -Dsonar.cpd.exclusions=prime-router/**,frontend-react/**/*.test.*,frontend-react/**/*.stories.*
+  #         -Dsonar.sources=frontend-react/src,prime-router/src
+  #         -Dsonar.exclusions=prime-router/src/**/*
+  #         -Dsonar.projectKey=CDCgov_prime-data-hub
+  #         -Dsonar.organization=cdcgov
+  #         -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
+
+  # snyk:
+  #   name: Snyk Analysis
+  #   needs: lint
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check out changes
+  #       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+  #     - name: Use Node.js with yarn
+  #       uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+  #       with:
+  #         node-version-file: "frontend-react/.nvmrc"
+  #         cache: yarn
+  #         cache-dependency-path: frontend-react/yarn.lock
+  #     - name: Yarn install
+  #       run: yarn install --immutable
+
+  #     - name: Check for dependency vulnerabilities
+  #       uses: snyk/actions/node@b98d498629f1c368650224d6d212bf7dfa89e4bf
+  #       continue-on-error: true # To make sure that SARIF upload gets called
+  #       env:
+  #         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  #       with:
+  #         args: ./frontend-react --sarif-file-output=frontend-react/sarif/snyk-dependencies.sarif --org=prime-reportstream
+  #     - name: Check for code vulnerabilities
+  #       uses: snyk/actions/node@b98d498629f1c368650224d6d212bf7dfa89e4bf
+  #       continue-on-error: true # To make sure that SARIF upload gets called
+  #       env:
+  #         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  #       with:
+  #         command: code test
+  #         args: ./frontend-react --sarif-file-output=frontend-react/sarif/snyk-code.sarif  --org=prime-reportstream
+  #     - name: Upload result to GitHub Code Scanning
+  #       uses: github/codeql-action/upload-sarif@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
+  #       with:
+  #         sarif_file: frontend-react/sarif
