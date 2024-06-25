@@ -80,12 +80,12 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     # Keep shards under 6 minutes (1 minute dedicated to playwright install, 5 to tests)
-    timeout-minutes: 6
+    timeout-minutes: 7
     strategy:
       fail-fast: false
       matrix:
-        shardIndex: [1, 2, 3, 4, 5]
-        shardTotal: [5]
+        shardIndex: [1, 2, 3, 4, 5, 6]
+        shardTotal: [6]
 
     steps:
         - name: Check out changes
