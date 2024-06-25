@@ -15,7 +15,7 @@ class SubmissionController {
     fun submitReport(
         @RequestHeader headers: Map<String, String>,
         @RequestBody data: Map<String, Any>,
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<*> {
         // find and return any issues with the headers
         val headerValidationResult = validateHeaders(headers)
         if (headerValidationResult != null) {
