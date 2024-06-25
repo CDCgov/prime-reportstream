@@ -338,7 +338,6 @@ class FhirDestinationFilterTests {
                                 ),
                                 loincSystem,
                                 "94558-4",
-                                "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
                             )
                         )
                     ),
@@ -375,7 +374,7 @@ class FhirDestinationFilterTests {
                         )
                     ),
                 ),
-                38803,
+                36995,
                 AzureEventUtils.MessageID(
                     "1234d1d1-95fe-462c-8ac6-46728dba581c",
                     "https://reportstream.cdc.gov/prime-router"
@@ -481,7 +480,6 @@ class FhirDestinationFilterTests {
                                 ),
                                 loincSystem,
                                 "94558-4",
-                                "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
                             )
                         )
                     ),
@@ -518,7 +516,7 @@ class FhirDestinationFilterTests {
                         )
                     ),
                 ),
-                38803,
+                36995,
                 AzureEventUtils.MessageID(
                     "1234d1d1-95fe-462c-8ac6-46728dba581c",
                     "https://reportstream.cdc.gov/prime-router"
@@ -530,7 +528,7 @@ class FhirDestinationFilterTests {
                 submittedId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
-                38803,
+                36995,
                 AzureEventUtils.MessageID(
                     "1234d1d1-95fe-462c-8ac6-46728dba581c",
                     "https://reportstream.cdc.gov/prime-router"

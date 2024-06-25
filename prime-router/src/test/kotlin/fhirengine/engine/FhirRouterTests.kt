@@ -1637,8 +1637,6 @@ class FhirRouterTests {
                                 ),
                                 testPerformedSystem = LOINC_SYSTEM,
                                 testPerformedCode = "94558-4",
-                                testPerformedDisplay =
-                                "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
                             )
                         )
                     ),
@@ -1675,7 +1673,7 @@ class FhirRouterTests {
                         )
                     )
                 ),
-                38803,
+                36995,
                 AzureEventUtils.MessageID(
                     "1234d1d1-95fe-462c-8ac6-46728dba581c",
                     "https://reportstream.cdc.gov/prime-router"
@@ -1694,8 +1692,6 @@ class FhirRouterTests {
                             ),
                             testPerformedSystem = LOINC_SYSTEM,
                             testPerformedCode = "94558-4",
-                            testPerformedDisplay =
-                            "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
                         )
                     )
                 ),
@@ -1741,7 +1737,7 @@ class FhirRouterTests {
                 null,
                 observationSummaries,
                 observationSummaries,
-                38803,
+                36995,
                 AzureEventUtils.MessageID(
                     "1234d1d1-95fe-462c-8ac6-46728dba581c",
                     "https://reportstream.cdc.gov/prime-router"

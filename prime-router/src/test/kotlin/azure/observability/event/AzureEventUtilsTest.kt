@@ -8,29 +8,53 @@ import kotlin.test.Test
 
 class AzureEventUtilsTest {
 
-    private val validFhirReport = "src/test/resources/fhirengine/engine/routing/valid.fhir"
+    private val validFhirReport = "src/test/resources/fhirengine/engine/routing/valid2.fhir"
     private val validFhirReportNoIdentifier = "src/test/resources/fhirengine/engine/routing/valid_no_identifier.fhir"
     private val loincSystem = "http://loinc.org"
+    private val snomedSystem = "SNOMEDCT"
 
     @Test
     fun `get all observations from bundle and map them correctly`() {
         val fhirData = File(validFhirReport).readText()
         val bundle = FhirTranscoder.decode(fhirData)
 
+        @Suppress("ktlint:standard:max-line-length")
         val expected = listOf(
             ObservationSummary(
                 listOf(
                     TestSummary(
                         listOf(
                             CodeSummary(
-                                "SNOMEDCT",
+                                snomedSystem,
                                 "840539006",
                                 "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                            ),
+                            CodeSummary(
+                                snomedSystem,
+                                "7180009",
+                                "Meningitis (disorder)"
                             )
                         ),
                         loincSystem,
                         "94558-4",
                         "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
+                    ),
+                    TestSummary(
+                        listOf(
+                            CodeSummary(
+                                snomedSystem,
+                                "840539006",
+                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                            ),
+                            CodeSummary(
+                                snomedSystem,
+                                "7180009",
+                                "Meningitis (disorder)"
+                            )
+                        ),
+                        "Local",
+                        "12345",
+                        "Covid 19 Test"
                     )
                 )
             ),
@@ -38,6 +62,12 @@ class AzureEventUtilsTest {
                 listOf(
                     TestSummary(
                         testPerformedCode = "95418-0",
+                    )
+                )
+            ),
+            ObservationSummary(
+                listOf(
+                    TestSummary(
                         testPerformedSystem = loincSystem
                     )
                 )
@@ -45,16 +75,7 @@ class AzureEventUtilsTest {
             ObservationSummary(
                 listOf(
                     TestSummary(
-                        testPerformedCode = "95417-2",
-                        testPerformedSystem = loincSystem
-                    )
-                )
-            ),
-            ObservationSummary(
-                listOf(
-                    TestSummary(
-                        testPerformedCode = "95421-4",
-                        testPerformedSystem = loincSystem
+                        testPerformedDisplay = "SARS-CoV-2 (COVID-19) N gene [Presence] in Saliva (oral fluid) by Nucleic acid amplification using CDC primer-probe set N1"
                     )
                 )
             ),
