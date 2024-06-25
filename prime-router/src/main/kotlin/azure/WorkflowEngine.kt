@@ -21,7 +21,10 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
@@ -59,6 +62,8 @@ class WorkflowEngine(
     val db: DatabaseAccess = databaseAccessSingleton,
     val blob: BlobAccess = BlobAccess(),
     queue: QueueAccess = QueueAccess,
+    val azureEventService: AzureEventService = AzureEventServiceImpl(),
+    val reportService: ReportService = ReportService(),
     val translator: Translator = Translator(metadata, settings),
     val sftpTransport: SftpTransport = SftpTransport(),
     val as2Transport: AS2Transport = AS2Transport(),
@@ -184,11 +189,10 @@ class WorkflowEngine(
                 Report.Format.safeValueOf(sender.format.toString())
             }
 
-        val blobFilename = report.name.replace(report.bodyFormat.ext, reportFormat.ext)
         val blobInfo = BlobAccess.uploadBody(
             reportFormat,
             rawBody,
-            blobFilename,
+            report.id.toString(),
             sender.fullName,
             Event.EventAction.RECEIVE
         )

@@ -10,7 +10,6 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 import com.microsoft.azure.functions.ExecutionContext
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SoapTransportType
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.credentials.SoapCredential
@@ -92,6 +91,7 @@ class SoapSerializer(
                 "SOAP12" -> {
                     writeSoap12Header(xmlGen)
                 }
+
                 else -> {
                     xmlGen.writeNullField("$soapNamespaceAlias:Header")
                 }
@@ -114,7 +114,7 @@ class SoapSerializer(
         // write out the SOAP namespace into the header
         xmlGen.writeFieldName("xmlns:$soapNamespaceAlias")
         // and the namespace as well
-         if (value.soapVersion == "SOAP12") {
+        if (value.soapVersion == "SOAP12") {
             xmlGen.writeString(soap12Namespace)
         } else {
             xmlGen.writeString(soapNamespace)
@@ -164,6 +164,7 @@ class SoapSerializer(
         // close the objects for the wsu:timestamp, wsse:Security and soapenv:Header elements
         repeat(3) { xmlGen.writeEndObject() }
     }
+
     companion object {
         /** our default SOAP namespace */
         private const val soapNamespace = "http://schemas.xmlsoap.org/soap/envelope/"
@@ -190,6 +191,7 @@ object SoapObjectService {
         header: WorkflowEngine.Header,
         context: ExecutionContext,
         credential: SoapCredential,
+        externalFileName: String,
     ): XmlObject? {
         context.logger.info("Creating object for ${soapTransportType.soapAction}")
         return when (soapTransportType.soapAction) {
@@ -208,7 +210,7 @@ object SoapObjectService {
                 )
                 // create the lab file object
                 val labFile = LabFile(
-                    fileName = Report.formExternalFilename(header),
+                    fileName = externalFileName,
                     index = 1,
                     fileContents = Base64.getEncoder().encodeToString(header.content!!)
                 )
