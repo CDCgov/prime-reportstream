@@ -358,10 +358,8 @@ class FhirRouterTests {
     )
 
     val csv =
-        """
-            variable,fhirPath
-            processingId,Bundle.entry.resource.ofType(MessageHeader).meta.extension(
-            'https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id').value.coding.code
+        """variable,fhirPath
+            processingId,Bundle.entry.resource.ofType(MessageHeader).meta.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id').value.coding.code
             messageId,Bundle.entry.resource.ofType(MessageHeader).id
             patient,Bundle.entry.resource.ofType(Patient)
             performerState,Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state
