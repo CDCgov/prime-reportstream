@@ -1,9 +1,11 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatusType
+import com.networknt.org.apache.commons.validator.routines.InetAddressValidator
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
@@ -21,10 +23,10 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.SQLDataType
-import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.net.URISyntaxException
 import java.time.LocalDateTime
@@ -152,34 +154,28 @@ class ActionHistory(
     }
 
     /**
+     *
+     *
+     *
+     */
+    data class ActionParams(
+        val method: HttpMethod,
+        @JsonProperty("Headers")
+        val headers: Map<String, String>,
+        @JsonProperty("QueryParameters")
+        val queryParameters: Map<String, String>,
+    )
+
+    /**
      * Track the parmeters of a [request].
      */
     fun trackActionParams(request: HttpRequestMessage<String?>) {
-        // TODO Convert to use jackson mapper
-        val factory = JsonFactory()
-        val outStream = ByteArrayOutputStream()
-        factory.createGenerator(outStream).use { jsonGenerator ->
-            jsonGenerator.useDefaultPrettyPrinter()
-            jsonGenerator.writeStartObject()
-            jsonGenerator.writeStringField("method", request.httpMethod.toString())
-            jsonGenerator.writeObjectFieldStart("Headers")
-            // remove secrets
-            request.headers
-                .filter { !it.key.contains("key") }
-                .filter { !it.key.contains("cookie") }
-                .filter { !it.key.contains("auth") }
-                .forEach { (key, value) ->
-                    jsonGenerator.writeStringField(key, value)
-                }
-            jsonGenerator.writeEndObject()
-            jsonGenerator.writeObjectFieldStart("QueryParameters")
-            // remove secrets
-            request.queryParameters.filter { !it.key.contains("code") }.forEach { (key, value) ->
-                jsonGenerator.writeStringField(key, value)
-            }
-            jsonGenerator.writeEndObject()
-            jsonGenerator.writeEndObject()
-        }
+        val filteredHeaders = request.headers
+            .filter { !it.key.contains("key") }
+            .filter { !it.key.contains("cookie") }
+            .filter { !it.key.contains("auth") }
+        val filteredQueryParams = request.queryParameters.filter { !it.key.contains("code") }
+        val params = ActionParams(request.httpMethod, filteredHeaders, filteredQueryParams)
         action.contentLength = request.headers["content-length"]?.let {
             try {
                 it.toInt()
@@ -188,11 +184,17 @@ class ActionHistory(
             }
         }
         // capture the azure client IP but override with the first forwarded for if present
-        action.senderIp = request.headers["x-azure-clientip"]?.take(ACTION.SENDER_IP.dataType.length())
-        request.headers["x-forwarded-for"]?.let {
-            action.senderIp = it.split(",").firstOrNull()?.trim()?.take(ACTION.SENDER_IP.dataType.length())
+        val senderIp =
+            (
+                (
+                    request.headers["x-forwarded-for"]?.split(",")
+                ?.firstOrNull()
+                )?.take(ACTION.SENDER_IP.dataType.length()) ?: request.headers["x-azure-clientip"]
+                )
+        if (senderIp != null && InetAddressValidator.getInstance().isValid(senderIp)) {
+            action.senderIp = senderIp
         }
-        trackActionParams(outStream.toString())
+        trackActionParams(JacksonMapperUtilities.objectMapper.writeValueAsString(params))
     }
 
     /**

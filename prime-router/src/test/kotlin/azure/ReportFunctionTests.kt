@@ -32,6 +32,7 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class ReportFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -684,5 +685,17 @@ class ReportFunctionTests {
         // Report Validated and no warnings returned
         assert(resp.status.equals(HttpStatus.OK))
         verify(exactly = 0) { actionHistory.trackLogs(any<ActionLog>()) }
+    }
+
+    @Test
+    fun `test throws an error for an invalid payloadname`() {
+        // 2052 character
+        val longpayloadname = "test".repeat(513)
+        val mockHttpRequest = MockHttpRequestMessage()
+        mockHttpRequest.httpHeaders["payloadname"] = longpayloadname
+
+        assertThrows<RequestFunction.InvalidExternalPayloadException> {
+            ReportFunction().extractPayloadName(mockHttpRequest)
+        }
     }
 }
