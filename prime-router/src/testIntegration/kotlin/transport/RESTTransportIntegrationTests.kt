@@ -551,7 +551,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
 
         val retryItems = mockRestTransport.send(
-            flexionRestTransportTypeWithJwtParams, header, reportId, null,
+            flexionRestTransportTypeWithJwtParams, header, reportId, "test", null,
             context, actionHistory
         )
         assertThat(retryItems).isNull()
