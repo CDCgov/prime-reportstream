@@ -1,6 +1,7 @@
 /* eslint-disable playwright/no-conditional-in-test */
 import { expect, test } from "@playwright/test";
 import axios, { AxiosError } from "axios";
+import * as fs from "fs";
 import * as publicPagesLinkCheck from "../../pages/public-pages-link-check";
 
 // To save bandwidth, this test is within the /spec/chromium-only/ folder
@@ -11,6 +12,13 @@ import * as publicPagesLinkCheck from "../../pages/public-pages-link-check";
 //   use: { browserName: "chromium" },
 //   testMatch: "spec/chromium-only/*.spec.ts",
 // },
+
+const isCI = process.env.GITHUB_ACTIONS === "true";
+const logFilePath = process.env.LOG_FILE ?? "playwright-warnings.log";
+
+if (isCI) {
+    fs.writeFileSync(logFilePath, "");
+}
 
 test.describe("Evaluate links on public facing pages", () => {
     let urlPaths: string[] = [];
@@ -83,6 +91,14 @@ test.describe("Evaluate links on public facing pages", () => {
             } catch (error) {
                 const e = error as AxiosError;
                 console.error(`Error accessing ${url}:`, e.message);
+                if (isCI) {
+                    const warning = { url: url, message: e.message };
+                    fs.appendFileSync(
+                        logFilePath,
+                        `${JSON.stringify(warning)}\n`,
+                    );
+                }
+
                 return {
                     url,
                     status: e.response ? e.response.status : "Request failed",
