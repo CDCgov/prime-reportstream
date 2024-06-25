@@ -12,7 +12,7 @@ locals {
     okta_redirect_url     = "https://${var.environment}.prime.cdc.gov/download"
     okta_base_url         = "hhs-prime.oktapreview.com"
     OKTA_scope            = "simple_report_dev"
-    sftp_container_module = false
+    sftp_container_module = true
     RS_okta_base_url      = "reportstream.oktapreview.com"
     RS_okta_redirect_url  = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
     RS_OKTA_scope         = "reportstream_dev"
@@ -36,7 +36,7 @@ locals {
     delete_pii_storage_after_days = 30
   }
   database = {
-    db_sku_name         = "GP_Gen5_4"
+    db_sku_name         = "MO_Gen5_32"//"GP_Gen5_4"
     db_version          = "11"
     db_storage_mb       = 3072000
     db_auto_grow        = true

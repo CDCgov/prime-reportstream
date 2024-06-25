@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - master
+      - josiahsiegel/update/demo-env-loadtesting
   schedule:
     - cron:  "0 0 1 * *"
 
@@ -80,7 +81,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        AZ_ENV: [ demo1, demo2, demo3, test, staging, prod ]
+        AZ_ENV: [ demo1 ]
     steps:
       - name: Check Out Changes
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
