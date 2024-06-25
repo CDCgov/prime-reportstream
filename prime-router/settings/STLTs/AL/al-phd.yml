@@ -16,9 +16,9 @@
         schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/AL/AL-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
-        receivingApplicationName: "ALNBS"
+        receivingApplicationName: "ALNBS^2.16.840.1.114222.4.5.1^ISO"
         receivingApplicationOID: "2.16.840.1.114222.4.5.1"
-        receivingFacilityName: "ALDOH"
+        receivingFacilityName: "ALDOH^2.16.840.1.114222.4.1.3636^ISO"
         receivingFacilityOID: "2.16.840.1.114222.4.1.3636"
         messageProfileId: null
         replaceValue: { }
