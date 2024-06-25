@@ -278,7 +278,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         } else {
             val issuer = jwtPamams["issuer"] ?: receiver.name
             val audience = jwtPamams["audience"] ?: ""
-            AuthUtils.generateToken(issuer, audience, privateKey, "", null)
+            AuthUtils.generateToken(issuer, audience, privateKey, "")
         }
         return UserApiKeyCredential(credential.user, senderToken)
     }
