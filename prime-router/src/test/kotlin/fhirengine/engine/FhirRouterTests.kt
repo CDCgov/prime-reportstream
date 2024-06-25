@@ -533,30 +533,7 @@ class FhirRouterTests {
     @Test
     fun `test applyFilters receiver setting - (mappedConditionFilter multiple filters, all true) `() {
         @Suppress("ktlint:standard:max-line-length")
-        val fhirRecord =
-            """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347",
-            |"meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},
-            |"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},
-            |"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00",
-            |"entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09",
-            |"resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09",
-            |"status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},
-            |"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],
-            |"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001",
-            |"display":"Detected"}]},"interpretation":[{
-            |"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078",
-            |"code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":
-            |"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
-            |"valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, 
-            |Dickinson and Company (BD)"}},{"url":
-            |"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid",
-            |"valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, 
-            |Dickinson and Company (BD)"}}],
-            |"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},
-            |"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},
-            |"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}
-            |
-""".trimMargin()
+        val fhirRecord = """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
         val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
         val bundle = FhirContext.forR4().newJsonParser().parseResource(Bundle::class.java, fhirRecord)
         bundle.entry.filter { it.resource is Observation }.forEach {
