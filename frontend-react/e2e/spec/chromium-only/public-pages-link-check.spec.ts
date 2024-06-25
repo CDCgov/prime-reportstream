@@ -1,8 +1,8 @@
 /* eslint-disable playwright/no-conditional-in-test */
-import { expect, test } from "@playwright/test";
 import axios, { AxiosError } from "axios";
 import * as fs from "fs";
 import * as publicPagesLinkCheck from "../../pages/public-pages-link-check";
+import { expect, test } from "../../test";
 
 // To save bandwidth, this test is within the /spec/chromium-only/ folder
 // Since we're just checking link validity. This is specified within our
@@ -12,13 +12,6 @@ import * as publicPagesLinkCheck from "../../pages/public-pages-link-check";
 //   use: { browserName: "chromium" },
 //   testMatch: "spec/chromium-only/*.spec.ts",
 // },
-
-const isCI = process.env.GITHUB_ACTIONS === "true";
-const logFilePath = process.env.LOG_FILE ?? "playwright-warnings.log";
-
-if (isCI) {
-    fs.writeFileSync(logFilePath, "");
-}
 
 test.describe("Evaluate links on public facing pages", () => {
     let urlPaths: string[] = [];
@@ -57,6 +50,8 @@ test.describe("Evaluate links on public facing pages", () => {
 
     test("Check all public-facing URLs and their links for a valid 200 response", async ({
         page,
+        frontendWarningsLogPath,
+        isFrontendWarningsLog,
     }) => {
         let aggregateHref = [];
         // Set test timeout to be 1 minute instead of 30 seconds
@@ -91,10 +86,10 @@ test.describe("Evaluate links on public facing pages", () => {
             } catch (error) {
                 const e = error as AxiosError;
                 console.error(`Error accessing ${url}:`, e.message);
-                if (isCI) {
+                if (isFrontendWarningsLog) {
                     const warning = { url: url, message: e.message };
                     fs.appendFileSync(
-                        logFilePath,
+                        frontendWarningsLogPath,
                         `${JSON.stringify(warning)}\n`,
                     );
                 }

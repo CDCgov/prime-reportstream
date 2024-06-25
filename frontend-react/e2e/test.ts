@@ -20,6 +20,8 @@ export interface CustomFixtures {
     senderLogin: TestLogin;
     receiverLogin: TestLogin;
     isMockDisabled: boolean;
+    frontendWarningsLogPath: string;
+    isFrontendWarningsLog: boolean;
 }
 
 export type PlaywrightAllTestArgs = PlaywrightTestArgs &
@@ -27,6 +29,9 @@ export type PlaywrightAllTestArgs = PlaywrightTestArgs &
     PlaywrightWorkerArgs &
     PlaywrightWorkerOptions;
 
+const e2eDataPath = join(import.meta.dirname, "../e2e-data");
+const isCI = Boolean(process.env.CI);
+const frontendWarningsPath = join(e2eDataPath, "frontend-warnings.log");
 const isMockDisabled = Boolean(process.env.MOCK_DISABLED);
 
 function createLogins<const T extends string[]>(
@@ -81,6 +86,8 @@ export const test = base.extend<CustomFixtures>({
         landingPage: "/",
     },
     isMockDisabled,
+    frontendWarningsLogPath: frontendWarningsPath,
+    isFrontendWarningsLog: isCI,
 });
 
 export type TestArgs<P extends keyof PlaywrightAllTestArgs> = Pick<

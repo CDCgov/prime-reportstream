@@ -117,6 +117,9 @@ jobs:
       if: ${{ !cancelled() && needs.pre-job.outputs.is_permitted == 'true' }}
       needs: [pre-job, e2e_tests]
       runs-on: ubuntu-latest
+      env:
+        WARNING_BODY:
+        WARNING_LOG_FILE: frontend-warnings.log
 
       steps:
         - name: Check out changes
@@ -146,6 +149,41 @@ jobs:
             name: frontend-e2e-data--attempt-${{ github.run_attempt }}
             path: frontend-react/e2e-data
             retention-days: 7
+        - name: Post Warnings as Comments
+          run: |
+            if [ -f "e2e-data/$WARNING_LOG_FILE" ]; then
+              WARNING_BODY="## ⚠️ Broken Links ⚠️\n\n"
+              while IFS= read -r line; do
+                if [ -n "$line" ]; then
+                  URL=$(echo $line | jq -r '.url')
+                  ERROR=$(echo $line | jq -r '.message')
+                  WARNING_BODY="${WARNING_BODY}❌ $URL\n\n**Error:** \`$ERROR\`\n\n---\n\n"
+                fi
+            fi
+        - name: Find Previous Warnings Comment
+          id: comment_find
+          uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e
+          with:
+            issue-number: ${{ github.event.pull_request.number }}
+            comment-author: "github-actions[bot]"
+            body-regex: '\.*Broken Links.*\gi'
+        - name: Delete Previous Warnings Comment
+          if: ${{ steps.comment_find.outputs.comment-id }}
+          uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+          with:
+            github-token: ${{secrets.GITHUB_TOKEN}}
+            script: |
+              github.rest.issues.deleteComment({
+                comment_id: ${{ steps.comment_find.outputs.comment-id }},
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              })
+        - name: Create New Comment
+          if: ${{ env.WARNING_BODY != ''}}
+          uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
+          with:
+            issue-number: ${{ github.event.pull_request.number }}
+            body: ${{ env.WARNING_BODY }}
   
   chromatic:
     name: Chromatic Analysis
