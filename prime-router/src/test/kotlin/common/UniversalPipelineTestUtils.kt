@@ -3,26 +3,50 @@ package gov.cdc.prime.router.common
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isGreaterThanOrEqualTo
+import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogDetail
+import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.ActionLogScope
+import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.UniversalPipelineSender
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DataAccessTransaction
+import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.ProcessEvent
+import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.ReportLineage
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
+import gov.cdc.prime.router.fhirengine.azure.FHIRFunctions
+import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
+import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.history.db.ReportGraph
+import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import org.jooq.impl.DSL
+import org.testcontainers.containers.GenericContainer
+import java.time.OffsetDateTime
+import java.util.UUID
 
 @Suppress("ktlint:standard:max-line-length")
 const val validFHIRRecord1 =
     """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
+const val validFHIRRecord1Identifier = "1234d1d1-95fe-462c-8ac6-46728dba581c"
 
 @Suppress("ktlint:standard:max-line-length")
 const val conditionCodedValidFHIRRecord1 =
@@ -269,5 +293,370 @@ object UniversalPipelineTestUtils {
         }
 
         return reportFiles
+    }
+
+    data class ReceiverSetupData(
+        val name: String,
+        val orgName: String = "phd",
+        val topic: Topic = Topic.FULL_ELR,
+        val jurisdictionalFilter: List<String> = emptyList(),
+        val qualityFilter: List<String> = emptyList(),
+        val routingFilter: List<String> = emptyList(),
+        val processingModeFilter: List<String> = emptyList(),
+        val conditionFilter: List<String> = emptyList(),
+        val reverseQuality: Boolean = false,
+    )
+
+    fun createReceivers(receiverSetupDataList: List<ReceiverSetupData>): List<Receiver> {
+        return receiverSetupDataList.map {
+            Receiver(
+                it.name,
+                it.orgName,
+                it.topic,
+                CustomerStatus.ACTIVE,
+                "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml",
+                timing = Receiver.Timing(numberPerDay = 1, maxReportCount = 1, whenEmpty = Receiver.WhenEmpty()),
+                jurisdictionalFilter = it.jurisdictionalFilter,
+                qualityFilter = it.qualityFilter,
+                routingFilter = it.routingFilter,
+                processingModeFilter = it.processingModeFilter,
+                conditionFilter = it.conditionFilter,
+                reverseTheQualityFilter = it.reverseQuality
+            )
+        }
+    }
+
+    fun createOrganizationWithReceivers(receiverList: List<Receiver>): DeepOrganization {
+        return DeepOrganization(
+            "phd",
+            "test",
+            Organization.Jurisdiction.FEDERAL,
+            senders = listOf(
+                hl7Sender,
+                fhirSender,
+                hl7SenderWithNoTransform,
+                fhirSenderWithNoTransform,
+                senderWithValidation
+            ),
+            receivers = receiverList
+        )
+    }
+
+    fun createFHIRFunctionsInstance(): FHIRFunctions {
+        val settings = FileSettings().loadOrganizations(universalPipelineOrganization)
+        val metadata = UnitTestUtils.simpleMetadata
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable("observation-mapping", emptyList())
+        )
+        val workflowEngine = WorkflowEngine.Builder()
+            .metadata(metadata)
+            .settingsProvider(settings)
+            .databaseAccess(ReportStreamTestDatabaseContainer.testDatabaseAccess)
+            .build()
+        return FHIRFunctions(workflowEngine, databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess)
+    }
+
+    fun createDestinationFilter(
+        org: DeepOrganization? = null,
+    ): FHIRDestinationFilter {
+        val settings = FileSettings().loadOrganizations(org ?: universalPipelineOrganization)
+        val metadata = UnitTestUtils.simpleMetadata
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable("observation-mapping", emptyList())
+        )
+        return FHIRDestinationFilter(
+            metadata,
+            settings,
+            reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess)),
+        )
+    }
+
+    fun createReceiverFilter(
+        org: DeepOrganization? = null,
+    ): FHIRReceiverFilter {
+        val settings = FileSettings().loadOrganizations(org ?: universalPipelineOrganization)
+        val metadata = UnitTestUtils.simpleMetadata
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable("observation-mapping", emptyList())
+        )
+        return FHIRReceiverFilter(
+            metadata,
+            settings,
+            reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess)),
+        )
+    }
+
+    fun generateQueueMessage(action: TaskAction, report: Report, blobContents: String, sender: Sender): String {
+        return """
+            {
+                "type": "${action.literal}",
+                "reportId": "${report.id}",
+                "blobURL": "${report.bodyURL}",
+                "digest": "${BlobAccess.digestToString(BlobAccess.sha256Digest(blobContents.toByteArray()))}",
+                "blobSubFolderName": "${sender.fullName}",
+                "topic": "${sender.topic.jsonVal}",
+                "schemaName": "${sender.schemaName}" 
+            }
+        """.trimIndent()
+    }
+
+    fun generateReceiverQueueMessage(
+        report: Report,
+        blobContents: String,
+        sender: Sender,
+        receiverName: String,
+    ): String {
+        return """
+            {
+                "type": "${TaskAction.receiver_filter.literal}",
+                "reportId": "${report.id}",
+                "blobURL": "${report.bodyURL}",
+                "digest": "${BlobAccess.digestToString(BlobAccess.sha256Digest(blobContents.toByteArray()))}",
+                "blobSubFolderName": "${sender.fullName}",
+                "topic": "${sender.topic.jsonVal}",
+                "receiverFullName": "$receiverName" 
+            }
+        """.trimIndent()
+    }
+
+    fun getBlobContainerMetadata(azuriteContainer: GenericContainer<*>): BlobAccess.BlobContainerMetadata {
+        val blobConnectionString =
+            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;
+                    BlobEndpoint=http://${azuriteContainer.host}:${
+
+                azuriteContainer.getMappedPort(
+                    10000
+                )
+            }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer.host}:${
+                azuriteContainer.getMappedPort(
+                    10001
+                )
+            }/devstoreaccount1;"""
+        return BlobAccess.BlobContainerMetadata(
+            "container1",
+            blobConnectionString
+        )
+    }
+
+    fun createReport(
+        fileFormat: Report.Format,
+        currentAction: TaskAction,
+        nextAction: TaskAction,
+        nextEventAction: Event.EventAction,
+        topic: Topic,
+        parentReport: Report? = null,
+        bodyURL: String? = null,
+    ): Report {
+        val report = Report(
+            fileFormat,
+            listOf(
+                ClientSource(
+                    organization = universalPipelineOrganization.name,
+                    client = "Test Sender"
+                )
+            ),
+            1,
+            metadata = UnitTestUtils.simpleMetadata,
+            nextAction = nextAction,
+            topic = topic
+        )
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val action = Action().setActionName(currentAction)
+            val actionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
+            report.bodyURL = bodyURL ?: "http://${report.id}.${fileFormat.toString().lowercase()}"
+
+            val reportFile = ReportFile().setSchemaTopic(topic)
+                .setReportId(report.id)
+                .setActionId(actionId)
+                .setSchemaName("")
+                .setBodyFormat(fileFormat.toString())
+                .setItemCount(1)
+                .setExternalName("test-external-name")
+                .setBodyUrl(report.bodyURL)
+                .setSendingOrg(universalPipelineOrganization.name)
+                .setSendingOrgClient("Test Sender")
+
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
+                reportFile, txn, action
+            )
+            if (parentReport != null) {
+                ReportStreamTestDatabaseContainer.testDatabaseAccess
+                    .insertReportLineage(
+                        gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage(
+                            null,
+                            actionId,
+                            parentReport.id,
+                            report.id,
+                            OffsetDateTime.now()
+                        ),
+                        txn
+                    )
+            }
+
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertTask(
+                report,
+                fileFormat.toString().lowercase(),
+                report.bodyURL,
+                nextAction = ProcessEvent(
+                    nextEventAction,
+                    report.id,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                ),
+                txn
+            )
+        }
+
+        return report
+    }
+
+    fun createReportsWithLineage(
+        reportContents: String,
+        azurite: GenericContainer<*>,
+    ): Pair<Report, Report> {
+        val receivedBlobUrl = BlobAccess.uploadBlob(
+            "receive/mr_fhir_face.fhir",
+            reportContents.toByteArray(),
+            getBlobContainerMetadata(azurite)
+        )
+
+        val convertedBlobUrl = BlobAccess.uploadBlob(
+            "convert/mr_fhir_face.fhir",
+            reportContents.toByteArray(),
+            getBlobContainerMetadata(azurite)
+        )
+
+        val receiveReport = createReport(
+            Report.Format.FHIR,
+            TaskAction.receive,
+            TaskAction.convert,
+            Event.EventAction.CONVERT,
+            Topic.FULL_ELR,
+            null,
+            receivedBlobUrl
+        )
+
+        val convertReport = createReport(
+            Report.Format.FHIR,
+            TaskAction.convert,
+            TaskAction.route,
+            Event.EventAction.ROUTE,
+            Topic.FULL_ELR,
+            receiveReport,
+            convertedBlobUrl
+        )
+
+        return Pair(receiveReport, convertReport)
+    }
+
+    fun createReportsWithLineage(
+        reportContents: String,
+        receiver: Receiver,
+        azurite: GenericContainer<*>,
+    ): Pair<Report, Report> {
+        val receivedBlobUrl = BlobAccess.uploadBlob(
+            "receive/mr_fhir_face.fhir",
+            reportContents.toByteArray(),
+            getBlobContainerMetadata(azurite)
+        )
+
+        val convertedBlobUrl = BlobAccess.uploadBlob(
+            "convert/mr_fhir_face.fhir",
+            reportContents.toByteArray(),
+            getBlobContainerMetadata(azurite)
+        )
+
+        val destinationFilteredBlobUrl = BlobAccess.uploadBlob(
+            "destination-filter/${receiver.fullName}.fhir",
+            reportContents.toByteArray(),
+            getBlobContainerMetadata(azurite)
+        )
+
+        val receiveReport = createReport(
+            Report.Format.FHIR,
+            TaskAction.receive,
+            TaskAction.convert,
+            Event.EventAction.CONVERT,
+            Topic.FULL_ELR,
+            null,
+            receivedBlobUrl
+        )
+
+        val convertReport = createReport(
+            Report.Format.FHIR,
+            TaskAction.convert,
+            TaskAction.destination_filter,
+            Event.EventAction.DESTINATION_FILTER,
+            Topic.FULL_ELR,
+            receiveReport,
+            convertedBlobUrl
+        )
+
+        val destinationReport = createReport(
+            Report.Format.FHIR,
+            TaskAction.destination_filter,
+            TaskAction.receiver_filter,
+            Event.EventAction.RECEIVER_FILTER,
+            Topic.FULL_ELR,
+            convertReport,
+            destinationFilteredBlobUrl
+        )
+
+        return Pair(receiveReport, destinationReport)
+    }
+
+    fun checkActionTable(expectedTaskActions: List<TaskAction>) {
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val actionRecords = DSL.using(txn)
+                .select(Tables.ACTION.asterisk())
+                .from(Tables.ACTION)
+                .fetchInto(
+                    Action::class.java
+                )
+
+            for (i in 0 until actionRecords.size) {
+                assertThat(expectedTaskActions[i]).isEqualTo(actionRecords[i].actionName)
+            }
+        }
+    }
+
+    data class ActionLogRecordContent(
+        val index: Int,
+        val reportId: UUID?,
+        val type: ActionLogLevel?,
+        val scope: ActionLogScope?,
+        val actionLogDetail: ActionLogDetail?,
+    )
+
+    // TODO: maybe hook back up
+    fun checkActionLogTable(expectedContentList: List<ActionLogRecordContent>) {
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val actionLogRecords = DSL.using(txn)
+                .select(Tables.ACTION_LOG.asterisk())
+                .from(Tables.ACTION_LOG)
+                .fetchInto(ActionLog::class.java)
+
+            assertThat(actionLogRecords.size).isGreaterThanOrEqualTo(expectedContentList.size)
+
+            for (expectedActionLogRecordContent in expectedContentList) {
+                // -1 because the indexing is not zero-based and we need to modify it to address the right element
+                // in the actionLogRecords array
+                val actualIndex = expectedActionLogRecordContent.index - 1
+                val actualActionLogRecord = actionLogRecords[actualIndex]
+
+                assertThat(expectedActionLogRecordContent.reportId).isEqualTo(actualActionLogRecord.reportId)
+                assertThat(expectedActionLogRecordContent.type).isEqualTo(actualActionLogRecord.type)
+                assertThat(expectedActionLogRecordContent.scope).isEqualTo(actualActionLogRecord.scope)
+
+                expectedActionLogRecordContent.actionLogDetail?.let {
+                    val expected = expectedActionLogRecordContent.actionLogDetail
+                    assertThat(expected.javaClass).isEqualTo(actualActionLogRecord.detail.javaClass)
+                    assertThat(expected.scope).isEqualTo(actualActionLogRecord.detail.scope)
+                    assertThat(expected.message).isEqualTo(actualActionLogRecord.detail.message)
+                    assertThat(expected.errorCode).isEqualTo(actualActionLogRecord.detail.errorCode)
+                }
+            }
+        }
     }
 }
