@@ -1,13 +1,13 @@
 import { expect, test } from "@playwright/test";
 
-import { scrollToFooter, scrollToTop } from "../helpers/utils";
-import * as gettingStarted from "../pages/getting-started";
-import * as header from "../pages/header";
-import * as homepage from "../pages/homepage";
-import * as managingYourConnection from "../pages/managing-your-connection";
-import * as ourNetwork from "../pages/our-network";
-import * as security from "../pages/security";
-import * as support from "../pages/support";
+import { scrollToFooter, scrollToTop } from "../../helpers/utils";
+import * as gettingStarted from "../../pages/getting-started";
+import * as header from "../../pages/header";
+import * as homepage from "../../pages/homepage";
+import * as managingYourConnection from "../../pages/managing-your-connection";
+import * as ourNetwork from "../../pages/our-network";
+import * as security from "../../pages/security";
+import * as support from "../../pages/support";
 
 test.describe("Homepage", () => {
     test.beforeEach(async ({ page }) => {

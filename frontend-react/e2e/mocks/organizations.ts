@@ -383,7 +383,7 @@ export const MOCK_GET_RECEIVERS_IGNORE = [
     },
 ];
 
-export const mockOrganizationSettingsList = [
+export const MOCK_GET_ORGANIZATION_SETTINGS_LIST = [
     {
         name: "waters",
         description: "Test Sender from Waters",
