@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.azure
 
+import azure.QueueAccess
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
@@ -8,7 +9,6 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
@@ -35,7 +35,6 @@ class FHIRFunctions(
     private val databaseAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
     private val queueAccess: QueueAccess = QueueAccess,
 ) : Logging {
-
     /**
      * An azure function for ingesting full-ELR HL7 data and converting it to FHIR
      */
@@ -66,7 +65,7 @@ class FHIRFunctions(
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
                 elrRoutingQueueName,
-                it.serialize()
+                it.serialize(),
             )
         }
     }
@@ -101,7 +100,7 @@ class FHIRFunctions(
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
                 elrTranslationQueueName,
-                it.serialize()
+                it.serialize(),
             )
         }
     }
@@ -137,7 +136,7 @@ class FHIRFunctions(
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
                 elrReceiverFilterQueueName,
-                it.serialize()
+                it.serialize(),
             )
         }
     }
@@ -172,7 +171,7 @@ class FHIRFunctions(
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
                 elrTranslationQueueName,
-                it.serialize()
+                it.serialize(),
             )
         }
     }
@@ -208,7 +207,7 @@ class FHIRFunctions(
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
                 elrSendQueueName,
-                it.serialize()
+                it.serialize(),
             )
         }
     }
@@ -230,11 +229,12 @@ class FHIRFunctions(
     ): List<QueueMessage> {
         val messageContent = readMessage(fhirEngine.engineType, message, dequeueCount)
 
-        val newMessages = databaseAccess.transactReturning { txn ->
-            val results = fhirEngine.run(messageContent, actionLogger, actionHistory, txn)
-            recordResults(message, actionHistory, txn)
-            results
-        }
+        val newMessages =
+            databaseAccess.transactReturning { txn ->
+                val results = fhirEngine.run(messageContent, actionLogger, actionHistory, txn)
+                recordResults(message, actionHistory, txn)
+                results
+            }
 
         return newMessages
     }
@@ -243,9 +243,13 @@ class FHIRFunctions(
      * Deserializes the [message] into a Fhir Convert/Route/Translate Message, verifies it is of the correct type.
      * Logs the [engineType] and [dequeueCount]
      */
-    private fun readMessage(engineType: String, message: String, dequeueCount: Int): ReportPipelineMessage {
+    private fun readMessage(
+        engineType: String,
+        message: String,
+        dequeueCount: Int,
+    ): ReportPipelineMessage {
         logger.debug(
-            "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
+            "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time",
         )
 
         return QueueMessage.deserialize(message) as ReportPipelineMessage
@@ -254,7 +258,11 @@ class FHIRFunctions(
     /**
      * Tracks any action params that are part of the [message] and records the logs and actions to the database
      */
-    private fun recordResults(message: String, actionHistory: ActionHistory, txn: DataAccessTransaction) {
+    private fun recordResults(
+        message: String,
+        actionHistory: ActionHistory,
+        txn: DataAccessTransaction,
+    ) {
         actionHistory.trackActionParams(message)
         actionHistory.trackLogs(actionLogger.logs)
         workflowEngine.recordAction(actionHistory, txn)

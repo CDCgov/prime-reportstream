@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.azure
+package azure
 
 import com.azure.storage.queue.QueueClient
 import com.azure.storage.queue.QueueServiceClientBuilder
@@ -28,9 +28,9 @@ object QueueAccess {
     /**
      * Send a message to the queue based on the [event].
      */
-    fun sendMessage(event: Event) {
+    fun sendMessage(event: IEvent) {
         val queueName = event.eventAction.toQueueName() ?: return
-        sendMessageToQueue(event, queueName)
+        return sendMessageToQueue(event, queueName)
     }
 
     /**
@@ -38,7 +38,10 @@ object QueueAccess {
      *
      * The derived queue name from the [event] is ignored purposely.
      */
-    fun sendMessageToQueue(event: Event, queueName: String) {
+    fun sendMessageToQueue(
+        event: IEvent,
+        queueName: String,
+    ) {
         val base64Message = String(Base64.getEncoder().encode(event.toQueueMessage().toByteArray()))
         val now = OffsetDateTime.now()
         val invisibleDuration = Duration.between(now, event.at ?: now)
@@ -60,40 +63,41 @@ object QueueAccess {
         // Bug:  event.at is calculated before the call to workflowengine.recordHistory
         // In cases of very large datasets, that db write can take a very long time, pushing
         // the current time past event.at.  This causes negative durations.  Hence this:
-        val duration = if (invisibleDuration.isNegative) {
-            Duration.ZERO
-        } else {
-            invisibleDuration
-        }
+        val duration =
+            if (invisibleDuration.isNegative) {
+                Duration.ZERO
+            } else {
+                invisibleDuration
+            }
         val timeToLive = invisibleDuration.plusDays(timeToLiveDays)
         createQueueClient(queueName).sendMessageWithResponse(
             message,
             duration,
             timeToLive,
             null,
-            null
+            null,
         )
     }
 
-    fun receiveMessage(queueName: String): Event {
-        // messageText is deprecated
-        val message = createQueueClient(queueName).receiveMessage().body.toString()
-        return Event.parseQueueMessage(message)
-    }
+//    fun receiveMessage(queueName: String): IEvent {
+//        // messageText is deprecated
+//        val message = createQueueClient(queueName).receiveMessage().body.toString()
+//        return IEvent.parseQueueMessage(message)
+//    }
 
     /**
      * Creates the queue client for the given queue [name] or reuses an existing one.
      * @return the queue client
      */
-    private fun createQueueClient(name: String): QueueClient {
-        return if (clients.containsKey(name)) {
+    private fun createQueueClient(name: String): QueueClient =
+        if (clients.containsKey(name)) {
             clients[name]!!
         } else {
-            clients[name] = QueueServiceClientBuilder()
-                .connectionString(connectionString)
-                .buildClient()
-                .createQueue(name)
+            clients[name] =
+                QueueServiceClientBuilder()
+                    .connectionString(connectionString)
+                    .buildClient()
+                    .createQueue(name)
             clients[name]!!
         }
-    }
 }

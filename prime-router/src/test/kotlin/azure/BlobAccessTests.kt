@@ -6,6 +6,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import assertk.fail
+import azure.IEvent
 import com.azure.core.http.HttpRequest
 import com.azure.core.http.rest.PagedIterable
 import com.azure.core.http.rest.PagedResponse
@@ -543,7 +544,7 @@ class BlobAccessTests {
         every {
             BlobAccess.uploadBody(
                 report1.bodyFormat, testBytes, report1.name, null,
-                Event.EventAction.NONE
+                IEvent.EventAction.NONE
             )
         } returns
             BlobAccess.BlobInfo(report1.bodyFormat, testUrl, BlobAccess.sha256Digest(testBytes))
@@ -564,15 +565,15 @@ class BlobAccessTests {
         val testBytes = "testbytes".toByteArray()
         val testFolder = "testfolder"
         val testEnv = "testenvvar"
-        val testEvents: List<Event.EventAction?> = listOf(
-            Event.EventAction.RECEIVE,
-            Event.EventAction.SEND,
-            Event.EventAction.BATCH,
-            Event.EventAction.PROCESS,
-            Event.EventAction.ROUTE,
-            Event.EventAction.TRANSLATE,
-            Event.EventAction.NONE,
-            Event.EventAction.CONVERT,
+        val testEvents: List<IEvent.EventAction?> = listOf(
+            IEvent.EventAction.RECEIVE,
+            IEvent.EventAction.SEND,
+            IEvent.EventAction.BATCH,
+            IEvent.EventAction.PROCESS,
+            IEvent.EventAction.ROUTE,
+            IEvent.EventAction.TRANSLATE,
+            IEvent.EventAction.NONE,
+            IEvent.EventAction.CONVERT,
             null
         )
 
@@ -586,7 +587,7 @@ class BlobAccessTests {
             val result = when (it) {
                 null -> BlobAccess.uploadBody(testFormat, testBytes, testName, "")
                 // testing with and without reportName passed in to improve code coverage
-                Event.EventAction.CONVERT -> BlobAccess.uploadBody(testFormat, testBytes, testName, action = it)
+                IEvent.EventAction.CONVERT -> BlobAccess.uploadBody(testFormat, testBytes, testName, action = it)
                 else -> BlobAccess.uploadBody(testFormat, testBytes, testName, testFolder, it)
             }
 

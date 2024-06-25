@@ -59,12 +59,13 @@ azurefunctions {
     region = ""
 }
 val appJvmTarget = "17"
-val javaVersion = when (appJvmTarget) {
-    "17" -> JavaVersion.VERSION_17
-    "19" -> JavaVersion.VERSION_19
-    "21" -> JavaVersion.VERSION_21
-    else -> JavaVersion.VERSION_17
-}
+val javaVersion =
+    when (appJvmTarget) {
+        "17" -> JavaVersion.VERSION_17
+        "19" -> JavaVersion.VERSION_19
+        "21" -> JavaVersion.VERSION_21
+        else -> JavaVersion.VERSION_17
+    }
 val ktorVersion = "2.3.11"
 val kotlinVersion by System.getProperties()
 val jacksonVersion = "2.17.1"
@@ -78,26 +79,29 @@ val KEY_DB_USER = "DB_USER"
 val KEY_DB_PASSWORD = "DB_PASSWORD"
 val KEY_DB_URL = "DB_URL"
 val KEY_PRIME_RS_API_ENDPOINT_HOST = "PRIME_RS_API_ENDPOINT_HOST"
-val dbUser = (
-    project.properties[KEY_DB_USER]
-        ?: System.getenv(KEY_DB_USER)
-        ?: "prime"
+val dbUser =
+    (
+        project.properties[KEY_DB_USER]
+            ?: System.getenv(KEY_DB_USER)
+            ?: "prime"
     ) as String
-val dbPassword = (
-    project.properties[KEY_DB_PASSWORD]
-        ?: System.getenv(KEY_DB_PASSWORD)
-        ?: "changeIT!"
+val dbPassword =
+    (
+        project.properties[KEY_DB_PASSWORD]
+            ?: System.getenv(KEY_DB_PASSWORD)
+            ?: "changeIT!"
     ) as String
-val dbUrl = (
-    project.properties[KEY_DB_URL]
-        ?: System.getenv(KEY_DB_URL)
-        ?: "jdbc:postgresql://localhost:5432/prime_data_hub"
+val dbUrl =
+    (
+        project.properties[KEY_DB_URL]
+            ?: System.getenv(KEY_DB_URL)
+            ?: "jdbc:postgresql://localhost:5432/prime_data_hub"
     ) as String
 
 val reportsApiEndpointHost = (
     System.getenv(KEY_PRIME_RS_API_ENDPOINT_HOST)
         ?: "localhost"
-    )
+)
 
 // This storage account key is not a secret, just a dummy value.
 val devAzureConnectString =
@@ -105,19 +109,20 @@ val devAzureConnectString =
         "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
         "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
 
-val env = mutableMapOf<String, Any>(
-    "AzureWebJobsStorage" to devAzureConnectString,
-    "AzureBlobDownloadRetryCount" to 5,
-    "PartnerStorage" to devAzureConnectString,
-    "POSTGRES_USER" to dbUser,
-    "POSTGRES_PASSWORD" to dbPassword,
-    "POSTGRES_URL" to dbUrl,
-    "PRIME_ENVIRONMENT" to "local",
-    "VAULT_API_ADDR" to "http://localhost:8200",
-    "SFTP_HOST_OVERRIDE" to "localhost",
-    "SFTP_PORT_OVERRIDE" to "2222",
-    "RS_OKTA_baseUrl" to "reportstream.oktapreview.com"
-)
+val env =
+    mutableMapOf<String, Any>(
+        "AzureWebJobsStorage" to devAzureConnectString,
+        "AzureBlobDownloadRetryCount" to 5,
+        "PartnerStorage" to devAzureConnectString,
+        "POSTGRES_USER" to dbUser,
+        "POSTGRES_PASSWORD" to dbPassword,
+        "POSTGRES_URL" to dbUrl,
+        "PRIME_ENVIRONMENT" to "local",
+        "VAULT_API_ADDR" to "http://localhost:8200",
+        "SFTP_HOST_OVERRIDE" to "localhost",
+        "SFTP_PORT_OVERRIDE" to "2222",
+        "RS_OKTA_baseUrl" to "reportstream.oktapreview.com",
+    )
 
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
@@ -185,7 +190,7 @@ tasks.test {
         fileTree("./") {
             include("settings/**/*.yml")
             include("metadata/**/*")
-        }
+        },
     )
     outputs.upToDateWhen {
         // Call gradle with the -Pforcetest option will force the unit tests to run
@@ -225,7 +230,7 @@ tasks.jacocoTestReport {
                 val packageDir = it.split(" ").last().replace(".", "/")
                 FileUtils.copyFile(
                     sourceFile,
-                    File(jacocoSourcesDir, "$packageDir/${FilenameUtils.getName(sourceFile.absolutePath)}")
+                    File(jacocoSourcesDir, "$packageDir/${FilenameUtils.getName(sourceFile.absolutePath)}"),
                 )
             }
         }
@@ -239,8 +244,8 @@ tasks.jacocoTestReport {
                 fileTree(it).matching {
                     exclude(coverageExcludedClasses)
                 }
-            }
-        )
+            },
+        ),
     )
 }
 
@@ -293,7 +298,7 @@ tasks.register<Test>("testIntegration") {
             include("settings/**/*.yml")
             include("metadata/**/*")
             include("src/testIntergation/resources/datatests/**/*")
-        }
+        },
     )
     outputs.upToDateWhen {
         // Call gradle with the -Pforcetest option will force the unit tests to run
@@ -421,7 +426,7 @@ tasks.register<JavaExec>("primeCLI") {
             println(
                 "Usage example: gradle primeCLI --args=\"data --input-fake 50 " +
                     "--input-schema waters/waters-covid-19 --output-dir ./ --target-states CA " +
-                    "--target-counties 'Santa Clara' --output-format CSV\""
+                    "--target-counties 'Santa Clara' --output-format CSV\"",
             )
         }
     }
@@ -480,15 +485,16 @@ tasks.register("reloadCredentials") {
     dependsOn("composeUp")
     group = rootProject.description ?: ""
     description = "Load the SFTP credentials used for local testing to the vault"
-    project.extra["cliArgs"] = listOf(
-        "create-credential",
-        "--type=UserPass",
-        "--persist=DEFAULT-SFTP",
-        "--user",
-        "foo",
-        "--pass",
-        "pass"
-    )
+    project.extra["cliArgs"] =
+        listOf(
+            "create-credential",
+            "--type=UserPass",
+            "--persist=DEFAULT-SFTP",
+            "--user",
+            "foo",
+            "--pass",
+            "pass",
+        )
     finalizedBy("primeCLI")
 }
 
@@ -644,7 +650,8 @@ flyway {
 jooq {
     version.set("3.18.6")
     configurations {
-        create("main") { // name of the jOOQ configuration
+        create("main") {
+            // name of the jOOQ configuration
             jooqConfiguration.apply {
                 logging = org.jooq.meta.jaxb.Logging.INFO
                 jdbc.apply {
@@ -678,8 +685,8 @@ jooq {
                                     // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
                                     // If provided, both "includeExpressions" and "includeTypes" must match.
                                     .withIncludeExpression("report_file.schema_topic")
-                                    .withIncludeTypes("VARCHAR")
-                            )
+                                    .withIncludeTypes("VARCHAR"),
+                            ),
                         )
                     }
                     generate.apply {
@@ -740,7 +747,8 @@ task<RunSQL>("clearDB") {
         password = dbPassword
         url = dbUrl
         driverClassName = "org.postgresql.Driver"
-        script = """
+        script =
+            """
             TRUNCATE TABLE public.action CASCADE;
             TRUNCATE TABLE public.action_log CASCADE;
             TRUNCATE TABLE public.covid_result_metadata CASCADE;
@@ -751,7 +759,7 @@ task<RunSQL>("clearDB") {
             TRUNCATE TABLE public.report_file CASCADE;
             TRUNCATE TABLE public.report_lineage CASCADE;
             TRUNCATE TABLE public.task CASCADE;
-        """.trimIndent()
+            """.trimIndent()
     }
 }
 
@@ -797,14 +805,14 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.1.0")
     implementation("com.microsoft.azure:applicationinsights-core:3.5.2")
-    implementation("com.azure:azure-core:1.49.0")
-    implementation("com.azure:azure-core-http-netty:1.15.0")
-    implementation("com.azure:azure-storage-blob:12.26.0") {
-        exclude(group = "com.azure", module = "azure-core")
-    }
-    implementation("com.azure:azure-storage-queue:12.21.0") {
-        exclude(group = "com.azure", module = "azure-core")
-    }
+//    implementation("com.azure:azure-core:1.49.0")
+//    implementation("com.azure:azure-core-http-netty:1.15.0")
+//    implementation("com.azure:azure-storage-blob:12.26.0") {
+//        exclude(group = "com.azure", module = "azure-core")
+//    }
+//    implementation("com.azure:azure-storage-queue:12.21.0") {
+//        exclude(group = "com.azure", module = "azure-core")
+//    }
     implementation("com.azure:azure-security-keyvault-secrets:4.8.3") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")

@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import azure.IEvent
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
@@ -12,7 +13,6 @@ import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.Event
 import java.util.Base64
 import java.util.UUID
 
@@ -32,7 +32,7 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
     JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "translate"),
     JsonSubTypes.Type(BatchEventQueueMessage::class, name = "batch"),
     JsonSubTypes.Type(ProcessEventQueueMessage::class, name = "process"),
-    JsonSubTypes.Type(ReportEventQueueMessage::class, name = "report")
+    JsonSubTypes.Type(ReportEventQueueMessage::class, name = "report"),
 )
 abstract class QueueMessage {
     fun serialize(): String {
@@ -42,22 +42,20 @@ abstract class QueueMessage {
     }
 
     companion object {
-        private val ptv = BasicPolymorphicTypeValidator.builder()
-            .build()
-        val mapper: JsonMapper = jacksonMapperBuilder()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .polymorphicTypeValidator(ptv)
-            .activateDefaultTyping(ptv)
-            .build()
+        private val ptv =
+            BasicPolymorphicTypeValidator.builder()
+                .build()
+        val mapper: JsonMapper =
+            jacksonMapperBuilder()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .polymorphicTypeValidator(ptv)
+                .activateDefaultTyping(ptv)
+                .build()
 
-        fun deserialize(s: String): QueueMessage {
-            return mapper.readValue(s)
-        }
+        fun deserialize(s: String): QueueMessage = mapper.readValue(s)
     }
 
-    override fun toString(): String {
-        return mapper.writeValueAsString(this)
-    }
+    override fun toString(): String = mapper.writeValueAsString(this)
 }
 
 interface WithDownloadableReport {
@@ -84,9 +82,9 @@ interface ReportIdentifyingInformation {
 }
 
 abstract class ReportPipelineMessage :
+    QueueMessage(),
     ReportIdentifyingInformation,
-    WithDownloadableReport,
-    QueueMessage()
+    WithDownloadableReport
 
 @JsonTypeName("convert")
 data class FhirConvertQueueMessage(
@@ -137,12 +135,12 @@ data class FhirTranslateQueueMessage(
 ) : ReportPipelineMessage()
 
 abstract class WithEventAction : QueueMessage() {
-    abstract val eventAction: Event.EventAction
+    abstract val eventAction: IEvent.EventAction
 }
 
 @JsonTypeName("batch")
 data class BatchEventQueueMessage(
-    override val eventAction: Event.EventAction,
+    override val eventAction: IEvent.EventAction,
     val receiverName: String,
     val emptyBatch: Boolean,
     val at: String,
@@ -150,7 +148,7 @@ data class BatchEventQueueMessage(
 
 @JsonTypeName("report")
 data class ReportEventQueueMessage(
-    override val eventAction: Event.EventAction,
+    override val eventAction: IEvent.EventAction,
     val emptyBatch: Boolean,
     val reportId: UUID,
     val at: String,
@@ -158,7 +156,7 @@ data class ReportEventQueueMessage(
 
 @JsonTypeName("process")
 data class ProcessEventQueueMessage(
-    override val eventAction: Event.EventAction,
+    override val eventAction: IEvent.EventAction,
     val reportId: UUID,
     val options: Options,
     val defaults: Map<String, String>,

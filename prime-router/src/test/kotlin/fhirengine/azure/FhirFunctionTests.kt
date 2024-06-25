@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.fhirengine.azure
 
+import azure.IEvent
+import azure.QueueAccess
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -14,9 +16,7 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
@@ -85,12 +85,10 @@ class FhirFunctionTests {
         metadata: Metadata,
         settings: SettingsProvider,
         databaseAccess: DatabaseAccess = accessSpy,
-    ): WorkflowEngine {
-        return spyk(
-            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(databaseAccess)
-                .blobAccess(blobMock).queueAccess(queueMock).build()
-        )
-    }
+    ): WorkflowEngine = spyk(
+        WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(databaseAccess)
+            .blobAccess(blobMock).queueAccess(queueMock).build()
+    )
 
     @BeforeEach
     fun reset() {
@@ -153,7 +151,7 @@ class FhirFunctionTests {
             topic = Topic.FULL_ELR,
         )
         val routeEvent = ProcessEvent(
-            Event.EventAction.ROUTE,
+            IEvent.EventAction.ROUTE,
             report.id,
             Options.None,
             emptyMap(),
@@ -238,7 +236,7 @@ class FhirFunctionTests {
             topic = Topic.FULL_ELR,
         )
         val nextEvent = ProcessEvent(
-            Event.EventAction.TRANSLATE,
+            IEvent.EventAction.TRANSLATE,
             report.id,
             Options.None,
             emptyMap(),
@@ -322,7 +320,7 @@ class FhirFunctionTests {
             topic = Topic.FULL_ELR,
         )
         val nextEvent = ProcessEvent(
-            Event.EventAction.BATCH,
+            IEvent.EventAction.BATCH,
             report.id,
             Options.None,
             emptyMap(),

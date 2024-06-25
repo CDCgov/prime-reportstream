@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import azure.IEvent
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.Segment
@@ -16,7 +17,6 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
@@ -63,19 +63,21 @@ class FHIRTranslator(
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
         message as ReportPipelineMessage
-        val contextMap = mapOf(
-            MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
-            MDCUtils.MDCProperty.REPORT_ID to message.reportId,
-            MDCUtils.MDCProperty.TOPIC to message.topic,
-            MDCUtils.MDCProperty.BLOB_URL to message.blobURL
-        )
+        val contextMap =
+            mapOf(
+                MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
+                MDCUtils.MDCProperty.REPORT_ID to message.reportId,
+                MDCUtils.MDCProperty.TOPIC to message.topic,
+                MDCUtils.MDCProperty.BLOB_URL to message.blobURL,
+            )
         withLoggingContext(contextMap) {
             logger.trace("Starting translate work")
             actionHistory.trackExistingInputReport(message.reportId)
             when (message) {
                 is FhirTranslateQueueMessage -> {
-                    val receiver = settings.findReceiver(message.receiverFullName)
-                        ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
+                    val receiver =
+                        settings.findReceiver(message.receiverFullName)
+                            ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
                     actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
                     return if (message.topic.isSendOriginal) {
                         listOf(sendOriginal(message, receiver, actionHistory))
@@ -83,10 +85,11 @@ class FHIRTranslator(
                         listOf(sendTranslated(message, receiver, actionHistory))
                     }
                 }
+
                 else -> {
                     throw RuntimeException(
                         "Message was not a FhirTranslateQueueMessage and cannot be " +
-                            "processed by FHIRTranslator: $message"
+                            "processed by FHIRTranslator: $message",
                     )
                 }
             }
@@ -111,23 +114,24 @@ class FHIRTranslator(
         val bodyBytes = BlobAccess.downloadBlobAsByteArray(originalReport.bodyUrl)
 
         // get a Report from the message
-        val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
-            Event.EventAction.SEND,
-            bodyBytes,
-            listOf(message.reportId),
-            receiver,
-            this.metadata,
-            actionHistory,
-            topic = message.topic,
-            originalReport.externalName,
-            Report.Format.valueOfFromExt(originalReport.bodyFormat)
-        )
+        val (report, event, blobInfo) =
+            Report.generateReportAndUploadBlob(
+                IEvent.EventAction.SEND,
+                bodyBytes,
+                listOf(message.reportId),
+                receiver,
+                this.metadata,
+                actionHistory,
+                topic = message.topic,
+                originalReport.externalName,
+                Report.Format.valueOfFromExt(originalReport.bodyFormat),
+            )
 
         return FHIREngineRunResult(
             event,
             report,
             blobInfo.blobUrl,
-            ReportEventQueueMessage(Event.EventAction.SEND, false, report.id, OffsetDateTime.now().toString())
+            ReportEventQueueMessage(IEvent.EventAction.SEND, false, report.id, OffsetDateTime.now().toString()),
         )
     }
 
@@ -146,21 +150,22 @@ class FHIRTranslator(
         logger.trace("Preparing to send translated message")
         val bodyBytes = getByteArrayFromBundle(receiver, FhirTranscoder.decode(message.downloadContent()))
 
-        val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
-            Event.EventAction.BATCH,
-            bodyBytes,
-            listOf(message.reportId),
-            receiver,
-            this.metadata,
-            actionHistory,
-            topic = message.topic
-        )
+        val (report, event, blobInfo) =
+            Report.generateReportAndUploadBlob(
+                IEvent.EventAction.BATCH,
+                bodyBytes,
+                listOf(message.reportId),
+                receiver,
+                this.metadata,
+                actionHistory,
+                topic = message.topic,
+            )
 
         return FHIREngineRunResult(
             event,
             report,
             blobInfo.blobUrl,
-            null
+            null,
         )
     }
 
@@ -178,18 +183,20 @@ class FHIRTranslator(
         if (receiver.enrichmentSchemaNames.isNotEmpty()) {
             receiver.enrichmentSchemaNames.forEach { enrichmentSchemaName ->
                 logger.info("Applying enrichment schema $enrichmentSchemaName")
-                val transformer = FhirTransformer(
-                    enrichmentSchemaName,
-                )
+                val transformer =
+                    FhirTransformer(
+                        enrichmentSchemaName,
+                    )
                 transformer.process(bundle)
             }
         }
         when (receiver.format) {
             Report.Format.FHIR -> {
                 if (receiver.schemaName.isNotEmpty()) {
-                    val transformer = FhirTransformer(
-                        receiver.schemaName,
-                    )
+                    val transformer =
+                        FhirTransformer(
+                            receiver.schemaName,
+                        )
                     transformer.process(bundle)
                 }
                 return FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
@@ -210,19 +217,24 @@ class FHIRTranslator(
      * Turn a fhir [bundle] into a hl7 message formatter for the [receiver] specified.
      * @return HL7 Message in the format required by the receiver
      */
-    internal fun getHL7MessageFromBundle(bundle: Bundle, receiver: Receiver): Message {
-        val config = (receiver.translation as? Hl7Configuration)?.let {
-            HL7TranslationConfig(
-                it,
-                receiver
-            )
-        }
+    internal fun getHL7MessageFromBundle(
+        bundle: Bundle,
+        receiver: Receiver,
+    ): Message {
+        val config =
+            (receiver.translation as? Hl7Configuration)?.let {
+                HL7TranslationConfig(
+                    it,
+                    receiver,
+                )
+            }
 
-        val converter = FhirToHl7Converter(
-            receiver.schemaName,
-            BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().blobEnvVar),
-            context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions())
-        )
+        val converter =
+            FhirToHl7Converter(
+                receiver.schemaName,
+                BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().blobEnvVar),
+                context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions()),
+            )
         val hl7Message = converter.process(bundle)
 
         // if receiver is 'testing' or useTestProcessingMode is true, set to 'T', otherwise leave it as is
@@ -230,7 +242,7 @@ class FHIRTranslator(
             (
                 (receiver.translation is Hl7Configuration) &&
                     receiver.translation.useTestProcessingMode
-                )
+            )
         ) {
             Terser(hl7Message).set("MSH-11-1", "T")
         }

@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import azure.IEvent
 import ca.uhn.fhir.parser.DataFormatException
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
@@ -22,7 +23,6 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -65,7 +65,6 @@ class FHIRConverter(
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
 ) : FHIREngine(metadata, settings, db, blob, azureEventService) {
-
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
 
     override val engineType: String = "Convert"
@@ -82,19 +81,18 @@ class FHIRConverter(
         message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
-    ): List<FHIREngineRunResult> {
-        return when (message) {
+    ): List<FHIREngineRunResult> =
+        when (message) {
             is FhirConvertQueueMessage -> {
                 fhirEngineRunResults(message, message.schemaName, actionLogger, actionHistory)
             }
 
             else -> {
                 throw RuntimeException(
-                    "Message was not a FhirConvert and cannot be processed: $message"
+                    "Message was not a FhirConvert and cannot be processed: $message",
                 )
             }
         }
-    }
 
     private fun fhirEngineRunResults(
         queueMessage: ReportPipelineMessage,
@@ -102,12 +100,13 @@ class FHIRConverter(
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
-        val contextMap = mapOf(
-            MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
-            MDCUtils.MDCProperty.REPORT_ID to queueMessage.reportId,
-            MDCUtils.MDCProperty.TOPIC to queueMessage.topic,
-            MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobURL
-        )
+        val contextMap =
+            mapOf(
+                MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
+                MDCUtils.MDCProperty.REPORT_ID to queueMessage.reportId,
+                MDCUtils.MDCProperty.TOPIC to queueMessage.topic,
+                MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobURL,
+            )
         withLoggingContext(contextMap) {
             actionLogger.setReportId(queueMessage.reportId)
             actionHistory.trackExistingInputReport(queueMessage.reportId)
@@ -129,60 +128,65 @@ class FHIRConverter(
 
             if (fhirBundles.isNotEmpty()) {
                 return LogMeasuredTime.measureAndLogDurationWithReturnedValue(
-                    "Applied sender transform and routed"
+                    "Applied sender transform and routed",
                 ) {
-                    val transformer = getTransformerFromSchema(
-                        schemaName
-                    )
+                    val transformer =
+                        getTransformerFromSchema(
+                            schemaName,
+                        )
 
                     maybeParallelize(
                         fhirBundles.size,
                         Streams.mapWithIndex(fhirBundles.stream()) { bundle, index ->
                             Pair(bundle, index)
                         },
-                        "Applying sender transforms and routing"
+                        "Applying sender transforms and routing",
                     ).map { (bundle, bundleIndex) ->
                         // conduct FHIR Transform
                         transformer?.process(bundle)
 
                         // make a 'report'
-                        val report = Report(
-                            Report.Format.FHIR,
-                            emptyList(),
-                            parentItemLineageData = listOf(
-                                Report.ParentItemLineageData(queueMessage.reportId, bundleIndex.toInt() + 1)
-                            ),
-                            metadata = this.metadata,
-                            topic = queueMessage.topic,
-                            nextAction = TaskAction.route
-                        )
+                        val report =
+                            Report(
+                                Report.Format.FHIR,
+                                emptyList(),
+                                parentItemLineageData =
+                                    listOf(
+                                        Report.ParentItemLineageData(queueMessage.reportId, bundleIndex.toInt() + 1),
+                                    ),
+                                metadata = this.metadata,
+                                topic = queueMessage.topic,
+                                nextAction = TaskAction.route,
+                            )
 
                         // create route event
-                        val routeEvent = ProcessEvent(
-                            Event.EventAction.ROUTE,
-                            report.id,
-                            Options.None,
-                            emptyMap(),
-                            emptyList()
-                        )
+                        val routeEvent =
+                            ProcessEvent(
+                                IEvent.EventAction.ROUTE,
+                                report.id,
+                                Options.None,
+                                emptyMap(),
+                                emptyList(),
+                            )
 
                         // upload to blobstore
                         val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
-                        val blobInfo = BlobAccess.uploadBody(
-                            Report.Format.FHIR,
-                            bodyBytes,
-                            report.name,
-                            queueMessage.blobSubFolderName,
-                            routeEvent.eventAction
-                        )
+                        val blobInfo =
+                            BlobAccess.uploadBody(
+                                Report.Format.FHIR,
+                                bodyBytes,
+                                report.name,
+                                queueMessage.blobSubFolderName,
+                                routeEvent.eventAction,
+                            )
 
                         // track created report
                         actionHistory.trackCreatedReport(routeEvent, report, blobInfo = blobInfo)
                         azureEventService.trackEvent(
                             ReportCreatedEvent(
                                 report.id,
-                                queueMessage.topic
-                            )
+                                queueMessage.topic,
+                            ),
                         )
 
                         FHIREngineRunResult(
@@ -194,44 +198,47 @@ class FHIRConverter(
                                 blobInfo.blobUrl,
                                 BlobAccess.digestToString(blobInfo.digest),
                                 queueMessage.blobSubFolderName,
-                                queueMessage.topic
-                            )
+                                queueMessage.topic,
+                            ),
                         )
                     }.collect(Collectors.toList())
                 }
             } else {
-                val nextEvent = ProcessEvent(
-                    Event.EventAction.NONE,
-                    queueMessage.reportId,
-                    Options.None,
-                    emptyMap(),
-                    emptyList()
-                )
+                val nextEvent =
+                    ProcessEvent(
+                        IEvent.EventAction.NONE,
+                        queueMessage.reportId,
+                        Options.None,
+                        emptyMap(),
+                        emptyList(),
+                    )
 
                 // TODO: https://github.com/CDCgov/prime-reportstream/issues/14349
-                val report = Report(
-                    Report.Format.FHIR,
-                    emptyList(),
-                    1,
-                    metadata = this.metadata,
-                    topic = queueMessage.topic,
-                    nextAction = TaskAction.none
-                )
+                val report =
+                    Report(
+                        Report.Format.FHIR,
+                        emptyList(),
+                        1,
+                        metadata = this.metadata,
+                        topic = queueMessage.topic,
+                        nextAction = TaskAction.none,
+                    )
 
                 // create item lineage
-                report.itemLineages = listOf(
-                    ItemLineage(
-                        null,
-                        queueMessage.reportId,
-                        1,
-                        report.id,
-                        1,
-                        null,
-                        null,
-                        null,
-                        report.getItemHashForRow(1)
+                report.itemLineages =
+                    listOf(
+                        ItemLineage(
+                            null,
+                            queueMessage.reportId,
+                            1,
+                            report.id,
+                            1,
+                            null,
+                            null,
+                            null,
+                            report.getItemHashForRow(1),
+                        ),
                     )
-                )
 
                 // ensure tracking is set
                 actionHistory.trackCreatedReport(nextEvent, report)
@@ -270,64 +277,68 @@ class FHIRConverter(
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
             emptyList()
         } else {
-            val processedItems = when (format) {
-                Report.Format.HL7, Report.Format.HL7_BATCH -> {
-                    try {
+            val processedItems =
+                when (format) {
+                    Report.Format.HL7, Report.Format.HL7_BATCH -> {
+                        try {
+                            LogMeasuredTime.measureAndLogDurationWithReturnedValue(
+                                "Processed raw message into items",
+                                mapOf(
+                                    "format" to format.name,
+                                ),
+                            ) {
+                                getBundlesFromRawHL7(rawReport, validator, queueMessage.topic.hl7ParseConfiguration)
+                            }
+                        } catch (ex: ParseFailureError) {
+                            actionLogger.error(
+                                InvalidReportMessage("Parse error while attempting to iterate over HL7 raw message"),
+                            )
+                            emptyList()
+                        }
+                    }
+
+                    Report.Format.FHIR -> {
                         LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                             "Processed raw message into items",
                             mapOf(
-                                "format" to format.name
-                            )
+                                "format" to format.name,
+                            ),
                         ) {
-                            getBundlesFromRawHL7(rawReport, validator, queueMessage.topic.hl7ParseConfiguration)
+                            getBundlesFromRawFHIR(rawReport, validator)
                         }
-                    } catch (ex: ParseFailureError) {
-                        actionLogger.error(
-                            InvalidReportMessage("Parse error while attempting to iterate over HL7 raw message")
-                        )
+                    }
+
+                    else -> {
+                        logger.error("Received unsupported report format: $format")
+                        actionLogger.error(InvalidReportMessage("Received unsupported report format: $format"))
                         emptyList()
                     }
                 }
-                Report.Format.FHIR -> {
-                    LogMeasuredTime.measureAndLogDurationWithReturnedValue(
-                        "Processed raw message into items",
-                        mapOf(
-                            "format" to format.name
-                        )
-                    ) {
-                        getBundlesFromRawFHIR(rawReport, validator)
-                    }
-                }
-                else -> {
-                    logger.error("Received unsupported report format: $format")
-                    actionLogger.error(InvalidReportMessage("Received unsupported report format: $format"))
-                    emptyList()
-                }
-            }
 
             val areAllItemsParsedAndValid = processedItems.all { it.getError() == null }
-            val bundles = processedItems.mapNotNull { item ->
-                val error = item.getError()
-                if (error != null) {
-                    actionLogger.getItemLogger(error.index + 1, item.getTrackingId()).error(error)
-                }
-                // 'stamp' observations with their condition code
-                item.bundle?.getObservations()?.forEach {
-                    it.addMappedConditions(metadata).run {
-                        actionLogger.getItemLogger(item.index + 1, it.id)
-                            .warn(this)
+            val bundles =
+                processedItems.mapNotNull { item ->
+                    val error = item.getError()
+                    if (error != null) {
+                        actionLogger.getItemLogger(error.index + 1, item.getTrackingId()).error(error)
                     }
+                    // 'stamp' observations with their condition code
+                    item.bundle?.getObservations()?.forEach {
+                        it.addMappedConditions(metadata).run {
+                            actionLogger.getItemLogger(item.index + 1, it.id)
+                                .warn(this)
+                        }
+                    }
+                    item.bundle
                 }
-                item.bundle
-            }
 
             withLoggingContext(
                 mapOf(
                     "format" to format.name,
                     "itemCount" to processedItems.size.toString(),
                     "bundlesProducedCount" to bundles.size.toString(),
-                    "routeMessageWithInvalidItems" to routeReportWithInvalidItems.toString()
-                )
+                    "routeMessageWithInvalidItems" to routeReportWithInvalidItems.toString(),
+                ),
             ) {
                 logger.info("Successfully processed raw report")
             }
@@ -378,7 +389,7 @@ class FHIRConverter(
                 ErrorCode.INVALID_MSG_PARSE,
                 item.index,
                 "exception while parsing HL7: ${ExceptionUtils.getRootCause(e).message}",
-            )
+            ),
         )
     }
 
@@ -386,41 +397,43 @@ class FHIRConverter(
         item: ProcessedHL7Item,
         validator: IItemValidator,
         hL7MessageParseAndConvertConfiguration: HL7Reader.Companion.HL7MessageParseAndConvertConfiguration?,
-    ): ProcessedHL7Item = if (item.parsedItem != null) {
-        val validationResult = validator.validate(item.parsedItem)
-        if (validationResult.isValid()) {
-            try {
-                val bundle = when (hL7MessageParseAndConvertConfiguration) {
-                    null -> HL7toFhirTranslator.getHL7ToFhirTranslatorInstance().translate(item.parsedItem)
-                    else ->
-                        HL7toFhirTranslator
-                            .getHL7ToFhirTranslatorInstance(
-                                hL7MessageParseAndConvertConfiguration.hl7toFHIRMappingLocation
-                            )
-                            .translate(item.parsedItem)
-                }
-                item.setBundle(bundle)
-            } catch (ex: Exception) {
-                item.setConversionError(
-                    InvalidItemActionLogDetail(
-                        ErrorCode.INVALID_MSG_CONVERSION,
-                        item.index,
-                        "exception while converting HL7: ${ex.message}"
+    ): ProcessedHL7Item =
+        if (item.parsedItem != null) {
+            val validationResult = validator.validate(item.parsedItem)
+            if (validationResult.isValid()) {
+                try {
+                    val bundle =
+                        when (hL7MessageParseAndConvertConfiguration) {
+                            null -> HL7toFhirTranslator.getHL7ToFhirTranslatorInstance().translate(item.parsedItem)
+                            else ->
+                                HL7toFhirTranslator
+                                    .getHL7ToFhirTranslatorInstance(
+                                        hL7MessageParseAndConvertConfiguration.hl7toFHIRMappingLocation,
+                                    )
+                                    .translate(item.parsedItem)
+                        }
+                    item.setBundle(bundle)
+                } catch (ex: Exception) {
+                    item.setConversionError(
+                        InvalidItemActionLogDetail(
+                            ErrorCode.INVALID_MSG_CONVERSION,
+                            item.index,
+                            "exception while converting HL7: ${ex.message}",
+                        ),
                     )
+                }
+            } else {
+                item.updateValidation(
+                    InvalidItemActionLogDetail(
+                        ErrorCode.INVALID_MSG_VALIDATION,
+                        item.index,
+                        validationResult.getErrorsMessage(validator),
+                    ),
                 )
             }
         } else {
-            item.updateValidation(
-                InvalidItemActionLogDetail(
-                    ErrorCode.INVALID_MSG_VALIDATION,
-                    item.index,
-                    validationResult.getErrorsMessage(validator)
-                )
-            )
+            item
         }
-    } else {
-        item
-    }
 
     /**
      * Converts a raw ndjson FHIR string into FHIR bundles
@@ -439,7 +452,7 @@ class FHIRConverter(
             Streams.mapWithIndex(lines.stream()) { rawItem, index ->
                 ProcessedFHIRItem(rawItem, index.toInt())
             },
-            "Generating FHIR bundles in"
+            "Generating FHIR bundles in",
         ).map { item ->
             parseFHIRItem(item)
         }.map { item ->
@@ -450,35 +463,37 @@ class FHIRConverter(
     private fun validateFHIRItem(
         item: ProcessedFHIRItem,
         validator: IItemValidator,
-    ): ProcessedFHIRItem = if (item.parsedItem != null) {
-        val validationResult = validator.validate(item.parsedItem)
-        if (validationResult.isValid()) {
-            item.setBundle(item.parsedItem)
-        } else {
-            item.updateValidation(
-                InvalidItemActionLogDetail(
-                    ErrorCode.INVALID_MSG_VALIDATION,
-                    item.index,
-                    validationResult.getErrorsMessage(validator)
+    ): ProcessedFHIRItem =
+        if (item.parsedItem != null) {
+            val validationResult = validator.validate(item.parsedItem)
+            if (validationResult.isValid()) {
+                item.setBundle(item.parsedItem)
+            } else {
+                item.updateValidation(
+                    InvalidItemActionLogDetail(
+                        ErrorCode.INVALID_MSG_VALIDATION,
+                        item.index,
+                        validationResult.getErrorsMessage(validator),
+                    ),
                 )
+            }
+        } else {
+            item
+        }
+
+    private fun parseFHIRItem(item: ProcessedFHIRItem) =
+        try {
+            val bundle = FhirTranscoder.decode(item.rawItem)
+            item.updateParsed(bundle)
+        } catch (ex: DataFormatException) {
+            item.updateParsed(
+                InvalidItemActionLogDetail(
+                    ErrorCode.INVALID_MSG_PARSE,
+                    item.index,
+                    "exception while parsing FHIR: ${ex.message}",
+                ),
             )
         }
-    } else {
-        item
-    }
-
-    private fun parseFHIRItem(item: ProcessedFHIRItem) = try {
-        val bundle = FhirTranscoder.decode(item.rawItem)
-        item.updateParsed(bundle)
-    } catch (ex: DataFormatException) {
-        item.updateParsed(
-            InvalidItemActionLogDetail(
-                ErrorCode.INVALID_MSG_PARSE,
-                item.index,
-                "exception while parsing FHIR: ${ex.message}"
-            )
-        )
-    }
 
     /**
      * Returns a parallelized stream when the number of items being processed is greater
@@ -518,7 +533,6 @@ class FHIRConverter(
         @JsonProperty
         val errorDetail: String,
     ) : ActionLogDetail {
-
         override val scope: ActionLogScope = ActionLogScope.item
 
         override val message: String =
@@ -538,8 +552,8 @@ class FHIRConverter(
      * Using this function instead of calling the constructor directly simplifies the process of mocking the
      * transformer in tests.
      */
-    fun getTransformerFromSchema(schemaName: String): FhirTransformer? {
-        return if (schemaName.isNotBlank()) {
+    fun getTransformerFromSchema(schemaName: String): FhirTransformer? =
+        if (schemaName.isNotBlank()) {
             withLoggingContext(mapOf("schemaName" to schemaName)) {
                 logger.info("Apply a sender transform to the items in the report")
             }
@@ -547,5 +561,4 @@ class FHIRConverter(
         } else {
             null
         }
-    }
 }

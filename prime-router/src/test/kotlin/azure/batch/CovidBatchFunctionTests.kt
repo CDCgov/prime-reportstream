@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.azure.batch
 
+import azure.IEvent
+import azure.QueueAccess
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
@@ -15,8 +17,6 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BatchEvent
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.Event
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
@@ -59,12 +59,10 @@ class CovidBatchFunctionTests {
         ),
     )
 
-    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
-        return spyk(
-            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-                .blobAccess(blobMock).queueAccess(queueMock).build()
-        )
-    }
+    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine = spyk(
+        WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
+            .blobAccess(blobMock).queueAccess(queueMock).build()
+    )
 
     @BeforeEach
     fun reset() {
@@ -85,7 +83,7 @@ class CovidBatchFunctionTests {
         every { engine.generateEmptyReport(any(), any()) } returns Unit
 
         // the message that will be passed to batchFunction
-        val message = BatchEvent(Event.EventAction.BATCH, "phd.elr", true)
+        val message = BatchEvent(IEvent.EventAction.BATCH, "phd.elr", true)
 
         // Invoke batch function run
         CovidBatchFunction(engine).run(message.toQueueMessage(), context = null)
@@ -137,7 +135,7 @@ class CovidBatchFunctionTests {
         every { engine.db.fetchReportFile(any(), any(), any()) } returns mockReportFile
 
         // the message that will be passed to batchFunction
-        val message = BatchEvent(Event.EventAction.BATCH, "phd.elr", false)
+        val message = BatchEvent(IEvent.EventAction.BATCH, "phd.elr", false)
 
         // invoke batch function run for legacy pipeline
         CovidBatchFunction(engine).run(message.toQueueMessage(), context = null)

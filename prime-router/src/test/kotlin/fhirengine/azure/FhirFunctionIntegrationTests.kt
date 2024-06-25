@@ -9,6 +9,8 @@ import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.matchesPredicate
+import azure.IEvent
+import azure.QueueAccess
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
@@ -24,9 +26,7 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION_LOG
 import gov.cdc.prime.router.azure.db.enums.ActionLogType
@@ -228,7 +228,7 @@ SPM|1|^dba7572cc6334f1ea0744c5f235c823e&MMTC.PROD&2.16.840.1.113883.3.8589.4.2.1
 
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
-class FhirFunctionIntegrationTests() {
+class FhirFunctionIntegrationTests {
 
     @Container
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
@@ -268,18 +268,16 @@ class FhirFunctionIntegrationTests() {
         metadata: Metadata,
         settings: SettingsProvider,
         databaseAccess: DatabaseAccess,
-    ): WorkflowEngine {
-        return spyk(
-            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(databaseAccess)
-                .build()
-        )
-    }
+    ): WorkflowEngine = spyk(
+        WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(databaseAccess)
+            .build()
+    )
 
     private fun seedTask(
         fileFormat: Report.Format,
         currentAction: TaskAction,
         nextAction: TaskAction,
-        nextEventAction: Event.EventAction,
+        nextEventAction: IEvent.EventAction,
         topic: Topic,
         taskIndex: Long = 0,
         organization: DeepOrganization,
@@ -353,7 +351,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.HL7,
             TaskAction.receive,
             TaskAction.convert,
-            Event.EventAction.CONVERT,
+            IEvent.EventAction.CONVERT,
             Topic.FULL_ELR,
             0,
             oneOrganization
@@ -429,7 +427,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.HL7,
             TaskAction.receive,
             TaskAction.convert,
-            Event.EventAction.CONVERT,
+            IEvent.EventAction.CONVERT,
             Topic.FULL_ELR,
             0,
             oneOrganization
@@ -510,7 +508,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.HL7,
             TaskAction.receive,
             TaskAction.convert,
-            Event.EventAction.CONVERT,
+            IEvent.EventAction.CONVERT,
             Topic.FULL_ELR,
             0,
             oneOrganization
@@ -619,7 +617,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.HL7,
             TaskAction.receive,
             TaskAction.convert,
-            Event.EventAction.CONVERT,
+            IEvent.EventAction.CONVERT,
             Topic.FULL_ELR,
             0,
             oneOrganization
@@ -730,7 +728,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.FHIR,
             TaskAction.receive,
             TaskAction.convert,
-            Event.EventAction.CONVERT,
+            IEvent.EventAction.CONVERT,
             Topic.FULL_ELR,
             0,
             oneOrganization
@@ -843,7 +841,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.HL7,
             TaskAction.receive,
             TaskAction.convert,
-            Event.EventAction.CONVERT,
+            IEvent.EventAction.CONVERT,
             Topic.FULL_ELR,
             0,
             oneOrganization
@@ -988,7 +986,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.FHIR,
             TaskAction.receive,
             TaskAction.convert,
-            Event.EventAction.CONVERT,
+            IEvent.EventAction.CONVERT,
             Topic.FULL_ELR,
             0,
             oneOrganization
@@ -1131,7 +1129,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.HL7,
             TaskAction.receive,
             TaskAction.convert,
-            Event.EventAction.CONVERT,
+            IEvent.EventAction.CONVERT,
             Topic.FULL_ELR,
             0,
             oneOrganization
@@ -1265,7 +1263,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.HL7,
             TaskAction.receive,
             TaskAction.convert,
-            Event.EventAction.CONVERT,
+            IEvent.EventAction.CONVERT,
             Topic.MARS_OTC_ELR,
             0,
             oneOrganization
@@ -1403,7 +1401,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.HL7,
             TaskAction.receive,
             TaskAction.translate,
-            Event.EventAction.TRANSLATE,
+            IEvent.EventAction.TRANSLATE,
             Topic.FULL_ELR,
             0,
             oneOrganization
@@ -1523,7 +1521,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.FHIR,
             TaskAction.translate,
             TaskAction.send,
-            Event.EventAction.SEND,
+            IEvent.EventAction.SEND,
             Topic.ELR_ELIMS,
             100,
             oneOrganization
@@ -1532,7 +1530,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.FHIR,
             TaskAction.route,
             TaskAction.translate,
-            Event.EventAction.TRANSLATE,
+            IEvent.EventAction.TRANSLATE,
             Topic.ELR_ELIMS,
             99,
             oneOrganization,
@@ -1542,7 +1540,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.FHIR,
             TaskAction.convert,
             TaskAction.route,
-            Event.EventAction.ROUTE,
+            IEvent.EventAction.ROUTE,
             Topic.ELR_ELIMS,
             98,
             oneOrganization,
@@ -1552,7 +1550,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.FHIR,
             TaskAction.receive,
             TaskAction.convert,
-            Event.EventAction.CONVERT,
+            IEvent.EventAction.CONVERT,
             Topic.ELR_ELIMS,
             97,
             oneOrganization,
@@ -1687,7 +1685,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.FHIR,
             TaskAction.translate,
             TaskAction.send,
-            Event.EventAction.SEND,
+            IEvent.EventAction.SEND,
             Topic.ELR_ELIMS,
             100,
             oneOrganization
@@ -1696,7 +1694,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.FHIR,
             TaskAction.route,
             TaskAction.translate,
-            Event.EventAction.TRANSLATE,
+            IEvent.EventAction.TRANSLATE,
             Topic.ELR_ELIMS,
             99,
             oneOrganization,
@@ -1706,7 +1704,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.FHIR,
             TaskAction.convert,
             TaskAction.route,
-            Event.EventAction.ROUTE,
+            IEvent.EventAction.ROUTE,
             Topic.ELR_ELIMS,
             98,
             oneOrganization,
@@ -1716,7 +1714,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.FHIR,
             TaskAction.receive,
             TaskAction.convert,
-            Event.EventAction.CONVERT,
+            IEvent.EventAction.CONVERT,
             Topic.ELR_ELIMS,
             97,
             oneOrganization,
@@ -1812,7 +1810,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.FHIR,
             TaskAction.receive,
             TaskAction.convert,
-            Event.EventAction.CONVERT,
+            IEvent.EventAction.CONVERT,
             Topic.FULL_ELR,
             0,
             oneOrganization
@@ -1892,7 +1890,7 @@ class FhirFunctionIntegrationTests() {
             Report.Format.FHIR,
             TaskAction.receive,
             TaskAction.convert,
-            Event.EventAction.CONVERT,
+            IEvent.EventAction.CONVERT,
             Topic.FULL_ELR,
             0,
             oneOrganization

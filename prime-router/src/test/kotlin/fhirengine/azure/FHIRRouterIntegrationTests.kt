@@ -2,6 +2,8 @@ package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
 import assertk.assertions.containsOnly
+import azure.IEvent
+import azure.QueueAccess
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogLevel
@@ -21,9 +23,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
-import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -157,8 +157,8 @@ class FHIRRouterIntegrationTests : Logging {
         val reverseQuality: Boolean = false,
     )
 
-    private fun createReceivers(receiverSetupDataList: List<ReceiverSetupData>): List<Receiver> {
-        return receiverSetupDataList.map {
+    private fun createReceivers(receiverSetupDataList: List<ReceiverSetupData>): List<Receiver> =
+        receiverSetupDataList.map {
             Receiver(
                 it.name,
                 it.orgName,
@@ -174,23 +174,20 @@ class FHIRRouterIntegrationTests : Logging {
                 reverseTheQualityFilter = it.reverseQuality
             )
         }
-    }
 
-    private fun createOrganizationWithReceivers(receiverList: List<Receiver>): DeepOrganization {
-        return DeepOrganization(
-            "phd",
-            "test",
-            Organization.Jurisdiction.FEDERAL,
-            senders = listOf(
-                hl7Sender,
-                fhirSender,
-                hl7SenderWithNoTransform,
-                fhirSenderWithNoTransform,
-                senderWithValidation
-            ),
-            receivers = receiverList
-        )
-    }
+    private fun createOrganizationWithReceivers(receiverList: List<Receiver>): DeepOrganization = DeepOrganization(
+        "phd",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
+        senders = listOf(
+            hl7Sender,
+            fhirSender,
+            hl7SenderWithNoTransform,
+            fhirSenderWithNoTransform,
+            senderWithValidation
+        ),
+        receivers = receiverList
+    )
 
     private fun createFHIRFunctionsInstance(): FHIRFunctions {
         val settings = FileSettings().loadOrganizations(universalPipelineOrganization)
@@ -222,8 +219,7 @@ class FHIRRouterIntegrationTests : Logging {
         )
     }
 
-    private fun generateQueueMessage(report: Report, blobContents: String, sender: Sender): String {
-        return """
+    private fun generateQueueMessage(report: Report, blobContents: String, sender: Sender): String = """
             {
                 "type": "route",
                 "reportId": "${report.id}",
@@ -234,7 +230,6 @@ class FHIRRouterIntegrationTests : Logging {
                 "schemaName": "${sender.schemaName}" 
             }
         """.trimIndent()
-    }
 
     private fun getBlobContainerMetadata(): BlobAccess.BlobContainerMetadata {
         val blobConnectionString =
@@ -259,7 +254,7 @@ class FHIRRouterIntegrationTests : Logging {
         fileFormat: Report.Format,
         currentAction: TaskAction,
         nextAction: TaskAction,
-        nextEventAction: Event.EventAction,
+        nextEventAction: IEvent.EventAction,
         topic: Topic,
         childReport: Report? = null,
         bodyURL: String? = null,
@@ -343,7 +338,7 @@ class FHIRRouterIntegrationTests : Logging {
             Report.Format.FHIR,
             TaskAction.convert,
             TaskAction.route,
-            Event.EventAction.ROUTE,
+            IEvent.EventAction.ROUTE,
             topic,
             null,
             convertedBlobUrl
@@ -353,7 +348,7 @@ class FHIRRouterIntegrationTests : Logging {
             Report.Format.FHIR,
             TaskAction.receive,
             TaskAction.convert,
-            Event.EventAction.CONVERT,
+            IEvent.EventAction.CONVERT,
             topic,
             convertReport,
             receivedBlobUrl

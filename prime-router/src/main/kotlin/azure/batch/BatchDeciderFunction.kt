@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure.batch
 
+import azure.IEvent
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.StorageAccount
@@ -7,7 +8,6 @@ import com.microsoft.azure.functions.annotation.TimerTrigger
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.azure.BatchEvent
 import gov.cdc.prime.router.azure.DataAccessTransaction
-import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging
@@ -49,12 +49,13 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
 
                         repeat(queueMessages) {
                             // build 'batch' event
-                            val event = BatchEvent(Event.EventAction.BATCH, rec.fullName, isEmpty)
-                            val queueName = if (rec.topic.isUniversalPipeline) {
-                                BatchConstants.Queue.UNIVERSAL_BATCH_QUEUE
-                            } else {
-                                BatchConstants.Queue.COVID_BATCH_QUEUE
-                            }
+                            val event = BatchEvent(IEvent.EventAction.BATCH, rec.fullName, isEmpty)
+                            val queueName =
+                                if (rec.topic.isUniversalPipeline) {
+                                    BatchConstants.Queue.UNIVERSAL_BATCH_QUEUE
+                                } else {
+                                    BatchConstants.Queue.COVID_BATCH_QUEUE
+                                }
 
                             workflowEngine.queue.sendMessageToQueue(event, queueName)
                         }
@@ -75,21 +76,31 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
      *
      * @param txn DataAccessTransaction to use. If not present, underlying data queries will create their own
      */
-    internal fun determineQueueMessageCount(receiver: Receiver, txn: DataAccessTransaction?): Pair<Int, Boolean> {
+    internal fun determineQueueMessageCount(
+        receiver: Receiver,
+        txn: DataAccessTransaction?,
+    ): Pair<Int, Boolean> {
         // Calculate how far to look back based on how often this receiver batches.
-        val backstopTime = OffsetDateTime.now().minusMinutes(
-            BaseEngine.getBatchLookbackMins(
-                receiver.timing?.numberPerDay ?: 1, BatchConstants.NUM_BATCH_RETRIES
+        val backstopTime =
+            OffsetDateTime.now().minusMinutes(
+                BaseEngine.getBatchLookbackMins(
+                    receiver.timing?.numberPerDay ?: 1,
+                    BatchConstants.NUM_BATCH_RETRIES,
+                ),
             )
-        )
         // get the number of messages outstanding for this receiver
-        val recordsToBatch = workflowEngine.db.fetchNumReportsNeedingBatch(
-            receiver.fullName, backstopTime, txn
-        )
-        var queueMessages = ceil((recordsToBatch.toDouble() / receiver.timing!!.maxReportCount.toDouble()))
-            .roundToInt()
-        val logMessage = "$batchDecider found $recordsToBatch for ${receiver.fullName}," +
-            "max size ${receiver.timing.maxReportCount}. Queueing $queueMessages messages to BATCH"
+        val recordsToBatch =
+            workflowEngine.db.fetchNumReportsNeedingBatch(
+                receiver.fullName,
+                backstopTime,
+                txn,
+            )
+        var queueMessages =
+            ceil((recordsToBatch.toDouble() / receiver.timing!!.maxReportCount.toDouble()))
+                .roundToInt()
+        val logMessage =
+            "$batchDecider found $recordsToBatch for ${receiver.fullName}," +
+                "max size ${receiver.timing.maxReportCount}. Queueing $queueMessages messages to BATCH"
         if (recordsToBatch > 0) {
             logger.info(logMessage)
         } else {
@@ -107,7 +118,7 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
                     receiver.organizationName,
                     receiver.name,
                     oneDayAgo,
-                    txn
+                    txn,
                 )
             }
             // determine if we need to send an 'empty' file. This is true if either we send an empty

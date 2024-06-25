@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import azure.IEvent
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -80,8 +81,7 @@ class SendFunctionTests {
         every { workflowEngine.sftpTransport }.returns(sftpTransport)
     }
 
-    fun makeHeader(): WorkflowEngine.Header {
-        return WorkflowEngine.Header(
+    fun makeHeader(): WorkflowEngine.Header = WorkflowEngine.Header(
             task, reportFile,
             null,
             settings.findOrganization("ignore"),
@@ -89,7 +89,6 @@ class SendFunctionTests {
             metadata.findSchema("covid-19"), "hello".toByteArray(),
             true
         )
-    }
 
     @BeforeEach
     fun reset() {
@@ -112,11 +111,11 @@ class SendFunctionTests {
         every { workflowEngine.recordAction(any()) }.returns(Unit)
 
         // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId, false)
+        val event = ReportEvent(IEvent.EventAction.SEND, reportId, false)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
         // Verify
         assertThat(nextEvent).isNotNull()
-        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.NONE)
+        assertThat(nextEvent!!.eventAction).isEqualTo(IEvent.EventAction.NONE)
         assertThat(nextEvent!!.retryToken).isNull()
     }
 
@@ -137,12 +136,12 @@ class SendFunctionTests {
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId, false)
+        val event = ReportEvent(IEvent.EventAction.SEND, reportId, false)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
         assertThat(nextEvent).isNotNull()
-        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND)
+        assertThat(nextEvent!!.eventAction).isEqualTo(IEvent.EventAction.SEND)
         assertThat(nextEvent!!.retryToken).isNotNull()
         assertThat(nextEvent!!.retryToken?.retryCount).isEqualTo(1)
         verify(exactly = 1) { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) }
@@ -169,12 +168,12 @@ class SendFunctionTests {
         every { workflowEngine.recordAction(any()) }.returns(Unit)
 
         // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId, false)
+        val event = ReportEvent(IEvent.EventAction.SEND, reportId, false)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
         assertThat(nextEvent).isNotNull()
-        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND)
+        assertThat(nextEvent!!.eventAction).isEqualTo(IEvent.EventAction.SEND)
         assertThat(nextEvent!!.retryToken).isNotNull()
         assertThat(nextEvent!!.retryToken?.retryCount).isEqualTo(3)
         assertThat(nextEvent!!.at!!.isAfter(OffsetDateTime.now().plusMinutes(2))).isTrue()
@@ -204,12 +203,12 @@ class SendFunctionTests {
         every { workflowEngine.recordAction(any()) }.returns(Unit)
 
         // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId, false)
+        val event = ReportEvent(IEvent.EventAction.SEND, reportId, false)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
         assertThat(nextEvent).isNotNull()
-        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
+        assertThat(nextEvent!!.eventAction).isEqualTo(IEvent.EventAction.SEND_ERROR)
         assertThat(nextEvent!!.retryToken).isNull()
         verify { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) }
     }

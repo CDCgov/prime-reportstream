@@ -1,10 +1,10 @@
 package gov.cdc.prime.router
 
+import azure.IEvent
 import ca.uhn.hl7v2.model.Message
 import gov.cdc.prime.router.Report.Format
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.ReportWriter
 import gov.cdc.prime.router.azure.WorkflowEngine
@@ -70,8 +70,9 @@ abstract class SubmissionReceiver(
             for (rowNum in 0 until report.itemCount) {
                 val itemHash = report.getItemHashForRow(rowNum)
                 // check for duplicate item
-                val isDuplicate = generatedHashes.contains(itemHash) ||
-                    workflowEngine.isDuplicateItem(itemHash)
+                val isDuplicate =
+                    generatedHashes.contains(itemHash) ||
+                        workflowEngine.isDuplicateItem(itemHash)
                 if (isDuplicate) {
                     duplicateIndexes.add(rowNum + 1)
                 } else {
@@ -157,18 +158,19 @@ class TopicReceiver : SubmissionReceiver {
         metadata: Metadata?,
     ) {
         // parse, check for parse errors
-        val (report, actionLogs) = this.workflowEngine.parseTopicReport(
-            sender as LegacyPipelineSender,
-            content,
-            defaults
-        )
+        val (report, actionLogs) =
+            this.workflowEngine.parseTopicReport(
+                sender as LegacyPipelineSender,
+                content,
+                defaults,
+            )
 
         // prevent duplicates if configured to not allow them
         if (!allowDuplicates) {
             doDuplicateDetection(
                 workflowEngine,
                 report,
-                actionLogs
+                actionLogs,
             )
         }
 
@@ -182,7 +184,7 @@ class TopicReceiver : SubmissionReceiver {
             rawBody,
             sender,
             actionHistory,
-            payloadName
+            payloadName,
         )
 
         actionHistory.trackLogs(actionLogs.logs)
@@ -194,16 +196,17 @@ class TopicReceiver : SubmissionReceiver {
                 report,
                 options,
                 defaults,
-                routeTo
+                routeTo,
             )
         } else {
-            val routingWarnings = workflowEngine.routeReport(
-                report,
-                options,
-                defaults,
-                routeTo,
-                actionHistory
-            )
+            val routingWarnings =
+                workflowEngine.routeReport(
+                    report,
+                    options,
+                    defaults,
+                    routeTo,
+                    actionHistory,
+                )
             actionHistory.trackLogs(routingWarnings)
         }
     }
@@ -222,15 +225,16 @@ class TopicReceiver : SubmissionReceiver {
         routeTo: List<String>,
     ) {
         val report = parsedReport.copy()
-        val senderSource = parsedReport.sources.firstOrNull()
-            ?: error("Unable to process report ${report.id} because sender sources collection is empty.")
+        val senderSource =
+            parsedReport.sources.firstOrNull()
+                ?: error("Unable to process report ${report.id} because sender sources collection is empty.")
         val senderName = (senderSource as ClientSource).name
 
         if (report.bodyFormat != Format.INTERNAL) {
             error("Processing a non internal report async.")
         }
 
-        val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
+        val processEvent = ProcessEvent(IEvent.EventAction.PROCESS, report.id, options, defaults, routeTo)
 
         val bodyBytes = ReportWriter.getBodyBytes(report)
         val blobInfo = workflowEngine.blob.uploadReport(report, bodyBytes, senderName, processEvent.eventAction)
@@ -275,14 +279,15 @@ class UniversalPipelineReceiver : SubmissionReceiver {
                 val isBatch = HL7Reader(actionLogs).isBatch(content, messages.size)
                 // create a Report for this incoming HL7 message to use for tracking in the database
 
-                report = Report(
-                    if (isBatch) Format.HL7_BATCH else Format.HL7,
-                    sources,
-                    messages.size,
-                    metadata = metadata,
-                    nextAction = TaskAction.convert,
-                    topic = sender.topic,
-                )
+                report =
+                    Report(
+                        if (isBatch) Format.HL7_BATCH else Format.HL7,
+                        sources,
+                        messages.size,
+                        metadata = metadata,
+                        nextAction = TaskAction.convert,
+                        topic = sender.topic,
+                    )
 
                 // TODO fix and re-enable https://github.com/CDCgov/prime-reportstream/issues/14103
                 // dupe detection if needed, and if we have not already produced an error
@@ -300,14 +305,15 @@ class UniversalPipelineReceiver : SubmissionReceiver {
 
             Sender.Format.FHIR -> {
                 val bundles = FhirTranscoder.getBundles(content, actionLogs)
-                report = Report(
-                    Format.FHIR,
-                    sources,
-                    bundles.size,
-                    metadata = metadata,
-                    nextAction = TaskAction.convert,
-                    topic = sender.topic,
-                )
+                report =
+                    Report(
+                        Format.FHIR,
+                        sources,
+                        bundles.size,
+                        metadata = metadata,
+                        nextAction = TaskAction.convert,
+                        topic = sender.topic,
+                    )
             }
 
             else -> {
@@ -323,21 +329,23 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         // If the sender is disabled, there should be no next event
         // THIS MUST HAPPEN BEFORE workflow.recordReceivedReport so that the next action
         // is properly stored in the report in the DB
-        val eventAction = if (sender.customerStatus == CustomerStatus.INACTIVE) {
-            report.nextAction = TaskAction.none
-            Event.EventAction.NONE
-        } else {
-            Event.EventAction.CONVERT
-        }
+        val eventAction =
+            if (sender.customerStatus == CustomerStatus.INACTIVE) {
+                report.nextAction = TaskAction.none
+                IEvent.EventAction.NONE
+            } else {
+                IEvent.EventAction.CONVERT
+            }
 
         // record that the submission was received
-        val blobInfo = workflowEngine.recordReceivedReport(
-            report,
-            rawBody,
-            sender,
-            actionHistory,
-            payloadName
-        )
+        val blobInfo =
+            workflowEngine.recordReceivedReport(
+                report,
+                rawBody,
+                sender,
+                actionHistory,
+                payloadName,
+            )
 
         // track logs
         actionHistory.trackLogs(actionLogs.logs)
@@ -357,8 +365,8 @@ class UniversalPipelineReceiver : SubmissionReceiver {
                     BlobAccess.digestToString(blobInfo.digest),
                     sender.fullName,
                     sender.topic,
-                    sender.schemaName
-                ).serialize()
+                    sender.schemaName,
+                ).serialize(),
             )
         }
     }
@@ -373,13 +381,18 @@ class UniversalPipelineReceiver : SubmissionReceiver {
      * Checks that a [message] is of the supported type(s), and uses the [actionLogs] to add an error
      * message for item with index [itemIndex] if it is not.
      */
-    internal fun checkValidMessageType(message: Message, actionLogs: ActionLogger, itemIndex: Int) {
-        val messageType = when (val msh = message.get("MSH")) {
-            is NIST_MSH -> msh.messageType.messageStructure.toString()
-            is v251_MSH -> msh.messageType.messageStructure.toString()
-            is v27_MSH -> msh.messageType.messageStructure.toString()
-            else -> ""
-        }
+    internal fun checkValidMessageType(
+        message: Message,
+        actionLogs: ActionLogger,
+        itemIndex: Int,
+    ) {
+        val messageType =
+            when (val msh = message.get("MSH")) {
+                is NIST_MSH -> msh.messageType.messageStructure.toString()
+                is v251_MSH -> msh.messageType.messageStructure.toString()
+                is v27_MSH -> msh.messageType.messageStructure.toString()
+                else -> ""
+            }
 
         if (!MessageType.values().map { it.toString() }.contains(messageType)) {
             actionLogs.getItemLogger(itemIndex)

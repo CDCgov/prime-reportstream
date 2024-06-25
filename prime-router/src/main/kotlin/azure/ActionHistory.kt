@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import azure.IEvent
 import com.fasterxml.jackson.core.JsonFactory
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -180,13 +181,14 @@ class ActionHistory(
             jsonGenerator.writeEndObject()
             jsonGenerator.writeEndObject()
         }
-        action.contentLength = request.headers["content-length"]?.let {
-            try {
-                it.toInt()
-            } catch (e: NumberFormatException) {
-                null
+        action.contentLength =
+            request.headers["content-length"]?.let {
+                try {
+                    it.toInt()
+                } catch (e: NumberFormatException) {
+                    null
+                }
             }
-        }
         // capture the azure client IP but override with the first forwarded for if present
         action.senderIp = request.headers["x-azure-clientip"]?.take(ACTION.SENDER_IP.dataType.length())
         request.headers["x-forwarded-for"]?.let {
@@ -219,8 +221,8 @@ class ActionHistory(
                         action.actionId,
                         reportsIn.values.first().reportId,
                         reportsOut.values.first().reportId,
-                        null
-                    )
+                        null,
+                    ),
                 )
             }
         } else {
@@ -241,7 +243,7 @@ class ActionHistory(
                         reportsOut.containsKey(it.reportId) ||
                         filteredOutReports.containsKey(it.reportId) ||
                         reportsIn.containsKey(it.reportId)
-                    )
+                )
             ) {
                 it.reportId = null
             }
@@ -268,28 +270,35 @@ class ActionHistory(
         val max = ACTION.ACTION_RESULT.dataType.length()
         // max is 0 for the CLOB type. we're using CLOB for the action_result now because we want
         // bigly strings, not just small sad 2048 strings
-        action.actionResult = if (ACTION.ACTION_RESULT.dataType == SQLDataType.CLOB && max == 0) {
-            tmp
-        } else {
-            tmp.chunked(size = max)[0]
-        }
+        action.actionResult =
+            if (ACTION.ACTION_RESULT.dataType == SQLDataType.CLOB && max == 0) {
+                tmp
+            } else {
+                tmp.chunked(size = max)[0]
+            }
     }
 
     /**
      * Track the response result of an action by using its [httpStatus] and [responseBody].
      */
-    fun trackActionResult(httpStatus: HttpStatusType, responseBody: String? = null) {
+    fun trackActionResult(
+        httpStatus: HttpStatusType,
+        responseBody: String? = null,
+    ) {
         action.httpStatus = httpStatus.value()
         trackActionResult(
             httpStatus.toString() +
-                if (responseBody != null) ": $responseBody" else ""
+                if (responseBody != null) ": $responseBody" else "",
         )
     }
 
     /**
      * Track the response result of an action by using its [httpStatus] and a [msg].
      */
-    fun trackActionResult(httpStatus: HttpStatusCode, msg: String? = null) {
+    fun trackActionResult(
+        httpStatus: HttpStatusCode,
+        msg: String? = null,
+    ) {
         action.httpStatus = httpStatus.value
         trackActionResult(msg ?: "")
     }
@@ -298,7 +307,10 @@ class ActionHistory(
      * Calls trackActionParams with [request] as param, and then trackActionResult with the status of the
      * [response] as param
      */
-    fun trackActionRequestResponse(request: HttpRequestMessage<String?>, response: HttpResponseMessage) {
+    fun trackActionRequestResponse(
+        request: HttpRequestMessage<String?>,
+        response: HttpResponseMessage,
+    ) {
         trackActionParams(request)
         trackActionResult(response.status)
     }
@@ -309,7 +321,10 @@ class ActionHistory(
      * @param clientParam the client header submitted with the report
      * @param payloadName an optional user-supplied name for the data submitted.  Eg, a filename.
      */
-    fun trackActionSenderInfo(clientParam: String, payloadName: String? = null) {
+    fun trackActionSenderInfo(
+        clientParam: String,
+        payloadName: String? = null,
+    ) {
         // only set the action properties if not null
         if (clientParam.isNotBlank()) {
             try {
@@ -318,7 +333,7 @@ class ActionHistory(
                 action.sendingOrgClient = sendingOrgClient.take(ACTION.SENDING_ORG_CLIENT.dataType.length())
             } catch (e: Exception) {
                 logger.warn(
-                    "Exception tracking sender: ${e.localizedMessage} ${e.stackTraceToString()}"
+                    "Exception tracking sender: ${e.localizedMessage} ${e.stackTraceToString()}",
                 )
             }
         }
@@ -332,7 +347,10 @@ class ActionHistory(
      * @param organizationName  The name of the receiving organization to associate with this action.
      * @param receiverName  The name of the receiver channel to associate with this action.
      */
-    fun trackActionReceiverInfo(organizationName: String, receiverName: String) {
+    fun trackActionReceiverInfo(
+        organizationName: String,
+        receiverName: String,
+    ) {
         action.receivingOrg = organizationName
         action.receivingOrgSvc = receiverName
     }
@@ -341,11 +359,10 @@ class ActionHistory(
      * Sanity check: No report can be tracked twice, either as an input or output.
      * Prevents at least tight loops, and other shenanigans.
      */
-    private fun isReportAlreadyTracked(id: ReportId): Boolean {
-        return reportsReceived.containsKey(id) ||
+    private fun isReportAlreadyTracked(id: ReportId): Boolean =
+        reportsReceived.containsKey(id) ||
             reportsIn.containsKey(id) ||
             reportsOut.containsKey(id)
-    }
 
     /**
      * track that this report is used in this Action.
@@ -363,7 +380,11 @@ class ActionHistory(
     /**
      * Use this to record history info about a new externally submitted report.
      */
-    fun trackExternalInputReport(report: Report, blobInfo: BlobAccess.BlobInfo, payloadName: String? = null) {
+    fun trackExternalInputReport(
+        report: Report,
+        blobInfo: BlobAccess.BlobInfo,
+        payloadName: String? = null,
+    ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
         }
@@ -374,7 +395,7 @@ class ActionHistory(
         if (report.sources.size != 1) {
             error(
                 "An external incoming report should have only one source.   " +
-                    "Report ${report.id} had ${report.sources.size} sources"
+                    "Report ${report.id} had ${report.sources.size} sources",
             )
         }
         val source = (report.sources[0] as ClientSource)
@@ -410,7 +431,12 @@ class ActionHistory(
      * Use this to record history info about a newly generated empty [report] for sending to [receiver] that
      * has requested an empty batch. The [event] will be batch or send.
      */
-    fun trackGeneratedEmptyReport(event: Event, report: Report, receiver: Receiver, blobInfo: BlobAccess.BlobInfo) {
+    fun trackGeneratedEmptyReport(
+        event: Event,
+        report: Report,
+        receiver: Receiver,
+        blobInfo: BlobAccess.BlobInfo,
+    ) {
         val reportFile = ReportFile()
         reportFile.reportId = report.id
 
@@ -429,9 +455,9 @@ class ActionHistory(
         // TODO: Need to update this process to have a better way to determine what messages should be sent
         //  automatically as part of queueMessages and what are being send manually as part of the parent function.
         //  The automatic queueing uses the action name as the queue name, and this is not the case for FHIR actions
-        if (event.eventAction != Event.EventAction.BATCH &&
-            event.eventAction != Event.EventAction.ROUTE &&
-            event.eventAction != Event.EventAction.TRANSLATE
+        if (event.eventAction != IEvent.EventAction.BATCH &&
+            event.eventAction != IEvent.EventAction.ROUTE &&
+            event.eventAction != IEvent.EventAction.TRANSLATE
         ) {
             trackEvent(event)
         }
@@ -480,7 +506,7 @@ class ActionHistory(
         reportFile.schemaTopic = report.schema.topic
         reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
 
-        reportFile.nextAction = event.eventAction.toTaskAction()
+        reportFile.nextAction = event.toTaskAction()
         reportFile.nextActionAt = event.at
 
         if (receiver != null) {
@@ -510,9 +536,9 @@ class ActionHistory(
         // TODO: Need to update this process to have a better way to determine what messages should be sent
         //  automatically as part of queueMessages and what are being send manually as part of the parent function.
         //  The automatic queueing uses the action name as the queue name, and this is not the case for FHIR actions
-        if (event.eventAction != Event.EventAction.BATCH &&
-            event.eventAction != Event.EventAction.ROUTE &&
-            event.eventAction != Event.EventAction.TRANSLATE
+        if (event.eventAction != IEvent.EventAction.BATCH &&
+            event.eventAction != IEvent.EventAction.ROUTE &&
+            event.eventAction != IEvent.EventAction.TRANSLATE
         ) {
             trackEvent(event) // to be sent to queue later.
         }
@@ -529,7 +555,7 @@ class ActionHistory(
         if (isReportAlreadyTracked(sentReportId)) {
             error(
                 "Bug:  attempt to track history of a report ($sentReportId) " +
-                    "we've already associated with this action"
+                    "we've already associated with this action",
             )
         }
 
@@ -537,13 +563,14 @@ class ActionHistory(
             error("Bug: attempt to track sent report with no contents")
         }
 
-        val blobInfo = BlobAccess.uploadBody(
-            receiver.format,
-            header.content,
-            filename ?: UUID.randomUUID().toString(),
-            receiver.fullName,
-            Event.EventAction.NONE
-        )
+        val blobInfo =
+            BlobAccess.uploadBody(
+                receiver.format,
+                header.content,
+                filename ?: UUID.randomUUID().toString(),
+                receiver.fullName,
+                IEvent.EventAction.NONE,
+            )
 
         val reportFile = ReportFile()
         reportFile.reportId = sentReportId
@@ -578,7 +605,7 @@ class ActionHistory(
         if (isReportAlreadyTracked(externalReportId)) {
             error(
                 "Bug:  attempt to track history of a report ($externalReportId)" +
-                    " we've already associated with this action"
+                    " we've already associated with this action",
             )
         }
         val reportFile = ReportFile()
@@ -623,7 +650,7 @@ class ActionHistory(
                     reportId = report.id,
                     action = action,
                     type = ActionLogLevel.filter,
-                )
+                ),
             )
         }
     }
@@ -634,7 +661,7 @@ class ActionHistory(
         if (report.itemLineages!!.size != report.itemCount) {
             error(
                 "Report ${report.id} should have ${report.itemCount} lineage items" +
-                    " but instead has ${report.itemLineages!!.size} lineage items"
+                    " but instead has ${report.itemLineages!!.size} lineage items",
             )
         }
         trackItemLineages(report.itemLineages)
@@ -683,20 +710,19 @@ class ActionHistory(
         if (parentReports != parentReports2) {
             error(
                 "parent reports from items (${parentReports.joinToString(",")}) != from reports" +
-                    "(${parentReports2.joinToString(",")})"
+                    "(${parentReports2.joinToString(",")})",
             )
         }
         if (childReports != childReports2) {
             error(
                 "child reports from items (${childReports.joinToString(",")} != from reports" +
-                    "(${childReports2.joinToString(",")})"
+                    "(${childReports2.joinToString(",")})",
             )
         }
         logger.debug("There are ${reportLineages.size} parent->child report-level relationships")
     }
 
     companion object : Logging {
-
         // The schema_name column only support 63 characters
         // If the schemaName is a URI grab the path and then take the last 63
         // otherwise just take the last 63
@@ -753,7 +779,11 @@ class ActionHistory(
          * Get rid of this once we have moved away from the old Task table.  In the meantime,
          * this is a way of confirming that the new tables are robust.
          */
-        fun sanityCheckReport(task: Task?, reportFile: ReportFile?, failOnError: Boolean = false) {
+        fun sanityCheckReport(
+            task: Task?,
+            reportFile: ReportFile?,
+            failOnError: Boolean = false,
+        ) {
             var msg = ""
             if (task == null) {
                 msg = "header is null"
