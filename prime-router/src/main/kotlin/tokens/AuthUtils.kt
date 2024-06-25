@@ -30,7 +30,7 @@ class AuthUtils {
             baseUrl: String,
             privateKey: PrivateKey,
             keyId: String,
-            jti: String? = UUID.randomUUID().toString(),
+            jti: String?,
             expirationSecondsFromNow: Int = 300,
         ): String {
             val jwsObj = Jwts.builder()

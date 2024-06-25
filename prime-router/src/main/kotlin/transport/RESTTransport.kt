@@ -57,7 +57,7 @@ import kotlinx.serialization.json.Json
 import org.json.JSONObject
 import java.io.InputStream
 import java.security.KeyStore
-import java.util.Base64
+import java.util.*
 import java.util.logging.Logger
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
@@ -264,10 +264,10 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      * Get a credential using PrivateKey to generate signed JWT authentication token (senderToken)
      * @param receiver the fullName of the receiver is the label of the credential
      */
-    fun lookupTwoLeggedCredential(receiver: Receiver, jwtPamams: Map<String, String> = emptyMap()): RestCredential {
+    fun lookupTwoLeggedCredential(receiver: Receiver, jwtParams: Map<String, String> = emptyMap()): RestCredential {
         val credential = lookupDefaultCredential(receiver)
         val privateKey = AuthUtils.readPrivateKeyPem((credential as UserApiKeyCredential).apiKey)
-        val senderToken = if (jwtPamams.isEmpty()) {
+        val senderToken = if (jwtParams.isEmpty()) {
             AuthUtils.generateOrganizationToken(
                 Organization(
                     receiver.name, receiver.fullName,
@@ -276,9 +276,9 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 "", privateKey, ""
             )
         } else {
-            val issuer = jwtPamams["issuer"] ?: receiver.name
-            val audience = jwtPamams["audience"] ?: ""
-            AuthUtils.generateToken(issuer, audience, privateKey, "")
+            val issuer = jwtParams["iss"] ?: receiver.name
+            val audience = jwtParams["aud"] ?: ""
+            AuthUtils.generateToken(issuer, audience, privateKey, "", UUID.randomUUID().toString())
         }
         return UserApiKeyCredential(credential.user, senderToken)
     }
