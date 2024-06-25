@@ -87,7 +87,7 @@ export function getVersionWarning(
     }
 }
 
-export function formatDate(date: string): string {
+export function formatDate(date: string | Date): string {
     // 'Thu, 3/31/2022, 4:50 AM'
     // Note that this returns Epoch when receiving a null date string
     return new Intl.DateTimeFormat("en-US", {

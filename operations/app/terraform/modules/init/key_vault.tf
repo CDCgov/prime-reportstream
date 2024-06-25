@@ -127,7 +127,10 @@ resource "azurerm_key_vault_access_policy" "init_tf" {
     "Recover"
   ]
 
-  certificate_permissions = []
+  certificate_permissions = [
+    "Get",
+    "List"
+  ]
 
   depends_on = [
     azurerm_key_vault.init

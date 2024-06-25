@@ -21,7 +21,7 @@ resource "azurerm_postgresql_server" "postgres_server" {
   ssl_minimal_tls_version_enforced = "TLS1_2"
 
   threat_detection_policy {
-    enabled              = var.db_threat_detection
+    enabled              = true
     email_account_admins = var.db_threat_detection
   }
 
@@ -87,8 +87,8 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
   ssl_minimal_tls_version_enforced = "TLS1_2"
 
   threat_detection_policy {
-    enabled              = var.db_threat_detection
-    email_account_admins = true
+    enabled              = true
+    email_account_admins = var.db_threat_detection
   }
 
   # Required for customer-managed encryption
