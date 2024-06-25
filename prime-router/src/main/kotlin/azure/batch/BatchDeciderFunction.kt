@@ -1,10 +1,10 @@
 package gov.cdc.prime.router.azure.batch
 
-import azure.IEvent
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.StorageAccount
 import com.microsoft.azure.functions.annotation.TimerTrigger
+import gov.cdc.prime.reportstream.shared.azure.IEvent
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.azure.BatchEvent
 import gov.cdc.prime.router.azure.DataAccessTransaction

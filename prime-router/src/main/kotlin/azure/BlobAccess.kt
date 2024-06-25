@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import azure.IEvent
 import com.azure.core.util.BinaryData
 import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobClientBuilder
@@ -12,6 +11,7 @@ import com.azure.storage.blob.models.BlobListDetails
 import com.azure.storage.blob.models.BlobStorageException
 import com.azure.storage.blob.models.DownloadRetryOptions
 import com.azure.storage.blob.models.ListBlobsOptions
+import gov.cdc.prime.reportstream.shared.azure.IEvent
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.Environment

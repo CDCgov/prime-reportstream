@@ -6,8 +6,8 @@ import assertk.assertions.each
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.matchesPredicate
-import azure.IEvent
-import azure.QueueAccess
+import gov.cdc.prime.reportstream.shared.azure.IEvent
+import gov.cdc.prime.reportstream.shared.azure.QueueAccess
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options

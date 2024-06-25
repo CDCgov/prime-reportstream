@@ -2,8 +2,8 @@ package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
 import assertk.assertions.containsOnly
-import azure.IEvent
-import azure.QueueAccess
+import gov.cdc.prime.reportstream.shared.azure.IEvent
+import gov.cdc.prime.reportstream.shared.azure.QueueAccess
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogLevel

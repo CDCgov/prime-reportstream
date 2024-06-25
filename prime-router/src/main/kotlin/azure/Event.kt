@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.azure
 
-import azure.IEvent
 import com.fasterxml.jackson.module.kotlin.readValue
+import gov.cdc.prime.reportstream.shared.azure.IEvent
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities

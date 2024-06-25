@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.azure
 
-import azure.QueueAccess
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.reportstream.shared.azure.QueueAccess
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel

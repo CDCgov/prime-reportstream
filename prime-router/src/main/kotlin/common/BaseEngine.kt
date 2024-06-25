@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.common
 
-import azure.QueueAccess
+import gov.cdc.prime.reportstream.shared.azure.QueueAccess
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver

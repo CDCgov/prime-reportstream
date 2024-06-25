@@ -6,7 +6,6 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import assertk.fail
-import azure.IEvent
 import com.azure.core.http.HttpRequest
 import com.azure.core.http.rest.PagedIterable
 import com.azure.core.http.rest.PagedResponse
@@ -20,6 +19,7 @@ import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.models.BlobDownloadContentResponse
 import com.azure.storage.blob.models.BlobDownloadResponse
 import com.azure.storage.blob.models.BlobItem
+import gov.cdc.prime.reportstream.shared.azure.IEvent
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report

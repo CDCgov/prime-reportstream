@@ -1,12 +1,12 @@
 package gov.cdc.prime.router.fhirengine.engine
 
-import azure.IEvent
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
+import gov.cdc.prime.reportstream.shared.azure.IEvent
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Hl7Configuration

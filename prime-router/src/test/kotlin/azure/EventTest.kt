@@ -2,7 +2,7 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import azure.IEvent
+import gov.cdc.prime.reportstream.shared.azure.IEvent
 import gov.cdc.prime.router.Options
 import java.time.OffsetDateTime
 import java.util.UUID

@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.fhirengine.engine
 
-import azure.IEvent
 import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.reportstream.shared.azure.IEvent
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger

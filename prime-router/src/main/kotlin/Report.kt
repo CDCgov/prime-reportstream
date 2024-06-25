@@ -1,7 +1,7 @@
 package gov.cdc.prime.router
 
-import azure.IEvent
 import gov.cdc.prime.reportstream.shared.StringUtilities.trimToNull
+import gov.cdc.prime.reportstream.shared.azure.IEvent
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event

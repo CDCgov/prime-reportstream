@@ -5,8 +5,8 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
-import azure.IEvent
 import com.microsoft.azure.functions.ExecutionContext
+import gov.cdc.prime.reportstream.shared.azure.IEvent
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile

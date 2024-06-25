@@ -1,4 +1,4 @@
-package azure
+package gov.cdc.prime.reportstream.shared.azure
 
 import java.time.OffsetDateTime
 

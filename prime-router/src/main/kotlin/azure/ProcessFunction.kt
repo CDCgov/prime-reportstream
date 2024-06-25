@@ -1,10 +1,10 @@
 package gov.cdc.prime.router.azure
 
-import azure.IEvent
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.reportstream.shared.azure.IEvent
 import org.apache.logging.log4j.kotlin.Logging
 
 private const val azureQueueName = "process"

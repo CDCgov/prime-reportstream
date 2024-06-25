@@ -1,4 +1,4 @@
-package azure
+package gov.cdc.prime.reportstream.shared.azure
 
 import com.azure.storage.queue.QueueClient
 import com.azure.storage.queue.QueueServiceClientBuilder

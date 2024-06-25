@@ -1,10 +1,10 @@
 package gov.cdc.prime.router.azure
 
-import azure.IEvent
 import com.fasterxml.jackson.core.JsonFactory
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatusType
+import gov.cdc.prime.reportstream.shared.azure.IEvent
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
