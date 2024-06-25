@@ -22,8 +22,8 @@
         messageProfileId: null
         replaceValue: {}
         replaceValueAwithB: {}
-        reportingFacilityName: "SimpleReport"
-        reportingFacilityId: "99ID00047"
+        reportingFacilityName: null
+        reportingFacilityId: null
         reportingFacilityIdType: null
         suppressQstForAoe: false
         suppressHl7Fields: null
