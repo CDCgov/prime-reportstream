@@ -1,5 +1,7 @@
 import { format, fromUnixTime, isValid, parseISO } from "date-fns";
 
+export const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
+
 export interface DateTimeData {
     dateString: string;
     timeString: string;
@@ -39,7 +41,7 @@ export function isDateExpired(dateTimeString: string | number) {
     // eslint-disable-next-line import/no-named-as-default-member
     const dateToCompare =
         typeof dateTimeString === "string"
-            ? parseISO(dateTimeString)
+            ? !/^\d+$/.test(dateTimeString) ? parseISO(dateTimeString) : fromUnixTime(parseInt(dateTimeString))
             : fromUnixTime(dateTimeString);
     return dateToCompare < now;
 }
@@ -56,3 +58,47 @@ export function formatDateWithoutSeconds(d: string) {
     });
     return newDate.replace(/,/, "");
 }
+
+/*
+ * format: "Mon, 7/25/2022"
+ * WARNING: Intl.DateTimeFormat() can be slow if called in a loop!
+ * Rewrote to just use Date to save cpu
+ * */
+export const dateShortFormat = (d: Date) => {
+    const dayOfWeek =
+        ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()] || "";
+    return (
+        `${dayOfWeek}, ` +
+        `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
+    );
+};
+
+/**
+ * Result string is like "12h 34m 05.678s"
+ * No duration returns ""
+ * @param dateNewer Date
+ * @param dateOlder Date
+ */
+export const durationFormatShort = (dateNewer: Date, dateOlder: Date): string => {
+    const msDiff = dateNewer.getTime() - dateOlder.getTime();
+    const hrs = Math.floor(msDiff / (60 * 60 * 1000)).toString();
+    const mins = Math.floor((msDiff / (60 * 1000)) % 60).toString();
+    // 0.1200001 -> '0.12`
+    const secs = parseFloat(((msDiff / 1000) % 60).toFixed(3)).toString();
+
+    const parts = [];
+    if (hrs !== "0") {
+        parts.push(`${hrs}h`);
+    }
+    if (parts.length || mins !== "0") {
+        const minsPad = mins.length < 2 ? "0" + mins : mins;
+        parts.push(`${minsPad}m`);
+    }
+    if (parts.length || secs !== "0") {
+        const secsPad = secs.indexOf(".") < 2 ? "0" + secs : secs;
+        parts.push(`${secsPad}s`);
+    }
+    return parts.join(" ");
+};
+
+export type DatePair = [start: Date, end: Date]
