@@ -20,8 +20,12 @@ export default defineConfig({
     fullyParallel: true,
     forbidOnly: isCi,
     retries: isCi ? 2 : 0,
-    workers: isCi ? "100%" : undefined,
-    reporter: [["html", { outputFolder: "e2e-data/report" }]],
+    // Do not consume 100% cpu, as this will cause instability
+    workers: isCi ? "75%" : undefined,
+    // Tests sharded in CI runner and reported as blobs that are later turned into html report
+    reporter: isCi
+        ? [["blob", { outputDir: "e2e-data/report" }]]
+        : [["html", { outputFolder: "e2e-data/report" }]],
     outputDir: "e2e-data/results",
     use: {
         // keep playwright and browser timezones aligned. set preferably UTC by env var

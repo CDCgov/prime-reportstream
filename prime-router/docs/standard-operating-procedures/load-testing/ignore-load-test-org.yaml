@@ -1,0 +1,78 @@
+- name: ignore
+  description: FOR TESTING ONLY
+  jurisdiction: FEDERAL
+  senders:
+    - name: ignore-full-elr-e2e  # For the E2E UP test
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      schemaName: classpath:/metadata/fhir_transforms/senders/baseline-sender-transform.yml
+      format: HL7
+    - name: ignore-fhir      # Use this to test fhir
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      schemaName: classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml
+      format: FHIR
+  receivers:
+    - name: FULL_ELR_E2E      # For the E2E UP test
+      externalName: Ignore FULL_ELR_E2E
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      qualityFilter:
+        - "%messageId.exists()"
+        - "%patient.name.family.exists()"
+        - "%patient.name.given.count() > 0"
+        - "%patient.birthDate.exists()"
+        - "%specimen.type.exists()"
+        - "(%patient.address.line.exists() or %patient.address.postalCode.exists() or %patient.telecom.exists())"
+        - "((%specimen.collection.collectedPeriod.exists() or %specimen.collection.collected.exists()) or %serviceRequest.occurrence.exists() or %observation.effective.exists())"
+      processingModeFilter:
+        - "%processingId.exists() and %processingId = 'P'"
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      timing:
+        operation: NONE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+        type: "HL7"
+        receivingApplicationName: "IG-ELR"
+        receivingFacilityName: "IG"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: FULL_ELR_FHIR
+      externalName: Ignore FULL_ELR_FHIR
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      qualityFilter:
+        - "%messageId.exists()"
+        - "%patient.name.family.exists()"
+        - "%patient.name.given.count() > 0"
+        - "%patient.birthDate.exists()"
+        - "%specimen.type.exists()"
+        - "(%patient.address.line.exists() or %patient.address.postalCode.exists() or %patient.telecom.exists())"
+        - "((%specimen.collection.collectedPeriod.exists() or %specimen.collection.collected.exists()) or %serviceRequest.occurrence.exists() or %observation.effective.exists())"
+      processingModeFilter:
+        - "%processingId.exists() and %processingId = 'P'"
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: "FHIR"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
