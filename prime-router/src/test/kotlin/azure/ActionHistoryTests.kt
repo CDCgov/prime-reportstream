@@ -81,10 +81,12 @@ class ActionHistoryTests {
         val actionParams = actionHistory.filterParameters(httpRequestMessage)
 
         val testActionParams = """
-            {"method":"GET","url":"http://localhost/","queryParams":{"test":"test1"},"headers":{"client":"sender1"}}
+            {"method":"GET","url":"http://localhost/","headers":{"client":"sender1"},"queryParameters":{"test":"test1"}} 
         """.trimIndent()
 
-        assertThat(actionParams).isEqualTo(testActionParams)
+        assertThat(JacksonMapperUtilities.objectMapper.writeValueAsString(actionParams)).isEqualTo(
+            testActionParams
+        )
     }
 
     @Test
@@ -652,8 +654,9 @@ class ActionHistoryTests {
         actionHistory.trackActionParams(mockHttpRequestMessage)
         assertThat(actionHistory.action.actionParams).isEqualTo(
             JacksonMapperUtilities.objectMapper.writeValueAsString(
-                ActionHistory.ActionParams(
+                ActionHistory.ReceivedReportSenderParameters(
                     HttpMethod.POST,
+                    "http://localhost/",
                     mapOf("connection" to "keep-alive", "content-length" to "825489"),
                     mapOf("processing" to "async")
                 )

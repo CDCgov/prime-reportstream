@@ -14,6 +14,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.ActionHistory.ReceivedReportSenderParameters.Companion.removeExcludedParameters
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -30,7 +31,6 @@ import org.jooq.impl.SQLDataType
 import java.net.URI
 import java.net.URISyntaxException
 import java.time.LocalDateTime
-import java.util.UUID
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -154,28 +154,60 @@ class ActionHistory(
     }
 
     /**
-     *
-     *
+     * Class captures data about the HTTP request from a sender to the report endpoint
      *
      */
-    data class ActionParams(
+    data class ReceivedReportSenderParameters(
         val method: HttpMethod,
+        val url: String,
         @JsonProperty("Headers")
         val headers: Map<String, String>,
         @JsonProperty("QueryParameters")
         val queryParameters: Map<String, String>,
-    )
+    ) {
+        companion object {
+            // These header/query params can potentially contain auth information, and we do not want to log them
+            // gitleaks:allow
+            private val parameterNamesToExclude = listOf(
+                "key",
+                "cookie",
+                "auth", // gitleaks:allow
+                "code" // gitleaks:allow
+            )
+
+            fun removeExcludedParameters(it: Map.Entry<String, String>) =
+                !parameterNamesToExclude.any { excluded ->
+                    it.key.contains(
+                        excluded,
+                        ignoreCase = true
+                    )
+                }
+        }
+    }
+
+    fun filterParameters(request: HttpRequestMessage<String?>): ReceivedReportSenderParameters {
+        val filteredHeaders = request.headers
+            .filter {
+                removeExcludedParameters(it)
+            }
+
+        val filteredQueryParams = request.queryParameters.filter {
+            removeExcludedParameters(it)
+        }
+        return ReceivedReportSenderParameters(
+            request.httpMethod,
+            request.uri.toString(),
+            filteredHeaders,
+            filteredQueryParams
+        )
+    }
 
     /**
-     * Track the parmeters of a [request].
+     * Track the parameters of a [request].
      */
     fun trackActionParams(request: HttpRequestMessage<String?>) {
-        val filteredHeaders = request.headers
-            .filter { !it.key.contains("key") }
-            .filter { !it.key.contains("cookie") }
-            .filter { !it.key.contains("auth") }
-        val filteredQueryParams = request.queryParameters.filter { !it.key.contains("code") }
-        val params = ActionParams(request.httpMethod, filteredHeaders, filteredQueryParams)
+        val params = filterParameters(request)
+
         action.contentLength = request.headers["content-length"]?.let {
             try {
                 it.toInt()
@@ -188,8 +220,8 @@ class ActionHistory(
             (
                 (
                     request.headers["x-forwarded-for"]?.split(",")
-                ?.firstOrNull()
-                )?.take(ACTION.SENDER_IP.dataType.length()) ?: request.headers["x-azure-clientip"]
+                        ?.firstOrNull()
+                    )?.take(ACTION.SENDER_IP.dataType.length()) ?: request.headers["x-azure-clientip"]
                 )
         if (senderIp != null && InetAddressValidator.getInstance().isValid(senderIp)) {
             action.senderIp = senderIp
@@ -343,11 +375,9 @@ class ActionHistory(
      * Sanity check: No report can be tracked twice, either as an input or output.
      * Prevents at least tight loops, and other shenanigans.
      */
-    private fun isReportAlreadyTracked(id: ReportId): Boolean {
-        return reportsReceived.containsKey(id) ||
-            reportsIn.containsKey(id) ||
-            reportsOut.containsKey(id)
-    }
+    private fun isReportAlreadyTracked(id: ReportId): Boolean = reportsReceived.containsKey(id) ||
+        reportsIn.containsKey(id) ||
+        reportsOut.containsKey(id)
 
     /**
      * track that this report is used in this Action.
@@ -470,6 +500,7 @@ class ActionHistory(
         report: Report,
         receiver: Receiver? = null,
         blobInfo: BlobAccess.BlobInfo? = null,
+        externalName: String? = null,
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -484,6 +515,7 @@ class ActionHistory(
 
         reportFile.nextAction = event.eventAction.toTaskAction()
         reportFile.nextActionAt = event.at
+        reportFile.externalName = externalName
 
         if (receiver != null) {
             reportFile.receivingOrg = receiver.organizationName
@@ -542,7 +574,7 @@ class ActionHistory(
         val blobInfo = BlobAccess.uploadBody(
             receiver.format,
             header.content,
-            filename ?: UUID.randomUUID().toString(),
+            sentReportId.toString(),
             receiver.fullName,
             Event.EventAction.NONE
         )
@@ -572,7 +604,6 @@ class ActionHistory(
      */
     fun trackDownloadedReport(
         parentReportFile: ReportFile,
-        filename: String,
         externalReportId: ReportId,
         downloadedBy: String,
     ) {
@@ -589,8 +620,8 @@ class ActionHistory(
         reportFile.receivingOrgSvc = parentReportFile.receivingOrgSvc
         reportFile.schemaName = trimSchemaNameToMaxLength(parentReportFile.schemaName)
         reportFile.schemaTopic = parentReportFile.schemaTopic
-        reportFile.externalName = filename
-        action.externalName = filename
+        reportFile.externalName = parentReportFile.externalName
+        action.externalName = parentReportFile.externalName
         reportFile.transportParams = "{ \"reportRequested\": \"${parentReportFile.reportId}\"}"
         reportFile.transportResult = "{ \"downloadedBy\": \"$downloadedBy\"}"
         reportFile.bodyUrl = null // this entry represents an external file, not a blob.
