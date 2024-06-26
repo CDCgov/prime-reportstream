@@ -87,10 +87,11 @@ resource "azurerm_postgresql_flexible_server" "postgres_server_replica" {
 
 
 # User Administration
-resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin" {
+resource "azurerm_postgresql_flexible_server_active_directory_administrator" "postgres_aad_admin" {
   server_name         = azurerm_postgresql_flexible_server.postgres_server.name
   resource_group_name = var.resource_group
-  login               = "reportstream_pgsql_admin"
+  principal_name      = "reportstream_pgsql_admin"
+  principal_type      = "Group"
   tenant_id           = data.azurerm_client_config.current.tenant_id
   object_id           = var.aad_group_postgres_admin
 }
@@ -125,37 +126,37 @@ resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin
 
 # Databases
 
-resource "azurerm_postgresql_database" "prime_data_hub_db" {
-  name                = "prime_data_hub"
-  resource_group_name = var.resource_group
-  server_name         = azurerm_postgresql_flexible_server.postgres_server.name
-  charset             = "UTF8"
-  collation           = "English_United States.1252"
+resource "azurerm_postgresql_flexible_server_database" "prime_data_hub_db" {
+  name = "prime_data_hub"
+
+  server_id = azurerm_postgresql_flexible_server.postgres_server.id
+  charset   = "UTF8"
+  collation = "English_United States.1252"
 
   lifecycle {
     prevent_destroy = false
   }
 }
 
-resource "azurerm_postgresql_database" "prime_data_hub_candidate_db" {
-  name                = "prime_data_hub_candidate"
-  resource_group_name = var.resource_group
-  server_name         = azurerm_postgresql_flexible_server.postgres_server.name
-  charset             = "UTF8"
-  collation           = "English_United States.1252"
+resource "azurerm_postgresql_flexible_server_database" "prime_data_hub_candidate_db" {
+  name = "prime_data_hub_candidate"
+
+  server_id = azurerm_postgresql_flexible_server.postgres_server.id
+  charset   = "UTF8"
+  collation = "English_United States.1252"
 
   lifecycle {
     prevent_destroy = false
   }
 }
 
-resource "azurerm_postgresql_database" "metabase_db" {
-  count               = var.is_metabase_env ? 1 : 0
-  name                = "metabase"
-  resource_group_name = var.resource_group
-  server_name         = azurerm_postgresql_flexible_server.postgres_server.name
-  charset             = "UTF8"
-  collation           = "English_United States.1252"
+resource "azurerm_postgresql_flexible_server_database" "metabase_db" {
+  count = var.is_metabase_env ? 1 : 0
+  name  = "metabase"
+
+  server_id = azurerm_postgresql_flexible_server.postgres_server.id
+  charset   = "UTF8"
+  collation = "English_United States.1252"
 
   lifecycle {
     prevent_destroy = false
