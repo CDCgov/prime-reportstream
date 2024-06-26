@@ -84,10 +84,13 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             listOf(
                 validFHIRRecord1
             ).joinToString()
-
-        val reportPair = UniversalPipelineTestUtils.createReportsWithLineage(reportContents, azuriteContainer)
-        val receiveReport = reportPair.first
-        val convertReport = reportPair.second
+        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+            reportContents,
+            TaskAction.destination_filter,
+            azuriteContainer
+        )
+        val receiveReport = reports.first()
+        val convertReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateQueueMessage(
             TaskAction.destination_filter,
             convertReport,
@@ -203,9 +206,13 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 File(VALID_FHIR_URL).readText()
             ).joinToString()
 
-        val reportPair = UniversalPipelineTestUtils.createReportsWithLineage(reportContents, azuriteContainer)
-        val receiveReport = reportPair.first
-        val convertReport = reportPair.second
+        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+            reportContents,
+            TaskAction.destination_filter,
+            azuriteContainer
+        )
+        val receiveReport = reports.first()
+        val convertReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateQueueMessage(
             TaskAction.destination_filter,
             convertReport,
@@ -289,8 +296,12 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 File(VALID_FHIR_URL).readText()
             ).joinToString()
 
-        val reportPair = UniversalPipelineTestUtils.createReportsWithLineage(reportContents, azuriteContainer)
-        val convertReport = reportPair.second
+        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+            reportContents,
+            TaskAction.destination_filter,
+            azuriteContainer
+        )
+        val convertReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateQueueMessage(
             TaskAction.destination_filter,
             convertReport,
