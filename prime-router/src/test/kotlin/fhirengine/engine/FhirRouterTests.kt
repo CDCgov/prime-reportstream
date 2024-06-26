@@ -158,11 +158,9 @@ data object SampleFilters {
      *  Processing mode filter sample for receivers on ETOR_TI or FULL_ELR:
      *  Must have a processing mode id of 'P'
      */
+    @Suppress("ktlint:standard:max-line-length")
     val processingModeFilterSample: ReportStreamFilter = listOf(
-        "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = " +
-            "'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() " +
-            "and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(" +
-            "system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P'"
+        "Bundle.entry.resource.ofType(MessageHeader).meta.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id').value.coding.code = 'P'"
     )
 }
 
