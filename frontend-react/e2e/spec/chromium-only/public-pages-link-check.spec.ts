@@ -103,16 +103,16 @@ test.describe(
                 }
             };
 
+            const results = await Promise.all(
+                aggregateHref.map((href) => validateLink(href)),
+            );
+
             if (isFrontendWarningsLog) {
                 fs.writeFileSync(
                     frontendWarningsLogPath,
                     `${JSON.stringify(warnings)}\n`,
                 );
             }
-
-            const results = await Promise.all(
-                aggregateHref.map((href) => validateLink(href)),
-            );
 
             results.forEach((result) => {
                 try {

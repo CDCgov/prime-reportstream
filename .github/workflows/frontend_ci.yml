@@ -152,7 +152,7 @@ jobs:
         - name: Post Warnings as Comments
           run: |
             if [ -f "e2e-data/$WARNING_LOG_FILE" ]; then
-              echo "WARNING_BODY=$(cat e2e-data/$WARNING_LOG_FILE)" >> $GITHUB_ENV
+              echo "WARNING_BODY=$(jq 'map("❌ "+.url+"\n\n**Error:** "+.message+"\n\n---\n\n")' e2e-data/frontend-warnings.json)" >> $GITHUB_ENV
             fi
         - name: Find Previous Warnings Comment
           id: comment_find
