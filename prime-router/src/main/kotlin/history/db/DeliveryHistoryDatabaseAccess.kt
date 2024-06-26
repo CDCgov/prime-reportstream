@@ -33,7 +33,7 @@ private const val EXPIRATION_DAYS_OFFSET = 30L
 class DeliveryHistory(
     val deliveryId: String?,
     val createdAt: OffsetDateTime,
-    val expirationDate: OffsetDateTime,
+    val expiresAt: OffsetDateTime,
     @JsonIgnore // Instead, use receiver, defined below.
     val receivingOrg: String,
     @JsonIgnore // Instead, use receiver, defined below.
@@ -80,7 +80,7 @@ class DeliveryHistoryTable : CustomTable<DeliveryHistoryRecord>(DSL.name("delive
 
     val DELIVERY_ID = createField(DSL.name("delivery_id"), SQLDataType.VARCHAR)
     val CREATED_AT = createField(DSL.name("created_at"), SQLDataType.OFFSETDATETIME)
-    val EXPIRATION_DATE = createField(DSL.name("expiration_date"), SQLDataType.OFFSETDATETIME)
+    val EXPIRES_AT = createField(DSL.name("expires_at"), SQLDataType.OFFSETDATETIME)
     val RECEIVING_ORG = createField(DSL.name("receiving_org"), SQLDataType.VARCHAR)
     val RECEIVING_ORG_SVC = createField(DSL.name("receiving_org_svc"), SQLDataType.VARCHAR)
     val RECEIVING_ORG_SVC_STATUS = createField(DSL.name("receiving_org_svc_status"), SQLDataType.VARCHAR)
@@ -228,7 +228,7 @@ class DeliveryHistoryDatabaseAccess(
                     "\"public\".\"report_file\".\"created_at\" + INTERVAL '$EXPIRATION_DAYS_OFFSET days'",
                     SQLDataType.OFFSETDATETIME
                 )
-                .`as`(DeliveryHistoryTable.DELIVERY_HISTORY.EXPIRATION_DATE),
+                .`as`(DeliveryHistoryTable.DELIVERY_HISTORY.EXPIRES_AT),
                 Tables.REPORT_FILE.RECEIVING_ORG,
                 Tables.REPORT_FILE.RECEIVING_ORG_SVC,
                 DSL.jsonbGetAttributeAsText(Tables.SETTING.VALUES, "customerStatus").`as`(DeliveryHistoryTable.DELIVERY_HISTORY.RECEIVING_ORG_SVC_STATUS),

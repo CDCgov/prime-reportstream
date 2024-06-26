@@ -32,6 +32,7 @@ import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import java.net.URLEncoder
 import java.nio.charset.Charset
+import java.security.InvalidParameterException
 import java.util.UUID
 
 /**
@@ -96,7 +97,11 @@ class DeliveryFunction(
             }
 
             fun extractReceivingOrgSvcStatus(query: Map<String, String>): List<CustomerStatus>? {
-                return query["receivingOrgSvcStatus"]?.split(",")?.map { CustomerStatus.valueOf(it) }
+                return try {
+                    query["receivingOrgSvcStatus"]?.split(",")?.map { CustomerStatus.valueOf(it) }
+                } catch (e: IllegalArgumentException) {
+                    throw InvalidParameterException("Invalid value for receivingOrgSvcStatus.")
+                }
             }
         }
     }
@@ -205,41 +210,50 @@ class DeliveryFunction(
         ) request: HttpRequestMessage<String?>,
         @BindingName("organization") organization: String,
     ): HttpResponseMessage {
-        val claims = AuthenticatedClaims.authenticate(request)
-            ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        try{
+            val claims = AuthenticatedClaims.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
-        val userOrganization = this.validateOrgSvcName(organization)
-            ?: return HttpUtilities.notFoundResponse(
-                request,
-                "$organization: invalid organization or service identifier"
+            val userOrganization = this.validateOrgSvcName(organization)
+                ?: return HttpUtilities.notFoundResponse(
+                    request,
+                    "$organization: invalid organization or service identifier"
+                )
+
+            if (!reportFileFacade.checkAccessAuthorizationForOrg(claims, userOrganization, null, request)) {
+                logger.warn(
+                    "Invalid Authorization for user ${claims.userName}:" +
+                        " ${request.httpMethod}:${request.uri.path}." +
+                        " ERR: Claims scopes are ${claims.scopes} but client id is $userOrganization"
+                )
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            }
+            logger.info(
+                "Authorized request by org ${claims.scopes} to getListByOrg on organization $userOrganization."
             )
 
-        if (!reportFileFacade.checkAccessAuthorizationForOrg(claims, userOrganization, null, request)) {
-            logger.warn(
-                "Invalid Authorization for user ${claims.userName}:" +
-                    " ${request.httpMethod}:${request.uri.path}." +
-                    " ERR: Claims scopes are ${claims.scopes} but client id is $userOrganization"
+            if (DeliveryHistoryApiParameters(request.queryParameters).reportId != null &&
+                DeliveryHistoryApiParameters(request.queryParameters).fileName != null
+            ) {
+                return HttpUtilities.badRequestResponse(request, "Either reportId or fileName can be provided")
+            }
+
+            request.body ?: HttpUtilities.badRequestResponse(request, "Search body must be included")
+            val search = DeliveryHistoryApiSearch.parse(request)
+            val params = DeliveryHistoryApiParameters(request.queryParameters)
+            val results = deliveryHistoryDatabaseAccess.getDeliveries(
+                search,
+                userOrganization,
+                receivingOrgSvc,
+                params.receivingOrgSvcStatus,
+                params.reportId,
+                params.fileName
             )
-            return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            val response = ApiResponse.buildFromApiSearch("delivery_history", search, results)
+            return HttpUtilities.okJSONResponse(request, response)
+        } catch (e: IllegalArgumentException) {
+            return HttpUtilities.badRequestResponse(request, HttpUtilities.errorJson(e.message ?: "Invalid Request"))
         }
-        logger.info(
-            "Authorized request by org ${claims.scopes} to getListByOrg on organization $userOrganization."
-        )
-
-        if (DeliveryHistoryApiParameters(request.queryParameters).reportId != null &&
-            DeliveryHistoryApiParameters(request.queryParameters).fileName != null
-        ) {
-            return HttpUtilities.badRequestResponse(request, "Either reportId or fileName can be provided")
-        }
-
-        request.body ?: HttpUtilities.badRequestResponse(request, "Search body must be included")
-        val search = DeliveryHistoryApiSearch.parse(request)
-        val params = DeliveryHistoryApiParameters(request.queryParameters)
-        val results = deliveryHistoryDatabaseAccess.getDeliveries(
-            search, userOrganization, receivingOrgSvc, params.receivingOrgSvcStatus, params.reportId, params.fileName
-        )
-        val response = ApiResponse.buildFromApiSearch("DeliveriesHistory", search, results)
-        return HttpUtilities.okJSONResponse(request, response)
     }
 
     /**
