@@ -152,7 +152,7 @@ jobs:
         - name: Convert warning json into markdown list array
           run: |
             if [ -f "e2e-data/$WARNING_LOG_FILE" ]; then
-              echo "WARNING_ARRAY=$(jq 'map("- ❌ **"+.url+"**: "+.message)' e2e-data/$WARNING_LOG_FILE)" >> $GITHUB_ENV
+              echo "WARNING_ARRAY='$(jq 'map("- ❌ **"+.url+"**: "+.message)' e2e-data/$WARNING_LOG_FILE)'" >> $GITHUB_ENV
             fi
         - name: Find Previous Warnings Comment
           id: comment_find
