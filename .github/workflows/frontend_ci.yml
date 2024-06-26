@@ -159,6 +159,7 @@ jobs:
                   ERROR=$(echo $line | jq -r '.message')
                   WARNING_BODY="${WARNING_BODY}❌ $URL\n\n**Error:** \`$ERROR\`\n\n---\n\n"
                 fi
+              done
             fi
         - name: Find Previous Warnings Comment
           id: comment_find
