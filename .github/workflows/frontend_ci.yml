@@ -160,6 +160,7 @@ jobs:
                   WARNING_BODY="${WARNING_BODY}❌ $URL\n\n**Error:** \`$ERROR\`\n\n---\n\n"
                 fi
               done
+              echo "WARNING_BODY=$WARNING_BODY" >> $GITHUB_ENV
             fi
         - name: Find Previous Warnings Comment
           id: comment_find
