@@ -164,9 +164,9 @@ class ReportFunctionTests {
         " (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine = spyk(
-            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-                .blobAccess(blobMock).queueAccess(queueMock).hl7Serializer(serializer).build()
-        )
+        WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
+            .blobAccess(blobMock).queueAccess(queueMock).hl7Serializer(serializer).build()
+    )
 
     @BeforeEach
     fun reset() {
@@ -698,9 +698,11 @@ class ReportFunctionTests {
         val longpayloadname = "test".repeat(513)
         val mockHttpRequest = MockHttpRequestMessage()
         mockHttpRequest.httpHeaders["payloadname"] = longpayloadname
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val (reportFunc, _, _) = setupForProcessRequestTests(actionHistory)
 
         assertThrows<RequestFunction.InvalidExternalPayloadException> {
-            ReportFunction().extractPayloadName(mockHttpRequest)
+            reportFunc.extractPayloadName(mockHttpRequest)
         }
     }
 }
