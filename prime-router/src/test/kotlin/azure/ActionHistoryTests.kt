@@ -82,7 +82,7 @@ class ActionHistoryTests {
 
         val testActionParams = """
             {"method":"GET","url":"http://localhost/","headers":{"client":"sender1"},"queryParameters":{"test":"test1"}} 
-        """.trimIndent()
+        """.trim()
 
         assertThat(JacksonMapperUtilities.objectMapper.writeValueAsString(actionParams)).isEqualTo(
             testActionParams
