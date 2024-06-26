@@ -97,12 +97,7 @@ object FileUtilities {
         } else {
             val fileName = Report.formFilename(
                 report.id,
-                report.schema.baseName,
                 format,
-                report.createdDateTime,
-                nameFormat = "standard",
-                report.destination?.translation,
-                metadata
             )
             File(outputDir ?: ".", fileName)
         }
