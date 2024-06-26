@@ -68,7 +68,7 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
   #checkov:skip=CKV2_AZURE_42: "Ensure Azure PostgreSQL server is configured with private endpoint"
   count                        = var.db_replica ? 1 : 0
   name                         = "${azurerm_postgresql_server.postgres_server.name}-replica"
-  location                     = "westus"
+  location                     = "eastus"
   resource_group_name          = var.resource_group
   administrator_login          = var.postgres_user
   administrator_login_password = var.postgres_pass
