@@ -29,7 +29,7 @@ locals {
         -c "GRANT SELECT ON ALL TABLES IN SCHEMA public TO ${var.postgres_readonly_user}"
 
       sleep 10;
-      sudo PGPASSWORD=${var.postgres_pass} \
+      PGPASSWORD=${var.postgres_pass} \
       PGSSLMODE=require \
       psql -h ${azurerm_postgresql_server.postgres_server.fqdn} -U ${var.postgres_user}@${azurerm_postgresql_server.postgres_server.name} \
         -d prime_data_hub \
