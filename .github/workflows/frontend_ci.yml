@@ -180,7 +180,7 @@ jobs:
             body: |
               ## ⚠️ Broken Links ⚠️
 
-              ${{ join(env.WARNING_ARRAY, '\n') }}
+              ${{ join(fromJson(env.WARNING_ARRAY), '\n') }}
   
   chromatic:
     name: Chromatic Analysis
