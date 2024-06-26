@@ -152,12 +152,12 @@ jobs:
         - name: Post Warnings as Comments
           run: |
             if [ -f "e2e-data/$WARNING_LOG_FILE" ]; then
-              WARNING_BODY="## ⚠️ Broken Links ⚠️\n\n"
+              WARNING_BODY="## ⚠️ Broken Links ⚠️\\n\\n"
               while IFS= read -r line; do
                 if [ -n "$line" ]; then
                   URL=$(echo $line | jq -r '.url')
                   ERROR=$(echo $line | jq -r '.message')
-                  WARNING_BODY="${WARNING_BODY}❌ $URL\n\n**Error:** \`$ERROR\`\n\n---\n\n"
+                  WARNING_BODY="${WARNING_BODY}❌ $URL\\n\\n**Error:** \\`$ERROR\\`\\n\\n---\\n\\n"
                 fi
               done
               echo "WARNING_BODY=$WARNING_BODY" >> $GITHUB_ENV
