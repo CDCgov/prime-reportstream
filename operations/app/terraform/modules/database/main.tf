@@ -1,14 +1,19 @@
 # Postgres Server
 data "azurerm_client_config" "current" {}
 
-resource "azurerm_postgresql_server" "postgres_server" {
+resource "azurerm_postgresql_flexible_server" "postgres_server" {
   #checkov:skip=CKV_AZURE_68: "Ensure that PostgreSQL server disables public network access"
   #checkov:skip=CKV2_AZURE_42: "Ensure Azure PostgreSQL server is configured with private endpoint"
   name                         = "${var.resource_prefix}-pgsql"
   location                     = var.location
   resource_group_name          = var.resource_group
-  administrator_login          = var.postgres_user
-  administrator_login_password = var.postgres_pass
+  delegated_subnet_id          = var.subnets.postgres_subnets[0]
+  private_dns_zone_id          = var.dns_zones["postgres"].id
+  zone                         = "1"
+  geo_redundant_backup_enabled = true
+
+  administrator_login    = var.postgres_user
+  administrator_password = var.postgres_pass
 
   sku_name   = var.db_sku_name
   version    = var.db_version
@@ -16,27 +21,17 @@ resource "azurerm_postgresql_server" "postgres_server" {
 
   auto_grow_enabled = var.db_auto_grow
 
-  public_network_access_enabled    = (var.environment != "prod" && var.environment != "staging") ? true : false
-  ssl_enforcement_enabled          = true
-  ssl_minimal_tls_version_enforced = "TLS1_2"
+  public_network_access_enabled = (var.environment != "prod" && var.environment != "staging" && var.environment != "tst") ? true : false
 
-  threat_detection_policy {
-    enabled              = true
-    email_account_admins = var.db_threat_detection
-  }
 
-  # Required for customer-managed encryption
-  identity {
-    type = "SystemAssigned"
-  }
 
   lifecycle {
     prevent_destroy = false
     # validated 5/21/2024
     ignore_changes = [
-      storage_mb,                  # Auto-grow will change the size
-      administrator_login,         # This can't change without a redeploy
-      administrator_login_password # This can't change without a redeploy
+      storage_mb,            # Auto-grow will change the size
+      administrator_login,   # This can't change without a redeploy
+      administrator_password # This can't change without a redeploy
     ]
   }
 
@@ -45,36 +40,21 @@ resource "azurerm_postgresql_server" "postgres_server" {
   }
 }
 
-module "postgres_private_endpoint" {
-  for_each = toset(var.subnets.postgres_subnets)
 
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_postgresql_server.postgres_server.id
-  name           = azurerm_postgresql_server.postgres_server.name
-  type           = "postgres_server"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["postgres"].name
-}
-
-
-# Replicate Server
-
-resource "azurerm_postgresql_server" "postgres_server_replica" {
+# Replica Server
+resource "azurerm_postgresql_flexible_server" "postgres_server_replica" {
   #checkov:skip=CKV2_AZURE_42: "Ensure Azure PostgreSQL server is configured with private endpoint"
-  count                        = var.db_replica ? 1 : 0
-  name                         = "${azurerm_postgresql_server.postgres_server.name}-replica"
-  location                     = "eastus"
-  resource_group_name          = var.resource_group
-  administrator_login          = var.postgres_user
-  administrator_login_password = var.postgres_pass
+  count                  = var.db_replica ? 1 : 0
+  name                   = "${azurerm_postgresql_flexible_server.postgres_server.name}-replica"
+  location               = "eastus"
+  resource_group_name    = var.resource_group
+  delegated_subnet_id    = var.subnets.postgres_subnets[0]
+  private_dns_zone_id    = var.dns_zones["postgres"].id
+  administrator_login    = var.postgres_user
+  administrator_password = var.postgres_pass
 
-  create_mode               = "Replica"
-  creation_source_server_id = azurerm_postgresql_server.postgres_server.id
+  create_mode      = "Replica"
+  source_server_id = azurerm_postgresql_flexible_server.postgres_server.id
 
   sku_name   = var.db_sku_name
   version    = var.db_version
@@ -82,27 +62,15 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
 
   auto_grow_enabled = var.db_auto_grow
 
-  public_network_access_enabled    = false
-  ssl_enforcement_enabled          = true
-  ssl_minimal_tls_version_enforced = "TLS1_2"
-
-  threat_detection_policy {
-    enabled              = true
-    email_account_admins = var.db_threat_detection
-  }
-
-  # Required for customer-managed encryption
-  identity {
-    type = "SystemAssigned"
-  }
+  public_network_access_enabled = false
 
   lifecycle {
     prevent_destroy = false
     # validated 5/21/2024
     ignore_changes = [
-      storage_mb,                  # Auto-grow will change the size
-      administrator_login,         # This can't change without a redeploy
-      administrator_login_password # This can't change without a redeploy
+      storage_mb,            # Auto-grow will change the size
+      administrator_login,   # This can't change without a redeploy
+      administrator_password # This can't change without a redeploy
     ]
   }
 
@@ -116,27 +84,11 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
   }
 }
 
-module "postgres_private_endpoint_replica" {
-  for_each = var.db_replica ? toset(var.subnets.postgres_subnets) : []
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_postgresql_server.postgres_server_replica[0].id
-  name           = azurerm_postgresql_server.postgres_server_replica[0].name
-  type           = "postgres_server"
-  resource_group = var.resource_group
-  location       = azurerm_postgresql_server.postgres_server_replica[0].location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet == "East-vnet" ? "West-vnet" : var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["postgres"].name
-}
 
 
 # User Administration
-
 resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin" {
-  server_name         = azurerm_postgresql_server.postgres_server.name
+  server_name         = azurerm_postgresql_flexible_server.postgres_server.name
   resource_group_name = var.resource_group
   login               = "reportstream_pgsql_admin"
   tenant_id           = data.azurerm_client_config.current.tenant_id
@@ -176,7 +128,7 @@ resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin
 resource "azurerm_postgresql_database" "prime_data_hub_db" {
   name                = "prime_data_hub"
   resource_group_name = var.resource_group
-  server_name         = azurerm_postgresql_server.postgres_server.name
+  server_name         = azurerm_postgresql_flexible_server.postgres_server.name
   charset             = "UTF8"
   collation           = "English_United States.1252"
 
@@ -188,7 +140,7 @@ resource "azurerm_postgresql_database" "prime_data_hub_db" {
 resource "azurerm_postgresql_database" "prime_data_hub_candidate_db" {
   name                = "prime_data_hub_candidate"
   resource_group_name = var.resource_group
-  server_name         = azurerm_postgresql_server.postgres_server.name
+  server_name         = azurerm_postgresql_flexible_server.postgres_server.name
   charset             = "UTF8"
   collation           = "English_United States.1252"
 
@@ -201,7 +153,7 @@ resource "azurerm_postgresql_database" "metabase_db" {
   count               = var.is_metabase_env ? 1 : 0
   name                = "metabase"
   resource_group_name = var.resource_group
-  server_name         = azurerm_postgresql_server.postgres_server.name
+  server_name         = azurerm_postgresql_flexible_server.postgres_server.name
   charset             = "UTF8"
   collation           = "English_United States.1252"
 

@@ -34,9 +34,9 @@ locals {
     delete_pii_storage_after_days = 60
   }
   database = {
-    db_sku_name         = "GP_Gen5_16"
-    db_version          = "11"
-    db_storage_mb       = 566272
+    db_sku_name         = "GP_Standard_D4s_v3"
+    db_version          = "14"
+    db_storage_mb       = 524288
     db_auto_grow        = true
     db_prevent_destroy  = false
     db_threat_detection = true
