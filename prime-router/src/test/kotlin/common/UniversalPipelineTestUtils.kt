@@ -513,97 +513,85 @@ object UniversalPipelineTestUtils {
 
     fun createReportsWithLineage(
         reportContents: String,
+        actions: List<TaskAction>,
+        events: List<Event.EventAction>,
         azurite: GenericContainer<*>,
-    ): Pair<Report, Report> {
-        val receivedBlobUrl = BlobAccess.uploadBlob(
-            "receive/mr_fhir_face.fhir",
-            reportContents.toByteArray(),
-            getBlobContainerMetadata(azurite)
-        )
+    ): List<Report> {
+        var reports = mutableListOf<Report>()
 
-        val convertedBlobUrl = BlobAccess.uploadBlob(
-            "convert/mr_fhir_face.fhir",
-            reportContents.toByteArray(),
-            getBlobContainerMetadata(azurite)
-        )
+        for (i in 0..actions.size - 2) {
+            val action = actions[i]
+            val nextAction = actions[i + 1]
+            val nextEvent = events[i]
 
-        val receiveReport = createReport(
-            Report.Format.FHIR,
-            TaskAction.receive,
-            TaskAction.convert,
-            Event.EventAction.CONVERT,
-            Topic.FULL_ELR,
-            null,
-            receivedBlobUrl
-        )
+            val blobUrl = BlobAccess.uploadBlob(
+                "${action.literal}/mr_fhir_face.fhir",
+                reportContents.toByteArray(),
+                getBlobContainerMetadata(azurite)
+            )
 
-        val convertReport = createReport(
-            Report.Format.FHIR,
-            TaskAction.convert,
-            TaskAction.route,
-            Event.EventAction.ROUTE,
-            Topic.FULL_ELR,
-            receiveReport,
-            convertedBlobUrl
-        )
+            val parentReport = if (i == 0) null else reports[i - 1]
 
-        return Pair(receiveReport, convertReport)
+            reports.add(
+                createReport(
+                Report.Format.FHIR,
+                action,
+                nextAction,
+                nextEvent,
+                Topic.FULL_ELR,
+                parentReport,
+                blobUrl
+            )
+            )
+        }
+
+        return reports
     }
 
-    fun createReportsWithLineage(
-        reportContents: String,
-        receiver: Receiver,
-        azurite: GenericContainer<*>,
-    ): Pair<Report, Report> {
-        val receivedBlobUrl = BlobAccess.uploadBlob(
-            "receive/mr_fhir_face.fhir",
-            reportContents.toByteArray(),
-            getBlobContainerMetadata(azurite)
-        )
+    fun createReportsWithLineage(reportContents: String, step: TaskAction, azurite: GenericContainer<*>): List<Report> {
+        val convertActions = listOf(TaskAction.receive, TaskAction.convert)
+        val destinationFilterActions = convertActions.plus(TaskAction.destination_filter)
+        val receiverFilterActions = destinationFilterActions.plus(TaskAction.receiver_filter)
+        val translateActions = receiverFilterActions.plus(TaskAction.translate)
 
-        val convertedBlobUrl = BlobAccess.uploadBlob(
-            "convert/mr_fhir_face.fhir",
-            reportContents.toByteArray(),
-            getBlobContainerMetadata(azurite)
-        )
+        val convertEvents = listOf(Event.EventAction.CONVERT, Event.EventAction.DESTINATION_FILTER)
+        val destinationFilterEvents = convertEvents.plus(Event.EventAction.RECEIVER_FILTER)
+        val receiverFilterEvents = destinationFilterEvents.plus(Event.EventAction.TRANSLATE)
+        val translateEvents = receiverFilterEvents.plus(Event.EventAction.BATCH)
 
-        val destinationFilteredBlobUrl = BlobAccess.uploadBlob(
-            "destination-filter/${receiver.fullName}.fhir",
-            reportContents.toByteArray(),
-            getBlobContainerMetadata(azurite)
-        )
+        val reports = when (step) {
+            TaskAction.receive -> emptyList()
+            TaskAction.convert -> createReportsWithLineage(
+                reportContents,
+                convertActions,
+                convertEvents,
+                azurite
+            )
+            TaskAction.destination_filter -> createReportsWithLineage(
+                reportContents,
+                destinationFilterActions,
+                destinationFilterEvents,
+                azurite
+            )
+            TaskAction.receiver_filter -> createReportsWithLineage(
+                reportContents,
+                receiverFilterActions,
+                receiverFilterEvents,
+                azurite
+            )
+            TaskAction.translate -> createReportsWithLineage(
+                reportContents,
+                translateActions,
+                translateEvents,
+                azurite
+            )
 
-        val receiveReport = createReport(
-            Report.Format.FHIR,
-            TaskAction.receive,
-            TaskAction.convert,
-            Event.EventAction.CONVERT,
-            Topic.FULL_ELR,
-            null,
-            receivedBlobUrl
-        )
+            else -> {
+                throw IllegalStateException("Step lineage not defined")
+            }
+        }
 
-        val convertReport = createReport(
-            Report.Format.FHIR,
-            TaskAction.convert,
-            TaskAction.destination_filter,
-            Event.EventAction.DESTINATION_FILTER,
-            Topic.FULL_ELR,
-            receiveReport,
-            convertedBlobUrl
-        )
-
-        val destinationReport = createReport(
-            Report.Format.FHIR,
-            TaskAction.destination_filter,
-            TaskAction.receiver_filter,
-            Event.EventAction.RECEIVER_FILTER,
-            Topic.FULL_ELR,
-            convertReport,
-            destinationFilteredBlobUrl
-        )
-
-        return Pair(receiveReport, destinationReport)
+        return reports
     }
 
     fun checkActionTable(expectedTaskActions: List<TaskAction>) {

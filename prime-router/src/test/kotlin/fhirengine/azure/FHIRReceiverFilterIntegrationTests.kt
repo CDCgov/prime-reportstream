@@ -146,7 +146,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             )
         )
         val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
-        val receiver = receivers.single()
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
         val receiverFilter = UniversalPipelineTestUtils.createReceiverFilter(org)
 
@@ -156,9 +155,13 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 File(MULTIPLE_OBSERVATIONS_FHIR_URL).readText()
             ).joinToString()
 
-        val reports = UniversalPipelineTestUtils.createReportsWithLineage(reportContents, receiver, azuriteContainer)
-        val receiveReport = reports.first
-        val destinationReport = reports.second
+        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+            reportContents,
+            TaskAction.receiver_filter,
+            azuriteContainer
+        )
+        val receiveReport = reports.first()
+        val destinationReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateReceiverQueueMessage(
             destinationReport,
             reportContents,
@@ -252,7 +255,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             )
         )
         val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
-        val receiver = receivers.single()
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
         val receiverFilter = UniversalPipelineTestUtils.createReceiverFilter(org)
 
@@ -262,9 +264,13 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 File(MULTIPLE_OBSERVATIONS_FHIR_URL).readText()
             ).joinToString()
 
-        val reports = UniversalPipelineTestUtils.createReportsWithLineage(reportContents, receiver, azuriteContainer)
-        val receiveReport = reports.first
-        val destinationReport = reports.second
+        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+            reportContents,
+            TaskAction.receiver_filter,
+            azuriteContainer
+        )
+        val receiveReport = reports.first()
+        val destinationReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateReceiverQueueMessage(
             destinationReport,
             reportContents,
@@ -378,8 +384,12 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 validFHIRRecord1
             ).joinToString()
 
-        val reportPair = UniversalPipelineTestUtils.createReportsWithLineage(reportContents, receiver, azuriteContainer)
-        val destinationReport = reportPair.second
+        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+            reportContents,
+            TaskAction.receiver_filter,
+            azuriteContainer
+        )
+        val destinationReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateReceiverQueueMessage(
             destinationReport,
             reportContents,
@@ -458,9 +468,13 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 File(VALID_FHIR_URL).readText()
             ).joinToString()
 
-        val reportPair = UniversalPipelineTestUtils.createReportsWithLineage(reportContents, receiver, azuriteContainer)
-        val receiveReport = reportPair.first
-        val destinationReport = reportPair.second
+        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+            reportContents,
+            TaskAction.receiver_filter,
+            azuriteContainer
+        )
+        val receiveReport = reports.first()
+        val destinationReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateReceiverQueueMessage(
             destinationReport,
             reportContents,
@@ -560,9 +574,13 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 File(VALID_FHIR_URL).readText()
             ).joinToString()
 
-        val reportPair = UniversalPipelineTestUtils.createReportsWithLineage(reportContents, receiver, azuriteContainer)
-        val receiveReport = reportPair.first
-        val destinationReport = reportPair.second
+        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+            reportContents,
+            TaskAction.receiver_filter,
+            azuriteContainer
+        )
+        val receiveReport = reports.first()
+        val destinationReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateReceiverQueueMessage(
             destinationReport,
             reportContents,
@@ -663,8 +681,12 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 File(VALID_FHIR_URL).readText()
             ).joinToString()
 
-        val reportPair = UniversalPipelineTestUtils.createReportsWithLineage(reportContents, receiver, azuriteContainer)
-        val destinationReport = reportPair.second
+        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+            reportContents,
+            TaskAction.receiver_filter,
+            azuriteContainer
+        )
+        val destinationReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateReceiverQueueMessage(
             destinationReport,
             reportContents,
