@@ -27,7 +27,7 @@
         receivingFacilityOID: null
         messageProfileId: null
         replaceValue: {}
-        replaceValueAwithB: []
+        replaceValueAwithB: {}
         reportingFacilityName: null
         reportingFacilityId: null
         reportingFacilityIdType: null
