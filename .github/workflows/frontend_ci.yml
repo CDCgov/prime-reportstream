@@ -118,7 +118,7 @@ jobs:
       needs: [pre-job, e2e_tests]
       runs-on: ubuntu-latest
       env:
-        WARNING_BODY:
+        WARNING_ARRAY:
         WARNING_LOG_FILE: frontend-warnings.json
 
       steps:
@@ -149,10 +149,10 @@ jobs:
             name: frontend-e2e-data--attempt-${{ github.run_attempt }}
             path: frontend-react/e2e-data
             retention-days: 7
-        - name: Post Warnings as Comments
+        - name: Convert warning json into markdown list array
           run: |
             if [ -f "e2e-data/$WARNING_LOG_FILE" ]; then
-              echo "WARNING_BODY=$(jq 'map("❌ "+.url+"\n\n**Error:** "+.message+"\n\n---\n\n")' e2e-data/frontend-warnings.json)" >> $GITHUB_ENV
+              echo "WARNING_ARRAY=$(jq 'map("- ❌ **"+.url+"**: "+.message)' e2e-data/$WARNING_LOG_FILE)" >> $GITHUB_ENV
             fi
         - name: Find Previous Warnings Comment
           id: comment_find
@@ -173,14 +173,14 @@ jobs:
                 repo: context.repo.repo,
               })
         - name: Create New Comment
-          if: ${{ env.WARNING_BODY != ''}}
+          if: ${{ env.WARNING_ARRAY != ''}}
           uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
           with:
             issue-number: ${{ github.event.pull_request.number }}
             body: |
               ## ⚠️ Broken Links ⚠️
 
-              ${{ env.WARNING_BODY }}
+              ${{ join(env.WARNING_ARRAY, '\n') }}
   
   chromatic:
     name: Chromatic Analysis
