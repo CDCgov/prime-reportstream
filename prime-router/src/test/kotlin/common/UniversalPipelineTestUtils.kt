@@ -3,11 +3,6 @@ package gov.cdc.prime.router.common
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
-import assertk.assertions.isGreaterThanOrEqualTo
-import gov.cdc.prime.router.ActionLog
-import gov.cdc.prime.router.ActionLogDetail
-import gov.cdc.prime.router.ActionLogLevel
-import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -30,6 +25,7 @@ import gov.cdc.prime.router.azure.db.tables.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.fhirengine.azure.FHIRFunctions
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
@@ -41,7 +37,6 @@ import gov.cdc.prime.router.unittest.UnitTestUtils
 import org.jooq.impl.DSL
 import org.testcontainers.containers.GenericContainer
 import java.time.OffsetDateTime
-import java.util.UUID
 
 @Suppress("ktlint:standard:max-line-length")
 const val validFHIRRecord1 =
@@ -357,6 +352,7 @@ object UniversalPipelineTestUtils {
     }
 
     fun createDestinationFilter(
+        azureEventService: AzureEventService,
         org: DeepOrganization? = null,
     ): FHIRDestinationFilter {
         val settings = FileSettings().loadOrganizations(org ?: universalPipelineOrganization)
@@ -368,6 +364,7 @@ object UniversalPipelineTestUtils {
             metadata,
             settings,
             reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess)),
+            azureEventService = azureEventService
         )
     }
 
@@ -517,7 +514,7 @@ object UniversalPipelineTestUtils {
         events: List<Event.EventAction>,
         azurite: GenericContainer<*>,
     ): List<Report> {
-        var reports = mutableListOf<Report>()
+        val reports = mutableListOf<Report>()
 
         for (i in 0..actions.size - 2) {
             val action = actions[i]
@@ -531,7 +528,6 @@ object UniversalPipelineTestUtils {
             )
 
             val parentReport = if (i == 0) null else reports[i - 1]
-
             reports.add(
                 createReport(
                 Report.Format.FHIR,
@@ -605,45 +601,6 @@ object UniversalPipelineTestUtils {
 
             for (i in 0 until actionRecords.size) {
                 assertThat(expectedTaskActions[i]).isEqualTo(actionRecords[i].actionName)
-            }
-        }
-    }
-
-    data class ActionLogRecordContent(
-        val index: Int,
-        val reportId: UUID?,
-        val type: ActionLogLevel?,
-        val scope: ActionLogScope?,
-        val actionLogDetail: ActionLogDetail?,
-    )
-
-    // TODO: maybe hook back up
-    fun checkActionLogTable(expectedContentList: List<ActionLogRecordContent>) {
-        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val actionLogRecords = DSL.using(txn)
-                .select(Tables.ACTION_LOG.asterisk())
-                .from(Tables.ACTION_LOG)
-                .fetchInto(ActionLog::class.java)
-
-            assertThat(actionLogRecords.size).isGreaterThanOrEqualTo(expectedContentList.size)
-
-            for (expectedActionLogRecordContent in expectedContentList) {
-                // -1 because the indexing is not zero-based and we need to modify it to address the right element
-                // in the actionLogRecords array
-                val actualIndex = expectedActionLogRecordContent.index - 1
-                val actualActionLogRecord = actionLogRecords[actualIndex]
-
-                assertThat(expectedActionLogRecordContent.reportId).isEqualTo(actualActionLogRecord.reportId)
-                assertThat(expectedActionLogRecordContent.type).isEqualTo(actualActionLogRecord.type)
-                assertThat(expectedActionLogRecordContent.scope).isEqualTo(actualActionLogRecord.scope)
-
-                expectedActionLogRecordContent.actionLogDetail?.let {
-                    val expected = expectedActionLogRecordContent.actionLogDetail
-                    assertThat(expected.javaClass).isEqualTo(actualActionLogRecord.detail.javaClass)
-                    assertThat(expected.scope).isEqualTo(actualActionLogRecord.detail.scope)
-                    assertThat(expected.message).isEqualTo(actualActionLogRecord.detail.message)
-                    assertThat(expected.errorCode).isEqualTo(actualActionLogRecord.detail.errorCode)
-                }
             }
         }
     }
