@@ -126,14 +126,24 @@ class SubmissionsFacade(
             action.sendingOrg,
             DetailedSubmissionHistory::class.java
         )
+
+        submission?.actionsPerformed?.forEach { logger.info("actionsPerformed was: ${it}") }
         submission?.actionsPerformed?.add(action.actionName)
+        submission?.actionsPerformed?.forEach { logger.info("actionsPerformed is now: ${it}") }
 
         // Submissions with a report ID (means had no errors) can have a lineage
+        logger.info("DetailedSubmissionHistory obj is: ${submission}")
         submission?.reportId?.let {
+            logger.info("report ID: $it")
             val relatedSubmissions = dbSubmissionAccess.fetchRelatedActions(
                 UUID.fromString(it),
                 DetailedSubmissionHistory::class.java
             )
+
+            for (relatedSubmission in relatedSubmissions) {
+                relatedSubmission.actionsPerformed.forEach { logger.info(" relatedSubmission actionsPerformed was: ${it}") }
+            }
+
             submission.enrichWithDescendants(relatedSubmissions)
         }
 

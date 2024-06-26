@@ -347,48 +347,51 @@ class DetailedSubmissionHistory(
      */
     fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
         check(descendants.distinctBy { it.actionId }.size == descendants.size)
-        actionAgnosticEnrich(descendants)
-//        // Enforce an order on the enrichment:  process/translate, send, download
-//        if (topic?.isUniversalPipeline == true) {
-//            // logs and destinations are handled very differently for UP
-//            // both routing and translate are populated at different times,
-//            // so we need to do special logic to handle them
-//            descendants.filter { it.actionName == TaskAction.translate }.forEach { descendant ->
-//                enrichWithTranslateAction(descendant)
-//            }
-//            descendants.filter { it.actionName == TaskAction.route }.forEach { descendant ->
-//                enrichWithRouteAction(descendant)
-//            }
-//            descendants.filter { it.actionName == TaskAction.convert }.forEach { descendant ->
-//                enrichWithConvertAction(descendant)
-//            }
-//        } else {
-//            descendants.filter {
-//                it.actionName == TaskAction.process
-//            }.forEach { descendant ->
-//                enrichWithProcessAction(descendant)
-//            }
-//        }
-//
-//        // note: we do not use any data from the batch action at this time.
-//        descendants.filter { it.actionName == TaskAction.send }.forEach { descendant ->
-//            enrichWithSendAction(descendant)
-//        }
-//        descendants.filter { it.actionName == TaskAction.download }.forEach { descendant ->
-//            enrichWithDownloadAction(descendant)
-//        }
-    }
+        //actionAgnosticEnrich(descendants)
+        // Enforce an order on the enrichment:  process/translate, send, download
+        if (topic?.isUniversalPipeline == true) {
+            // logs and destinations are handled very differently for UP
+            // both routing and translate are populated at different times,
+            // so we need to do special logic to handle them
+            descendants.filter { it.actionName == TaskAction.translate }.forEach { descendant ->
+                enrichWithTranslateAction(descendant)
+            }
+            descendants.filter { it.actionName == TaskAction.route }.forEach { descendant ->
+                enrichWithRouteAction(descendant)
+            }
+            descendants.filter { it.actionName == TaskAction.convert }.forEach { descendant ->
+                enrichWithConvertAction(descendant)
+            }
+        } else {
+            descendants.filter {
+                it.actionName == TaskAction.process
+            }.forEach { descendant ->
+                enrichWithProcessAction(descendant)
+            }
+        }
 
-    /*
-    existingDestination.itemCountBeforeQualFilter =
-                    existingDestination.itemCountBeforeQualFilter?.plus(
-                        descendantDest.itemCountBeforeQualFilter ?: 0
-                    ) ?: descendantDest.itemCountBeforeQualFilter
-     */
+//        descendants.filter { it.actionName == TaskAction.translate }.forEach { descendant ->
+//            enrichWithTranslateAction(descendant)
+//        }
+//        descendants.filter { it.actionName == TaskAction.route }.forEach { descendant ->
+//            enrichWithRouteAction(descendant)
+//        }
+//        descendants.filter { it.actionName == TaskAction.convert }.forEach { descendant ->
+//            enrichWithConvertAction(descendant)
+//        }
+        // note: we do not use any data from the batch action at this time.
+        descendants.filter { it.actionName == TaskAction.send }.forEach { descendant ->
+            enrichWithSendAction(descendant)
+        }
+        descendants.filter { it.actionName == TaskAction.download }.forEach { descendant ->
+            enrichWithDownloadAction(descendant)
+        }
+    }
 
     private fun actionAgnosticEnrich(descendants: List<DetailedSubmissionHistory>) {
         descendants.forEach {
             it.destinations.forEach { inboundDestinationObj ->
+
                 var existingIndex = this.destinations.indexOfFirst { existingDestinationObj ->
                     existingDestinationObj.organizationId == inboundDestinationObj.organizationId
                 }

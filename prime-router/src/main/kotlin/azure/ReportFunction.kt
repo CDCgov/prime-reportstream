@@ -224,7 +224,7 @@ class ReportFunction(
             .header(
                 HttpHeaders.LOCATION,
                 request.uri.resolve(
-                    "/api/history/${sender.organizationName}/submissions/${actionHistory.action.actionId}"
+                    "/api/waters/report/${actionHistory.action.actionId}/history"
                 ).toString()
             )
             .build()
