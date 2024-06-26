@@ -31,7 +31,7 @@ export type PlaywrightAllTestArgs = PlaywrightTestArgs &
 
 const e2eDataPath = join(import.meta.dirname, "../e2e-data");
 const isCI = Boolean(process.env.CI);
-const frontendWarningsPath = join(e2eDataPath, "frontend-warnings.log");
+const frontendWarningsPath = join(e2eDataPath, "frontend-warnings.json");
 const isMockDisabled = Boolean(process.env.MOCK_DISABLED);
 
 function createLogins<const T extends string[]>(

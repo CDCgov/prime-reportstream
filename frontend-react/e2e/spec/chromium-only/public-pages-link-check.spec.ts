@@ -82,6 +82,8 @@ test.describe(
                 timeout: 10000,
             });
 
+            const warnings: { url: string; message: string }[] = [];
+
             const validateLink = async (url: string) => {
                 try {
                     const response = await axiosInstance.get(url);
@@ -89,13 +91,8 @@ test.describe(
                 } catch (error) {
                     const e = error as AxiosError;
                     console.error(`Error accessing ${url}:`, e.message);
-                    if (isFrontendWarningsLog) {
-                        const warning = { url: url, message: e.message };
-                        fs.appendFileSync(
-                            frontendWarningsLogPath,
-                            `${JSON.stringify(warning)}\n`,
-                        );
-                    }
+                    const warning = { url: url, message: e.message };
+                    warnings.push(warning);
 
                     return {
                         url,
@@ -105,6 +102,13 @@ test.describe(
                     };
                 }
             };
+
+            if (isFrontendWarningsLog) {
+                fs.writeFileSync(
+                    frontendWarningsLogPath,
+                    `${JSON.stringify(warnings)}\n`,
+                );
+            }
 
             const results = await Promise.all(
                 aggregateHref.map((href) => validateLink(href)),
