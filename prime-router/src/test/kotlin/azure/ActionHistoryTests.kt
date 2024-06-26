@@ -62,6 +62,32 @@ class ActionHistoryTests {
     }
 
     @Test
+    fun `test filterParameters`() {
+        val actionHistory = ActionHistory(TaskAction.receive)
+        val parameters = mapOf(
+            "code" to "code1",
+            "test" to "test1"
+        )
+        val headers = mapOf(
+            "key1" to "key1",
+            "cookie" to "cookie1",
+            "auth-test" to "auth1",
+            "client" to "sender1"
+        )
+        val httpRequestMessage = MockHttpRequestMessage()
+        httpRequestMessage.httpHeaders += headers
+        httpRequestMessage.parameters += parameters
+
+        val actionParams = actionHistory.filterParameters(httpRequestMessage)
+
+        val testActionParams = """
+            {"method":"GET","url":"http://localhost/","queryParams":{"test":"test1"},"headers":{"client":"sender1"}}
+        """.trimIndent()
+
+        assertThat(actionParams).isEqualTo(testActionParams)
+    }
+
+    @Test
     fun `test trackActionParams`() {
         val actionHistory = ActionHistory(TaskAction.process)
 
@@ -297,6 +323,7 @@ class ActionHistoryTests {
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
         every { inReportFile.itemCount } returns 15
+        every { inReportFile.reportId } returns uuid
         val orgReceiver = org.receivers[0]
         val actionHistory1 = ActionHistory(TaskAction.receive)
         actionHistory1.action
@@ -359,6 +386,7 @@ class ActionHistoryTests {
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
         every { inReportFile.itemCount } returns 15
+        every { inReportFile.reportId } returns uuid
         val actionHistory1 = ActionHistory(TaskAction.receive)
 
         actionHistory1.trackSentReport(org.receivers[0], uuid, "filename1", "params1", "result1", header)
@@ -384,23 +412,24 @@ class ActionHistoryTests {
         reportFile1.reportId = uuid
         reportFile1.receivingOrg = "myOrg"
         reportFile1.receivingOrgSvc = "myRcvr"
+        reportFile1.externalName = "externalName1"
         val actionHistory1 = ActionHistory(TaskAction.download)
         val uuid2 = UUID.randomUUID()
-        actionHistory1.trackDownloadedReport(reportFile1, "filename1", uuid2, "bob")
+        actionHistory1.trackDownloadedReport(reportFile1, uuid2, "bob")
         assertThat(actionHistory1.reportsOut[uuid2]).isNotNull()
         val reportFile2 = actionHistory1.reportsOut[uuid2]!!
         assertThat(reportFile2.receivingOrgSvc).isEqualTo("myRcvr")
         assertThat(reportFile2.receivingOrg).isEqualTo("myOrg")
-        assertThat(reportFile2.externalName).isEqualTo("filename1")
+        assertThat(reportFile2.externalName).isEqualTo("externalName1")
         assertThat(reportFile2.downloadedBy).isEqualTo("bob")
         assertThat(reportFile2.sendingOrg).isNull()
         assertThat(reportFile2.bodyUrl).isNull()
         assertThat(reportFile2.blobDigest).isNull()
-        assertThat(actionHistory1.action.externalName).isEqualTo("filename1")
+        assertThat(actionHistory1.action.externalName).isEqualTo("externalName1")
         // not allowed to track the same report twice.
         assertFailure {
             actionHistory1.trackDownloadedReport(
-                reportFile1, "filename1", uuid2, "bob"
+                reportFile1, uuid2, "bob"
             )
         }
     }
@@ -552,6 +581,7 @@ class ActionHistoryTests {
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
         every { inReportFile.itemCount } returns 15
+        every { inReportFile.reportId } returns uuid
         val actionHistory1 = ActionHistory(TaskAction.receive)
         actionHistory1.action
         actionHistory1.trackSentReport(org.receivers[0], uuid, "filename1", "params1", "result1", header)
