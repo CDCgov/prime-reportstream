@@ -27,13 +27,7 @@
       receivingFacilityOID: "2.16.840.1.113883.3.89.109.100.1.3"
       messageProfileId: null
       replaceValue: {}
-      replaceValueAwithB:
-        MSH-6:
-        - '*': "NDDOH^2.16.840.1.113883.3.89.109.100.1.3^ISO"
-        MSH-5:
-        - '*': "Maven^2.16.840.1.114222.4.3.4.34.1.1^ISO"
-        MSH-3:
-        - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+      replaceValueAwithB: {}
       reportingFacilityName: null
       reportingFacilityId: null
       reportingFacilityIdType: null
