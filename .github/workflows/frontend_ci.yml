@@ -1,7 +1,6 @@
 name: Frontend CI
 
-on:
-  pull_request
+on: pull_request
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -13,12 +12,12 @@ defaults:
     shell: bash
 
 env:
-    TEST_ADMIN_USERNAME: ${{ secrets.TEST_ADMIN_USERNAME }}
-    TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
-    TEST_SENDER_USERNAME: ${{ secrets.TEST_SENDER_USERNAME }}
-    TEST_SENDER_PASSWORD: ${{ secrets.TEST_SENDER_PASSWORD }}
-    TEST_RECEIVER_USERNAME: ${{ secrets.TEST_RECEIVER_USERNAME }}
-    TEST_RECEIVER_PASSWORD: ${{ secrets.TEST_RECEIVER_PASSWORD }}
+  TEST_ADMIN_USERNAME: ${{ secrets.TEST_ADMIN_USERNAME }}
+  TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
+  TEST_SENDER_USERNAME: ${{ secrets.TEST_SENDER_USERNAME }}
+  TEST_SENDER_PASSWORD: ${{ secrets.TEST_SENDER_PASSWORD }}
+  TEST_RECEIVER_USERNAME: ${{ secrets.TEST_RECEIVER_USERNAME }}
+  TEST_RECEIVER_PASSWORD: ${{ secrets.TEST_RECEIVER_PASSWORD }}
 
 jobs:
   pre-job:
@@ -46,9 +45,9 @@ jobs:
       - name: Use Node.js with yarn
         uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
-            node-version-file: frontend-react/.nvmrc
-            cache: yarn
-            cache-dependency-path: frontend-react/yarn.lock
+          node-version-file: frontend-react/.nvmrc
+          cache: yarn
+          cache-dependency-path: frontend-react/yarn.lock
       - name: Yarn install
         run: yarn install --immutable
 
@@ -61,19 +60,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-        - name: Check out changes
-          uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-        - name: Use Node.js with yarn
-          uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
-          with:
-            node-version-file: "frontend-react/.nvmrc"
-            cache: yarn
-            cache-dependency-path: frontend-react/yarn.lock
-        - name: Yarn install
-          run: yarn install --immutable
+      - name: Check out changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Use Node.js with yarn
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        with:
+          node-version-file: "frontend-react/.nvmrc"
+          cache: yarn
+          cache-dependency-path: frontend-react/yarn.lock
+      - name: Yarn install
+        run: yarn install --immutable
 
-        - name: Unit tests
-          run: yarn run test:ci
+      - name: Unit tests
+        run: yarn run test:ci
 
   e2e_tests:
     name: E2E tests
@@ -88,100 +87,106 @@ jobs:
         shardTotal: [6]
 
     steps:
-        - name: Check out changes
-          uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-        - name: Use Node.js with yarn
-          uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
-          with:
-            node-version-file: "frontend-react/.nvmrc"
-            cache: yarn
-            cache-dependency-path: frontend-react/yarn.lock
-        - name: Yarn install
-          run: yarn install --immutable
-        - name: Install Playwright
-          run: npx playwright install --with-deps
+      - name: Check out changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Use Node.js with yarn
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        with:
+          node-version-file: "frontend-react/.nvmrc"
+          cache: yarn
+          cache-dependency-path: frontend-react/yarn.lock
+      - name: Yarn install
+        run: yarn install --immutable
+      - name: Install Playwright
+        run: npx playwright install --with-deps
 
-        - name: Run E2E tests
-          run: yarn run test:e2e --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
-        - name: Upload blob report to GitHub Actions Artifacts
-          if: ${{ !cancelled() }}
-          uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
-          with:
-            name: frontend-e2e-data--shard-${{ matrix.shardIndex }}
-            path: frontend-react/e2e-data
-            retention-days: 1
+      - name: Run E2E tests
+        run: yarn run test:e2e --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+      - name: Upload blob report to GitHub Actions Artifacts
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: frontend-e2e-data--shard-${{ matrix.shardIndex }}
+          path: frontend-react/e2e-data
+          retention-days: 1
 
   # Merge reports after e2e-tests, even if some shards have failed
   merge_e2e_data:
-      name: Merge E2E Data
-      if: ${{ !cancelled() && needs.pre-job.outputs.is_permitted == 'true' }}
-      needs: [pre-job, e2e_tests]
-      runs-on: ubuntu-latest
-      env:
-        WARNING_ARRAY:
-        WARNING_LOG_FILE: frontend-warnings.json
+    name: Merge E2E Data
+    if: ${{ !cancelled() && needs.pre-job.outputs.is_permitted == 'true' }}
+    needs: [pre-job, e2e_tests]
+    runs-on: ubuntu-latest
+    env:
+      WARNING_ARRAY:
+      WARNING_LOG_FILE: frontend-warnings.json
 
-      steps:
-        - name: Check out changes
-          uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-        - name: Use Node.js with yarn
-          uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
-          with:
-            node-version-file: "frontend-react/.nvmrc"
-            cache: yarn
-            cache-dependency-path: frontend-react/yarn.lock
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Use Node.js with yarn
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        with:
+          node-version-file: "frontend-react/.nvmrc"
+          cache: yarn
+          cache-dependency-path: frontend-react/yarn.lock
 
-        - name: Download blob reports from GitHub Actions Artifacts
-          uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
-          with:
-            path: frontend-react/e2e-data
-            pattern: frontend-e2e-data--shard-*
-            merge-multiple: true
-        - name: Merge reports
-          run: npx playwright merge-reports --reporter html,github ./e2e-data/report
-        # merge-reports command has no cli option to change default output dir (playwright-report),
-        # so merge it into the e2e-data/report manually and do clean up before uploading
-        - name: Merge folders
-          run: mv ./playwright-report/* ./e2e-data/report && rmdir ./playwright-report && rm ./e2e-data/report/*.zip && rm -rf ./e2e-data/report/resources
-        - name: Upload final e2e-data
-          uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
-          with:
-            name: frontend-e2e-data--attempt-${{ github.run_attempt }}
-            path: frontend-react/e2e-data
-            retention-days: 7
-        - name: Convert warning json into markdown list array
-          run: |
-            if [ -f "e2e-data/$WARNING_LOG_FILE" ]; then
-              echo "WARNING_ARRAY=$(jq -rc 'map("- ❌ **"+.url+"**: "+.message)' e2e-data/$WARNING_LOG_FILE)" >> $GITHUB_ENV
-            fi
-        - name: Find Previous Warnings Comment
-          id: comment_find
-          uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e
-          with:
-            issue-number: ${{ github.event.pull_request.number }}
-            comment-author: "github-actions[bot]"
-            body-regex: '\.*Broken Links.*\gi'
-        - name: Delete Previous Warnings Comment
-          if: ${{ steps.comment_find.outputs.comment-id }}
-          uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
-          with:
-            github-token: ${{secrets.GITHUB_TOKEN}}
-            script: |
-              github.rest.issues.deleteComment({
-                comment_id: ${{ steps.comment_find.outputs.comment-id }},
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-              })
-        - name: Create New Comment
-          if: ${{ env.WARNING_ARRAY != ''}}
-          uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
-          with:
-            issue-number: ${{ github.event.pull_request.number }}
-            body: |
-              ## ⚠️ Broken Links ⚠️
+      - name: Download blob reports from GitHub Actions Artifacts
+        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
+        with:
+          path: frontend-react/e2e-data
+          pattern: frontend-e2e-data--shard-*
+          merge-multiple: true
+      - name: Merge reports
+        run: npx playwright merge-reports --reporter html,github ./e2e-data/report
+      # merge-reports command has no cli option to change default output dir (playwright-report),
+      # so merge it into the e2e-data/report manually and do clean up before uploading
+      - name: Merge folders
+        run: mv ./playwright-report/* ./e2e-data/report && rmdir ./playwright-report && rm ./e2e-data/report/*.zip && rm -rf ./e2e-data/report/resources
+      - name: Upload final e2e-data
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: frontend-e2e-data--attempt-${{ github.run_attempt }}
+          path: frontend-react/e2e-data
+          retention-days: 7
+      - name: Post Warnings as Comments
+        run: |
+          if [ -f "e2e-data/$WARNING_LOG_FILE" ]; then
+            WARNING_BODY="## ⚠️ Broken Links ⚠️\\n\\n"
+            while IFS= read -r line; do
+              if [ -n "$line" ]; then
+                URL=$(echo $line | jq -r '.url')
+                ERROR=$(echo $line | jq -r '.message')
+                WARNING_BODY="${WARNING_BODY}- ❌ **$URL**: $ERROR\\n\\n"
+              fi
+            done < "e2e-data/$WARNING_LOG_FILE"
+            
+            echo "WARNING_BODY=$WARNING_BODY" >> $GITHUB_ENV
+          else
+            echo "Warning log file not found: e2e-data/$WARNING_LOG_FILE"
+          fi
+      - name: Find Previous Warnings Comment
+        id: comment_find
+        uses: peter-evans/find-comment@v1
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: "github-actions[bot]"
+          body-regex: "⚠️ Broken Links ⚠️"
 
-              ${{ join(fromJson(env.WARNING_ARRAY), '\n') }}
-  
+      - name: Delete Previous Warnings Comment
+        if: ${{ steps.comment_find.outputs.comment-id }}
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.issues.deleteComment({
+              comment_id: ${{ steps.comment_find.outputs.comment-id }},
+            })
+
+      - name: Create New Comment
+        if: ${{ env.WARNING_BODY != '## ⚠️ Broken Links ⚠️\\n\\n' }}
+        run: |
+          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -X POST -d "{\"body\": \"$WARNING_BODY\"}" "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments"
+
   chromatic:
     name: Chromatic Analysis
     needs: lint
@@ -296,7 +301,7 @@ jobs:
   #       run: yarn run test:ci
   #     - name: Run SonarCloud Scan
   #       run: >
-  #         npx sonarqube-scanner 
+  #         npx sonarqube-scanner
   #         -Dsonar.host.url=https://sonarcloud.io
   #         -Dsonar.projectBaseDir=../
   #         -Dsonar.token="${{ secrets.SONAR_TOKEN }}"
