@@ -1,3 +1,4 @@
+# $schema: ../../../../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
 extends: classpath:/metadata/fhir_transforms/senders/original-pipeline-transforms.yml
 constants:
   serviceRequest: 'Bundle.entry.resource.ofType(ServiceRequest)'
@@ -8,19 +9,19 @@ elements:
 
   # MSH
   - name: sending-application-target-msh3-extension
-    condition: true
+    condition: 'true'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
     value: [ '"CDC PRIME - Atlanta"' ]
 
   - name: sending-application-universal-id-extension
-    condition: true
+    condition: 'true'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
     value: [ '"2.16.840.1.114222.4.1.237821"' ]
 
   - name: sending-application-universal-id-type-extension
-    condition: true
+    condition: 'true'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
     value: [ '"ISO"' ]
@@ -35,7 +36,7 @@ elements:
       - Bundle.timestamp
 
   - name: sending-application-target-msh3
-    condition: true
+    condition: 'true'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.source.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
     value: [ '"MSH.3"' ]
@@ -680,3 +681,55 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Observation)'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.29").value[x]'
     value: [ '"QST"' ]
+
+  # We can assume this value because SimpleReport validates the value and will only populate it if it is an NPI
+  - name: sr-provider-namespace-id
+    condition: '%resource.identifier.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id")[0].value[x]'
+    value: [ '"NPI"' ]
+
+  # We can assume this value because SimpleReport validates the value and will only populate it if it is an NPI
+  - name: sr-provider-universal-id
+    condition: '%resource.identifier.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id")[0].value[x]'
+    value: [ '"2.16.840.1.113883.4.6"' ]
+
+  - name: sr-provider-universal-id-type
+    condition: '%resource.identifier.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type")[0].value[x]'
+    value: [ '"ISO"' ]
+
+  - name: sr-provider-identifier-type-coding
+    condition: '%resource.identifier.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    bundleProperty: '%resource.identifier.type.coding.code'
+    value: [ '"NPI"' ]
+
+  - name: sr-provider-identifier-system
+    condition: '%resource.identifier.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    bundleProperty: '%resource.identifier.system'
+    value: [ '"NPI"' ]
+
+  - name: sr-device-identifier-code
+    resource: 'Bundle.entry.resource.ofType(Device)'
+    value: [ '%resource.identifier.type.coding.code' ]
+    bundleProperty: '%resource.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+
+  - name: sr-observation-method
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    value: [ '%resource.method.coding.display' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.17").valueCodeableConcept.coding.display'
+
+  - name: sr-observation-method-code
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.method.coding[0].code'
+    value: [ '%resource.method.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id").value.code' ]
+
+  - name: sr-observation-method-text
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.method.text'
+    value: [ '%resource.method.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id").value.code' ]

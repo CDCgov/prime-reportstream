@@ -56,6 +56,7 @@ const config = {
         enableResponseHeaderTracking: true,
         disableTelemetry: !import.meta.env
             .VITE_APPLICATIONINSIGHTS_CONNECTION_STRING,
+        excludeRequestFromAutoTrackingPatterns: ["google-analytics.com"],
     } as const satisfies IConfiguration & IConfig,
     RSCONSOLE: {
         // Debug ignored by default
@@ -137,7 +138,7 @@ const config = {
             showPasswordToggleOnSignInPage: true,
             //autoPush: true,
         } satisfies Partial<Record<Feature, boolean>>,
-        useClassicEngine: true,
+        useClassicEngine: false,
         helpLinks: {
             help: "https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599",
         },

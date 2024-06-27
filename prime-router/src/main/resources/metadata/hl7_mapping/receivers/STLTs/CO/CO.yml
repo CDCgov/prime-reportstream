@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
 elements:
@@ -5,12 +7,12 @@ elements:
   # ReportStream specific #
   #########################
   - name: sending-application-namespace-id-no-endpoint
-    condition: true
+    condition: 'true'
     value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
     hl7Spec: [ MSH-3-1 ]
 
   - name: sending-application-universal-id-no-endpoint
-    condition: true
+    condition: 'true'
     value: [ '"2.16.840.1.114222.4.1.237821"' ]
     hl7Spec: [ MSH-3-2 ]
 
@@ -22,12 +24,12 @@ elements:
     hl7Spec: [ MSH-5-1 ]
 
   - name: receiving-application-universal-id
-    condition: false
+    condition: 'false'
     value: [ '' ]
     hl7Spec: [ MSH-5-2 ]
 
   - name: receiving-application-universal-id-type
-    condition: false
+    condition: 'false'
     value: [ '' ]
     hl7Spec: [ MSH-5-3 ]
 
@@ -36,12 +38,12 @@ elements:
     hl7Spec: [ MSH-6-1 ]
 
   - name: receiving-facility-universal-id
-    condition: false
+    condition: 'false'
     value: [ '' ]
     hl7Spec: [ MSH-6-2 ]
 
   - name: receiving-facility-universal-id-type
-    condition: false
+    condition: 'false'
     value: [ '' ]
     hl7Spec: [ MSH-6-3 ]
 
@@ -62,47 +64,47 @@ elements:
   ###############################
   # Always replace ORC-10 with NULL for all OBR segments
   - name: collector-identifier
-    condition: false
+    condition: 'false'
 
   # Always replace OBX-17 with NULL for all OBX segments
   - name: obx-observation-method
-    condition: false
+    condition: 'false'
 
   # Always replace SPM-5 with NULL for all Specimen segments
   - name: specimen-type-modifier
-    condition: false
+    condition: 'false'
 
   # Always replace SPM-6 with NULL for all Specimen segments
   - name: specimen-additives
-    condition: false
+    condition: 'false'
 
   # Always replace SPM-7 with NULL for all Specimen segments
   - name: specimen-collection-method
-    condition: false
+    condition: 'false'
 
   # Always replace SPM-8 with NULL for all Specimen segments
   - name: specimen-source-site
-    condition: false
+    condition: 'false'
 
   # Always replace SPM-9 with NULL for all Specimen segments
   - name: specimen-source-site-modifier
-    condition: false
+    condition: 'false'
 
   # Always replace SPM-11 with NULL for all Specimen segments
   - name: specimen-role
-    condition: false
+    condition: 'false'
 
   # Always replace SPM-21 with NULL for all Specimen segments
   - name: specimen-reject-reason
-    condition: false
+    condition: 'false'
 
   # Always replace SPM-24 with NULL for all Specimen segments
   - name: specimen-condition
-    condition: false
+    condition: 'false'
 
   # Suppress all instances of the TQ1 segment
   - name: timing-quantity
-    condition: false
+    condition: 'false'
 
   - name: specimen-observation
-    condition: false
+    condition: 'false'
