@@ -15,13 +15,15 @@ function TableFilterStatus({
     return (
         <div data-testid="filter-status" className="margin-left-2">
             {showDefaultStatus ? (
-                <p>Showing all data ({filterStatus.resultLength ?? 0})</p>
+                // TODO: need to fix since filterStatus.resultLength does not contain the total results
+                // <p>Showing all data ({filterStatus.resultLength ?? 0})</p>
+                <p>Showing all data</p>
             ) : (
                 <>
                     {" "}
                     <p className="display-inline">
-                        Showing
-                        {` (${filterStatus.resultLength ?? 0}) ${filterStatus.resultLength === 1 ? "result" : "results"} `}
+                        Showing all data{" "}
+                        {/*{` (${filterStatus.resultLength ?? 0}) ${filterStatus.resultLength === 1 ? "result" : "results"} `}*/}
                         for:{" "}
                     </p>
                     <p className="display-inline">

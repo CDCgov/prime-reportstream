@@ -1,4 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { endOfDay, startOfDay } from "date-fns";
 import useSessionContext from "../../../contexts/Session/useSessionContext";
 
 export interface RSReceiverStatus {
@@ -14,23 +15,29 @@ export interface RSReceiverStatus {
 }
 
 export interface RSReceiverStatusSearchParams {
-    startDate: string; // Date().toISOString
-    endDate?: string | undefined; // Date().toISOString
+    startDate: Date;
+    endDate?: Date;
 }
 
-// TODO Implement in pages
-const useReceiversConnectionStatus = (params: RSReceiverStatusSearchParams) => {
+const useReceiversConnectionStatus = ({
+    startDate,
+    endDate,
+}: RSReceiverStatusSearchParams) => {
     const { authorizedFetch } = useSessionContext();
+    const fixedParams = {
+        start_date: startOfDay(startDate),
+        end_date: endDate ? endOfDay(endDate) : endDate,
+    };
 
     const fn = () => {
         return authorizedFetch<RSReceiverStatus[]>({
             url: `/adm/listreceiversconnstatus`,
-            params,
+            params: fixedParams,
         });
     };
 
     return useSuspenseQuery({
-        queryKey: ["receiversConnectionStatus", params],
+        queryKey: ["receiversConnectionStatus", fixedParams],
         queryFn: fn,
     });
 };
