@@ -26,13 +26,7 @@
         receivingFacilityOID: null
         messageProfileId: null
         replaceValue: {}
-        replaceValueAwithB:
-          MSH-6:
-            - '*': "MSDOH"
-          MSH-5:
-            - '*': "MSDH-ELR"
-          MSH-3:
-            - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+        replaceValueAwithB: {}
         reportingFacilityName: null
         reportingFacilityId: null
         reportingFacilityIdType: null
@@ -103,6 +97,7 @@
         credentialName: null
         type: "SFTP"
       externalName: null
-      enrichmentSchemaNames: []
+      enrichmentSchemaNames:
+        - "classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
       timeZone: null
       dateTimeFormat: "OFFSET"
