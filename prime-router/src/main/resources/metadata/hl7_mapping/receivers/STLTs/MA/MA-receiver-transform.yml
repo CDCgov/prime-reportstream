@@ -12,47 +12,47 @@ elements:
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
   - name: ma-name-of-the-sender-application-Namespace-Id
-    condition: true
+    condition: 'true'
     value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
     hl7Spec: [ 'MSH-3-1' ]
 
   - name: ma-sender-application-Universal-Id
-    condition: true
+    condition: 'true'
     value: [ '"2.16.840.1.114222.4.1.237821"' ]
     hl7Spec: [ 'MSH-3-2' ]
 
   - name: ma-sender-application-Universal-Id-Type
-    condition: true
+    condition: 'true'
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-3-3' ]
 
   - name: ma-name-of-the-receiving-application
-    condition: true
+    condition: 'true'
     value: [ '"MA-MDPH"' ]
     hl7Spec: [ 'MSH-5-1' ]
 
   - name: ma-OID-of-the-receiving-application
-    condition: true
+    condition: 'true'
     value: [ '"2.16.840.1.113883.19.3.2"' ]
     hl7Spec: [ 'MSH-5-2' ]
 
   - name: ma-indicates-that-5.2-is-an-OID
-    condition: true
+    condition: 'true'
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-5-3' ]
 
   - name: ma-receiving-facility-namespace-ID
-    condition: true
+    condition: 'true'
     value: [ '"MA-MDPH"' ]
     hl7Spec: [ 'MSH-6-1' ]
 
   - name: ma-receiving-facility-universal-ID
-    condition: true
+    condition: 'true'
     value: [ '"2.16.840.1.113883.19.3.2"' ]
     hl7Spec: [ 'MSH-6-2' ]
 
   - name: ma-receiving-facility-universal-ID-Type
-    condition: true
+    condition: 'true'
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-6-3' ]
 
@@ -63,6 +63,6 @@ elements:
     hl7Spec: [ '%{PID}-10-3' ]
 
   - name: ma-suppress-Hl7-Fields
-    condition: true
-    value: [ '"ISO"' ]
+    condition: 'true'
+    value: [ '""' ]
     hl7Spec: [ '%{PID}-20' ]
