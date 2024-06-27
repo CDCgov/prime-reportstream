@@ -174,7 +174,7 @@ jobs:
         run: |
           if [ -f "e2e-data/$WARNING_LOG_FILE" ]; then
             COMMENT="## ⚠️ Broken Links ⚠️\n\n"
-            for row in $(cat e2e-data/$WARNING_LOG_FILE | jq -c '.[]'); do
+            cat "e2e-data/$WARNING_LOG_FILE" | jq -c '.[]' | while read -r row; do
               URL=$(echo $row | jq -r '.url')
               ERROR=$(echo $row | jq -r '.message')
               COMMENT="${COMMENT}❌ $URL\n\n**Error:** \`$ERROR\`\n\n---\n\n"
