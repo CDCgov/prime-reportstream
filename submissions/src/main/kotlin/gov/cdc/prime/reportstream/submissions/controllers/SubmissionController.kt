@@ -1,5 +1,6 @@
 package gov.cdc.prime.reportstream.submissions.controllers
 
+import com.azure.storage.blob.BlobServiceClient
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -7,10 +8,14 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.UUID
+import org.springframework.beans.factory.annotation.Value
 
 @RestController
-class SubmissionController {
+class SubmissionController(
+    private val blobServiceClient: BlobServiceClient,
+    @Value("\${azure.storage.container-name}") private val containerName: String
+) {
     @PostMapping("/api/v1/reports")
     fun submitReport(
         @RequestHeader headers: Map<String, String>,
@@ -22,9 +27,14 @@ class SubmissionController {
             return headerValidationResult
         }
 
-        // Process the data (e.g., save to database)
-        // For this example, let's assume we've saved it and got an ID
+        // Convert data to ByteArray or suitable format
+        val dataByteArray = data.toString().toByteArray()
         val reportId = UUID.randomUUID()
+
+        val blobContainerClient = blobServiceClient.getBlobContainerClient(containerName)
+        val blobClient = blobContainerClient.getBlobClient(formBlobName(reportId,headers))
+
+        blobClient.upload(dataByteArray.inputStream(), dataByteArray.size.toLong())
 
         val response =
             CreationResponse(
@@ -39,7 +49,7 @@ class SubmissionController {
     private fun validateHeaders(headers: Map<String, String>): ResponseEntity<String>? {
         val client = headers["Client_id"]
         val contentType = headers["Content-Type"]
-        val acceptableContentTypes = listOf("application/hl7-v2", "application/ fhir+ndjson")
+        val acceptableContentTypes = listOf("application/hl7-v2", "application/fhir+ndjson")
 
         if (client.isNullOrEmpty()) {
             return ResponseEntity.badRequest().body("Missing required header: Client_id.")
@@ -52,6 +62,24 @@ class SubmissionController {
         }
 
         return null
+    }
+
+    private fun formBlobName(
+        reportId: UUID,
+        headers: Map<String, String>
+    ): String? {
+        val senderName = headers["Client_id"]
+        val contentType = headers["Content-Type"]
+
+        return when(contentType) {
+            "application/hl7-v2" ->
+                "receive/$senderName/$reportId.hl7"
+            "application/fhir+ndjson" ->
+                "receive/$senderName/$reportId.fhir"
+
+            else -> {null}
+        }
+
     }
 }
 

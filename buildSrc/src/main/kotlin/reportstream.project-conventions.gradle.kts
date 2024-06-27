@@ -56,6 +56,13 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
     }
 
+    implementation("org.apache.logging.log4j:log4j-api:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-core:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.4.0")
+    implementation("io.github.oshai:kotlin-logging-jvm:6.0.9")
+
     // Common test dependencies
     testImplementation(kotlin("test-junit5"))
     testImplementation("io.mockk:mockk:1.13.11")
