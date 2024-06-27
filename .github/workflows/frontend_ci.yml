@@ -118,7 +118,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       COMMENT:
-      WARNING_LOG_FILE: frontend-warnings.json
+      WARNING_LOG_FILE: e2e-data/frontend-warnings.json
 
     steps:
       - name: Check out changes
@@ -172,13 +172,13 @@ jobs:
       - name: Set Broken Links Comment
         id: set-comment
         run: |
-          if [ -f "e2e-data/$WARNING_LOG_FILE" ]; then
+          if [ -f "$WARNING_LOG_FILE" ]; then
             COMMENT="## ⚠️ Broken Links ⚠️\n\n"
             while IFS= read -r row; do
               URL=$(echo $row | jq -r '.url')
               ERROR=$(echo $row | jq -r '.message')
               COMMENT="${COMMENT}❌ $URL\n\n**Error:** \`$ERROR\`\n\n---\n\n"
-            done < <(jq -c '.[]' "e2e-data/$WARNING_LOG_FILE")
+            done < <(jq -c '.[]' "$WARNING_LOG_FILE")
           fi
           echo "COMMENT<<EOF" >> $GITHUB_ENV
           echo -e "$COMMENT" >> $GITHUB_ENV
