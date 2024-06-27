@@ -158,12 +158,14 @@ jobs:
           body-regex: "⚠️ Broken Links ⚠️"
 
       - name: Delete Previous Warnings Comment
-        if: ${{ steps.comment_find.outputs.comment-id }}
+        if: ${{ steps.comment_find.outputs.comment-id != '' }}
         uses: actions/github-script@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             github.issues.deleteComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               comment_id: ${{ steps.comment_find.outputs.comment-id }},
             })
 
