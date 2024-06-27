@@ -125,7 +125,7 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
-        WARNING_LOG_FILE: frontend-warnings.json
+        WARNING_LOG_FILE: e2e-data/frontend-warnings.json
       run: |
         if [ -f "$WARNING_LOG_FILE" ]; then
           COMMENT="## ⚠️ Broken Links ⚠️\n\n"
