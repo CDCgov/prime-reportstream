@@ -87,14 +87,14 @@ resource "azurerm_postgresql_flexible_server" "postgres_server_replica" {
 
 
 # User Administration
-resource "azurerm_postgresql_flexible_server_active_directory_administrator" "postgres_aad_admin" {
-  server_name         = azurerm_postgresql_flexible_server.postgres_server.name
-  resource_group_name = var.resource_group
-  principal_name      = "reportstream_pgsql_admin"
-  principal_type      = "Group"
-  tenant_id           = data.azurerm_client_config.current.tenant_id
-  object_id           = var.aad_group_postgres_admin
-}
+#resource "azurerm_postgresql_flexible_server_active_directory_administrator" "postgres_aad_admin" {
+#  server_name         = azurerm_postgresql_flexible_server.postgres_server.name
+#  resource_group_name = var.resource_group
+#  principal_name      = "reportstream_pgsql_admin"
+#  principal_type      = "Group"
+#  tenant_id           = data.azurerm_client_config.current.tenant_id
+#  object_id           = var.aad_group_postgres_admin
+#}
 
 
 # Encryption
@@ -131,7 +131,7 @@ resource "azurerm_postgresql_flexible_server_database" "prime_data_hub_db" {
 
   server_id = azurerm_postgresql_flexible_server.postgres_server.id
   charset   = "UTF8"
-  collation = "English_United States.1252"
+  collation = "en_US.utf8"
 
   lifecycle {
     prevent_destroy = false
@@ -143,7 +143,7 @@ resource "azurerm_postgresql_flexible_server_database" "prime_data_hub_candidate
 
   server_id = azurerm_postgresql_flexible_server.postgres_server.id
   charset   = "UTF8"
-  collation = "English_United States.1252"
+  collation = "en_US.utf8"
 
   lifecycle {
     prevent_destroy = false
@@ -156,7 +156,7 @@ resource "azurerm_postgresql_flexible_server_database" "metabase_db" {
 
   server_id = azurerm_postgresql_flexible_server.postgres_server.id
   charset   = "UTF8"
-  collation = "English_United States.1252"
+  collation = "en_US.utf8"
 
   lifecycle {
     prevent_destroy = false
