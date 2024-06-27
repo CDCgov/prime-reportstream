@@ -13,7 +13,7 @@
     topic: "full-elr"
     customerStatus: "testing"
     translation:
-      schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/WY/WY-receiver-transform.yml"
+      schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/WY/WY-receiver-transform.yml"
       useTestProcessingMode: false
       useBatchHeaders: true
       receivingApplicationName: null
@@ -95,7 +95,7 @@
       type: "SFTP"
     externalName: "Primary Feed"
     enrichmentSchemaNames:
-      - "classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
+      - "azure:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
     timeZone: null
     dateTimeFormat: "OFFSET"
   - name: "full-elr-secondary"
@@ -103,7 +103,7 @@
     topic: "full-elr"
     customerStatus: "active"
     translation:
-      schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/WY/WY-receiver-transform.yml"
+      schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/WY/WY-receiver-transform.yml"
       useTestProcessingMode: false
       useBatchHeaders: true
       receivingApplicationName: null
@@ -185,6 +185,6 @@
       type: "SFTP"
     externalName: "Secondary Feed"
     enrichmentSchemaNames:
-      - "classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
+      - "azure:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
     timeZone: null
     dateTimeFormat: "OFFSET"
