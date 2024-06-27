@@ -41,11 +41,12 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
-import gov.cdc.prime.router.azure.observability.event.ConditionSummary
+import gov.cdc.prime.router.azure.observability.event.CodeSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
 import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
+import gov.cdc.prime.router.azure.observability.event.TestSummary
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -97,6 +98,8 @@ private const val PERFORMER_OR_PATIENT_CA = "(%performerState.exists() and %perf
 private const val PROVENANCE_COUNT_GREATER_THAN_10 = "Bundle.entry.resource.ofType(Provenance).count() > 10"
 private const val EXCEPTION_FOUND = "exception found"
 private const val CONDITION_FILTER = "%resource.code.coding.code = '95418-0'"
+private const val SNOMED_SYSTEM = "SNOMEDCT"
+private const val LOINC_SYSTEM = "http://loinc.org"
 
 data object SampleFilters {
     /**
@@ -534,7 +537,7 @@ class FhirRouterTests {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "6142004", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "6142004", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -599,7 +602,7 @@ class FhirRouterTests {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "6142004", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "6142004", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -663,7 +666,7 @@ class FhirRouterTests {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "foo", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "foo", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -1061,7 +1064,7 @@ class FhirRouterTests {
             if (coding.extension.isEmpty()) {
                 coding.addExtension(
                     conditionCodeExtensionURL,
-                        Coding(
+                    Coding(
                         "system", "AOE", "name"
                     )
                 )
@@ -1123,7 +1126,7 @@ class FhirRouterTests {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "foo", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "foo", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -1172,8 +1175,8 @@ class FhirRouterTests {
             val messages = engine.run(message, actionLogger, actionHistory, txn)
             assertThat(messages).isEmpty()
             assertThat(actionHistory.actionLogs).hasSize(1) // bundle did not pass filter
-             val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
-             assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.MAPPED_CONDITION_FILTER)
+            val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
+            assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.MAPPED_CONDITION_FILTER)
         }
     }
 
@@ -1185,7 +1188,7 @@ class FhirRouterTests {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "6142004", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "6142004", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -1380,7 +1383,7 @@ class FhirRouterTests {
         bundle.getObservations().forEach { observation ->
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "6142004", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "6142004", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -1441,10 +1444,19 @@ class FhirRouterTests {
             val expectedObservationSummary = listOf(
                 ObservationSummary(
                     listOf(
-                        ConditionSummary("6142004", "Influenza (disorder)"),
-                        ConditionSummary("Some Condition Code", "Condition Name")
+                        TestSummary(
+                            listOf(
+                                CodeSummary(
+                                    SNOMED_SYSTEM,
+                                    "6142004",
+                                    "Influenza (disorder)"
+                                ),
+                            ),
+                            testPerformedCode = "80382-5",
+                            testPerformedSystem = LOINC_SYSTEM,
+                        )
                     )
-                )
+                ),
             )
             val expectedAzureEvents = listOf(
                 ReportAcceptedEvent(
@@ -1455,10 +1467,19 @@ class FhirRouterTests {
                     listOf(
                         ObservationSummary(
                             listOf(
-                                ConditionSummary("6142004", "Influenza (disorder)"),
-                                ConditionSummary("Some Condition Code", "Condition Name")
+                                TestSummary(
+                                    listOf(
+                                        CodeSummary(
+                                            SNOMED_SYSTEM,
+                                            "6142004",
+                                            "Influenza (disorder)"
+                                        ),
+                                    ),
+                                    testPerformedCode = "80382-5",
+                                    testPerformedSystem = LOINC_SYSTEM,
+                                )
                             )
-                        )
+                        ),
                     ),
                     1998,
                     AzureEventUtils.MessageID(
@@ -1605,15 +1626,52 @@ class FhirRouterTests {
                 "sendingOrg.sendingOrgClient",
                 listOf(
                     ObservationSummary(
-                        ConditionSummary(
-                            "840539006",
-                            "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                        listOf(
+                            TestSummary(
+                                listOf(
+                                    CodeSummary(
+                                        SNOMED_SYSTEM,
+                                        "840539006",
+                                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                    )
+                                ),
+                                testPerformedSystem = LOINC_SYSTEM,
+                                testPerformedCode = "94558-4",
+                            )
                         )
                     ),
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95418-0",
+                                testPerformedSystem = LOINC_SYSTEM
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95417-2",
+                                testPerformedSystem = LOINC_SYSTEM
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95421-4",
+                                testPerformedSystem = LOINC_SYSTEM
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95419-8",
+                                testPerformedSystem = LOINC_SYSTEM
+                            )
+                        )
+                    )
                 ),
                 36995,
                 AzureEventUtils.MessageID(
@@ -1623,15 +1681,52 @@ class FhirRouterTests {
             )
             val observationSummaries = listOf(
                 ObservationSummary(
-                    ConditionSummary(
-                        "840539006",
-                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                    listOf(
+                        TestSummary(
+                            listOf(
+                                CodeSummary(
+                                    SNOMED_SYSTEM,
+                                    "840539006",
+                                    "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                ),
+                            ),
+                            testPerformedSystem = LOINC_SYSTEM,
+                            testPerformedCode = "94558-4",
+                        )
                     )
                 ),
-                ObservationSummary.EMPTY,
-                ObservationSummary.EMPTY,
-                ObservationSummary.EMPTY,
-                ObservationSummary.EMPTY
+                ObservationSummary(
+                    listOf(
+                        TestSummary(
+                            testPerformedCode = "95418-0",
+                            testPerformedSystem = LOINC_SYSTEM
+                        )
+                    )
+                ),
+                ObservationSummary(
+                    listOf(
+                        TestSummary(
+                            testPerformedCode = "95417-2",
+                            testPerformedSystem = LOINC_SYSTEM
+                        )
+                    )
+                ),
+                ObservationSummary(
+                    listOf(
+                        TestSummary(
+                            testPerformedCode = "95421-4",
+                            testPerformedSystem = LOINC_SYSTEM
+                        )
+                    )
+                ),
+                ObservationSummary(
+                    listOf(
+                        TestSummary(
+                            testPerformedCode = "95419-8",
+                            testPerformedSystem = LOINC_SYSTEM
+                        )
+                    )
+                )
             )
             val expectedRoutedEvent = ReportRouteEvent(
                 UUID.randomUUID(),
@@ -2061,7 +2156,7 @@ class FhirRouterTests {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "foo", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "foo", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
