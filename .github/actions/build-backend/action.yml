@@ -39,13 +39,12 @@ runs:
         distribution: "temurin"
         cache: "gradle"
 
+    - uses: gradle/actions/wrapper-validation@dbbdc275be76ac10734476cc723d82dfe7ec6eda
+
     - name: Lint
       if: inputs.run-integration-tests == 'true'
-      working-directory: prime-router
-      run: ./gradlew ktlintCheck
+      run: ./gradlew :prime-router:ktlintCheck
       shell: bash
-
-    - uses: gradle/actions/wrapper-validation@db19848a5fa7950289d3668fb053140cf3028d43
 
     - name: Spin up build containers
       working-directory: prime-router
@@ -59,8 +58,7 @@ runs:
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
-          cd prime-router
-          ./gradlew package -x fatjar -Pshowtests
+          ./gradlew :prime-router:package -x fatjar -Pshowtests
         shell: bash
 
     - name: Tar router files
@@ -141,17 +139,15 @@ runs:
 
     - name: Load the configuration
       if: inputs.run-integration-tests == 'true'
-      working-directory: prime-router
       run: |
-        ./gradlew reloadTables
-        ./gradlew reloadSettings
+        ./gradlew :prime-router:reloadTables
+        ./gradlew :prime-router:reloadSettings
       shell: bash
 
     # Integrations tests require the metadata catalog
     - name: Run Integration Tests
       if: inputs.run-integration-tests == 'true'
-      working-directory: prime-router
-      run: ./gradlew testIntegration -Pshowtests
+      run: ./gradlew :prime-router:testIntegration -Pshowtests
       shell: bash
 
     - name: Publish Integration Test Results
@@ -180,10 +176,8 @@ runs:
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
-          cd prime-router
-          export $(xargs < .vault/env/.env.local)
-          ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
-          ./gradlew testSmoke
+          ./gradlew :prime-router:reloadCredentials
+          ./gradlew :prime-router:testSmoke
         shell: bash
 
     - name: Dump docker logs

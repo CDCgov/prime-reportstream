@@ -39,6 +39,7 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.ConditionSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
@@ -168,6 +169,7 @@ class FhirRouterTests {
     private val actionHistory = ActionHistory(TaskAction.route)
     private val azureEventService = InMemoryAzureEventService()
     private val reportServiceMock = mockk<ReportService>()
+    private val submittedId = UUID.randomUUID()
 
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
@@ -377,6 +379,11 @@ class FhirRouterTests {
     )
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
+        val rootReport = mockk<ReportFile>()
+        every { rootReport.reportId } returns submittedId
+        every { rootReport.sendingOrg } returns "sendingOrg"
+        every { rootReport.sendingOrgClient } returns "sendingOrgClient"
+        every { reportServiceMock.getRootReport(any()) } returns rootReport
         every { reportServiceMock.getSenderName(any()) } returns "sendingOrg.sendingOrgClient"
 
         return FHIREngine.Builder()
@@ -1431,9 +1438,18 @@ class FhirRouterTests {
             assertThat(actionHistory.reportsOut).hasSize(1)
 
             val reportId = (messages.first() as ReportPipelineMessage).reportId
+            val expectedObservationSummary = listOf(
+                ObservationSummary(
+                    listOf(
+                        ConditionSummary("6142004", "Influenza (disorder)"),
+                        ConditionSummary("Some Condition Code", "Condition Name")
+                    )
+                )
+            )
             val expectedAzureEvents = listOf(
                 ReportAcceptedEvent(
                     message.reportId,
+                    submittedId,
                     message.topic,
                     "sendingOrg.sendingOrgClient",
                     listOf(
@@ -1451,19 +1467,14 @@ class FhirRouterTests {
                     )
                 ),
                 ReportRouteEvent(
-                    message.reportId,
                     reportId,
+                    message.reportId,
+                    submittedId,
                     message.topic,
                     "sendingOrg.sendingOrgClient",
                     orgWithMappedConditionFilter.receivers.first().fullName,
-                    listOf(
-                        ObservationSummary(
-                            listOf(
-                                ConditionSummary("6142004", "Influenza (disorder)"),
-                                ConditionSummary("Some Condition Code", "Condition Name")
-                            )
-                        )
-                    ),
+                    expectedObservationSummary,
+                    expectedObservationSummary,
                     1998,
                     AzureEventUtils.MessageID(
                         "1234d1d1-95fe-462c-8ac6-46728dba581c",
@@ -1589,6 +1600,7 @@ class FhirRouterTests {
             val azureEvents = azureEventService.getEvents()
             val expectedAcceptedEvent = ReportAcceptedEvent(
                 message.reportId,
+                submittedId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
                 listOf(
@@ -1609,24 +1621,27 @@ class FhirRouterTests {
                     "https://reportstream.cdc.gov/prime-router"
                 )
             )
+            val observationSummaries = listOf(
+                ObservationSummary(
+                    ConditionSummary(
+                        "840539006",
+                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                    )
+                ),
+                ObservationSummary.EMPTY,
+                ObservationSummary.EMPTY,
+                ObservationSummary.EMPTY,
+                ObservationSummary.EMPTY
+            )
             val expectedRoutedEvent = ReportRouteEvent(
-                message.reportId,
                 UUID.randomUUID(),
+                message.reportId,
+                submittedId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
                 null,
-                listOf(
-                    ObservationSummary(
-                        ConditionSummary(
-                            "840539006",
-                            "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
-                        )
-                    ),
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY
-                ),
+                observationSummaries,
+                observationSummaries,
                 36995,
                 AzureEventUtils.MessageID(
                     "1234d1d1-95fe-462c-8ac6-46728dba581c",

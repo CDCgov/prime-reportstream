@@ -142,7 +142,10 @@ const AdminMessageTrackerPage = lazy(
     () => import("./pages/admin/AdminMessageTracker"),
 );
 const AdminReceiverDashPage = lazy(
-    () => import("./pages/admin/AdminReceiverDashPage"),
+    () =>
+        import(
+            "./pages/admin/receiver-dashboard/AdminReceiverDashboardPage/AdminReceiverDashboardPage"
+        ),
 );
 const DeliveryDetailPage = lazy(
     () => import("./pages/deliveries/details/DeliveryDetail"),
