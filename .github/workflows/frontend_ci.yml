@@ -149,21 +149,29 @@ jobs:
           path: frontend-react/e2e-data
           retention-days: 7
       - name: Post Warnings as Comments
+        id: post_warnings
         run: |
           if [ -f "e2e-data/$WARNING_LOG_FILE" ]; then
-            WARNING_BODY="## ⚠️ Broken Links ⚠️\\n\\n"
-            WARNINGS=$(cat e2e-data/$WARNING_LOG_FILE | jq -c '.[]')
-            for line in $WARNINGS; do
-              URL=$(echo $line | jq -r '.url')
-              ERROR=$(echo $line | jq -r '.message')
-              WARNING_BODY="${WARNING_BODY}- ❌ **$URL**: $ERROR\\n\\n"
-            done
+            echo "Warning log file found: e2e-data/$WARNING_LOG_FILE"
             
-            # Post the warning comment
-            curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -X POST -d "{\"body\": \"$WARNING_BODY\"}" "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments"
+            # Read the log file content
+            LOG_CONTENT=$(cat e2e-data/$WARNING_LOG_FILE)
+            echo "Log file content:"
+            echo "$LOG_CONTENT"
+            
+            # Check if the log file contains valid JSON
+            if echo "$LOG_CONTENT" | jq empty; then
+              WARNING_BODY=$(echo "$LOG_CONTENT" | jq -r 'map("- ❌ **"+.url+"**: "+.message) | join("\n")')
+              echo "warning_body=$WARNING_BODY" >> $GITHUB_ENV
+            else
+              echo "Invalid JSON in warning log file."
+              exit 1
+            fi
           else
             echo "Warning log file not found: e2e-data/$WARNING_LOG_FILE"
+            exit 1
           fi
+
       - name: Find Previous Warnings Comment
         id: comment_find
         uses: peter-evans/find-comment@v1
@@ -183,9 +191,13 @@ jobs:
             })
 
       - name: Create New Comment
-        if: ${{ env.WARNING_BODY != '## ⚠️ Broken Links ⚠️\\n\\n' }}
-        run: |
-          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -X POST -d "{\"body\": \"$WARNING_BODY\"}" "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments"
+        if: ${{ env.warning_body != '' }}
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## ⚠️ Broken Links ⚠️
+            ${{ env.warning_body }}
 
   chromatic:
     name: Chromatic Analysis
