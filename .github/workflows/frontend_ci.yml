@@ -181,15 +181,17 @@ jobs:
               COMMENT="${COMMENT}❌ $URL\n\n**Error:** \`$ERROR\`\n\n---\n\n"
             done < <(jq -c '.[]' "e2e-data/$WARNING_LOG_FILE")
           fi
-          echo "::set-output name=comment::${COMMENT}"
+          echo "comment<<EOF" >> $GITHUB_ENV
+          echo -e "$COMMENT" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
         shell: bash
 
       - name: Create New Comment
-        if: ${{ steps.set-comment.outputs.comment != '' }}
+        if: ${{ env.comment != '' }}
         uses: peter-evans/create-or-update-comment@v1
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body: ${{ steps.set-comment.outputs.comment }}
+          body: ${{ env.comment }}
 
   chromatic:
     name: Chromatic Analysis
