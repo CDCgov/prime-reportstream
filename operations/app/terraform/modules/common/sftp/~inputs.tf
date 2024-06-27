@@ -68,9 +68,4 @@ variable "nat_gateway_id" {
   description = "NAT gateway resource id"
 }
 
-variable "network_profile_id" {
-  type        = string
-  description = "Network profile resource id"
-}
-
 variable "subnet_id" {}
