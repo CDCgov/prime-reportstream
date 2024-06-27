@@ -3,8 +3,6 @@ package gov.cdc.prime.router.history.db
 import com.fasterxml.jackson.annotation.JsonIgnore
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ApiFilter
 import gov.cdc.prime.router.azure.ApiFilterNames
@@ -53,13 +51,7 @@ class DeliveryHistory(
      */
     val fileName: String
         get() {
-            return Report.formExternalFilename(
-                this.bodyUrl,
-                ReportId.fromString(this.reportId),
-                this.schemaName,
-                Report.Format.safeValueOf(this.fileType),
-                this.createdAt
-            )
+            return this.bodyUrl?.substringAfter("%2F").orEmpty()
         }
 
     /**
