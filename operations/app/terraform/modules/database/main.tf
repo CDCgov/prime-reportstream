@@ -50,6 +50,7 @@ resource "azurerm_postgresql_flexible_server" "postgres_server_replica" {
   resource_group_name    = var.resource_group
   delegated_subnet_id    = var.subnets.postgres_subnets[0]
   private_dns_zone_id    = var.dns_zones["postgres"].id
+  zone                   = "2"
   administrator_login    = var.postgres_user
   administrator_password = var.postgres_pass
 
