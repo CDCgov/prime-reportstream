@@ -148,29 +148,6 @@ jobs:
           name: frontend-e2e-data--attempt-${{ github.run_attempt }}
           path: frontend-react/e2e-data
           retention-days: 7
-      - name: Post Warnings as Comments
-        id: post_warnings
-        run: |
-          if [ -f "e2e-data/$WARNING_LOG_FILE" ]; then
-            echo "Warning log file found: e2e-data/$WARNING_LOG_FILE"
-            
-            # Read the log file content
-            LOG_CONTENT=$(cat e2e-data/$WARNING_LOG_FILE)
-            echo "Log file content:"
-            echo "$LOG_CONTENT"
-            
-            # Check if the log file contains valid JSON
-            if echo "$LOG_CONTENT" | jq empty; then
-              WARNING_BODY=$(echo "$LOG_CONTENT" | jq -r 'map("- ❌ **"+.url+"**: "+.message) | join("\n")')
-              echo "warning_body=$WARNING_BODY" >> $GITHUB_ENV
-            else
-              echo "Invalid JSON in warning log file."
-              exit 1
-            fi
-          else
-            echo "Warning log file not found: e2e-data/$WARNING_LOG_FILE"
-            exit 1
-          fi
 
       - name: Find Previous Warnings Comment
         id: comment_find
@@ -190,14 +167,33 @@ jobs:
               comment_id: ${{ steps.comment_find.outputs.comment-id }},
             })
 
+      - name: Set Broken Links Comment
+        id: set-comment
+        run: |
+          if [ -f "e2e-data/$WARNING_LOG_FILE" ]; then
+            COMMENT="## ⚠️ Broken Links ⚠️\n\n"
+            while IFS= read -r line; do
+              if [ -n "$line" ]; then
+                URL=$(echo $line | jq -r '.url')
+                ERROR=$(echo $line | jq -r '.message')
+                COMMENT="${COMMENT}❌ $URL\n\n**Error:** \`$ERROR\`\n\n---\n\n"
+              fi
+            done < "e2e-data/$WARNING_LOG_FILE"
+            if [ "$COMMENT" != "## ⚠️ Broken Links ⚠️\n\n" ]; then
+              echo "::set-output name=comment::${COMMENT}"
+            fi
+            rm "e2e-data/$WARNING_LOG_FILE"
+          else
+            echo "::set-output name=comment::"
+          fi
+        shell: bash
+
       - name: Create New Comment
-        if: ${{ env.warning_body != '' }}
+        if: ${{ steps.set-comment.outputs.comment != '' }}
         uses: peter-evans/create-or-update-comment@v1
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            ## ⚠️ Broken Links ⚠️
-            ${{ env.warning_body }}
+          body: ${{ steps.set-comment.outputs.comment }}
 
   chromatic:
     name: Chromatic Analysis
