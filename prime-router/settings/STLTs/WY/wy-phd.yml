@@ -1,3 +1,13 @@
+- name: "wy-phd"
+  description: "Wyoming Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "WY"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
   - name: "full-elr"
     organizationName: "wy-phd"
     topic: "full-elr"
