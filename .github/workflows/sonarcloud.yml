@@ -12,6 +12,10 @@ on:
       - "prime-router/**"
       - "frontend-react/**"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 env:
   # These are for CI and not credentials of any system
   DB_USER: prime
@@ -66,7 +70,7 @@ jobs:
 
       - name: Gradle Validation
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: gradle/actions/wrapper-validation@db19848a5fa7950289d3668fb053140cf3028d43
+        uses: gradle/actions/wrapper-validation@dbbdc275be76ac10734476cc723d82dfe7ec6eda
 
       - name: Spin up build containers
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
@@ -86,9 +90,7 @@ jobs:
           timeout_minutes: 30
           max_attempts: 2
           retry_wait_seconds: 30
-          command: |
-            cd prime-router
-            ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x fatjar
+          command: ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" :prime-router:package -x fatjar
           shell: bash
 
       - name: Perform Java CodeQL Analysis

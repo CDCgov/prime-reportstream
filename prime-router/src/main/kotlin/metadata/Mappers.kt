@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.metadata
 
+import gov.cdc.prime.reportstream.shared.StringUtilities.trimToNull
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementResult
@@ -11,7 +12,6 @@ import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.DateUtilities.toYears
 import gov.cdc.prime.router.common.NPIUtilities
-import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import java.security.MessageDigest
 import java.time.Duration

@@ -244,7 +244,6 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          * Map of configured message types to their configuration
          */
         val messageToConfigMap = mapOf(
-            // TODO: https://github.com/CDCgov/prime-reportstream/issues/14124
             HL7MessageType(
                 "ORU_R01",
                 "2.5.1",
