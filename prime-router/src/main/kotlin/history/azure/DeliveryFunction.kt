@@ -210,7 +210,7 @@ class DeliveryFunction(
         ) request: HttpRequestMessage<String?>,
         @BindingName("organization") organization: String,
     ): HttpResponseMessage {
-        try{
+        try {
             val claims = AuthenticatedClaims.authenticate(request)
                 ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 

@@ -164,7 +164,12 @@ class DeliveryHistoryApiSearch(
     }
 
     companion object :
-        ApiSearchParser<DeliveryHistory, DeliveryHistoryApiSearch, DeliveryHistoryRecord, DeliveryHistoryApiSearchFilter<*>>(),
+        ApiSearchParser<
+            DeliveryHistory,
+            DeliveryHistoryApiSearch,
+            DeliveryHistoryRecord,
+            DeliveryHistoryApiSearchFilter<*>
+            >(),
         Logging {
         override fun parseRawApiSearch(rawApiSearch: RawApiSearch): DeliveryHistoryApiSearch {
             val sortProperty = if (rawApiSearch.sort != null) {
@@ -173,7 +178,11 @@ class DeliveryHistoryApiSearch(
                 DeliveryHistoryTable.DELIVERY_HISTORY.CREATED_AT
             }
             val filters = rawApiSearch.filters.mapNotNull { filter ->
-                when (DeliveryHistoryApiSearchFilters.getTerm(DeliveryHistoryApiFilterNames.valueOf(filter.filterName))) {
+                when (
+                    DeliveryHistoryApiSearchFilters.getTerm(
+                    DeliveryHistoryApiFilterNames.valueOf(filter.filterName)
+                    )
+                ) {
                     DeliveryHistoryApiSearchFilter.Since::class.java,
                     -> DeliveryHistoryApiSearchFilter.Since(OffsetDateTime.parse(filter.value))
 
@@ -203,7 +212,14 @@ class DeliveryHistoryDatabaseAccess(
 
    private val databaseDeliveryAccess: DatabaseDeliveryAccess = DatabaseDeliveryAccess()
 
-    fun getDeliveries(search: DeliveryHistoryApiSearch, organization: String, orgService: String?, receivingOrgSvcStatus: List<CustomerStatus>?, reportIdStr: String?, fileName: String?): ApiSearchResult<DeliveryHistory> {
+    fun getDeliveries(
+        search: DeliveryHistoryApiSearch,
+        organization: String,
+        orgService: String?,
+        receivingOrgSvcStatus: List<CustomerStatus>?,
+        reportIdStr: String?,
+        fileName: String?,
+    ): ApiSearchResult<DeliveryHistory> {
         require(organization.isNotBlank()) {
             "Invalid organization."
         }
@@ -231,7 +247,8 @@ class DeliveryHistoryDatabaseAccess(
                 .`as`(DeliveryHistoryTable.DELIVERY_HISTORY.EXPIRES_AT),
                 Tables.REPORT_FILE.RECEIVING_ORG,
                 Tables.REPORT_FILE.RECEIVING_ORG_SVC,
-                DSL.jsonbGetAttributeAsText(Tables.SETTING.VALUES, "customerStatus").`as`(DeliveryHistoryTable.DELIVERY_HISTORY.RECEIVING_ORG_SVC_STATUS),
+                DSL.jsonbGetAttributeAsText(Tables.SETTING.VALUES, "customerStatus")
+                .`as`(DeliveryHistoryTable.DELIVERY_HISTORY.RECEIVING_ORG_SVC_STATUS),
                 Tables.REPORT_FILE.REPORT_ID,
                 Tables.REPORT_FILE.SCHEMA_TOPIC.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.TOPIC),
                 Tables.REPORT_FILE.ITEM_COUNT.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.REPORT_ITEM_COUNT),

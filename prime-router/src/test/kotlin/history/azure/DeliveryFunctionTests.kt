@@ -1629,7 +1629,9 @@ class DeliveryFunctionTests : Logging {
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
             mockkConstructor(DeliveryHistoryDatabaseAccess::class)
             every {
-                anyConstructed<DeliveryHistoryDatabaseAccess>().getDeliveries(any(), organization1.name, null, null, null, null)
+                anyConstructed<DeliveryHistoryDatabaseAccess>().getDeliveries(
+                    any(), organization1.name, null, null, null, null
+                )
             } returns ApiSearchResult(10, 0, emptyList())
 
             val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, receiver1.fullName)
@@ -1662,7 +1664,9 @@ class DeliveryFunctionTests : Logging {
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
             mockkConstructor(DeliveryHistoryDatabaseAccess::class)
             every {
-                anyConstructed<DeliveryHistoryDatabaseAccess>().getDeliveries(any(), organization1.name, null, null, null, null)
+                anyConstructed<DeliveryHistoryDatabaseAccess>().getDeliveries(
+                    any(), organization1.name, null, null, null, null
+                )
             } returns ApiSearchResult(10, 0, emptyList())
 
             val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, receiver1.fullName)
@@ -1699,7 +1703,10 @@ class DeliveryFunctionTests : Logging {
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
             mockkConstructor(DeliveryHistoryDatabaseAccess::class)
             every {
-                anyConstructed<DeliveryHistoryDatabaseAccess>().getDeliveries(any(), organization1.name, null, null, null, null)
+                anyConstructed<DeliveryHistoryDatabaseAccess>().getDeliveries(
+                    any(),
+                    organization1.name, null, null, null, null
+                )
             } returns ApiSearchResult(
                 10, 3,
                 listOf(
