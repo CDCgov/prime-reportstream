@@ -244,7 +244,6 @@ class DeliveryFunction(
             val results = deliveryHistoryDatabaseAccess.getDeliveries(
                 search,
                 userOrganization,
-                receivingOrgSvc,
                 params.receivingOrgSvcStatus,
                 params.reportId,
                 params.fileName

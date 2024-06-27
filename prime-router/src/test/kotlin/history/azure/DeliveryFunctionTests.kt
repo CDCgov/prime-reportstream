@@ -121,18 +121,6 @@ class DeliveryFunctionTests : Logging {
         val receivingOrgSvcStatus: String,
     )
 
-    data class ExpectedDeliveryHistory(
-        val deliveryId: String,
-        val createdAt: OffsetDateTime,
-        val expiresAt: OffsetDateTime,
-        val receiver: String, // fullname, eg, md-phd.elr
-        val reportId: String,
-        val topic: String,
-        val reportItemCount: Int,
-        val fileType: String,
-        val fileName: String,
-    )
-
     private val testData = listOf(
         DeliveryHistory(
             actionId = 922,
@@ -1588,6 +1576,17 @@ class DeliveryFunctionTests : Logging {
             schemaName = ""
         )
 
+        private val organization2 = Organization(
+            "simple_report",
+            "simple_report_org",
+            Organization.Jurisdiction.FEDERAL,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+
         @BeforeEach
         fun setUp() {
             mockkObject(BaseEngine)
@@ -1627,14 +1626,18 @@ class DeliveryFunctionTests : Logging {
 
             mockkObject(AuthenticatedClaims)
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            mockkObject(BaseEngine)
+            every { BaseEngine.settingsProviderSingleton.findOrganization(any()) } returns organization2
+
             mockkConstructor(DeliveryHistoryDatabaseAccess::class)
             every {
                 anyConstructed<DeliveryHistoryDatabaseAccess>().getDeliveries(
-                    any(), organization1.name, null, null, null, null
+                    any(), "simple_report.default", null, null, null
                 )
             } returns ApiSearchResult(10, 0, emptyList())
 
-            val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, receiver1.fullName)
+            val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, "simple_report")
             assertThat(response.status).isEqualTo(HttpStatus.OK)
         }
 
@@ -1665,11 +1668,11 @@ class DeliveryFunctionTests : Logging {
             mockkConstructor(DeliveryHistoryDatabaseAccess::class)
             every {
                 anyConstructed<DeliveryHistoryDatabaseAccess>().getDeliveries(
-                    any(), organization1.name, null, null, null, null
+                    any(), organization1.name, null, null, null
                 )
             } returns ApiSearchResult(10, 0, emptyList())
 
-            val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, receiver1.fullName)
+            val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, organization1.name)
             assertThat(response.status).isEqualTo(HttpStatus.OK)
         }
 
@@ -1684,7 +1687,7 @@ class DeliveryFunctionTests : Logging {
                     },
                     "pagination": {
                         "page": 2,
-                        "limit": 10
+                        "limit": 1
                     },
                     "filters": [
                         {
@@ -1705,7 +1708,7 @@ class DeliveryFunctionTests : Logging {
             every {
                 anyConstructed<DeliveryHistoryDatabaseAccess>().getDeliveries(
                     any(),
-                    organization1.name, null, null, null, null
+                    organization1.name, null, null, null
                 )
             } returns ApiSearchResult(
                 10, 3,
@@ -1755,13 +1758,13 @@ class DeliveryFunctionTests : Logging {
                 )
             )
 
-            val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, receiver1.fullName)
+            val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, organization1.name)
             assertThat(response.status).isEqualTo(HttpStatus.OK)
             val responseBody =
                 JacksonMapperUtilities.defaultMapper.readTree(response.body.toString())
             assertThat(responseBody.at("/meta/totalCount").intValue()).isEqualTo(10)
             assertThat(responseBody.at("/meta/totalFilteredCount").intValue()).isEqualTo(3)
-            assertThat(responseBody.at("/meta/type").textValue()).isEqualTo("DeliveriesHistory")
+            assertThat(responseBody.at("/meta/type").textValue()).isEqualTo("delivery_history")
             assertThat(responseBody.at("/meta/totalPages").intValue()).isEqualTo(3)
             assertThat(responseBody.at("/meta/previousPage").intValue()).isEqualTo(1)
             assertThat(responseBody.at("/meta/nextPage").intValue()).isEqualTo(3)
