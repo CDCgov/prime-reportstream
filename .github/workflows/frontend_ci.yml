@@ -169,27 +169,16 @@ jobs:
               comment_id: ${{ steps.comment_find.outputs.comment-id }},
             })
 
-      - name: Debug Log File Content
-        run: |
-          if [ -f "e2e-data/$WARNING_LOG_FILE" ]; then
-            cat "e2e-data/$WARNING_LOG_FILE"
-          else
-            echo "Log file not found."
-          fi
-        shell: bash
-
       - name: Set Broken Links Comment
         id: set-comment
         run: |
           if [ -f "e2e-data/$WARNING_LOG_FILE" ]; then
             COMMENT="## ⚠️ Broken Links ⚠️\n\n"
-            while IFS= read -r line; do
-              if [ -n "$line" ]; then
-                URL=$(echo $line | jq -r '.url')
-                ERROR=$(echo $line | jq -r '.message')
-                COMMENT="${COMMENT}❌ $URL\n\n**Error:** \`$ERROR\`\n\n---\n\n"
-              fi
-            done < "e2e-data/$WARNING_LOG_FILE"
+            for row in $(cat e2e-data/$WARNING_LOG_FILE | jq -c '.[]'); do
+              URL=$(echo $row | jq -r '.url')
+              ERROR=$(echo $row | jq -r '.message')
+              COMMENT="${COMMENT}❌ $URL\n\n**Error:** \`$ERROR\`\n\n---\n\n"
+            done
             if [ "$COMMENT" != "## ⚠️ Broken Links ⚠️\n\n" ]; then
               echo "::set-output name=comment::${COMMENT}"
             fi
