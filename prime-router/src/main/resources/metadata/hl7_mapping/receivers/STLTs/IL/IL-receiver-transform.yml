@@ -10,52 +10,52 @@ elements:
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
   - name: il-message-encoding-characters
-    condition: true
+    condition: 'true'
     value: [ '"^~\\&"' ]
     hl7Spec: [ 'MSH-2' ]
 
   - name: il-name-of-the-sending-application
-    condition: true
+    condition: 'true'
     value: [ '"CDC PRIME"' ]
     hl7Spec: [ 'MSH-4-1' ]
 
   - name: il-OID-of-the-sending-application
-    condition: true
+    condition: 'true'
     value: [ '"11D2030855"' ]
     hl7Spec: [ 'MSH-4-2' ]
 
   - name: il-indicates-that-5.2-is-an-OID
-    condition: true
+    condition: 'true'
     value: [ '"CLIA"' ]
     hl7Spec: [ 'MSH-4-3' ]
 
   - name: il-name-of-the-receiving-application
-    condition: true
+    condition: 'true'
     value: [ '""' ]
     hl7Spec: [ 'MSH-5-1' ]
 
   - name: il-OID-of-the-receiving-application
-    condition: true
+    condition: 'true'
     value: [ '""' ]
     hl7Spec: [ 'MSH-5-2' ]
 
   - name: il-indicates-that-5.2-is-an-OID
-    condition: true
+    condition: 'true'
     value: [ '""' ]
     hl7Spec: [ 'MSH-5-3' ]
 
   - name: il-receiving-facility-namespace-ID
-    condition: true
+    condition: 'true'
     value: [ '""' ]
     hl7Spec: [ 'MSH-6-1' ]
 
   - name: il-receiving-facility-universal-ID
-    condition: true
+    condition: 'true'
     value: [ '""' ]
     hl7Spec: [ 'MSH-6-2' ]
 
   - name: il-receiving-facility-universal-ID-Type
-    condition: true
+    condition: 'true'
     value: [ '""' ]
     hl7Spec: [ 'MSH-6-3' ]
 
@@ -66,5 +66,5 @@ elements:
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
 
   - name: observation-result-with-aoe
-    # suppressAoe: true
+    # suppressAoe: 'true'
     resource: '%resource.result.resolve()'
