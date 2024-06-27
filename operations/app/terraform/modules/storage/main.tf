@@ -11,13 +11,13 @@ resource "azurerm_storage_account" "storage_account" {
   enable_https_traffic_only       = true
 
   blob_properties {
-        last_access_time_enabled = true
+    last_access_time_enabled = true
   }
 
   network_rules {
-    default_action = var.is_temp_env == true ? "Allow" : "Deny"
-    bypass         = ["AzureServices"]
-    ip_rules = var.terraform_caller_ip_address
+    default_action             = var.is_temp_env == true ? "Allow" : "Deny"
+    bypass                     = ["AzureServices"]
+    ip_rules                   = var.terraform_caller_ip_address
     virtual_network_subnet_ids = var.subnets.app_subnets
   }
 
@@ -47,69 +47,6 @@ resource "azurerm_storage_queue" "storage_queue" {
   storage_account_name = azurerm_storage_account.storage_account.name
 }
 
-module "storageaccount_blob_private_endpoint" {
-  for_each = toset(var.subnets.app_subnets)
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_account.id
-  name           = azurerm_storage_account.storage_account.name
-  type           = "storage_account_blob"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["blob"].name
-}
-
-module "storageaccountpartner_blob_private_endpoint" {
-  for_each = toset(var.subnets.app_subnets)
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_partner.id
-  name           = azurerm_storage_account.storage_partner.name
-  type           = "storage_account_blob"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["blob"].name
-}
-
-module "storageaccount_file_private_endpoint" {
-  for_each = toset(var.subnets.app_subnets)
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_account.id
-  name           = azurerm_storage_account.storage_account.name
-  type           = "storage_account_file"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["file"].name
-}
-
-module "storageaccount_queue_private_endpoint" {
-  for_each = toset(var.subnets.app_subnets)
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_account.id
-  name           = azurerm_storage_account.storage_account.name
-  type           = "storage_account_queue"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["queue"].name
-}
 
 # Point-in-time restore, soft delete, versioning, and change feed were
 # enabled in the portal as terraform does not currently support this.
@@ -214,7 +151,7 @@ resource "azurerm_storage_account" "storage_partner" {
   enable_https_traffic_only       = true
 
   blob_properties {
-        last_access_time_enabled = true
+    last_access_time_enabled = true
   }
 
   network_rules {

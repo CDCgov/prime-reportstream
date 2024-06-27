@@ -74,21 +74,6 @@ resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
   ]
 }
 
-module "application_private_endpoint" {
-  for_each = toset(var.subnets.app_subnets)
-
-  source         = "../common/private_endpoint"
-  resource_id    = data.azurerm_key_vault.application.id
-  name           = data.azurerm_key_vault.application.name
-  type           = "key_vault"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = "vnet"
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["vaultcore"].name
-}
 
 resource "azurerm_key_vault_access_policy" "dev_app_config_access_policy" {
   key_vault_id = data.azurerm_key_vault.app_config.id
@@ -140,21 +125,6 @@ resource "azurerm_key_vault_access_policy" "terraform_app_config_access_policy" 
   ]
 }
 
-module "app_config_private_endpoint" {
-  for_each = toset(var.subnets.app_subnets)
-
-  source         = "../common/private_endpoint"
-  resource_id    = data.azurerm_key_vault.app_config.id
-  name           = data.azurerm_key_vault.app_config.name
-  type           = "key_vault"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = "vnet"
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["vaultcore"].name
-}
 
 
 resource "azurerm_key_vault" "client_config" {
@@ -211,21 +181,6 @@ resource "azurerm_key_vault_access_policy" "dev_client_config_access_policy" {
   certificate_permissions = []
 }
 
-module "client_config_private_endpoint" {
-  for_each = toset(var.subnets.app_subnets)
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_key_vault.client_config.id
-  name           = azurerm_key_vault.client_config.name
-  type           = "key_vault"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = "vnet"
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["vaultcore"].name
-}
 
 resource "azurerm_key_vault_access_policy" "admin_functionapp_app_config" {
   key_vault_id = data.azurerm_key_vault.app_config.id

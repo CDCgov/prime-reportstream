@@ -43,69 +43,6 @@ resource "azurerm_storage_account" "storage_account_candidate" {
   }
 }
 
-module "storageaccount_candidate_blob_private_endpoint" {
-  for_each = toset(var.subnets.app_subnets)
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_account_candidate.id
-  name           = azurerm_storage_account.storage_account_candidate.name
-  type           = "storage_account_blob"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["blob"].name
-}
-
-module "storageaccountcandidatepartner_blob_private_endpoint" {
-  for_each = toset(var.subnets.app_subnets)
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_partner_candidate.id
-  name           = azurerm_storage_account.storage_partner_candidate.name
-  type           = "storage_account_blob"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["blob"].name
-}
-
-module "storageaccount_candidate_file_private_endpoint" {
-  for_each = toset(var.subnets.app_subnets)
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_account_candidate.id
-  name           = azurerm_storage_account.storage_account_candidate.name
-  type           = "storage_account_file"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["file"].name
-}
-
-module "storageaccount_candidate_queue_private_endpoint" {
-  for_each = toset(var.subnets.app_subnets)
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_account_candidate.id
-  name           = azurerm_storage_account.storage_account_candidate.name
-  type           = "storage_account_queue"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["queue"].name
-}
 
 resource "azurerm_storage_management_policy" "retention_policy_candidate" {
   storage_account_id = azurerm_storage_account.storage_account_candidate.id
