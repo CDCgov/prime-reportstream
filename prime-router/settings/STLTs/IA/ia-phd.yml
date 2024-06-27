@@ -26,8 +26,8 @@
         receivingFacilityName: "IA DOH"
         receivingFacilityOID: "2.16.840.1.114222.4.1.3650"
         messageProfileId: null
-        replaceValue: []
-        replaceValueAwithB: []
+        replaceValue: {}
+        replaceValueAwithB: {}
         reportingFacilityName: null
         reportingFacilityId: null
         reportingFacilityIdType: null
