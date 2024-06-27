@@ -21,7 +21,7 @@ resource "azurerm_postgresql_flexible_server" "postgres_server" {
 
   auto_grow_enabled = var.db_auto_grow
 
-  public_network_access_enabled = (var.environment != "prod" && var.environment != "staging" && var.environment != "tst") ? true : false
+  public_network_access_enabled = false # (var.environment != "prod" && var.environment != "staging") ? true : false
 
 
 

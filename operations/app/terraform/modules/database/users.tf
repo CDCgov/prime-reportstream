@@ -8,6 +8,7 @@ locals {
 
 locals {
   postgres_readonly_cmd = <<-EOT
+      exit 0;
       sleep 60;
       az postgres server update -g ${var.resource_group} -n ${azurerm_postgresql_flexible_server.postgres_server.name} --public-network-access "Enabled"
       az postgres server firewall-rule create -g ${var.resource_group} -s ${azurerm_postgresql_flexible_server.postgres_server.name} \
