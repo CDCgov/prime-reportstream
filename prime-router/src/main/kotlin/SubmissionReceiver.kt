@@ -53,7 +53,7 @@ abstract class SubmissionReceiver(
         rawBody: ByteArray,
         payloadName: String?,
         metadata: Metadata? = null,
-    )
+    ): Report
 
     companion object {
         /**
@@ -156,7 +156,7 @@ class TopicReceiver : SubmissionReceiver {
         rawBody: ByteArray,
         payloadName: String?,
         metadata: Metadata?,
-    ) {
+    ): Report {
         // parse, check for parse errors
         val (report, actionLogs) =
             this.workflowEngine.parseTopicReport(
@@ -209,6 +209,7 @@ class TopicReceiver : SubmissionReceiver {
                 )
             actionHistory.trackLogs(routingWarnings)
         }
+        return report
     }
 
     /**
@@ -265,7 +266,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         rawBody: ByteArray,
         payloadName: String?,
         metadata: Metadata?,
-    ) {
+    ): Report {
         check(sender is UniversalPipelineSender)
         val actionLogs = ActionLogger()
         val sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name))
@@ -369,6 +370,8 @@ class UniversalPipelineReceiver : SubmissionReceiver {
                 ).serialize(),
             )
         }
+
+        return report
     }
 
     enum class MessageType {
