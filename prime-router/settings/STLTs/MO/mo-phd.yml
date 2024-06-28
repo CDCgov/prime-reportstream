@@ -1,0 +1,114 @@
+- name: "mo-phd"
+  description: "Missouri Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "MO"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+    - name: "full-elr"
+      organizationName: "mo-phd"
+      topic: "full-elr"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/MO/MO-receiver-transform.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "MOELR^2.16.840.1.114222.4.3.3.36^ISO"
+        receivingApplicationOID: "2.16.840.1.114222.4.3.3.36"
+        receivingFacilityName: "MODHSS^2.16.840.1.114222.4.3.2.2.1.163^ISO"
+        receivingFacilityOID: "2.16.840.1.114222.4.3.2.2.1.163"
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB: null
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        reportingFacilityIdType: null
+        suppressQstForAoe: true
+        suppressHl7Fields: "MSH-19-3, PID-15-3, ORC-14-1, OBR-17-1"
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: "MSH-3-1, PID-3-3, PID-3-6, ORC-2-2, ORC-7-10-5, OBR-2-2,\
+        \ OBR-3-2, SPM-2-1-2, SPM-2-2-2, ORC-21-1, OBX-23-1, BX-15.1, OBX-23.10 "
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: true
+          truncateHl7Fields:
+            - "MSH-3-1"
+            - "PID-3-3"
+            - "PID-3-6"
+            - "ORC-2-2"
+            - "ORC-7-10-5"
+            - "OBR-2-2"
+            - "OBR-3-2"
+            - "SPM-2-1-2"
+            - "SPM-2-2-2"
+            - "ORC-21-1"
+            - "OBX-23-1"
+            - "BX-15.1"
+            - "OBX-23.10"
+          customLengthHl7Fields: {}
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'MO') or (Bundle.entry.resource.ofType(Patient).address.state = 'MO')"
+      qualityFilter:
+        # Message id is not empty (MSH-10)
+        - "Bundle.identifier.value.exists()"
+        - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
+        - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
+        - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
+        #  Specimen type (SPM-4) is not empty
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        # Patient has at least a street address(PID-11-1), postal code (PID-11-5),phone(PID-13) or email(PID-13-4)
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
+        - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      conditionFilter:
+        # Accept COVID only
+        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+      mappedConditionFilter: []
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:20"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<SFTP>
+        host: "moftp.mo.gov"
+        port: "22"
+        filePath: "/Distribution/DHSS/Epitrax_ELR_hl7/"
+        credentialName: null
+        type: "SFTP"
+        externalName: null
+      enrichmentSchemaNames: []
+      timeZone: "CENTRAL"
+      dateTimeFormat: "LOCAL"
