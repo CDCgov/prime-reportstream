@@ -233,15 +233,15 @@ Step 2: Some time later, could be right away or could be days from the original 
 		"itemCount": 0,
 		"itemCountBeforeQualityFiltering": 1,
 		"filteredReportRows": [
-			"For flexion.simulated-lab-2, filter (default filter) [%processingId.exists() and %processingId = 'P'][] filtered out item 3003786103_4988249_33033"
+			"For flexion.simulated-lab-2, filter (default filter) [Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P'][] filtered out item 3003786103_4988249_33033"
 		],
 		"filteredReportItems": [
 		{
 			"filterType": "PROCESSING_MODE_FILTER",
-			"filterName": "(default filter) [%processingId.exists() and %processingId = 'P']",
+			"filterName": "(default filter) [Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P']",
 			"filteredTrackingElement": "3003786103_4988249_33033",
 			"filterArgs": [],
-			"message": "For flexion.simulated-lab-2, filter (default filter) [%processingId.exists() and %processingId = 'P'][] filtered out item 3003786103_4988249_33033"
+			"message": "For flexion.simulated-lab-2, filter (default filter) [Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P'][] filtered out item 3003786103_4988249_33033"
 		}],
 		"sentReports": [],
 		"downloadedReports": []
@@ -253,15 +253,15 @@ Step 2: Some time later, could be right away or could be days from the original 
 		"itemCount": 0,
 		"itemCountBeforeQualityFiltering": 1,
 		"filteredReportRows": [
-			"For flexion.simulated-lab, filter (default filter) [%processingId.exists() and %processingId = 'P'][] filtered out item 3003786103_4988249_33033"
+			"For flexion.simulated-lab, filter (default filter) [Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P'][] filtered out item 3003786103_4988249_33033"
 		],
 		"filteredReportItems": [
 		{
 			"filterType": "PROCESSING_MODE_FILTER",
-			"filterName": "(default filter) [%processingId.exists() and %processingId = 'P']",
+			"filterName": "(default filter) [Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P']",
 			"filteredTrackingElement": "3003786103_4988249_33033",
 			"filterArgs": [],
-			"message": "For flexion.simulated-lab, filter (default filter) [%processingId.exists() and %processingId = 'P'][] filtered out item 3003786103_4988249_33033"
+			"message": "For flexion.simulated-lab, filter (default filter) [Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P'][] filtered out item 3003786103_4988249_33033"
 		}],
 		"sentReports": [],
 		"downloadedReports": []
