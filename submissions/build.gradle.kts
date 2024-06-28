@@ -14,6 +14,7 @@ extra["springCloudAzureVersion"] = "5.13.0"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("com.azure:azure-messaging-eventgrid:4.5.0")
     implementation("com.azure.spring:spring-cloud-azure-starter-storage")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")

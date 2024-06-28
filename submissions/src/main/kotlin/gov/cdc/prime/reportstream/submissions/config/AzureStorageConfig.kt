@@ -1,4 +1,4 @@
-package gov.cdc.prime.reportstream.submissions.azure
+package gov.cdc.prime.reportstream.submissions.config
 
 import com.azure.data.tables.TableClient
 import com.azure.data.tables.TableClientBuilder

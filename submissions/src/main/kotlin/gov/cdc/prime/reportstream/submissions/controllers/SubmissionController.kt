@@ -1,9 +1,13 @@
 package gov.cdc.prime.reportstream.submissions.controllers
 
+import com.azure.core.util.BinaryData
+import com.azure.messaging.eventgrid.EventGridEvent
+import com.azure.messaging.eventgrid.EventGridPublisherAsyncClient
 import com.azure.data.tables.TableClient
 import com.azure.data.tables.models.TableEntity
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.queue.QueueServiceClient
+import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
@@ -20,6 +24,7 @@ class SubmissionController(
     private val blobServiceClient: BlobServiceClient,
     private val queueServiceClient: QueueServiceClient,
     private val tableClient: TableClient,
+    private val eventGridPublisherClient: EventGridPublisherAsyncClient<EventGridEvent>,
     @Value("\${azure.storage.container-name}") private val containerName: String,
     @Value("\${azure.storage.queue-name}") private val queueName: String,
 ) {
@@ -71,6 +76,25 @@ class SubmissionController(
         )
         tableClient.createEntity(tableEntity.setProperties(tableProperties))
 
+        // Create and publish custom event
+        val reportReceivedEvent = ReportReceivedEvent(
+            timeStamp = reportReceivedTime,
+            reportId = reportId,
+            parentReportId = reportId,
+            rootReportId = reportId,
+            headers = filterHeaders(headers),
+            senderIP = headers["x-azure-clientip"].toString(),
+            fileSize = headers["content-length"].toString(),
+            blobUrl = blobClient.blobUrl
+        )
+        val eventGridEvent = EventGridEvent(
+            UUID.randomUUID().toString(),
+            "Received",
+            BinaryData.fromObject(reportReceivedEvent),
+            "Report.Received"
+        )
+        eventGridPublisherClient.sendEvent(eventGridEvent).block()
+
         val response =
             CreationResponse(
                 reportId,
@@ -89,7 +113,7 @@ class SubmissionController(
     private fun formBlobName(
         reportId: UUID,
         headers: Map<String, String>,
-    ): String? {
+    ): String {
         val senderName = headers["client_id"]?.lowercase()
         val contentType = headers["content-type"]?.lowercase()
 
