@@ -12,7 +12,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation:
-        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/ID/ID-receiver-transform.yml"
+        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/ID/ID-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: null
