@@ -9,7 +9,6 @@ FROM mcr.microsoft.com/azure-functions/java:4-java$JAVA_VERSION-build AS install
 COPY . /src/java-function-app
 RUN cd /src/java-function-app && \
     mkdir -p /home/site/wwwroot && \
-    cd ./build/azure-functions/ && \
     cd $(ls -d */|head -n 1) && \
     cp -a . /home/site/wwwroot
 
@@ -22,3 +21,12 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true
 
 COPY --from=installer-env ["/home/site/wwwroot", "/home/site/wwwroot"]
+
+
+COPY ./certs/CDC-G2.crt $JAVA_HOME/conf/security
+RUN cd $JAVA_HOME/conf/security \
+    && $JAVA_HOME/bin/keytool -cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias G1 -file CDC-G2.crt
+
+COPY ./certs/CDC-G2-S1.crt $JAVA_HOME/conf/security
+RUN cd $JAVA_HOME/conf/security \
+    && $JAVA_HOME/bin/keytool -cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias G2 -file CDC-G2-S1.crt
