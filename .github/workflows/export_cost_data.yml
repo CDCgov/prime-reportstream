@@ -1,0 +1,69 @@
+name: Export Cost Data
+
+on:
+  schedule:
+    # The workflow runs every day at 3PM
+    - cron: "0 19 * * *"  #UTC-5
+
+jobs:
+  export_cost_data:
+    name: Export Azure Cost Data to Storage
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: prod
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          tf-auth: false
+      - name: Install .NET
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dotnet-sdk-8.0 dotnet-runtime-8.0
+      - name: Install azure-cost-cli
+        run: |
+          dotnet tool install --global azure-cost-cli
+      - name: Run azure-cost-cli
+        run: |
+          azure-cost accumulatedCost -g prime-data-hub-prod -t custom --from $(date --date='180 days ago' '+%m/%d/%Y') --to $(date '+%m/%d/%Y')  -o csv > costs.csv
+          cat ./costs.csv
+      - name: Get runner IP
+        shell: bash
+        run: echo "PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)" >> $GITHUB_ENV
+      # Allow runner db access
+      - name: Allow DB access
+        id: add-db-access
+        shell: bash
+        run: |
+          az postgres server update -g prime-data-hub-prod -n pdhprod-pgsql --public-network-access "Enabled"
+          sleep 10;
+          az postgres server firewall-rule create -g prime-data-hub-prod -s pdhprod-pgsql -n github_actions_runner \
+            --start-ip-address ${{ env.PUBLIC_IP }} --end-ip-address ${{ env.PUBLIC_IP }}
+      - name: Store cost data in DB
+        uses: ./.github/actions/db-query
+        with:
+          pass: ${{ secrets['POSTGRESQL_PROD_PWD'] }}
+          host: pdhprod-pgsql
+          port: 5432
+          user: prime
+          database: prime_data_hub
+          output-file: result.txt
+          query: |            
+            CREATE TABLE IF NOT EXISTS Azure_Costs (
+              Date       date,
+              Cost       NUMERIC(13, 8),
+              CostUsd    NUMERIC(13, 8),
+              Currency   varchar(3)
+            );
+            TRUNCATE Azure_Costs;
+            \copy Azure_Costs (Date, Cost, CostUsd, Currency) FROM './costs.csv' WITH DELIMITER ',' CSV HEADER;
+      # Remove runner db access
+      - name: Remove DB access
+        if: always() && steps.add-db-access.outcome == 'success'
+        shell: bash
+        run: |
+          az postgres server firewall-rule delete -g prime-data-hub-prod -s pdhprod-pgsql  -n github_actions_runner --yes
+          sleep 10;
+          az postgres server update -g prime-data-hub-prod -n pdhprod-pgsql --public-network-access "Disabled"

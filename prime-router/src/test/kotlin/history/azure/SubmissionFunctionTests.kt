@@ -172,7 +172,7 @@ class SubmissionFunctionTests : Logging {
                             id = ReportId.fromString("a2cf1c46-7689-4819-98de-520b5007e45f"),
                             topic = "covid-19",
                             reportItemCount = 3,
-                            fileName = "",
+                            fileName = "http://anyblob.com",
                             fileType = ""
                         ),
                         ExpectedSubmissionList(

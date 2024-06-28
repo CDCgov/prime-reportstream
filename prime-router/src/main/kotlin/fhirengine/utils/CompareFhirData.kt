@@ -276,9 +276,9 @@ class CompareFhirData(
         }
         if (!primitiveResult.passed) {
             val msg = if (expectedPrimitive is PrimitiveType<*>) {
-                val actualPrimitivesValues = actualPrimitive
-                    .filterIsInstance<PrimitiveType<*>>()
+                val actualPrimitivesValues = actualPrimitive.filterIsInstance<PrimitiveType<*>>()
                     .joinToString { it.asStringValue() }
+
                 "FAILED: Property $primitiveIdPath $primitiveTypePath did not match. " +
                     "expected=${expectedPrimitive.asStringValue()}, actuals=$actualPrimitivesValues"
             } else {
@@ -399,6 +399,7 @@ class CompareFhirData(
             return when {
                 resource is Extension ->
                     "$parentIdPath->${resource.fhirType()}(${resource.url.substringAfterLast("/")})"
+
                 parentIdPath == resource.idBase -> parentIdPath
                 resource.isResource ->
                     if (parentIdPath.isBlank()) {
@@ -406,6 +407,7 @@ class CompareFhirData(
                     } else {
                         "$parentIdPath->${resource.idBase}"
                     }
+
                 else -> parentIdPath
             }
         }

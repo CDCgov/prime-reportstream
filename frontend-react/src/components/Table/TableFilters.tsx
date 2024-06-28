@@ -346,9 +346,9 @@ function TableFilters({
 
             <section
                 data-testid="filter-container"
-                className="filter-container"
+                className="filter-container flex-column"
             >
-                <p className="text-bold margin-top-0">
+                <p className="text-bold margin-top-0 grid-col-12">
                     View data from a specific receiver or date and time range
                 </p>
                 <form
@@ -358,9 +358,10 @@ function TableFilters({
                     key={filterReset}
                     autoComplete="off"
                     data-testid="filter-form"
+                    className="width-full"
                 >
                     <div className="grid-row">
-                        <div className="grid-col filter-column__one">
+                        <div className="grid-col-3 filter-column__one">
                             <label
                                 id="receiver-label"
                                 data-testid="label"
@@ -400,7 +401,7 @@ function TableFilters({
                                 ))}
                             </Select>
                         </div>
-                        <div className="grid-col-auto filter-column__two">
+                        <div className="grid-col-7 filter-column__two">
                             <DateRangePicker
                                 className={StyleClass.DATE_CONTAINER}
                                 startDateLabel={startDateLabel}
@@ -481,7 +482,7 @@ function TableFilters({
                                 </div>
                             </div>
                         </div>
-                        <div className="grid-col-fill filter-column__three">
+                        <div className="grid-col-2 filter-column__three">
                             <div className="button-container">
                                 <div>
                                     <Button

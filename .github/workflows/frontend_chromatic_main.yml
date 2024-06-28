@@ -1,0 +1,42 @@
+name: Chromatic Main Branch
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "frontend-react/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  chromatic:
+    defaults:
+      run:
+        shell: bash
+        working-directory: frontend-react
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout - On Push Event
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b
+        with:
+          fetch-depth: 0
+      - name: Use Node.js with yarn
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        with:
+          node-version-file: "frontend-react/.nvmrc"
+          cache: yarn
+          cache-dependency-path: frontend-react/yarn.lock
+      - name: Yarn install
+        run: yarn install --immutable
+
+      - name: Run Chromatic
+        uses: chromaui/action@ea1eee60c663ccb7e5d4cfd7a05fcc3a25b7c494
+        with:
+          workingDir: frontend-react
+          token: ${{ secrets.GITHUB_TOKEN }}
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          # Accept all changes in main
+          autoAcceptChanges: true
+          exitOnceUploaded: true

@@ -93,6 +93,16 @@ Integration tests are not run with the unit tests or the smoke tests. To run the
 ./gradlew testIntegration
 ```
 
+To run an entire class:
+```bash
+./gradlew testIntegration --tests "gov.cdc.prime.router.FileNameTemplateIntegrationTests" 
+```
+
+To run a single test:
+```bash
+./gradlew testIntegration --tests "gov.cdc.prime.router.FileNameTemplateIntegrationTests.test literal name element" 
+```
+
 ## Other groups of tests
 
 The smoke tests are a subset of tests that can be invoked directly from the command line. To see a list of available tests, their categorization and a brief description, run:
