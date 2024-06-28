@@ -1,6 +1,11 @@
 package gov.cdc.prime.reportstream.submissions.controllers
 
+import com.azure.data.tables.TableClient
+import com.azure.data.tables.models.TableEntity
 import com.azure.storage.blob.BlobServiceClient
+import com.azure.storage.queue.QueueServiceClient
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -9,12 +14,14 @@ import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 import java.time.OffsetDateTime
 import java.util.UUID
-import org.springframework.beans.factory.annotation.Value
 
 @RestController
 class SubmissionController(
     private val blobServiceClient: BlobServiceClient,
-    @Value("\${azure.storage.container-name}") private val containerName: String
+    private val queueServiceClient: QueueServiceClient,
+    private val tableClient: TableClient,
+    @Value("\${azure.storage.container-name}") private val containerName: String,
+    @Value("\${azure.storage.queue-name}") private val queueName: String
 ) {
     @PostMapping("/api/v1/reports")
     fun submitReport(
@@ -27,59 +34,88 @@ class SubmissionController(
             return headerValidationResult
         }
 
-        // Convert data to ByteArray or suitable format
-        val dataByteArray = data.toString().toByteArray()
         val reportId = UUID.randomUUID()
+        val reportReceivedTime = OffsetDateTime.now()
+        val status = "Received"
 
+        // Convert data to ByteArray
+        val dataByteArray = data.toString().toByteArray()
+
+        // Upload to blob storage
         val blobContainerClient = blobServiceClient.getBlobContainerClient(containerName)
         val blobClient = blobContainerClient.getBlobClient(formBlobName(reportId,headers))
-
         blobClient.upload(dataByteArray.inputStream(), dataByteArray.size.toLong())
+
+        // Create the message for the queue
+        val message = mapOf(
+            "reportId" to reportId.toString(),
+            "blobUrl" to blobClient.blobUrl,
+            "headers" to filterHeaders(headers)
+        )
+        val objectMapper = jacksonObjectMapper()
+        val messageString = objectMapper.writeValueAsString(message)
+
+        // Upload to Queue
+        val queueClient = queueServiceClient.getQueueClient(queueName)
+        queueClient.createIfNotExists()
+        queueClient.sendMessage(messageString)
+
+        // Insert into Table
+        // TableEntity() sets PartitionKey and RowKey. Both are required by azure and combine to create the PK
+        val tableEntity = TableEntity(reportId.toString(), reportId.toString())
+        val tableProperties = mapOf(
+            "report_received_time" to reportReceivedTime.toString(),
+            "report_accepted_time" to reportReceivedTime.toString(), // This should be updated when the report is accepted
+            "report_id" to reportId.toString(),
+            "status" to status
+        )
+        tableClient.createEntity(tableEntity.setProperties(tableProperties))
 
         val response =
             CreationResponse(
                 reportId,
-                "Received",
+                status,
                 OffsetDateTime.now(),
             )
 
         return ResponseEntity(response, HttpStatus.CREATED)
     }
 
-    private fun validateHeaders(headers: Map<String, String>): ResponseEntity<String>? {
-        val client = headers["Client_id"]
-        val contentType = headers["Content-Type"]
-        val acceptableContentTypes = listOf("application/hl7-v2", "application/fhir+ndjson")
-
-        if (client.isNullOrEmpty()) {
-            return ResponseEntity.badRequest().body("Missing required header: Client_id.")
-        }
-
-        if (contentType !in acceptableContentTypes) {
-            return ResponseEntity
-                .badRequest()
-                .body("Invalid Content-Type header. Acceptable values include: $acceptableContentTypes")
-        }
-
-        return null
+    private fun filterHeaders(headers: Map<String, String>): Map<String, String> {
+        val headersToInclude = listOf("client_id", "content-Type", "payloadName")
+        return headers.filter { it.key in headersToInclude }
     }
 
     private fun formBlobName(
         reportId: UUID,
         headers: Map<String, String>
     ): String? {
-        val senderName = headers["Client_id"]
-        val contentType = headers["Content-Type"]
+        val senderName = headers["client_id"]?.lowercase()
+        val contentType = headers["content-type"]?.lowercase()
 
         return when(contentType) {
-            "application/hl7-v2" ->
-                "receive/$senderName/$reportId.hl7"
-            "application/fhir+ndjson" ->
-                "receive/$senderName/$reportId.fhir"
+            "application/hl7-v2" -> "receive/$senderName/$reportId.hl7"
+            "application/fhir+ndjson" -> "receive/$senderName/$reportId.fhir"
+            else -> throw IllegalArgumentException("Unsupported content-type: $contentType")
+        }
+    }
 
-            else -> {null}
+    private fun validateHeaders(headers: Map<String, String>): ResponseEntity<String>? {
+        val client = headers["client_id"]?.lowercase()
+        val contentType = headers["content-Type"]?.lowercase()
+        val acceptableContentTypes = listOf("application/hl7-v2", "application/fhir+ndjson")
+
+        if (client.isNullOrEmpty()) {
+            return ResponseEntity.badRequest().body("Missing required header: client_id.")
         }
 
+        if (contentType !in acceptableContentTypes) {
+            return ResponseEntity
+                .badRequest()
+                .body("Invalid content-Type header. Acceptable values include: $acceptableContentTypes")
+        }
+
+        return null
     }
 }
 

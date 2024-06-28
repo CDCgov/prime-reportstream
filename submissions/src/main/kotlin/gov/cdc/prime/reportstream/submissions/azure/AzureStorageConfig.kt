@@ -1,5 +1,7 @@
 package gov.cdc.prime.reportstream.submissions.azure
 
+import com.azure.data.tables.TableClient
+import com.azure.data.tables.TableClientBuilder
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.queue.QueueServiceClient
@@ -20,16 +22,14 @@ class AzureStorageConfig {
     @Value("\${azure.storage.queue-name}")
     private lateinit var queueName: String
 
+    @Value("\${azure.storage.table-name}")
+    private lateinit var tableName: String
+
     @Bean
     fun blobServiceClient(): BlobServiceClient {
         return BlobServiceClientBuilder()
             .connectionString(connectionString)
             .buildClient()
-    }
-
-    @Bean
-    fun containerName(): String {
-        return containerName
     }
 
     @Bean
@@ -40,7 +40,25 @@ class AzureStorageConfig {
     }
 
     @Bean
+    fun tableClient(): TableClient {
+        return TableClientBuilder()
+            .connectionString(connectionString)
+            .tableName(tableName)
+            .buildClient()
+    }
+
+    @Bean
+    fun containerName(): String {
+        return containerName
+    }
+
+    @Bean
     fun queueName(): String {
         return queueName
+    }
+
+    @Bean
+    fun tableName(): String {
+        return tableName
     }
 }
