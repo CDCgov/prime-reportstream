@@ -4,7 +4,6 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import gov.cdc.prime.reportstream.shared.azure.IEvent
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.ActionHistory
@@ -36,13 +35,13 @@ class UniversalBatchFunction(private val workflowEngine: WorkflowEngine = Workfl
         try {
             logger.trace("UniversalBatchFunction starting.  Message: $message")
             val event = Event.parseQueueMessage(message) as BatchEvent
-            if (event.eventAction != IEvent.EventAction.BATCH) {
+            if (event.eventAction != Event.EventAction.BATCH) {
                 logger.error("UniversalBatchFunction received a $message")
                 return
             }
             val actionHistory =
                 ActionHistory(
-                    event.toTaskAction(),
+                    event.eventAction.toTaskAction(),
                     event.isEmptyBatch,
                 )
             doBatch(message, event, actionHistory)
@@ -142,7 +141,7 @@ class UniversalBatchFunction(private val workflowEngine: WorkflowEngine = Workfl
                 // get a Report from the message
                 val (report, sendEvent, blobInfo) =
                     Report.generateReportAndUploadBlob(
-                        IEvent.EventAction.SEND,
+                        Event.EventAction.SEND,
                         it.content!!,
                         listOf(it.task.reportId),
                         receiver,
@@ -183,7 +182,7 @@ class UniversalBatchFunction(private val workflowEngine: WorkflowEngine = Workfl
             // get a Report from the message
             val (report, sendEvent, blobInfo) =
                 Report.generateReportAndUploadBlob(
-                    IEvent.EventAction.SEND,
+                    Event.EventAction.SEND,
                     batchMessage.toByteArray(),
                     validHeaders.map { it.task.reportId },
                     receiver,

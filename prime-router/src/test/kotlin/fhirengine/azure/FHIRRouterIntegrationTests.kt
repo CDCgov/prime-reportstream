@@ -2,8 +2,6 @@ package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
 import assertk.assertions.containsOnly
-import gov.cdc.prime.reportstream.shared.azure.IEvent
-import gov.cdc.prime.reportstream.shared.azure.QueueAccess
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogLevel
@@ -23,7 +21,9 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
+import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
+import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -254,7 +254,7 @@ class FHIRRouterIntegrationTests : Logging {
         fileFormat: Report.Format,
         currentAction: TaskAction,
         nextAction: TaskAction,
-        nextEventAction: IEvent.EventAction,
+        nextEventAction: Event.EventAction,
         topic: Topic,
         childReport: Report? = null,
         bodyURL: String? = null,
@@ -338,7 +338,7 @@ class FHIRRouterIntegrationTests : Logging {
             Report.Format.FHIR,
             TaskAction.convert,
             TaskAction.route,
-            IEvent.EventAction.ROUTE,
+            Event.EventAction.ROUTE,
             topic,
             null,
             convertedBlobUrl
@@ -348,7 +348,7 @@ class FHIRRouterIntegrationTests : Logging {
             Report.Format.FHIR,
             TaskAction.receive,
             TaskAction.convert,
-            IEvent.EventAction.CONVERT,
+            Event.EventAction.CONVERT,
             topic,
             convertReport,
             receivedBlobUrl

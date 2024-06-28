@@ -2,8 +2,6 @@ package gov.cdc.prime.router.azure.batch
 
 import assertk.assertFailure
 import assertk.assertions.hasClass
-import gov.cdc.prime.reportstream.shared.azure.IEvent
-import gov.cdc.prime.reportstream.shared.azure.QueueAccess
 import gov.cdc.prime.router.CustomConfiguration
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -23,6 +21,7 @@ import gov.cdc.prime.router.azure.BatchEvent
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
@@ -94,7 +93,7 @@ class UniversalBatchFunctionTests {
         every { engine.generateEmptyReport(any(), any()) } returns Unit
 
         // the message that will be passed to batchFunction
-        val message = BatchEvent(IEvent.EventAction.BATCH, "phd.elr", true)
+        val message = BatchEvent(Event.EventAction.BATCH, "phd.elr", true)
 
         // Invoke batch function run
         UniversalBatchFunction(engine).run(message.toQueueMessage(), context = null)
@@ -455,7 +454,7 @@ class UniversalBatchFunctionTests {
         every { Topic.COVID_19.isUniversalPipeline } returns true
 
         // the message that will be passed to batchFunction
-        val message = BatchEvent(IEvent.EventAction.BATCH, "phd.elr", false)
+        val message = BatchEvent(Event.EventAction.BATCH, "phd.elr", false)
 
         // Invoke batch function run for universal pipeline
         UniversalBatchFunction(engine).run(message.toQueueMessage(), context = null)

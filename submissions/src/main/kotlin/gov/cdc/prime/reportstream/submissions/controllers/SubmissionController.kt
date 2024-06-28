@@ -21,7 +21,7 @@ class SubmissionController(
     private val queueServiceClient: QueueServiceClient,
     private val tableClient: TableClient,
     @Value("\${azure.storage.container-name}") private val containerName: String,
-    @Value("\${azure.storage.queue-name}") private val queueName: String
+    @Value("\${azure.storage.queue-name}") private val queueName: String,
 ) {
     @PostMapping("/api/v1/reports")
     fun submitReport(
@@ -43,7 +43,7 @@ class SubmissionController(
 
         // Upload to blob storage
         val blobContainerClient = blobServiceClient.getBlobContainerClient(containerName)
-        val blobClient = blobContainerClient.getBlobClient(formBlobName(reportId,headers))
+        val blobClient = blobContainerClient.getBlobClient(formBlobName(reportId, headers))
         blobClient.upload(dataByteArray.inputStream(), dataByteArray.size.toLong())
 
         // Create the message for the queue
@@ -65,7 +65,7 @@ class SubmissionController(
         val tableEntity = TableEntity(reportId.toString(), reportId.toString())
         val tableProperties = mapOf(
             "report_received_time" to reportReceivedTime.toString(),
-            "report_accepted_time" to reportReceivedTime.toString(), // This should be updated when the report is accepted
+            "report_accepted_time" to reportReceivedTime.toString(), // Will be updated when the report is accepted
             "report_id" to reportId.toString(),
             "status" to status
         )
@@ -88,12 +88,12 @@ class SubmissionController(
 
     private fun formBlobName(
         reportId: UUID,
-        headers: Map<String, String>
+        headers: Map<String, String>,
     ): String? {
         val senderName = headers["client_id"]?.lowercase()
         val contentType = headers["content-type"]?.lowercase()
 
-        return when(contentType) {
+        return when (contentType) {
             "application/hl7-v2" -> "receive/$senderName/$reportId.hl7"
             "application/fhir+ndjson" -> "receive/$senderName/$reportId.fhir"
             else -> throw IllegalArgumentException("Unsupported content-type: $contentType")

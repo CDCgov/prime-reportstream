@@ -8,11 +8,11 @@ import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
-import gov.cdc.prime.reportstream.shared.azure.IEvent
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.Event
 import java.util.Base64
 import java.util.UUID
 
@@ -135,12 +135,12 @@ data class FhirTranslateQueueMessage(
 ) : ReportPipelineMessage()
 
 abstract class WithEventAction : QueueMessage() {
-    abstract val eventAction: IEvent.EventAction
+    abstract val eventAction: Event.EventAction
 }
 
 @JsonTypeName("batch")
 data class BatchEventQueueMessage(
-    override val eventAction: IEvent.EventAction,
+    override val eventAction: Event.EventAction,
     val receiverName: String,
     val emptyBatch: Boolean,
     val at: String,
@@ -148,7 +148,7 @@ data class BatchEventQueueMessage(
 
 @JsonTypeName("report")
 data class ReportEventQueueMessage(
-    override val eventAction: IEvent.EventAction,
+    override val eventAction: Event.EventAction,
     val emptyBatch: Boolean,
     val reportId: UUID,
     val at: String,
@@ -156,7 +156,7 @@ data class ReportEventQueueMessage(
 
 @JsonTypeName("process")
 data class ProcessEventQueueMessage(
-    override val eventAction: IEvent.EventAction,
+    override val eventAction: Event.EventAction,
     val reportId: UUID,
     val options: Options,
     val defaults: Map<String, String>,

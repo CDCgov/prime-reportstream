@@ -4,10 +4,10 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.StorageAccount
 import com.microsoft.azure.functions.annotation.TimerTrigger
-import gov.cdc.prime.reportstream.shared.azure.IEvent
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.azure.BatchEvent
 import gov.cdc.prime.router.azure.DataAccessTransaction
+import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging
@@ -49,7 +49,7 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
 
                         repeat(queueMessages) {
                             // build 'batch' event
-                            val event = BatchEvent(IEvent.EventAction.BATCH, rec.fullName, isEmpty)
+                            val event = BatchEvent(Event.EventAction.BATCH, rec.fullName, isEmpty)
                             val queueName =
                                 if (rec.topic.isUniversalPipeline) {
                                     BatchConstants.Queue.UNIVERSAL_BATCH_QUEUE

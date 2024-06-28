@@ -16,7 +16,6 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.hl7v2.model.v251.segment.MSH
-import gov.cdc.prime.reportstream.shared.azure.QueueAccess
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CodeStringConditionFilter
 import gov.cdc.prime.router.CustomerStatus
@@ -29,6 +28,7 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.UnmappableConditionMessage
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils

@@ -1,10 +1,10 @@
 package gov.cdc.prime.router
 
 import ca.uhn.hl7v2.model.Message
-import gov.cdc.prime.reportstream.shared.azure.IEvent
 import gov.cdc.prime.router.Report.Format
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.ReportWriter
 import gov.cdc.prime.router.azure.WorkflowEngine
@@ -235,7 +235,7 @@ class TopicReceiver : SubmissionReceiver {
             error("Processing a non internal report async.")
         }
 
-        val processEvent = ProcessEvent(IEvent.EventAction.PROCESS, report.id, options, defaults, routeTo)
+        val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
 
         val bodyBytes = ReportWriter.getBodyBytes(report)
         val blobInfo = workflowEngine.blob.uploadReport(report, bodyBytes, senderName, processEvent.eventAction)
@@ -333,9 +333,9 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         val eventAction =
             if (sender.customerStatus == CustomerStatus.INACTIVE) {
                 report.nextAction = TaskAction.none
-                IEvent.EventAction.NONE
+                Event.EventAction.NONE
             } else {
-                IEvent.EventAction.CONVERT
+                Event.EventAction.CONVERT
             }
 
         // record that the submission was received

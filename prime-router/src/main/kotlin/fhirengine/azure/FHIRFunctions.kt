@@ -4,11 +4,11 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import gov.cdc.prime.reportstream.shared.azure.QueueAccess
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine

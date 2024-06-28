@@ -6,8 +6,6 @@ import assertk.assertions.each
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.matchesPredicate
-import gov.cdc.prime.reportstream.shared.azure.IEvent
-import gov.cdc.prime.reportstream.shared.azure.QueueAccess
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
@@ -15,7 +13,9 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
+import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
+import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.ActionLogType
@@ -190,7 +190,7 @@ class FHIRConverterIntegrationTests {
             format.toString().lowercase(),
             report.bodyURL,
             nextAction = ProcessEvent(
-                IEvent.EventAction.CONVERT,
+                Event.EventAction.CONVERT,
                 report.id,
                 Options.None,
                 emptyMap(),

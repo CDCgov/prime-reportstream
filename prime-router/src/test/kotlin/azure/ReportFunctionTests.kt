@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.reportstream.shared.azure.QueueAccess
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CovidSender

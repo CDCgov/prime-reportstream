@@ -1,7 +1,5 @@
 package gov.cdc.prime.router.fhirengine.azure
 
-import gov.cdc.prime.reportstream.shared.azure.IEvent
-import gov.cdc.prime.reportstream.shared.azure.QueueAccess
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -16,7 +14,9 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
+import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
@@ -151,7 +151,7 @@ class FhirFunctionTests {
             topic = Topic.FULL_ELR,
         )
         val routeEvent = ProcessEvent(
-            IEvent.EventAction.ROUTE,
+            Event.EventAction.ROUTE,
             report.id,
             Options.None,
             emptyMap(),
@@ -236,7 +236,7 @@ class FhirFunctionTests {
             topic = Topic.FULL_ELR,
         )
         val nextEvent = ProcessEvent(
-            IEvent.EventAction.TRANSLATE,
+            Event.EventAction.TRANSLATE,
             report.id,
             Options.None,
             emptyMap(),
@@ -320,7 +320,7 @@ class FhirFunctionTests {
             topic = Topic.FULL_ELR,
         )
         val nextEvent = ProcessEvent(
-            IEvent.EventAction.BATCH,
+            Event.EventAction.BATCH,
             report.id,
             Options.None,
             emptyMap(),
