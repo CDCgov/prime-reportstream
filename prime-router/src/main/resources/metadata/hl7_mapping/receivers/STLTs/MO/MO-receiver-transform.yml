@@ -2,18 +2,17 @@ hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
 extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
 
+constants:
+  PID: '/PATIENT_RESULT/PATIENT/PID'
+  ORC: '/PATIENT_RESULT/ORDER_OBSERVATION/ORC'
+  OBR: '/PATIENT_RESULT/ORDER_OBSERVATION/OBR'
+
 elements:
   - name: mo-patient-race-coding-system
     resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
     condition: '%resource.code.exists()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
-
-  - name: mo-patient-race-coding-system
-    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
-    condition: '%resource.code.exists()'
-    value: [ '%resource.system.getCodingSystemMapping()' ]
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
+    hl7Spec: [ '%{PID}-10-3' ]
 
   - name: mo-sender-facility-namespace-Id
     value: [ '"MOELR"' ]
@@ -38,3 +37,7 @@ elements:
   - name: mo-receiving-application-universal-id-type
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-6-3' ]
+
+  - name: mo-unwanted-fields
+    value: [ '""' ]
+    hl7Spec: [ 'MSH-19-3', '%{PID}-13-12', '%{PID}-15-3', '%{ORC}-14-1', '%{OBR}-17-1' ]
