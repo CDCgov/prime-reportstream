@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.hasSameSizeAs
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.isInstanceOf
 import assertk.assertions.matchesPredicate
 import gov.cdc.prime.router.ActionLog
@@ -11,11 +12,16 @@ import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilterType
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
+import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.ReceiverFilterFailedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
 import gov.cdc.prime.router.common.validFHIRRecord1
@@ -26,6 +32,7 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import io.mockk.every
 import io.mockk.mockkConstructor
@@ -41,6 +48,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.File
+import java.util.UUID
 
 private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/valid_data.fhir"
 
@@ -111,6 +119,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         )
     )
 
+    val azureEventService = LocalAzureEventServiceImpl()
+
     @BeforeEach
     fun beforeEach() {
         mockkObject(QueueAccess)
@@ -132,6 +142,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
     @AfterEach
     fun afterEach() {
         unmockkAll()
+        azureEventService.events.clear()
     }
 
     @Test
@@ -146,14 +157,12 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             )
         )
         val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
+        val receiver = receivers.single()
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
-        val receiverFilter = UniversalPipelineTestUtils.createReceiverFilter(org)
+        val receiverFilter = UniversalPipelineTestUtils.createReceiverFilter(azureEventService, org)
 
         // set up
-        val reportContents =
-            listOf(
-                File(MULTIPLE_OBSERVATIONS_FHIR_URL).readText()
-            ).joinToString()
+        val reportContents = File(MULTIPLE_OBSERVATIONS_FHIR_URL).readText()
 
         val reports = UniversalPipelineTestUtils.createReportsWithLineage(
             reportContents,
@@ -185,51 +194,65 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             // did the report get pushed to blob store correctly and intact?
-            val routedReports = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(
+            val routedReport = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(
                 destinationReport, receiveReport, txn, 1
+            ).single()
+            val routedContents = String(
+                BlobAccess.downloadBlobAsByteArray(
+                routedReport.bodyUrl, UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
             )
-            val reportAndBundles =
-                routedReports.map {
-                    Pair(
-                        it,
-                        BlobAccess.downloadBlobAsByteArray(
-                            it.bodyUrl,
-                            UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
-                        )
-                    )
-                }
-
-            val fhirBundlesAsObjectsOnly = reportAndBundles.map { it.second.toString(Charsets.UTF_8) }
-                .map { FhirTranscoder.decode(it) }
-
-            val fhirBundleReceiverX = fhirBundlesAsObjectsOnly[0]
+            )
+            val routedBundle = FhirTranscoder.decode(routedContents)
 
             // there should only be one observation of five remaining, and the code of that observation
             // should be 94558-5
-            assertThat(fhirBundleReceiverX.getObservations()).hasSize(1)
-            assertThat(fhirBundleReceiverX.getObservations().first().code.coding).hasSize(1)
-            assertThat(fhirBundleReceiverX.getObservations().first().code.coding.first().code).isEqualTo("94558-5")
+            val expectedBundle = FhirTranscoder.decode(reportContents).apply {
+                this.getObservations().forEach {
+                    if (it.code.coding.first().code != "94558-5") {
+                        this.deleteResource(it)
+                    }
+                }
+            }
+            assertThat(routedBundle.getObservations()).hasSize(1)
+            assertThat(routedBundle.getObservations().first().code.coding).hasSize(1)
+            assertThat(routedBundle.getObservations().first().code.coding.first().code).isEqualTo("94558-5")
+            assertThat(FhirTranscoder.encode(expectedBundle)).isEqualTo(FhirTranscoder.encode(routedBundle))
 
             // is the queue messaging what we expect it to be?
-            val expectedRouteQueueMessages = reportAndBundles.flatMap { (report, fhirBundle) ->
-                listOf(
-                    FhirTranslateQueueMessage(
-                        report.reportId,
-                        report.bodyUrl,
-                        BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
-                        "phd.fhir-elr-no-transform",
-                        UniversalPipelineTestUtils.fhirSenderWithNoTransform.topic,
-                        "phd.x"
-                    )
-                )
-            }.map {
-                it.serialize()
+            val expectedRouteQueueMessage = FhirTranslateQueueMessage(
+                routedReport.reportId,
+                routedReport.bodyUrl,
+                BlobAccess.digestToString(routedReport.blobDigest),
+                "phd.fhir-elr-no-transform",
+               Topic.FULL_ELR,
+                receiver.fullName
+            ).serialize()
+
+            verify(exactly = 1) {
+                QueueAccess.sendMessage(elrTranslationQueueName, expectedRouteQueueMessage)
             }
 
-            // TODO: clean this
-            verify(exactly = 1) {
-                QueueAccess.sendMessage(elrTranslationQueueName, expectedRouteQueueMessages.single())
-            }
+            // check events
+            assertThat(azureEventService.events).hasSize(1)
+            val bundle = FhirTranscoder.decode(reportContents)
+            assertThat(azureEventService.events.single())
+                .isInstanceOf<ReportRouteEvent>()
+                .isEqualTo(
+                    ReportRouteEvent(
+                        routedReport.reportId,
+                        destinationReport.id,
+                        receiveReport.id,
+                        Topic.FULL_ELR,
+                        "phd.Test Sender",
+                        receiver.fullName,
+                        AzureEventUtils.getObservationSummaries(routedBundle),
+                        AzureEventUtils.getObservationSummaries(
+                            bundle.getObservations().filter { it.code.coding.first().code != "94558-5" }
+                        ),
+                        routedContents.length,
+                        AzureEventUtils.getIdentifier(routedBundle)
+                    )
+                )
 
             // make sure action table has a new entry
             UniversalPipelineTestUtils.checkActionTable(
@@ -255,14 +278,12 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             )
         )
         val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
+        val receiver = receivers.single()
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
-        val receiverFilter = UniversalPipelineTestUtils.createReceiverFilter(org)
+        val receiverFilter = UniversalPipelineTestUtils.createReceiverFilter(azureEventService, org)
 
         // set up
-        val reportContents =
-            listOf(
-                File(MULTIPLE_OBSERVATIONS_FHIR_URL).readText()
-            ).joinToString()
+        val reportContents = File(MULTIPLE_OBSERVATIONS_FHIR_URL).readText()
 
         val reports = UniversalPipelineTestUtils.createReportsWithLineage(
             reportContents,
@@ -275,7 +296,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             destinationReport,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform,
-            "phd.y"
+            receiver.fullName
         )
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
@@ -294,58 +315,60 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             // did the report get pushed to blob store correctly and intact?
-            val routedReports = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(
+            val routedReport = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(
                 destinationReport, receiveReport, txn, 1
+            ).single()
+            val routedContents = String(
+                BlobAccess.downloadBlobAsByteArray(
+                routedReport.bodyUrl,
+                UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
             )
-            val reportAndBundles =
-                routedReports.map {
-                    Pair(
-                        it,
-                        BlobAccess.downloadBlobAsByteArray(
-                            it.bodyUrl,
-                            UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
-                        )
-                    )
-                }
-
-            val fhirBundlesAsObjectsOnly = reportAndBundles.map { it.second.toString(Charsets.UTF_8) }
-                .map { FhirTranscoder.decode(it) }
-
-            val fhirBundleReceiverY = fhirBundlesAsObjectsOnly[0]
+            )
+            val routedBundle = FhirTranscoder.decode(routedContents)
 
             // for receiver Y all five observations should be intact
-            assertThat(fhirBundleReceiverY.getObservations()).hasSize(5)
+            assertThat(routedBundle.getObservations()).hasSize(5)
             val expectedCodes = listOf("94558-5", "95418-0", "95417-2", "95421-4", "95419-8")
-            for (i in 0..<fhirBundleReceiverY.getObservations().size) {
+            for (i in 0..<routedBundle.getObservations().size) {
                 // in this bundle the array "coding" in every "Observation" only ever has one element
-                assertThat(fhirBundleReceiverY.getObservations()[i].code.coding).hasSize(1)
-                assertThat(fhirBundleReceiverY.getObservations()[i].code.coding[0].code).isEqualTo(expectedCodes[i])
+                assertThat(routedBundle.getObservations()[i].code.coding).hasSize(1)
+                assertThat(routedBundle.getObservations()[i].code.coding[0].code).isEqualTo(expectedCodes[i])
             }
-            assertThat(fhirBundleReceiverY.getObservations()[0].code.coding[0].code).isEqualTo("94558-5")
+            assertThat(routedBundle.getObservations()[0].code.coding[0].code).isEqualTo("94558-5")
 
             // is the queue messaging what we expect it to be?
-            val expectedRouteQueueMessages = reportAndBundles.flatMap { (report, fhirBundle) ->
-                listOf(
-                    FhirTranslateQueueMessage(
-                        report.reportId,
-                        report.bodyUrl,
-                        BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
-                        "phd.fhir-elr-no-transform",
-                        UniversalPipelineTestUtils.fhirSenderWithNoTransform.topic,
-                        "phd.y"
-                    )
-                )
-            }.map {
-                it.serialize()
-            }
+            val expectedRouteQueueMessage = FhirTranslateQueueMessage(
+                routedReport.reportId,
+                routedReport.bodyUrl,
+                BlobAccess.digestToString(routedReport.blobDigest),
+                "phd.fhir-elr-no-transform",
+               Topic.FULL_ELR,
+                receiver.fullName
+            ).serialize()
 
-            // TODO: clean this
             verify(exactly = 1) {
                 QueueAccess.sendMessage(
                     elrTranslationQueueName,
-                    expectedRouteQueueMessages.single()
+                    expectedRouteQueueMessage
                 )
             }
+
+            // check events
+            assertThat(azureEventService.events).hasSize(1)
+            assertThat(azureEventService.events.single()).isEqualTo(
+                ReportRouteEvent(
+                    routedReport.reportId,
+                    destinationReport.id,
+                    receiveReport.id,
+                    Topic.FULL_ELR,
+                    "phd.Test Sender",
+                    receiver.fullName,
+                    AzureEventUtils.getObservationSummaries(FhirTranscoder.decode(reportContents)),
+                    emptyList(),
+                    routedContents.length,
+                    AzureEventUtils.getIdentifier(routedBundle)
+                )
+            )
 
             // make sure action table has a new entry
             UniversalPipelineTestUtils.checkActionTable(
@@ -376,13 +399,10 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
         val receiver = receivers.single()
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
-        val receiverFilter = UniversalPipelineTestUtils.createReceiverFilter(org)
+        val receiverFilter = UniversalPipelineTestUtils.createReceiverFilter(azureEventService, org)
 
         // set up
-        val reportContents =
-            listOf(
-                validFHIRRecord1
-            ).joinToString()
+        val reportContents = validFHIRRecord1
 
         val reports = UniversalPipelineTestUtils.createReportsWithLineage(
             reportContents,
@@ -444,6 +464,27 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     }
             }
         }
+
+        // verify events
+        assertThat(azureEventService.events).hasSize(1)
+        val bundle = FhirTranscoder.decode(reportContents)
+        assertThat(azureEventService.events.single()).isInstanceOf<ReceiverFilterFailedEvent>()
+            .isEqualToIgnoringGivenProperties(
+                ReceiverFilterFailedEvent(
+                    UUID.randomUUID(), // ignored
+                    destinationReport.id,
+                    reports.first().id,
+                    Topic.FULL_ELR,
+                    "phd.Test Sender",
+                    receiver.fullName,
+                    AzureEventUtils.getObservationSummaries(bundle),
+                    fullElrQualityFilterSample,
+                    ReportStreamFilterType.QUALITY_FILTER,
+                    reportContents.length,
+                    AzureEventUtils.getIdentifier(bundle)
+                ),
+                ReceiverFilterFailedEvent::reportId
+            )
     }
 
     @Test
@@ -460,13 +501,10 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
         val receiver = receivers.first()
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
-        val receiverFilter = UniversalPipelineTestUtils.createReceiverFilter(org)
+        val receiverFilter = UniversalPipelineTestUtils.createReceiverFilter(azureEventService, org)
 
         // set up
-        val reportContents =
-            listOf(
-                File(VALID_FHIR_URL).readText()
-            ).joinToString()
+        val reportContents = File(VALID_FHIR_URL).readText()
 
         val reports = UniversalPipelineTestUtils.createReportsWithLineage(
             reportContents,
@@ -499,46 +537,58 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
 
             // did the report get pushed to blob store correctly and intact?
-            val routedReports =
-                UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(
-                    destinationReport,
-                    receiveReport,
-                    txn,
-                    1
-                )
-            val reportAndBundles =
-                routedReports.map {
-                    Pair(
-                        it,
-                        BlobAccess.downloadBlobAsByteArray(
-                            it.bodyUrl,
-                            UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
-                        )
-                    )
-                }
+            val routedReport = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(
+                destinationReport,
+                receiveReport,
+                txn,
+                1
+            ).single()
+            val routedContents = String(
+                BlobAccess.downloadBlobAsByteArray(
+                routedReport.bodyUrl,
+                UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
+            )
+            )
+
+            assertThat(routedContents).isEqualTo(reportContents)
+
             // is the queue messaging what we expect it to be?
-            val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
-                FhirTranslateQueueMessage(
-                    report.reportId,
-                    report.bodyUrl,
-                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
-                    "phd.fhir-elr-no-transform",
-                    UniversalPipelineTestUtils.fhirSenderWithNoTransform.topic,
-                    "phd.x"
-                )
-            }.map {
-                it.serialize()
-            }
+            val expectedRouteQueueMessage = FhirTranslateQueueMessage(
+                routedReport.reportId,
+                routedReport.bodyUrl,
+                BlobAccess.digestToString(routedReport.blobDigest),
+                "phd.fhir-elr-no-transform",
+               Topic.FULL_ELR,
+                receiver.fullName
+            ).serialize()
 
             // filter should permit message and should not mangle message
             verify(exactly = 1) {
                 QueueAccess.sendMessage(
                     elrTranslationQueueName,
-                    match {
-                        expectedRouteQueueMessages.contains(it)
-                    }
+                    expectedRouteQueueMessage
                 )
             }
+
+            // check events
+            assertThat(azureEventService.events).hasSize(1)
+            val bundle = FhirTranscoder.decode(reportContents)
+            assertThat(azureEventService.events.single())
+                .isInstanceOf<ReportRouteEvent>()
+                .isEqualTo(
+                    ReportRouteEvent(
+                        routedReport.reportId,
+                        destinationReport.id,
+                        receiveReport.id,
+                        Topic.FULL_ELR,
+                        "phd.Test Sender",
+                        receiver.fullName,
+                        AzureEventUtils.getObservationSummaries(bundle),
+                        emptyList(),
+                        reportContents.length,
+                        AzureEventUtils.getIdentifier(bundle)
+                    )
+                )
 
             // make sure action table has a new entry
             UniversalPipelineTestUtils.checkActionTable(
@@ -566,14 +616,10 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
         val receiver = receivers.single()
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
-        val receiverFilter = UniversalPipelineTestUtils.createReceiverFilter(org)
+        val receiverFilter = UniversalPipelineTestUtils.createReceiverFilter(azureEventService, org)
 
         // set up
-        val reportContents =
-            listOf(
-                File(VALID_FHIR_URL).readText()
-            ).joinToString()
-
+        val reportContents = File(VALID_FHIR_URL).readText()
         val reports = UniversalPipelineTestUtils.createReportsWithLineage(
             reportContents,
             TaskAction.receiver_filter,
@@ -605,46 +651,54 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
 
             // did the report get pushed to blob store correctly and intact?
-            val routedReports =
-                UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(
-                    destinationReport,
-                    receiveReport,
-                    txn,
-                    1
-                )
-            val reportAndBundles =
-                routedReports.map {
-                    Pair(
-                        it,
-                        BlobAccess.downloadBlobAsByteArray(
-                            it.bodyUrl,
-                            UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
-                        )
-                    )
-                }
+            val routedReport = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(
+                destinationReport,
+                receiveReport,
+                txn,
+                1
+            ).single()
+
+            val routedBundle = BlobAccess.downloadBlobAsByteArray(
+                routedReport.bodyUrl,
+                UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
+            )
+
+            assertThat(String(routedBundle)).isEqualTo(reportContents)
+
             // is the queue messaging what we expect it to be?
-            val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
-                FhirTranslateQueueMessage(
-                    report.reportId,
-                    report.bodyUrl,
-                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
-                    "phd.fhir-elr-no-transform",
-                    UniversalPipelineTestUtils.fhirSenderWithNoTransform.topic,
-                    "phd.x"
-                )
-            }.map {
-                it.serialize()
-            }
+            val expectedRouteQueueMessage = FhirTranslateQueueMessage(
+                routedReport.reportId,
+                routedReport.bodyUrl,
+                BlobAccess.digestToString(routedReport.blobDigest),
+                "phd.fhir-elr-no-transform",
+               Topic.FULL_ELR,
+                "phd.x"
+            ).serialize()
 
             // filter should permit message and should not mangle message
             verify(exactly = 1) {
-                QueueAccess.sendMessage(
-                    elrTranslationQueueName,
-                    match {
-                        expectedRouteQueueMessages.contains(it)
-                    }
-                )
+                QueueAccess.sendMessage(elrTranslationQueueName, expectedRouteQueueMessage)
             }
+
+            // check events
+            assertThat(azureEventService.events).hasSize(1)
+            val bundle = FhirTranscoder.decode(reportContents)
+            assertThat(azureEventService.events.single())
+                .isInstanceOf<ReportRouteEvent>()
+                .isEqualTo(
+                    ReportRouteEvent(
+                        routedReport.reportId,
+                        destinationReport.id,
+                        receiveReport.id,
+                        Topic.FULL_ELR,
+                        "phd.Test Sender",
+                        receiver.fullName,
+                        AzureEventUtils.getObservationSummaries(bundle),
+                        emptyList(),
+                        reportContents.length,
+                        AzureEventUtils.getIdentifier(bundle)
+                    )
+                )
 
             // make sure action table has a new entry
             UniversalPipelineTestUtils.checkActionTable(
@@ -673,13 +727,10 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
         val receiver = receivers.single()
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
-        val receiverFilter = UniversalPipelineTestUtils.createReceiverFilter(org)
+        val receiverFilter = UniversalPipelineTestUtils.createReceiverFilter(azureEventService, org)
 
         // set up
-        val reportContents =
-            listOf(
-                File(VALID_FHIR_URL).readText()
-            ).joinToString()
+        val reportContents = File(VALID_FHIR_URL).readText()
 
         val reports = UniversalPipelineTestUtils.createReportsWithLineage(
             reportContents,
@@ -745,5 +796,26 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     }
             }
         }
+
+        // verify events
+        assertThat(azureEventService.events).hasSize(1)
+        val bundle = FhirTranscoder.decode(reportContents)
+        assertThat(azureEventService.events.single()).isInstanceOf<ReceiverFilterFailedEvent>()
+            .isEqualToIgnoringGivenProperties(
+                ReceiverFilterFailedEvent(
+                    UUID.randomUUID(), // ignored
+                    destinationReport.id,
+                    reports.first().id,
+                    Topic.FULL_ELR,
+                    "phd.Test Sender",
+                    receiver.fullName,
+                    AzureEventUtils.getObservationSummaries(bundle),
+                    processingModeFilterDebugging,
+                    ReportStreamFilterType.PROCESSING_MODE_FILTER,
+                    reportContents.length,
+                    AzureEventUtils.getIdentifier(bundle)
+                ),
+                ReceiverFilterFailedEvent::reportId
+            )
     }
 }

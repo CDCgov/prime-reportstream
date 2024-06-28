@@ -369,6 +369,7 @@ object UniversalPipelineTestUtils {
     }
 
     fun createReceiverFilter(
+        azureEventService: AzureEventService,
         org: DeepOrganization? = null,
     ): FHIRReceiverFilter {
         val settings = FileSettings().loadOrganizations(org ?: universalPipelineOrganization)
@@ -380,6 +381,7 @@ object UniversalPipelineTestUtils {
             metadata,
             settings,
             reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess)),
+            azureEventService = azureEventService
         )
     }
 

@@ -82,12 +82,12 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         } returns UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
         // TODO consider not mocking DatabaseLookupTableAccess
         mockkConstructor(DatabaseLookupTableAccess::class)
-        azureEventsService.events.clear()
     }
 
     @AfterEach
     fun afterEach() {
         unmockkAll()
+        azureEventsService.events.clear()
     }
 
     @Test
