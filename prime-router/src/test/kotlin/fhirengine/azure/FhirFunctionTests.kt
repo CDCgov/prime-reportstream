@@ -24,10 +24,10 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
-import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.FhirDestinationFilterQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.QueueMessage
-import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
@@ -153,13 +153,13 @@ class FhirFunctionTests {
             topic = Topic.FULL_ELR,
         )
         val routeEvent = ProcessEvent(
-            Event.EventAction.ROUTE,
+            Event.EventAction.DESTINATION_FILTER,
             report.id,
             Options.None,
             emptyMap(),
             emptyList()
         )
-        val message = FhirConvertQueueMessage(
+        val message = FhirDestinationFilterQueueMessage(
             report.id,
             "",
             "BlobAccess.digestToString(blobInfo.digest)",
@@ -190,11 +190,12 @@ class FhirFunctionTests {
             fhirEngine.doWork(any(), any(), any())
             actionHistory.trackActionParams(queueMessage) // string
             actionHistory.trackLogs(emptyList()) // list actionLog
-            queueMock.sendMessage(elrRoutingQueueName, message.serialize())
+            queueMock.sendMessage(elrDestinationFilterQueueName, message.serialize())
             workflowEngine.recordAction(any(), any())
         }
     }
 
+    // TODO: deprecated
     // test route-fhir
     @Test
     fun `test route-fhir`() {
