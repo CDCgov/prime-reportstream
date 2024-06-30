@@ -159,36 +159,36 @@ data class ReportStreamFilterResult(
  * unique id and name as well as list of sources for the creation of the report.
  */
 class Report : Logging {
-    enum class Format(val ext: String, val mimeType: String, val isSingleItemFormat: Boolean = false) {
-        INTERNAL("internal.csv", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
-        CSV("csv", "text/csv"), // A CSV format the follows the csvFields
-        CSV_SINGLE("csv", "text/csv", true),
-        HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
-        HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
-        FHIR("fhir", "application/fhir+ndjson"),
-        ;
-
-        companion object {
-            // Default to CSV if weird or unknown
-            fun safeValueOf(formatStr: String?): Format = try {
-                    valueOf(formatStr ?: "CSV")
-                } catch (e: IllegalArgumentException) {
-                    CSV
-                }
-
-            /**
-             * Returns a Format based on the [ext] provided, ignoring case.
-             */
-            fun valueOfFromExt(ext: String): Format = when (ext.lowercase()) {
-                    HL7.ext.lowercase() -> HL7
-                    FHIR.ext.lowercase() -> FHIR
-                    CSV.ext.lowercase() -> CSV
-                    else -> throw IllegalArgumentException("Unexpected extension $ext.")
-                }
-
-            fun valueOfIgnoreCase(bodyFormat: String): Format = valueOf(bodyFormat.uppercase())
-        }
-    }
+//    enum class Format(val ext: String, val mimeType: String, val isSingleItemFormat: Boolean = false) {
+//        INTERNAL("internal.csv", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
+//        CSV("csv", "text/csv"), // A CSV format the follows the csvFields
+//        CSV_SINGLE("csv", "text/csv", true),
+//        HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
+//        HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
+//        FHIR("fhir", "application/fhir+ndjson"),
+//        ;
+//
+//        companion object {
+//            // Default to CSV if weird or unknown
+//            fun safeValueOf(formatStr: String?): Format = try {
+//                    valueOf(formatStr ?: "CSV")
+//                } catch (e: IllegalArgumentException) {
+//                    CSV
+//                }
+//
+//            /**
+//             * Returns a Format based on the [ext] provided, ignoring case.
+//             */
+//            fun valueOfFromExt(ext: String): Format = when (ext.lowercase()) {
+//                    HL7.ext.lowercase() -> HL7
+//                    FHIR.ext.lowercase() -> FHIR
+//                    CSV.ext.lowercase() -> CSV
+//                    else -> throw IllegalArgumentException("Unexpected extension $ext.")
+//                }
+//
+//            fun valueOfIgnoreCase(bodyFormat: String): Format = valueOf(bodyFormat.uppercase())
+//        }
+//    }
 
     /**
      * the UUID for the report
@@ -258,7 +258,7 @@ class Report : Logging {
     /**
      * A format for the body or use the destination format
      */
-    val bodyFormat: Format
+    val bodyFormat: MimeFormat
 
     /**
      * A pointer to where the Report is stored.
@@ -297,7 +297,7 @@ class Report : Logging {
         values: List<List<String>>,
         sources: List<Source>,
         destination: Receiver? = null,
-        bodyFormat: Format? = null,
+        bodyFormat: MimeFormat? = null,
         itemLineage: List<ItemLineage>? = null,
         id: ReportId? = null, // If constructing from blob storage, must pass in its UUID here.  Otherwise, null.
         metadata: Metadata,
@@ -308,7 +308,7 @@ class Report : Logging {
         this.sources = sources
         this.createdDateTime = OffsetDateTime.now()
         this.destination = destination
-        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
+        this.bodyFormat = bodyFormat ?: destination?.format ?: MimeFormat.INTERNAL
         this.itemLineages = itemLineage
         this.table = createTable(schema, values)
         this.itemCount = this.table.rowCount()
@@ -322,7 +322,7 @@ class Report : Logging {
         values: List<List<String>>,
         source: TestSource,
         destination: Receiver? = null,
-        bodyFormat: Format? = null,
+        bodyFormat: MimeFormat? = null,
         itemLineage: List<ItemLineage>? = null,
         metadata: Metadata? = null,
         itemCountBeforeQualFilter: Int? = null,
@@ -331,7 +331,7 @@ class Report : Logging {
         this.schema = schema
         this.sources = listOf(source)
         this.destination = destination
-        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
+        this.bodyFormat = bodyFormat ?: destination?.format ?: MimeFormat.INTERNAL
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
@@ -345,7 +345,7 @@ class Report : Logging {
         values: Map<String, List<String>>,
         source: Source,
         destination: Receiver? = null,
-        bodyFormat: Format? = null,
+        bodyFormat: MimeFormat? = null,
         itemLineage: List<ItemLineage>? = null,
         metadata: Metadata,
         itemCountBeforeQualFilter: Int? = null,
@@ -353,7 +353,7 @@ class Report : Logging {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.sources = listOf(source)
-        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
+        this.bodyFormat = bodyFormat ?: destination?.format ?: MimeFormat.INTERNAL
         this.destination = destination
         this.createdDateTime = OffsetDateTime.now()
         this.itemLineages = itemLineage
@@ -372,7 +372,7 @@ class Report : Logging {
      * [itemLineage] itemlineages for this report to track parent/child reports
      */
     constructor(
-        bodyFormat: Format,
+        bodyFormat: MimeFormat,
         sources: List<Source>,
         numberOfMessages: Int,
         metadata: Metadata? = null,
@@ -411,7 +411,7 @@ class Report : Logging {
      * @param nextAction the next action to be performed on this report
      */
     constructor(
-        bodyFormat: Format,
+        bodyFormat: MimeFormat,
         sources: List<Source>,
         metadata: Metadata? = null,
         parentItemLineageData: List<ParentItemLineageData>,
@@ -452,7 +452,7 @@ class Report : Logging {
         table: Table,
         sources: List<Source>,
         destination: Receiver? = null,
-        bodyFormat: Format? = null,
+        bodyFormat: MimeFormat? = null,
         itemLineage: List<ItemLineage>? = null,
         metadata: Metadata? = null,
         itemCountBeforeQualFilter: Int? = null,
@@ -463,7 +463,7 @@ class Report : Logging {
         this.itemCount = this.table.rowCount()
         this.sources = sources
         this.destination = destination
-        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
+        this.bodyFormat = bodyFormat ?: destination?.format ?: MimeFormat.INTERNAL
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
         this.metadata = metadata ?: Metadata.getInstance()
@@ -496,7 +496,7 @@ class Report : Logging {
      * Does a shallow copy of this report. Will have a new id and create date.
      * Copies the itemLineages and filteredItems as well.
      */
-    fun copy(destination: Receiver? = null, bodyFormat: Format? = null): Report {
+    fun copy(destination: Receiver? = null, bodyFormat: MimeFormat? = null): Report {
         // Dev Note: table is immutable, so no need to duplicate it
         val copy = Report(
             this.schema,
@@ -1525,7 +1525,7 @@ class Report : Logging {
 
         fun formFilename(
             id: ReportId,
-            fileFormat: Format,
+            fileFormat: MimeFormat,
         ): String {
             val nameSuffix = fileFormat.ext
             return "$id.$nameSuffix"
@@ -1545,7 +1545,7 @@ class Report : Logging {
                 reportService.getRootReport(header.reportFile.reportId).externalName ?: formExternalFilename(
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
-                    Format.valueOfIgnoreCase(header.reportFile.bodyFormat),
+                    MimeFormat.valueOfIgnoreCase(header.reportFile.bodyFormat),
                     header.reportFile.createdAt,
                     metadata = metadata ?: Metadata.getInstance()
                 )
@@ -1555,7 +1555,7 @@ class Report : Logging {
                 formExternalFilename(
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
-                    Format.valueOfIgnoreCase(header.reportFile.bodyFormat),
+                    MimeFormat.valueOfIgnoreCase(header.reportFile.bodyFormat),
                     header.reportFile.createdAt,
                     metadata = metadata ?: Metadata.getInstance()
                 )
@@ -1568,7 +1568,7 @@ class Report : Logging {
         fun formExternalFilename(
             reportId: ReportId,
             schemaName: String,
-            format: Format,
+            format: MimeFormat,
             createdAt: OffsetDateTime,
             metadata: Metadata? = Metadata.getInstance(),
             nameFormat: String = "standard",
@@ -1614,9 +1614,9 @@ class Report : Logging {
          *
          * @return a Report.Format representing the appropriate format
          */
-        fun getFormatFromBlobURL(blobURL: String): Format {
+        fun getFormatFromBlobURL(blobURL: String): MimeFormat {
             val extension = BlobAccess.BlobInfo.getBlobFileExtension(blobURL)
-            return Format.valueOfFromExt(extension)
+            return MimeFormat.valueOfFromExt(extension)
         }
 
         /**
@@ -1633,7 +1633,7 @@ class Report : Logging {
             metadata: Metadata,
             actionHistory: ActionHistory,
             topic: Topic,
-            format: Format? = null,
+            format: MimeFormat? = null,
             externalName: String? = null,
         ): Triple<Report, Event, BlobAccess.BlobInfo> {
             check(messageBody.isNotEmpty())
@@ -1643,15 +1643,15 @@ class Report : Logging {
             val sources = emptyList<Source>()
             // determine format based off the receiver's specified format if format is not specified
             val reportFormat = format ?: when (receiver.format) {
-                Report.Format.HL7, Report.Format.HL7_BATCH -> {
+                MimeFormat.HL7, MimeFormat.HL7_BATCH -> {
                     if (sourceReportIds.size > 1) {
-                        Report.Format.HL7_BATCH
+                        MimeFormat.HL7_BATCH
                     } else {
-                        Report.Format.HL7
+                        MimeFormat.HL7
                     }
                 }
 
-                Report.Format.FHIR -> Report.Format.FHIR
+                MimeFormat.FHIR -> MimeFormat.FHIR
                 else -> throw IllegalStateException("Unsupported receiver format ${receiver.format}")
             }
             val report = Report(

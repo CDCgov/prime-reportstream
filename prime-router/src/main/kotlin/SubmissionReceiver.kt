@@ -1,7 +1,6 @@
 package gov.cdc.prime.router
 
 import ca.uhn.hl7v2.model.Message
-import gov.cdc.prime.router.Report.Format
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
@@ -227,7 +226,7 @@ class TopicReceiver : SubmissionReceiver {
             ?: error("Unable to process report ${report.id} because sender sources collection is empty.")
         val senderName = (senderSource as ClientSource).name
 
-        if (report.bodyFormat != Format.INTERNAL) {
+        if (report.bodyFormat != MimeFormat.INTERNAL) {
             error("Processing a non internal report async.")
         }
 
@@ -277,7 +276,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
                 // create a Report for this incoming HL7 message to use for tracking in the database
 
                 report = Report(
-                    if (isBatch) Format.HL7_BATCH else Format.HL7,
+                    if (isBatch) MimeFormat.HL7_BATCH else MimeFormat.HL7,
                     sources,
                     messages.size,
                     metadata = metadata,
@@ -302,7 +301,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
             Sender.Format.FHIR -> {
                 val bundles = FhirTranscoder.getBundles(content, actionLogs)
                 report = Report(
-                    Format.FHIR,
+                    MimeFormat.FHIR,
                     sources,
                     bundles.size,
                     metadata = metadata,
