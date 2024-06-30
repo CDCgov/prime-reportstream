@@ -69,7 +69,7 @@ object QuickTestUtils {
     fun generateFakeData(
         schema: String,
         numReports: Int,
-        outputFormat: Report.Format = Report.Format.CSV,
+        outputFormat: MimeFormat = MimeFormat.CSV,
         targetState: String = "",
         targetCounty: String = "",
     ): String {

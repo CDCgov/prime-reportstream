@@ -7,6 +7,7 @@ import assertk.assertions.isTrue
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -105,7 +106,7 @@ class HistoryFunctionsTests {
             reportFile.bodyUrl = "http://bodyUrl"
             reportFile.createdAt = OffsetDateTime.now()
             reportFile.itemCount = 1
-            reportFile.bodyFormat = Report.Format.HL7.toString()
+            reportFile.bodyFormat = MimeFormat.HL7.toString()
             reportFile.receivingOrgSvc = "default"
             reportFile.schemaName = "default"
             reportFile.externalName = "external-name"
@@ -156,7 +157,7 @@ class HistoryFunctionsTests {
             reportFile.receivingOrg = "test1"
             reportFile.createdAt = OffsetDateTime.now()
             reportFile.itemCount = 1
-            reportFile.bodyFormat = Report.Format.HL7.toString()
+            reportFile.bodyFormat = MimeFormat.HL7.toString()
             reportFile.receivingOrgSvc = "default"
             reportFile.schemaName = "default"
             reportFile.externalName = "externalFile.hl7"
@@ -201,7 +202,7 @@ class HistoryFunctionsTests {
             reportFile.bodyUrl = "http://bodyUrl"
             reportFile.createdAt = OffsetDateTime.now()
             reportFile.itemCount = 1
-            reportFile.bodyFormat = Report.Format.HL7.toString()
+            reportFile.bodyFormat = MimeFormat.HL7.toString()
             reportFile.receivingOrgSvc = "default"
             reportFile.schemaName = "default"
 

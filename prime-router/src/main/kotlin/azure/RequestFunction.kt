@@ -7,6 +7,7 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.LegacyPipelineSender
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
@@ -188,7 +189,7 @@ abstract class RequestFunction(
             val schema = workflowEngine.metadata.findSchema(schemaName)
                 ?: throw InvalidParameterException("$errMsgPrefix The schema with name '$schemaName' does not exist")
             val format = try {
-                Sender.Format.valueOf(formatName)
+                MimeFormat.valueOf(formatName)
             } catch (e: IllegalArgumentException) {
                 throw InvalidParameterException("$errMsgPrefix The format '$formatName' is not supported")
             }

@@ -9,6 +9,7 @@ import com.nimbusds.jose.jwk.KeyType
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.MockSettings
@@ -86,7 +87,7 @@ class Server2ServerAuthenticationTests {
     private val sender = CovidSender(
         "default",
         "simple_report",
-        Sender.Format.CSV,
+        MimeFormat.CSV,
         CustomerStatus.INACTIVE,
         "mySchema",
     )

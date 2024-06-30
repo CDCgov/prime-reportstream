@@ -8,6 +8,7 @@ import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -72,7 +73,7 @@ class WorkflowEngineTests {
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         val event = ReportEvent(Event.EventAction.NONE, UUID.randomUUID(), false)
-        val bodyFormat = Report.Format.CSV
+        val bodyFormat = MimeFormat.CSV
         val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("myRcvr", "topic", Topic.TEST, CustomerStatus.INACTIVE, "mySchema")
@@ -114,7 +115,7 @@ class WorkflowEngineTests {
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         val event = ReportEvent(Event.EventAction.NONE, UUID.randomUUID(), false)
-        val bodyFormat = Report.Format.CSV
+        val bodyFormat = MimeFormat.CSV
         val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("myRcvr", "topic", Topic.TEST, CustomerStatus.INACTIVE, "mySchema")
@@ -157,7 +158,7 @@ class WorkflowEngineTests {
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         val event = ReportEvent(Event.EventAction.NONE, report1.id, false)
-        val bodyFormat = Report.Format.CSV
+        val bodyFormat = MimeFormat.CSV
         val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("MyRcvr", "topic", Topic.TEST, CustomerStatus.INACTIVE, "mySchema")
@@ -207,10 +208,10 @@ class WorkflowEngineTests {
             listOf(listOf("1", "2"), listOf("3", "4")),
             source = TestSource,
             metadata = metadata,
-            bodyFormat = Report.Format.CSV
+            bodyFormat = MimeFormat.CSV
         )
         val actionHistory = mockk<ActionHistory>()
-        val sender = CovidSender("senderName", "org", Sender.Format.CSV, CustomerStatus.INACTIVE, one.name)
+        val sender = CovidSender("senderName", "org", MimeFormat.CSV, CustomerStatus.INACTIVE, one.name)
 
         every {
             BlobAccess.Companion.uploadBody(
@@ -220,7 +221,7 @@ class WorkflowEngineTests {
                 sender.fullName,
                 Event.EventAction.RECEIVE
             )
-        }.returns(BlobAccess.BlobInfo(Report.Format.CSV, "http://anyblob.com", "".toByteArray()))
+        }.returns(BlobAccess.BlobInfo(MimeFormat.CSV, "http://anyblob.com", "".toByteArray()))
         every { actionHistory.trackExternalInputReport(any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)

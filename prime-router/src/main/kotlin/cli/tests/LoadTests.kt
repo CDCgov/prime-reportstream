@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.databind.node.ObjectNode
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.REPORT_MAX_ITEMS
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.HttpUtilities
@@ -162,7 +163,7 @@ class Huge : CoolTest() {
             receivingStates,
             csvReceiver.name,
             options.dir,
-            Report.Format.CSV
+            MimeFormat.CSV
         )
         echo("Created datafile $file")
         // Now send it to ReportStream.
@@ -210,7 +211,7 @@ class TooBig : CoolTest() {
             receivingStates,
             csvReceiver.name,
             options.dir,
-            Report.Format.CSV
+            MimeFormat.CSV
         )
         echo("Created datafile $file")
         // Now send it to ReportStream.

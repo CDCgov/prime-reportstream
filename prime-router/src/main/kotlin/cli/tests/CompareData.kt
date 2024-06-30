@@ -10,6 +10,7 @@ import com.github.difflib.text.DiffRow
 import com.github.difflib.text.DiffRowGenerator
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -125,7 +126,7 @@ class DataCompareTest : CoolTest() {
                         receiver.organizationName == testOutput.orgName && receiver.name == testOutput.receiverName
                     }
                     if (rec.isNotEmpty()) {
-                        if (rec[0].format == Report.Format.HL7_BATCH || rec[0].format == Report.Format.CSV) {
+                        if (rec[0].format == MimeFormat.HL7_BATCH || rec[0].format == MimeFormat.CSV) {
                             testOutput.receiver = rec[0]
                             rec[0]
                         } else {
@@ -329,7 +330,7 @@ warnings: ${warnings.joinToString()}
     fun compare(
         expected: File,
         actual: File,
-        format: Report.Format?,
+        format: MimeFormat?,
         schema: Schema,
     ): Result {
         val result = Result()
@@ -362,17 +363,17 @@ warnings: ${warnings.joinToString()}
     fun compare(
         expected: InputStream,
         actual: InputStream,
-        format: Report.Format?,
+        format: MimeFormat?,
         schema: Schema?,
         result: Result = Result(),
         fieldsToIgnore: List<String>? = null,
     ): Result {
-        check((format == Report.Format.CSV && schema != null) || format != Report.Format.CSV) { "Schema is required" }
+        check((format == MimeFormat.CSV && schema != null) || format != MimeFormat.CSV) { "Schema is required" }
         val compareResult = when (format) {
-            Report.Format.CSV, Report.Format.CSV_SINGLE, Report.Format.INTERNAL ->
+            MimeFormat.CSV, MimeFormat.CSV_SINGLE, MimeFormat.INTERNAL ->
                 CompareCsvData().compare(expected, actual, schema!!, fieldsToIgnore)
-            Report.Format.HL7, Report.Format.HL7_BATCH -> CompareHl7Data().compare(expected, actual)
-            Report.Format.FHIR -> CompareFhirData().compare(expected, actual)
+            MimeFormat.HL7, MimeFormat.HL7_BATCH -> CompareHl7Data().compare(expected, actual)
+            MimeFormat.FHIR -> CompareFhirData().compare(expected, actual)
             else -> CompareFile().compare(expected, actual)
         }
         result.merge(compareResult)

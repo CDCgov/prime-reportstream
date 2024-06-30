@@ -107,7 +107,7 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
                 any(),
                 any()
             )
-        } returns BlobAccess.BlobInfo(Report.Format.HL7, "", "".toByteArray())
+        } returns BlobAccess.BlobInfo(MimeFormat.HL7, "", "".toByteArray())
     }
 
     @Test

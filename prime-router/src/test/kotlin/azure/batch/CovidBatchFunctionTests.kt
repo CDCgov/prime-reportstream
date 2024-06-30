@@ -5,6 +5,7 @@ import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -118,7 +119,7 @@ class CovidBatchFunctionTests {
         val schemaName = "one"
         val mockBlobInfo = mockk<BlobAccess.BlobInfo>()
         every { mockBlobInfo.blobUrl } returns bodyURL
-        every { mockBlobInfo.format } returns Report.Format.CSV
+        every { mockBlobInfo.format } returns MimeFormat.CSV
         every { mockBlobInfo.digest } returns ByteArray(4)
         every { blobMock.uploadReport(any(), any(), any(), any()) } returns mockBlobInfo
         every { mockReportFile.reportId } returns randomUUID

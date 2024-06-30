@@ -159,36 +159,6 @@ data class ReportStreamFilterResult(
  * unique id and name as well as list of sources for the creation of the report.
  */
 class Report : Logging {
-//    enum class Format(val ext: String, val mimeType: String, val isSingleItemFormat: Boolean = false) {
-//        INTERNAL("internal.csv", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
-//        CSV("csv", "text/csv"), // A CSV format the follows the csvFields
-//        CSV_SINGLE("csv", "text/csv", true),
-//        HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
-//        HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
-//        FHIR("fhir", "application/fhir+ndjson"),
-//        ;
-//
-//        companion object {
-//            // Default to CSV if weird or unknown
-//            fun safeValueOf(formatStr: String?): Format = try {
-//                    valueOf(formatStr ?: "CSV")
-//                } catch (e: IllegalArgumentException) {
-//                    CSV
-//                }
-//
-//            /**
-//             * Returns a Format based on the [ext] provided, ignoring case.
-//             */
-//            fun valueOfFromExt(ext: String): Format = when (ext.lowercase()) {
-//                    HL7.ext.lowercase() -> HL7
-//                    FHIR.ext.lowercase() -> FHIR
-//                    CSV.ext.lowercase() -> CSV
-//                    else -> throw IllegalArgumentException("Unexpected extension $ext.")
-//                }
-//
-//            fun valueOfIgnoreCase(bodyFormat: String): Format = valueOf(bodyFormat.uppercase())
-//        }
-//    }
 
     /**
      * the UUID for the report
@@ -1612,7 +1582,7 @@ class Report : Logging {
         /**
          * Gets a file format of a blob located at a [blobURL]
          *
-         * @return a Report.Format representing the appropriate format
+         * @return a MimeFormat representing the appropriate format
          */
         fun getFormatFromBlobURL(blobURL: String): MimeFormat {
             val extension = BlobAccess.BlobInfo.getBlobFileExtension(blobURL)

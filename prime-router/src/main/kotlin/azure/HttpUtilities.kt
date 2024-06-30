@@ -4,6 +4,7 @@ import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
 import gov.cdc.prime.router.Report
@@ -321,9 +322,9 @@ class HttpUtilities {
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
-                Sender.Format.HL7, Sender.Format.HL7_BATCH -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
-                Sender.Format.FHIR -> headers.add("Content-Type" to Report.Format.FHIR.mimeType)
-                else -> headers.add("Content-Type" to Report.Format.CSV.mimeType)
+                MimeFormat.HL7, MimeFormat.HL7_BATCH -> headers.add("Content-Type" to MimeFormat.HL7.mimeType)
+                MimeFormat.FHIR -> headers.add("Content-Type" to MimeFormat.FHIR.mimeType)
+                else -> headers.add("Content-Type" to MimeFormat.CSV.mimeType)
             }
             val clientStr = sendingOrgClient.organizationName +
                 if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
@@ -358,9 +359,9 @@ class HttpUtilities {
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
-                Sender.Format.HL7, Sender.Format.HL7_BATCH -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
-                Sender.Format.FHIR -> headers.add("Content-Type" to Report.Format.FHIR.mimeType)
-                else -> headers.add("Content-Type" to Report.Format.CSV.mimeType)
+                MimeFormat.HL7, MimeFormat.HL7_BATCH -> headers.add("Content-Type" to MimeFormat.HL7.mimeType)
+                MimeFormat.FHIR -> headers.add("Content-Type" to MimeFormat.FHIR.mimeType)
+                else -> headers.add("Content-Type" to MimeFormat.CSV.mimeType)
             }
             val clientStr = sendingOrgClient.organizationName +
                 if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""

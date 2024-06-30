@@ -3,6 +3,7 @@ package gov.cdc.prime.router.cli.tests
 import com.github.ajalt.clikt.core.PrintMessage
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -58,14 +59,14 @@ class OktaAuthTests : CoolTest() {
          * Create a fake report file using the schema expected by [sender].  Creates a file locally.  Does not submit it.
          */
         fun createFakeReport(sender: Sender): File {
-            assert(sender.format == Sender.Format.CSV)
+            assert(sender.format == MimeFormat.CSV)
             assert(sender is CovidSender)
             return FileUtilities.createFakeCovidFile(
                 metadata,
                 settings,
                 schemaName = (sender as CovidSender).schemaName,
                 count = 1,
-                format = Report.Format.CSV,
+                format = MimeFormat.CSV,
                 directory = System.getProperty("java.io.tmpdir"),
                 targetStates = null,
                 targetCounties = null
@@ -478,7 +479,7 @@ class Server2ServerAuthTests : CoolTest() {
         val newSender = CovidSender(
             name = senderName,
             organizationName = orgName,
-            format = Sender.Format.CSV,
+            format = MimeFormat.CSV,
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "primedatainput/pdi-covid-19"
         )

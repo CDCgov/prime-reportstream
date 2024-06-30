@@ -270,7 +270,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         val report: Report
 
         when (sender.format) {
-            Sender.Format.HL7 -> {
+            MimeFormat.HL7 -> {
                 val messages = HL7Reader(actionLogs).getMessages(content)
                 val isBatch = HL7Reader(actionLogs).isBatch(content, messages.size)
                 // create a Report for this incoming HL7 message to use for tracking in the database
@@ -298,7 +298,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
                 messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
             }
 
-            Sender.Format.FHIR -> {
+            MimeFormat.FHIR -> {
                 val bundles = FhirTranscoder.getBundles(content, actionLogs)
                 report = Report(
                     MimeFormat.FHIR,

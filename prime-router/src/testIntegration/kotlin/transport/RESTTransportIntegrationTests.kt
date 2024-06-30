@@ -286,7 +286,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
                 any(),
                 any()
             )
-        } returns BlobAccess.BlobInfo(Report.Format.HL7, "", "".toByteArray())
+        } returns BlobAccess.BlobInfo(MimeFormat.HL7, "", "".toByteArray())
     }
 
     @Test

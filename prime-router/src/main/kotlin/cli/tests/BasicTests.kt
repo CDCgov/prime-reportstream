@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.google.common.base.CharMatcher
 import gov.cdc.prime.router.CovidSender
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
 import gov.cdc.prime.router.Receiver
@@ -235,7 +236,7 @@ class End2EndUniversalPipeline : CoolTest() {
             }
 
             // Compare the actual file content with the expected content
-            val expectedFormat = Report.Format.valueOfFromExt(expectedReceiver.translation.type)
+            val expectedFormat = MimeFormat.valueOfFromExt(expectedReceiver.translation.type)
             val thisRoundPassed = CompareData().compare(
                 expectedFile.readBytes().inputStream(),
                 actualByteArray.inputStream(),
@@ -1401,7 +1402,7 @@ class SantaClaus : CoolTest() {
                 settings = settings,
                 schemaName = (sender as CovidSender).schemaName,
                 count = states.size,
-                format = if (sender.format == Sender.Format.CSV) Report.Format.CSV else Report.Format.HL7_BATCH,
+                format = if (sender.format == MimeFormat.CSV) MimeFormat.CSV else MimeFormat.HL7_BATCH,
                 directory = System.getProperty("java.io.tmpdir"),
                 targetStates = states.joinToString(","),
                 targetCounties = null

@@ -6,6 +6,7 @@ import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
@@ -233,10 +234,10 @@ class SenderFilesFunction(
         }
     }
 
-    private fun cutContent(reportBlob: String, senderFormat: Sender.Format, itemIndices: List<Int>): String {
+    private fun cutContent(reportBlob: String, senderFormat: MimeFormat, itemIndices: List<Int>): String {
         return when (senderFormat) {
-            Sender.Format.CSV -> CsvUtilities.cut(reportBlob, itemIndices)
-            Sender.Format.HL7, Sender.Format.HL7_BATCH -> Hl7Utilities.cut(reportBlob, itemIndices)
+            MimeFormat.CSV -> CsvUtilities.cut(reportBlob, itemIndices)
+            MimeFormat.HL7, MimeFormat.HL7_BATCH -> Hl7Utilities.cut(reportBlob, itemIndices)
             else -> throw IllegalStateException("Sender format $senderFormat is not supported")
         }
     }
@@ -294,10 +295,10 @@ class SenderFilesFunction(
 
         private val mapper = JacksonMapperUtilities.defaultMapper
 
-        private fun mapBodyFormatToSenderFormat(bodyFormat: String): Sender.Format {
+        private fun mapBodyFormatToSenderFormat(bodyFormat: String): MimeFormat {
             return when (bodyFormat) {
-                "CSV", "CSV_SINGLE", "INTERNAL" -> Sender.Format.CSV
-                "HL7", "HL7_BATCH" -> Sender.Format.HL7
+                "CSV", "CSV_SINGLE", "INTERNAL" -> MimeFormat.CSV
+                "HL7", "HL7_BATCH" -> MimeFormat.HL7
                 else -> error("Unknown body format type: $bodyFormat")
             }
         }
