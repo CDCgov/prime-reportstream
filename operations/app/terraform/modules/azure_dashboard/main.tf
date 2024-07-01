@@ -1,6 +1,6 @@
 data "azurerm_subscription" "current" {}
 
-resource "azurerm_dashboard" "az_dashboard" {
+resource "azurerm_portal_dashboard" "az_dashboard" {
   name                = "${var.resource_prefix}-RS-Dashboard"
   location            = var.location
   resource_group_name = var.resource_group
