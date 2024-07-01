@@ -128,7 +128,7 @@ class BlobAccess() : Logging {
         subfolderName: String? = null,
         action: Event.EventAction = Event.EventAction.NONE,
     ): BlobInfo {
-        return uploadBody(report.bodyFormat, blobBytes, report.name, subfolderName, action)
+        return uploadBody(report.bodyFormat, blobBytes, report.id.toString(), subfolderName, action)
     }
 
     companion object : Logging {
@@ -163,14 +163,14 @@ class BlobAccess() : Logging {
         ): BlobInfo {
             val subfolderNameChecked = if (subfolderName.isNullOrBlank()) "" else "$subfolderName/"
             val blobName = when (action) {
-                Event.EventAction.RECEIVE -> "receive/$subfolderNameChecked$reportName"
-                Event.EventAction.SEND -> "ready/$subfolderNameChecked$reportName"
-                Event.EventAction.BATCH -> "batch/$subfolderNameChecked$reportName"
-                Event.EventAction.PROCESS -> "process/$subfolderNameChecked$reportName"
-                Event.EventAction.ROUTE -> "route/$subfolderNameChecked$reportName"
-                Event.EventAction.TRANSLATE -> "translate/$subfolderNameChecked$reportName"
-                Event.EventAction.NONE -> "none/$subfolderNameChecked$reportName"
-                else -> "other/$subfolderNameChecked$reportName"
+                Event.EventAction.RECEIVE -> "receive/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+                Event.EventAction.SEND -> "ready/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+                Event.EventAction.BATCH -> "batch/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+                Event.EventAction.PROCESS -> "process/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+                Event.EventAction.ROUTE -> "route/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+                Event.EventAction.TRANSLATE -> "translate/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+                Event.EventAction.NONE -> "none/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+                else -> "other/$subfolderNameChecked$reportName.${bodyFormat.ext}"
             }
             val digest = sha256Digest(blobBytes)
             val blobUrl = uploadBlob(blobName, blobBytes)

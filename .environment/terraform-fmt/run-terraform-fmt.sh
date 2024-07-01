@@ -5,7 +5,7 @@ function checkExec() {
 
     if [ $? -eq 0 ];
     then
-       echo "Great! $(Terraform version | head -1) is istalled"
+       echo "Great! $(terraform version | head -1) is installed"
        echo -e "\033[32mNow runing Terraform format Check...\033[m"
     else
        echo -e "\033[31mError: Terraform executable is missing.\033[m"

@@ -8,25 +8,85 @@ import kotlin.test.Test
 
 class AzureEventUtilsTest {
 
-    private val validFhirReport = "src/test/resources/fhirengine/engine/routing/valid.fhir"
+    private val validFhirReport = "src/test/resources/fhirengine/engine/routing/valid2.fhir"
     private val validFhirReportNoIdentifier = "src/test/resources/fhirengine/engine/routing/valid_no_identifier.fhir"
+    private val loincSystem = "http://loinc.org"
+    private val snomedSystem = "SNOMEDCT"
 
     @Test
     fun `get all observations from bundle and map them correctly`() {
         val fhirData = File(validFhirReport).readText()
         val bundle = FhirTranscoder.decode(fhirData)
 
+        @Suppress("ktlint:standard:max-line-length")
         val expected = listOf(
             ObservationSummary(
-                ConditionSummary(
-                    "840539006",
-                    "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                listOf(
+                    TestSummary(
+                        listOf(
+                            CodeSummary(
+                                snomedSystem,
+                                "840539006",
+                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                            ),
+                            CodeSummary(
+                                snomedSystem,
+                                "7180009",
+                                "Meningitis (disorder)"
+                            )
+                        ),
+                        loincSystem,
+                        "94558-4",
+                        "SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
+                    ),
+                    TestSummary(
+                        listOf(
+                            CodeSummary(
+                                snomedSystem,
+                                "840539006",
+                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                            ),
+                            CodeSummary(
+                                snomedSystem,
+                                "7180009",
+                                "Meningitis (disorder)"
+                            )
+                        ),
+                        "Local",
+                        "12345",
+                        "Covid 19 Test"
+                    )
                 )
             ),
-            ObservationSummary.EMPTY,
-            ObservationSummary.EMPTY,
-            ObservationSummary.EMPTY,
-            ObservationSummary.EMPTY
+            ObservationSummary(
+                listOf(
+                    TestSummary(
+                        testPerformedCode = "95418-0",
+                    )
+                )
+            ),
+            ObservationSummary(
+                listOf(
+                    TestSummary(
+                        testPerformedSystem = loincSystem
+                    )
+                )
+            ),
+            ObservationSummary(
+                listOf(
+                    TestSummary(
+                        testPerformedDisplay = "SARS-CoV-2 (COVID-19) N gene [Presence] in Saliva (oral fluid) by Nucleic acid amplification using CDC primer-probe set N1"
+                    )
+                )
+            ),
+            ObservationSummary(
+                listOf(
+                    TestSummary(
+                        testPerformedCode = "95419-8",
+                        testPerformedSystem = loincSystem
+                    )
+                )
+            )
         )
         val actual = AzureEventUtils.getObservationSummaries(bundle)
 

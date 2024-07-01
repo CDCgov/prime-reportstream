@@ -21,7 +21,7 @@ class JsonSchemaValidationServiceTest {
                 - topic: covid-19
                   jurisdictionalFilter: [ "orEquals(ordering_facility_state, UT, patient_state, UT)" ]
                 - topic: full-elr
-                  jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'UT') or (%patientState.exists() and %patientState = 'UT')" ]
+                  jurisdictionalFilter: [ "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'UT') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'UT')" ]
               stateCode: UT
               receivers:
                 - name: elr

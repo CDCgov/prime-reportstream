@@ -19,7 +19,7 @@ FHIRPath can be verbose and challenging for a user that is not familiar with FHI
    </td>
   </tr>
   <tr>
-   <td>%patientState
+   <td>Bundle.entry.resource.ofType(Patient).address.state
    </td>
    <td>Bundle.entry.resource.ofType(Patient).address.state
    </td>
@@ -42,7 +42,7 @@ This is how the shorthands would be used in receiver settings:
 
 ```yaml
 jurisdictionalFilter:
-	- ‘%patientState = “CO”’
+	- ‘Bundle.entry.resource.ofType(Patient).address.state = “CO”’
 qualityFilter:
 	- ‘%patientLastname.exists() and %patientFirstname.exists()’
 ```

@@ -81,20 +81,20 @@ class FHIRRouterIntegrationTests : Logging {
     // At least one of patient street, patient zip code, patient phone number, patient email
     // At least one of order test date, specimen collection date/time, test result date
     val fullElrQualityFilterSample: ReportStreamFilter = listOf(
-        "%messageId.exists()",
-        "%patient.name.family.exists()",
-        "%patient.name.given.count() > 0",
-        "%patient.birthDate.exists()",
-        "%specimen.type.exists()",
-        "(%patient.address.line.exists() or " +
-            "%patient.address.postalCode.exists() or " +
-            "%patient.telecom.exists())",
+        "Bundle.entry.resource.ofType(MessageHeader).id.exists()",
+        "Bundle.entry.resource.ofType(Patient).name.family.exists()",
+        "Bundle.entry.resource.ofType(Patient).name.given.count() > 0",
+        "Bundle.entry.resource.ofType(Patient).birthDate.exists()",
+        "Bundle.entry.resource.ofType(Specimen).type.exists()",
+        "(Bundle.entry.resource.ofType(Patient).address.line.exists() or " +
+            "Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or " +
+            "Bundle.entry.resource.ofType(Patient).telecom.exists())",
         "(" +
-            "(%specimen.collection.collectedPeriod.exists() or " +
-            "%specimen.collection.collected.exists()" +
+            "(Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or " +
+            "Bundle.entry.resource.ofType(Specimen).collection.collected.exists()" +
             ") or " +
-            "%serviceRequest.occurrence.exists() or " +
-            "%observation.effective.exists())",
+            "Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or " +
+            "Bundle.entry.resource.ofType(Observation).effective.exists())",
     )
 
     // requires only an id exists in the message header

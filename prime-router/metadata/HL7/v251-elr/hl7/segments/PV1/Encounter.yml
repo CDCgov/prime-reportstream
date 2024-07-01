@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: Encounter
 
 # Not mapped because fields are deprecated in NIST and not in the mapping inventory

@@ -171,7 +171,7 @@ class FHIRConverter(
                         val blobInfo = BlobAccess.uploadBody(
                             Report.Format.FHIR,
                             bodyBytes,
-                            report.name,
+                            report.id.toString(),
                             queueMessage.blobSubFolderName,
                             routeEvent.eventAction
                         )
@@ -288,6 +288,7 @@ class FHIRConverter(
                         emptyList()
                     }
                 }
+
                 Report.Format.FHIR -> {
                     LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                         "Processed raw message into items",
@@ -298,6 +299,7 @@ class FHIRConverter(
                         getBundlesFromRawFHIR(rawReport, validator)
                     }
                 }
+
                 else -> {
                     logger.error("Received unsupported report format: $format")
                     actionLogger.error(InvalidReportMessage("Received unsupported report format: $format"))

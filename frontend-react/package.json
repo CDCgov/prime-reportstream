@@ -75,6 +75,7 @@
         "test:e2e": "playwright test",
         "test:e2e-ui": "playwright test --ui",
         "test:e2e-ui:debug": "PWDEBUG=1 playwright test --ui",
+        "test:warnings": "playwright test --grep @warning",
         "lint": "eslint \"**/*.{js,ts,jsx,tsx}\" && prettier \"*\" --check --ignore-unknown && tsc",
         "lint:errors-only": "eslint \"**/*.{js,ts,jsx,tsx}\" --quiet && prettier \"*\" --check --ignore-unknown && tsc",
         "lint:fix": "eslint \"**/*.{js,ts,jsx,tsx}\" --fix && prettier \"*\" --check --write --ignore-unknown && tsc",

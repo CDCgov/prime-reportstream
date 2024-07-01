@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.databind.JsonNode
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatusType
@@ -21,14 +21,13 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.SQLDataType
-import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.net.URISyntaxException
 import java.time.LocalDateTime
-import java.util.UUID
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -151,35 +150,43 @@ class ActionHistory(
         action.username = userName
     }
 
+    fun filterParameters(request: HttpRequestMessage<String?>): String {
+        // list of values to search and filter
+        val notAllowedHeaderParts = listOf("key", "cookie", "auth")
+        val notAllowedParameterParts = listOf("code")
+
+        // Extract query parameters
+        val filteredParams = request.queryParameters.entries
+            .filter { (key, _) ->
+                notAllowedParameterParts.none { part ->
+                    key.contains(part, ignoreCase = true)
+                }
+            }
+            .associate { (key, value) -> key to value }
+
+        // Extract query parameters
+        val filteredHeaders = request.headers.entries
+            .filter { (key, _) ->
+                notAllowedHeaderParts.none { part ->
+                    key.contains(part, ignoreCase = true)
+                }
+            }
+            .associate { (key, value) -> key to value }
+
+        val jsonNode = jacksonObjectMapper.createObjectNode()
+            .put("method", request.httpMethod.name)
+            .put("url", request.uri.toString())
+
+        jsonNode.set<JsonNode>("queryParams", jacksonObjectMapper.valueToTree(filteredParams))
+        jsonNode.set<JsonNode>("headers", jacksonObjectMapper.valueToTree(filteredHeaders))
+
+        return jacksonObjectMapper.writeValueAsString(jsonNode)
+    }
+
     /**
      * Track the parmeters of a [request].
      */
     fun trackActionParams(request: HttpRequestMessage<String?>) {
-        // TODO Convert to use jackson mapper
-        val factory = JsonFactory()
-        val outStream = ByteArrayOutputStream()
-        factory.createGenerator(outStream).use { jsonGenerator ->
-            jsonGenerator.useDefaultPrettyPrinter()
-            jsonGenerator.writeStartObject()
-            jsonGenerator.writeStringField("method", request.httpMethod.toString())
-            jsonGenerator.writeObjectFieldStart("Headers")
-            // remove secrets
-            request.headers
-                .filter { !it.key.contains("key") }
-                .filter { !it.key.contains("cookie") }
-                .filter { !it.key.contains("auth") }
-                .forEach { (key, value) ->
-                    jsonGenerator.writeStringField(key, value)
-                }
-            jsonGenerator.writeEndObject()
-            jsonGenerator.writeObjectFieldStart("QueryParameters")
-            // remove secrets
-            request.queryParameters.filter { !it.key.contains("code") }.forEach { (key, value) ->
-                jsonGenerator.writeStringField(key, value)
-            }
-            jsonGenerator.writeEndObject()
-            jsonGenerator.writeEndObject()
-        }
         action.contentLength = request.headers["content-length"]?.let {
             try {
                 it.toInt()
@@ -192,7 +199,7 @@ class ActionHistory(
         request.headers["x-forwarded-for"]?.let {
             action.senderIp = it.split(",").firstOrNull()?.trim()?.take(ACTION.SENDER_IP.dataType.length())
         }
-        trackActionParams(outStream.toString())
+        trackActionParams(filterParameters(request))
     }
 
     /**
@@ -341,11 +348,9 @@ class ActionHistory(
      * Sanity check: No report can be tracked twice, either as an input or output.
      * Prevents at least tight loops, and other shenanigans.
      */
-    private fun isReportAlreadyTracked(id: ReportId): Boolean {
-        return reportsReceived.containsKey(id) ||
-            reportsIn.containsKey(id) ||
-            reportsOut.containsKey(id)
-    }
+    private fun isReportAlreadyTracked(id: ReportId): Boolean = reportsReceived.containsKey(id) ||
+        reportsIn.containsKey(id) ||
+        reportsOut.containsKey(id)
 
     /**
      * track that this report is used in this Action.
@@ -468,6 +473,7 @@ class ActionHistory(
         report: Report,
         receiver: Receiver? = null,
         blobInfo: BlobAccess.BlobInfo? = null,
+        externalName: String? = null,
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -482,6 +488,7 @@ class ActionHistory(
 
         reportFile.nextAction = event.eventAction.toTaskAction()
         reportFile.nextActionAt = event.at
+        reportFile.externalName = externalName
 
         if (receiver != null) {
             reportFile.receivingOrg = receiver.organizationName
@@ -540,7 +547,7 @@ class ActionHistory(
         val blobInfo = BlobAccess.uploadBody(
             receiver.format,
             header.content,
-            filename ?: UUID.randomUUID().toString(),
+            sentReportId.toString(),
             receiver.fullName,
             Event.EventAction.NONE
         )
@@ -570,7 +577,6 @@ class ActionHistory(
      */
     fun trackDownloadedReport(
         parentReportFile: ReportFile,
-        filename: String,
         externalReportId: ReportId,
         downloadedBy: String,
     ) {
@@ -587,8 +593,8 @@ class ActionHistory(
         reportFile.receivingOrgSvc = parentReportFile.receivingOrgSvc
         reportFile.schemaName = trimSchemaNameToMaxLength(parentReportFile.schemaName)
         reportFile.schemaTopic = parentReportFile.schemaTopic
-        reportFile.externalName = filename
-        action.externalName = filename
+        reportFile.externalName = parentReportFile.externalName
+        action.externalName = parentReportFile.externalName
         reportFile.transportParams = "{ \"reportRequested\": \"${parentReportFile.reportId}\"}"
         reportFile.transportResult = "{ \"downloadedBy\": \"$downloadedBy\"}"
         reportFile.bodyUrl = null // this entry represents an external file, not a blob.

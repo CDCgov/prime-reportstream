@@ -1,3 +1,5 @@
+# $schema: ./../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 # Used when a coding is not available but separate values are
 type_1:
   condition: $code NOT_NULL && $coding NULL

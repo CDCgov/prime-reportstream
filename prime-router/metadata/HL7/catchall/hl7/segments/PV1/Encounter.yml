@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: Encounter
 
 # Not mapped because fields are deprecated in NIST and not in the mapping inventory
@@ -584,10 +586,10 @@ meta:
           expressions:
             - condition: $pv222 EQUALS Y
               type: STRING
-              value: true
+              value: "true"
             - condition: $pv222 EQUALS N
               type: STRING
-              value: false
+              value: "false"
             - condition: $pv222 NOT_EQUALS Y && $pv222 NOT_EQUALS N
               type: STRING
               valueOf: $pv222

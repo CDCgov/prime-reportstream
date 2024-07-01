@@ -17,6 +17,8 @@ const test = baseTest.extend<AboutPageFixtures>({
             senderLogin,
             receiverLogin,
             storageState,
+            isFrontendWarningsLog,
+            frontendWarningsLogPath,
         },
         use,
     ) => {
@@ -27,6 +29,8 @@ const test = baseTest.extend<AboutPageFixtures>({
             senderLogin,
             receiverLogin,
             storageState,
+            isFrontendWarningsLog,
+            frontendWarningsLogPath,
         });
         await page.goto();
         await use(page);

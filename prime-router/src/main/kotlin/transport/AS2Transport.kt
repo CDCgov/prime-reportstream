@@ -44,6 +44,7 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
         transportType: TransportType,
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
+        externalFileName: String,
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
@@ -56,7 +57,6 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
             if (header.content == null) error("No content to send for report $reportId")
             val receiver = header.receiver ?: error("No receiver defined for report $reportId")
             val credential = lookupCredentials(receiver.fullName)
-            val externalFileName = Report.formExternalFilename(header, metadata)
 
             // Log the useful correlations of ids
             context.logger.info("${receiver.fullName}: Ready to send $reportId($sentReportId) to $externalFileName")

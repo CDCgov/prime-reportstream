@@ -39,11 +39,6 @@ class OBXToObservationTests {
         assert(verifyHL7ToFHIRToHL7Mapping("catchall/obx/OBX-to-Observation-cwe-value").passed)
     }
 
-    // TODO: #12752 clean up how we parse between 2.5.1 and 2.7
-    // The default is to attempt to parse to 2.7 and fallback to 2.5.1 if parsing fails (which can currently happen
-    // when trying to set OBX.2 to CE), however this has other ramifications where fields in other segments are different
-    // i.e. in 2.5.1 OBR.4 is a CE, but in 2.7 is CWE.
-    @kotlin.test.Ignore
     @Test
     fun `test converts with CE for obx2`() {
         assert(verifyHL7ToFHIRToHL7Mapping("catchall/obx/OBX-to-Observation-ce-value").passed)

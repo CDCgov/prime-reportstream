@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 numerator:
   expressionType: nested
   expressionsMap:
@@ -15,7 +17,6 @@ numerator:
         nameOfCodingSystem: CWERangeUnits.3
     unit:
       expressionType: nested
-      condition:
       vars:
         identifier: CWERangeUnits.1
         text: CWERangeUnits.2
@@ -54,7 +55,6 @@ denominator:
         nameOfCodingSystem: CWERangeUnits.3
     unit:
       expressionType: nested
-      condition:
       vars:
         identifier: CWERangeUnits.1
         text: CWERangeUnits.2

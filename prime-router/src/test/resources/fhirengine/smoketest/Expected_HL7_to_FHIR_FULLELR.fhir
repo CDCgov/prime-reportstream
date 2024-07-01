@@ -8024,6 +8024,42 @@
           }
         ],
         "status" : "final",
+        "code" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                }
+              ],
+              "system" : "http://loinc.org",
+              "version" : "2.40",
+              "code" : "77202-0",
+              "display" : "Laboratory comment [Text] in Report Narrative"
+            },
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "alt-coding"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "L"
+                }
+              ],
+              "system" : "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+              "version" : "5.67",
+              "code" : "VERGPCOM",
+              "display" : "COMMENT"
+            }
+          ]
+        },
         "subject" : {
           "reference" : "Patient/1716965606097981000.a9e583b2-8233-4a28-b882-d0a7d74c0b8e"
         },
@@ -8046,7 +8082,25 @@
           {
             "reference" : "PractitionerRole/1716965606277846000.0f708c16-acaa-4120-914e-deb0ab03c36d"
           }
-        ]
+        ],
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "L"
+                }
+              ],
+              "system": "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+              "code": "COM"
+            }
+          ]
+        }
       }
     },
     {

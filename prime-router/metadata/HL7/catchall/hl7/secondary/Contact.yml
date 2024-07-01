@@ -1,3 +1,5 @@
+# $schema: ./../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 purpose:
   valueOf: datatype/CodeableConcept_var
   condition: $code NOT_NULL || $display NOT_NULL || $system_code NOT_NULL || $text NOT_NULL

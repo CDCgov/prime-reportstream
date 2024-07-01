@@ -279,6 +279,7 @@ class ProcessData(
                 )
                 handleReadResult(result)
             }
+
             else -> {
                 val csvSerializer = CsvSerializer(metadata)
                 return if (FileUtilities.isInternalFile(file)) {
@@ -324,20 +325,20 @@ class ProcessData(
                 val outputFile = if (outputFileName != null) {
                     File(outputFileName!!)
                 } else {
-                    // generate a translation config if we don't have
                     val translationConfig = report.destination?.translation ?: CustomConfiguration(
                         report.schema.baseName,
                         format,
                         receivingOrganization = null,
                         nameFormat = nameFormat ?: "standard"
                     )
-                    val fileName = Report.formFilename(
+                    val fileName = Report.formExternalFilename(
                         report.id,
                         report.schema.baseName,
                         format,
                         report.createdDateTime,
+                        metadata,
+                        translationConfig.nameFormat,
                         translationConfig,
-                        metadata
                     )
                     File(outputDir ?: ".", fileName)
                 }
@@ -407,6 +408,7 @@ class ProcessData(
                     )
                 }
             }
+
             is InputClientInfo.InputSchema -> {
                 val inputSchema = (inputClientInfo as InputClientInfo.InputSchema).schemaName
                 val schName = inputSchema.lowercase()
@@ -417,6 +419,7 @@ class ProcessData(
                 }.randomOrNull()
                 Pair(metadata.findSchema(schName), sender)
             }
+
             else -> {
                 error("input schema or client's name must be specified")
             }
@@ -429,13 +432,16 @@ class ProcessData(
                     metadata, schema, sender, fileSettings,
                     (inputSource as InputSource.ListOfFilesSource).commaSeparatedList
                 )
+
             is InputSource.FileSource ->
                 readReportFromFile(
                     metadata, schema, sender, fileSettings,
                     (inputSource as InputSource.FileSource).fileName
                 )
+
             is InputSource.DirSource ->
                 TODO("Dir source is not implemented")
+
             is InputSource.FakeSource -> {
                 FakeReport(metadata).build(
                     schema as Schema,
@@ -446,6 +452,7 @@ class ProcessData(
                     includeNcesFacilities
                 )
             }
+
             else -> {
                 error("input source must be specified")
             }
@@ -494,6 +501,7 @@ class ProcessData(
                 reports.filter { it.report.itemCount > 0 }
                     .map { it.report to getOutputFormat(it.receiver.format) }
             }
+
             routeTo != null -> {
                 val pair = translator.translate(
                     input = inputReport,
@@ -506,6 +514,7 @@ class ProcessData(
                     emptyList()
                 }
             }
+
             outputSchema != null -> {
                 val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
                 val mapping = translator.buildMapping(
@@ -522,6 +531,7 @@ class ProcessData(
                 val toReport = inputReport.applyMapping(mapping)
                 listOf(Pair(toReport, getOutputFormat(Report.Format.CSV)))
             }
+
             else -> listOf(Pair(inputReport, getOutputFormat(Report.Format.CSV)))
         }
 
@@ -568,6 +578,7 @@ class ProcessData(
                     }
                     hl7Serializer.write(reportWithTranslation, stream)
                 }
+
                 Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream)
                 else -> throw UnsupportedOperationException("Unsupported ${report.bodyFormat}")
             }

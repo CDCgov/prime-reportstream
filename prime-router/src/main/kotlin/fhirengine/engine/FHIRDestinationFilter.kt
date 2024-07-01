@@ -52,7 +52,7 @@ class FHIRDestinationFilter(
     override val engineType: String = "DestinationFilter"
 
     internal fun findTopicReceivers(topic: Topic): List<Receiver> =
-            settings.receivers.filter { it.customerStatus != CustomerStatus.INACTIVE && it.topic == topic }
+        settings.receivers.filter { it.customerStatus != CustomerStatus.INACTIVE && it.topic == topic }
 
     /**
      * Accepts a [message] in internal FHIR format
@@ -181,7 +181,7 @@ class FHIRDestinationFilter(
                     val blobInfo = BlobAccess.uploadBody(
                         Report.Format.FHIR,
                         bodyString.toByteArray(),
-                        report.name,
+                        report.id.toString(),
                         queueMessage.blobSubFolderName,
                         nextEvent.eventAction
                     )

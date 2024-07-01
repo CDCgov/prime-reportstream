@@ -6,8 +6,12 @@ import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.SpecVersion
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.config.validation.models.HL7ToFHIRMappingMessageTemplate
+import gov.cdc.prime.router.config.validation.models.HL7ToFHIRMappingResourceTemplate
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.HL7ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
+import io.github.linuxforhealth.api.Condition
+import io.github.linuxforhealth.hl7.expression.ExpressionAttributes
 import java.io.File
 
 /**
@@ -72,6 +76,71 @@ sealed class ConfigurationType<T> {
 
         override fun convert(node: JsonNode): HL7ConverterSchema {
             return mapper.convertValue(node, HL7ConverterSchema::class.java)
+        }
+    }
+
+    data object HL7ToFhirMappingMessageTemplate : ConfigurationType<HL7ToFHIRMappingMessageTemplate>() {
+        override val jsonSchema: JsonSchema by lazy {
+            getSchema("./metadata/json_schema/fhir/hl7-to-fhir-mapping-message-template.json")
+        }
+
+        override val konformValidation: KonformValidation<HL7ToFHIRMappingMessageTemplate> =
+            HL7ToFHIRMappingMessageTemplateValidation
+
+        override fun convert(node: JsonNode): HL7ToFHIRMappingMessageTemplate {
+            return mapper.convertValue(node, HL7ToFHIRMappingMessageTemplate::class.java)
+        }
+    }
+
+    data object HL7ToFhirMappingResourceTemplate : ConfigurationType<HL7ToFHIRMappingResourceTemplate>() {
+        override val jsonSchema: JsonSchema by lazy {
+            getSchema("./metadata/json_schema/fhir/hl7-to-fhir-mapping-resource-template.json")
+        }
+
+        override val konformValidation: KonformValidation<HL7ToFHIRMappingResourceTemplate> =
+            HL7ToFHIRMappingResourceTemplateValidation
+
+        override fun convert(node: JsonNode): HL7ToFHIRMappingResourceTemplate {
+            // grab optional top-level resource type
+            val maybeResourceType = node.get("resourceType")?.textValue()
+
+            // parse each expression that is not the resourceType
+            val expressions = node
+                .fields()
+                .asSequence()
+                .associate { it.key to it.value }
+                .filter { it.key != "resourceType" }
+                .mapValues { mapper.convertValue(it.value, ExpressionAttributes::class.java) }
+
+            // extract all parsed conditions into one place
+            val flatConditions = expressions.flatMap { flattenConditions(it.value) }
+
+            return HL7ToFHIRMappingResourceTemplate(maybeResourceType, expressions, flatConditions)
+        }
+
+        /**
+         * Conditions are a part of each expression that we want to validate, so we need
+         * to extract them all into one place
+         */
+        private fun flattenConditions(
+            expression: ExpressionAttributes,
+        ): List<Condition> {
+            val conditions = mutableListOf<Condition>()
+
+            fun flattenConditionsHelper(currentExpression: ExpressionAttributes) {
+                if (currentExpression.filter != null) {
+                    conditions.add(currentExpression.filter)
+                }
+                currentExpression.expressions?.forEach {
+                    flattenConditionsHelper(it)
+                }
+                currentExpression.expressionsMap?.values?.forEach {
+                    flattenConditionsHelper(it)
+                }
+            }
+
+            flattenConditionsHelper(expression)
+            return conditions
         }
     }
 }

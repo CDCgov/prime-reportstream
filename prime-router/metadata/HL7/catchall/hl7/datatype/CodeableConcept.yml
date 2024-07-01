@@ -1,3 +1,5 @@
+# $schema: ./../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 coding_1:
   condition: $code NOT_NULL && $coding NULL
   type: CODING_SYSTEM_V2_IDENTIFIER
@@ -30,7 +32,7 @@ coding_3:
 coding_4:
   valueOf: $coding
   generateList: true
-  condition: $coding NOT_NULL && nameOfSystem NOT_EQUALS SCT
+  condition: $coding NOT_NULL && $nameOfSystem NOT_EQUALS SCT
   specs: CWE
   vars:
     coding: CODING_SYSTEM_V2, CWE

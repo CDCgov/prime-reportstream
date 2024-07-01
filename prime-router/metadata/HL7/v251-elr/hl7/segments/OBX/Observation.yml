@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: Observation
 
 # Not implementing OBX.5 when OBX.2 is RP as the inventory say it still needs to be resolved
@@ -203,7 +205,6 @@ valueQuantity:
             nameOfCodingSystem: CWEQuantityUnits.3
         unit:
           expressionType: nested
-          condition:
           vars:
             identifier: CWEQuantityUnits.1
             text: CWEQuantityUnits.2
@@ -381,7 +382,7 @@ performer:
         obx25: STRING_ALL, OBX.25
         obx23: STRING_ALL, obx23
         XADAddress: OBX.24
-      condition: $obx25 NULL && ($obx23 NOT_NULL || XADAddress NOT_NULL)
+      condition: $obx25 NULL && ($obx23 NOT_NULL || $XADAddress NOT_NULL)
       valueOf: ../../datatypes/v251/hl7/datatypes/XON/Organization
       specs: OBX.23
       constants:

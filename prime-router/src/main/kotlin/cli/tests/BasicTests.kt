@@ -212,7 +212,7 @@ class End2EndUniversalPipeline : CoolTest() {
 
         expectedResults.forEach { (expectedReceiver, expectedFile) ->
             // Retrieve external filename
-            val actualFilename = findReportExternalName(historyResponse, expectedReceiver)
+            val actualFilename = findReportName(historyResponse, expectedReceiver)
             if (actualFilename.isEmpty()) {
                 passed = bad(
                     "***$name test FAILED***: " +
@@ -256,12 +256,12 @@ class End2EndUniversalPipeline : CoolTest() {
     }
 
     /**
-     * Searches a submission history json response for the external filename that matches the expected receiver.
+     * Searches a submission history json response for the filename that matches the expected receiver.
      * Will fail if the expected json objects are not populated.
      * @param response must be a response from the submission history endpoint for json lookup
      * @param expectedReceiver receiver for which to find a matching destination service
      */
-    private fun findReportExternalName(response: String, expectedReceiver: Receiver): String {
+    private fun findReportName(response: String, expectedReceiver: Receiver): String {
         var filename = ""
 
         try {
@@ -272,7 +272,8 @@ class End2EndUniversalPipeline : CoolTest() {
 
                 // Check that the destination service matches the expected receiver. Uses the first name listed.
                 if (expectedReceiver.name == destination.getString("service").removeSurrounding("\"")) {
-                    filename = destination.getJSONArray("sentReports").getJSONObject(0).getString("externalName")
+                    val reportId = destination.getJSONArray("sentReports").getJSONObject(0).getString("reportId")
+                    filename = "$reportId.${expectedReceiver.translation.type.lowercase()}"
                     good("The report was received by ${expectedReceiver.name}")
                 }
             }

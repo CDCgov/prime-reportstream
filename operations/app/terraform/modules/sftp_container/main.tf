@@ -1,17 +1,3 @@
-resource "azurerm_network_profile" "sftp_network_profile" {
-  name                = "sftp_network_profile"
-  location            = var.location
-  resource_group_name = var.resource_group
-
-  container_network_interface {
-    name = "sftp_container_network_interface"
-    ip_configuration {
-      name      = "sftp_container_ip_configuration"
-      subnet_id = data.azurerm_subnet.container.id
-    }
-  }
-}
-
 resource "azurerm_network_profile" "sftp_vnet_network_profile" {
   name                = "sftp_vnet_network_profile"
   location            = var.location

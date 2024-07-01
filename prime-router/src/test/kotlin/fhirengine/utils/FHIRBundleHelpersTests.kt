@@ -460,7 +460,7 @@ class FHIRBundleHelpersTests {
             Topic.FULL_ELR,
             CustomerStatus.ACTIVE,
             "one",
-            conditionFilter = listOf("%obsPerformedCodes.intersect('94558-5').exists()")
+            conditionFilter = listOf("%resource.code.coding.code.intersect('94558-5').exists()")
 
         )
 

@@ -72,6 +72,7 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
         transportType: TransportType,
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
+        externalFileName: String,
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
@@ -169,8 +170,8 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
         gaenTransportInfo: GAENTransportType,
     ) {
         val msg = "FAILED GAEN notification of inputReportId $reportId to $gaenTransportInfo " +
-                "(receiver = $receiverFullName);" +
-                "No retry; Exception: ${ex.javaClass.canonicalName} ${ex.localizedMessage}"
+            "(receiver = $receiverFullName);" +
+            "No retry; Exception: ${ex.javaClass.canonicalName} ${ex.localizedMessage}"
         // Dev note: Expecting severe level to trigger monitoring alerts
         context.logger.severe(msg)
         actionHistory.setActionType(TaskAction.send_error)
@@ -256,7 +257,7 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
             }
             if (postResult != PostResult.SUCCESS) {
                 val warning = "${params.receiver.fullName}: Error from GAEN server for ${notification.uuid}:" +
-                        ", response status: ${response.status.value} body: $respStr"
+                    ", response status: ${response.status.value} body: $respStr"
                 params.context.logger.warning(warning)
                 params.actionHistory.trackActionResult(warning)
             }

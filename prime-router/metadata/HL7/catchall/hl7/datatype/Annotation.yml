@@ -1,3 +1,5 @@
+# $schema: ./../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 # When annotationText is a concatenation of multiple NTE records, the first NTE.5 is used
 # to create the practitioner reference.  Other NTE.5's are ignored.
 

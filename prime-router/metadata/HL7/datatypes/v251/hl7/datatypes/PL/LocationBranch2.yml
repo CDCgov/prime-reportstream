@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: Location
 
 id:
@@ -101,7 +103,7 @@ physicalType:
               valueOf: "lvl"
             system:
               valueOf: $system
-      condition: pl1 NULL && pl8 NOT_NULL
+      condition: $pl1 NULL && $pl8 NOT_NULL
     - expressionType: nested
       expressionsMap:
         coding:
@@ -136,14 +138,14 @@ partOf:
   condition: $pl1 NOT_NULL || $pl8 NOT_NULL || $pl7 NOT_NULL
   expressions:
     - expressionType: reference
-      condition: pl8 NOT_NULL #PL8
+      condition: $pl8 NOT_NULL #PL8
       valueOf: datatypes/PL/LocationBranch3
       specs: $BASE_VALUE
     - expressionType: reference
-      condition: pl8 NULL && pl7 NOT_NULL #PL7
+      condition: $pl8 NULL && $pl7 NOT_NULL #PL7
       valueOf: datatypes/PL/LocationBranch4
       specs: $BASE_VALUE
     - expressionType: reference
-      condition: pl8 NULL && pl7 NULL && pl4 NOT_NULL #PL4
+      condition: $pl8 NULL && $pl7 NULL && $pl4 NOT_NULL #PL4
       valueOf: datatypes/PL/LocationBranch5
       specs: $BASE_VALUE

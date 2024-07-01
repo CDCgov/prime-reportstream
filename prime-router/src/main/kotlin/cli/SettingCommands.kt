@@ -56,7 +56,7 @@ abstract class SettingCommand(
         envvar = "PRIME_ENVIRONMENT",
         help = "Connect to <name> environment.\nChoose between [local|test|staging|prod]"
     )
-        .choice("local", "test", "staging", "prod")
+        .choice("local", "test", "staging", "prod", "demo1")
         .default("local", "local environment")
 
     protected val outStream by option(

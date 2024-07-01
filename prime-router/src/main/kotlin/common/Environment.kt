@@ -26,6 +26,7 @@ enum class Environment(
     ),
     TEST("test", URL("https://test.prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_TEST),
     STAGING("staging", URL("https://staging.prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_STAGE),
+    DEMO1("demo1", URL("https://demo1.prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_STAGE),
     PROD("prod", URL("https://prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_PROD),
     ;
 

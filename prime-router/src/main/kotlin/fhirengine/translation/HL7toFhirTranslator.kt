@@ -59,7 +59,7 @@ class HL7toFhirTranslator(
      *
      * Custom translations can be handled by adding a customized message type
      * such as test_ORU_R01 to the list in config.properties. Then creating the accompanying files, such as
-     * hl7/message/test_ORU_R01. Any files in fhir_mapping/hl7/resource will override the defaults allowing customization
+     * hl7/message/test_ORU_R01. Any files in metadata/HL7/catchall/hl7/ will override the defaults allowing customization
      * of resources like Address or Organization.
      */
     fun translate(

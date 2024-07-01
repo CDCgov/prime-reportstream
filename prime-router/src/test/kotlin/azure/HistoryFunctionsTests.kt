@@ -159,6 +159,7 @@ class HistoryFunctionsTests {
             reportFile.bodyFormat = Report.Format.HL7.toString()
             reportFile.receivingOrgSvc = "default"
             reportFile.schemaName = "default"
+            reportFile.externalName = "externalFile.hl7"
 
             mockkObject(BlobAccess.Companion)
             every { BlobAccess.downloadBlobAsByteArray(parentReportFile.bodyUrl) } returns "test".toByteArray()

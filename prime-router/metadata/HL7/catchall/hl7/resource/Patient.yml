@@ -1,3 +1,5 @@
+# $schema: ./../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: Patient
 # Represents data that needs to be extracted for a Patient Resource in FHIR
 # reference: https://www.hl7.org/fhir/patient.html
@@ -353,7 +355,7 @@ deceasedDateTime:
 
 _deceasedDateTime:
   expressionType: nested
-  condition: pid29 NOT_NULL
+  condition: $pid29 NOT_NULL
   vars:
     pid29: PID.29
   expressionsMap:
@@ -487,7 +489,7 @@ extension:
           expressionType: resource
 
     - expressionType: nested
-      condition: tribalCitizenship NOT_NULL
+      condition: $tribalCitizenship NOT_NULL
       generateList: true
       vars:
         tribalCitizenship: STRING_ALL, PID.39
@@ -539,7 +541,7 @@ communication:
 active:
   condition: $mrgSegment NOT_NULL
   type: BOOLEAN
-  valueOf: true
+  valueOf: "true"
   vars:
     mrgSegment: MRG
 

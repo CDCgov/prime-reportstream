@@ -65,12 +65,12 @@
         truncateHl7Fields: []
         customLengthHl7Fields: {}
     jurisdictionalFilter:
-    - "(%performerState.exists() and %performerState = 'NY') or (%patientState.exists()\
-      \ and %patientState = 'NY')"
+    - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'NY') or (Bundle.entry.resource.ofType(Patient).address.state.exists()\
+      \ and Bundle.entry.resource.ofType(Patient).address.state = 'NY')"
     qualityFilter: []
     routingFilter: []
     processingModeFilter:
-    - "%processingId = 'T'"
+    - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'T'"
     reverseTheQualityFilter: false
     conditionFilter: []
     deidentify: false
@@ -153,12 +153,12 @@
         truncateHl7Fields: []
         customLengthHl7Fields: {}
     jurisdictionalFilter:
-    - "(%performerState.exists() and %performerState = 'NY') or (%patientState.exists()\
-      \ and %patientState = 'NY')"
+    - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'NY') or (Bundle.entry.resource.ofType(Patient).address.state.exists()\
+      \ and Bundle.entry.resource.ofType(Patient).address.state = 'NY')"
     qualityFilter: []
     routingFilter: []
     processingModeFilter:
-    - "%processingId = 'P'"
+    - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P'"
     reverseTheQualityFilter: false
     conditionFilter: []
     deidentify: false
