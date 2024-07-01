@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 # This extension stores HL7 fields that are either not mapped to FHIR
 # or become ambiguous when mapped
 # URL: https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address

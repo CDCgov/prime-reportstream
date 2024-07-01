@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: Observation
 
 # Not implementing OBX.5 when OBX.2 is RP as the inventory say it still needs to be resolved
@@ -195,7 +197,6 @@ valueQuantity:
             nameOfCodingSystem: CWEQuantityUnits.3
         unit:
           expressionType: nested
-          condition:
           vars:
             identifier: CWEQuantityUnits.1
             text: CWEQuantityUnits.2
