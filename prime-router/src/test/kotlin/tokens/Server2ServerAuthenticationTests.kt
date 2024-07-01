@@ -11,7 +11,6 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.MockSettings
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper

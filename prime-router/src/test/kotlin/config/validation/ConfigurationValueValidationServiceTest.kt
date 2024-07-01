@@ -8,7 +8,6 @@ import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import java.io.File

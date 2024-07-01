@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.datatests.mappinginventory
 
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.datatests.TranslationTests
 

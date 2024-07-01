@@ -9,7 +9,6 @@ import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.DataAccessTransaction

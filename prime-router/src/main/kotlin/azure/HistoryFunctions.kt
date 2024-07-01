@@ -14,7 +14,6 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import com.okta.jwt.JwtVerifiers
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.db.ReportFileApiSearch

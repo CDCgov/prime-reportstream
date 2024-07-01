@@ -5,7 +5,6 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.Report
 import org.apache.commons.io.FileUtils
 import org.junit.jupiter.api.TestInstance
 import quicktests.QuickTestUtils

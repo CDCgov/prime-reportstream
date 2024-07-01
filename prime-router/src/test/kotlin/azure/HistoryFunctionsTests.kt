@@ -8,7 +8,6 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType

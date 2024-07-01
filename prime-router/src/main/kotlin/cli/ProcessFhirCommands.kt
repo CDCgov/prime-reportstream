@@ -19,7 +19,6 @@ import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.MimeFormat
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.common.Environment

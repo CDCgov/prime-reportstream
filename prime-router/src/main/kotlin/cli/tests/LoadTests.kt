@@ -3,7 +3,6 @@ package gov.cdc.prime.router.cli.tests
 import com.fasterxml.jackson.databind.node.ObjectNode
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.REPORT_MAX_ITEMS
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
