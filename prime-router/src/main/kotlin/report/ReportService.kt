@@ -15,12 +15,11 @@ class ReportService(
      * Gets the root report up the report_linage table
      *
      * @param childReportId child report ID
-     * @throws IllegalStateException if a root report cannot be found for this report ID
-     * @return ReportFile object of the root report
+     * @return ReportFile object of the root report -- of the child report itself if it has no parents
      */
     fun getRootReport(childReportId: ReportId): ReportFile {
         return reportGraph.getRootReport(childReportId)
-            ?: error("No Root Report found for reportId=$childReportId")
+            ?: reportGraph.db.fetchReportFile(childReportId)
     }
 
     /**
