@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: Specimen
 id:
   type: STRING
@@ -8,7 +10,6 @@ collection:
   condition: $spm7 NOT_NULL
   expressionType: nested
   generateList: true
-  vars:
   expressionsMap:
     collectedPeriod:
       condition: $end NOT_NULL
