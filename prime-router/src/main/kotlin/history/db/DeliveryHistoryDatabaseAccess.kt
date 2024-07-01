@@ -207,6 +207,7 @@ class DeliveryHistoryDatabaseAccess(
     fun getDeliveries(
         search: DeliveryHistoryApiSearch,
         organization: String,
+        orgService: String?,
         receivingOrgSvcStatus: List<CustomerStatus>?,
         reportIdStr: String?,
         fileName: String?,
@@ -223,7 +224,7 @@ class DeliveryHistoryDatabaseAccess(
         }
 
         val whereClause = this.createWhereCondition(
-                organization, receivingOrgSvcStatus, reportId, fileName
+                organization, orgService, receivingOrgSvcStatus, reportId, fileName
             )
 
         val deliveriesExpression = DSL.select(
@@ -287,11 +288,12 @@ class DeliveryHistoryDatabaseAccess(
      */
     private fun createWhereCondition(
         organization: String,
+        orgService: String?,
         receivingOrgSvcStatus: List<CustomerStatus>?,
         reportId: UUID?,
         fileName: String?,
     ): Condition {
-        var filter = databaseDeliveryAccess.organizationFilter(organization, null)
+        var filter = databaseDeliveryAccess.organizationFilter(organization, orgService)
 
         if (receivingOrgSvcStatus != null) {
             var statusList = receivingOrgSvcStatus.map { it.name.lowercase() }
