@@ -124,3 +124,6 @@ gitleaks.log
 
 # Storybook
 storybook-static
+
+# dotnet
+**/.config

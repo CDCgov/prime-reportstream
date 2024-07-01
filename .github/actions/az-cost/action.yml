@@ -1,0 +1,34 @@
+# action.yml
+name: Az Cost
+description: Run Azure Cost CLI
+inputs:
+  rg:
+    description: Specify resource group name
+  format:
+    description: Output format for results
+    default: csv
+outputs:
+  result:
+    value: ${{ steps.run_azure_cost.outputs.RESULT }}
+
+runs:
+  using: composite
+  steps:
+      - name: Install .NET
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dotnet-sdk-8.0 dotnet-runtime-8.0
+      - name: Install azure-cost-cli
+        shell: bash
+        run: |
+          dotnet new tool-manifest
+          dotnet tool install azure-cost-cli
+      - name: Run azure-cost-cli
+        id: run_azure_cost
+        shell: bash
+        run: |
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "RESULT<<$EOF" >> $GITHUB_OUTPUT
+          dotnet azure-cost accumulatedCost -g ${{ inputs.rg }} -t custom --from $(date --date='180 days ago' '+%m/%d/%Y') --to $(date '+%m/%d/%Y')  -o ${{ inputs.format }} >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT

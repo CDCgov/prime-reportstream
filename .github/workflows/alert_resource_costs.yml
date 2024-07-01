@@ -1,0 +1,31 @@
+name: Alert Resource Costs
+
+on:
+  push:
+    branches:
+      - josiahsiegel/add/alert-demo-provisioned
+  schedule:
+    - cron: '0 9 * * *' # Run daily at 9:00 AM UTC
+
+jobs:
+  alert_costs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+
+      - name: Login into Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Run Az Cost CLI
+        id: az-cost
+        uses: ./.github/actions/az-cost
+        with:
+          rg: prime-data-hub-demo1
+
+      - name: Get Az Cost Result
+        run: |
+          echo "${{ steps.az-cost.outputs.result }}"
