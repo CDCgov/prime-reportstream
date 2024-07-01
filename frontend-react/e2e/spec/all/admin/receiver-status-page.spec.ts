@@ -19,6 +19,8 @@ const test = baseTest.extend<AdminReceiverStatusPageFixtures>({
             senderLogin,
             receiverLogin,
             storageState,
+            frontendWarningsLogPath,
+            isFrontendWarningsLog,
         },
         use,
     ) => {
@@ -29,6 +31,8 @@ const test = baseTest.extend<AdminReceiverStatusPageFixtures>({
             senderLogin,
             receiverLogin,
             storageState,
+            isFrontendWarningsLog,
+            frontendWarningsLogPath,
         });
         await page.goto();
         await use(page);
