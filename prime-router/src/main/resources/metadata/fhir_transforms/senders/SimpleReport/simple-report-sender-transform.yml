@@ -210,6 +210,13 @@ elements:
     value: [ '%patient.managingOrganization' ]
 
   # Covid pipeline populates this by looking at the hl70078 value-set version
+  - name: sr-observation-abnormal-flag-version
+    condition: '%resource.interpretation.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.interpretation.coding.version'
+    value: [ '"2.7"' ]
+
+  # Covid pipeline populates this by looking at the hl70078 value-set version
   - name: sr-specimen-type-version
     condition: '%resource.type.empty().not()'
     resource: 'Bundle.entry.resource.ofType(Specimen)'
@@ -221,6 +228,87 @@ elements:
     condition: '%resource.collection.bodySite.coding.display.exists().not()'
     bundleProperty: '%resource.collection.bodySite.coding.display'
     value: [ '%resource.collection.bodySite.text' ]
+
+  # Covid pipeline populates this by looking at the sender-automation/aoe value-set version
+  # But some AOEs have different versions, we need the ability to lookup that version
+  # So the current solution is to move the sender-automation/aoe to the sender_automation_value_set_row lookup table
+  - name: sr-observation-code-version
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.code.coding.exists()'
+    bundleProperty: '%resource.code.coding.version'
+    value: [ '%resource.code.coding.code' ]
+    valueSet:
+      lookupTable:
+        tableName: sender_automation_value_set_row
+        keyColumn: code
+        valueColumn: version
+
+  # Covid pipeline populates this date using a sender transform
+  - name: sr-observation-date
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.effective.exists().not()'
+    bundleProperty: '%resource.effective[x]'
+    value: [ 'Bundle.entry.resource.ofType(Specimen).collection.collected' ]
+
+  - name: sr-observation-date-extension
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.effective.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
+    value: [ 'Bundle.entry.resource.ofType(Specimen).collection.collected' ]
+
+  - name: sr-performing-organization-name-non-pracrole-assigning-authority
+    condition: '%resource.performer.resolve().ofType(Organization).exists()'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+    value: [ '%resource.performer.resolve().ofType(Organization).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x].getIdType()' ]
+
+  # Covid pipeline populates this using a sender transform
+  - name: sr-performing-organization-name-non-pracrole-assigning-authority-id
+    condition: '%resource.performer.resolve().ofType(Organization).exists()'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '"2.16.840.1.113883.4.7"' ]
+
+  - name: sr-performing-organization-name-non-pracrole-assigning-authority-id-type
+    condition: '%resource.performer.resolve().ofType(Organization).exists()'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
+    value: [ '"ISO"' ]
+
+
+  - name: sr-performing-organization-name-non-pracrole-namespace
+    condition: 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization).exists()'
+    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority")'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+    value: [ 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization).identifier[0].value.getIdType()' ]
+
+  - name: sr-performing-organization-identifier-type-code-system
+    condition: '%resource.exists() and %resource.identifier.type.where(coding.system = "http://terminology.hl7.org/CodeSystem/v2-0203").exists().not()'
+    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization)'
+    bundleProperty: '%resource.identifier[1].type.coding.system'
+    value: [ '"http://terminology.hl7.org/CodeSystem/v2-0203"' ]
+
+  - name: sr-performing-organization-identifier-type-code
+    condition: 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization).exists() and %resource.coding.code.exists().not()'
+    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization).identifier.type.where(coding.system = "http://terminology.hl7.org/CodeSystem/v2-0203")'
+    bundleProperty: '%resource.coding.code'
+    value: [ '"XX"' ]
+
+  - name: sr-observation-code-display-lookup
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.code.coding[0].display.empty()'
+    bundleProperty: '%resource.code.coding[0].display'
+    value: [ '%resource.code.coding.code' ]
+    valueSet:
+      lookupTable:
+        tableName: LOINC
+        keyColumn: LOINC_NUM
+        valueColumn: LONG_COMMON_NAME
+
+  - name: sr-observation-code-display
+    condition: '%resource.code.coding[0].display.empty() and %resource.code.text.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.code.coding[0].display'
+    value: [ '%resource.code.text' ]
 
   # Populating display based on text
   - name: sr-patient-race-display
@@ -273,6 +361,42 @@ elements:
     condition: '%resource.collection.bodySite.exists() and %resource.type.coding[0].display.exists().not()'
     bundleProperty: '%resource.collection.bodySite.coding[0].display'
     value: [ '%resource.collection.bodySite.text' ]
+
+  - name: sr-observation-producer-id-identifier
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.performer.exists().not()'
+    bundleProperty: '%resource.performer'
+    value: [ '%diagnosticReport.basedOn.resolve().performer' ]
+
+  - name: sr-observation-producer-id-hl7use
+    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field")[1].value[x]'
+    value: [ '"OBX.15"' ]
+
+  - name: sr-observation-performing-org-hl7use
+    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field")[0].value[x]'
+    value: [ '"OBX.25"' ]
+
+  - name: sr-observation-producer-id-cwe-identifier
+    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-organization").valueCodeableConcept.coding.code'
+    value: [ '%resource.identifier.value' ]
+
+  - name: sr-observation-producer-id-cwe-display
+    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-organization").valueCodeableConcept.coding.display'
+    value: [ '%resource.name' ]
+
+  - name: sr-observation-producer-id-cwe-system
+    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-organization").valueCodeableConcept.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
+    value: [ '%resource.identifier.type.coding.code' ]
+
+  - name: sr-observation-producer-id-cwe-coding
+    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-organization").valueCodeableConcept.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
+    value: [ '"coding"' ]
 
   - name: sr-observation-producer-id-system
     bundleProperty: '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system").valueCodeableConcept.coding.code'
@@ -470,10 +594,93 @@ elements:
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
     value: [ '%diagnosticReport.effective' ]
 
-  - name: sr-observation
+
+  # Observation
+  - name: sr-observation-value-type-cwe
+    condition: '%resource.value is CodeableConcept'
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    resourceIndex: observationIndex
-    schema: classpath:/metadata/fhir_transforms/senders/SimpleReport/datatypes/simple-report-observation.yml
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.2").value[x]'
+    value: [ '"CWE"' ]
+
+  - name: sr-observation-value-type-date-time
+    condition: '%resource.value is dateTime'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.2").value[x]'
+    value: [ '"DT"' ]
+
+  - name: sr-observation-status
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.11").value[x]'
+    value: [ '%resource.status' ]
+    valueSet:
+      values:
+        registered: I
+        preliminary: P
+        final: F
+        corrected: C
+        amended: C
+        entered-in-error: W
+
+  - name: sr-observation-identifier-coding
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.code.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
+    value: [ '"coding"' ]
+
+  - name: sr-observation-identifier-coding-system
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.code.coding.system.exists() and %resource.code.coding.system.getCodingSystemMapping().exists()'
+    bundleProperty: '%resource.code.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
+    value: [ '%resource.code.coding.system.getCodingSystemMapping()' ]
+
+  - name: sr-observation-value-coding
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.value is CodeableConcept'
+    bundleProperty: '%resource.value.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
+    value: [ '"coding"' ]
+
+  - name: sr-observation-value-datetime
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.value is dateTime'
+    bundleProperty: '%resource.value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
+    value: [ '%resource.value' ]
+
+  - name: sr-observation-value-coding-system
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.value.coding.system.exists() and %resource.value.coding.system.getCodingSystemMapping().exists()'
+    bundleProperty: '%resource.value.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
+    value: [ '%resource.value.coding.system.getCodingSystemMapping()' ]
+
+  - name: sr-observation-interpretation-coding
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.interpretation.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
+    value: [ '"coding"' ]
+
+  - name: sr-observation-interpretation-coding-system
+    condition: '%resource.interpretation.coding.system.exists() and %resource.interpretation.coding.system.getCodingSystemMapping().exists()'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.interpretation.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
+    value: [ '%resource.interpretation.coding.system.getCodingSystemMapping()' ]
+
+  - name: sr-observation-method-coding
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.method.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
+    value: [ '"coding"' ]
+
+  - name: sr-observation-analysis-datetime
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time").value[x]'
+    value: [ '%resource.issued' ]
+
+  - name: sr-observation-analysis-datetime-extension
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
+    value: [ '%resource.issued' ]
+
+  - name: sr-observation-obx-29-for-aoe
+    condition: '%resource.meta.tag.code="AOE"'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.29").value[x]'
+    value: [ '"QST"' ]
 
   # We can assume this value because SimpleReport validates the value and will only populate it if it is an NPI
   - name: sr-provider-namespace-id
@@ -511,3 +718,18 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Device)'
     value: [ '%resource.identifier.type.coding.code' ]
     bundleProperty: '%resource.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+
+  - name: sr-observation-method
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    value: [ '%resource.method.coding.display' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.17").valueCodeableConcept.coding.display'
+
+  - name: sr-observation-method-code
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.method.coding[0].code'
+    value: [ '%resource.method.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id").value.code' ]
+
+  - name: sr-observation-method-text
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.method.text'
+    value: [ '%resource.method.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id").value.code' ]
