@@ -66,7 +66,7 @@ In order to migrate existing covid pipeline settings to the UP a few settings ne
 * `name:` The naming convention we've been following for the name is "full-elr" as well.
 * `customerStatus:` Customer status needs to be updated to "testing" once the STLT has been fully migrated and live in production it should be updated back to "active"
 * `schemaName:` Schema name specifies how the RS FHIR bundle should be translated to HL7 if the receiver's format is HL7. 
-If they're receiving HL7 v2 ORU_R01. The schema name can be updated to `classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml`. 
+If they're receiving HL7 v2 ORU_R01. The schema name can be updated to `azure:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml`. 
 If the receiver has any specific receiver transforms the schema name should be updated to point to the schema location.
 * `jurisdictionalFilter:` The jurisdictional filter needs to be updated to use FHIR path. 
 The most common way to route messages to a STLT is based on the patient's or performer's state. 
@@ -100,7 +100,7 @@ After updating the receiver to route messages to the UP it should look like this
         topic: "full-elr"
         customerStatus: "testing"
         translation: !<HL7>
-            schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+            schemaName: "azure:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
         jurisdictionalFilter:
             - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'TX') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'TX')"
         qualityFilter:
@@ -116,6 +116,9 @@ After updating the receiver to route messages to the UP it should look like this
             - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists())
            or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
         routingFilter: []
+        conditionFilter:
+            # Accept COVID only
+            - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists())"
 ```
 
 ### 3. Send test message from SimpleReport to STLT
