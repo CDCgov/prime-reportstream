@@ -1,5 +1,3 @@
-version: "3.3"
-
 services:
   tf-cli:
     container_name: terraform_state

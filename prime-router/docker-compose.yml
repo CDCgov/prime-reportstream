@@ -1,5 +1,4 @@
 # This docker compose file is intended to set up a developer environment
-version: "3.3"
 services:
   # This container runs our Azure function code.
   prime_dev:
