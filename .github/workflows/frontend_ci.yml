@@ -194,6 +194,8 @@ jobs:
 
   chromatic:
     name: Chromatic Analysis
+    # remove this if statement whenever dependabot has access to secrets
+    if: github.event.sender.login != 'dependabot[bot]'
     needs: lint
     runs-on: ubuntu-latest
 
