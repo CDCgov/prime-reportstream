@@ -1,0 +1,47 @@
+# To submit this to localhost, run:
+# ./prime multiple-settings set --env staging --input ./settings/staging/0170-ca-phl-staging-sender-receiver.yml
+#
+# Description:
+#   These following setting are for UCSD
+#   Result Receiver (ca-phl.etor-nbs-results)
+#
+---
+- name: "ca-phl"
+  description: "UCSD"
+  jurisdiction: "STATE"
+  stateCode: "CA"
+  senders:
+    - !<full-elr>
+      name: "etor-nbs-results"
+      organizationName: "ca-phl"
+      topic: "etor-ti"
+      customerStatus: "active"
+      schemaName: ""
+      format: "HL7"
+  receivers:
+    - name: "R797"
+      organizationName: "ca-phl"
+      topic: "etor-ti"
+      customerStatus: "active"
+      jurisdictionalFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"
+        - "Bundle.entry.resource.ofType(DiagnosticReport)[0].basedOn.resolve().requester.resolve().organization.resolve().extension.where(url = 'https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization').extension.where(url = 'XON.10').value in ('R797' | 'R508')"
+      qualityFilter:
+        - true
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+      translation: !<HL7>
+        type: "HL7"
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+      transport: !<SFTP>
+        type: "SFTP"
+        host: "172.17.6.20"
+        port: 22
+        filePath: "./upload"
+        credentialName: null
+
