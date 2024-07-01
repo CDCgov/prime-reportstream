@@ -286,12 +286,6 @@ function ReportStreamNavbar({
                 Support
             </USSmartLink>
         </div>,
-        <div className="primary-nav-link-container" key="support">
-            <USSmartLink href="https://google.com/fake1">Fake 1</USSmartLink>
-        </div>,
-        <div className="primary-nav-link-container" key="support">
-            <USSmartLink href="https://cdc.gov/fake2">CDC Fake 2</USSmartLink>
-        </div>,
     ];
 
     const menuItemsAbout = [
