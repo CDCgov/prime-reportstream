@@ -41,7 +41,7 @@ jobs:
 
     steps:
       - name: Check out changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - name: Use Node.js with yarn
         uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
@@ -199,7 +199,7 @@ jobs:
 
     steps:
       - name: Checkout - On Pull Request
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
         with:
           fetch-depth: 0
           # By default the pull_request event will run on a ephermeral merge commit which simulates a merge between the pull request
@@ -270,7 +270,7 @@ jobs:
 
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+  #       uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
   #     - name: Initialize CodeQL
   #       uses: github/codeql-action/init@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
   #       with:
@@ -290,7 +290,7 @@ jobs:
 
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+  #       uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
   #       with:
   #         fetch-depth: 0
   #     - name: Use Node.js with yarn
@@ -324,7 +324,7 @@ jobs:
   #   runs-on: ubuntu-latest
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+  #       uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
   #     - name: Use Node.js with yarn
   #       uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
   #       with:
