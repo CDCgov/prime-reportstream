@@ -148,7 +148,7 @@ class ReportGraph(
     }
 
     /**
-     * Recursively goes down the report_linage table from any report until it reaches
+     * Recursively goes down the report_lineage table from any report until it reaches
      * all descendant reports with the specified action type(s)
      *
      * This will return an empty list if no report with the specified action type is present or if
@@ -158,10 +158,10 @@ class ReportGraph(
      */
     fun getDescendantReports(
         txn: DataAccessTransaction,
-        childReportId: UUID,
+        parentReportId: UUID,
         searchedForTaskActions: Set<TaskAction>? = null,
     ): List<ReportFile> {
-        val cte = reportDescendantGraphCommonTableExpression(listOf(childReportId))
+        val cte = reportDescendantGraphCommonTableExpression(listOf(parentReportId))
         return descendantReportRecords(txn, cte, searchedForTaskActions).fetchInto(ReportFile::class.java)
     }
 

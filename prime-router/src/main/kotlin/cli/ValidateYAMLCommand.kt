@@ -116,12 +116,14 @@ class ValidateYAMLCommand : CliktCommand(
                     |${result.cause?.stackTraceToString() ?: ""}
                 """.trimMargin()
                 echo(red(output), err = true)
+                echo()
             }
         }
-        echo()
     }
 
     private fun validateFiles(files: List<File>) {
+        echo("Validating ${files.size} YAML files...")
+
         val anyFailed = files.map {
             val result = service.validateYAML(type, it)
             printResult(it, result)
@@ -130,6 +132,7 @@ class ValidateYAMLCommand : CliktCommand(
         if (anyFailed) {
             throw CliktError()
         }
+        echo(green("\n${files.size} YAML files validated!"))
     }
 
     private fun isFailure(result: ConfigurationValidationResult<*>): Boolean {

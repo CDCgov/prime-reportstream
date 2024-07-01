@@ -58,10 +58,10 @@
           truncateHl7Fields: []
           customLengthHl7Fields: {}
       jurisdictionalFilter:
-        - "(%performerState.exists() and %performerState = 'NV') or (%patientState.exists()\
-      \ and %patientState = 'NV')"
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'NV') or (Bundle.entry.resource.ofType(Patient).address.state.exists()\
+      \ and Bundle.entry.resource.ofType(Patient).address.state = 'NV')"
       qualityFilter:
-        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code.exists() and Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01')"
         - "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve().where(method.empty()\
       \ or value.coding.code.empty()).count() = 0"
         - "Bundle.entry.resource.ofType(DiagnosticReport).where( basedOn.resolve().extension('https://reportstream.cdc.gov/fhir/StructureDefinition/effective-date').empty()\

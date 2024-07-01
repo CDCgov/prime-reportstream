@@ -30,11 +30,12 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
-import gov.cdc.prime.router.azure.observability.event.ConditionSummary
+import gov.cdc.prime.router.azure.observability.event.CodeSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
 import gov.cdc.prime.router.azure.observability.event.ReceiverFilterFailedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
+import gov.cdc.prime.router.azure.observability.event.TestSummary
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.conditionCodeExtensionURL
 import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
@@ -133,38 +134,38 @@ class FhirReceiverFilterTests {
         conditionFilter: List<String> = emptyList(),
         mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
     ) = DeepOrganization(
-            ORGANIZATION_NAME,
-            "test",
-            Organization.Jurisdiction.FEDERAL,
-            receivers = listOf(
-                Receiver(
-                    RECEIVER_NAME,
-                    ORGANIZATION_NAME,
-                    Topic.FULL_ELR,
-                    CustomerStatus.ACTIVE,
-                    "one",
-                    jurisdictionalFilter = jurisdictionFilter,
-                    qualityFilter = qualityFilter,
-                    routingFilter = routingFilter,
-                    processingModeFilter = processingModeFilter,
-                    conditionFilter = conditionFilter,
-                    mappedConditionFilter = mappedConditionFilter
-                ),
-                Receiver(
-                    "full-elr-hl7-2",
-                    ORGANIZATION_NAME,
-                    Topic.FULL_ELR,
-                    CustomerStatus.INACTIVE,
-                    "one",
-                    jurisdictionalFilter = jurisdictionFilter,
-                    qualityFilter = qualityFilter,
-                    routingFilter = routingFilter,
-                    processingModeFilter = processingModeFilter,
-                    conditionFilter = conditionFilter,
-                    mappedConditionFilter = mappedConditionFilter
-                )
+        ORGANIZATION_NAME,
+        "test",
+        Organization.Jurisdiction.FEDERAL,
+        receivers = listOf(
+            Receiver(
+                RECEIVER_NAME,
+                ORGANIZATION_NAME,
+                Topic.FULL_ELR,
+                CustomerStatus.ACTIVE,
+                "one",
+                jurisdictionalFilter = jurisdictionFilter,
+                qualityFilter = qualityFilter,
+                routingFilter = routingFilter,
+                processingModeFilter = processingModeFilter,
+                conditionFilter = conditionFilter,
+                mappedConditionFilter = mappedConditionFilter
+            ),
+            Receiver(
+                "full-elr-hl7-2",
+                ORGANIZATION_NAME,
+                Topic.FULL_ELR,
+                CustomerStatus.INACTIVE,
+                "one",
+                jurisdictionalFilter = jurisdictionFilter,
+                qualityFilter = qualityFilter,
+                routingFilter = routingFilter,
+                processingModeFilter = processingModeFilter,
+                conditionFilter = conditionFilter,
+                mappedConditionFilter = mappedConditionFilter
             )
         )
+    )
 
     @BeforeEach
     fun reset() {
@@ -654,10 +655,19 @@ class FhirReceiverFilterTests {
             val expectedObservationSummary = listOf(
                 ObservationSummary(
                     listOf(
-                        ConditionSummary("6142004", "Influenza (disorder)"),
-                        ConditionSummary("Some Condition Code", "Condition Name")
+                        TestSummary(
+                            listOf(
+                                CodeSummary(
+                                    "SNOMEDCT",
+                                    "6142004",
+                                    "Influenza (disorder)"
+                                ),
+                            ),
+                            testPerformedCode = "80382-5",
+                            testPerformedSystem = "http://loinc.org",
+                        )
                     )
-                )
+                ),
             )
             val expectedAzureEvents = listOf(
                 ReportRouteEvent(
