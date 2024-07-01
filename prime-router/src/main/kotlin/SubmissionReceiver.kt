@@ -370,6 +370,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         ORU_R01,
         ORM_O01,
         OML_O21,
+        ACK,
     }
 
     /**

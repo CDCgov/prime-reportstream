@@ -34,6 +34,15 @@ class HL7ReaderTests {
     }
 
     @Test
+    fun `test ack getMessageType for a 251 message`() {
+        @Suppress("ktlint:standard:max-line-length")
+        val rawMessage =
+            "MSH|^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ACK^^ACK|371784|P|2.5.1|"
+        val type = HL7Reader.getMessageType(rawMessage)
+        assertThat(type).isEqualTo(HL7Reader.Companion.HL7MessageType("ACK", "2.5.1", ""))
+    }
+
+    @Test
     fun `test getMessageType for a 27 message`() {
         @Suppress("ktlint:standard:max-line-length")
         val rawMessage =
