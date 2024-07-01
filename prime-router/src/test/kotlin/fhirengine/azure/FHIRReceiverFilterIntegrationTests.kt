@@ -15,6 +15,7 @@ import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
+import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -163,30 +164,19 @@ class FHIRReceiverFilterIntegrationTests : Logging {
 
         // set up
         val reportContents = File(MULTIPLE_OBSERVATIONS_FHIR_URL).readText()
-
-        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+        val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
+            Event.EventAction.RECEIVER_FILTER,
             azuriteContainer
         )
-        val receiveReport = reports.first()
-        val destinationReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateReceiverQueueMessage(
-            destinationReport,
+            report,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform,
             "phd.x"
         )
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
-
-        // make sure action table has only what we put in there
-        UniversalPipelineTestUtils.checkActionTable(
-            listOf(
-                TaskAction.receive,
-                TaskAction.convert,
-                TaskAction.destination_filter,
-            )
-        )
 
         // execute
         fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
@@ -194,16 +184,15 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             // did the report get pushed to blob store correctly and intact?
-            val routedReport = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(
-                destinationReport, receiveReport, txn, 1
-            ).single()
+            val routedReport = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(report, txn, 1)
+                .single()
             val routedContents = String(
                 BlobAccess.downloadBlobAsByteArray(
-                routedReport.bodyUrl, UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
+                routedReport.bodyUrl,
+                UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
             )
             )
             val routedBundle = FhirTranscoder.decode(routedContents)
-
             // there should only be one observation of five remaining, and the code of that observation
             // should be 94558-5
             val expectedBundle = FhirTranscoder.decode(reportContents).apply {
@@ -240,8 +229,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 .isEqualTo(
                     ReportRouteEvent(
                         routedReport.reportId,
-                        destinationReport.id,
-                        receiveReport.id,
+                        report.id,
+                        report.id,
                         Topic.FULL_ELR,
                         "phd.Test Sender",
                         receiver.fullName,
@@ -254,15 +243,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     )
                 )
 
-            // make sure action table has a new entry
-            UniversalPipelineTestUtils.checkActionTable(
-                listOf(
-                    TaskAction.receive,
-                    TaskAction.convert,
-                    TaskAction.destination_filter,
-                    TaskAction.receiver_filter,
-                )
-            )
+            // check action table
+            UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.receiver_filter))
         }
     }
 
@@ -284,30 +266,19 @@ class FHIRReceiverFilterIntegrationTests : Logging {
 
         // set up
         val reportContents = File(MULTIPLE_OBSERVATIONS_FHIR_URL).readText()
-
-        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+        val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
+            Event.EventAction.RECEIVER_FILTER,
             azuriteContainer
         )
-        val receiveReport = reports.first()
-        val destinationReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateReceiverQueueMessage(
-            destinationReport,
+            report,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform,
             receiver.fullName
         )
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
-
-        // make sure action table has only what we put in there
-        UniversalPipelineTestUtils.checkActionTable(
-            listOf(
-                TaskAction.receive,
-                TaskAction.convert,
-                TaskAction.destination_filter,
-            )
-        )
 
         // execute
         fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
@@ -315,9 +286,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             // did the report get pushed to blob store correctly and intact?
-            val routedReport = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(
-                destinationReport, receiveReport, txn, 1
-            ).single()
+            val routedReport = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(report, txn, 1)
+                .single()
             val routedContents = String(
                 BlobAccess.downloadBlobAsByteArray(
                 routedReport.bodyUrl,
@@ -358,8 +328,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(azureEventService.events.single()).isEqualTo(
                 ReportRouteEvent(
                     routedReport.reportId,
-                    destinationReport.id,
-                    receiveReport.id,
+                    report.id,
+                    report.id,
                     Topic.FULL_ELR,
                     "phd.Test Sender",
                     receiver.fullName,
@@ -370,15 +340,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 )
             )
 
-            // make sure action table has a new entry
-            UniversalPipelineTestUtils.checkActionTable(
-                listOf(
-                    TaskAction.receive,
-                    TaskAction.convert,
-                    TaskAction.destination_filter,
-                    TaskAction.receiver_filter,
-                )
-            )
+            // check action table
+            UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.receiver_filter))
         }
     }
 
@@ -403,29 +366,19 @@ class FHIRReceiverFilterIntegrationTests : Logging {
 
         // set up
         val reportContents = validFHIRRecord1
-
-        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+        val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
+            Event.EventAction.RECEIVER_FILTER,
             azuriteContainer
         )
-        val destinationReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateReceiverQueueMessage(
-            destinationReport,
+            report,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform,
             receiver.fullName
         )
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
-
-        // make sure action table has only what we put in there
-        UniversalPipelineTestUtils.checkActionTable(
-            listOf(
-                TaskAction.receive,
-                TaskAction.convert,
-                TaskAction.destination_filter
-            )
-        )
 
         // execute
         fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
@@ -435,15 +388,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             QueueAccess.sendMessage(elrTranslationQueueName, any())
         }
 
-        // make sure action table has a new entry
-        UniversalPipelineTestUtils.checkActionTable(
-            listOf(
-                TaskAction.receive,
-                TaskAction.convert,
-                TaskAction.destination_filter,
-                TaskAction.receiver_filter
-            )
-        )
+        // check action table
+        UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.receiver_filter))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val actionLogRecords = DSL.using(txn)
@@ -472,8 +418,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             .isEqualToIgnoringGivenProperties(
                 ReceiverFilterFailedEvent(
                     UUID.randomUUID(), // ignored
-                    destinationReport.id,
-                    reports.first().id,
+                    report.id,
+                    report.id,
                     Topic.FULL_ELR,
                     "phd.Test Sender",
                     receiver.fullName,
@@ -505,30 +451,19 @@ class FHIRReceiverFilterIntegrationTests : Logging {
 
         // set up
         val reportContents = File(VALID_FHIR_URL).readText()
-
-        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+        val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
+            Event.EventAction.RECEIVER_FILTER,
             azuriteContainer
         )
-        val receiveReport = reports.first()
-        val destinationReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateReceiverQueueMessage(
-            destinationReport,
+            report,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform,
             receiver.fullName
         )
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
-
-        // make sure action table has only what we put in there
-        UniversalPipelineTestUtils.checkActionTable(
-            listOf(
-                TaskAction.receive,
-                TaskAction.convert,
-                TaskAction.destination_filter
-            )
-        )
 
         // execute
         fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
@@ -537,12 +472,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
 
             // did the report get pushed to blob store correctly and intact?
-            val routedReport = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(
-                destinationReport,
-                receiveReport,
-                txn,
-                1
-            ).single()
+            val routedReport = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(report, txn, 1)
+                .single()
             val routedContents = String(
                 BlobAccess.downloadBlobAsByteArray(
                 routedReport.bodyUrl,
@@ -578,8 +509,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 .isEqualTo(
                     ReportRouteEvent(
                         routedReport.reportId,
-                        destinationReport.id,
-                        receiveReport.id,
+                        report.id,
+                        report.id,
                         Topic.FULL_ELR,
                         "phd.Test Sender",
                         receiver.fullName,
@@ -590,15 +521,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     )
                 )
 
-            // make sure action table has a new entry
-            UniversalPipelineTestUtils.checkActionTable(
-                listOf(
-                    TaskAction.receive,
-                    TaskAction.convert,
-                    TaskAction.destination_filter,
-                    TaskAction.receiver_filter
-                )
-            )
+            // check action table
+            UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.receiver_filter))
         }
     }
 
@@ -620,29 +544,19 @@ class FHIRReceiverFilterIntegrationTests : Logging {
 
         // set up
         val reportContents = File(VALID_FHIR_URL).readText()
-        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+        val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
+            Event.EventAction.RECEIVER_FILTER,
             azuriteContainer
         )
-        val receiveReport = reports.first()
-        val destinationReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateReceiverQueueMessage(
-            destinationReport,
+            report,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform,
             receiver.fullName
         )
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
-
-        // make sure action table has only what we put in there
-        UniversalPipelineTestUtils.checkActionTable(
-            listOf(
-                TaskAction.receive,
-                TaskAction.convert,
-                TaskAction.destination_filter
-            )
-        )
 
         // execute
         fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
@@ -651,12 +565,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
 
             // did the report get pushed to blob store correctly and intact?
-            val routedReport = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(
-                destinationReport,
-                receiveReport,
-                txn,
-                1
-            ).single()
+            val routedReport = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(report, txn, 1)
+                .single()
 
             val routedBundle = BlobAccess.downloadBlobAsByteArray(
                 routedReport.bodyUrl,
@@ -688,8 +598,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 .isEqualTo(
                     ReportRouteEvent(
                         routedReport.reportId,
-                        destinationReport.id,
-                        receiveReport.id,
+                        report.id,
+                        report.id,
                         Topic.FULL_ELR,
                         "phd.Test Sender",
                         receiver.fullName,
@@ -700,15 +610,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     )
                 )
 
-            // make sure action table has a new entry
-            UniversalPipelineTestUtils.checkActionTable(
-                listOf(
-                    TaskAction.receive,
-                    TaskAction.convert,
-                    TaskAction.destination_filter,
-                    TaskAction.receiver_filter
-                )
-            )
+            // check action table
+            UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.receiver_filter))
         }
     }
 
@@ -731,29 +634,19 @@ class FHIRReceiverFilterIntegrationTests : Logging {
 
         // set up
         val reportContents = File(VALID_FHIR_URL).readText()
-
-        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+        val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
+            Event.EventAction.RECEIVER_FILTER,
             azuriteContainer
         )
-        val destinationReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateReceiverQueueMessage(
-            destinationReport,
+            report,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform,
             receiver.fullName
         )
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
-
-        // make sure action table has only what we put in there
-        UniversalPipelineTestUtils.checkActionTable(
-            listOf(
-                TaskAction.receive,
-                TaskAction.convert,
-                TaskAction.destination_filter
-            )
-        )
 
         // execute
         fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
@@ -763,15 +656,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             QueueAccess.sendMessage(elrTranslationQueueName, any())
         }
 
-        // make sure action table has a new entry
-        UniversalPipelineTestUtils.checkActionTable(
-            listOf(
-                TaskAction.receive,
-                TaskAction.convert,
-                TaskAction.destination_filter,
-                TaskAction.receiver_filter
-            )
-        )
+        // check action table
+        UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.receiver_filter))
 
         // ACTION_LOG should have an entry for the filter action
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -804,8 +690,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             .isEqualToIgnoringGivenProperties(
                 ReceiverFilterFailedEvent(
                     UUID.randomUUID(), // ignored
-                    destinationReport.id,
-                    reports.first().id,
+                    report.id,
+                    report.id,
                     Topic.FULL_ELR,
                     "phd.Test Sender",
                     receiver.fullName,
