@@ -12,6 +12,7 @@ import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
+import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -94,23 +95,19 @@ class FHIRDestinationFilterIntegrationTests : Logging {
     fun `should send valid FHIR report only to receivers listening to full-elr`() {
         // set up
         val reportContents = validFHIRRecord1
-        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+        val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.destination_filter,
+            Event.EventAction.DESTINATION_FILTER,
             azuriteContainer
         )
-        val receiveReport = reports.first()
-        val convertReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateQueueMessage(
             TaskAction.destination_filter,
-            convertReport,
+            report,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform
         )
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
-
-        // make sure action table has only what we put in there
-        UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.convert))
 
         // execute
         val receiverList = UniversalPipelineTestUtils.createReceivers(
@@ -144,8 +141,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             // did the report get pushed to blob store correctly and intact?
-            val routedReports =
-                UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(convertReport, receiveReport, txn, 2)
+            val routedReports = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(report, txn, 2)
 
             val routedBundles = routedReports.map {
                 String(
@@ -196,8 +192,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             val bundle = FhirTranscoder.decode(reportContents)
             assertThat(azureEventsService.events.single()).isEqualTo(
                 ReportAcceptedEvent(
-                    convertReport.id,
-                    receiveReport.id,
+                    report.id,
+                    report.id,
                     Topic.FULL_ELR,
                     "phd.Test Sender",
                     AzureEventUtils.getObservationSummaries(bundle),
@@ -206,14 +202,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 )
             )
 
-            // make sure action table has a new entry
-            UniversalPipelineTestUtils.checkActionTable(
-                listOf(
-                    TaskAction.receive,
-                    TaskAction.convert,
-                    TaskAction.destination_filter
-                )
-            )
+            // check action table
+            UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.destination_filter))
         }
     }
 
@@ -221,24 +211,19 @@ class FHIRDestinationFilterIntegrationTests : Logging {
     fun `should respect jurisdictional filter and send message`() {
         // set up
         val reportContents = File(VALID_FHIR_URL).readText()
-
-        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+        val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.destination_filter,
+            Event.EventAction.DESTINATION_FILTER,
             azuriteContainer
         )
-        val receiveReport = reports.first()
-        val convertReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateQueueMessage(
             TaskAction.destination_filter,
-            convertReport,
+            report,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform
         )
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
-
-        // make sure action table has only what we put in there
-        UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.convert))
 
         // execute
         val receivers = UniversalPipelineTestUtils.createReceivers(
@@ -257,8 +242,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
 
             // did the report get pushed to blob store correctly and intact?
-            val routedReport = UniversalPipelineTestUtils
-                .verifyLineageAndFetchCreatedReportFiles(convertReport, receiveReport, txn, 1)
+            val routedReport = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(report, txn, 1)
                 .single()
 
             val routedBundle = BlobAccess.downloadBlobAsByteArray(
@@ -291,8 +275,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             val bundle = FhirTranscoder.decode(reportContents)
             assertThat(azureEventsService.events.single()).isEqualTo(
                 ReportAcceptedEvent(
-                    convertReport.id,
-                    receiveReport.id,
+                    report.id,
+                    report.id,
                     Topic.FULL_ELR,
                     "phd.Test Sender",
                     AzureEventUtils.getObservationSummaries(bundle),
@@ -301,14 +285,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 )
             )
 
-            // make sure action table has a new entry
-            UniversalPipelineTestUtils.checkActionTable(
-                listOf(
-                    TaskAction.receive,
-                    TaskAction.convert,
-                    TaskAction.destination_filter
-                )
-            )
+            // check action table
+            UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.destination_filter))
         }
     }
 
@@ -316,23 +294,19 @@ class FHIRDestinationFilterIntegrationTests : Logging {
     fun `should respect jurisdictional filter and not send message`() {
         // set up
         val reportContents = File(VALID_FHIR_URL).readText()
-        val reports = UniversalPipelineTestUtils.createReportsWithLineage(
+        val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.destination_filter,
+            Event.EventAction.DESTINATION_FILTER,
             azuriteContainer
         )
-        val receiveReport = reports.first()
-        val convertReport = reports.last()
         val queueMessage = UniversalPipelineTestUtils.generateQueueMessage(
             TaskAction.destination_filter,
-            convertReport,
+            report,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform
         )
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
-
-        // make sure action table has only what we put in there
-        UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.convert))
 
         // execute
         val receiverSetupData = listOf(
@@ -351,14 +325,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             QueueAccess.sendMessage(elrReceiverFilterQueueName, any())
         }
 
-        // make sure action table has a new entry
-        UniversalPipelineTestUtils.checkActionTable(
-            listOf(
-                TaskAction.receive,
-                TaskAction.convert,
-                TaskAction.destination_filter
-            )
-        )
+        // check action table
+        UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.destination_filter))
 
         // we don't log applications of jurisdictional filter to ACTION_LOG at this time
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -377,8 +345,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             .isInstanceOf<ReportAcceptedEvent>()
             .isEqualTo(
                 ReportAcceptedEvent(
-                    convertReport.id,
-                    receiveReport.id,
+                    report.id,
+                    report.id,
                     Topic.FULL_ELR,
                     "phd.Test Sender",
                     AzureEventUtils.getObservationSummaries(bundle),
@@ -391,8 +359,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             .isEqualToIgnoringGivenProperties(
                 ReportNotRoutedEvent(
                     UUID.randomUUID(), // ignored
-                    convertReport.id,
-                    receiveReport.id,
+                    report.id,
+                    report.id,
                     Topic.FULL_ELR,
                     "phd.Test Sender",
                     reportContents.length,

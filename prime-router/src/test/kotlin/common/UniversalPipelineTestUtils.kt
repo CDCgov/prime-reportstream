@@ -232,6 +232,60 @@ object UniversalPipelineTestUtils {
 
     fun verifyLineageAndFetchCreatedReportFiles(
         previousStepReport: Report,
+        txn: DataAccessTransaction,
+        expectedNumberOfItems: Int,
+    ): List<ReportFile> {
+        val itemLineages = DSL
+            .using(txn)
+            .select(ItemLineage.ITEM_LINEAGE.asterisk())
+            .from(ItemLineage.ITEM_LINEAGE)
+            .where(ItemLineage.ITEM_LINEAGE.PARENT_REPORT_ID.eq(previousStepReport.id))
+            .fetchInto(gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage::class.java)
+        assertThat(itemLineages).hasSize(expectedNumberOfItems)
+        assertThat(itemLineages.map { it.childIndex }).isEqualTo(MutableList(expectedNumberOfItems) { 1 })
+
+        // if the previousStepReport had multiple items, then the parent indexes will be a list of numbers
+        // starting at "1" and ascending by one for every item. if the previousStepReport had one item but
+        // that item goes to multiple places then the parent index will always be "1".
+        // for example - the result of the "convert" step will fall into the if block. The result of a "route"
+        // step will fall into the "else" block because the preceding "convert" step will always create
+        // reports with one and only one item to be routed.
+        if (previousStepReport.itemCount > 1) {
+            assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expectedNumberOfItems).toList())
+        } else {
+            assertThat(itemLineages.map { it.parentIndex }).isEqualTo(MutableList(expectedNumberOfItems) { 1 })
+        }
+
+        val reportLineages = DSL
+            .using(txn)
+            .select(ReportLineage.REPORT_LINEAGE.asterisk())
+            .from(ReportLineage.REPORT_LINEAGE)
+            .where(ReportLineage.REPORT_LINEAGE.PARENT_REPORT_ID.eq(previousStepReport.id))
+            .fetchInto(gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage::class.java)
+        assertThat(reportLineages).hasSize(expectedNumberOfItems)
+        val childReportIds = reportLineages.map {
+            it.childReportId
+        }
+        val reportFiles = DSL
+            .using(txn)
+            .select(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.asterisk())
+            .from(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
+            .where(
+                gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.REPORT_ID.`in`(
+                    childReportIds
+                )
+            )
+            .fetchInto(ReportFile::class.java)
+        assertThat(reportFiles).hasSize(expectedNumberOfItems)
+        assertThat(itemLineages).transform { lineages -> lineages.map { it.childReportId }.sorted() }
+            .isEqualTo(reportFiles.map { it.reportId }.sorted())
+
+        return reportFiles
+    }
+
+    // TODO: deprecated remove while cleaning up route step (#????)
+    fun verifyLineageAndFetchCreatedReportFiles(
+        previousStepReport: Report,
         expectedRootReport: Report,
         txn: DataAccessTransaction,
         expectedNumberOfItems: Int,
@@ -438,6 +492,31 @@ object UniversalPipelineTestUtils {
     }
 
     fun createReport(
+        reportContents: String,
+        action: TaskAction,
+        event: Event.EventAction,
+        azuriteContainer: GenericContainer<*>,
+        previousAction: TaskAction = TaskAction.receive,
+        parentReport: Report? = null,
+    ): Report {
+        val blobUrl = BlobAccess.uploadBlob(
+            "${TaskAction.receive.literal}/mr_fhir_face.fhir",
+            reportContents.toByteArray(),
+            getBlobContainerMetadata(azuriteContainer)
+        )
+
+        return createReport(
+            Report.Format.FHIR,
+            previousAction,
+            action,
+            event,
+            Topic.FULL_ELR,
+            parentReport,
+            blobUrl
+        )
+    }
+
+    fun createReport(
         fileFormat: Report.Format,
         currentAction: TaskAction,
         nextAction: TaskAction,
@@ -508,88 +587,6 @@ object UniversalPipelineTestUtils {
         }
 
         return report
-    }
-
-    fun createReportsWithLineage(
-        reportContents: String,
-        actions: List<TaskAction>,
-        events: List<Event.EventAction>,
-        azurite: GenericContainer<*>,
-    ): List<Report> {
-        val reports = mutableListOf<Report>()
-
-        for (i in 0..actions.size - 2) {
-            val action = actions[i]
-            val nextAction = actions[i + 1]
-            val nextEvent = events[i]
-
-            val blobUrl = BlobAccess.uploadBlob(
-                "${action.literal}/mr_fhir_face.fhir",
-                reportContents.toByteArray(),
-                getBlobContainerMetadata(azurite)
-            )
-
-            val parentReport = if (i == 0) null else reports[i - 1]
-            reports.add(
-                createReport(
-                Report.Format.FHIR,
-                action,
-                nextAction,
-                nextEvent,
-                Topic.FULL_ELR,
-                parentReport,
-                blobUrl
-            )
-            )
-        }
-
-        return reports
-    }
-
-    fun createReportsWithLineage(reportContents: String, step: TaskAction, azurite: GenericContainer<*>): List<Report> {
-        val convertActions = listOf(TaskAction.receive, TaskAction.convert)
-        val destinationFilterActions = convertActions.plus(TaskAction.destination_filter)
-        val receiverFilterActions = destinationFilterActions.plus(TaskAction.receiver_filter)
-        val translateActions = receiverFilterActions.plus(TaskAction.translate)
-
-        val convertEvents = listOf(Event.EventAction.CONVERT, Event.EventAction.DESTINATION_FILTER)
-        val destinationFilterEvents = convertEvents.plus(Event.EventAction.RECEIVER_FILTER)
-        val receiverFilterEvents = destinationFilterEvents.plus(Event.EventAction.TRANSLATE)
-        val translateEvents = receiverFilterEvents.plus(Event.EventAction.BATCH)
-
-        val reports = when (step) {
-            TaskAction.receive -> emptyList()
-            TaskAction.convert -> createReportsWithLineage(
-                reportContents,
-                convertActions,
-                convertEvents,
-                azurite
-            )
-            TaskAction.destination_filter -> createReportsWithLineage(
-                reportContents,
-                destinationFilterActions,
-                destinationFilterEvents,
-                azurite
-            )
-            TaskAction.receiver_filter -> createReportsWithLineage(
-                reportContents,
-                receiverFilterActions,
-                receiverFilterEvents,
-                azurite
-            )
-            TaskAction.translate -> createReportsWithLineage(
-                reportContents,
-                translateActions,
-                translateEvents,
-                azurite
-            )
-
-            else -> {
-                throw IllegalStateException("Step lineage not defined")
-            }
-        }
-
-        return reports
     }
 
     fun checkActionTable(expectedTaskActions: List<TaskAction>) {

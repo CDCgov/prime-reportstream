@@ -225,7 +225,7 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, receiveReport, txn, 2)
+            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, txn, 2)
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -345,7 +345,7 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, receiveReport, txn, 2)
+            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, txn, 2)
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -424,7 +424,7 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, receiveReport, txn, 1)
+            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, txn, 1)
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -496,7 +496,7 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, receiveReport, txn, 2)
+            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, txn, 2)
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -571,7 +571,7 @@ class FHIRConverterIntegrationTests {
             QueueAccess.sendMessage(any(), any())
         }
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            verifyLineageAndFetchCreatedReportFiles(receiveReport, receiveReport, txn, 1)
+            verifyLineageAndFetchCreatedReportFiles(receiveReport, txn, 1)
         }
     }
 }
