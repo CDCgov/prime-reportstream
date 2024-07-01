@@ -40,7 +40,7 @@ RUN rm Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip
 #
 # STAGE 2: Build the actual container that does the build
 #
-FROM ubuntu:22-04 AS builder
+FROM ubuntu:24.04 AS builder
 ARG JAVA_VERSION=17
 
 # Latest patches
