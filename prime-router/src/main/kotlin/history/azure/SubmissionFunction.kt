@@ -129,7 +129,7 @@ class SubmissionFunction(
         ) request: HttpRequestMessage<String?>,
         @BindingName("id") id: String,
     ): HttpResponseMessage {
-        return this.getDetailedView(request, id)
+        return this.getDetailedView(request, id, true)
     }
 
     /**

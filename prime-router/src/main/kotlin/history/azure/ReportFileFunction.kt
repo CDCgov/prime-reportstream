@@ -8,8 +8,13 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.Tables.ACTION_LOG
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.history.DetailedActionLog
+import gov.cdc.prime.router.history.DetailedReport
+import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.ReportHistory
+import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
@@ -25,6 +30,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
+import org.jooq.impl.DSL
 import java.net.URLEncoder
 import java.nio.charset.Charset
 import java.time.OffsetDateTime
@@ -42,6 +48,7 @@ import java.util.logging.Logger
 abstract class ReportFileFunction(
     private val reportFileFacade: ReportFileFacade,
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
+    private val reportGraph: ReportGraph = ReportGraph(),
 ) : Logging {
 
     internal val intermediaryReceiverName = "flexion.etor-service-receiver-orders"
@@ -143,6 +150,7 @@ abstract class ReportFileFunction(
     fun getDetailedView(
         request: HttpRequestMessage<String?>,
         id: String,
+        useNewTechnique: Boolean = false,
     ): HttpResponseMessage {
         try {
             // Do authentication
@@ -152,7 +160,50 @@ abstract class ReportFileFunction(
                 authResult
             } else {
                 val action = this.actionFromId(id)
-                val history = this.singleDetailedHistory(request.queryParameters, action)
+                val history = if (!useNewTechnique) {
+                    this.singleDetailedHistory(request.queryParameters, action)
+                } else {
+                    workflowEngine.db.transactReturning { txn ->
+                        val graph = reportGraph.getDescendantReports(txn, UUID.fromString(id))
+                        val detailedReports = graph.map { reportFile ->
+                            DetailedReport(
+                                reportFile.reportId,
+                                reportFile.receivingOrg,
+                                reportFile.receivingOrgSvc,
+                                reportFile.sendingOrg,
+                                reportFile.sendingOrgClient,
+                                reportFile.schemaTopic,
+                                reportFile.externalName,
+                                reportFile.createdAt,
+                                reportFile.nextActionAt,
+                                reportFile.itemCount,
+                                reportFile.itemCountBeforeQualFilter,
+                                reportFile.transportResult != null,
+                                reportFile.transportResult,
+                                reportFile.downloadedBy
+                            )
+                        }.toMutableList()
+                        val reportIds = graph.map { it.reportId }
+                        val logs = DSL
+                            .using(txn)
+                            .select()
+                            .from(ACTION_LOG)
+                            .where(ACTION_LOG.REPORT_ID.`in`(reportIds))
+                            .fetchInto(DetailedActionLog::class.java)
+                        val history =
+                            DetailedSubmissionHistory(
+                                action.actionId,
+                                action.actionName,
+                                action.createdAt,
+                                httpStatus = action.httpStatus,
+                                logs = logs,
+                                reports = detailedReports
+
+                            )
+                        history.enrichWithSummary()
+                        history
+                    }
+                }
 
                 if (history != null) {
                     HttpUtilities.okJSONResponse(request, history)

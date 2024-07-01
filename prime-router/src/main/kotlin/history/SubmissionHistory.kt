@@ -253,17 +253,37 @@ class DetailedSubmissionHistory(
                 // If there is no transport defined, there will not be a next action so sending at
                 // should be null.
                 val nextActionTime = if (report.receiverHasTransport) report.nextActionAt else null
-                destinations.add(
-                    Destination(
-                        report.receivingOrg,
-                        report.receivingOrgSvc!!,
-                        filteredReportRows.toMutableList(),
-                        filteredReportItems.toMutableList(),
-                        nextActionTime,
-                        report.itemCount,
-                        report.itemCountBeforeQualFilter,
+                val existingDestination =
+                    destinations.find {
+                        it.organizationId == report.receivingOrg && it.service == report.receivingOrgSvc
+                    }
+                if (existingDestination == null) {
+                    val sentReports = if (report.transportResult != null) mutableListOf(report) else mutableListOf()
+                    val downloadedReports = if (report.downloadedBy != null) mutableListOf(report) else mutableListOf()
+                    destinations.add(
+                        Destination(
+                            report.receivingOrg,
+                            report.receivingOrgSvc!!,
+                            filteredReportRows.toMutableList(),
+                            filteredReportItems.toMutableList(),
+                            nextActionTime,
+                            report.itemCount,
+                            report.itemCountBeforeQualFilter,
+                            sentReports = sentReports,
+                            downloadedReports
+                        )
                     )
-                )
+                } else {
+                    if (report.transportResult != null) {
+                        existingDestination.sentReports.add(report)
+                    }
+
+                    if (report.downloadedBy != null) {
+                        existingDestination.downloadedReports.add(report)
+                    } else {
+                        // TODO the let is wrong
+                    }
+                }
             }
 
             // For the report received from a sender

@@ -77,6 +77,9 @@ data class DetailedReport(
     val itemCountBeforeQualFilter: Int?,
     @JsonIgnore
     val receiverHasTransport: Boolean,
+    @JsonIgnore
+    val transportResult: String? = null,
+    val downloadedBy: String? = null,
 )
 
 /**
