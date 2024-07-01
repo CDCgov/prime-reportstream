@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: Observation
 
 # Not implementing OBX.5 when OBX.2 is RP as the inventory say it still needs to be resolved
@@ -22,20 +24,9 @@ id:
   valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
-code_noCE:
-  vars:
-    obx2: STRING, OBX.2
-  condition: $obx2 NOT_EQUALS CE || $obx2 NULL
+code:
   expressionType: resource
   valueOf: datatypes/CWE/CodeableConcept
-  specs: OBX.3
-
-code_supportsCE:
-  vars:
-    obx2: STRING, OBX.2
-  condition: $obx2 EQUALS CE
-  expressionType: resource
-  valueOf: datatypes/CE/CodeableConcept
   specs: OBX.3
 
 valueString_obx:
@@ -72,12 +63,8 @@ valueCodeableConcept:
       valueOf: datatypes/CNE/CodeableConcept
       specs: OBX.5
       expressionType: resource
-    - condition: $obx2 EQUALS CWE
+    - condition: $obx2 EQUALS CWE || $obx2 EQUALS CE
       valueOf: datatypes/CWE/CodeableConcept
-      specs: OBX.5
-      expressionType: resource
-    - condition: $obx2 EQUALS CE
-      valueOf: datatypes/CE/CodeableConcept
       specs: OBX.5
       expressionType: resource
     - condition: $obx2 EQUALS IS
@@ -210,7 +197,6 @@ valueQuantity:
             nameOfCodingSystem: CWEQuantityUnits.3
         unit:
           expressionType: nested
-          condition:
           vars:
             identifier: CWEQuantityUnits.1
             text: CWEQuantityUnits.2
