@@ -61,22 +61,22 @@ elements:
     hl7Spec: [ '%{MSH}-6-3' ]
 
   - name: vt-obr-assigning-authority-universal-id
-    condition: '%{OBR}-16.9 = "NPI"'
+    condition: '%{OBR}-16-9 = "NPI"'
     value: [ '"2.16.840.1.113883.4.6"' ]
     hl7Spec: [ '%{OBR}-16-9' ]
 
   - name: vt-obr-assigning-authority-universal-id-type
-    condition: '%{OBR}-16.9 = "NPI"'
+    condition: '%{OBR}-16-9 = "NPI"'
     value: [ '"ISO"' ]
     hl7Spec: [ '%{OBR}-16-9' ]
 
   - name: vt-orc-assigning-authority-universal-id
-    condition: '%{ORC}-12.9 = "NPI"'
+    condition: '%{ORC}-12-9 = "NPI"'
     value: [ '"2.16.840.1.113883.4.6"' ]
     hl7Spec: [ '%{ORC}-12-9' ]
 
   - name: vt-orc-assigning-authority-universal-id-type
-    condition: '%{ORC}-12.9 = "NPI"'
+    condition: '%{ORC}-12-9 = "NPI"'
     value: [ '"ISO"' ]
     hl7Spec: [ '%{ORC}-12-9' ]
 
