@@ -23,7 +23,7 @@ export async function clickOnAbout(page: Page) {
 export async function clickOnGettingStarted(page: Page) {
     await page
         .getByTestId("header")
-        .getByRole("link", { name: "Getting Started" })
+        .getByRole("link", { name: "Getting started" })
         .click();
 
     await expect(page).toHaveURL(/getting-started/);
