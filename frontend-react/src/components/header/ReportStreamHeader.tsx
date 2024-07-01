@@ -314,7 +314,7 @@ function ReportStreamNavbar({
 
     const menuItemsGettingStarted = [
         <Dropdown
-            menuName="Getting Started"
+            menuName="Getting started"
             dropdownList={[
                 <USSmartLink
                     href="/getting-started/sending-data"
