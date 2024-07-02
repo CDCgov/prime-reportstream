@@ -216,7 +216,7 @@ class DeliveryHistoryDatabaseAccess(
             "Invalid organization."
         }
 
-        var reportId: UUID?
+        val reportId: UUID?
         try {
             reportId = if (reportIdStr != null) UUID.fromString(reportIdStr) else null
         } catch (e: IllegalArgumentException) {

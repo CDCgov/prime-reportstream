@@ -1,5 +1,6 @@
 package gov.cdc.prime.reportstream.shared
 
+
 import org.apache.commons.lang3.StringUtils
 
 /**
@@ -36,12 +37,11 @@ object StringUtilities {
      */
     fun String.trimAndTruncate(maxLength: Int?): String {
         val startTrimmed = this.trimStart()
-        val truncated =
-            if (maxLength != null && startTrimmed.length > maxLength) {
-                startTrimmed.take(maxLength)
-            } else {
-                startTrimmed
-            }
+        val truncated = if (maxLength != null && startTrimmed.length > maxLength) {
+            startTrimmed.take(maxLength)
+        } else {
+            startTrimmed
+        }
         return truncated.trimEnd()
     }
 }

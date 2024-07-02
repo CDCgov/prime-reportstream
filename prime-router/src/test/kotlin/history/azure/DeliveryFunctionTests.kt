@@ -1633,7 +1633,7 @@ class DeliveryFunctionTests : Logging {
             mockkConstructor(DeliveryHistoryDatabaseAccess::class)
             every {
                 anyConstructed<DeliveryHistoryDatabaseAccess>().getDeliveries(
-                    any(), "simple_report.default", null, null, null
+                    any(), "simple_report", "default", null, null, null
                 )
             } returns ApiSearchResult(10, 0, emptyList())
 
@@ -1668,7 +1668,7 @@ class DeliveryFunctionTests : Logging {
             mockkConstructor(DeliveryHistoryDatabaseAccess::class)
             every {
                 anyConstructed<DeliveryHistoryDatabaseAccess>().getDeliveries(
-                    any(), organization1.name, null, null, null
+                    any(), organization1.name, null, null, null, null
                 )
             } returns ApiSearchResult(10, 0, emptyList())
 
@@ -1708,7 +1708,7 @@ class DeliveryFunctionTests : Logging {
             every {
                 anyConstructed<DeliveryHistoryDatabaseAccess>().getDeliveries(
                     any(),
-                    organization1.name, null, null, null
+                    organization1.name, null, null, null, null
                 )
             } returns ApiSearchResult(
                 10, 3,

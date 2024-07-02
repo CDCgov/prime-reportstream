@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import gov.cdc.prime.reportstream.shared.StringUtilities.toIntOrDefault
 import gov.cdc.prime.reportstream.shared.StringUtilities.trimToNull
+
 import org.junit.jupiter.api.Test
 
 class StringUtilitiesTests {
