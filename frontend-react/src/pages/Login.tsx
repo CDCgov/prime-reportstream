@@ -21,8 +21,8 @@ export function Login() {
                 // use our existing auth client, instead of the widget creating another one
                 authClient: oktaAuth,
                 otp: searchParams.get("otp") ?? undefined,
-                token: searchParams.get("token") ?? undefined,
-            }) satisfies WidgetOptions & { otp?: string; token?: string },
+                state: searchParams.get("state") ?? undefined,
+            }) satisfies WidgetOptions & { otp?: string },
         [config.OKTA_WIDGET, oktaAuth, searchParams],
     );
 
