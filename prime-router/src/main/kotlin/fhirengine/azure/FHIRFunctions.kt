@@ -65,7 +65,7 @@ class FHIRFunctions(
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
-                elrRoutingQueueName,
+                elrDestinationFilterQueueName,
                 it.serialize()
             )
         }
@@ -130,7 +130,7 @@ class FHIRFunctions(
         message: String,
         dequeueCount: Int,
         fhirEngine: FHIRDestinationFilter,
-        actionHistory: ActionHistory = ActionHistory(TaskAction.route),
+        actionHistory: ActionHistory = ActionHistory(TaskAction.destination_filter),
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
 
@@ -166,7 +166,7 @@ class FHIRFunctions(
         message: String,
         dequeueCount: Int,
         fhirEngine: FHIRReceiverFilter,
-        actionHistory: ActionHistory = ActionHistory(TaskAction.route),
+        actionHistory: ActionHistory = ActionHistory(TaskAction.receiver_filter),
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
