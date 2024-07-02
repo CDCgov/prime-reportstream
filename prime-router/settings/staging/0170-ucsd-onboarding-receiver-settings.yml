@@ -44,8 +44,8 @@
       transport:
         type: "REST"
         authType: "two-legged"
-        authTokenUrl: "https://fhir.epic.com/interconnect-fhir-oauth/oauth2/token"
-        reportUrl: "https://sample/reports-endpoint"
+        authTokenUrl: "https://epicproxy-np.et0502.epichosted.com/FhirProxy/oauth2/token"
+        reportUrl: "https://epicproxy-np.et0502.epichosted.com/CDPH_NBGS_TST/api/epic/2015/EDI/HTTP/HL7v2/910377"
         parameters:
           grant_type: "client_credentials"
           client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
