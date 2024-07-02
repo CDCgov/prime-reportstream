@@ -20,7 +20,7 @@ jobs:
       env_name: ${{ steps.build_vars.outputs.env_name }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
       - name: Build vars
         id: build_vars
@@ -36,7 +36,7 @@ jobs:
         working-directory: operations/slack-boltjs-app
     steps:
       - name: Check out changes
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
           submodules: true
 
