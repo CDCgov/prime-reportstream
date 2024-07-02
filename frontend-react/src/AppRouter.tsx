@@ -76,14 +76,6 @@ const ReportStreamApiDocumentation = lazy(
             ),
     ),
 );
-const ReportStreamApiDocumentationDataModel = lazy(
-    lazyRouteMarkdown(
-        () =>
-            import(
-                "./content/developer-resources/reportstream-api/documentation/data-model/DataModel.mdx"
-            ),
-    ),
-);
 const ReportStreamApiDocumentationResponses = lazy(
     lazyRouteMarkdown(
         () =>
@@ -354,15 +346,6 @@ export const appRoutes: RouteObject[] = [
                                             <ReportStreamApiDocumentation />
                                         ),
                                         index: true,
-                                        handle: {
-                                            isContentPage: true,
-                                        },
-                                    },
-                                    {
-                                        path: "data-model",
-                                        element: (
-                                            <ReportStreamApiDocumentationDataModel />
-                                        ),
                                         handle: {
                                             isContentPage: true,
                                         },
