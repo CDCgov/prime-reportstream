@@ -108,16 +108,6 @@ abstract class Sender(
         hospitalSystem,
     }
 
-//    /**
-//     * The format this sender makes submissions in
-//     */
-//    enum class Format(val mimeType: String) {
-//        CSV("text/csv"),
-//        HL7("application/hl7-v2"),
-//        FHIR("application/fhir+ndjson"),
-//        HL7_BATCH("application/hl7-v2"),
-//    }
-
     /**
      * Enumeration to describe the Primary or default method of submission for a Sender
      *
