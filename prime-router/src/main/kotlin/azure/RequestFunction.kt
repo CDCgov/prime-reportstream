@@ -50,7 +50,7 @@ abstract class RequestFunction(
             ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
     }
 
-    class InvalidExternalPayloadException(val externalName: String) : RuntimeException()
+    class InvalidExternalPayloadException(val externalName: String) : RuntimeException(externalName)
 
     /**
      * Extract the optional payloadName (aka sender-supplied filename) from request headers or query string parameters
@@ -137,6 +137,7 @@ abstract class RequestFunction(
                             "Blank message(s) found within file. Blank messages cannot be processed."
                         )
                     )
+
                 else -> actionLogs.error(InvalidParamMessage("Expecting a post message with content"))
             }
         }

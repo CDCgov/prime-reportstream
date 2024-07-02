@@ -168,7 +168,7 @@ class ActionHistory(
         companion object {
             // These header/query params can potentially contain auth information, and we do not want to log them
             // gitleaks:allow
-            private val parameterNamesToExclude = listOf(
+            private val parameterNamesToExclude = setOf(
                 "key",
                 "cookie",
                 "auth", // gitleaks:allow
