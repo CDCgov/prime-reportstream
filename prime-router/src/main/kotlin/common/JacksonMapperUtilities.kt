@@ -35,7 +35,8 @@ object JacksonMapperUtilities {
         /**
          * OffsetDateTime serializer that does not include fractions of seconds.
          */
-        class NoOptionalFieldsOffsetDateTimeSerializer : OffsetDateTimeSerializer(
+        class NoOptionalFieldsOffsetDateTimeSerializer :
+            OffsetDateTimeSerializer(
             INSTANCE, false, false,
             timestampFormatter
         )
@@ -64,7 +65,7 @@ object JacksonMapperUtilities {
     /**
      * jacksonObjectMapper using library defaults.
      */
-    val jacksonObjectMapper: ObjectMapper = jacksonObjectMapper()
+    val jacksonObjectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
 
     /**
      * Mapper using library defaults.
