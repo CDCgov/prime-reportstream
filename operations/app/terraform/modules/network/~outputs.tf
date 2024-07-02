@@ -1,9 +1,5 @@
-output "replica_vnet_id" {
-  value = data.azurerm_virtual_network.vnet["west"].id
-}
-
 output "primary_vnet_id" {
-  value = data.azurerm_virtual_network.vnet["east"].id
+  value = data.azurerm_virtual_network.vnet["app-vnet"].id
 }
 
 output "subnets" {

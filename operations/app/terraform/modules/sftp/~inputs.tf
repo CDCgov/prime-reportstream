@@ -60,3 +60,13 @@ variable "sshinstances" {
 variable "sftp_dir" {
   description = "SFTP Script Directory"
 }
+
+variable "vnet_name" {
+    type        = string
+    description = "VNet name"
+}
+
+variable "subnet_name" {
+    type        = string
+    description = "Subnet name"
+}
