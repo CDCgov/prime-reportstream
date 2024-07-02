@@ -1,3 +1,5 @@
+# $schema: ./../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 value_1:
   condition: $value CONTAINS_STRING '.'
   #  Not specifying a type results in the full "value" being reported correctly and no rounding/float conversion occurs.
@@ -14,7 +16,7 @@ value_2:
   type: INTEGER
   valueOf: $value
 comparator:
-  type: String
+  type: STRING
   # Hl7 supports an equal sign as a comparator that FHIR does not, making sure its a supported comparator.
   # see extensions on this config for handling of unsupported comparators
   condition: $sComparator EQUALS_STRING '<' || $sComparator EQUALS_STRING '<=' || $sComparator EQUALS_STRING '>=' || $sComparator EQUALS_STRING '>'
@@ -22,7 +24,7 @@ comparator:
   vars:
     sComparator: String, $comparator
 unit:
-  type: String
+  type: STRING
   valueOf: $unit
 system_1:
   type: URI
@@ -37,7 +39,7 @@ system_3:
     systemCWE: $urn + $sys
 code:
   condition: $system NOT_NULL || $resolvedSystem NOT_NULL || $sys NOT_NULL
-  type: String
+  type: STRING
   valueOf: $code
 
 extension_1:
