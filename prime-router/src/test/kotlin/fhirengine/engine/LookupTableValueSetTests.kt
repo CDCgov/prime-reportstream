@@ -67,7 +67,8 @@ class LookupTableValueSetTests {
         val testTable = Table.create(
             "table",
             StringColumn.create("key", "abc123", "def456"),
-            StringColumn.create("value", "ghi789", "")
+            StringColumn.create("value", "ghi789", ""),
+            StringColumn.create("secondValue", "ijk012", "lmn345")
         )
         val testLookupTable = LookupTable(name = "table", table = testTable)
 
@@ -76,21 +77,21 @@ class LookupTableValueSetTests {
         mockkObject(Metadata)
         every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
 
-        val bundle = Bundle()
+        var bundle = Bundle()
         bundle.id = "bundle1"
-        val resource = Patient()
+        var resource = Patient()
         resource.addName(HumanName().setTextElement(StringType("abc123")))
         bundle.addEntry().resource = resource
-        val resource2 = Patient()
+        var resource2 = Patient()
         resource2.addName(HumanName().setTextElement(StringType("def456")))
         bundle.addEntry().resource = resource2
-        val resource3 = Patient()
+        var resource3 = Patient()
         resource3.addName(HumanName().setTextElement(StringType("jkl369")))
         bundle.addEntry().resource = resource3
 
-        val valueConfig = LookupTableValueSetConfig(tableName = "table", keyColumn = "key", valueColumn = "value")
+        var valueConfig = LookupTableValueSetConfig(tableName = "table", keyColumn = "key", valueColumn = "value")
 
-        val patientElement = FhirTransformSchemaElement(
+        var patientElement = FhirTransformSchemaElement(
             "patientElement",
             value = listOf("%resource.name.text"),
             resource = "%resource",
@@ -99,7 +100,7 @@ class LookupTableValueSetTests {
                 valueConfig
             )
         )
-        val childSchema = FhirTransformSchema(elements = mutableListOf(patientElement))
+        var childSchema = FhirTransformSchema(elements = mutableListOf(patientElement))
 
         val elemA = FhirTransformSchemaElement(
             "elementA",
@@ -108,12 +109,55 @@ class LookupTableValueSetTests {
             resourceIndex = "patientIndex",
         )
 
-        val schema = FhirTransformSchema(elements = mutableListOf(elemA))
+        var schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
         FhirTransformer(schema).process(bundle)
 
         assertThat(resource.name[0].text).isEqualTo("ghi789")
         assertThat(resource2.name[0].text).isEqualTo("")
+        assertThat(resource3.name[0].text).isEqualTo("jkl369")
+
+        // Test getting the second column from the same table.
+
+        bundle = Bundle()
+        bundle.id = "bundle2"
+        resource = Patient()
+        resource.addName(HumanName().setTextElement(StringType("def456")))
+        bundle.addEntry().resource = resource
+        resource2 = Patient()
+        resource2.addName(HumanName().setTextElement(StringType("abc123")))
+        bundle.addEntry().resource = resource2
+        resource3 = Patient()
+        resource3.addName(HumanName().setTextElement(StringType("jkl369")))
+        bundle.addEntry().resource = resource3
+
+        valueConfig = LookupTableValueSetConfig(tableName = "table", keyColumn = "key", valueColumn = "secondValue")
+
+        patientElement = FhirTransformSchemaElement(
+            "patientElement",
+            value = listOf("%resource.name.text"),
+            resource = "%resource",
+            bundleProperty = "%resource.name.text",
+            valueSet = LookupTableValueSet(
+                valueConfig
+            )
+        )
+
+        childSchema = FhirTransformSchema(elements = mutableListOf(patientElement))
+
+        val elemB = FhirTransformSchemaElement(
+            "elementB",
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            schemaRef = childSchema,
+            resourceIndex = "patientIndex",
+        )
+
+        schema = FhirTransformSchema(elements = mutableListOf(elemB))
+
+        FhirTransformer(schema).process(bundle)
+
+        assertThat(resource.name[0].text).isEqualTo("lmn345")
+        assertThat(resource2.name[0].text).isEqualTo("ijk012")
         assertThat(resource3.name[0].text).isEqualTo("jkl369")
 
         unmockkAll()
