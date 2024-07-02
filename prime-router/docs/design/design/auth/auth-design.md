@@ -161,7 +161,6 @@ Code example:
 
 // has read scope
 @GetMapping("/api/v1/protected/endpoint")
-// gitleaks:allow
 @PreAuthorize("hasAuthority('SCOPE_read')")  
 fun protectedReadEndpoint() {
     // read that anyone with the read scope can see
@@ -169,7 +168,6 @@ fun protectedReadEndpoint() {
 
 // has admin authority
 @PostMapping("/api/v1/protected/endpoint")
-// gitleaks:allow
 @PreAuthorize("hasAuthority('Admin')")
 fun protectedWriteEndpoint() {
     // write that only admins can do
