@@ -1,17 +1,3 @@
-resource "azurerm_network_profile" "sftp_network_profile" {
-  name                = "sftp_network_profile"
-  location            = var.location
-  resource_group_name = var.resource_group
-
-  container_network_interface {
-    name = "sftp_container_network_interface"
-    ip_configuration {
-      name      = "sftp_container_ip_configuration"
-      subnet_id = data.azurerm_subnet.container.id
-    }
-  }
-}
-
 resource "azurerm_network_profile" "sftp_vnet_network_profile" {
   name                = "sftp_vnet_network_profile"
   location            = var.location
@@ -73,13 +59,6 @@ resource "azurerm_container_group" "sftp_container" {
     environment = var.environment
   }
 
-  lifecycle {
-    # Workaround. TF thinks this is a new resource after import
-    ignore_changes = [
-      container[0].volume[0],
-    ]
-  }
-
   depends_on = [
     azurerm_storage_share.sftp_share,
     azurerm_network_profile.sftp_vnet_network_profile
@@ -89,7 +68,7 @@ resource "azurerm_container_group" "sftp_container" {
 resource "azurerm_storage_share" "sftp_share" {
   name                 = "${var.resource_prefix}-sftpserver"
   storage_account_name = var.storage_account.name
-
+  quota                = 5120
   depends_on = [
     var.storage_account
   ]

@@ -7,7 +7,7 @@ unique interests in the data that flows through the pipeline. Routing is designe
 interests.
 
 The Route function follows the [Convert](convert.md) function. At this point all data will be in FHIR format. These
-messages are passed to the FHIR Router which first decodes a FHIR Bundle. `FHIRRouter.applyFilters` does the work to
+messages are passed to the FHIR Router which first decodes a FHIR Bundle. `FHIRRouter.findReceiversForBundle` does the work to
 find receivers that accept the bundle. With the list of acceptable receivers, FHIR Endpoints are added to the Provenance
 resource identifying those receivers. An Endpoint resource describes the details of a receiver including which test
 results to include. With that information, the message is passed to the [Translate](translate.md) function where
@@ -73,7 +73,7 @@ The table below demonstrates a few filter functions and their FHIRPath equivalen
   <tr>
    <td><code>hasValidDataFor(message_id)</code>
    </td>
-   <td><code>%messageId.exists().not()</code>
+   <td><code>Bundle.entry.resource.ofType(MessageHeader).id.exists().not()</code>
    </td>
   </tr>
   <tr>
@@ -110,7 +110,7 @@ The table below demonstrates a few filter functions and their FHIRPath equivalen
    <td><code>orEquals(ordering_facility_state, CO, patient_state, CO)</code>
    </td>
    <td><code>%orderingFacilityState = "CO" or \
-%patientState = "CO"</code>
+Bundle.entry.resource.ofType(Patient).address.state = "CO"</code>
    </td>
   </tr>
 </table>
@@ -190,20 +190,20 @@ Filter out any data that does not meet the specified minimum requirements (e.g. 
  *   At least one of order test date, specimen collection date/time, test result date
  */
 val qualityFilterDefault: ReportStreamFilter = listOf(
-        "%messageId.exists()",
-        "%patient.name.family.exists()",
-        "%patient.name.given.count() > 0",
-        "%patient.birthDate.exists()",
-        "%specimen.type.exists()",
-        "(%patient.address.line.exists() or " +
-            "%patient.address.postalCode.exists() or " +
-            "%patient.telecom.exists())",
+        "Bundle.entry.resource.ofType(MessageHeader).id.exists()",
+        "Bundle.entry.resource.ofType(Patient).name.family.exists()",
+        "Bundle.entry.resource.ofType(Patient).name.given.count() > 0",
+        "Bundle.entry.resource.ofType(Patient).birthDate.exists()",
+        "Bundle.entry.resource.ofType(Specimen).type.exists()",
+        "(Bundle.entry.resource.ofType(Patient).address.line.exists() or " +
+            "Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or " +
+            "Bundle.entry.resource.ofType(Patient).telecom.exists())",
         "(" +
-            "(%specimen.collection.collectedPeriod.exists() or " +
-            "%specimen.collection.collected.exists()" +
+            "(Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or " +
+            "Bundle.entry.resource.ofType(Specimen).collection.collected.exists()" +
             ") or " +
-            "%serviceRequest.occurrence.exists() or " +
-            "%observation.effective.exists())"
+            "Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or " +
+            "Bundle.entry.resource.ofType(Observation).effective.exists())"
     )
 ```
 
@@ -263,12 +263,12 @@ Production data should only be accepted by production receivers.
 </table>
 
 ```kotlin
-   /**
+/**
  * Default Rule:
  *  Must have a processing mode id of 'P'
  */
 val processingModeFilterDefault: ReportStreamFilter = listOf(
-        "%processingId = 'P'"
+        "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P'"
     )
 ```
 
@@ -364,7 +364,7 @@ the [filtering design](https://github.com/CDCgov/prime-reportstream/blob/master/
 
 ### Frontend User Interface
 
-The admin user interface at[ https://reportstream.cdc.gov/](https://reportstream.cdc.gov/) allows a PRIME admin to
+The admin user interface at https://reportstream.cdc.gov/ allows a PRIME admin to
 manage the settings of an organization, sender and/or receiver. Filters are configured as free text and the input text
 must conform to the expected syntax.
 
@@ -385,7 +385,7 @@ All filters for receivers and organizations can be created/updated/deleted via t
             organizationName: yoyodyne
             topic: full-elr
             customerStatus: active
-            jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'CA') ]
+            jurisdictionalFilter: [ "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'CA') ]
 ```
 
 2. Use the following commands to load the information from the .yml files into the staging database. First obtain a

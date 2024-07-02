@@ -136,7 +136,7 @@ class FhirBundleUtilsTests {
         assertThat(convertedValue).isInstanceOf(StringType::class)
 
         verify(exactly = 3) {
-            logger.error(any<String>())
+            logger.debug(any<String>())
         }
     }
 }

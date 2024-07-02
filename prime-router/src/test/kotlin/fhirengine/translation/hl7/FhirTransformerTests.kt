@@ -64,6 +64,11 @@ class FhirTransformerTests {
         clearMocks(logger, answers = false)
     }
 
+    private fun verifyDebugAndResetLogger(logger: KotlinLogger) {
+        verify { logger.debug(any<String>()) }
+        clearMocks(logger, answers = false)
+    }
+
     @Test
     fun `test get value`() {
         val mockSchema = mockk<FhirTransformSchema>() // Just a dummy schema to pass around
@@ -616,7 +621,7 @@ class FhirTransformerTests {
                 CustomContext(bundle, bundle), bundle, bundle
             )
         }
-        verifyErrorAndResetLogger(logger)
+        verifyDebugAndResetLogger(logger)
 
         assertFailure {
             transformer.setBundleProperty(
@@ -624,7 +629,7 @@ class FhirTransformerTests {
                 CustomContext(bundle, bundle), bundle, bundle
             )
         }
-        verifyErrorAndResetLogger(logger)
+        verifyDebugAndResetLogger(logger)
     }
 
     @Test

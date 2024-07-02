@@ -6,6 +6,6 @@ id:
   expressionType: JEXL
 
 identifier:
-  valueOf: datatypes/EI/Identifier
+  valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
   expressionType: resource
   specs: $BASE_VALUE

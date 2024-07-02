@@ -2,11 +2,14 @@ import { Fixture } from "@rest-hooks/test";
 import { screen, within } from "@testing-library/react";
 
 import SubmissionTable from "./SubmissionTable";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
-import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
+import { Organizations } from "../../hooks/UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { MemberType } from "../../utils/OrganizationUtils";
+
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
 
 describe("SubmissionTable", () => {
     test("renders a placeholder", async () => {

@@ -9,7 +9,7 @@ system handles the bundling and exporting of site content written in markdown.
 ## Set up your index
 
 First, under `src/content` add your content folder (e.x. `product`) and create an `index.ts`
-file inside. This file exports your `DirectoryTools` and your array of `ContentDirectory` 
+file inside. This file exports your `DirectoryTools` and your array of `ContentDirectory`
 objects to render.
 
 ### Slugs
@@ -20,7 +20,7 @@ on your defined slugs. To define your slugs, set up the following code:
 ```typescript
 // Enumeration of names ensures no bad strings anywhere!
 enum HelpDirectories {
-    FAQ = "Frequently Asked Questions"
+    FAQ = "Frequently Asked Questions",
 }
 // This array gets passed into your DirectoryTools in just a moment!
 const slugs: SlugParams[] = [
@@ -67,8 +67,8 @@ export const helpDirectories: ContentDirectory[] = [
 This copy/paste of a blank `index.ts` should help get you started!
 
 ```typescript
-import {ContentDirectoryTools} from "./PageGenerationTools";
-import {ContentDirectory} from "./MarkdownDirectory";
+import { ContentDirectoryTools } from "./PageGenerationTools";
+import { ContentDirectory } from "./MarkdownDirectory";
 
 // Name your content pages
 enum MyDirectories {}
@@ -81,7 +81,7 @@ export const MyDirectoryTools = new ContentDirectoryTools()
     .setTitle("My Directory")
     .setSubtitle("A content system template")
     .setRoot("/my-root")
-    .setSlugs(slugs)
+    .setSlugs(slugs);
 
 // Package and export content
 export const myContentDirectories: ContentDirectory[] = [];
@@ -90,8 +90,10 @@ export const myContentDirectories: ContentDirectory[] = [];
 ## How to
 
 ### Import a markdown file as a module
+
 Use a relative path to the file, and **explicitly** add the `.md` extension to the import string.
 This tells TypeScript that we want it to import MD as a module, which is what we require for `MarkdownDirectory`.
+
 ```typescript
 import MyMdFile from "./file.md";
 ```

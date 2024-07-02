@@ -518,6 +518,10 @@
                     "valueString": "20230501102531-0400"
                   },
                   {
+                    "url": "MSH.10",
+                    "valueString": "12345"
+                  }
+                  {
                     "url": "MSH.13",
                     "valueString": "10"
                   },
@@ -621,6 +625,10 @@
               url: "MSH.7"
               valueType: String
               hl7Use: MSH.7
+            - id: MSH.10
+              url: "MSH.10"
+              valueType: String
+              hl7Use: MSH.10
             - id: MSH.13
               url: "MSH.13"
               valueType: String

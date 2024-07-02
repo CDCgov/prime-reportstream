@@ -64,7 +64,7 @@ object FhirBundleUtils : Logging {
         } else if (StringCompatibleType.values().any { it.typeAsString == sourceType }) {
             getValue(targetType, value, logger, sourceType, true) ?: value
         } else {
-            logger.error("Conversion between $sourceType and $targetType not yet implemented.")
+            logger.debug("Conversion between $sourceType and $targetType not yet implemented.")
             value
         }
     }
@@ -95,13 +95,13 @@ object FhirBundleUtils : Logging {
             StringCompatibleType.Url.typeAsString -> UrlType(value.primitiveValue())
             StringCompatibleType.Uuid.typeAsString -> UuidType(value.primitiveValue())
             else -> {
-                logger.error("Conversion between $sourceType and $targetType not supported.")
+                logger.debug("Conversion between $sourceType and $targetType not supported.")
                 null
             }
         }
     } catch (e: Exception) {
         if (logIncompatibilityErrors) {
-            logger.error("Conversion between $sourceType and $targetType not supported.")
+            logger.debug("Conversion between $sourceType and $targetType not supported.")
         }
         null
     }

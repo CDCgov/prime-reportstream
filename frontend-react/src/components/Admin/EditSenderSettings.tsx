@@ -16,9 +16,9 @@ import {
 } from "./CompareJsonModal";
 import Title from "../../components/Title";
 import config from "../../config";
-import { useAppInsightsContext } from "../../contexts/AppInsights";
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import { useToast } from "../../contexts/Toast";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
@@ -44,7 +44,7 @@ const EditSenderSettingsForm = ({
     action,
 }: EditSenderSettingsFormProps) => {
     const { toast: showAlertNotification } = useToast();
-    const { fetchHeaders } = useAppInsightsContext();
+    const { properties } = useAppInsightsContext();
     const navigate = useNavigate();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
     const { activeMembership, authState, rsConsole } = useSessionContext();
@@ -108,7 +108,7 @@ const EditSenderSettingsForm = ({
             `${RS_API_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
             {
                 headers: {
-                    ...fetchHeaders(),
+                    "x-ms-session-id": properties.context.getSessionId(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },

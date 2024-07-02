@@ -4,11 +4,11 @@ import { useParams } from "react-router-dom";
 import styles from "./ReportDetails.module.scss";
 import { ReportDetailsSummary } from "./ReportDetailsSummary";
 import ReportDetailsTable from "./ReportDetailsTable";
-import { useReportsDetail } from "../../../hooks/network/History/DeliveryHooks";
+import useReportsDetail from "../../../hooks/api/deliveries/UseReportDetail/UseReportDetail";
 import { FeatureName } from "../../../utils/FeatureName";
 import Crumbs, { CrumbsProps } from "../../Crumbs";
 import HipaaNotice from "../../HipaaNotice";
-import { withCatchAndSuspense } from "../../RSErrorBoundary";
+import { withCatchAndSuspense } from "../../RSErrorBoundary/RSErrorBoundary";
 
 export function ReportDetailsPage() {
     const crumbProps: CrumbsProps = {

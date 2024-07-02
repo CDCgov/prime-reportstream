@@ -106,7 +106,31 @@ export default defineConfig(async ({ mode }) => {
             },
             headers: {
                 "content-security-policy": isCsp
-                    ? `default-src 'self'; script-src 'self' https://reportstream.oktapreview.com https://global.oktacdn.com https://www.google-analytics.com https://*.in.applicationinsights.azure.com https://dap.digitalgov.gov; style-src 'self' 'unsafe-inline' https://global.oktacdn.com https://cdnjs.cloudflare.com; frame-src 'self' https://reportstream.oktapreview.com; img-src 'self' https://reportstream.oktapreview.com https://localhost:${port} data: ;connect-src 'self' https://www.google-analytics.com https://*.in.applicationinsights.azure.com https://reportstream.oktapreview.com http://localhost:${port}/api/ https://dap.digitalgov.gov;`
+                    ? "default-src 'self';" +
+                      " script-src 'self'" +
+                      " https://reportstream.oktapreview.com" +
+                      " https://global.oktacdn.com" +
+                      " https://www.google-analytics.com" +
+                      " https://*.in.applicationinsights.azure.com" +
+                      " https://dap.digitalgov.gov" +
+                      " https://www.googletagmanager.com;" +
+                      " style-src 'self' 'unsafe-inline'" +
+                      " https://global.oktacdn.com" +
+                      " https://cdnjs.cloudflare.com;" +
+                      " frame-src 'self'" +
+                      " https://reportstream.oktapreview.com;" +
+                      " img-src 'self'" +
+                      " https://reportstream.oktapreview.com" +
+                      ` https://localhost:${port}` +
+                      " data:;" +
+                      " connect-src 'self'" +
+                      " https://www.google-analytics.com" +
+                      " https://*.in.applicationinsights.azure.com" +
+                      " https://reportstream.oktapreview.com" +
+                      ` http://localhost:${port}/api/` +
+                      " https://dap.digitalgov.gov" +
+                      " https://www.googletagmanager.com" +
+                      " https://js.monitor.azure.com/"
                     : "",
             },
         },

@@ -18,9 +18,8 @@ resource "azurerm_container_group" "sftp" {
   location            = var.location
   ip_address_type     = "Public" //Public until application gateways are permitted (see network.tf)
   dns_name_label      = var.resource_prefix
-  #network_profile_id  = var.network_profile_id
-  os_type        = "Linux"
-  restart_policy = "Always"
+  os_type             = "Linux"
+  restart_policy      = "Always"
 
   exposed_port = [{
     port     = 22
@@ -28,10 +27,12 @@ resource "azurerm_container_group" "sftp" {
   }]
 
   container {
-    name   = "sftp-source"
-    image  = "atmoz/sftp:latest"
-    cpu    = var.cpu
-    memory = var.memory
+    name         = "sftp-source"
+    image        = "atmoz/sftp:latest"
+    cpu          = var.cpu
+    cpu_limit    = 0
+    memory       = var.memory
+    memory_limit = 0
     environment_variables = {
       "SFTP_USERS" = join(" ", local.sftp_users)
     }

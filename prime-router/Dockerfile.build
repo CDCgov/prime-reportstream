@@ -3,7 +3,7 @@
 # To build it, you must specify at least the following --build-arg values
 # with some suggested default shown here
 #
-# --build-arg GRADLE_VERSION=8.3        - The version of Gradle you want to build with
+# --build-arg GRADLE_VERSION=8.7        - The version of Gradle you want to build with
 # --build-arg AFCT_VERSION=4.0.5198     - The version of the Azure Functions Core Tools
 # --build-arg JAVA_VERSION=17           - The version of the JDK (and thus JRE) you want to build against/with
 #
@@ -13,8 +13,8 @@
 # (and in fact, probably less than the actual builder container image). This is a small optimization that will make your life
 # a tad bit easier when you are rebuilding the builder image
 #
-FROM alpine:3.19 AS downloader
-ARG GRADLE_VERSION=8.3
+FROM alpine:3.20 AS downloader
+ARG GRADLE_VERSION=8.7
 ARG AFCT_VERSION=4.0.5198
 
 RUN apk update && apk add wget --no-cache
@@ -40,8 +40,11 @@ RUN rm Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip
 #
 # STAGE 2: Build the actual container that does the build
 #
-FROM debian:bookworm AS builder
+FROM ubuntu:24.04 AS builder
 ARG JAVA_VERSION=17
+
+# Latest patches
+RUN apt-get update && apt-get upgrade -y
 
 # Get the unpacked gradle binaries from the downloader stage
 RUN mkdir -p /opt/gradle

@@ -16,9 +16,10 @@ extension:
         url:
           type: STRING
           value: PD1.1
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
+        valueString:
+          type: STRING
+          valueOf: PD1.1
+          expressionType: HL7Spec
     - expressionType: nested
       condition: $pd12 NOT_NULL
       specs: PD1.2
@@ -28,9 +29,10 @@ extension:
         url:
           type: STRING
           value: PD1.2
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
+        valueString:
+          type: STRING
+          valueOf: PD1.2
+          expressionType: HL7Spec
     - expressionType: nested
       condition: $pd18 NOT_NULL
       specs: PD1.8
@@ -40,9 +42,10 @@ extension:
         url:
           type: STRING
           value: PD1.8
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
+        valueString:
+          type: STRING
+          valueOf: PD1.8
+          expressionType: HL7Spec
     - expressionType: nested
       condition: $pd19 NOT_NULL
       vars:
@@ -66,7 +69,7 @@ extension:
           type: STRING
           value: PD1.10
         valueIdentifier:
-          valueOf: datatypes/CX/Identifier
+          valueOf: ../../datatypes/v251/hl7/datatypes/CX/Identifier
           expressionType: resource
           constants:
             CXIdentifierField: PD1.10
@@ -80,7 +83,7 @@ extension:
           type: STRING
           value: PD1.11
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CE/CodeableConcept
           expressionType: resource
     - expressionType: nested
       condition: $pd112 NOT_NULL
@@ -117,7 +120,7 @@ extension:
           type: STRING
           value: PD1.14
         valueReference:
-          valueOf: datatypes/XON/Organization
+          valueOf: ../../datatypes/v251/hl7/datatypes/XON/Organization
           expressionType: reference
     - expressionType: nested
       specs: PD1.15 *
@@ -130,7 +133,7 @@ extension:
           type: STRING
           value: PD1.15
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CE/CodeableConcept
           expressionType: resource
     - expressionType: nested
       condition: $pd116 NOT_NULL
@@ -141,9 +144,10 @@ extension:
         url:
           type: STRING
           value: PD1.16
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
+        valueString:
+          type: STRING
+          valueOf: PD1.16
+          expressionType: HL7Spec
     - expressionType: nested
       condition: $pd117 NOT_NULL
       vars:
@@ -177,9 +181,10 @@ extension:
         url:
           type: STRING
           value: PD1.19
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
+        valueString:
+          type: STRING
+          valueOf: PD1.19
+          expressionType: HL7Spec
     - expressionType: nested
       condition: $pd120 NOT_NULL
       specs: PD1.20
@@ -189,9 +194,10 @@ extension:
         url:
           type: STRING
           value: PD1.20
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
+        valueString:
+          type: STRING
+          valueOf: PD1.20
+          expressionType: HL7Spec
     - expressionType: nested
       condition: $pd121 NOT_NULL
       specs: PD1.21
@@ -201,18 +207,7 @@ extension:
         url:
           type: STRING
           value: PD1.21
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
-    - expressionType: nested
-      condition: $pd122 NOT_NULL
-      vars:
-        pd122: STRING_ALL, PD1.22
-      expressionsMap:
-        url:
-          type: STRING
-          value: PD1.22
         valueString:
           type: STRING
-          valueOf: PD1.22
+          valueOf: PD1.21
           expressionType: HL7Spec

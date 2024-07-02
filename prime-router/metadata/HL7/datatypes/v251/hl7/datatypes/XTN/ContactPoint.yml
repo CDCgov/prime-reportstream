@@ -1,41 +1,16 @@
-value_1:
-  condition: $telEquipType NOT_EQUALS Internet && $telEquipType NOT_EQUALS X.400 && $localNum NULL && $unformattedTelNum NULL && $telNum NOT_NULL
-  valueOf: $telNum
-  vars:
-    telNum: String, XTN.1
-    telEquipType: String, XTN.3
-    localNum: String, XTN.7
-    unformattedTelNum: String, XTN.12
-
-value_2:
-  condition: $telEquipType NULL && $localNum NULL && $unformattedTelNum NULL && $telNum NOT_NULL
-  valueOf: $telNum
-  vars:
-    telNum: String, XTN.1
-    telEquipType: String, XTN.3
-    localNum: String, XTN.7
-    unformattedTelNum: String, XTN.12
-
-value_3:
-  condition: $telEquipType EQUALS Internet || $telEquipType EQUALS X.400
-  valueOf: $commAddress
+value:
+  expressionType: nested
   vars:
     telEquipType: String, XTN.3
     commAddress: String, XTN.4
-
-value_4:
-  condition: $telEquipType NOT_EQUALS Internet && $telEquipType NOT_EQUALS X.400 && $unformattedTelNum NOT_NULL
-  valueOf: $unformattedTelNum
-  vars:
-    telEquipType: String, XTN.3
     unformattedTelNum: String, XTN.12
-
-value_5:
-  condition: $telEquipType NULL && $unformattedTelNum NOT_NULL
-  valueOf: $unformattedTelNum
-  vars:
-    telEquipType: String, XTN.3
-    unformattedTelNum: String, XTN.12
+  expressions:
+    - condition: $telEquipType EQUALS Internet || $telEquipType EQUALS X.400
+      valueOf: $commAddress
+    - condition: $telEquipType NOT_EQUALS Internet && $telEquipType NOT_EQUALS X.400 && $unformattedTelNum NOT_NULL
+      valueOf: $unformattedTelNum
+    - condition: $telEquipType NULL && $unformattedTelNum NOT_NULL
+      valueOf: $unformattedTelNum
 
 #mapping from HL7 Concept Map: TelecomUseCode
 #https://docs.google.com/spreadsheets/d/1EE3a5UIGXLi8wMDr49fWTEVx8QS2GFqYgitE3vLOQTQ/edit#gid=0

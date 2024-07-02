@@ -1,8 +1,8 @@
 import { lazy, PropsWithChildren, ReactElement } from "react";
 import { Navigate, useLocation } from "react-router";
 
-import { useFeatureFlags } from "../../contexts/FeatureFlag";
-import { useSessionContext } from "../../contexts/Session";
+import useFeatureFlags from "../../contexts/FeatureFlag/useFeatureFlags";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
 import { PERMISSIONS } from "../../utils/UsefulTypes";
 
@@ -65,7 +65,7 @@ export function RequireGateBase({
                 | undefined
         )?.find((g) =>
             perms.find((t) => {
-                if (t === PERMISSIONS.PRIME_ADMIN) {
+                if (g === PERMISSIONS.PRIME_ADMIN) {
                     isAdmin = true;
                     return g === t;
                 }

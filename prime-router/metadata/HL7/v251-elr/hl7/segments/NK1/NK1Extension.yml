@@ -15,15 +15,5 @@ extension:
           type: STRING
           value: NK1.13
         valueReference:
-          valueOf: datatypes/XON/Organization
+          valueOf: ../../datatypes/v251/hl7/datatypes/XON/Organization
           expressionType: reference
-    - expressionType: nested
-      condition: $nk1-16 NOT_NULL
-      expressionsMap:
-        url:
-          type: STRING
-          value: NK1.16
-        valueString:
-          type: STRING
-          valueOf: NK1.16
-          expressionType: HL7Spec

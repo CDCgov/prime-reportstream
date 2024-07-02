@@ -1,0 +1,21 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: NTE.2
+    value: [ '%resource.extension.where(url = "NTE.2").value' ]
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-2' ]
+
+  - name: NTE.7
+    value: [ '%resource.extension.where(url = "NTE.7").value' ]
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-7' ]
+
+  - name: NTE.8
+    value: [ '%resource.extension.where(url = "NTE.8").value' ]
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-8' ]
+
+  - name: NTE.9
+    resource: '%resource.extension.where(url = "NTE.9").value'
+    constants:
+      cweField: '%{hl7NotePath}/NTE(%{noteIndex})-9'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml

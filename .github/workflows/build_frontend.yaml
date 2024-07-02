@@ -1,4 +1,4 @@
-name: Frontend
+name: Build Frontend
 
 on:
   pull_request:
@@ -14,17 +14,22 @@ on:
     branches:
       - master
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   pre_job:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-      has_react_change: ${{ steps.build_vars.outputs.has_react_change }}
+      # Should not run for PRs (except deployment)
+      is_permitted: ${{ steps.build_vars.outputs.has_frontend_change == 'true' && (github.event_name != 'pull_request' || steps.build_vars.outputs.is_deployment_pr == 'true') }}
       env_name: ${{ steps.build_vars.outputs.env_name }}
       version: ${{ steps.build_vars.outputs.version }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -32,7 +37,7 @@ jobs:
   build_frontend_react:
     name: Build Frontend React
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_react_change == 'true' }}
+    if: needs.pre_job.outputs.is_permitted == 'true'
     runs-on: ubuntu-latest
 
     defaults:
@@ -41,7 +46,7 @@ jobs:
 
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
 
       - name: Build frontend
         uses: ./.github/actions/build-frontend

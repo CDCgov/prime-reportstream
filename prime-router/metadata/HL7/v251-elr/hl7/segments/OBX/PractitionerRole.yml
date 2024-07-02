@@ -6,13 +6,13 @@ id:
   expressionType: JEXL
 
 practitioner:
-  valueOf: datatypes/XCN/Practitioner
+  valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
   expressionType: reference
   specs: $OBXPractitionerComponent
 
 organization:
   condition: $roleOrg NOT_NULL
-  valueOf: datatypes/XON/Organization
+  valueOf: ../../datatypes/v251/hl7/datatypes/XON/Organization
   expressionType: reference
   specs: $OBXPractitionerRoleOrganization
   vars:

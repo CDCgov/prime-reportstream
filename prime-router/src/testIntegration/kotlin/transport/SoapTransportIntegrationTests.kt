@@ -78,6 +78,8 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
         null,
         null,
         null,
+        null,
+        null,
         null
     )
 
@@ -115,7 +117,7 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
         every { mockSoapTransport.lookupCredentials(any()) }.returns(
             UserPassCredential(UUID.randomUUID().toString(), UUID.randomUUID().toString())
         )
-        val retryItems = mockSoapTransport.send(transportType, header, reportId, null, context, actionHistory)
+        val retryItems = mockSoapTransport.send(transportType, header, reportId, "test", null, context, actionHistory)
         assertThat(retryItems).isNull()
     }
 
@@ -126,7 +128,7 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
         every { mockSoapTransport.lookupCredentials(any()) }.returns(
             UserPassCredential(UUID.randomUUID().toString(), UUID.randomUUID().toString())
         )
-        val retryItems = mockSoapTransport.send(transportType, header, reportId, null, context, actionHistory)
+        val retryItems = mockSoapTransport.send(transportType, header, reportId, "test", null, context, actionHistory)
         assertThat(retryItems).isNotNull()
     }
 }

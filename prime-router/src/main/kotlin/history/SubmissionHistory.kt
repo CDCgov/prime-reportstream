@@ -11,8 +11,6 @@ import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
@@ -79,16 +77,7 @@ open class SubmissionHistory(
      */
     val fileName: String
         get() {
-            if (this.reportId != null) {
-                return Report.formExternalFilename(
-                    this.bodyUrl,
-                    ReportId.fromString(this.reportId),
-                    this.schemaName,
-                    Report.Format.safeValueOf(this.bodyFormat),
-                    this.createdAt
-                )
-            }
-            return ""
+            return this.bodyUrl?.substringAfter("%2F").orEmpty()
         }
 
     /**
@@ -221,9 +210,7 @@ class DetailedSubmissionHistory(
         ;
 
         @JsonValue
-        override fun toString(): String {
-            return printableName
-        }
+        override fun toString(): String = printableName
     }
 
     /**
@@ -338,6 +325,7 @@ class DetailedSubmissionHistory(
         return consolidatedList
     }
 
+    // TODO: https://github.com/CDCgov/prime-reportstream/issues/14350
     /**
      * Enrich the submission history with various other related bits of history.
      *
@@ -357,6 +345,9 @@ class DetailedSubmissionHistory(
             }
             descendants.filter { it.actionName == TaskAction.route }.forEach { descendant ->
                 enrichWithRouteAction(descendant)
+            }
+            descendants.filter { it.actionName == TaskAction.convert }.forEach { descendant ->
+                enrichWithConvertAction(descendant)
             }
         } else {
             descendants.filter {
@@ -408,6 +399,23 @@ class DetailedSubmissionHistory(
                 destinations += descendantDest
             }
         }
+    }
+
+    /**
+     * Enrich a parent detailed history with details from the convert action.
+     * Add errors, and warnings, to the history details.
+     *
+     * @param descendant route action that will be used to enrich
+     */
+    private fun enrichWithConvertAction(descendant: DetailedSubmissionHistory) {
+        require(
+            topic?.isUniversalPipeline == true &&
+                descendant.actionName == TaskAction.convert
+        ) {
+            "Must be route action. Enrichment is only available for the Universal Pipeline"
+        }
+        errors += descendant.errors
+        warnings += descendant.warnings
     }
 
     /**
@@ -582,7 +590,10 @@ class DetailedSubmissionHistory(
              * The most likely scenario for that is when the item does not pass the jurisdictional filter for any of
              * the receivers.
              */
-            return if (actionsPerformed.contains(TaskAction.route) && !nextActionScheduled) {
+            return if (
+                (actionsPerformed.contains(TaskAction.route) || actionsPerformed.contains(TaskAction.convert)) &&
+                !nextActionScheduled
+            ) {
                 Status.NOT_DELIVERING
             } else {
                 Status.RECEIVED

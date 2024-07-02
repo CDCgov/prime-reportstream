@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "ancestry": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "constants": {
+      "type": "object"
+    },
+    "elements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bundleProperty": {
+            "type": "string"
+          },
+          "condition": {
+            "type": "string"
+          },
+          "constants": {
+            "type": "object"
+          },
+          "debug": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "resource": {
+            "type": "string"
+          },
+          "resourceIndex": {
+            "type": "string"
+          },
+          "schema": {
+            "type": "string"
+          },
+          "schemaRef": {
+            "type": "object"
+          },
+          "validationErrors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "value": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "valueSet": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "lookupTable": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "tableName": {
+                        "type": "string"
+                      },
+                      "keyColumn": {
+                        "type": "string"
+                      },
+                      "valueColumn": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "values": {
+                    "type": "object"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "extends": {
+      "type": "string"
+    },
+    "hasBeenValidated": {
+      "type": "boolean"
+    },
+    "name": {
+      "type": "string"
+    },
+    "validationErrors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

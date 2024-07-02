@@ -9,11 +9,11 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.parameters.options.associate
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
-import com.github.ajalt.clikt.parameters.types.int
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
@@ -74,13 +74,6 @@ class ProcessFhirCommands : CliktCommand(
         help = "comma separated enrichment schema name(s) from current directory"
     )
 
-    /**
-     * The message number to use if the file is an HL7 batch message.
-     */
-    private val hl7ItemIndex by option(
-        "--hl7-msg-index", help = "message number to use from an HL7 batch file, 0 based"
-    ).int()
-
     private val diffHl7Output by option(
         "--diff-hl7-output",
         help = "when true, diff the the input HL7 with the output, can only be used going HL7 -> FHIR -> HL7"
@@ -98,6 +91,10 @@ class ProcessFhirCommands : CliktCommand(
      */
     private val senderSchema by option("-s", "--sender-schema", help = "Sender schema location")
 
+    private val inputSchema by option(
+        "--input-schema", help = "Mapping schema for input file"
+    ).default("./metadata/HL7/catchall")
+
     private val hl7DiffHelper = HL7DiffHelper()
 
     override fun run() {
@@ -110,7 +107,7 @@ class ProcessFhirCommands : CliktCommand(
         when {
             // HL7 to FHIR conversion
             inputFileType == "HL7" && outputFormat == Report.Format.FHIR.toString() -> {
-                var fhirMessage = convertHl7ToFhir(contents, actionLogger).first
+                var fhirMessage = convertHl7ToFhir(contents).first
                 fhirMessage = applyEnrichmentSchemas(fhirMessage)
                 outputResult(
                     handleSenderAndReceiverTransforms(fhirMessage), actionLogger
@@ -129,7 +126,7 @@ class ProcessFhirCommands : CliktCommand(
 
             // HL7 to FHIR to HL7 conversion
             inputFileType == "HL7" && outputFormat == Report.Format.HL7.toString() -> {
-                val (bundle, inputMessage) = convertHl7ToFhir(contents, actionLogger)
+                val (bundle, inputMessage) = convertHl7ToFhir(contents)
                 val output = convertFhirToHl7(FhirTranscoder.encode(bundle))
                 outputResult(output)
                 if (diffHl7Output != null) {
@@ -204,38 +201,29 @@ class ProcessFhirCommands : CliktCommand(
      * look like.
      * @return a FHIR bundle and the parsed HL7 input that represents the data in the one HL7 message
      */
-    private fun convertHl7ToFhir(hl7String: String, actionLogger: ActionLogger): Pair<Bundle, Message> {
+    private fun convertHl7ToFhir(hl7String: String): Pair<Bundle, Message> {
         val hasFiveEncodingChars = hl7MessageHasFiveEncodingChars(hl7String)
         // Some HL7 2.5.1 implementations have adopted the truncation character # that was added in 2.7
         // However, the library used to encode the HL7 message throws an error it there are more than 4 encoding
         // characters, so this work around exists for that scenario
         val stringToEncode = hl7String.replace("MSH|^~\\&#|", "MSH|^~\\&|")
-        val messages = HL7Reader(actionLogger).getMessages(stringToEncode)
-        if (messages.isEmpty()) throw CliktError("No HL7 messages were read.")
-        val message = if (messages.size > 1) {
-            if (hl7ItemIndex == null) {
-                throw CliktError("Only one HL7 message can be converted. Use the --hl7-msg-index.")
-            } else if (hl7ItemIndex!! < 0 || hl7ItemIndex!! >= messages.size) {
-                throw CliktError("Invalid HL7 message index. Must be a number 0 to ${messages.size - 1}.")
-            } else {
-                messages[hl7ItemIndex!!]
-            }
-        } else {
-            messages[0]
-        }
+        val hl7message = HL7Reader.parseHL7Message(
+            stringToEncode,
+            null
+        )
         // if a hl7 parsing failure happens, throw error and show the message
-        if (message.toString().lowercase().contains("failed")) {
-            throw CliktError("HL7 parser failure. $message")
+        if (hl7message.toString().lowercase().contains("failed")) {
+            throw CliktError("HL7 parser failure. $hl7message")
         }
         if (hasFiveEncodingChars) {
-            val msh = message.get("MSH") as Segment
+            val msh = hl7message.get("MSH") as Segment
             Terser.set(msh, 2, 0, 1, 1, "^~\\&#")
         }
-        val hl7profile = HL7Reader.getMessageProfile(message.toString())
+        val hl7profile = HL7Reader.getMessageProfile(hl7message.toString())
         // search hl7 profile map and create translator with config path if found
         return when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
-            null -> Pair(HL7toFhirTranslator().translate(message), message)
-            else -> Pair(HL7toFhirTranslator(configPath).translate(message), message)
+            null -> Pair(HL7toFhirTranslator(inputSchema).translate(hl7message), hl7message)
+            else -> Pair(HL7toFhirTranslator(configPath).translate(hl7message), hl7message)
         }
     }
 
@@ -248,6 +236,7 @@ class ProcessFhirCommands : CliktCommand(
             senderSchema != null -> {
                 FhirTransformer(senderSchema!!).process(bundle)
             }
+
             else -> bundle
         }
     }
@@ -266,6 +255,7 @@ class ProcessFhirCommands : CliktCommand(
                     receiverSchema!!
                 ).process(enrichedBundle)
             }
+
             else -> enrichedBundle
         }
     }
@@ -297,7 +287,7 @@ class ProcessFhirCommands : CliktCommand(
     private fun hl7MessageHasFiveEncodingChars(hl7String: String): Boolean {
         // This regex should match `MSH|^~\&|` or `MSH|^~\&#`
         val mshStarts = "MSH\\|\\^~\\\\\\&[#|]".toRegex().findAll(hl7String)
-        val index = hl7ItemIndex ?: 0
+        val index = 0
         mshStarts.forEachIndexed { i, matchResult ->
             if (i == index) {
                 return matchResult.value == "MSH|^~\\&#"

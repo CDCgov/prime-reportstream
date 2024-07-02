@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.reportstream.shared.StringUtilities.trimToNull
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
@@ -14,9 +15,9 @@ import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.toLocalDate
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.DateUtilities.toYears
-import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mappers
+import gov.cdc.prime.router.report.ReportService
 import org.apache.logging.log4j.kotlin.Logging
 import tech.tablesaw.api.Row
 import tech.tablesaw.api.StringColumn
@@ -99,18 +100,16 @@ enum class Options {
          * Handles invalid values, which are technically not allowed in an enum. In this case if the [input]
          *  is not one that is supported, it will be set to None.
          */
-        fun valueOfOrNone(input: String): Options {
-            return try {
+        fun valueOfOrNone(input: String): Options = try {
                 valueOf(input)
             } catch (ex: IllegalArgumentException) {
                 val msg = "$input is not a valid Option. Valid options: ${Options.activeValues.joinToString()}"
                 throw InvalidOptionException(msg)
             }
-        }
     }
 }
 
-annotation class OptionDeprecated()
+annotation class OptionDeprecated
 
 /**
  * ReportStreamFilterResult records useful information about rows filtered by one filter call.  One filter
@@ -134,6 +133,7 @@ data class ReportStreamFilterResult(
     val filterArgs: List<String>,
     val filteredTrackingElement: String,
     val filterType: ReportStreamFilterType?,
+    val filteredObservationDetails: String? = null,
 ) : ActionLogDetail {
     override val scope = ActionLogScope.translation
     override val errorCode = ErrorCode.UNKNOWN
@@ -143,13 +143,14 @@ data class ReportStreamFilterResult(
         const val DEFAULT_TRACKING_VALUE = "MissingID"
     }
 
-    override val message = "For $receiverName, filter $filterName$filterArgs" +
-        " filtered out item $filteredTrackingElement"
+    override val message = """
+        For $receiverName, filter $filterName$filterArgs filtered out item $filteredTrackingElement. 
+        $filteredObservationDetails 
+    }
+    """.trimIndent()
 
     // Used for deserializing to a JSON response
-    override fun toString(): String {
-        return message
-    }
+    override fun toString(): String = message
 }
 
 /**
@@ -158,11 +159,7 @@ data class ReportStreamFilterResult(
  * unique id and name as well as list of sources for the creation of the report.
  */
 class Report : Logging {
-    enum class Format(
-        val ext: String,
-        val mimeType: String,
-        val isSingleItemFormat: Boolean = false,
-    ) {
+    enum class Format(val ext: String, val mimeType: String, val isSingleItemFormat: Boolean = false) {
         INTERNAL("internal.csv", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
         CSV_SINGLE("csv", "text/csv", true),
@@ -173,25 +170,23 @@ class Report : Logging {
 
         companion object {
             // Default to CSV if weird or unknown
-            fun safeValueOf(formatStr: String?): Format {
-                return try {
+            fun safeValueOf(formatStr: String?): Format = try {
                     valueOf(formatStr ?: "CSV")
                 } catch (e: IllegalArgumentException) {
                     CSV
                 }
-            }
 
             /**
              * Returns a Format based on the [ext] provided, ignoring case.
              */
-            fun valueOfFromExt(ext: String): Format {
-                return when (ext.lowercase()) {
+            fun valueOfFromExt(ext: String): Format = when (ext.lowercase()) {
                     HL7.ext.lowercase() -> HL7
                     FHIR.ext.lowercase() -> FHIR
                     CSV.ext.lowercase() -> CSV
                     else -> throw IllegalArgumentException("Unexpected extension $ext.")
                 }
-            }
+
+            fun valueOfIgnoreCase(bodyFormat: String): Format = valueOf(bodyFormat.uppercase())
         }
     }
 
@@ -259,19 +254,6 @@ class Report : Logging {
      * A range of item index for this report
      */
     val itemIndices: IntRange get() = 0 until this.table.rowCount()
-
-    /**
-     * A standard name for this report that take schema, id, and destination into account
-     */
-    val name: String
-        get() = formFilename(
-            id,
-            schema.baseName,
-            bodyFormat,
-            createdDateTime,
-            translationConfig = if (destination?.topic?.isSendOriginal == true) null else destination?.translation,
-            metadata = this.metadata
-        )
 
     /**
      * A format for the body or use the destination format
@@ -415,6 +397,56 @@ class Report : Logging {
         this.nextAction = nextAction
     }
 
+    data class ParentItemLineageData(val parentReportId: UUID, val parentReportIndex: Int)
+
+    /**
+     * This constructor can be used to generate a report with its item lineage constructed as
+     * well by passing in a list of [ParentItemLineageData] which includes the parent report id and parent report indes
+     *
+     * @param bodyFormat is the format for this report. Should be HL7
+     * @param sources is the ClientSource or TestSource, where this data came from
+     * @param metadata the metadata used with the report
+     * @param parentItemLineageData lineage data for the parent that is used to construct item lineage
+     * @param destination where this report is going
+     * @param nextAction the next action to be performed on this report
+     */
+    constructor(
+        bodyFormat: Format,
+        sources: List<Source>,
+        metadata: Metadata? = null,
+        parentItemLineageData: List<ParentItemLineageData>,
+        destination: Receiver? = null,
+        nextAction: TaskAction,
+        topic: Topic,
+    ) {
+        this.id = UUID.randomUUID()
+        // UP submissions do not need a schema, but it is required by the database to maintain legacy functionality
+        this.schema = Schema("None", topic)
+        this.sources = sources
+        this.bodyFormat = bodyFormat
+        this.destination = destination
+        this.createdDateTime = OffsetDateTime.now()
+        this.itemLineages = parentItemLineageData.mapIndexed { index, parentItemLineage ->
+            ItemLineage(
+                null,
+                parentItemLineage.parentReportId,
+                parentItemLineage.parentReportIndex,
+                this.id,
+                index + 1,
+                null,
+                null,
+                null,
+                UUID.randomUUID().toString()
+            )
+        }
+        // we do not need the 'table' representation in this instance
+        this.table = createTable(emptyMap<String, List<String>>())
+        this.itemCount = parentItemLineageData.size
+        this.metadata = metadata ?: Metadata.getInstance()
+        this.itemCountBeforeQualFilter = parentItemLineageData.size
+        this.nextAction = nextAction
+    }
+
     private constructor(
         schema: Schema,
         table: Table,
@@ -440,21 +472,20 @@ class Report : Logging {
 
     @Suppress("Destructure")
     private fun createTable(schema: Schema, values: List<List<String>>): Table {
-        fun valuesToColumns(schema: Schema, values: List<List<String>>): List<Column<*>> {
-            return schema.elements.mapIndexed { index, element ->
+        fun valuesToColumns(
+            schema: Schema,
+            values: List<List<String>>,
+        ): List<Column<*>> = schema.elements.mapIndexed { index, element ->
                 StringColumn.create(element.name, values.map { it[index] })
             }
-        }
 
         return Table.create("prime", valuesToColumns(schema, values))
     }
 
     private fun createTable(values: Map<String, List<String>>): Table {
-        fun valuesToColumns(values: Map<String, List<String>>): List<Column<*>> {
-            return values.keys.map {
+        fun valuesToColumns(values: Map<String, List<String>>): List<Column<*>> = values.keys.map {
                 StringColumn.create(it, values[it])
             }
-        }
         return Table.create("prime", valuesToColumns(values))
     }
 
@@ -482,9 +513,7 @@ class Report : Logging {
     }
 
     /** Checks to see if the report is empty or not */
-    fun isEmpty(): Boolean {
-        return table.rowCount() == 0
-    }
+    fun isEmpty(): Boolean = table.rowCount() == 0
 
     /** Given a report object, returns the assigned time zone or the default */
     fun getTimeZoneForReport(): ZoneId {
@@ -499,15 +528,13 @@ class Report : Logging {
         }
     }
 
-    fun getString(row: Int, column: Int, maxLength: Int? = null): String? {
-        return table.getString(row, column).let {
+    fun getString(row: Int, column: Int, maxLength: Int? = null): String? = table.getString(row, column).let {
             if (maxLength == null || maxLength > it.length) {
                 it
             } else {
                 it.substring(0, maxLength)
             }
         }
-    }
 
     fun getString(row: Int, colName: String, maxLength: Int? = null): String? {
         val column = schema.findElementColumn(colName) ?: return null
@@ -532,13 +559,11 @@ class Report : Logging {
         }
     }
 
-    fun getRow(row: Int): List<String> {
-        return schema.elements.map {
+    fun getRow(row: Int): List<String> = schema.elements.map {
             val column = schema.findElementColumn(it.name)
                 ?: error("Internal Error: column for '${it.name}' is not found")
             table.getString(row, column) ?: ""
         }
-    }
 
     fun filter(
         filterFunctions: List<Pair<ReportStreamFilterDefinition, List<String>>>,
@@ -764,8 +789,7 @@ class Report : Logging {
     /**
      * Create a separate report for each item in the report
      */
-    fun split(): List<Report> {
-        return itemIndices.map {
+    fun split(): List<Report> = itemIndices.map {
             val row = getRow(it)
             val oneItemReport = Report(
                 schema = schema,
@@ -779,7 +803,6 @@ class Report : Logging {
                 listOf(createItemLineageForRow(this, it, oneItemReport, 0))
             oneItemReport
         }
-    }
 
     /**
      * Here 'mapping' means to transform data from the current schema to a new schema per the rules in the [mapping].
@@ -804,8 +827,7 @@ class Report : Logging {
      * to be persisted to the database. This is not PII nor PHI, so it is safe to collect and build trend
      * analysis off of.
      */
-    fun getDeidentifiedResultMetaData(): List<ElrResultMetadata> {
-        return try {
+    fun getDeidentifiedResultMetaData(): List<ElrResultMetadata> = try {
             table.mapIndexed { idx, row ->
                 ElrResultMetadata().also {
                     it.messageId = row.getStringOrNull("message_id")
@@ -965,10 +987,8 @@ class Report : Logging {
             logger.error(e)
             emptyList()
         }
-    }
 
-    fun getDeidentifiedCovidResults(): List<CovidResultMetadata> {
-        return try {
+    fun getDeidentifiedCovidResults(): List<CovidResultMetadata> = try {
             table.mapIndexed { idx, row ->
                 CovidResultMetadata().also {
                     it.messageId = row.getStringOrNull("message_id")
@@ -1057,7 +1077,6 @@ class Report : Logging {
             logger.error(e)
             emptyList()
         }
-    }
 
     /**
      * getAge - calculate the age of the patient according to the criteria below:
@@ -1103,8 +1122,10 @@ class Report : Logging {
      * @param toElement - the element to write to
      * @return a [StringColumn] based on the mapping
      */
-    private fun buildColumnPass1(mapping: Translator.Mapping, toElement: Element): StringColumn? {
-        return when (toElement.name) {
+    private fun buildColumnPass1(
+        mapping: Translator.Mapping,
+        toElement: Element,
+    ): StringColumn? = when (toElement.name) {
             in mapping.useDirectly -> {
                 table.stringColumn(mapping.useDirectly[toElement.name]).copy().setName(toElement.name)
             }
@@ -1123,7 +1144,6 @@ class Report : Logging {
                 buildEmptyColumn(toElement.name)
             }
         }
-    }
 
     /**
      * The second pass runs any mappers as needed for the given [toElement] and the [pass1Columns] data from the first
@@ -1170,9 +1190,7 @@ class Report : Logging {
         return StringColumn.create(toElement.name, values.asList())
     }
 
-    private fun buildEmptyColumn(name: String): StringColumn {
-        return StringColumn.create(name, List(itemCount) { "" })
-    }
+    private fun buildEmptyColumn(name: String): StringColumn = StringColumn.create(name, List(itemCount) { "" })
 
     /**
      * Given a column name, this function walks through each value and if the value in that
@@ -1369,11 +1387,13 @@ class Report : Logging {
          * Use a tablesaw Selection bitmap to create a mapping from this report items to newReport items.
          * Note: A tablesaw Selection is just an array of the row indexes in the oldReport that meet the filter criteria
          */
-        fun createItemLineages(selection: Selection, parentReport: Report, childReport: Report): List<ItemLineage> {
-            return selection.mapIndexed { childRowNum, parentRowNum ->
+        fun createItemLineages(
+            selection: Selection,
+            parentReport: Report,
+            childReport: Report,
+        ): List<ItemLineage> = selection.mapIndexed { childRowNum, parentRowNum ->
                 createItemLineageForRow(parentReport, parentRowNum, childReport, childRowNum)
             }.toList()
-        }
 
         fun createOneToOneItemLineages(parentReport: Report, childReport: Report): List<ItemLineage> {
             if (parentReport.itemCount != childReport.itemCount) {
@@ -1505,44 +1525,10 @@ class Report : Logging {
 
         fun formFilename(
             id: ReportId,
-            schemaName: String,
-            fileFormat: Format?,
-            createdDateTime: OffsetDateTime,
-            translationConfig: TranslatorConfiguration? = null,
-            metadata: Metadata? = null,
+            fileFormat: Format,
         ): String {
-            return formFilename(
-                id,
-                schemaName,
-                fileFormat,
-                createdDateTime,
-                translationConfig?.nameFormat ?: "standard",
-                translationConfig,
-                metadata = metadata
-            )
-        }
-
-        fun formFilename(
-            id: ReportId,
-            schemaName: String,
-            fileFormat: Format?,
-            createdDateTime: OffsetDateTime,
-            nameFormat: String = "standard",
-            translationConfig: TranslatorConfiguration? = null,
-            metadata: Metadata? = null,
-        ): String {
-            val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-            val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
-            val fileName = if (fileFormat == Format.INTERNAL || translationConfig == null) {
-                // This file-naming format is used for all INTERNAL files, and whenever there is no custom format.
-                "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
-            } else {
-                metadata!!.fileNameTemplates[nameFormat.lowercase()].run {
-                    this?.getFileName(translationConfig, id)
-                        ?: "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
-                }
-            }
-            return "$fileName.$nameSuffix"
+            val nameSuffix = fileFormat.ext
+            return "$id.$nameSuffix"
         }
 
         /**
@@ -1552,44 +1538,54 @@ class Report : Logging {
          */
         fun formExternalFilename(
             header: WorkflowEngine.Header,
+            reportService: ReportService,
             metadata: Metadata? = null,
-        ): String {
-            return if (header.reportFile.bodyUrl != null) {
-                BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl)
-            } else {
-                formFilename(
+        ): String = if (header.receiver?.topic?.isSendOriginal == true) {
+                // the externalName of the root report should equal the submission payload name parameter
+                reportService.getRootReport(header.reportFile.reportId).externalName ?: formExternalFilename(
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
-                    Format.valueOfFromExt(header.reportFile.bodyFormat),
+                    Format.valueOfIgnoreCase(header.reportFile.bodyFormat),
+                    header.reportFile.createdAt,
+                    metadata = metadata ?: Metadata.getInstance()
+                )
+            } else if (header.reportFile.externalName != null) {
+                header.reportFile.externalName
+            } else {
+                formExternalFilename(
+                    header.reportFile.reportId,
+                    header.reportFile.schemaName,
+                    Format.valueOfIgnoreCase(header.reportFile.bodyFormat),
                     header.reportFile.createdAt,
                     metadata = metadata ?: Metadata.getInstance()
                 )
             }
-        }
 
         /**
          * Form external filename for a given [bodyUrl], [reportId], [schemaName], [format] and [createdAt].
          * @param metadata optional metadata instance used for dependency injection
          */
         fun formExternalFilename(
-            bodyUrl: String?,
             reportId: ReportId,
             schemaName: String,
             format: Format,
             createdAt: OffsetDateTime,
-            metadata: Metadata? = null,
+            metadata: Metadata? = Metadata.getInstance(),
+            nameFormat: String = "standard",
+            translationConfig: TranslatorConfiguration? = null,
         ): String {
-            return if (bodyUrl != null) {
-                BlobAccess.BlobInfo.getBlobFilename(bodyUrl)
+            val nameSuffix = format.ext
+            val fileName = if (translationConfig == null) {
+                val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}"
             } else {
-                formFilename(
-                    reportId,
-                    schemaName,
-                    format,
-                    createdAt,
-                    metadata = metadata ?: Metadata.getInstance()
-                )
+                val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                metadata!!.fileNameTemplates[nameFormat.lowercase()].run {
+                    this?.getFileName(translationConfig, reportId)
+                        ?: "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}"
+                }
             }
+            return "$fileName.$nameSuffix"
         }
 
         /**
@@ -1597,13 +1593,11 @@ class Report : Logging {
          * @param columnName the name of the column to try and query from in this row
          * @param default the default value to return if there's an error getting a value. Defaults to null.
          */
-        private fun Row.getStringOrDefault(columnName: String, default: String? = null): String? {
-            return try {
+        private fun Row.getStringOrDefault(columnName: String, default: String? = null): String? = try {
                 this.getString(columnName)
             } catch (_: Exception) {
                 default
             }
-        }
 
         /**
          * Tries to get a value in the underlying row for the column name, and if it doesn't exist, returns null
@@ -1639,8 +1633,8 @@ class Report : Logging {
             metadata: Metadata,
             actionHistory: ActionHistory,
             topic: Topic,
-            externalName: String? = null,
             format: Format? = null,
+            externalName: String? = null,
         ): Triple<Report, Event, BlobAccess.BlobInfo> {
             check(messageBody.isNotEmpty())
             check(sourceReportIds.isNotEmpty())
@@ -1656,6 +1650,7 @@ class Report : Logging {
                         Report.Format.HL7
                     }
                 }
+
                 Report.Format.FHIR -> Report.Format.FHIR
                 else -> throw IllegalStateException("Unsupported receiver format ${receiver.format}")
             }
@@ -1709,7 +1704,7 @@ class Report : Logging {
             val blobInfo = BlobAccess.uploadBody(
                 reportFormat,
                 messageBody,
-                if (!externalName.isNullOrEmpty()) "$externalName-${report.name}" else report.name,
+                report.id.toString(),
                 receiver.fullName,
                 event.eventAction
             )
@@ -1717,7 +1712,7 @@ class Report : Logging {
             report.nextAction = event.eventAction.toTaskAction()
 
             // track generated reports, one per receiver
-            actionHistory.trackCreatedReport(event, report, blobInfo = blobInfo)
+            actionHistory.trackCreatedReport(event, report, blobInfo = blobInfo, externalName = externalName)
 
             return Triple(report, event, blobInfo)
         }

@@ -20,6 +20,18 @@ extension:
           valueOf: MSH.7
     - expressionType: nested
       vars:
+        msh10: MSH.10
+      condition: $msh10 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: MSH.10
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: MSH.10
+    - expressionType: nested
+      vars:
         msh13: MSH.13
       condition: $msh13 NOT_NULL
       expressionsMap:
@@ -76,7 +88,7 @@ extension:
           value: MSH.19
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           specs: MSH.19
     - vars:
         msh20: MSH.20
@@ -101,25 +113,5 @@ extension:
           type: STRING
           value: MSH.21
         valueIdentifier:
-          valueOf: datatypes/EI/Identifier
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
           expressionType: resource
-    - vars:
-        msh3: STRING_ALL, MSH.3
-        msh24: STRING_ALL, MSH.24
-      constants:
-        extensionUrl: MSH.24
-        isStringUrl: true
-      condition: $msh3 NOT_NULL && $msh24 NOT_NULL
-      expressionType: resource
-      valueOf: datatypes/HD/ExtensionHD
-      specs: MSH.24
-    - vars:
-        msh5: STRING_ALL, MSH.5
-        msh25: STRING_ALL, MSH.25
-      constants:
-        extensionUrl: MSH.25
-        isStringUrl: true
-      condition: $msh5 EQUALS $msh25
-      expressionType: resource
-      valueOf: datatypes/HD/ExtensionHD
-      specs: MSH.25

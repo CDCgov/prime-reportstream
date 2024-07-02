@@ -23,120 +23,120 @@ identifier:
       condition: $pl3 NOT_NULL
       expressions:
         - expressionType: resource
-          valueOf: datatypes/HD/Identifier/IdentifierNamespaceId
+          valueOf: ../../datatypes/v251/hl7/datatypes/HD/Identifier/IdentifierNamespaceId
           specs: PL.3
         - expressionType: resource
-          valueOf: datatypes/HD/Identifier/IdentifierUniversalId
+          valueOf: ../../datatypes/v251/hl7/datatypes/HD/Identifier/IdentifierUniversalId
           specs: PL.3
         - expressionType: resource
           condition: $pl11 NULL && $pl10 NOT_NULL
-          valueOf: datatypes/EI/Identifier-Organization
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier-Organization
           specs: PL.10
         - expressionType: resource
           vars:
             eiAssigningOrganization: PL.11
           condition: $pl11 NOT_NULL && $pl10 NOT_NULL
-          valueOf: datatypes/EI/Identifier-DefaultAssigner
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier-DefaultAssigner
           specs: PL.10
     - expressionType: nested
       condition: $pl3 NULL && $pl2 NOT_NULL
       generateList: true
       expressions:
         - expressionType: resource
-          valueOf: datatypes/HD/Identifier/IdentifierNamespaceId
+          valueOf: ../../datatypes/v251/hl7/datatypes/HD/Identifier/IdentifierNamespaceId
           specs: PL.2
         - expressionType: resource
-          valueOf: datatypes/HD/Identifier/IdentifierUniversalId
+          valueOf: ../../datatypes/v251/hl7/datatypes/HD/Identifier/IdentifierUniversalId
           specs: PL.2
         - expressionType: resource
           condition: $pl11 NULL && $pl10 NOT_NULL
-          valueOf: datatypes/EI/Identifier-Organization
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier-Organization
           specs: PL.10
         - expressionType: resource
           vars:
             eiAssigningOrganization: PL.11
           condition: $pl11 NOT_NULL && $pl10 NOT_NULL
-          valueOf: datatypes/EI/Identifier-DefaultAssigner
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier-DefaultAssigner
           specs: PL.10
     - expressionType: nested
       condition: $pl3 NULL && $pl2 NULL && $pl1 NOT_NULL
       generateList: true
       expressions:
         - expressionType: resource
-          valueOf: datatypes/HD/Identifier/IdentifierNamespaceId
+          valueOf: ../../datatypes/v251/hl7/datatypes/HD/Identifier/IdentifierNamespaceId
           specs: PL.1
         - expressionType: resource
-          valueOf: datatypes/HD/Identifier/IdentifierUniversalId
+          valueOf: ../../datatypes/v251/hl7/datatypes/HD/Identifier/IdentifierUniversalId
           specs: PL.1
         - expressionType: resource
           condition: $pl11 NULL && $pl10 NOT_NULL
-          valueOf: datatypes/EI/Identifier-Organization
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier-Organization
           specs: PL.10
         - expressionType: resource
           vars:
             eiAssigningOrganization: PL.11
           condition: $pl11 NOT_NULL && $pl10 NOT_NULL
-          valueOf: datatypes/EI/Identifier-DefaultAssigner
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier-DefaultAssigner
           specs: PL.10
     - expressionType: nested
       condition: $pl3 NULL && $pl2 NULL && $pl1 NULL && $pl8 NOT_NULL
       generateList: true
       expressions:
         - expressionType: resource
-          valueOf: datatypes/HD/Identifier/IdentifierNamespaceId
+          valueOf: ../../datatypes/v251/hl7/datatypes/HD/Identifier/IdentifierNamespaceId
           specs: PL.8
         - expressionType: resource
-          valueOf: datatypes/HD/Identifier/IdentifierUniversalId
+          valueOf: ../../datatypes/v251/hl7/datatypes/HD/Identifier/IdentifierUniversalId
           specs: PL.8
         - expressionType: resource
           condition: $pl11 NULL && $pl10 NOT_NULL
-          valueOf: datatypes/EI/Identifier-Organization
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier-Organization
           specs: PL.10
         - expressionType: resource
           vars:
             eiAssigningOrganization: PL.11
           condition: $pl11 NOT_NULL && $pl10 NOT_NULL
-          valueOf: datatypes/EI/Identifier-DefaultAssigner
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier-DefaultAssigner
           specs: PL.10
     - expressionType: nested
       condition: $pl3 NULL && $pl2 NULL && $pl1 NULL && $pl8 NULL && $pl7 NOT_NULL
       generateList: true
       expressions:
         - expressionType: resource
-          valueOf: datatypes/HD/Identifier/IdentifierNamespaceId
+          valueOf: ../../datatypes/v251/hl7/datatypes/HD/Identifier/IdentifierNamespaceId
           specs: PL.7
         - expressionType: resource
-          valueOf: datatypes/HD/Identifier/IdentifierUniversalId
+          valueOf: ../../datatypes/v251/hl7/datatypes/HD/Identifier/IdentifierUniversalId
           specs: PL.7
         - expressionType: resource
           condition: $pl11 NULL && $pl10 NOT_NULL
-          valueOf: datatypes/EI/Identifier-Organization
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier-Organization
           specs: PL.10
         - expressionType: resource
           vars:
             eiAssigningOrganization: PL.11
           condition: $pl11 NOT_NULL && $pl10 NOT_NULL
-          valueOf: datatypes/EI/Identifier-DefaultAssigner
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier-DefaultAssigner
           specs: PL.10
     - expressionType: nested
       condition: $pl3 NULL && $pl2 NULL && $pl1 NULL && $pl8 NULL && $pl7 NULL && $pl4 NOT_NULL
       generateList: true
       expressions:
         - expressionType: resource
-          valueOf: datatypes/HD/Identifier/IdentifierNamespaceId
+          valueOf: ../../datatypes/v251/hl7/datatypes/HD/Identifier/IdentifierNamespaceId
           specs: PL.4
         - expressionType: resource
-          valueOf: datatypes/HD/Identifier/IdentifierUniversalId
+          valueOf: ../../datatypes/v251/hl7/datatypes/HD/Identifier/IdentifierUniversalId
           specs: PL.4
         - expressionType: resource
           condition: $pl11 NULL && $pl10 NOT_NULL
-          valueOf: datatypes/EI/Identifier-Organization
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier-Organization
           specs: PL.10
         - expressionType: resource
           vars:
             eiAssigningOrganization: PL.11
           condition: $pl11 NOT_NULL && $pl10 NOT_NULL
-          valueOf: datatypes/EI/Identifier-DefaultAssigner
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier-DefaultAssigner
           specs: PL.10
 
 physicalType:
@@ -245,23 +245,23 @@ partOf:
   expressions:
     - expressionType: reference
       condition: $pl2 NOT_NULL
-      valueOf: datatypes/PL/LocationBranch1 #PL2
+      valueOf: datatypes/PL_ELR/LocationBranch1 #PL2
       specs: $BASE_VALUE
     - expressionType: reference
       condition: $pl2 NULL && $pl1 NOT_NULL #PL1
-      valueOf: datatypes/PL/LocationBranch2
+      valueOf: datatypes/PL_ELR/LocationBranch2
       specs: $BASE_VALUE
     - expressionType: reference
       condition: $pl2 NULL && $pl1 NULL && $pl8 NOT_NULL
-      valueOf: datatypes/PL/LocationBranch3
+      valueOf: datatypes/PL_ELR/LocationBranch3
       specs: $BASE_VALUE
     - expressionType: reference
       condition: $pl2 NULL && $pl1 NULL && $pl8 NULL && $pl7 NOT_NULL
-      valueOf: datatypes/PL/LocationBranch4
+      valueOf: datatypes/PL_ELR/LocationBranch4
       specs: $BASE_VALUE
     - expressionType: reference
       condition: $pl2 NULL && $pl1 NULL && $pl8 NULL && $pl7 NULL && $pl4 NOT_NULL
-      valueOf: datatypes/PL/LocationBranch5
+      valueOf: datatypes/PL_ELR/LocationBranch5
       specs: $BASE_VALUE
 
 status:

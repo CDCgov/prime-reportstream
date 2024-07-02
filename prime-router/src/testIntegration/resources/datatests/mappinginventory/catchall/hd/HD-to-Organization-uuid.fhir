@@ -1,0 +1,157 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "1712179104661518000.43acb7e0-1e5d-4fff-8529-4429d24de548",
+  "meta" : {
+    "lastUpdated" : "2024-04-03T15:18:24.671-06:00"
+  },
+  "identifier" : {
+    "system" : "https://reportstream.cdc.gov/prime-router",
+    "value" : "3003786103_4988249_33033"
+  },
+  "type" : "message",
+  "timestamp" : "2023-05-01T08:25:31.000-06:00",
+  "entry" : [ {
+    "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
+    "resource" : {
+      "resourceType" : "MessageHeader",
+      "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+        "valueString" : "^~\\&#"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
+        "extension" : [ {
+          "url" : "MSH.7",
+          "valueString" : "20230501102531-0400"
+        } ]
+      } ],
+      "eventCoding" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+        "code" : "R01",
+        "display" : "ORU^R01^ORU_R01"
+      },
+      "sender" : {
+        "reference" : "Organization/1712179104732329000.57846611-acf3-4883-b457-5f6b92294d27"
+      }
+    }
+  }, {
+    "fullUrl" : "Organization/1712179104732329000.57846611-acf3-4883-b457-5f6b92294d27",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1712179104732329000.57846611-acf3-4883-b457-5f6b92294d27",
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "HD.1"
+        } ],
+        "value" : "CDC Atlanta"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "HD.2,HD.3"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0301",
+            "code" : "UUID"
+          } ]
+        },
+        "system" : "urn:ietf:rfc:3986",
+        "value" : "2.16.840.1.114222.4.3.3.2.1.2"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Provenance/1712179105279856000.02a9b8c2-140e-409b-b7a2-3017c9fe8134",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1712179105279856000.02a9b8c2-140e-409b-b7a2-3017c9fe8134",
+      "target" : [ {
+        "reference" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18"
+      } ],
+      "recorded" : "2023-05-01T10:25:31-04:00",
+      "activity" : {
+        "coding" : [ {
+          "display" : "ORU^R01^ORU_R01"
+        } ]
+      },
+      "agent" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+            "code" : "author"
+          } ]
+        },
+        "who" : {
+          "reference" : "Organization/1712179105277835000.3f7a27cf-3687-4258-aaaa-de3254ef6abf"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/1712179105277835000.3f7a27cf-3687-4258-aaaa-de3254ef6abf",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1712179105277835000.3f7a27cf-3687-4258-aaaa-de3254ef6abf",
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "HD.1"
+        } ],
+        "value" : "CDC Atlanta"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "HD.2,HD.3"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0301",
+            "code" : "UUID"
+          } ]
+        },
+        "system" : "urn:ietf:rfc:3986",
+        "value" : "2.16.840.1.114222.4.3.3.2.1.2"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Provenance/1712179105291455000.91cb7899-4ce9-4f9a-974d-6f3cce31ee56",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1712179105291455000.91cb7899-4ce9-4f9a-974d-6f3cce31ee56",
+      "recorded" : "2024-04-03T15:18:25Z",
+      "policy" : [ "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle" ],
+      "activity" : {
+        "coding" : [ {
+          "code" : "v2-FHIR transformation"
+        } ]
+      },
+      "agent" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+            "code" : "assembler"
+          } ]
+        },
+        "who" : {
+          "reference" : "Organization/1712179105290447000.604eb32f-1b9e-4e4d-bd8c-d5bc3b47d80a"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/1712179105290447000.604eb32f-1b9e-4e4d-bd8c-d5bc3b47d80a",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1712179105290447000.604eb32f-1b9e-4e4d-bd8c-d5bc3b47d80a",
+      "identifier" : [ {
+        "value" : "CDC PRIME - Atlanta"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
+          } ]
+        },
+        "system" : "urn:ietf:rfc:3986",
+        "value" : "2.16.840.1.114222.4.1.237821"
+      } ]
+    }
+  } ]
+}

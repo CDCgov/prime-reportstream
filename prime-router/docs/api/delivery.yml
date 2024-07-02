@@ -41,6 +41,29 @@ paths:
           description: The search request could not be parsed
         '404':
           description: The receiver could not be found
+  /waters/report/{reportId}/delivery/etorMetadata:
+    get:
+      summary: Retrieves ETOR metadata for a recipient's report
+      description: Fetches the ETOR intermediary's metadata given the recipient's report ID.
+      operationId: getEtorMetadataForDelivery
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          description: The unique identifier of the report.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful retrieval of ETOR metadata.
+          content:
+            application/json:
+              schema:
+                $ref: 'https://github.com/LinuxForHealth/FHIR/blob/main/fhir-openapi/src/main/webapp/META-INF/openapi.json?raw=true#/components/schemas/OperationOutcome'
+        '404':
+          description: lookup Id not found
+        '500':
+          description: Internal server error.
   /v1/receivers/{receiverFullName}/deliveries/submitters/search:
     post:
       description: Return a list of all the providers, facilities and senders that have sent results to a receiver
@@ -71,7 +94,7 @@ paths:
         '401':
           description: Unauthorized
         '400':
-            description: The search request could not be parsed
+          description: The search request could not be parsed
         '404':
           description: The receiver could not be found
 components:
@@ -176,7 +199,7 @@ components:
                   - SINCE
                   - UNTIL
               value:
-                description: The value for the filter to apply; depending on the 
+                description: The value for the filter to apply; depending on the
                   > filter type the value will be parsed to the data type that underlying filter expects
                   > i.e. the SINCE filter will parse it to an LocalDateTime
                 type: string

@@ -39,6 +39,6 @@ extension:
           type: STRING
           value: moc-2-charge-code
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CE/CodeableConcept
           expressionType: resource
           specs: MOC.2

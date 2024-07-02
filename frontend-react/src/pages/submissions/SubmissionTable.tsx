@@ -3,20 +3,21 @@ import { useController } from "rest-hooks";
 
 import AdminFetchAlert from "../../components/alerts/AdminFetchAlert";
 import DataDashboardTableFilters from "../../components/DataDashboard/DataDashboardTable/DataDashboardTableFilters/DataDashboardTableFilters";
-import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
+import { withCatchAndSuspense } from "../../components/RSErrorBoundary/RSErrorBoundary";
 import Spinner from "../../components/Spinner";
 import { PaginationProps } from "../../components/Table/Pagination";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import { TableFilterDateLabel } from "../../components/Table/TableFilters";
-import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import useFilterManager, {
     FilterManager,
     FilterManagerDefaults,
-} from "../../hooks/filters/UseFilterManager";
-import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
-import usePagination from "../../hooks/UsePagination";
+} from "../../hooks/filters/UseFilterManager/UseFilterManager";
+import { Organizations } from "../../hooks/UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
+import usePagination from "../../hooks/UsePagination/UsePagination";
 import SubmissionsResource from "../../resources/SubmissionsResource";
+import { EventName } from "../../utils/AppInsights";
 import { FeatureName } from "../../utils/FeatureName";
 
 const extractCursor = (s: SubmissionsResource) => s.timestamp;
@@ -65,7 +66,7 @@ const SubmissionTableContent: FC<SubmissionTableContentProps> = ({
     paginationProps,
     submissions,
 }) => {
-    const { appInsights } = useAppInsightsContext();
+    const appInsights = useAppInsightsContext();
     const analyticsEventName = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_FILTER}`;
     const columns: ColumnConfig[] = [
         {

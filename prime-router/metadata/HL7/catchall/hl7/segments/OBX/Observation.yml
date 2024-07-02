@@ -22,20 +22,9 @@ id:
   valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
-code_noCE:
-  vars:
-    obx2: STRING, OBX.2
-  condition: $obx2 NOT_EQUALS CE || $obx2 NULL
+code:
   expressionType: resource
   valueOf: datatypes/CWE/CodeableConcept
-  specs: OBX.3
-
-code_supportsCE:
-  vars:
-    obx2: STRING, OBX.2
-  condition: $obx2 EQUALS CE
-  expressionType: resource
-  valueOf: datatypes/CE/CodeableConcept
   specs: OBX.3
 
 valueString_obx:
@@ -72,12 +61,8 @@ valueCodeableConcept:
       valueOf: datatypes/CNE/CodeableConcept
       specs: OBX.5
       expressionType: resource
-    - condition: $obx2 EQUALS CWE
+    - condition: $obx2 EQUALS CWE || $obx2 EQUALS CE
       valueOf: datatypes/CWE/CodeableConcept
-      specs: OBX.5
-      expressionType: resource
-    - condition: $obx2 EQUALS CE
-      valueOf: datatypes/CE/CodeableConcept
       specs: OBX.5
       expressionType: resource
     - condition: $obx2 EQUALS IS
@@ -386,9 +371,9 @@ performer:
     - expressionType: reference
       vars:
         obx25: STRING_ALL, OBX.25
-        obx23: STRING_ALL, obx23
+        obx23: STRING_ALL, OBX.23
         XADAddress: OBX.24
-      condition: $obx25 NULL && ($obx23 NOT_NULL || XADAddress NOT_NULL)
+      condition: $obx25 NULL && ($obx23 NOT_NULL || $XADAddress NOT_NULL)
       valueOf: datatypes/XON/Organization
       specs: OBX.23
       constants:
@@ -527,7 +512,7 @@ encounter:
 #     OBX
 # See use here: https://github.com/CDCgov/prime-reportstream/blob/813fe6d15e780af3ea88eb61ddfbdf2a8f4462a9/prime-router/metadata/fhir_mapping/hl7/resource/ServiceRequest.yml#L380
 note_observation:
-  valueOf: datatype/Annotation
+  valueOf: segments/NTE/Annotation
   condition: $suppressNote NULL
   expressionType: resource
   generateList: true

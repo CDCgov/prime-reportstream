@@ -437,7 +437,7 @@ extension:
           type: SYSTEM_URL
           value: patient-notes
         valueAnnotation:
-          valueOf: datatype/Annotation
+          valueOf: segments/NTE/Annotation
           expressionType: resource
     - expressionType: resource
       valueOf: segments/PID/PIDExtension

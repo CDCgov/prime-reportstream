@@ -1,7 +1,7 @@
-import { ComponentType, lazy, LazyExoticComponent } from "react";
+import { lazy } from "react";
 import { Outlet, redirect, RouteObject } from "react-router";
-import { createBrowserRouter } from "react-router-dom";
 
+import RSErrorBoundary from "./components/RSErrorBoundary/RSErrorBoundary";
 import { RequireGate } from "./shared/RequireGate/RequireGate";
 import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
@@ -142,7 +142,10 @@ const AdminMessageTrackerPage = lazy(
     () => import("./pages/admin/AdminMessageTracker"),
 );
 const AdminReceiverDashPage = lazy(
-    () => import("./pages/admin/AdminReceiverDashPage"),
+    () =>
+        import(
+            "./pages/admin/receiver-dashboard/AdminReceiverDashboardPage/AdminReceiverDashboardPage"
+        ),
 );
 const DeliveryDetailPage = lazy(
     () => import("./pages/deliveries/details/DeliveryDetail"),
@@ -184,10 +187,14 @@ const FacilityProviderSubmitterDetailsPage = lazy(
 );
 const NewSettingPage = lazy(() => import("./components/Admin/NewSetting"));
 
+const MainLayout = lazy(() => import("./layouts/Main/MainLayout"));
+
 export const appRoutes: RouteObject[] = [
     /* Public Site */
     {
         path: "/",
+        Component: MainLayout,
+        ErrorBoundary: RSErrorBoundary,
         children: [
             {
                 path: "",
@@ -620,9 +627,3 @@ export const appRoutes: RouteObject[] = [
         ],
     },
 ] satisfies RsRouteObject[];
-
-export function createRouter(Component: LazyExoticComponent<ComponentType>) {
-    appRoutes[0].element = <Component />;
-    const router = createBrowserRouter(appRoutes);
-    return router;
-}

@@ -7,7 +7,6 @@ extension:
   generateList: true
   expressions:
     - expressionType: nested
-      specs: PID.8
       condition: $pid8 NOT_NULL
       vars:
         pid8: STRING_ALL, PID.8
@@ -15,9 +14,10 @@ extension:
         url:
           type: STRING
           value: PID.8
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
+        valueString:
+          type: STRING
+          valueOf: PID.8
+          expressionType: HL7Spec
     - expressionType: nested
       specs: PID.18
       condition: $pid18 NOT_NULL
@@ -29,7 +29,7 @@ extension:
           type: STRING
           value: PID.18
         valueIdentifier:
-          valueOf: datatypes/CX/Identifier
+          valueOf: ../../datatypes/v251/hl7/datatypes/CX/Identifier
           expressionType: resource
           constants:
             CXIdentifierField: PID.18
@@ -67,9 +67,10 @@ extension:
         url:
           type: STRING
           value: PID.32
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
+        valueString:
+          type: STRING
+          valueOf: PID.32
+          expressionType: HL7Spec
     - expressionType: nested
       specs: PID.38 *
       condition: $pid38 NOT_NULL
@@ -80,5 +81,5 @@ extension:
           type: STRING
           value: PID.38
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           expressionType: resource

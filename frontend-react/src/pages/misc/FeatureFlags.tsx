@@ -10,10 +10,8 @@ import { useCallback, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 
 import config from "../../config";
-import {
-    FeatureFlagActionType,
-    useFeatureFlags,
-} from "../../contexts/FeatureFlag";
+import { FeatureFlagActionType } from "../../contexts/FeatureFlag/FeatureFlagProvider";
+import useFeatureFlags from "../../contexts/FeatureFlag/useFeatureFlags";
 import { showToast } from "../../contexts/Toast";
 
 const { DEFAULT_FEATURE_FLAGS } = config;

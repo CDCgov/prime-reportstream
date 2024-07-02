@@ -3,10 +3,9 @@ import { Helmet } from "react-helmet-async";
 
 import { DailyData } from "./daily-data/DailyData";
 import HipaaNotice from "../../components/HipaaNotice";
-import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
+import { withCatchAndSuspense } from "../../components/RSErrorBoundary/RSErrorBoundary";
 import Title from "../../components/Title";
-import { USSmartLink } from "../../components/USLink";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import useOrganizationSettings from "../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings";
 import { FeatureName } from "../../utils/FeatureName";
 
 function DeliveriesPage() {
@@ -36,13 +35,6 @@ function DeliveriesPage() {
                     postTitle="View information about all data sent to your organization"
                     removeBottomMargin
                 />
-
-                <p className="margin-top-0">
-                    You can find additional detail for COVID data on the{" "}
-                    <USSmartLink href="/data-dashboard">
-                        Data Dashboard.
-                    </USSmartLink>
-                </p>
                 {withCatchAndSuspense(<DailyData />)}
                 <HipaaNotice />
             </article>

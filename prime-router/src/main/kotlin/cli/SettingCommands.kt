@@ -1,11 +1,6 @@
 package gov.cdc.prime.router.cli
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.KotlinFeature
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
@@ -61,7 +56,7 @@ abstract class SettingCommand(
         envvar = "PRIME_ENVIRONMENT",
         help = "Connect to <name> environment.\nChoose between [local|test|staging|prod]"
     )
-        .choice("local", "test", "staging", "prod")
+        .choice("local", "test", "staging", "prod", "demo1")
         .default("local", "local environment")
 
     protected val outStream by option(
@@ -101,20 +96,7 @@ abstract class SettingCommand(
     enum class SettingType { ORGANIZATION, SENDER, RECEIVER }
 
     val jsonMapper = JacksonMapperUtilities.allowUnknownsMapper
-    val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
-        KotlinModule.Builder()
-            .withReflectionCacheSize(512)
-            .configure(KotlinFeature.NullToEmptyCollection, false)
-            .configure(KotlinFeature.NullToEmptyMap, false)
-            .configure(KotlinFeature.NullIsSameAsDefault, false)
-            .configure(KotlinFeature.StrictNullChecks, false)
-            .build()
-    )
-
-    init {
-        yamlMapper.registerModule(JavaTimeModule())
-        yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-    }
+    val yamlMapper = JacksonMapperUtilities.yamlMapper
 
     /**
      * The environment specified by the command line parameters
@@ -977,6 +959,11 @@ class GetMultipleSettings : SettingCommand(
                 "original, unmodified settings will be output to that file."
     ).flag(default = false)
 
+    private val json by option(
+        "--json",
+        help = "Returns settings as json"
+    ).flag(default = false)
+
     private val appendToOrgs by option(
         "-a", "--append-to-orgs",
         help = "Append results to organizations.yml file."
@@ -994,7 +981,8 @@ class GetMultipleSettings : SettingCommand(
         val output = getAll(environment, oktaAccessToken)
         // Write out the settings exactly as retrieved
         echo("Outputting original settings...")
-        val settings = yamlMapper.writeValueAsString(output)
+        val mapper = if (json) jsonMapper else yamlMapper
+        val settings = mapper.writeValueAsString(output)
         writeOutput(settings)
         // Handle load option.
         if (loadToLocal) {

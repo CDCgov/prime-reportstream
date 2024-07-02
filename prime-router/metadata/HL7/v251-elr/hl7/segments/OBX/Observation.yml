@@ -3,15 +3,16 @@ resourceType: Observation
 # Not implementing OBX.5 when OBX.2 is RP as the inventory say it still needs to be resolved
 # Not implementing OBX.5 when OBX.2 is CF, the type does not exist in NIST and the mapping is wrong in the inventory
 # Not implementing OBX.5 when OBX.2 is NA (Numeric Array), the inventory does not specify how that should map to SampledData
-# NIST indicates that OBX.10 is a CWE, but Caristix and the HAPI structures are ID
 # OBX.17 is repeatable but maps to method on Observation which is not, so it's all captured in OBXExtension
 # OBX.18 is repeatable but maps to device on Observation which is not, so it's all captured in OBXExtension
-# OBX.20 is repeatable but maps to bodySite on Observation which is not, so it's all captured in OBXExtension
+# Not implementing OBX.20 not in mapping deprecated in NIST
+# Not implementing OBX.21 not in mapping deprecated in NIST
 # Not implementing OBX.22 not in mapping deprecated in NIST
 # Not implementing OBX.26 not in mapping not in NIST
 # Not implementing OBX.27 not in mapping not in NIST
 # Not implementing OBX.28 not in mapping not in NIST
 # Not implementing OBX.29 not in mapping not in NIST
+# Not implementing OBX.30 not in mapping not in NIST
 # Not implementing OBX.31 not in mapping not in NIST
 # Not implementing OBX.32 not in mapping not in NIST
 # Not implementing OBX.33 as it's not in the NIST spec the logic in the inventory cannot be implemented in the library
@@ -22,20 +23,12 @@ id:
   valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
-code_noCE:
+code:
   vars:
-    obx2: STRING, OBX.2
-  condition: $obx2 NOT_EQUALS CE || $obx2 NULL
+    obx3: STRING, OBX.3
+  condition: $obx3 NOT_NULL
   expressionType: resource
-  valueOf: datatypes/CWE/CodeableConcept
-  specs: OBX.3
-
-code_supportsCE:
-  vars:
-    obx2: STRING, OBX.2
-  condition: $obx2 EQUALS CE
-  expressionType: resource
-  valueOf: datatypes/CE/CodeableConcept
+  valueOf: datatypes/CWE_ELR/CodeableConcept
   specs: OBX.3
 
 valueString_obx:
@@ -69,15 +62,15 @@ valueCodeableConcept:
     obx2: STRING, OBX.2
   expressions:
     - condition: $obx2 EQUALS CNE
-      valueOf: datatypes/CNE/CodeableConcept
+      valueOf: ../../datatypes/v251/hl7/datatypes/CNE/CodeableConcept
       specs: OBX.5
       expressionType: resource
     - condition: $obx2 EQUALS CWE
-      valueOf: datatypes/CWE/CodeableConcept
+      valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
       specs: OBX.5
       expressionType: resource
     - condition: $obx2 EQUALS CE
-      valueOf: datatypes/CE/CodeableConcept
+      valueOf: ../../datatypes/v251/hl7/datatypes/CE/CodeableConcept
       specs: OBX.5
       expressionType: resource
     - condition: $obx2 EQUALS IS
@@ -94,7 +87,7 @@ valueCodeableConcept:
 
 valuePeriod:
   condition: $obx2 EQUALS DR
-  valueOf: datatypes/DR/Period
+  valueOf: ../../datatypes/v251/hl7/datatypes/DR/Period
   expressionType: resource
   specs: OBX.5
   vars:
@@ -169,10 +162,10 @@ valueRange:
   specs: OBX.5
   expressions:
     - condition: $obx2 EQUALS NR
-      valueOf: datatypes/NR/Range
+      valueOf: ../../datatypes/v251/hl7/datatypes/NR/Range
       expressionType: resource
     - condition: $obx2 EQUALS SN && $obx53 EQUALS -
-      valueOf: datatypes/SN/Range
+      valueOf: ../../datatypes/v251/hl7/datatypes/SN/Range
       expressionType: resource
 
 
@@ -182,7 +175,7 @@ valueRatio:
     obx53: STRING, OBX.5.3
     CWERangeUnits: OBX.6
   condition: $obx2 EQUALS SN && ($obx53 EQUALS / || $obx53 EQUALS :)
-  valueOf: datatypes/SN/Ratio
+  valueOf: ../../datatypes/v251/hl7/datatypes/SN/Ratio
   expressionType: resource
   specs: OBX.5
 
@@ -234,7 +227,7 @@ valueQuantity:
     - condition: >
         $obx2 EQUALS SN && $obx53 NOT_EQUALS : && $obx53 NOT_EQUALS / && $obx53 NOT_EQUALS - && $obx53 NOT_EQUALS +
       expressionType: resource
-      valueOf: datatypes/SN/Quantity
+      valueOf: ../../datatypes/v251/hl7/datatypes/SN/Quantity
       specs: OBX.5
 
 referenceRange:
@@ -254,7 +247,7 @@ interpretation:
     obx8: STRING_ALL, OBX.8
   condition: $obx8 NOT_NULL
   generateList: true
-  valueOf: datatypes/CWE/CodeableConcept
+  valueOf: datatypes/CWE_ELR/CodeableConcept
   expressionType: resource
   specs: OBX.8 *
 
@@ -337,7 +330,7 @@ method:
   vars:
     obx17: STRING_ALL, OBX.17
   condition: $obx17 NOT_NuLL
-  valueOf: datatypes/CWE/CodeableConcept
+  valueOf: datatypes/CWE_ELR/CodeableConcept
   expressionType: resource
   specs: OBX.17
 
@@ -357,7 +350,7 @@ performer:
       vars:
         obx15: STRING_ALL, OBX.15
       condition: $obx15 NOT_NULL
-      valueOf: datatypes/CWE/Organization
+      valueOf: ../../datatypes/v251/hl7/datatypes/CWE/Organization
       constants:
         cweOrganizationHL7Field: OBX.15
       specs: OBX.15
@@ -389,29 +382,10 @@ performer:
         obx23: STRING_ALL, obx23
         XADAddress: OBX.24
       condition: $obx25 NULL && ($obx23 NOT_NULL || XADAddress NOT_NULL)
-      valueOf: datatypes/XON/Organization
+      valueOf: ../../datatypes/v251/hl7/datatypes/XON/Organization
       specs: OBX.23
       constants:
         XONHL7Field: OBX.25
-
-bodySite:
-  vars:
-    obx20: STRING_ALL, OBX.20
-  condition: $obx20 NOT_NULL
-  valueOf: datatypes/CWE/CodeableConcept
-  expressionType: resource
-  specs: OBX.20
-
-identifier:
-  vars:
-    obx21: STRING_ALL, OBX.21
-  condition: $obx21 NOT_NULL
-  valueOf: datatypes/EI/Identifier
-  expressionType: resource
-  specs: OBX.21
-  constants:
-    code: "FILL"
-    hl7v2Field: OBX.21
 
 extension:
   generateList: true
@@ -478,18 +452,6 @@ extension:
                   expressionType: HL7Spec
     - expressionType: nested
       vars:
-        obx30: STRING_ALL, OBX.30
-      condition: $obx30 NOT_NULL
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: observation-sub-type
-        valueCode:
-          type: STRING
-          expressionType: HL7Spec
-          specs: OBX.30
-    - expressionType: nested
-      vars:
         obx54: STRING, OBX.5.4
       condition: $obx2 EQUALS ED && $obx54 EQUALS Base64
       expressionsMap:
@@ -497,12 +459,12 @@ extension:
           type: SYSTEM_URL
           value: observation-value-attachment
         valueAttachment:
-          valueOf: datatypes/ED/Attachment
+          valueOf: ../../datatypes/v251/hl7/datatypes/ED/Attachment
           expressionType: resource
           specs: OBX.5
     - expressionType: resource
       condition: $obx2 EQUALS SN
-      valueOf: datatypes/SN/ExtensionSN
+      valueOf: ../../datatypes/v251/hl7/datatypes/SN/ExtensionSN
       specs: OBX.5
     - expressionType: resource
       valueOf: segments/OBX/OBXExtension
@@ -527,7 +489,7 @@ encounter:
 #     OBX
 # See use here: https://github.com/CDCgov/prime-reportstream/blob/813fe6d15e780af3ea88eb61ddfbdf2a8f4462a9/prime-router/metadata/fhir_mapping/hl7/resource/ServiceRequest.yml#L380
 note_observation:
-  valueOf: datatype/Annotation
+  valueOf: segments/NTE/Annotation
   condition: $suppressNote NULL
   expressionType: resource
   generateList: true

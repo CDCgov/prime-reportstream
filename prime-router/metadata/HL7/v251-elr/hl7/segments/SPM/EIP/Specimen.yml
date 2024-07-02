@@ -13,13 +13,13 @@ identifier:
   specs: EIP *
   expressions:
     - condition: $eip1 NOT_NULL
-      valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/EIP/Identifier-PlacerAssignedIdentifier
       expressionType: resource
       constants:
         hl7Use: "specimen-id-placer"
         backupExtension: "filler-assigned-identifier"
     - condition: $eip2 NOT_NULL
-      valueOf: datatypes/EIP/Identifier-FillerAssignedIdentifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/EIP/Identifier-FillerAssignedIdentifier
       expressionType: resource
       constants:
         hl7Use: "specimen-id-filler"

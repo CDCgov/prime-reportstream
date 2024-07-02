@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
   - name: obx-set-id
     value: [ '%resultIndex + 1' ]
@@ -111,11 +113,6 @@ elements:
     schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
     constants:
       hl7XCNField: '%{hl7OBXField}-25'
-
-  - name: observation-aoe-identifier
-    condition: '%resource.meta.tag.code="AOE"'
-    value: [ '"QST"' ]
-    hl7Spec: [ '%{hl7OBXField}-29' ]
 
   - name: obx-observation-sub-type
     value: [ '%resource.extension(%`rsext-observation-sub-type`).value' ]

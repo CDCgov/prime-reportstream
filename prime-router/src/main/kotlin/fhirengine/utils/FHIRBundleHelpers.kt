@@ -32,31 +32,11 @@ import java.util.stream.Stream
 /**
  * A collection of helper functions that modify an existing FHIR bundle.
  */
-const val conditionExtensionurl = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
-const val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
 
-/**
- * Looks up condition codes for the provided LOINC [code] (typically a test) using the given [metadata] object
- * @param code test (or other type) code to look up a condition for
- * @param metadata metadata containing an observation-mapping lookup table
- * @return a list of the matching condition codes (as `Coding`s)
- */
-private fun lookupConditionCodings(code: Coding, metadata: Metadata): List<Coding> {
-    val mappingTable = metadata.findLookupTable("observation-mapping").also {
-        if (it == null) { // could not load the table
-            throw IllegalStateException("Unable to load lookup table 'observation-mapping' for condition stamping")
-        }
-    }!!
-    return mappingTable.caseSensitiveDataRowsMap.filter { // find codes
-        it[ObservationMappingConstants.TEST_CODE_KEY] == code.code
-    }.map { condition ->
-       Coding(
-           condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
-           condition[ObservationMappingConstants.CONDITION_CODE_KEY],
-           condition[ObservationMappingConstants.CONDITION_NAME_KEY]
-       )
-    }.toList()
-}
+// Constant URLs
+const val conditionExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
+const val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
+const val bundleIdentifierURL = "https://reportstream.cdc.gov/prime-router"
 
 /**
  * Retrieves loinc/snomed codes from [this] observation in known locations (code.coding and valueCodeableConcept.coding)
@@ -87,17 +67,33 @@ fun Observation.addMappedConditions(metadata: Metadata): List<ActionLogDetail> {
     val codeSourcesMap = this.getCodeSourcesMap().filterValues { it.isNotEmpty() }
     var mappedSomething = false
     if (codeSourcesMap.values.flatten().isEmpty()) return listOf(UnmappableConditionMessage()) // no codes found
+    val mappingTable = metadata.findLookupTable("observation-mapping")
+        ?: throw IllegalStateException("Unable to load lookup table 'observation-mapping' for condition stamping")
+    val codes = codeSourcesMap.values.flatten().mapNotNull { it.code }
 
+    val conditionsToCode =
+        mappingTable.FilterBuilder().isIn(ObservationMappingConstants.TEST_CODE_KEY, codes)
+            .filter().caseSensitiveDataRowsMap.fold(mutableMapOf<String, List<Coding>>()) { acc, condition ->
+                val code = condition[ObservationMappingConstants.TEST_CODE_KEY]!!
+                val conditions = acc[code] ?: mutableListOf()
+                acc[code] = conditions.plus(
+                    Coding(
+                        condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
+                        condition[ObservationMappingConstants.CONDITION_CODE_KEY],
+                        condition[ObservationMappingConstants.CONDITION_NAME_KEY]
+                    )
+                )
+                acc
+            }
     return codeSourcesMap.mapNotNull { codeSourceEntry ->
         codeSourceEntry.value.mapNotNull { code ->
-            lookupConditionCodings(code, metadata).let { conditions ->
-                if (conditions.isEmpty()) { // no codes found, track this unmapped code
-                    code.code
-                } else { // codes found; add extensions and return null to avoid mapping this as an error
-                    conditions.forEach { code.addExtension(conditionCodeExtensionURL, it) }
-                    mappedSomething = true
-                    null
-                }
+            val conditions = conditionsToCode.getOrDefault(code.code ?: "", emptyList())
+            if (conditions.isEmpty()) { // no codes found, track this unmapped code
+                code.code
+            } else { // codes found; add extensions and return null to avoid mapping this as an error
+                conditions.forEach { code.addExtension(conditionCodeExtensionURL, it) }
+                mappedSomething = true
+                null
             }
         }.let {
             // create log message for any unmapped codes
@@ -337,12 +333,7 @@ internal fun getObservationExtensions(
     val observationExtensionsToKeep = mutableListOf<Extension>()
     if (observationsToKeep.size < allObservations.size) {
         observationsToKeep.forEach {
-            observationExtensionsToKeep.add(
-                Extension(
-                    conditionExtensionurl,
-                    Reference(it.idBase)
-                )
-            )
+            observationExtensionsToKeep.add(Extension(conditionExtensionURL, Reference(it.idBase)))
         }
     }
     return observationExtensionsToKeep
@@ -438,13 +429,13 @@ fun Bundle.enhanceBundleMetadata(hl7Message: Message) {
     this.timestamp = HL7Reader.getMessageTimestamp(hl7Message)
 
     // The HL7 message ID
-    val identifierValue = when (val mshSegment = hl7Message["MSH"]) {
+    this.identifier.value = when (val mshSegment = hl7Message["MSH"]) {
+        is fhirengine.translation.hl7.structures.nistelr251.segment.MSH -> mshSegment.messageControlID.value
         is ca.uhn.hl7v2.model.v27.segment.MSH -> mshSegment.messageControlID.value
         is ca.uhn.hl7v2.model.v251.segment.MSH -> mshSegment.messageControlID.value
         else -> ""
     }
-    this.identifier.value = identifierValue
-    this.identifier.system = "https://reportstream.cdc.gov/prime-router"
+    this.identifier.system = bundleIdentifierURL
 }
 
 /**

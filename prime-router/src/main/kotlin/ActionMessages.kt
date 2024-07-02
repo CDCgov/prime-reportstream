@@ -42,6 +42,9 @@ enum class ErrorCode {
     INVALID_HL7_MSG_TYPE_MISSING,
     INVALID_HL7_MSG_TYPE_UNSUPPORTED,
     INVALID_HL7_MSG_FORMAT_INVALID,
+    INVALID_MSG_PARSE,
+    INVALID_MSG_VALIDATION,
+    INVALID_MSG_CONVERSION,
     UNKNOWN,
 }
 
@@ -293,5 +296,5 @@ class PrunedObservationsLogMessage(override val message: String) : GenericAction
     constructor(reportId: ReportId, filteredIdMap: Map<String, List<String>>) : this(
         "Observations were pruned from receivers for reportID $reportId\n" +
             filteredIdMap.map { "${it.key}: ${it.value.joinToString(", ")}" }.joinToString("\n")
-        )
+    )
 }

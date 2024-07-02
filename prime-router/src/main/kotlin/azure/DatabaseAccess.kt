@@ -1227,6 +1227,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
                 when (endDateTime == null) {
                     true ->
                         RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.ge(startDateTime)
+
                     false ->
                         RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.ge(startDateTime)
                             .and(RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.le(endDateTime))
@@ -1344,7 +1345,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     }
 
     /**
-     * Inserts the provided [actionLog] using [txn] as the data context
+     * Inserts the provided [actionLog] using [txn] as the data context.
      */
     private fun insertActionLog(actionLog: ActionLog, txn: Configuration) {
         val detailRecord = DSL.using(txn).newRecord(Tables.ACTION_LOG, actionLog)
@@ -1499,6 +1500,8 @@ class DatabaseAccess(val create: DSLContext) : Logging {
                 null,
                 null,
                 null,
+                null,
+                null,
                 null
             )
         }
@@ -1519,6 +1522,8 @@ class DatabaseAccess(val create: DSLContext) : Logging {
                 bodyFormat,
                 bodyUrl,
                 report.createdDateTime,
+                null,
+                null,
                 null,
                 null,
                 null,

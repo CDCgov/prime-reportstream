@@ -26,6 +26,6 @@ extension:
       type: SYSTEM_URL
       value: 'cwe-coding'
     valueCodeableConcept:
-      valueOf: datatypes/CWE/CodeableConcept
+      valueOf: ../../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
       expressionType: resource
       specs: CWE

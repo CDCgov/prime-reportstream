@@ -27,6 +27,6 @@ extension:
       type: SYSTEM_URL
       value: 'cq-units'
     valueCodeableConcept:
-      valueOf: datatypes/CWE/CodeableConcept
+      valueOf: datatypes/CWE_ELR/CodeableConcept
       expressionType: resource
       specs: CQ.2

@@ -9,9 +9,7 @@ extension:
     xcn3: String, XCN.3
     xcn4: String, XCN.4
     xcn5: String, XCN.5
-    xcn7: String, XCN.7
     xcn8: STRING_ALL, XCN.8
-    xcn9: STRING_ALL, XCN.9
     xcn10: String, XCN.10
     xcn15: String, XCN.12
     xcn16: STRING_ALL, XCN.16
@@ -52,16 +50,6 @@ extension:
           type: STRING
           expressionType: HL7Spec
           valueOf: XCN.5
-    - expressionType: nested
-      condition: $xcn7 NOT_NULL
-      expressionsMap:
-        url:
-          type: STRING
-          valueOf: XCN.7
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: XCN.7
     - expressionType: nested
       condition: $xcn8 NOT_NULL
       expressionsMap:

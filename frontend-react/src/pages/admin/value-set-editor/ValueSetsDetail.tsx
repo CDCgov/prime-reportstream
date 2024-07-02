@@ -10,7 +10,7 @@ import {
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 
-import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
+import { withCatchAndSuspense } from "../../../components/RSErrorBoundary/RSErrorBoundary";
 import Spinner from "../../../components/Spinner";
 import { StaticAlert, StaticAlertType } from "../../../components/StaticAlert";
 import Table, {
@@ -23,13 +23,11 @@ import {
     LookupTable,
     ValueSetRow,
 } from "../../../config/endpoints/lookupTables";
-import { useSessionContext } from "../../../contexts/Session";
-import {
-    useValueSetActivation,
-    useValueSetsMeta,
-    useValueSetsTable,
-    useValueSetUpdate,
-} from "../../../hooks/UseValueSets";
+import useSessionContext from "../../../contexts/Session/useSessionContext";
+import useValueSetActivation from "../../../hooks/api/lookuptables/UseValueSetActivation/UseValueSetActivation";
+import useValueSetsMeta from "../../../hooks/api/lookuptables/UseValueSetsMeta/UseValueSetsMeta";
+import useValueSetsTable from "../../../hooks/api/lookuptables/UseValueSetsTable/UseValueSetsTable";
+import useValueSetUpdate from "../../../hooks/api/lookuptables/UseValueSetsUpdate/UseValueSetUpdate";
 import {
     handleErrorWithAlert,
     ReportStreamAlert,
@@ -234,6 +232,15 @@ const ValueSetsDetailContent = () => {
     const { data: valueSetArray } =
         useValueSetsTable<ValueSetRow[]>(valueSetName);
     const { data: valueSetMeta } = useValueSetsMeta(valueSetName);
+    const meta = valueSetMeta ?? {
+        lookupTableVersionId: 0,
+        tableName: "",
+        tableVersion: 0,
+        isActive: false,
+        createdBy: "",
+        createdAt: "",
+        tableSha256Checksum: "",
+    };
 
     const readableName = useMemo(
         () => toHumanReadable(valueSetName),
@@ -254,10 +261,7 @@ const ValueSetsDetailContent = () => {
                 />
             </Helmet>
             <section className="grid-container">
-                <ValueSetsDetailHeader
-                    name={readableName}
-                    meta={valueSetMeta!}
-                />
+                <ValueSetsDetailHeader name={readableName} meta={meta} />
                 {/* ONLY handles success messaging now */}
                 {alert && (
                     <StaticAlert

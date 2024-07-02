@@ -12,12 +12,13 @@ import { FileHandlerStepProps } from "./FileHandler";
 import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
 import { RSSender } from "../../config/endpoints/settings";
 import { WatersResponse } from "../../config/endpoints/waters";
-import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
-import { useSessionContext } from "../../contexts/Session";
+import useSessionContext from "../../contexts/Session/useSessionContext";
 import { showToast } from "../../contexts/Toast";
-import { useWatersUploader } from "../../hooks/network/WatersHooks";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
-import useSenderResource from "../../hooks/UseSenderResource";
+import useOrganizationSender from "../../hooks/api/organizations/UseOrganizationSender/UseOrganizationSender";
+import useOrganizationSettings from "../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings";
+import useWatersUploader from "../../hooks/api/UseWatersUploader/UseWatersUploader";
+import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
+import { EventName } from "../../utils/AppInsights";
 import { parseCsvForError } from "../../utils/FileUtils";
 import { MembershipSettings } from "../../utils/OrganizationUtils";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
@@ -83,9 +84,9 @@ export default function FileHandlerFileUploadStep({
     onPrevStepClick,
     selectedSchemaOption,
 }: FileHandlerFileUploadStepProps) {
-    const { appInsights } = useAppInsightsContext();
+    const appInsights = useAppInsightsContext();
     const { data: organization } = useOrganizationSettings();
-    const { data: senderDetail } = useSenderResource();
+    const { data: senderDetail } = useOrganizationSender();
     const { activeMembership, rsConsole } = useSessionContext();
     const fileInputRef = useRef<FileInputRef>(null);
     const { format } = selectedSchemaOption;
@@ -137,7 +138,7 @@ export default function FileHandlerFileUploadStep({
                 client: getClientHeader(
                     selectedSchemaOption.value,
                     activeMembership,
-                    senderDetail!,
+                    senderDetail ?? undefined,
                 ),
                 schema: selectedSchemaOption.value,
                 format: selectedSchemaOption.format,

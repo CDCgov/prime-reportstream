@@ -6,8 +6,11 @@ import {
     ConfirmSaveSettingModal,
     ConfirmSaveSettingModalRef,
 } from "./CompareJsonModal";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 import { renderApp } from "../../utils/CustomRenderUtils";
+
+const { mockSessionContentReturnValue } = await vi.importMock<
+    typeof import("../../contexts/Session/__mocks__/useSessionContext")
+>("../../contexts/Session/useSessionContext");
 
 describe("ConfirmSaveSettingModal", () => {
     const VALID_JSON = JSON.stringify({ a: 1 });

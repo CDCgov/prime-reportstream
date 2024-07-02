@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 constants:
   hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
   rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
@@ -20,13 +22,13 @@ elements:
     hl7Spec: [ '%{hl7ObservationPath}/OBX-8-7' ]
 
   - name: ca-observation-date-time
-    condition: '%observation.effective.exists()'
-    value: [ '%observation.effective.changeTimezone(%timezone)' ]
+    condition: 'Bundle.entry.resource.ofType(Observation).effective.exists()'
+    value: [ 'Bundle.entry.resource.ofType(Observation).effective.changeTimezone(%timezone)' ]
     hl7Spec: [ '%{hl7ObservationPath}/OBX-14' ]
 
   - name: ca-analysis-date-time
-    condition: '%observation.issued.exists()'
-    value: [ '%observation.issued.changeTimezone(%timezone)' ]
+    condition: 'Bundle.entry.resource.ofType(Observation).issued.exists()'
+    value: [ 'Bundle.entry.resource.ofType(Observation).issued.changeTimezone(%timezone)' ]
     hl7Spec: [ '%{hl7ObservationPath}/OBX-19' ]
 
   - name: ca-organization-performer-identifier
@@ -66,7 +68,7 @@ elements:
   - name: ca-order-observation-note
     resource: '%diagnostic.result.resolve().note.text.split(''\n'') | %service.note.text.split(''\n'') | %service.supportingInfo.resolve()'
     condition: >-
-      (%observation.note.exists() or %service.note.exists() or %service.supportingInfo.exists())
+      (Bundle.entry.resource.ofType(Observation).note.exists() or %service.note.exists() or %service.supportingInfo.exists())
       and (%diagnostic.result.count() - 1) = %resultIndex
     schema: classpath:/metadata/hl7_mapping/receivers/STLTs/CA/ca-order-note.yml
     resourceIndex: noteIndex

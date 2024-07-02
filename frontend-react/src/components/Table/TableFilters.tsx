@@ -21,11 +21,10 @@ import {
 import styles from "./TableFilters.module.scss";
 import TableFilterSearch from "./TableFilterSearch";
 import TableFilterStatus, { TableFilterData } from "./TableFilterStatus";
-import { RSReceiver } from "../../config/endpoints/settings";
 import {
     CursorActionType,
     CursorManager,
-} from "../../hooks/filters/UseCursorManager";
+} from "../../hooks/filters/UseCursorManager/UseCursorManager";
 import {
     DEFAULT_FROM_TIME_STRING,
     DEFAULT_TO_TIME_STRING,
@@ -33,8 +32,10 @@ import {
     FALLBACK_TO_STRING,
     getEndOfDay,
     RangeSettingsActionType,
-} from "../../hooks/filters/UseDateRange";
-import { FilterManager } from "../../hooks/filters/UseFilterManager";
+} from "../../hooks/filters/UseDateRange/UseDateRange";
+import { FilterManager } from "../../hooks/filters/UseFilterManager/UseFilterManager";
+import { FeatureName } from "../../utils/FeatureName";
+import { appInsights } from "../../utils/TelemetryService/TelemetryService";
 
 export enum StyleClass {
     DATE_CONTAINER = "date-picker-container tablet:grid-col",
@@ -53,10 +54,9 @@ interface TableFilterProps {
     searchTerm: string;
     onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
     receivers: { value: string; label: string }[];
-    setService?: Dispatch<SetStateAction<string | undefined>>;
+    setService?: Dispatch<SetStateAction<string>>;
     showDateHints?: boolean;
     startDateLabel: string;
-    initialService: RSReceiver;
     resultLength?: number;
     isPaginationLoading?: boolean;
 }
@@ -91,7 +91,6 @@ function TableFilters({
     setService,
     showDateHints,
     startDateLabel,
-    initialService,
     resultLength,
     isPaginationLoading,
 }: TableFilterProps) {
@@ -112,9 +111,8 @@ function TableFilters({
     const formRef = useRef<HTMLFormElement>(null);
     const [startTime, setStartTime] = useState(DEFAULT_FROM_TIME_STRING);
     const [endTime, setEndTime] = useState(DEFAULT_TO_TIME_STRING);
-    const [currentServiceSelect, setCurrentServiceSelect] = useState<string>(
-        initialService?.name,
-    );
+    const [currentServiceSelect, setCurrentServiceSelect] =
+        useState<string>("");
     const [filterStatus, setFilterStatus] = useState<TableFilterData>({
         resultLength: resultLength,
         activeFilters: [currentServiceSelect],
@@ -177,21 +175,37 @@ function TableFilters({
 
         return { isFilterDisabled, rangeFromWithTime, rangeToWithTime };
     }, [currentServiceSelect, endTime, rangeFrom, rangeTo, startTime]);
+    // These variable and the logic below are for a specific use case:
+    // We do NOT want to show the time range portion of the FilterStatus
+    // when a user didn't manipulate both the Start time and End time.
+    // However, to our controlled components, our input is always applied,
+    // so we have to access the inputs via an uncontrolled method to see if
+    // a user manipulated them or now.
+    const startTimeElm = formRef?.current?.querySelector(
+        "#start-time",
+    ) as HTMLInputElement | null;
+    const endTimeElm = formRef?.current?.querySelector(
+        "#end-time",
+    ) as HTMLInputElement | null;
+    const showDefaultStatus = useMemo(() => {
+        return (
+            !currentServiceSelect &&
+            !rangeFrom &&
+            !rangeTo &&
+            !startTimeElm?.value &&
+            !endTimeElm?.value &&
+            !searchTerm
+        );
+    }, [
+        currentServiceSelect,
+        endTimeElm?.value,
+        rangeFrom,
+        rangeTo,
+        searchTerm,
+        startTimeElm?.value,
+    ]);
 
     useEffect(() => {
-        // These variable and the logic below are for a specific use case:
-        // We do NOT want to show the time range portion of the FilterStatus
-        // when a user didn't manipulate both the Start time and End time.
-        // However, to our controlled components, our input is always applied,
-        // so we have to access the inputs via an uncontrolled method to see if
-        // a user manipulated them or now.
-        const startTimeElm = formRef?.current?.querySelector(
-            "#start-time",
-        ) as HTMLInputElement | null;
-        const endTimeElm = formRef?.current?.querySelector(
-            "#end-time",
-        ) as HTMLInputElement | null;
-
         if (isPaginationLoading === false)
             // This piece of code outputs into activeFilters a human readable
             // filter array for us to display on the FE, with protections against
@@ -208,10 +222,10 @@ function TableFilters({
                               currentServiceSelect,
                               [
                                   ...(rangeFrom && isValid(rangeFrom)
-                                      ? [format(rangeFrom, "MM/dd/yy")]
+                                      ? [format(rangeFrom, "MM/dd/yyyy")]
                                       : []),
                                   ...(rangeTo && isValid(rangeTo)
-                                      ? [format(rangeTo, "MM/dd/yy")]
+                                      ? [format(rangeTo, "MM/dd/yyyy")]
                                       : []),
                               ].join("–"),
                               [
@@ -224,7 +238,7 @@ function TableFilters({
                                                     "HH:mm",
                                                     new Date(),
                                                 ),
-                                                "hh:mm a",
+                                                "h:mm a",
                                             ),
                                             format(
                                                 parse(
@@ -232,7 +246,7 @@ function TableFilters({
                                                     "HH:mm",
                                                     new Date(),
                                                 ),
-                                                "hh:mm a",
+                                                "h:mm a",
                                             ),
                                         ]
                                       : []),
@@ -259,29 +273,34 @@ function TableFilters({
         [onFilterClick, updateRange],
     );
 
-    /* Clears manager and local state values */
-    const resetHandler = useCallback(
+    const resetFilterFields = useCallback(
         (e: FormEvent) => {
             e.preventDefault();
             setFilterReset(filterReset + 1);
-            setSearchReset(searchReset + 1);
             setRangeFrom(undefined);
             setRangeTo(undefined);
             setStartTime(DEFAULT_FROM_TIME_STRING);
             setEndTime(DEFAULT_TO_TIME_STRING);
-            setCurrentServiceSelect(initialService.name);
-            setSearchTerm("");
-            setService?.(initialService.name);
+            setCurrentServiceSelect("");
+            setService?.("");
             filterManager.resetAll();
         },
-        [
-            filterManager,
-            filterReset,
-            initialService?.name,
-            searchReset,
-            setSearchTerm,
-            setService,
-        ],
+        [filterManager, filterReset, setService],
+    );
+
+    /* Clears manager and local state values */
+    const resetHandler = useCallback(
+        (e: FormEvent) => {
+            e.preventDefault();
+            resetFilterFields(e);
+            setSearchReset(searchReset + 1);
+            setSearchTerm("");
+
+            appInsights?.trackEvent({
+                name: `${FeatureName.DAILY_DATA} | Reset`,
+            });
+        },
+        [resetFilterFields, searchReset, setSearchTerm],
     );
 
     const submitHandler = useCallback(
@@ -300,6 +319,10 @@ function TableFilters({
                     filterDetails.rangeToWithTime,
                 );
             }
+
+            appInsights?.trackEvent({
+                name: `${FeatureName.DAILY_DATA} | Apply`,
+            });
         },
         [
             applyToFilterManager,
@@ -315,19 +338,17 @@ function TableFilters({
     return (
         <div className={styles.TableFilters}>
             <TableFilterSearch
-                filterReset={filterReset}
                 resetHandler={resetHandler}
                 searchReset={searchReset}
-                setFilterReset={setFilterReset}
                 setSearchTerm={setSearchTerm}
-                setCurrentServiceSelect={setCurrentServiceSelect}
+                resetFilterFields={resetFilterFields}
             />
 
             <section
                 data-testid="filter-container"
-                className="filter-container"
+                className="filter-container flex-column"
             >
-                <p className="text-bold margin-top-0">
+                <p className="text-bold margin-top-0 grid-col-12">
                     View data from a specific receiver or date and time range
                 </p>
                 <form
@@ -337,9 +358,10 @@ function TableFilters({
                     key={filterReset}
                     autoComplete="off"
                     data-testid="filter-form"
+                    className="width-full"
                 >
                     <div className="grid-row">
-                        <div className="grid-col filter-column__one">
+                        <div className="grid-col-3 filter-column__one">
                             <label
                                 id="receiver-label"
                                 data-testid="label"
@@ -379,7 +401,7 @@ function TableFilters({
                                 ))}
                             </Select>
                         </div>
-                        <div className="grid-col-auto filter-column__two">
+                        <div className="grid-col-7 filter-column__two">
                             <DateRangePicker
                                 className={StyleClass.DATE_CONTAINER}
                                 startDateLabel={startDateLabel}
@@ -460,7 +482,7 @@ function TableFilters({
                                 </div>
                             </div>
                         </div>
-                        <div className="grid-col-fill filter-column__three">
+                        <div className="grid-col-2 filter-column__three">
                             <div className="button-container">
                                 <div>
                                     <Button
@@ -486,7 +508,10 @@ function TableFilters({
                 </form>
             </section>
             {isPaginationLoading === false && (
-                <TableFilterStatus filterStatus={filterStatus} />
+                <TableFilterStatus
+                    filterStatus={filterStatus}
+                    showDefaultStatus={showDefaultStatus}
+                />
             )}
         </div>
     );

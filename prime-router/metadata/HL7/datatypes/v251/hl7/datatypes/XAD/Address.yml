@@ -36,7 +36,7 @@ postalCode:
 country:
   type: STRING
   expressionType: HL7Spec
-  valueOf: XAD.6
+  valueOf: $country | XAD.6
 
 type:
   vars:
@@ -61,22 +61,8 @@ district:
   valueOf: XAD.9
   expressionType: HL7Spec
 
-
-
-# This needs to use variables because the message parses this field using NULLDT since it is deprecated which means that
-# the values do not get correctly loaded and will not be mapped over correctly using a spec.
-period_1:
-  vars:
-    xad13: String, XAD.13
-    xad14: String, XAD.14
-    start: String, XAD.12.1
-    end: String, XAD.12.2
-  condition: $xad13 NULL && $xad14 NULL
-  expressionType: resource
-  valueOf: datatypes/DR/Period
-
 # XAD.12 is deprecated so the schema favors using XAD.13/14 if either are populated
-period_2:
+period:
   vars:
     xad13: String, XAD.13
     xad14: String, XAD.14

@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.history.azure
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -22,6 +23,7 @@ import gov.cdc.prime.router.history.db.DeliveryDatabaseAccess
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.history.db.SubmitterApiSearch
 import gov.cdc.prime.router.history.db.SubmitterDatabaseAccess
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import java.util.UUID
@@ -32,10 +34,12 @@ import java.util.UUID
  *
  * @property reportFileFacade Facade class containing business logic to handle the data.
  * @property workflowEngine Container for helpers and accessors used when dealing with the workflow.
+ * @property reportService Service for querying graphs of reports or items
  */
 class DeliveryFunction(
     val deliveryFacade: DeliveryFacade = DeliveryFacade.instance,
     workflowEngine: WorkflowEngine = WorkflowEngine(),
+    private val reportService: ReportService = ReportService(),
 ) : ReportFileFunction(
     deliveryFacade,
     workflowEngine
@@ -186,6 +190,43 @@ class DeliveryFunction(
         @BindingName("id") id: String,
     ): HttpResponseMessage {
         return this.getDetailedView(request, id)
+    }
+
+    /**
+     * Endpoint for intermediary receivers to verify status of messages. It passes
+     * a null engine to the retrieveMetadata function because Azure gets upset if there
+     * are any non-annotated parameters in the method signature other than ExecutionContext
+     * and we needed the engine to be a parameter so it can be mocked for tests
+     *
+     */
+    @FunctionName("getEtorMetadataForDelivery")
+    fun getEtorMetadata(
+        @HttpTrigger(
+            name = "getEtorMetadataForDelivery",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "waters/report/{reportId}/delivery/etorMetadata"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("reportId") reportId: UUID,
+        context: ExecutionContext,
+    ): HttpResponseMessage {
+        return this.retrieveETORIntermediaryMetadata(request, reportId, context, null)
+    }
+
+    /**
+     * Function for finding the associated report ID that the intermediary knows about given the report ID that the receiver is
+     * given from report stream
+     */
+    override fun getLookupId(reportId: UUID): UUID? {
+        // the delivery endpoint is called by the final receiver with a sent report ID, where TI
+        // knows about the related submission report ID
+        try {
+            val root = reportService.getRootReport(reportId)
+            return root.reportId
+        } catch (ex: IllegalStateException) {
+            logger.error("Unable to locate root report for report $reportId")
+            return null
+        }
     }
 
     /**
