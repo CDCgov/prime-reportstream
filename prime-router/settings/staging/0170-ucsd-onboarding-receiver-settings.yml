@@ -43,11 +43,9 @@
         maxReportCount: 100
       transport:
         type: "REST"
+        authType: "two-legged"
         reportUrl: "https://sample/reports-endpoint"
         authTokenUrl: "https://fhir.epic.com/interconnect-fhir-oauth/oauth2/token"
-        encryptionKeyUrl: ""
-        authType:
-        tlsKeystore: null
         parameters:
           grant_type: "client_credentials"
           client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
