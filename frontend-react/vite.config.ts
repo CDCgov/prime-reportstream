@@ -1,5 +1,4 @@
 /// <reference types="vitest" />
-// gratuitous
 
 import { resolve } from "path";
 
