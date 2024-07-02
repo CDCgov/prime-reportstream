@@ -402,21 +402,22 @@ class FhirPathCommand : CliktCommand(
         fhirPathContext = CustomContext(bundle, bundle, constantList, CustomFhirPathFunctions())
         printHelp()
 
-        // Loop until you press CTRL-C or ENTER at the prompt.
         var lastPath = ""
+
+        // Loop until you press CTRL-C or ENTER at the prompt.
         while (true) {
             echo("", true)
             echo("%resource = $focusPath")
             echo("Last path = $lastPath")
             print("FHIR path> ") // This needs to be a print as an echo does not show on the same line
+
             val input = readln()
 
             // Process the input checking for special/custom commands
             when {
                 input.isBlank() -> printHelp()
 
-                input == "quit" || input == "exit" ->
-                    throw ProgramResult(0)
+                input == "quit" || input == "exit" -> throw ProgramResult(0)
 
                 input.startsWith("resource") -> setFocusResource(input, bundle)
 
@@ -436,11 +437,6 @@ class FhirPathCommand : CliktCommand(
                     }
                 }
             }
-
-            // Remove try catch because none of the fhir utils path methods invoked here or in subsequent methods
-            // throws any errors.
-            // This was originally catching a FhirPathExecutionException, but this is only thrown in the method
-            // below, setFocusResource(), and we are catching all exceptions there.
         }
     }
 
@@ -463,7 +459,6 @@ class FhirPathCommand : CliktCommand(
         } else {
             try {
                 val path = inputParts[1].trim().trimStart('\'').trimEnd('\'')
-                // The only way parthPath() returns nothing is when the FHIR path provided is null or blank
                 val pathExpression = FhirPathUtils.parsePath(path)
                     ?: throw FhirPathExecutionException("Invalid FHIR Path: null or blank")
                 val resourceList = FhirPathUtils.pathEngine.evaluate(

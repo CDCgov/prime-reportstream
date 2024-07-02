@@ -34,6 +34,7 @@ import org.hl7.fhir.r4.model.TimeType
 import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
 import java.util.Date
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 class FhirPathUtilsTests {
     @Test
@@ -53,6 +54,9 @@ class FhirPathUtilsTests {
 
         // Empty string
         assertThat(FhirPathUtils.parsePath("")).isNull()
+
+        // Invalid fhir path syntax
+        assertFailsWith<FHIRLexerException> { FhirPathUtils.parsePath("Bundle.#*($&id.exists()") }
     }
 
     @Test
@@ -105,18 +109,20 @@ class FhirPathUtilsTests {
 
         var path = "Bundle.entry.resource.ofType(DiagnosticReport)[0]"
         val result = FhirPathUtils.evaluate(null, bundle, bundle, path)
-        assertThat(result).isNotEmpty()
         assertThat(result.size).isEqualTo(1)
         assertThat(result[0]).isInstanceOf(DiagnosticReport::class.java)
         assertThat((result[0] as DiagnosticReport).id).isEqualTo(diagReport.id)
 
-        // Bad extension names throw an out of bound exception (a bug in the library)
+        // Bad extension names evaluated to emptyList
         path = "Bundle.extension('blah').value"
-        assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path))
         assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
 
         // Empty string
         assertThat(FhirPathUtils.evaluate(null, bundle, bundle, "")).isEmpty()
+
+        // Invalid fhirpath syntax
+        path = "Bundle.#*($&id.exists()"
+        assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
     }
 
     @Test

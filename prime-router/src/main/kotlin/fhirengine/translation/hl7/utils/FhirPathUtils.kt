@@ -97,21 +97,8 @@ object FhirPathUtils : Logging {
             } else {
                 pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
             }
-        } catch (e: Exception) {
-            when (e) {
-                is FHIRLexerException -> {
-                    // dunno what the original exception was, but this was also swallowing fhirpath validity errors
-                    logger.error("Error parsing the FhirPath expression.")
-                }
-                else -> {
-                    // This is due to a bug in at least the extension() function
-                    logger.error(
-                        "Unknown error while evaluating FHIR expression $expression. " +
-                            "Returning empty resource list.",
-                        e
-                    )
-                }
-            }
+        } catch (e: FHIRLexerException) {
+            logger.error("Syntax error in FHIR Path expression $expression")
             emptyList()
         }
         logger.trace("Evaluated '$expression' to '$retVal'")
@@ -153,7 +140,6 @@ object FhirPathUtils : Logging {
                 throw SchemaException("FHIR Path expression did not evaluate to a boolean type: $expression")
             }
         } catch (e: Exception) {
-            // This is due to a bug in at least the extension() function
             val msg = when (e) {
                 is FHIRLexerException -> "Syntax error in FHIR Path expression $expression"
                 is SchemaException -> throw e
