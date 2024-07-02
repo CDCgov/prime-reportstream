@@ -12,7 +12,7 @@
 - name: "ucsd"
   description: "University of California San Diego"
   jurisdiction: "STATE"
-  stateCode: CA
+  stateCode: "CA"
   senders: [ ]
   receivers:
     - name: "etor-nbs-results"
@@ -21,18 +21,18 @@
       topic: "etor-ti"
       customerStatus: "active"
       translation: !<HL7>
+        type: "HL7"
         schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
         useBatchHeaders: false
         receivingApplicationName: "EPIC-INNERCONNECT"
         receivingFacilityName: "CA"
         replaceValue:
-          MSH-4-1: CDPH
-        type: "HL7"
+          MSH-4-1: "CDPH"
       jurisdictionalFilter:
         - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"
         - "Bundle.entry.resource.ofType(MessageHeader).sender.resolve().identifier.where(value = 'SISGDSP').exists()"
         - "Bundle.entry.resource.ofType(DiagnosticReport)[0].basedOn.resolve().requester.resolve().organization.resolve().extension.where(url = 'https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization').extension.where(url = 'XON.10').value in ('R797' | 'R508')"
-        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"
       qualityFilter:
         - "true"
       timing:
@@ -44,8 +44,8 @@
       transport:
         type: "REST"
         authType: "two-legged"
-        reportUrl: "https://sample/reports-endpoint"
         authTokenUrl: "https://fhir.epic.com/interconnect-fhir-oauth/oauth2/token"
+        reportUrl: "https://sample/reports-endpoint"
         parameters:
           grant_type: "client_credentials"
           client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
