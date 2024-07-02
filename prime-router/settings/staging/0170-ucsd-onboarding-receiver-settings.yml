@@ -69,9 +69,10 @@
           truncateHl7Fields: []
           customLengthHl7Fields: {}
       jurisdictionalFilter:
-        - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01')"
-        - "(Bundle.entry.resource.ofType(DiagnosticReport)[0].basedOn.resolve().requester.resolve().organization.resolve().extension.where(url = 'https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization').extension.where(url = 'XON.10').value in ('R797' | 'R508'))"
-        - "(Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR')"
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"
+        - "Bundle.entry.resource.ofType(MessageHeader).sender.resolve().identifier.where(value = 'SISGDSP').exists()"
+        - "Bundle.entry.resource.ofType(DiagnosticReport)[0].basedOn.resolve().requester.resolve().organization.resolve().extension.where(url = 'https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization').extension.where(url = 'XON.10').value in ('R797' | 'R508')"
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"
       qualityFilter:
         - "true"
       routingFilter: []
