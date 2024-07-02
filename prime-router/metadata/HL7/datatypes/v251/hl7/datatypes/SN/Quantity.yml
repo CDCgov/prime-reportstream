@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 comparator:
   type: STRING
   expressionType: HL7Spec
@@ -19,7 +21,6 @@ code:
 
 unit:
   expressionType: nested
-  condition:
   vars:
     identifier: CWEQuantityUnits.1
     text: CWEQuantityUnits.2

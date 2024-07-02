@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: Organization
 
 id:
@@ -124,7 +126,7 @@ extension:
   expressionType: nested
   generateList: true
   expressions:
-    - condition: xon2 NOT_NULL
+    - condition: $xon2 NOT_NULL
       expressionType: nested
       vars:
         xon2: XON.2
