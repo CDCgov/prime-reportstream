@@ -388,7 +388,7 @@ const ReportStreamHeader = ({
         <>
             <GovBanner aria-label="Official government website" />
             {!isNavHidden && <SenderModeBanner />}
-            {!isNavHidden && activeMembership && (
+            {!isNavHidden && (activeMembership ?? user.claims) && (
                 <Header
                     data-testid="auth-header"
                     basic={true}
