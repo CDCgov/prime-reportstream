@@ -2,6 +2,9 @@
 name: Release to Azure
 
 on:
+  pull_request:
+    branches:
+      - master
   push:
     branches:
       - master
@@ -22,7 +25,7 @@ jobs:
     outputs:
       env_name: ${{ steps.build_vars.outputs.env_name }}
       version: ${{ steps.build_vars.outputs.version }}
-      has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
+      has_router_change: true
       has_frontend_change: ${{ steps.build_vars.outputs.has_frontend_change }}
       dns_ip: ${{ steps.build_vars.outputs.dns_ip }}
     steps:
