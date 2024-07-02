@@ -301,6 +301,16 @@ class DetailedSubmissionHistory(
             // if there is ANY action scheduled on this submission history, ensure this flag is true
             if (report.nextActionAt != null) nextActionScheduled = true
         }
+        destinations.forEach { destination ->
+            val reportsForDestination = reports?.filter {
+                destination.organizationId == it.receivingOrg && destination.service == it.receivingOrgSvc
+            }?.sortedBy { it.createdAt }
+            val oldestReport = reportsForDestination?.first()?.nextAction
+            val reportsGroupedByNextAction = reportsForDestination?.groupBy { it.nextAction }
+            val firstReceiverReports = reportsGroupedByNextAction?.get(oldestReport) ?: emptyList()
+            destination.itemCount = firstReceiverReports.sumOf { it.itemCount }
+            destination.itemCountBeforeQualFilter = firstReceiverReports.sumOf { it.itemCountBeforeQualFilter ?: 0 }
+        }
         errors.addAll(consolidateLogs(ActionLogLevel.error))
         warnings.addAll(consolidateLogs(ActionLogLevel.warning))
     }

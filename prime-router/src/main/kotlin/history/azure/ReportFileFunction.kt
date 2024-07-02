@@ -180,7 +180,8 @@ abstract class ReportFileFunction(
                                 reportFile.itemCountBeforeQualFilter,
                                 reportFile.transportResult != null,
                                 reportFile.transportResult,
-                                reportFile.downloadedBy
+                                reportFile.downloadedBy,
+                                reportFile.nextAction
                             )
                         }.toMutableList()
                         val reportIds = graph.map { it.reportId }

@@ -142,6 +142,7 @@ class SubmissionFunctionIntegrationTests {
                     .setItemCount(theRoot.theItemCount)
                     .setExternalName("test-external-name")
                     .setBodyUrl(theRoot.theReportBlobUrl)
+                    .setNextAction(theRoot.nodes.firstOrNull()?.theAction)
                 dbAccess.insertReportFile(
                     reportFile, txn, action
                 )
@@ -190,6 +191,7 @@ class SubmissionFunctionIntegrationTests {
                 .setExternalName("test-external-name")
                 .setBodyUrl(node.theReportBlobUrl)
                 .setTransportResult(node.theTransportResult)
+                .setNextAction(node.nodes.firstOrNull()?.theAction)
 
             if (node.receiver != null) {
                 childReportFile.setReceivingOrg(node.receiver!!.organizationName)
