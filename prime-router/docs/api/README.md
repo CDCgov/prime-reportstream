@@ -11,6 +11,3 @@ swagger ui dist update history:
 |    date    |  dist |              comments                |
 |------------|-------|--------------------------------------------------------------|
 | 07/24/2023 | 5.1.0 | only change made in swagger-initializer.js to prevent js injection |
-
-
-

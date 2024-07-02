@@ -31,4 +31,3 @@ RUN cd $JAVA_HOME/conf/security \
 COPY ./certs/CDC-G2-S1.crt $JAVA_HOME/conf/security
 RUN cd $JAVA_HOME/conf/security \
     && $JAVA_HOME/bin/keytool -cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias G2 -file CDC-G2-S1.crt
-
