@@ -106,7 +106,6 @@ runs:
         TEST_SENDER_PASSWORD: ${{ inputs.test-sender-password }}
         TEST_RECEIVER_USERNAME: ${{ inputs.test-receiver-user }}
         TEST_RECEIVER_PASSWORD: ${{ inputs.test-receiver-password }}
-        LOG_FILE: ${{ env.LOG_FILE }}
       run: |
         echo "::group::E2E tests"
         yarn run test:e2e
@@ -122,25 +121,22 @@ runs:
         retention-days: 7
 
     - name: Post Warnings as Comments
-      if: always()
+      if: always() && github.event.pull_request
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
-        LOG_FILE: ${{ env.LOG_FILE }}
+        WARNING_LOG_FILE: e2e-data/frontend-warnings.json
       run: |
-        if [ -f "$LOG_FILE" ]; then
+        if [ -f "$WARNING_LOG_FILE" ]; then
           COMMENT="## ⚠️ Broken Links ⚠️\n\n"
-          while IFS= read -r line; do
-            if [ -n "$line" ]; then
-              URL=$(echo $line | jq -r '.url')
-              ERROR=$(echo $line | jq -r '.message')
-              COMMENT="${COMMENT}❌ $URL\n\n**Error:** \`$ERROR\`\n\n---\n\n"
-            fi
-          done < "$LOG_FILE"
+          while IFS= read -r row; do
+            URL=$(echo $row | jq -r '.url')
+            ERROR=$(echo $row | jq -r '.message')
+            COMMENT="${COMMENT}❌ $URL\n\n**Error:** \`$ERROR\`\n\n---\n\n"
+          done < <(jq -c '.[]' "$WARNING_LOG_FILE")
           if [ "$COMMENT" != "## ⚠️ Broken Links ⚠️\n\n" ]; then
             curl -s -H "Authorization: token $GITHUB_TOKEN" -X POST -d "{\"body\": \"$COMMENT\"}" "https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/comments"
           fi
-          rm "$LOG_FILE"
         fi
       shell: bash
 
