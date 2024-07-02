@@ -36,9 +36,7 @@ const ReferHealthcareOrganizations = lazy(
             ),
     ),
 );
-const GettingStartedIndex = lazy(
-    lazyRouteMarkdown(() => import("./content/getting-started/index.mdx")),
-);
+
 const GettingStartedSendingData = lazy(
     lazyRouteMarkdown(
         () => import("./content/getting-started/sending-data.mdx"),
@@ -75,14 +73,6 @@ const ReportStreamApiDocumentation = lazy(
         () =>
             import(
                 "./content/developer-resources/reportstream-api/documentation/Documentation.mdx"
-            ),
-    ),
-);
-const ReportStreamApiDocumentationDataModel = lazy(
-    lazyRouteMarkdown(
-        () =>
-            import(
-                "./content/developer-resources/reportstream-api/documentation/data-model/DataModel.mdx"
             ),
     ),
 );
@@ -303,14 +293,6 @@ export const appRoutes: RouteObject[] = [
                 path: "getting-started",
                 children: [
                     {
-                        index: true,
-                        element: <GettingStartedIndex />,
-                        handle: {
-                            isContentPage: true,
-                            isFullWidth: true,
-                        },
-                    },
-                    {
                         path: "sending-data",
                         element: <GettingStartedSendingData />,
                         handle: {
@@ -364,15 +346,6 @@ export const appRoutes: RouteObject[] = [
                                             <ReportStreamApiDocumentation />
                                         ),
                                         index: true,
-                                        handle: {
-                                            isContentPage: true,
-                                        },
-                                    },
-                                    {
-                                        path: "data-model",
-                                        element: (
-                                            <ReportStreamApiDocumentationDataModel />
-                                        ),
                                         handle: {
                                             isContentPage: true,
                                         },

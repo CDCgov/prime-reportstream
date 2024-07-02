@@ -18,9 +18,8 @@ resource "azurerm_container_group" "sftp" {
   location            = var.location
   ip_address_type     = "Public" //Public until application gateways are permitted (see network.tf)
   dns_name_label      = var.resource_prefix
-  #network_profile_id  = var.network_profile_id
-  os_type        = "Linux"
-  restart_policy = "Always"
+  os_type             = "Linux"
+  restart_policy      = "Always"
 
   exposed_port = [{
     port     = 22

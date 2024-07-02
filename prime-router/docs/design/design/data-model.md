@@ -244,7 +244,7 @@ Example Receiver settings configuration. Deprecated options have been omitted.
     "organizationName": "flexion",
     "deidentifiedValue": "",
     "jurisdictionalFilter": [
-        "%hl7MessageType = 'O21'"
+        "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'"
     ],
     "processingModeFilter": [],
     "reverseTheQualityFilter": false
