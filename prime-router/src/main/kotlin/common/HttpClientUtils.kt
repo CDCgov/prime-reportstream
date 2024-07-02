@@ -25,6 +25,14 @@ import kotlinx.serialization.json.Json
 
 class HttpClientUtils {
     companion object {
+
+        /**
+         * The @Volatile annotation is needed to ensure that the instance property is updated atomically.
+         * This prevents other threads from creating more instances and breaking the singleton pattern.
+         */
+        @Volatile
+        private var httpClient: HttpClient? = null
+
         /**
          * timeout for http calls
          */
@@ -521,7 +529,7 @@ class HttpClientUtils {
                     jsonPayload?.let {
                         setBody(jsonPayload)
                     }
-                }
+                }.also { httpClient?.close() }
             }
         }
 
@@ -534,40 +542,44 @@ class HttpClientUtils {
          * @return a HttpClient with all sensible defaults
          */
         fun createDefaultHttpClient(accessToken: String?): HttpClient {
-            return HttpClient(Apache) {
-                // installs logging into the call to post to the server
-                // commented out - not to override underlying default logger settings
-                // enable to trace http client internals when needed
-                // install(Logging) {
-                //     logger = Logger.SIMPLE
-                //     level = LogLevel.INFO
-                // }
-                // not using Bearer Auth handler due to refresh token behavior
-                accessToken?.let {
-                    defaultRequest {
-                        header("Authorization", "Bearer $it")
-                    }
-                }
-                install(ContentNegotiation) {
-                    json(
-                        Json {
-                            prettyPrint = true
-                            isLenient = true
-                            ignoreUnknownKeys = true
+            httpClient ?: synchronized(this) {
+                httpClient ?: HttpClient(Apache) {
+                    // installs logging into the call to post to the server
+                    // commented out - not to override underlying default logger settings
+                    // enable to trace http client internals when needed
+                    // install(Logging) {
+                    //     logger = Logger.SIMPLE
+                    //     level = LogLevel.INFO
+                    // }
+                    // not using Bearer Auth handler due to refresh token behavior
+                    accessToken?.let {
+                        defaultRequest {
+                            header("Authorization", "Bearer $it")
                         }
-                    )
-                }
-
-                install(HttpTimeout)
-                engine {
-                    followRedirects = true
-                    socketTimeout = TIMEOUT
-                    connectTimeout = TIMEOUT
-                    connectionRequestTimeout = TIMEOUT
-                    customizeClient {
                     }
-                }
+                    install(ContentNegotiation) {
+                        json(
+                            Json {
+                                prettyPrint = true
+                                isLenient = true
+                                ignoreUnknownKeys = true
+                            }
+                        )
+                    }
+
+                    install(HttpTimeout)
+                    engine {
+                        followRedirects = true
+                        socketTimeout = TIMEOUT
+                        connectTimeout = TIMEOUT
+                        connectionRequestTimeout = TIMEOUT
+                        customizeClient {
+                        }
+                    }
+                }.also { httpClient = it }
             }
+
+            return httpClient!!
         }
     }
 }
