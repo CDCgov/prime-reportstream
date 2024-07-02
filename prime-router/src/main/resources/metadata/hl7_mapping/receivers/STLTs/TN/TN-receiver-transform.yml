@@ -25,7 +25,7 @@ elements:
     hl7Spec: [ '%{MSH}-3-3' ]
 
   - name: tn-receiving-application-namespace-id
-    value: [ '"tdh"' ]
+    value: [ '"tdh-ELR"' ]
     hl7Spec: [ '%{MSH}-5-1' ]
 
   - name: tn-receiving-application-universal-id
