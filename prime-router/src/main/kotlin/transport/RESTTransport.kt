@@ -107,7 +107,9 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         var accessToken: String? = null
 
                         if (restTransportInfo.authType == "apiKey") {
-                            httpHeaders["Key"] = (credential as UserApiKeyCredential).apiKey
+                            val apiKeyCredential = credential as UserApiKeyCredential
+                            httpHeaders["System_ID"] = apiKeyCredential.user
+                            httpHeaders["Key"] = apiKeyCredential.apiKey
                         }
 
                         if (restTransportInfo.authType == "two-legged" || restTransportInfo.authType == null) {
@@ -628,7 +630,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         "elims/params" -> {
                             MultiPartFormDataContent(
                                 formData {
-                                    append("System_ID", "HL7_ETOR")
+                                    append("System_ID", headers["System_ID"] ?: "")
                                     append("Key", headers["Key"] ?: "")
                                     append("DateReceived", reportCreateDate.toString())
                                     append("FileName", "filename=\"${fileName}\"")
