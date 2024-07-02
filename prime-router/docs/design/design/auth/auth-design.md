@@ -22,7 +22,7 @@ We use a mix/match of the following for different endpoints:
 
 ## Requirements
 
-- Protect certain endpoints from only being accessed by those we trust
+- Protect certain endpoints from only being accessed by identified trusted entities
 - Centralize user management
 - Revoke access if a secret is compromised
 - Audit which clients are accessing which resources
