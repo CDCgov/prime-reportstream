@@ -21,6 +21,7 @@ import com.azure.storage.blob.models.BlobDownloadResponse
 import com.azure.storage.blob.models.BlobItem
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
@@ -529,7 +530,7 @@ class BlobAccessTests {
     @Test
     fun `upload report`() {
         val testUrl = "http://uploadreport"
-        val testFormat = Report.Format.CSV
+        val testFormat = MimeFormat.CSV
         val testBytes = "testbytes".toByteArray()
 
         val one = Schema(name = "one", topic = Topic.TEST)
@@ -560,7 +561,7 @@ class BlobAccessTests {
     @Test
     fun `upload body`() {
         val blobSlot = CapturingSlot<String>()
-        val testFormat = Report.Format.CSV
+        val testFormat = MimeFormat.CSV
         val testid = UUID.randomUUID().toString()
         val testBytes = "testbytes".toByteArray()
         val testFolder = "testfolder"

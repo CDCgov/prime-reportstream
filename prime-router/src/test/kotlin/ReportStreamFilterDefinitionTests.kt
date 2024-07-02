@@ -15,7 +15,7 @@ import kotlin.test.Test
 
 class ReportStreamFilterDefinitionTests {
 
-    private val rcvr = Receiver("name", "org", Topic.TEST, CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
+    private val rcvr = Receiver("name", "org", Topic.TEST, CustomerStatus.INACTIVE, "schema", MimeFormat.CSV)
 
     @Test
     fun `test Matches`() {

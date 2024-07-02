@@ -260,7 +260,7 @@ internal class ReceiverTests {
             Topic.TEST,
             CustomerStatus.INACTIVE,
             "CO",
-            Report.Format.CSV,
+            MimeFormat.CSV,
             null,
             null,
             null

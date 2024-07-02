@@ -7,6 +7,7 @@ import com.microsoft.azure.functions.HttpStatusType
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -505,7 +506,7 @@ class ActionHistory(
             reportFile.blobDigest = blobInfo.digest
             reportFile.itemCount = report.itemCount
         } else {
-            reportFile.bodyFormat = Report.Format.FHIR.toString() // currently only the UP sends null blobs
+            reportFile.bodyFormat = MimeFormat.FHIR.toString() // currently only the UP sends null blobs
             reportFile.itemCount = 0
         }
 

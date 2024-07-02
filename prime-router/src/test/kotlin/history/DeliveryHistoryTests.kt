@@ -58,7 +58,7 @@ class DeliveryHistoryTests {
             //     bodyUrl,
             //     ReportId.fromString(reportId),
             //     schemaName,
-            //     Report.Format.safeValueOf(bodyFormat),
+            //     MimeFormat.safeValueOf(bodyFormat),
             //     createdAt
             // )
 

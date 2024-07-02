@@ -14,6 +14,7 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -203,7 +204,7 @@ class FhirReceiverFilterTests {
         val fhirData = File(VALID_FHIR_FILEPATH).readText()
         mockkObject(BlobAccess)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
         // act on each message (with assert)
         messages.forEach { message ->
@@ -255,7 +256,7 @@ class FhirReceiverFilterTests {
         val fhirData = File(VALID_FHIR_FILEPATH).readText()
         mockkObject(BlobAccess)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
         // act
         messages.forEach { message ->
@@ -306,7 +307,7 @@ class FhirReceiverFilterTests {
         val fhirData = File(VALID_FHIR_FILEPATH).readText()
         mockkObject(BlobAccess)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
         // act on each message (with assert)
         messages.forEach { message ->
@@ -359,7 +360,7 @@ class FhirReceiverFilterTests {
         val fhirData = File(VALID_FHIR_FILEPATH).readText()
         mockkObject(BlobAccess)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
         // act on each message (with assert)
         messages.forEach { message ->
@@ -411,7 +412,7 @@ class FhirReceiverFilterTests {
         mockkObject(BlobAccess)
         every { message.downloadContent() }.returns(File(VALID_FHIR_FILEPATH).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
         // act + assert
         accessSpy.transact { txn ->
@@ -473,7 +474,7 @@ class FhirReceiverFilterTests {
         mockkObject(BlobAccess)
         every { message.downloadContent() }.returns(FhirTranscoder.encode(bundle))
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
         // act + assert
         accessSpy.transact { _ ->
@@ -527,7 +528,7 @@ class FhirReceiverFilterTests {
         mockkObject(BlobAccess)
         mockkStatic(Bundle::filterObservations)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
         every { any<Bundle>().filterObservations(any(), any()) } returns bundle
 
         // act on each message (with assert)
@@ -582,7 +583,7 @@ class FhirReceiverFilterTests {
         mockkObject(BlobAccess)
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
         // act + assert
         accessSpy.transact { txn ->
@@ -641,7 +642,7 @@ class FhirReceiverFilterTests {
         mockkObject(BlobAccess)
         every { message.downloadContent() }.returns(FhirTranscoder.encode(bundle))
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
         // act + assert
         accessSpy.transact { txn ->
@@ -723,7 +724,7 @@ class FhirReceiverFilterTests {
         mockkObject(BlobAccess)
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
         // act + assert
         accessSpy.transact { txn ->
@@ -764,7 +765,7 @@ class FhirReceiverFilterTests {
         mockkStatic(Bundle::filterObservations)
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
         every { any<Bundle>().filterObservations(any(), any()) } returns FhirTranscoder.decode(fhirData)
 
         // act + assert

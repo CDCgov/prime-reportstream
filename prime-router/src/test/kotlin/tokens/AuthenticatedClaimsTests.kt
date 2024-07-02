@@ -10,7 +10,7 @@ import assertk.assertions.isTrue
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -135,7 +135,7 @@ class AuthenticatedClaimsTests {
         val sender = CovidSender(
             "mySenderName",
             "myOrgName",
-            Sender.Format.CSV,
+            MimeFormat.CSV,
             CustomerStatus.INACTIVE,
             "mySchema",
         )
@@ -151,14 +151,14 @@ class AuthenticatedClaimsTests {
         val req = MockHttpRequestMessage("test")
         val rawClaims1: Map<String, Any> = mapOf("scope" to "oh-doh.quux.report", "sub" to "b@b.com")
         val claims1 = AuthenticatedClaims(rawClaims1, AuthenticationType.Server2Server)
-        val matchingOrgA = CovidSender("quux", "oh-doh", Sender.Format.HL7, schemaName = "one")
+        val matchingOrgA = CovidSender("quux", "oh-doh", MimeFormat.HL7, schemaName = "one")
         assertThat(claims1.authorizedForSendOrReceive(matchingOrgA, req)).isTrue()
         // Org matches, but not sender. Attempt to send to oh-doh.foo.report when my scope is oh-doh.quux.report: Fails.
-        val matchingOrgB = CovidSender("foo", "oh-doh", Sender.Format.HL7, schemaName = "one")
+        val matchingOrgB = CovidSender("foo", "oh-doh", MimeFormat.HL7, schemaName = "one")
         assertThat(claims1.authorizedForSendOrReceive(matchingOrgB, req)).isFalse()
-        val mismatchingSender = CovidSender("foo", "WRONG", Sender.Format.HL7, schemaName = "one")
+        val mismatchingSender = CovidSender("foo", "WRONG", MimeFormat.HL7, schemaName = "one")
         assertThat(claims1.authorizedForSendOrReceive(mismatchingSender, req)).isFalse()
-        val emptySender = CovidSender("", "", Sender.Format.HL7, schemaName = "one")
+        val emptySender = CovidSender("", "", MimeFormat.HL7, schemaName = "one")
         assertThat(claims1.authorizedForSendOrReceive(emptySender, req)).isFalse()
 
         val rawClaims2: Map<String, Any> = mapOf("scope" to Scope.primeAdminScope, "sub" to "b@b.com")
@@ -456,7 +456,7 @@ class AuthenticatedClaimsTests {
         val mismatchedOrg = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.HL7,
+            MimeFormat.HL7,
             schemaName =
             "one",
             allowDuplicates = true
@@ -464,7 +464,7 @@ class AuthenticatedClaimsTests {
         val matchingOrg = CovidSender(
             "Test Sender",
             "xxx",
-            Sender.Format.HL7,
+            MimeFormat.HL7,
             schemaName =
             "one",
             allowDuplicates = true

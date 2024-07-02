@@ -17,7 +17,7 @@ interface TranslatorProperties {
     /**
      * [format] is the format used for translation
      */
-    val format: Report.Format
+    val format: MimeFormat
 
     /**
      * [useBatching] tells whether to batch the results
@@ -165,7 +165,7 @@ data class Hl7Configuration
     }
 
     @get:JsonIgnore
-    override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
+    override val format: MimeFormat get() = if (useBatchHeaders) MimeFormat.HL7_BATCH else MimeFormat.HL7
 
     @get:JsonIgnore
     override val useBatching: Boolean get() = useBatchHeaders
@@ -234,7 +234,7 @@ data class FHIRConfiguration
     override val receivingOrganization: String?,
 ) : TranslatorConfiguration("FHIR") {
     @get:JsonIgnore
-    override val format: Report.Format get() = Report.Format.FHIR
+    override val format: MimeFormat get() = MimeFormat.FHIR
 
     @get:JsonIgnore
     override val defaults: Map<String, String> = emptyMap()
@@ -248,7 +248,7 @@ data class GAENConfiguration
     val dummy: String? = null,
 ) : TranslatorConfiguration("GAEN") {
     @get:JsonIgnore
-    override val format: Report.Format get() = Report.Format.CSV_SINGLE // Single item CSV
+    override val format: MimeFormat get() = MimeFormat.CSV_SINGLE // Single item CSV
 
     @get:JsonIgnore
     override val useBatching: Boolean get() = false
@@ -272,7 +272,7 @@ data class GAENConfiguration
 data class CustomConfiguration
 @JsonCreator constructor(
     override val schemaName: String,
-    override val format: Report.Format,
+    override val format: MimeFormat,
     override val useBatching: Boolean = false,
     override val defaults: Map<String, String> = emptyMap(),
     override val nameFormat: String = "standard",

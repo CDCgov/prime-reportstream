@@ -80,7 +80,7 @@ open class Receiver(
         topic: Topic,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
-        format: Report.Format = Report.Format.CSV,
+        format: MimeFormat = MimeFormat.CSV,
         timing: Timing? = null,
         timeZone: USTimeZone? = null,
         dateTimeFormat: DateUtilities.DateTimeFormat? = null,
@@ -150,7 +150,7 @@ open class Receiver(
     val schemaName: String get() = translation.schemaName
 
     @get:JsonIgnore
-    val format: Report.Format get() = translation.format
+    val format: MimeFormat get() = translation.format
 
     @get:JsonIgnore
     val useBatching: Boolean get() = translation.useBatching

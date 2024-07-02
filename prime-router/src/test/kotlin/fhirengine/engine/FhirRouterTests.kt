@@ -23,6 +23,7 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.PrunedObservationsLogMessage
 import gov.cdc.prime.router.Receiver
@@ -748,7 +749,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -792,7 +793,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -838,7 +839,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -884,7 +885,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -930,7 +931,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -981,7 +982,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1032,7 +1033,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1094,7 +1095,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1158,7 +1159,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1220,7 +1221,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1280,7 +1281,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1344,7 +1345,7 @@ class FhirRouterTests {
         val expectedBundle = originalBundle
             .filterObservations(listOf(CONDITION_FILTER), engine.loadFhirPathShorthandLookupTable())
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1419,7 +1420,7 @@ class FhirRouterTests {
         val expectedBundle = bundle
             .filterMappedObservations(listOf(CodeStringConditionFilter("6142004"))).second
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1547,7 +1548,7 @@ class FhirRouterTests {
 
         val originalBundle = FhirTranscoder.decode(fhirData)
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1606,7 +1607,7 @@ class FhirRouterTests {
                 )
             )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         every { engine.findReceiversForBundle(any(), any(), any(), any()) } returns emptyList()
@@ -1888,7 +1889,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters

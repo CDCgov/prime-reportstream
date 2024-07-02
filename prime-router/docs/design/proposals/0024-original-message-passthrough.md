@@ -117,7 +117,7 @@ extract the original file from the blobstore.
   the externalName of the original HL7v2 file and make a copy of it to send to the receiver.
     * As information is not being added to the FHIR bundle, the determination that sendOriginal is desired must
       be made another way. Aside from a topic feature flag, this can take several other forms such as introducing a new
-      `Report.Format` (e.g. `HL7_ORIGINAL`) or having the `translate` function retrieve sender settings for the original
+      `MimeFormat` (e.g. `HL7_ORIGINAL`) or having the `translate` function retrieve sender settings for the original
       submission.
 
     * *Pro*: This approach potentially has the least amount of modifications to existing processes and makes use of

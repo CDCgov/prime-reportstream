@@ -4,6 +4,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.ActionHistory
@@ -82,7 +83,7 @@ class UniversalBatchFunction(
                 //  upon format for what an 'empty' HL7 file looks like, and there are no receivers with this type
                 //  in prod as of now (2/2/2022). This short circuit is in case one somehow gets put in in the future
                 //  to prevent the application from hard crashing.
-                if (receiver.format == Report.Format.HL7) {
+                if (receiver.format == MimeFormat.HL7) {
                     logger.error(
                         "'Empty Batch' not supported for individual HL7 file. Only CSV/HL7_BATCH " +
                             "formats are supported."
@@ -169,8 +170,8 @@ class UniversalBatchFunction(
 
             // Generate the batch message
             val batchMessage = when (receiver.format) {
-                Report.Format.HL7, Report.Format.HL7_BATCH -> HL7MessageHelpers.batchMessages(messages, receiver)
-                Report.Format.FHIR -> FHIRBundleHelpers.batchMessages(messages)
+                MimeFormat.HL7, MimeFormat.HL7_BATCH -> HL7MessageHelpers.batchMessages(messages, receiver)
+                MimeFormat.FHIR -> FHIRBundleHelpers.batchMessages(messages)
                 else -> throw IllegalStateException("Unsupported receiver format ${receiver.format} found during batch")
             }
 

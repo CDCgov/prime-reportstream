@@ -10,6 +10,7 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
@@ -120,7 +121,7 @@ class FHIRTranslator(
             this.metadata,
             actionHistory,
             topic = message.topic,
-            Report.Format.valueOfFromExt(originalReport.bodyFormat),
+            MimeFormat.valueOfFromExt(originalReport.bodyFormat),
         )
 
         return FHIREngineRunResult(
@@ -185,7 +186,7 @@ class FHIRTranslator(
             }
         }
         when (receiver.format) {
-            Report.Format.FHIR -> {
+            MimeFormat.FHIR -> {
                 if (receiver.schemaName.isNotEmpty()) {
                     val transformer = FhirTransformer(
                         receiver.schemaName,
@@ -195,7 +196,7 @@ class FHIRTranslator(
                 return FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
             }
 
-            Report.Format.HL7, Report.Format.HL7_BATCH -> {
+            MimeFormat.HL7, MimeFormat.HL7_BATCH -> {
                 val hl7Message = getHL7MessageFromBundle(bundle, receiver)
                 return hl7Message.encodePreserveEncodingChars().toByteArray()
             }

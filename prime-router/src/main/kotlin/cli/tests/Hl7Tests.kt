@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.cli.tests
 
-import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.FileUtilities
@@ -33,7 +33,7 @@ class Hl7Ingest : CoolTest() {
             receivingStates,
             allGoodCounties,
             options.dir,
-            Report.Format.HL7_BATCH
+            MimeFormat.HL7_BATCH
         )
         echo("Created datafile $file")
 

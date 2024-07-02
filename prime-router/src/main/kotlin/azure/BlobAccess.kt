@@ -12,6 +12,7 @@ import com.azure.storage.blob.models.BlobStorageException
 import com.azure.storage.blob.models.DownloadRetryOptions
 import com.azure.storage.blob.models.ListBlobsOptions
 import gov.cdc.prime.router.BlobStoreTransportType
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.Environment
 import org.apache.commons.io.FileUtils
@@ -38,7 +39,7 @@ class BlobAccess() : Logging {
      * Contains basic info about a Report blob: format, url in Azure, and SHA256 hash
      */
     data class BlobInfo(
-        val format: Report.Format,
+        val format: MimeFormat,
         val blobUrl: String,
         val digest: ByteArray,
     ) {
@@ -155,7 +156,7 @@ class BlobAccess() : Logging {
          * @return the information about the uploaded blob
          */
         fun uploadBody(
-            bodyFormat: Report.Format,
+            bodyFormat: MimeFormat,
             blobBytes: ByteArray,
             reportName: String,
             subfolderName: String? = null,

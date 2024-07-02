@@ -69,7 +69,7 @@ Each step in the Universal Pipeline, aside from Send, will upload the modified v
 // upload to blobstore  
 val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()  
 val blobInfo = BlobAccess.uploadBody(  
-    Report.Format.FHIR,  
+    MimeFormat.FHIR,  
     bodyBytes,  
     report.name,  
     message.blobSubFolderName,  

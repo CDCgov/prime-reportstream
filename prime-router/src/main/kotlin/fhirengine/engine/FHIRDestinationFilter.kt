@@ -4,6 +4,7 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -145,7 +146,7 @@ class FHIRDestinationFilter(
                 logger.info("Routing to receiver filter queue for ${receivers.size} receiver(s)")
                 return receivers.flatMap { receiver ->
                     val report = Report(
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         emptyList(),
                         1,
                         metadata = this.metadata,
@@ -179,7 +180,7 @@ class FHIRDestinationFilter(
 
                     // upload new copy to blobstore
                     val blobInfo = BlobAccess.uploadBody(
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         bodyString.toByteArray(),
                         report.id.toString(),
                         queueMessage.blobSubFolderName,
@@ -216,7 +217,7 @@ class FHIRDestinationFilter(
                     emptyList()
                 )
                 val report = Report(
-                    Report.Format.FHIR,
+                    MimeFormat.FHIR,
                     emptyList(),
                     1,
                     metadata = this.metadata,

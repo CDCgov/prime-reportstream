@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -23,17 +24,17 @@ object ReportWriter {
     ): ByteArray {
         val outputStream = ByteArrayOutputStream()
         when (report.bodyFormat) {
-            Report.Format.INTERNAL -> csvSerializer.writeInternal(report, outputStream)
+            MimeFormat.INTERNAL -> csvSerializer.writeInternal(report, outputStream)
             // HL7 needs some additional configuration we set on the translation in organization
-            Report.Format.HL7 -> hl7Serializer.write(report, outputStream)
-            Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(
+            MimeFormat.HL7 -> hl7Serializer.write(report, outputStream)
+            MimeFormat.HL7_BATCH -> hl7Serializer.writeBatch(
                 report,
                 outputStream,
                 sendingApplicationReport,
                 receivingApplicationReport,
                 receivingFacilityReport
             )
-            Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer.write(report, outputStream)
+            MimeFormat.CSV, MimeFormat.CSV_SINGLE -> csvSerializer.write(report, outputStream)
             else -> throw UnsupportedOperationException("Unsupported ${report.bodyFormat}")
         }
         return outputStream.toByteArray()

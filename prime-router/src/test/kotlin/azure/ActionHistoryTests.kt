@@ -14,6 +14,7 @@ import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.InvalidHL7Message
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -119,7 +120,7 @@ class ActionHistoryTests {
             metadata = UnitTestUtils.simpleMetadata
         )
         val actionHistory1 = ActionHistory(TaskAction.receive)
-        val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
+        val blobInfo1 = BlobAccess.BlobInfo(MimeFormat.CSV, "myUrl", byteArrayOf(0x11, 0x22))
         val payloadName = "quux"
         actionHistory1.trackExternalInputReport(report1, blobInfo1, payloadName)
         assertNotNull(actionHistory1.reportsReceived[report1.id])
@@ -158,7 +159,7 @@ class ActionHistoryTests {
             )
         val orgReceiver = org.receivers[0]
         val actionHistory1 = ActionHistory(TaskAction.send)
-        val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
+        val blobInfo1 = BlobAccess.BlobInfo(MimeFormat.CSV, "myUrl", byteArrayOf(0x11, 0x22))
         actionHistory1.trackGeneratedEmptyReport(event1, report1, orgReceiver, blobInfo1)
         assertNotNull(actionHistory1.reportsReceived[report1.id])
         val reportFile = actionHistory1.reportsReceived[report1.id]!!
@@ -192,7 +193,7 @@ class ActionHistoryTests {
             )
         val orgReceiver = org.receivers[0]
         val actionHistory1 = ActionHistory(TaskAction.receive)
-        val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
+        val blobInfo1 = BlobAccess.BlobInfo(MimeFormat.CSV, "myUrl", byteArrayOf(0x11, 0x22))
         actionHistory1.trackCreatedReport(event1, report1, orgReceiver, blobInfo1)
 
         assertThat(actionHistory1.reportsOut[report1.id]).isNotNull()
@@ -220,7 +221,7 @@ class ActionHistoryTests {
             Topic.TEST,
             CustomerStatus.INACTIVE,
             "CO",
-            Report.Format.CSV,
+            MimeFormat.CSV,
             null,
             null,
             null
@@ -232,7 +233,7 @@ class ActionHistoryTests {
             metadata = UnitTestUtils.simpleMetadata
         )
         val actionHistory1 = ActionHistory(TaskAction.receive)
-        val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
+        val blobInfo1 = BlobAccess.BlobInfo(MimeFormat.CSV, "myUrl", byteArrayOf(0x11, 0x22))
         actionHistory1.trackCreatedReport(event1, report1, blobInfo = blobInfo1)
 
         assertThat(actionHistory1.reportsOut[report1.id]).isNotNull()
@@ -306,13 +307,13 @@ class ActionHistoryTests {
                 receivers = listOf(
                     Receiver(
                         "myService", "myOrg", Topic.TEST, CustomerStatus.INACTIVE, "schema1",
-                        format = Report.Format.CSV
+                        format = MimeFormat.CSV
                     )
                 )
             )
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } returns BlobAccess.BlobInfo(
-            Report.Format.HL7,
+            MimeFormat.HL7,
             "http://blobUrl",
             "".toByteArray()
         )
@@ -365,12 +366,12 @@ class ActionHistoryTests {
                     Receiver(
                         "myService", "myOrg", Topic.TEST, CustomerStatus.INACTIVE,
                         longNameWithClasspath,
-                        format = Report.Format.CSV
+                        format = MimeFormat.CSV
                     ),
                     Receiver(
                         "myServiceToo", "myOrg", Topic.TEST, CustomerStatus.INACTIVE,
                         longNameWithoutClasspath,
-                        format = Report.Format.CSV
+                        format = MimeFormat.CSV
                     )
                 )
             )
@@ -561,11 +562,11 @@ class ActionHistoryTests {
                 receivers = listOf(
                     Receiver(
                         "myService", "myOrg", Topic.TEST, CustomerStatus.INACTIVE, "schema1",
-                        format = Report.Format.CSV
+                        format = MimeFormat.CSV
                     ),
                     Receiver(
                         "myServiceToo", "myOrg", Topic.TEST, CustomerStatus.INACTIVE, "schema1",
-                        format = Report.Format.CSV
+                        format = MimeFormat.CSV
                     )
                 )
             )

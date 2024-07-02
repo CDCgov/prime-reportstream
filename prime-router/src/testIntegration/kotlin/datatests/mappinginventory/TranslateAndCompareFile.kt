@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.datatests.mappinginventory
 
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.datatests.TranslationTests
 
@@ -8,8 +7,8 @@ fun translateAndCompareFHIRToHL7(inputFile: String, expectedOutputFile: String):
     val outputSchemaPath = "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-test.yml"
 
     val testConfig = TranslationTests.TestConfig(
-        inputFile, Report.Format.FHIR, "", expectedOutputFile,
-        Report.Format.HL7, outputSchemaPath, true, null, null, null
+        inputFile, MimeFormat.FHIR, "", expectedOutputFile,
+        MimeFormat.HL7, outputSchemaPath, true, null, null, null
     )
     return TranslationTests().FileConversionTest(
         testConfig
@@ -18,8 +17,8 @@ fun translateAndCompareFHIRToHL7(inputFile: String, expectedOutputFile: String):
 
 fun translateAndCompareHL7ToFHIR(inputFile: String, expectedOutputFile: String): CompareData.Result {
     val testConfig = TranslationTests.TestConfig(
-        inputFile, Report.Format.HL7, "", expectedOutputFile,
-        Report.Format.FHIR, null, true, null, null, null
+        inputFile, MimeFormat.HL7, "", expectedOutputFile,
+        MimeFormat.FHIR, null, true, null, null, null
     )
     return TranslationTests().FileConversionTest(
         testConfig
@@ -37,10 +36,10 @@ fun verifyHL7ToFHIRToHL7Mapping(
     if (!skipHl7ToFhir) {
         val hl7ToFhirConfig = TranslationTests.TestConfig(
             "mappinginventory/$testFileName.hl7",
-            Report.Format.HL7,
+            MimeFormat.HL7,
             "",
             "mappinginventory/$testFileName.fhir",
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             null,
             true,
             null,
@@ -57,10 +56,10 @@ fun verifyHL7ToFHIRToHL7Mapping(
     if (!skipFhirToHl7) {
         val fhirToHl7Config = TranslationTests.TestConfig(
             "mappinginventory/$testFileName.fhir",
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             "",
             "mappinginventory/$testFileName.hl7",
-            Report.Format.HL7,
+            MimeFormat.HL7,
             outputSchema,
             true,
             null,
@@ -75,10 +74,10 @@ fun verifyHL7ToFHIRToHL7Mapping(
     if (!skipHl7ToHl7) {
         val hl7toFhirToHl7Config = TranslationTests.TestConfig(
             "mappinginventory/$testFileName.hl7",
-            Report.Format.HL7,
+            MimeFormat.HL7,
             "",
             "mappinginventory/$testFileName.hl7",
-            Report.Format.HL7,
+            MimeFormat.HL7,
             outputSchema,
             true,
             null,

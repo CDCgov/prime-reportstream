@@ -9,6 +9,7 @@ import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
@@ -305,7 +306,7 @@ class MapperTests {
         val sender = CovidSender(
             "senderName",
             "orgName",
-            format = Sender.Format.CSV,
+            format = MimeFormat.CSV,
             CustomerStatus.ACTIVE,
             "mySchemaName",
             processingType = Sender.ProcessingType.async
