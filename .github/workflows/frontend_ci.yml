@@ -180,6 +180,7 @@ jobs:
             })
 
       - name: Set Broken Links Comment
+        if: github.event.sender.login != 'dependabot[bot]'
         id: set-comment
         run: |
           if [ -f "$WARNING_LOG_FILE" ]; then
@@ -196,7 +197,7 @@ jobs:
         shell: bash
 
       - name: Create New Comment
-        if: ${{ env.COMMENT != '' && github.event.sender.login != 'dependabot[bot]' }}
+        if: ${{ env.COMMENT != '' }}
         uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
         with:
           issue-number: ${{ github.event.pull_request.number }}
