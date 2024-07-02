@@ -253,17 +253,37 @@ class DetailedSubmissionHistory(
                 // If there is no transport defined, there will not be a next action so sending at
                 // should be null.
                 val nextActionTime = if (report.receiverHasTransport) report.nextActionAt else null
-                destinations.add(
-                    Destination(
-                        report.receivingOrg,
-                        report.receivingOrgSvc!!,
-                        filteredReportRows.toMutableList(),
-                        filteredReportItems.toMutableList(),
-                        nextActionTime,
-                        report.itemCount,
-                        report.itemCountBeforeQualFilter,
+                val existingDestination =
+                    destinations.find {
+                        it.organizationId == report.receivingOrg && it.service == report.receivingOrgSvc
+                    }
+                if (existingDestination == null) {
+                    val sentReports = if (report.transportResult != null) mutableListOf(report) else mutableListOf()
+                    val downloadedReports = if (report.downloadedBy != null) mutableListOf(report) else mutableListOf()
+                    destinations.add(
+                        Destination(
+                            report.receivingOrg,
+                            report.receivingOrgSvc!!,
+                            filteredReportRows.toMutableList(),
+                            filteredReportItems.toMutableList(),
+                            nextActionTime,
+                            report.itemCount,
+                            report.itemCountBeforeQualFilter,
+                            sentReports = sentReports,
+                            downloadedReports
+                        )
                     )
-                )
+                } else {
+                    if (report.transportResult != null) {
+                        existingDestination.sentReports.add(report)
+                    }
+
+                    if (report.downloadedBy != null) {
+                        existingDestination.downloadedReports.add(report)
+                    } else {
+                        // TODO the let is wrong
+                    }
+                }
             }
 
             // For the report received from a sender
@@ -280,6 +300,16 @@ class DetailedSubmissionHistory(
 
             // if there is ANY action scheduled on this submission history, ensure this flag is true
             if (report.nextActionAt != null) nextActionScheduled = true
+        }
+        destinations.forEach { destination ->
+            val reportsForDestination = reports?.filter {
+                destination.organizationId == it.receivingOrg && destination.service == it.receivingOrgSvc
+            }?.sortedBy { it.createdAt }
+            val oldestReport = reportsForDestination?.first()?.nextAction
+            val reportsGroupedByNextAction = reportsForDestination?.groupBy { it.nextAction }
+            val firstReceiverReports = reportsGroupedByNextAction?.get(oldestReport) ?: emptyList()
+            destination.itemCount = firstReceiverReports.sumOf { it.itemCount }
+            destination.itemCountBeforeQualFilter = firstReceiverReports.sumOf { it.itemCountBeforeQualFilter ?: 0 }
         }
         errors.addAll(consolidateLogs(ActionLogLevel.error))
         warnings.addAll(consolidateLogs(ActionLogLevel.warning))
