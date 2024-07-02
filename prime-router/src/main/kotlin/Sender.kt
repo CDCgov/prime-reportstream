@@ -176,6 +176,14 @@ abstract class Sender(
                 else -> error("Internal Error: Invalid fullName: $fullName")
             }
         }
+
+        fun createFullName(organizationName: String?, senderName: String?): String? {
+            return if (!organizationName.isNullOrEmpty() && !senderName.isNullOrEmpty()) {
+                "$organizationName${fullNameSeparator}$senderName"
+            } else {
+                null
+            }
+        }
     }
 }
 
