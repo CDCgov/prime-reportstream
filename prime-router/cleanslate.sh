@@ -281,7 +281,7 @@ function ensure_binaries() {
 
     # Filter out some less valuable lines
     verbose "Building and packaging the source"
-    ./gradlew clean package 2>&1 |
+    ../gradlew clean package 2>&1 |
       sed '/org.jooq.tools.JooqLogger info/d' |
       sed '/^@@@@@@@/d' |
       sed '/jOOQ tip of the day:/d' |
