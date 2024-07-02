@@ -172,6 +172,21 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         )
     )
 
+    private val flexionRestTransportTypeWithJwtParams = RESTTransportType(
+        "v1/etor/orders",
+        "v1/auth/token",
+        "",
+        "two-legged",
+        null,
+        mapOf("mock-p1" to "value-p1", "mock-p2" to "value-p2"),
+        jwtParams = mapOf("iss" to "1234-567-890", "aud" to "https://test-website.test"),
+        headers = mapOf(
+            "mock-h1" to "value-h1",
+            "mock-h2" to "value-h2",
+            "Content-Type" to "text/fhir+ndjson"
+        )
+    )
+
     private val fakePrivateKey = """-----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEAvzoqTD4p9tRCyF2sPsq8ZE2/cCslUBYb+u+4whe6PGHAssU9
 vFSqeF/ZlaU8Zo/hi+m0AaHcISN+St/VJ2+JuEOs4KDGbYjT/NeT0rN+5fAOHmNI
@@ -519,6 +534,24 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 
         val retryItems = mockRestTransport.send(
             flexionRestTransportType, header, reportId, "test", null,
+            context, actionHistory
+        )
+        assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test flexion RESTTransport with OAuth2 jwt parameters`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserApiKeyCredential("flexion", fakePrivateKey)
+        )
+        every { runBlocking { mockRestTransport.getAuthTokenWithUserApiKey(any(), any(), any(), any()) } }.returns(
+            TokenInfo(accessToken = "MockToken", tokenType = "bearer")
+        )
+
+        val retryItems = mockRestTransport.send(
+            flexionRestTransportTypeWithJwtParams, header, reportId, "test", null,
             context, actionHistory
         )
         assertThat(retryItems).isNull()

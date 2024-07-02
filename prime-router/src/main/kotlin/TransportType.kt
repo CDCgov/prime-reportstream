@@ -126,6 +126,8 @@ data class RESTTransportType
     val tlsKeystore: String? = null,
     /** [parameters] The map of parameters to be sent in the message */
     val parameters: Map<String, String> = emptyMap(),
+    /** The map of parameters for constructing the jwt (for two-legged authType)*/
+    val jwtParams: Map<String, String> = emptyMap(),
     /** [headers] The map of headers to be sent in the message */
     val headers: Map<String, String>,
     /** [authHeaders] The map of auth headers to be sent to authenticate */
