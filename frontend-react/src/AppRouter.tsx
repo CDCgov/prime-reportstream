@@ -103,6 +103,7 @@ const ReportStreamApiDocumentationPayloads = lazy(
 
 /* Public Pages */
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+
 const LoginCallback = lazy(
     () => import("./shared/LoginCallback/LoginCallback"),
 );
@@ -110,6 +111,7 @@ const LogoutCallback = lazy(
     () => import("./shared/LogoutCallback/LogoutCallback"),
 );
 const Login = lazy(() => import("./pages/Login"));
+
 const FileHandler = lazy(() => import("./components/FileHandlers/FileHandler"));
 const ErrorNoPage = lazy(
     () => import("./pages/error/legacy-content/ErrorNoPage"),
