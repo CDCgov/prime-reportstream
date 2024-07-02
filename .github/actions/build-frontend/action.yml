@@ -3,6 +3,7 @@ name: "Build Frontend"
 description: "Build react website"
 inputs:
   env-name:
+    description: ReportStream app environment name
     required: true
   appinsights-staging-key:
     description: Instrumentation key for staging environment
@@ -63,6 +64,7 @@ runs:
       shell: bash
 
     - name: Run lint
+      if: ${{ !startsWith(inputs.env-name, 'trialfrontend') }}
       run: |
         echo "::group::Lint"
         yarn lint
@@ -71,6 +73,7 @@ runs:
       shell: bash
 
     - name: Run unit tests
+      if: ${{ !startsWith(inputs.env-name, 'trialfrontend') }}
       uses: ./.github/actions/retry
       with:
         timeout_minutes: 10
@@ -85,6 +88,7 @@ runs:
         shell: bash
 
     - name: Install Playwright
+      if: ${{ !startsWith(inputs.env-name, 'trialfrontend') }}
       working-directory: frontend-react
       run: |
         echo "::group::Install playwright"
@@ -92,12 +96,8 @@ runs:
         echo "::endgroup::"
       shell: bash
 
-    - name: Set LOG_FILE environment variable
-      id: set-log-file
-      run: echo "LOG_FILE=$(pwd)/playwright-warnings.log" >> $GITHUB_ENV
-      shell: bash
-
     - name: Run E2E tests
+      if: ${{ !startsWith(inputs.env-name, 'trialfrontend') }}
       working-directory: frontend-react
       env:
         TEST_ADMIN_USERNAME: ${{ inputs.test-admin-user }}
@@ -114,7 +114,7 @@ runs:
 
     - name: Store E2E Results
       uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
-      if: always()
+      if: always() && ${{ !startsWith(inputs.env-name, 'trialfrontend') }}
       with:
         name: e2e-data
         path: frontend-react/e2e-data/

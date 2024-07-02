@@ -107,7 +107,7 @@ test.describe(
                 aggregateHref.map((href) => validateLink(href)),
             );
 
-            if (isFrontendWarningsLog) {
+            if (isFrontendWarningsLog && warnings.length > 0) {
                 fs.writeFileSync(
                     frontendWarningsLogPath,
                     `${JSON.stringify(warnings)}\n`,
