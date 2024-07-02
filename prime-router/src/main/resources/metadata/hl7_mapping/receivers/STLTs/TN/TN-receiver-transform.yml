@@ -42,8 +42,8 @@ elements:
 
   - name: tn-receiving-facility-universal-id
     value: [ '"2.16.840.1.113883.3.773"' ]
-    hl7Spec: [ '%{MSH}-5-2' ]
+    hl7Spec: [ '%{MSH}-6-2' ]
 
   - name: tn-receiving-facility-universal-id-type
     value: [ '"ISO"' ]
-    hl7Spec: [ '%{MSH}-5-3' ]
+    hl7Spec: [ '%{MSH}-6-3' ]
