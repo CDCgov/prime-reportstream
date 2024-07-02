@@ -15,19 +15,19 @@ class NullTransport : ITransport {
         transportType: TransportType,
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
+        externalFileName: String,
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
     ): RetryItems? {
         if (header.content == null) error("No content for report ${header.reportFile.reportId}")
         val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
-        val fileName = Report.formExternalFilename(header)
         val msg = "Sending to Null Transport"
         actionHistory.trackActionResult(msg)
         actionHistory.trackSentReport(
             receiver,
             sentReportId,
-            fileName,
+            externalFileName,
             transportType.toString(),
             msg,
             header
