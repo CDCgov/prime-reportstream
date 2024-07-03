@@ -630,6 +630,14 @@ tasks.register("quickRun") {
     tasks["dokkaHtml"].enabled = false
 }
 
+tasks.register("tiQuickRun") {
+    group = rootProject.description ?: ""
+    description =
+        "Set the ETOR_TI_baseurl (only used for certain calls to the Trusted Intermediary service), then run quickrun"
+    env["ETOR_TI_baseurl"] = "http://host.docker.internal:8080"
+    dependsOn("quickRun")
+}
+
 /**
  * Database related configuration and tasks
  */
