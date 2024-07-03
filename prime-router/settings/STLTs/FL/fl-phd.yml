@@ -26,17 +26,7 @@
         receivingFacilityOID: "2.16.840.1.114222.1.3645"
         messageProfileId: null
         replaceValue: {}
-<<<<<<< oo/oslynn/14694/FL_UP_Migration_Validate_Test_Data
         replaceValueAwithB: {}
-=======
-        replaceValueAwithB:
-          MSH-6:
-            - '*': "FDOH^2.16.840.1.114222.1.3645^ISO"
-          MSH-5:
-            - '*': "FDOH-ELR^2.16.840.1.114222.4.3.3.8.1.3^ISO"
-          MSH-3:
-            - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
->>>>>>> master
         reportingFacilityName: null
         reportingFacilityId: null
         reportingFacilityIdType: null
@@ -86,13 +76,7 @@
       routingFilter: []
       processingModeFilter: []
       reverseTheQualityFilter: false
-<<<<<<< oo/oslynn/14694/FL_UP_Migration_Validate_Test_Data
       conditionFilter: []
-=======
-      conditionFilter:
-        # Accept COVID only
-        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
->>>>>>> master
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
