@@ -92,7 +92,7 @@ import site from "../../content/site.json";
                         title: "What conditions can I send or receive?",
                         content: (<>
                             <p>
-                            ReportStream now supports mpox, COVID, and flu data, and we are building support for RSV and more conditions.
+                            ReportStream now supports all reportable conditions. We are currently receiving data for COVID, mpox, flu, and RSV.
                             </p>
                         </>)
                     },
@@ -110,17 +110,14 @@ import site from "../../content/site.json";
 
                             <p>
                             If you are a <b>healthcare organization</b>, ReportStream and SimpleReport offer two different
-                            ways to send your data. ReportStream uses an API connection to send your data to public health
-                            departments. You can send an HL7 or CSV file through our API. Some technical expertise is required
-                            to set up an API connection. If you currently send data via SFTP, this may be a process you are
-                            familiar with. Depending on your resources, capacity, and requirements, it takes about a month
-                            to establish an API connection with ReportStream.
+                            ways to send your data. ReportStream uses an API connection to send HL7 and FHIR data to public health
+                            departments. Some technical expertise is required to set up an API connection. 
+                            If you currently send data via SFTP, this may be a process you are familiar with.
                             </p>
 
                             <p>
-                            <A href="https://www.simplereport.gov">SimpleReport</A> can be used for manual reporting or CSV
-                            upload. Because there is no technical setup, onboarding is quicker and simpler than for
-                            ReportStream.
+                            <A href="https://www.simplereport.gov">SimpleReport</A> can be used for manual, single entry reporting or CSV
+                            upload. There is no technical experience necessary to use SimpleReport.
                             </p>
 
                             <p>Both SimpleReport and ReportStream are free.</p>
@@ -164,7 +161,7 @@ import site from "../../content/site.json";
                         <CardBody>
                             - [About us](/about)
                             - [Security](/about/security)
-                            - [Getting started](/getting-started)
+                            - [Product roadmap](/about/roadmap)
                         </CardBody>
                     </Card>
                 </CardGroup>
@@ -220,14 +217,6 @@ import site from "../../content/site.json";
                         </p>)
                     },
                     {
-                        id: "where-can-i-find-a-reportstream-standard-csv-sample-file",
-                        headingLevel: "h4",
-                        title: "Where can I find a ReportStream standard CSV sample file?",
-                        content: (<p>
-                            Download the <A href="https://reportstream.cdc.gov/assets/csv/ReportStream-StandardCSV-ExampleData-20220509.csv">CSV sample file</A>.
-                        </p>)
-                    },
-                    {
                         id: "how-do-i-set-up-my-public-private-key-pair",
                         headingLevel: "h4",
                         title: "How do I set up my public/private key pair?",
@@ -245,9 +234,7 @@ import site from "../../content/site.json";
                         content: (<p>
                             <A href="https://loinc.org/get-started/what-loinc-is/">LOINC</A> codes help distinguish between
                             different types of disease-specific tests. These codes are necessary when setting up data
-                            formatting to send data through ReportStream. Read more about {" "}
-                            <A href="/developer-resources/api/documentation/data-model">our data model</A> to see how LOINC codes are
-                            used in ReportStream.
+                            formatting to send data through ReportStream.
                         </p>)
                     },
                     {
@@ -312,6 +299,32 @@ import site from "../../content/site.json";
 
                 <Accordion multiselectable items={[
                     {
+                        id: "how-can-i-start-sending-or-receiving-more-conditions",
+                        headingLevel: "h4",
+                        title: "How can I start sending or receiving more conditions?",
+                        content: (<>
+                        <p>
+                            If you are interested in additional conditions, <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957">let us know</A> more about your needs. Our team will work with you on a plan based on your needs and capacity. Your connection may need some initial updates to be able to support the new conditions. 
+                        </p>
+                        <p>
+                            We test the messages based on the requirements of public health entities receiving the data. No data will go live until those testing requirements are met.
+                        </p>
+                        </>)
+                    },
+                    {
+                        id: "can-public-health-departments-receive-a-report-on-facilities-reporting-them",
+                        headingLevel: "h4",
+                        title: "Can public health departments receive a report on facilities reporting them?",
+                        content: (<><p>
+                            You can view details on the data you have received by logging in and viewing your <A href="/daily-data">Daily Data</A>. {" "}
+                            <A href={site.forms.contactUs.url}>Contact us</A> if you need an account or help viewing the dashboard.
+                        </p>
+                        <p>
+                            To view facilities reporting through SimpleReport, <A href="mailto:support@simplereport.gov">contact SimpleReport</A> to request a CLIA dashboard.
+                        </p>
+                        </>)
+                    },
+                    {
                         id: "how-do-i-stop-receiving-negative-test-results",
                         headingLevel: "h4",
                         title: "How do I stop receiving negative test results?",
@@ -357,30 +370,6 @@ import site from "../../content/site.json";
                         title: "How do I manage team member accounts?",
                         content: (<p>
                             ReportStream manually manages user accounts for your team. To add or remove team members, <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">contact us</A>.
-                        </p>)
-                    },
-                    {
-                        id: "how-can-i-start-sending-or-receiving-more-conditions",
-                        headingLevel: "h4",
-                        title: "How can I start sending or receiving more conditions?",
-                        content: (<>
-                        <p>
-                            If you are a public health entity only receiving COVID or mpox data, we’ll contact you about next steps. If you haven’t heard from our team yet, <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957">let us know</A> you are ready to get started. You’ll need to answer some questions about your data requirements and confirm your current settings.
-                        </p>
-                        <p>
-                            We test the messages based on your requirements. No data will go live until your testing requirements are met. As we build capacity for more conditions, we will always check your requirements and testing process for those conditions.
-                        </p>
-                        <p>
-                            Health care organizations can begin sending flu and RSV data directly through ReportStream later in 2024. If your organization has a ReportStream connection, we’ll contact you about next steps closer to release.</p>
-                        </>)
-                    },
-                    {
-                        id: "can-public-health-departments-receive-a-report-on-facilities-reporting-them",
-                        headingLevel: "h4",
-                        title: "Can public health departments receive a report on facilities reporting them?",
-                        content: (<p>
-                            You can view details on the data you have received by logging in and viewing your Daily Data. {" "}
-                            <A href={site.forms.contactUs.url}>Contact us</A> if you need an account or to request a report.
                         </p>)
                     },
                 ]} />
