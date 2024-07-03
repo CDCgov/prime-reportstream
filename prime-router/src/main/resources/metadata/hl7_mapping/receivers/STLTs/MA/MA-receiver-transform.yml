@@ -1,14 +1,8 @@
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
 extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
-<<<<<<< oo/oslynn/14694/FL_UP_Migration_Validate_Test_Data
 constants:
   PID: '/PATIENT_RESULT/PATIENT/PID'
-  ORC: '/PATIENT_RESULT/ORDER_OBSERVATION/ORC'
-  OBR: '/PATIENT_RESULT/ORDER_OBSERVATION/OBR'
-  SPM: '/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM'
-=======
->>>>>>> master
 
 elements:
 
@@ -17,64 +11,58 @@ elements:
     value: [ '"NET"' ]
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
-  - name: fl-name-of-the-sender-application-Namespace-Id
+  - name: ma-name-of-the-sender-application-Namespace-Id
     condition: 'true'
     value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
     hl7Spec: [ 'MSH-3-1' ]
 
-  - name: fl-sender-application-Universal-Id
+  - name: ma-sender-application-Universal-Id
     condition: 'true'
     value: [ '"2.16.840.1.114222.4.1.237821"' ]
     hl7Spec: [ 'MSH-3-2' ]
 
-  - name: fl-sender-application-Universal-Id-Type
+  - name: ma-sender-application-Universal-Id-Type
     condition: 'true'
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-3-3' ]
 
-  - name: fl-name-of-the-receiving-application
+  - name: ma-name-of-the-receiving-application
     condition: 'true'
-    value: [ '"FDOH-ELR"' ]
+    value: [ '"MA-MDPH"' ]
     hl7Spec: [ 'MSH-5-1' ]
 
-  - name: fl-OID-of-the-receiving-application
+  - name: ma-OID-of-the-receiving-application
     condition: 'true'
-    value: [ '"2.16.840.1.114222.4.3.3.8.1.3"' ]
+    value: [ '"2.16.840.1.113883.19.3.2"' ]
     hl7Spec: [ 'MSH-5-2' ]
 
-  - name: fl-indicates-that-5.2-is-an-OID
+  - name: ma-indicates-that-5.2-is-an-OID
     condition: 'true'
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-5-3' ]
 
-  - name: fl-receiving-facility-namespace-ID
+  - name: ma-receiving-facility-namespace-ID
     condition: 'true'
-    value: [ '"FDOH"' ]
+    value: [ '"MA-MDPH"' ]
     hl7Spec: [ 'MSH-6-1' ]
 
-  - name: fl-receiving-facility-universal-ID
+  - name: ma-receiving-facility-universal-ID
     condition: 'true'
-    value: [ '"2.16.840.1.114222.1.3645"' ]
+    value: [ '"2.16.840.1.113883.19.3.2"' ]
     hl7Spec: [ 'MSH-6-2' ]
 
-  - name: fl-receiving-facility-universal-ID-Type
+  - name: ma-receiving-facility-universal-ID-Type
     condition: 'true'
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-6-3' ]
 
-  - name: fl-patient-race-coding-system
+  - name: ma-patient-race-coding-system
     resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
     condition: '%resource.code.exists()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
-<<<<<<< oo/oslynn/14694/FL_UP_Migration_Validate_Test_Data
     hl7Spec: [ '%{PID}-10-3' ]
 
-  # Blank out all these sine they are not in the original COVID-19 message
-  - name: fl-unwanted-fields
+  - name: ma-suppress-Hl7-Fields
     condition: 'true'
     value: [ '""' ]
-    hl7Spec: [ '%{PID}-10-9', '%{PID}-13-12', '%{PID}-22-9', '%{ORC}-14-12', '%{ORC}-21-6', '%{ORC}-21-7', '%{ORC}-23-12', '%{OBR}-17-12', '%{SPM}-4-9', '%{SPM}-8-9'  ]
-=======
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
->>>>>>> master
-
+    hl7Spec: [ '%{PID}-20' ]
