@@ -10,7 +10,7 @@
       organizationName: vi-doh
       topic: full-elr
       customerStatus: active
-      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'VI') or (%patientState.exists() and %patientState = 'VI')" ]
+      jurisdictionalFilter: [ "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'VI') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'VI')" ]
       qualityFilter: [ ]
       conditionFilter: [ ]
       timing:

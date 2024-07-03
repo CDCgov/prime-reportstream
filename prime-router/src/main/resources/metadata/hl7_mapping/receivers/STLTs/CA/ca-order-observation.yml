@@ -20,4 +20,4 @@ elements:
 
   - name: ca-specimen
     schema: classpath:/metadata/hl7_mapping/receivers/STLTs/CA/ca-specimen.yml
-    resource: '%specimen.where(extension(%`rsext-hl7v2Segment`).value = "SPM") | %specimen.where(extension(%`rsext-hl7v2Segment`).exists().not())'
+    resource: 'Bundle.entry.resource.ofType(Specimen).where(extension(%`rsext-hl7v2Segment`).value = "SPM") | Bundle.entry.resource.ofType(Specimen).where(extension(%`rsext-hl7v2Segment`).exists().not())'
