@@ -30,11 +30,9 @@ import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import gov.cdc.prime.router.metadata.LookupTable
-import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
@@ -46,6 +44,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
 
+// TODO: deprecated (see https://github.com/CDCgov/prime-reportstream/issues/15039)
 class FhirFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
@@ -53,7 +52,6 @@ class FhirFunctionTests {
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val timing1 = mockkClass(Receiver.Timing::class)
-    val reportServiceMock = mockk<ReportService>()
 
     val oneOrganization = DeepOrganization(
         "phd", "test", Organization.Jurisdiction.FEDERAL,
@@ -195,7 +193,7 @@ class FhirFunctionTests {
         }
     }
 
-    // TODO: deprecated
+    // TODO: deprecated (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     // test route-fhir
     @Test
     fun `test route-fhir`() {

@@ -26,11 +26,8 @@ import gov.cdc.prime.router.azure.db.tables.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
-import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.fhirengine.azure.FHIRFunctions
-import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
-import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
@@ -231,39 +228,43 @@ object UniversalPipelineTestUtils {
         ),
     )
 
-    fun verifyLineageAndFetchCreatedReportFiles(
-        previousStepReport: Report,
+    /**
+     * fetch child reports associated with a [parent] report and ensure we find an [expected] number of children
+     */
+    fun fetchChildReports(
+        parent: Report,
         txn: DataAccessTransaction,
-        expectedNumberOfItems: Int,
+        expected: Int? = null,
     ): List<ReportFile> {
         val itemLineages = DSL
             .using(txn)
             .select(ItemLineage.ITEM_LINEAGE.asterisk())
             .from(ItemLineage.ITEM_LINEAGE)
-            .where(ItemLineage.ITEM_LINEAGE.PARENT_REPORT_ID.eq(previousStepReport.id))
+            .where(ItemLineage.ITEM_LINEAGE.PARENT_REPORT_ID.eq(parent.id))
             .fetchInto(gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage::class.java)
-        assertThat(itemLineages).hasSize(expectedNumberOfItems)
-        assertThat(itemLineages.map { it.childIndex }).isEqualTo(MutableList(expectedNumberOfItems) { 1 })
 
-        // if the previousStepReport had multiple items, then the parent indexes will be a list of numbers
-        // starting at "1" and ascending by one for every item. if the previousStepReport had one item but
-        // that item goes to multiple places then the parent index will always be "1".
-        // for example - the result of the "convert" step will fall into the if block. The result of a "route"
-        // step will fall into the "else" block because the preceding "convert" step will always create
-        // reports with one and only one item to be routed.
-        if (previousStepReport.itemCount > 1) {
-            assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expectedNumberOfItems).toList())
-        } else {
-            assertThat(itemLineages.map { it.parentIndex }).isEqualTo(MutableList(expectedNumberOfItems) { 1 })
+        if (expected != null) {
+            assertThat(itemLineages).hasSize(expected)
+            assertThat(itemLineages.map { it.childIndex }).isEqualTo(MutableList(expected) { 1 })
+
+            if (parent.itemCount > 1) {
+                assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expected).toList())
+            } else {
+                assertThat(itemLineages.map { it.parentIndex }).isEqualTo(MutableList(expected) { 1 })
+            }
         }
 
         val reportLineages = DSL
             .using(txn)
             .select(ReportLineage.REPORT_LINEAGE.asterisk())
             .from(ReportLineage.REPORT_LINEAGE)
-            .where(ReportLineage.REPORT_LINEAGE.PARENT_REPORT_ID.eq(previousStepReport.id))
+            .where(ReportLineage.REPORT_LINEAGE.PARENT_REPORT_ID.eq(parent.id))
             .fetchInto(gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage::class.java)
-        assertThat(reportLineages).hasSize(expectedNumberOfItems)
+
+        if (expected != null) {
+            assertThat(reportLineages).hasSize(expected)
+        }
+
         val childReportIds = reportLineages.map {
             it.childReportId
         }
@@ -277,14 +278,16 @@ object UniversalPipelineTestUtils {
                 )
             )
             .fetchInto(ReportFile::class.java)
-        assertThat(reportFiles).hasSize(expectedNumberOfItems)
+        if (expected != null) {
+            assertThat(reportFiles).hasSize(expected)
+        }
         assertThat(itemLineages).transform { lineages -> lineages.map { it.childReportId }.sorted() }
             .isEqualTo(reportFiles.map { it.reportId }.sorted())
 
         return reportFiles
     }
 
-    // TODO: deprecated remove while cleaning up route step (#????)
+    // TODO: deprecated (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     fun verifyLineageAndFetchCreatedReportFiles(
         previousStepReport: Report,
         expectedRootReport: Report,
@@ -407,73 +410,6 @@ object UniversalPipelineTestUtils {
         return FHIRFunctions(workflowEngine, databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess)
     }
 
-    fun createDestinationFilter(
-        azureEventService: AzureEventService,
-        org: DeepOrganization? = null,
-    ): FHIRDestinationFilter {
-        val settings = FileSettings().loadOrganizations(org ?: universalPipelineOrganization)
-        val metadata = UnitTestUtils.simpleMetadata
-        metadata.lookupTableStore += mapOf(
-            "observation-mapping" to LookupTable("observation-mapping", emptyList())
-        )
-        return FHIRDestinationFilter(
-            metadata,
-            settings,
-            reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess)),
-            azureEventService = azureEventService
-        )
-    }
-
-    fun createReceiverFilter(
-        azureEventService: AzureEventService,
-        org: DeepOrganization? = null,
-    ): FHIRReceiverFilter {
-        val settings = FileSettings().loadOrganizations(org ?: universalPipelineOrganization)
-        val metadata = UnitTestUtils.simpleMetadata
-        metadata.lookupTableStore += mapOf(
-            "observation-mapping" to LookupTable("observation-mapping", emptyList())
-        )
-        return FHIRReceiverFilter(
-            metadata,
-            settings,
-            reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess)),
-            azureEventService = azureEventService
-        )
-    }
-
-    fun generateQueueMessage(action: TaskAction, report: Report, blobContents: String, sender: Sender): String {
-        return """
-            {
-                "type": "${action.literal}",
-                "reportId": "${report.id}",
-                "blobURL": "${report.bodyURL}",
-                "digest": "${BlobAccess.digestToString(BlobAccess.sha256Digest(blobContents.toByteArray()))}",
-                "blobSubFolderName": "${sender.fullName}",
-                "topic": "${sender.topic.jsonVal}",
-                "schemaName": "${sender.schemaName}" 
-            }
-        """.trimIndent()
-    }
-
-    fun generateReceiverQueueMessage(
-        report: Report,
-        blobContents: String,
-        sender: Sender,
-        receiverName: String,
-    ): String {
-        return """
-            {
-                "type": "${TaskAction.receiver_filter.literal}",
-                "reportId": "${report.id}",
-                "blobURL": "${report.bodyURL}",
-                "digest": "${BlobAccess.digestToString(BlobAccess.sha256Digest(blobContents.toByteArray()))}",
-                "blobSubFolderName": "${sender.fullName}",
-                "topic": "${sender.topic.jsonVal}",
-                "receiverFullName": "$receiverName" 
-            }
-        """.trimIndent()
-    }
-
     fun getBlobContainerMetadata(azuriteContainer: GenericContainer<*>): BlobAccess.BlobContainerMetadata {
         val blobConnectionString =
             """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;
@@ -591,6 +527,9 @@ object UniversalPipelineTestUtils {
         return report
     }
 
+    /**
+     * check the action table for a list of [expectedTaskActions]
+     */
     fun checkActionTable(expectedTaskActions: List<TaskAction>) {
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val actionRecords = DSL.using(txn)

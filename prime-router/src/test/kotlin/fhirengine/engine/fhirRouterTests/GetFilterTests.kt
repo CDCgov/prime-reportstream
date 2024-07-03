@@ -34,6 +34,7 @@ import kotlin.test.assertTrue
 private const val ORGANIZATION_NAME = "co-phd"
 private const val RECEIVER_NAME = "full-elr-hl7"
 
+// TODO: deprecated (see https://github.com/CDCgov/prime-reportstream/issues/15039)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GetFilterTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }

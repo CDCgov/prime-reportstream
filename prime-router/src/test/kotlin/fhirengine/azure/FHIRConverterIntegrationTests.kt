@@ -25,12 +25,12 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fetchChildReports
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransform
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.hl7Sender
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.hl7SenderWithNoTransform
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.senderWithValidation
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.universalPipelineOrganization
-import gov.cdc.prime.router.common.UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles
 import gov.cdc.prime.router.common.badEncodingHL7Record
 import gov.cdc.prime.router.common.cleanHL7Record
 import gov.cdc.prime.router.common.cleanHL7RecordConverted
@@ -225,7 +225,7 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, txn, 2)
+            val routedReports = fetchChildReports(receiveReport, txn, 2)
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -345,7 +345,7 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, txn, 2)
+            val routedReports = fetchChildReports(receiveReport, txn, 2)
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -424,7 +424,7 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, txn, 1)
+            val routedReports = fetchChildReports(receiveReport, txn, 1)
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -496,7 +496,7 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, txn, 2)
+            val routedReports = fetchChildReports(receiveReport, txn, 2)
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -571,7 +571,7 @@ class FHIRConverterIntegrationTests {
             QueueAccess.sendMessage(any(), any())
         }
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            verifyLineageAndFetchCreatedReportFiles(receiveReport, txn, 1)
+            fetchChildReports(receiveReport, txn, 1)
         }
     }
 }

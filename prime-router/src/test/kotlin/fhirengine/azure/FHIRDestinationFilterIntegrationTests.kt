@@ -9,7 +9,11 @@ import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.isInstanceOf
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportStreamFilter
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
@@ -17,6 +21,7 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
@@ -26,9 +31,14 @@ import gov.cdc.prime.router.common.UniversalPipelineTestUtils
 import gov.cdc.prime.router.common.validFHIRRecord1
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
+import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
 import gov.cdc.prime.router.fhirengine.engine.FhirReceiverFilterQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrReceiverFilterQueueName
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.history.db.ReportGraph
+import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.report.ReportService
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
@@ -51,12 +61,10 @@ private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/valid_d
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
 class FHIRDestinationFilterIntegrationTests : Logging {
     // patient must reside in Colorado
-    val jurisdictionalFilterCo: ReportStreamFilter =
-        listOf("Bundle.entry.resource.ofType(Patient).address.state='CO'")
+    val jurisdictionalFilterCo: ReportStreamFilter = listOf("Bundle.entry.resource.ofType(Patient).address.state='CO'")
 
     // patient must reside in Illinois
-    val jurisdictionalFilterIl: ReportStreamFilter =
-        listOf("Bundle.entry.resource.ofType(Patient).address.state='IL'")
+    val jurisdictionalFilterIl: ReportStreamFilter = listOf("Bundle.entry.resource.ofType(Patient).address.state='IL'")
 
     @Container
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
@@ -71,18 +79,14 @@ class FHIRDestinationFilterIntegrationTests : Logging {
     @BeforeEach
     fun beforeEach() {
         mockkObject(QueueAccess)
-        every { QueueAccess.sendMessage(any(), any()) } returns Unit
         mockkObject(BlobAccess)
+        mockkObject(BlobAccess.BlobContainerMetadata)
+
+        every { QueueAccess.sendMessage(any(), any()) } returns Unit
         every { BlobAccess getProperty "defaultBlobMetadata" } returns UniversalPipelineTestUtils
             .getBlobContainerMetadata(azuriteContainer)
-        mockkObject(BlobAccess.BlobContainerMetadata)
-        every {
-            BlobAccess.BlobContainerMetadata.build(
-                any(),
-                any()
-            )
-        } returns UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
-        // TODO consider not mocking DatabaseLookupTableAccess
+        every { BlobAccess.BlobContainerMetadata.build(any(), any()) } returns
+            UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
         mockkConstructor(DatabaseLookupTableAccess::class)
     }
 
@@ -90,6 +94,37 @@ class FHIRDestinationFilterIntegrationTests : Logging {
     fun afterEach() {
         unmockkAll()
         azureEventsService.events.clear()
+    }
+
+    fun createDestinationFilter(
+        azureEventService: AzureEventService,
+        org: DeepOrganization? = null,
+    ): FHIRDestinationFilter {
+        val settings = FileSettings().loadOrganizations(org ?: UniversalPipelineTestUtils.universalPipelineOrganization)
+        val metadata = UnitTestUtils.simpleMetadata
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable("observation-mapping", emptyList())
+        )
+        return FHIRDestinationFilter(
+            metadata,
+            settings,
+            reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess)),
+            azureEventService = azureEventService
+        )
+    }
+
+    fun generateQueueMessage(action: TaskAction, report: Report, blobContents: String, sender: Sender): String {
+        return """
+            {
+                "type": "${action.literal}",
+                "reportId": "${report.id}",
+                "blobURL": "${report.bodyURL}",
+                "digest": "${BlobAccess.digestToString(BlobAccess.sha256Digest(blobContents.toByteArray()))}",
+                "blobSubFolderName": "${sender.fullName}",
+                "topic": "${sender.topic.jsonVal}",
+                "schemaName": "${sender.schemaName}" 
+            }
+        """.trimIndent()
     }
 
     @Test
@@ -102,15 +137,13 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             Event.EventAction.DESTINATION_FILTER,
             azuriteContainer
         )
-        val queueMessage = UniversalPipelineTestUtils.generateQueueMessage(
+        val queueMessage = generateQueueMessage(
             TaskAction.destination_filter,
             report,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform
         )
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
-
-        // execute
         val receiverList = UniversalPipelineTestUtils.createReceivers(
             listOf(
                 UniversalPipelineTestUtils.ReceiverSetupData(
@@ -142,16 +175,15 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 )
             )
         )
-
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receiverList)
-        val destinationFilter = UniversalPipelineTestUtils.createDestinationFilter(azureEventsService, org)
+        val destinationFilter = createDestinationFilter(azureEventsService, org)
+
+        // execute
         fhirFunctions.doDestinationFilter(queueMessage, 1, destinationFilter)
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            // did the report get pushed to blob store correctly and intact?
-            val routedReports = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(report, txn, 2)
-
+            val routedReports = UniversalPipelineTestUtils.fetchChildReports(report, txn, 2)
             val routedBundles = routedReports.map {
                 String(
                     BlobAccess.downloadBlobAsByteArray(
@@ -160,10 +192,9 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 )
                 )
             }
-
             assertThat(routedBundles).containsOnly(validFHIRRecord1)
 
-            // is the queue messaging what we expect it to be?
+            // check queue message
             val expectedRouteQueueMessages = routedReports.flatMap { report ->
                 listOf(
                     FhirReceiverFilterQueueMessage(
@@ -226,15 +257,13 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             Event.EventAction.DESTINATION_FILTER,
             azuriteContainer
         )
-        val queueMessage = UniversalPipelineTestUtils.generateQueueMessage(
+        val queueMessage = generateQueueMessage(
             TaskAction.destination_filter,
             report,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform
         )
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
-
-        // execute
         val receivers = UniversalPipelineTestUtils.createReceivers(
             listOf(
                 UniversalPipelineTestUtils.ReceiverSetupData(
@@ -244,24 +273,21 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             )
         )
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
-        val destinationFilter = UniversalPipelineTestUtils.createDestinationFilter(azureEventsService, org)
+        val destinationFilter = createDestinationFilter(azureEventsService, org)
+
+        // execute
         fhirFunctions.doDestinationFilter(queueMessage, 1, destinationFilter)
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-
-            // did the report get pushed to blob store correctly and intact?
-            val routedReport = UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles(report, txn, 1)
-                .single()
-
+            val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1).single()
             val routedBundle = BlobAccess.downloadBlobAsByteArray(
                 routedReport.bodyUrl,
                 UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
             )
-
             assertThat(reportContents).isEqualTo(String(routedBundle))
 
-            // is the queue messaging what we expect it to be?
+            // check queue message
             val expectedQueueMessage = FhirReceiverFilterQueueMessage(
                 routedReport.reportId,
                 routedReport.bodyUrl,
@@ -309,15 +335,13 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             Event.EventAction.DESTINATION_FILTER,
             azuriteContainer
         )
-        val queueMessage = UniversalPipelineTestUtils.generateQueueMessage(
+        val queueMessage = generateQueueMessage(
             TaskAction.destination_filter,
             report,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform
         )
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
-
-        // execute
         val receiverSetupData = listOf(
             UniversalPipelineTestUtils.ReceiverSetupData(
                 "x",
@@ -326,7 +350,9 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         )
         val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
-        val destinationFilter = UniversalPipelineTestUtils.createDestinationFilter(azureEventsService, org)
+        val destinationFilter = createDestinationFilter(azureEventsService, org)
+
+        // execute
         fhirFunctions.doDestinationFilter(queueMessage, 1, destinationFilter)
 
         // no messages should have been routed due to filter
@@ -343,7 +369,6 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 .select(Tables.ACTION_LOG.asterisk())
                 .from(Tables.ACTION_LOG)
                 .fetchInto(ActionLog::class.java)
-
             assertThat(actionLogRecords).isEmpty()
         }
 

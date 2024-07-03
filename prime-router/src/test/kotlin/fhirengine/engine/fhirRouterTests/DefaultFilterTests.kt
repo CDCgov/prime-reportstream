@@ -39,6 +39,7 @@ import java.io.ByteArrayInputStream
 import java.io.File
 import kotlin.test.Test
 
+// TODO: deprecated (see https://github.com/CDCgov/prime-reportstream/issues/15039)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DefaultFilterTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
