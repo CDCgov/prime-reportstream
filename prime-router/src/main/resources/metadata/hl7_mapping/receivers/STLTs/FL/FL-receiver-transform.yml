@@ -1,14 +1,11 @@
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
 extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
-<<<<<<< oo/oslynn/14694/FL_UP_Migration_Validate_Test_Data
 constants:
   PID: '/PATIENT_RESULT/PATIENT/PID'
   ORC: '/PATIENT_RESULT/ORDER_OBSERVATION/ORC'
   OBR: '/PATIENT_RESULT/ORDER_OBSERVATION/OBR'
   SPM: '/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM'
-=======
->>>>>>> master
 
 elements:
 
@@ -66,7 +63,6 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
     condition: '%resource.code.exists()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
-<<<<<<< oo/oslynn/14694/FL_UP_Migration_Validate_Test_Data
     hl7Spec: [ '%{PID}-10-3' ]
 
   # Blank out all these sine they are not in the original COVID-19 message
@@ -74,7 +70,5 @@ elements:
     condition: 'true'
     value: [ '""' ]
     hl7Spec: [ '%{PID}-10-9', '%{PID}-13-12', '%{PID}-22-9', '%{ORC}-14-12', '%{ORC}-21-6', '%{ORC}-21-7', '%{ORC}-23-12', '%{OBR}-17-12', '%{SPM}-4-9', '%{SPM}-8-9'  ]
-=======
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
->>>>>>> master
+    
 
