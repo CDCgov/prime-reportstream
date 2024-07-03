@@ -4,7 +4,7 @@
   stateCode: "DE"
   countyName: null
   filters:
-  - topic: "full-elr"
+  - topic: "covid-19"
     jurisdictionalFilter:
     - "orEquals(ordering_facility_state, DE, patient_state, DE)"
     qualityFilter:
