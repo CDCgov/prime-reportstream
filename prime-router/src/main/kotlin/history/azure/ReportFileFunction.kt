@@ -40,7 +40,7 @@ import java.util.logging.Logger
  * @property workflowEngine Container for helpers and accessors used when dealing with the workflow.
  */
 abstract class ReportFileFunction(
-    private val reportFileFacade: ReportFileFacade,
+    val reportFileFacade: ReportFileFacade,
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
 
