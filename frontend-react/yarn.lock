@@ -2468,9 +2468,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-signin-widget@npm:^7.19.4":
-  version: 7.19.4
-  resolution: "@okta/okta-signin-widget@npm:7.19.4"
+"@okta/okta-signin-widget@npm:^7.19.6":
+  version: 7.19.6
+  resolution: "@okta/okta-signin-widget@npm:7.19.6"
   dependencies:
     "@okta/okta-auth-js": ^7.7.0
     "@sindresorhus/to-milliseconds": ^1.0.0
@@ -2494,7 +2494,7 @@ __metadata:
   dependenciesMeta:
     fsevents:
       optional: true
-  checksum: 1550a589b9cd317e147a04e351f57b66cb4315a8517b67fe8ef5579b7a842d849ae7310dc2306f272fe3f72257e576dd33cdf2c70416bc9820ddab6046b1875e
+  checksum: 7840d2ca6089cbc65baa4a9d267a7843bcd08da58851db787ae1f004eaabba8aa282e744a1d7c173b0cf6bba573dba035b77593290f628467e50bde143198178
   languageName: node
   linkType: hard
 
@@ -4041,40 +4041,40 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.45.0":
-  version: 5.45.0
-  resolution: "@tanstack/query-core@npm:5.45.0"
-  checksum: a3c13d90cfa12955d22fa754ebfddbea70081fc0128111083269bdd78ed0d25678f050007b753164a929a00fdef9ee5ebba945deb8e360120ae3cbae06e655a5
+"@tanstack/query-core@npm:5.49.1":
+  version: 5.49.1
+  resolution: "@tanstack/query-core@npm:5.49.1"
+  checksum: 244ce65d0e47388073adaebac72feba6032b51458f35469941bddfe5cc5eb9d354a89c43e1e37c655d16c869effbd5edf05952810b64e39deede18560d4bac55
   languageName: node
   linkType: hard
 
-"@tanstack/query-devtools@npm:5.37.1":
-  version: 5.37.1
-  resolution: "@tanstack/query-devtools@npm:5.37.1"
-  checksum: 73ef22b9a8a747fe8187c79e6673ff55f7feba85d57f95fd5bdb1c93f57ba57a19cc4f3f81cfe81adb18b73753e4e9046d3684fbc5bdd757d869ac274cf6f950
+"@tanstack/query-devtools@npm:5.49.1":
+  version: 5.49.1
+  resolution: "@tanstack/query-devtools@npm:5.49.1"
+  checksum: ceeaa9fb27845308ead9ce5d15b2c39b01df2964b74b893003b149f3d5041a2f27737a5413eba34324c6afb994c9f63be2ddc25904286fffc7ac554118d563b8
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:^5.45.1":
-  version: 5.45.1
-  resolution: "@tanstack/react-query-devtools@npm:5.45.1"
+"@tanstack/react-query-devtools@npm:^5.49.2":
+  version: 5.49.2
+  resolution: "@tanstack/react-query-devtools@npm:5.49.2"
   dependencies:
-    "@tanstack/query-devtools": 5.37.1
+    "@tanstack/query-devtools": 5.49.1
   peerDependencies:
-    "@tanstack/react-query": ^5.45.1
+    "@tanstack/react-query": ^5.49.2
     react: ^18 || ^19
-  checksum: a13ca2451f1e199cc0db8f4fbf07a50de73413c25c0803d0bcd6b50ff54123ed20b84fcf89b98751405af4846a17d953746e1d13d67eec0b6ab54572f3cb623f
+  checksum: e01efaee30759248bc4a8abbf1147a34377f9a88edf0b040e9e9c7c093d3f0a96a8df9d8a10a560b5eb98fa578b23a65cba3def4781cb20eefbf358fca09a63b
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.45.1":
-  version: 5.45.1
-  resolution: "@tanstack/react-query@npm:5.45.1"
+"@tanstack/react-query@npm:^5.49.2":
+  version: 5.49.2
+  resolution: "@tanstack/react-query@npm:5.49.2"
   dependencies:
-    "@tanstack/query-core": 5.45.0
+    "@tanstack/query-core": 5.49.1
   peerDependencies:
     react: ^18.0.0
-  checksum: b5d8178ee1f4b1dd197a783e7f0eb4a7c0e9ef8fde18c73f71aee636cd57e742a1693a2cd2279fbfb3d6b04aa535212fba8b6c535f6ffc92d020938cc117796e
+  checksum: 8f96a1292a3ec1fb249a2606acb0a7dbbeb6c4f4c9f424b69997df8b7bcf506b62ce1b93bc57ca9154534f98e538166cc8822e3eaaccac4bb2393c9f17839fdd
   languageName: node
   linkType: hard
 
@@ -4579,10 +4579,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.14.167, @types/lodash@npm:^4.17.5":
+"@types/lodash@npm:^4.14.167":
   version: 4.17.5
   resolution: "@types/lodash@npm:4.17.5"
   checksum: 3c9bb15772509f0ecb40428531863dbc3f064f2bf34bbccc2ce2b2923c69fb0868aec7e357b1d97fd0d7f7e435a014ea5c1adef8a64715529887179c97a5a823
+  languageName: node
+  linkType: hard
+
+"@types/lodash@npm:^4.17.6":
+  version: 4.17.6
+  resolution: "@types/lodash@npm:4.17.6"
+  checksum: f748c672f49c54ee631a0fab6f26d56ab99bd68a4fb91604b5d7525a72102dd1917209c12d7078c988a375edb5dc70ca600db05ac01785306fd64470048cd16c
   languageName: node
   linkType: hard
 
@@ -7598,7 +7605,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild@npm:^0.21.3, esbuild@npm:~0.21.4":
+"esbuild@npm:^0.21.3, esbuild@npm:~0.21.5":
   version: 0.21.5
   resolution: "esbuild@npm:0.21.5"
   dependencies:
@@ -12640,6 +12647,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"postcss@npm:^8.4.39":
+  version: 8.4.39
+  resolution: "postcss@npm:8.4.39"
+  dependencies:
+    nanoid: ^3.3.7
+    picocolors: ^1.0.1
+    source-map-js: ^1.2.0
+  checksum: 14b130c90f165961772bdaf99c67f907f3d16494adf0868e57ef68baa67e0d1f6762db9d41ab0f4d09bab6fb7888588dba3596afd1a235fd5c2d43fba7006ac6
+  languageName: node
+  linkType: hard
+
 "prelude-ls@npm:^1.2.1":
   version: 1.2.1
   resolution: "prelude-ls@npm:1.2.1"
@@ -12990,7 +13008,7 @@ __metadata:
     "@microsoft/applicationinsights-react-js": ^17.3.0
     "@microsoft/applicationinsights-web": ^3.3.0
     "@okta/okta-react": ^6.9.0
-    "@okta/okta-signin-widget": ^7.19.4
+    "@okta/okta-signin-widget": ^7.19.6
     "@playwright/test": ^1.44.1
     "@rest-hooks/rest": ^3.0.3
     "@rest-hooks/test": ^7.3.1
@@ -13007,8 +13025,8 @@ __metadata:
     "@storybook/react-vite": ^8.1.10
     "@storybook/testing-library": ^0.2.2
     "@storybook/theming": ^8.1.10
-    "@tanstack/react-query": ^5.45.1
-    "@tanstack/react-query-devtools": ^5.45.1
+    "@tanstack/react-query": ^5.49.2
+    "@tanstack/react-query-devtools": ^5.49.2
     "@testing-library/dom": ^10.1.0
     "@testing-library/jest-dom": ^6.4.6
     "@testing-library/react": ^16.0.0
@@ -13019,7 +13037,7 @@ __metadata:
     "@types/downloadjs": ^1.4.6
     "@types/github-slugger": ^1.3.0
     "@types/html-to-text": ^9.0.4
-    "@types/lodash": ^4.17.5
+    "@types/lodash": ^4.17.6
     "@types/mdx": ^2.0.13
     "@types/node": ^20.12.5
     "@types/react": 18.3.3
@@ -13072,7 +13090,7 @@ __metadata:
     npm-run-all: ^4.1.5
     otpauth: ^9.3.1
     patch-package: ^8.0.0
-    postcss: ^8.4.38
+    postcss: ^8.4.39
     prettier: ^3.3.2
     react: ^18.3.1
     react-dom: ^18.3.1
@@ -13093,14 +13111,14 @@ __metadata:
     remark-mdx-toc: ^0.3.1
     rest-hooks: ^6.1.7
     sanitize-html: ^2.13.0
-    sass: ^1.77.5
+    sass: ^1.77.6
     storybook: ^8.1.10
     storybook-addon-remix-react-router: ^3.0.0
     ts-node: ^10.9.2
     tslib: ^2.6.3
-    tsx: ^4.10.4
+    tsx: ^4.16.2
     typescript: ^5.4.5
-    undici: ^6.19.0
+    undici: ^6.19.2
     use-deep-compare-effect: ^1.8.1
     uuid: ^10.0.0
     vite: ^5.3.1
@@ -13990,16 +14008,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass@npm:^1.77.5":
-  version: 1.77.5
-  resolution: "sass@npm:1.77.5"
+"sass@npm:^1.77.6":
+  version: 1.77.6
+  resolution: "sass@npm:1.77.6"
   dependencies:
     chokidar: ">=3.0.0 <4.0.0"
     immutable: ^4.0.0
     source-map-js: ">=0.6.2 <2.0.0"
   bin:
     sass: sass.js
-  checksum: 32bea7558000933c69abdcc5377a213187f845ed730efb352bfb6189970376c81868d3a1beed05654d0b37ff56df2a9b763a3c135407f99619fc1f93db5a7a32
+  checksum: 9bd1cb9ec1f10b7df83ed6a4b3d8764fe9174ee422f1ea21c51bcd953f710deee57c649269f9cb1ad1e9dcc3b87efee62cd2b36aca9cc646d44fd9179300d5f3
   languageName: node
   linkType: hard
 
@@ -15141,11 +15159,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsx@npm:^4.10.4":
-  version: 4.15.6
-  resolution: "tsx@npm:4.15.6"
+"tsx@npm:^4.16.2":
+  version: 4.16.2
+  resolution: "tsx@npm:4.16.2"
   dependencies:
-    esbuild: ~0.21.4
+    esbuild: ~0.21.5
     fsevents: ~2.3.3
     get-tsconfig: ^4.7.5
   dependenciesMeta:
@@ -15153,7 +15171,7 @@ __metadata:
       optional: true
   bin:
     tsx: dist/cli.mjs
-  checksum: d78cd60cf07791aab72e3587cc42e8a8527914bfc66f6882b935cc535b34af9841809eadab2a50da05b4613c2b824d3b3da7c8f8cef8fb7b79942bfa0a18b04e
+  checksum: bd481097d4614b9d40e7e2c44f7078d9f92b0050e959574a7a88ad8af33327d787f9d76c89689ee19b1275270038705fb9851055ae1a20e15d1c62a34d51a8fd
   languageName: node
   linkType: hard
 
@@ -15367,10 +15385,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:^6.19.0":
-  version: 6.19.0
-  resolution: "undici@npm:6.19.0"
-  checksum: 3c775d4312bd3c1090a2081e5384a82cfc2e90b7b53ec0f89d95a61634db7ea2755cd2efbab832bce3a5d6ca966bf2ca79a0443793b7af4fdaf30d48bfa1be80
+"undici@npm:^6.19.2":
+  version: 6.19.2
+  resolution: "undici@npm:6.19.2"
+  checksum: 024ff60791bef86646730dc0f240e8a643219d18c6070d7e067d4f7fd311cea85b485b79ebeabff2bb60f4a7ca18fa7ae37da1cc008b23e7b6f17b289c728771
   languageName: node
   linkType: hard
 
