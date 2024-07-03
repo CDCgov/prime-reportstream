@@ -22,6 +22,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockkClass
+import org.hl7.fhir.exceptions.PathEngineException
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DateType
@@ -113,16 +114,27 @@ class FhirPathUtilsTests {
         assertThat(result[0]).isInstanceOf(DiagnosticReport::class.java)
         assertThat((result[0] as DiagnosticReport).id).isEqualTo(diagReport.id)
 
-        // Bad extension names evaluated to emptyList
+        // Extension value does not exist
         path = "Bundle.extension('blah').value"
         assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
 
-        // Empty string
-        assertThat(FhirPathUtils.evaluate(null, bundle, bundle, "")).isEmpty()
+        // Extension provided with a non-string value, throws IndexOutOfBoundsException
+        path = "Bundle.extension(blah).value"
+        assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
 
-        // Invalid fhirpath syntax
+        // Empty string
+        path = ""
+        assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
+
+        // Invalid fhirpath syntax, throws FHIRLexerException
         path = "Bundle.#*($&id.exists()"
         assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
+
+        // Invalid resource, throws uncaught PathEngineException
+        path = "Bundle.entry.resource.ofType(Messi)"
+        assertFailure { FhirPathUtils.evaluate(null, bundle, bundle, path) }.all {
+            hasClass(PathEngineException::class.java)
+        }
     }
 
     @Test

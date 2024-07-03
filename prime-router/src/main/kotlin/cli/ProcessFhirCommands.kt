@@ -29,7 +29,6 @@ import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -486,15 +485,7 @@ class FhirPathCommand : CliktCommand(
     private fun evaluatePath(input: String, bundle: Bundle) {
         // Check the syntax for the FHIR path
         try {
-            val values = try {
-                FhirPathUtils.evaluate(fhirPathContext, focusResource!!, bundle, input)
-            } catch (e: IndexOutOfBoundsException) {
-                // This happens when a value for an extension is speced, but the extension does not exist.
-                emptyList()
-            } catch (e: SchemaException) {
-                echo("Error evaluating path: ${e.message}")
-                emptyList()
-            }
+            val values = FhirPathUtils.evaluate(fhirPathContext, focusResource!!, bundle, input)
 
             values.forEach {
                 // Print out the value, but add a dash to each collection entry if more than one
