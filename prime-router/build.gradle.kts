@@ -807,10 +807,10 @@ dependencies {
     implementation("com.microsoft.azure:applicationinsights-core:3.5.3")
     implementation("com.azure:azure-core:1.49.1")
     implementation("com.azure:azure-core-http-netty:1.15.1")
-    implementation("com.azure:azure-storage-blob:12.26.0") {
+    implementation("com.azure:azure-storage-blob:12.26.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.21.0") {
+    implementation("com.azure:azure-storage-queue:12.21.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.8.3") {
