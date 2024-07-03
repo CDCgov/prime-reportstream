@@ -1,0 +1,170 @@
+- name: "pa-phd"
+  description: "Pennsylvania Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "PA"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+    - name: "full-elr"
+      organizationName: "pa-phd"
+      topic: "full-elr"
+      customerStatus: "active"
+      translation:
+        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/PA/PA-receiver-transform.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "PA-ELR"
+        receivingApplicationOID: null
+        receivingFacilityName: "PADOH"
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: null
+        replaceValueAwithB: null
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides:
+          hl70005:
+            name: "hl70005"
+            system: "HL7"
+            reference: "HL7 guidance for race, modified for PA standards"
+            referenceUrl: null
+            values:
+              - code: "1002-5"
+                display: "American Indian or Alaska Native"
+                version: "2.5.1"
+                replaces: null
+                system: null
+              - code: "2028-9"
+                display: "Asian"
+                version: "2.5.1"
+                replaces: null
+                system: null
+              - code: "2054-5"
+                display: "Black or African American"
+                version: "2.5.1"
+                replaces: null
+                system: null
+              - code: "2076-8"
+                display: "Native Hawaiian or Other Pacific Islander"
+                version: "2.5.1"
+                replaces: null
+                system: null
+              - code: "2106-3"
+                display: "White"
+                version: "2.5.1"
+                replaces: null
+                system: null
+              - code: "2131-1"
+                display: "Other"
+                version: "2.5.1"
+                replaces: null
+                system: null
+              - code: "U"
+                display: "Unknown"
+                version: "2.5.1"
+                replaces: "UNK"
+                system: null
+              - code: "U"
+                display: "Asked, but unknown"
+                version: "2.5.1"
+                replaces: "ASKU"
+                system: null
+            version: "2.5.1"
+          hl70189:
+            name: "hl70189"
+            system: "HL7"
+            reference: "HL7 guidance for ethnicity, modified for PA standards"
+            referenceUrl: null
+            values:
+              - code: "H"
+                display: "Hispanic or Latino"
+                version: null
+                replaces: null
+                system: null
+              - code: "NH"
+                display: "Non Hispanic or Latino"
+                version: null
+                replaces: "N"
+                system: null
+              - code: "U"
+                display: "Unknown"
+                version: null
+                replaces: null
+                system: null
+            version: "2.9"
+        nameFormat: "standard"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: false
+          truncateHl7Fields: []
+          customLengthHl7Fields: {}
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'PA') or (Bundle.entry.resource.ofType(Patient).address.state = 'PA')"
+      qualityFilter:
+        - "Bundle.identifier.value.exists()"
+        - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
+        - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
+        - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
+        - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists())
+           or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
+      routingFilter: [ ]
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      conditionFilter:
+        # Accept COVID only
+        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+      mappedConditionFilter: []
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 24
+        initialTime: "00:35"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: "PADOH Primary Feed"
+      transport:
+        endpoint: "https://www.ers.health.pa.gov/ELRWCF/ELRService.svc/ELR"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        soapVersion: null
+        credentialName: null
+        namespaces:
+          xmlns:elr: "http://nedss.state.pa.us/2012/B01/elrwcf"
+        tlsKeystore: null
+        type: "SOAP"
+      externalName: "ELR"
+      enrichmentSchemaNames: []
+      timeZone: null
+      dateTimeFormat: "OFFSET"
