@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 value:
   expressionType: nested
   vars:
