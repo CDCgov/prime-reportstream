@@ -11,6 +11,7 @@ import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.UniversalPipelineSender
@@ -353,7 +354,8 @@ object UniversalPipelineTestUtils {
         val routingFilter: List<String> = emptyList(),
         val processingModeFilter: List<String> = emptyList(),
         val conditionFilter: List<String> = emptyList(),
-        val reverseQuality: Boolean = false,
+        val mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
+        val status: CustomerStatus = CustomerStatus.ACTIVE,
     )
 
     fun createReceivers(receiverSetupDataList: List<ReceiverSetupData>): List<Receiver> {
@@ -362,7 +364,7 @@ object UniversalPipelineTestUtils {
                 it.name,
                 it.orgName,
                 it.topic,
-                CustomerStatus.ACTIVE,
+                it.status,
                 "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml",
                 timing = Receiver.Timing(numberPerDay = 1, maxReportCount = 1, whenEmpty = Receiver.WhenEmpty()),
                 jurisdictionalFilter = it.jurisdictionalFilter,
@@ -370,7 +372,7 @@ object UniversalPipelineTestUtils {
                 routingFilter = it.routingFilter,
                 processingModeFilter = it.processingModeFilter,
                 conditionFilter = it.conditionFilter,
-                reverseTheQualityFilter = it.reverseQuality
+                mappedConditionFilter = it.mappedConditionFilter
             )
         }
     }

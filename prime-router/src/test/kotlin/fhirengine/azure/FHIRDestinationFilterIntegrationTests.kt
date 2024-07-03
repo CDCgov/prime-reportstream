@@ -8,6 +8,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.isInstanceOf
 import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
@@ -130,6 +131,14 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                     qualityFilter = listOf("true"),
                     routingFilter = listOf("true"),
                     topic = Topic.TEST
+                ),
+                UniversalPipelineTestUtils.ReceiverSetupData(
+                    "inactive-receiver",
+                    jurisdictionalFilter = listOf("true"),
+                    qualityFilter = listOf("true"),
+                    routingFilter = listOf("true"),
+                    topic = Topic.TEST,
+                    status = CustomerStatus.INACTIVE
                 )
             )
         )
