@@ -88,7 +88,6 @@
       transport:
         reportUrl: "https://labupload.health.ok.gov/api/document/hl7"
         authTokenUrl: "https://labupload.health.ok.gov/api/auth/token"
-        encryptionKeyUrl: ""
         authType: null
         tlsKeystore: null
         parameters: {}
