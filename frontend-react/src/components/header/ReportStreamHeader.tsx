@@ -247,14 +247,6 @@ function ReportStreamNavbar({
     setActiveDropdown,
 }: ReportStreamNavbarProps) {
     const defaultMenuItems = [
-        <div className="primary-nav-link-container" key="getting-started">
-            <USSmartLink
-                className={primaryLinkClasses(!!useMatch("/getting-started/*"))}
-                href="/getting-started"
-            >
-                Getting started
-            </USSmartLink>
-        </div>,
         <div className="primary-nav-link-container" key="developer-resources">
             <USSmartLink
                 className={primaryLinkClasses(
@@ -319,8 +311,35 @@ function ReportStreamNavbar({
             key="about"
         />,
     ];
+
+    const menuItemsGettingStarted = [
+        <Dropdown
+            menuName="Getting started"
+            dropdownList={[
+                <USSmartLink
+                    href="/getting-started/sending-data"
+                    key="sending-data"
+                >
+                    Sending data
+                </USSmartLink>,
+                <USSmartLink
+                    href="/getting-started/receiving-data"
+                    key="receiving-data"
+                >
+                    Receiving data
+                </USSmartLink>,
+            ]}
+            activeDropdown={activeDropdown}
+            setActiveDropdown={setActiveDropdown}
+            key="getting-started"
+        />,
+    ];
     const navbarItemBuilder = () => {
-        return [...menuItemsAbout, ...defaultMenuItems];
+        return [
+            ...menuItemsAbout,
+            ...menuItemsGettingStarted,
+            ...defaultMenuItems,
+        ];
     };
 
     return (
@@ -369,7 +388,7 @@ const ReportStreamHeader = ({
         <>
             <GovBanner aria-label="Official government website" />
             {!isNavHidden && <SenderModeBanner />}
-            {!isNavHidden && activeMembership && (
+            {!isNavHidden && (activeMembership ?? user.claims) && (
                 <Header
                     data-testid="auth-header"
                     basic={true}

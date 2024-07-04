@@ -87,6 +87,16 @@ jobs:
         shardTotal: [6]
 
     steps:
+      - name: Add swapfile
+        working-directory: /
+        run: |
+          sudo swapoff -a
+          sudo fallocate -l 15G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
+          sudo swapon --show
+
       - name: Check out changes
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Use Node.js with yarn
@@ -170,6 +180,7 @@ jobs:
             })
 
       - name: Set Broken Links Comment
+        if: github.event.sender.login != 'dependabot[bot]'
         id: set-comment
         run: |
           if [ -f "$WARNING_LOG_FILE" ]; then
