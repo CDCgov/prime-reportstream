@@ -26,7 +26,6 @@ import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.Translator
