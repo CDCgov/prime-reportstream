@@ -6,6 +6,7 @@ import assertk.assertions.isNull
 import assertk.assertions.startsWith
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.azure.ActionHistory
