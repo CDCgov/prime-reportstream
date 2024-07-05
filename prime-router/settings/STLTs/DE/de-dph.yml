@@ -103,11 +103,11 @@
         onlyOncePerDay: false
     description: ""
     transport:
-      host: "mft.dhss.delaware.gov"
-      port: "22"
-      filePath: "./PR_PRIME"
-      credentialName: "DE-DPH--ELR-PROD"
-      type: "SFTP"
+      type: SFTP
+      host: sftp
+      port: 22
+      filePath: ./upload
+      credentialName: DEFAULT-SFTP
     externalName: "Primary Feed"
     enrichmentSchemaNames: []
     timeZone: null
