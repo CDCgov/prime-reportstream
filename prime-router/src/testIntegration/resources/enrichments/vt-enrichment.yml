@@ -1,0 +1,32 @@
+elements:
+  ## PID-14 looks at telecom resources where use = work
+  ## To map email to pid-14 this transform updates telecom.use to work
+  - name: map-email-to-pid-14
+    resource: 'Bundle.entry.resource.ofType(Patient).telecom.where(system = "email")'
+    bundleProperty: '%resource.use'
+    value: [ '"work"' ]
+
+  # suppressNonNPI: true
+  - name: suppressNonNPI-namespace-id
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    condition: '%esource.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").exists() and %resource.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value != "NPI"'
+    value: [ '""' ]
+    bundleProperty: '%resource.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value'
+
+  - name: suppressNonNPI-assigning-authority-namespace-id
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    condition: 'resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").exists() and %resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").exists() and %resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id")[0].value != "NPI"'
+    value: [ '""' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id")[0].value'
+
+  - name: suppressNonNPI-practitioner-code
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    condition: '%resource.identifier[0].type.coding.code != "NPI"'
+    value: [ '""' ]
+    bundleProperty: '%resource.identifier[0].type.coding.code'
+
+  - name: suppressNonNPI-practitioner-system
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    condition: '%resource.identifier[0].system != "http://hl7.org/fhir/sid/us-npi"'
+    value: [ '""' ]
+    bundleProperty: '%resource.identifier[0].system'
