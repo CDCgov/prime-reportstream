@@ -1,6 +1,6 @@
-import { scrollToFooter, scrollToTop } from "../helpers/utils";
-import { AboutPage } from "../pages/about";
-import { test as baseTest, expect } from "../test";
+import { scrollToFooter, scrollToTop } from "../../helpers/utils";
+import { AboutPage } from "../../pages/about";
+import { test as baseTest, expect } from "../../test";
 
 const URL_ABOUT = "/about";
 

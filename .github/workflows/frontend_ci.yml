@@ -180,6 +180,7 @@ jobs:
             })
 
       - name: Set Broken Links Comment
+        if: github.event.sender.login != 'dependabot[bot]'
         id: set-comment
         run: |
           if [ -f "$WARNING_LOG_FILE" ]; then
