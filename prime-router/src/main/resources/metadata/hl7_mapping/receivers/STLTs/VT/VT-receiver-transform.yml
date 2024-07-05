@@ -61,24 +61,24 @@ elements:
     hl7Spec: [ '%{MSH}-6-3' ]
 
   - name: vt-obr-assigning-authority-universal-id
-    condition: '%{OBR}-16-9 = "NPI"'
+    condition: 'Bundle.entry.resource.ofType(Practitioner).identifier.type.coding.code = "NPI" and Bundle.entry.resource.ofType(Practitioner).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").empty'
     value: [ '"2.16.840.1.113883.4.6"' ]
-    hl7Spec: [ '%{OBR}-16-9' ]
+    hl7Spec: [ '%{OBR}-16-9-2' ]
 
   - name: vt-obr-assigning-authority-universal-id-type
-    condition: '%{OBR}-16-9 = "NPI"'
+    condition: 'Bundle.entry.resource.ofType(Practitioner).identifier.type.coding.code = "NPI" and Bundle.entry.resource.ofType(Practitioner).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").empty'
     value: [ '"ISO"' ]
-    hl7Spec: [ '%{OBR}-16-9' ]
+    hl7Spec: [ '%{OBR}-16-9-3' ]
 
   - name: vt-orc-assigning-authority-universal-id
-    condition: '%{ORC}-12-9 = "NPI"'
+    condition: 'Bundle.entry.resource.ofType(Practitioner).identifier.type.coding.code = "NPI" and Bundle.entry.resource.ofType(Practitioner).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").empty'
     value: [ '"2.16.840.1.113883.4.6"' ]
-    hl7Spec: [ '%{ORC}-12-9' ]
+    hl7Spec: [ '%{ORC}-12-9-2' ]
 
   - name: vt-orc-assigning-authority-universal-id-type
-    condition: '%{ORC}-12-9 = "NPI"'
+    condition: 'Bundle.entry.resource.ofType(Practitioner).identifier.type.coding.code = "NPI" and Bundle.entry.resource.ofType(Practitioner).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").empty'
     value: [ '"ISO"' ]
-    hl7Spec: [ '%{ORC}-12-9' ]
+    hl7Spec: [ '%{ORC}-12-9-3' ]
 
   - name: vt-sender-facility-namespace-Id
     value: [ '"NBS"' ]
