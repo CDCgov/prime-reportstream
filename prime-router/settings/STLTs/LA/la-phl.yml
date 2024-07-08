@@ -39,13 +39,13 @@
         encryptionKeyUrl: "https://api.neometrics.com/natusAPI/api/v2/HL7/GetFileEncryptionKey"
         headers:
           Content-Length:  "<calculated when request is sent>"
-          Content-Type:  "multipart/form-data"  # Added for sending multipart/form-data or file format message content
-          Key: "files"    # Added for the key value as file.
+          Content-Type:  "multipart/form-data"
+          Key: "files"  # Added for the key value as file.
           Subscription: "23edf66e1fe14685bb9dfa2cbb14eb3b"  # Added the assigned subscription value.
           Host: "api.neometrics.com"
         authHeaders:
-          ExpectSuccess: true   # Added to auth header to expect success otherwise throw exception.
-          Content-Type: "application/json"  # Added for authentication body as json.
-          Subscription: "23edf66e1fe14685bb9dfa2cbb14eb3b" # Added the assigned subscription value.
+          ExpectSuccess: true  # Added to auth header to expect success otherwise throw exception.
+          Content-Type: "application/json"
+          Subscription: "23edf66e1fe14685bb9dfa2cbb14eb3b"  # Added the assigned subscription value.
           Host: "api.neometrics.com"
-          Authorization-Type: "username/password" # Added for using username and password to authenticate and get token
+          Authorization-Type: "username/password"  # Added for using username and password to authenticate and get token
