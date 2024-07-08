@@ -183,11 +183,11 @@
           onlyOncePerDay: false
       description: "ELR Primary for VT DOH"
       transport:
-        host: "gs-sftp.ahs.state.vt.us"
-        port: "22"
-        filePath: "./Test/ToVDH/"
-        credentialName: null
-        type: "SFTP"
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
       externalName: "VT ELR Primary"
       enrichmentSchemaNames: "classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
       timeZone: null
