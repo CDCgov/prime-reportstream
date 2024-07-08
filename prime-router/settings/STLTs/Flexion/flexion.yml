@@ -19,15 +19,15 @@
   senders:
     # Orders Senders
     # Hospital => RS
+    # Simulated Hospital ETOR Sender - Sending HL7 orders
     - name: "simulated-hospital"
-      externalName: "Simulated Hospital ETOR Sender - Sending HL7 orders"
       organizationName: "flexion"
       topic: "etor-ti"
       customerStatus: "active"
       format: "HL7"
     # TI => RS
+    # ETOR Service Sender Channel to ReportStream - Sending FHIR orders and results
     - name: "etor-service-sender"
-      externalName: "ETOR Service Sender Channel to ReportStream - Sending FHIR orders and results"
       organizationName: "flexion"
       topic: "etor-ti"
       customerStatus: "active"
@@ -35,8 +35,8 @@
       schemaName: "classpath:/metadata/fhir_transforms/senders/Flexion/TILabOrder.yml"
     # Results Senders
     # PHL => RS
+    # Simulated State Public Health Lab ETOR Sender - Sending HL7 results
     - name: "simulated-lab"
-      externalName: "Simulated State Public Health Lab ETOR Sender - Sending HL7 results"
       organizationName: "flexion"
       topic: "etor-ti"
       customerStatus: "active"
@@ -53,7 +53,7 @@
         - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01') or (Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21')" # ORM_O01 or OML_O21
         - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.exists(system = 'http://localcodes.org/ETOR').not()"
       qualityFilter:
-        - true
+        - "true"
       timing:
         operation: "MERGE"
         numberPerDay: 1440 # Every minute
@@ -93,7 +93,7 @@
         - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"
         - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = 'simulated-lab-id').exists()"
       qualityFilter:
-        - true
+        - "true"
       timing:
         operation: "MERGE"
         numberPerDay: 1440 # Every minute
@@ -120,7 +120,7 @@
         - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'" # ORU_R01
         - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.exists(system = 'http://localcodes.org/ETOR').not()"
       qualityFilter:
-        - true
+        - "true"
       timing:
         operation: "MERGE"
         numberPerDay: 1440 # Every minute
@@ -158,7 +158,7 @@
         - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"
         - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = 'simulated-hospital-id').exists()"
       qualityFilter:
-        - true
+        - "true"
       timing:
         operation: "MERGE"
         numberPerDay: 1440 # Every minute
