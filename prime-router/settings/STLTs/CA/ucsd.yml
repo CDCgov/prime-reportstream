@@ -15,7 +15,7 @@
       organizationName: "ucsd"
       topic: "etor-ti"
       customerStatus: "active"
-      translation: !<HL7>
+      translation:
         type: "HL7"
         schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
         useBatchHeaders: false
