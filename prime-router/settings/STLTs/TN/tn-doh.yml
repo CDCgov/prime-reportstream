@@ -87,11 +87,11 @@
           onlyOncePerDay: false
       description: ""
       transport:
-        host: "sftp2.health.tn.gov"
-        port: "22"
-        filePath: "/HEALTH/ReportStream/ELR/PROD/in"
-        credentialName: null
-        type: "SFTP"
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
       externalName: null
       enrichmentSchemaNames: []
       timeZone: null
