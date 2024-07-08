@@ -87,11 +87,11 @@
           onlyOncePerDay: false
       description: ""
       transport:
-        host: "sftp-west.inductivehealth.com"
-        port: "22"
-        filePath: "./prod/"
-        credentialName: null
-        type: "SFTP"
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
       externalName: null
       enrichmentSchemaNames: []
       timeZone: null
