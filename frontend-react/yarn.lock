@@ -13023,7 +13023,7 @@ __metadata:
     "@storybook/testing-library": ^0.2.2
     "@storybook/theming": ^8.1.11
     "@tanstack/react-query": ^5.49.2
-    "@tanstack/react-query-devtools": ^5.45.2
+    "@tanstack/react-query-devtools": ^5.49.2
     "@testing-library/dom": ^10.1.0
     "@testing-library/jest-dom": ^6.4.6
     "@testing-library/react": ^16.0.0
