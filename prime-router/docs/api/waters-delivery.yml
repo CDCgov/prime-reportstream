@@ -69,6 +69,60 @@ paths:
           description: unauthorized
         '404':
           description: organization does not exist
+  /v1/waters/org/{organization}/deliveries:
+    post:
+      summary: Get available reports for all org STLTs
+      description: Retrieve a list of reports available for download by a STLT
+      security:
+        - OAuth2: [ user ]
+        - ApiKeyAuth: [ ]
+      parameters:
+        - in: path
+          name: organization
+          schema:
+            type: string
+          required: true
+          description: receiver whose deliveries we want to see
+        - name: reportId
+          in: query
+          description: the reportId within the deliveries of the organization and client
+          schema:
+            type: string
+        - name: fileName
+          in: query
+          description: the fileName within the deliveries of the organization and client
+          schema:
+            type: string
+        - name: receivingOrgSvcStatus
+          in: query
+          description: "Customer status of the service used by the organization. Can append the parameter multiple times for more than one status."
+          example: "ACTIVE"
+          schema:
+            type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+              - TESTING
+      requestBody:
+        description: The search parameters for the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryHistoryApiSearch'
+      responses:
+        '200':
+          description: The results from running the search
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryHistoryApiSearchResults'
+        '401':
+          description: Unauthorized
+        '400':
+          description: The search request could not be parsed
+        '404':
+          description: The receiver could not be found
   /waters/org/{organization}.{client}/deliveries:
     get:
       operationId: getDeliveries
@@ -264,3 +318,118 @@ components:
         total:
           description: number of facilities included in the object
           type: integer
+    DeliveryHistoryApiSearch:
+      type: object
+      properties:
+        sort:
+          description: The sorting to apply to the results, defaults to sorting by created_at, DESC
+          type: object
+          properties:
+            direction:
+              description: The order to apply the sort property
+              type: string
+              enum:
+                - DESC
+                - ASC
+            'property':
+              description: The property to sort by
+              type: string
+              enum:
+                - ordering_provider
+                - ordering_facility
+                - submitter
+                - report_id
+                - created_at
+                - expiration_date
+                - number_of_tests
+                - sort_id
+        pagination:
+          type: object
+          description: The pagination to apply to the search
+          properties:
+            page:
+              type: integer
+              description: Which page of results to fetch
+            limit:
+              type: integer
+              description: The number of results to return per page
+        filters:
+          type: array
+          items:
+            type: object
+            properties:
+              filterName:
+                description: The name of the filter to apply to the results
+                type: string
+                enum:
+                  - SINCE
+                  - UNTIL
+              value:
+                description: The value for the filter to apply; depending on the
+                  > filter type the value will be parsed to the data type that underlying filter expects
+                  > i.e. the SINCE filter will parse it to an LocalDateTime
+                type: string
+    DeliveryHistoryApiSearchResults:
+      type: object
+      description: Results from running a search for submitters to a specific receiver
+      properties:
+        meta:
+          type: object
+          properties:
+            'type':
+              type: string
+              enum:
+                - DeliveriesHistory
+            totalCount:
+              type: integer
+              description: The total of number of results before applying the filters
+            totalFilteredCount:
+              type: integer
+              description: The total number of results after applying the filters
+            totalPages:
+              type: integer
+              description: The number of pages for the results
+            nextPage:
+              type: integer
+              description: the next page of results
+            previousPage:
+              type: integer
+              description: the previous page of results
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              deliveryId:
+                type: string
+                description: The delivery ID in the report
+              createdAt:
+                type: string
+                format: date-time
+                description: When the report was sent
+              expirationDate:
+                type: string
+                format: date-time
+                description: When the report will no longer be available
+              receiver:
+                description: The name of the organization receiving the report and the service used by the organization
+                type: string
+              receivingOrgSvcStatus:
+                type: string
+                description: Customer status of the service used by the organization
+              reportId:
+                type: string
+                format: uuid
+                description: The ID for the sent report
+              topic:
+                type: string
+                description: The schema topic (e.g. COVID-19, Flu)
+              reportItemCount:
+                type: string
+                description: The total number of reports sent by the submitter
+              fileName:
+                type: string
+                description: The filename for the delivered report
+              fileType:
+                type: string
+                description: The format in which the report was originally sent
