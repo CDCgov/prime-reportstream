@@ -1,13 +1,8 @@
 # To submit this to staging, run:
-# ./prime multiple-settings set --env staging --input ./settings/staging/0170-ucsd-onboarding-receiver-settings.yml
+# ./prime multiple-settings set --env staging --input ./settings/STLTs/CA/ucsd.yml
 #
 # To submit this in localhost, run:
-# ./prime multiple-settings set --input ./settings/staging/0170-ucsd-onboarding-receiver-settings.yml
-#
-# Description:
-#   These following settings are for UCSD
-#   Result Receiver (ucsd.etor-nbs-results)
-#
+# ./prime multiple-settings set --input ./settings/STLTs/CA/ucsd.yml
 ---
 - name: "ucsd"
   description: "University of California San Diego"
