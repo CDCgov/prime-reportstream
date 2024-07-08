@@ -123,8 +123,8 @@ jobs:
   # Merge reports after e2e-tests, even if some shards have failed
   merge_e2e_data:
     name: Merge E2E Data
-    if: ${{ !cancelled() && needs.pre-job.outputs.is_permitted == 'true' }}
     needs: [pre-job, e2e_tests]
+    if: ${{ !cancelled() && needs.pre-job.outputs.is_permitted == 'true' && needs.e2e_tests.result == 'success' }}
     runs-on: ubuntu-latest
     env:
       COMMENT:
