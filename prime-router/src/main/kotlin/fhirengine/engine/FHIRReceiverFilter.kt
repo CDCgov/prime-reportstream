@@ -223,7 +223,8 @@ class FHIRReceiverFilter(
         } else if (mappedConditionFilters.isNotEmpty()) {
             val codes = mappedConditionFilters.codes()
             val keptObservations = bundle.getObservationsWithCondition(codes)
-            if (keptObservations.isEmpty() || keptObservations.all {
+            if (keptObservations.isEmpty() ||
+                keptObservations.all {
                     it.getMappedConditionCodes().all { code -> code == "AOE" }
                 }
             ) {
@@ -366,7 +367,7 @@ class FHIRReceiverFilter(
                     val blobInfo = BlobAccess.uploadBody(
                         Report.Format.FHIR,
                         bodyString.toByteArray(),
-                        report.name,
+                        report.id.toString(),
                         queueMessage.blobSubFolderName,
                         nextEvent.eventAction
                     )
