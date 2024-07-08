@@ -8,7 +8,7 @@ We use a mix/match of the following for different endpoints:
 - Okta
   - A cloud-hosted identity and access management service
 - Server2Server
-  - Homegrown JWT-based authn/authz
+  - Homegrown implementation of client credentials OIDC flow
 - Azure Function Keys
   - Azure configured shared secrets for authorization
   - Does not handle authentication at all! (Any user can use any key and the system will work)
@@ -29,6 +29,15 @@ We use a mix/match of the following for different endpoints:
 - Fine-tune access control for specific clients
 - Unify authn/authz approach for all microservices
 - Allow clients the ability to self-service to ease client onboarding
+
+## Options discussed in 14765
+
+- Azure Application Gateway
+  - This is Azure's load balancer and does not handle authn/authz
+- Azure Front Door
+  - This is Azure's CDN technology and does not handle authn/authz
+- Azure Identity Management
+  - This is Azure's own implementation of handling authn/authz for Microsoft products and is not available for implementation in our application
 
 ## Identity Provider Options
 
@@ -67,8 +76,22 @@ Cons
 We will be using OAuth 2.0 with OIDC. OAuth 2.0 is an industry-standard authorization protocol and OIDC is
 another open standard on top of OAuth that adds an identity layer (authentication).
 
-Azure and Okta both support this protocol but if we were to go with the homegrown I would still highly recommend 
-following the spec.
+We will be using the **client credentials** flow which was designed with machine-to-machine communication in 
+mind. See the image below for how the flow works generally.
+
+![Client Credentials Flow](clientCredentialsFlow.png)
+
+## Definitions
+
+- **authn**: Authenticate/authentication
+- **authz**: Authorize/authorization
+- **IAM**: Identity and access management
+- **IdP**: Identity Provider
+- **Okta**: A cloud-hosted identity and access management service
+- **Server2Server**: Homegrown JWT authn/authz
+- **VPC**: Virtual Private Cloud
+- **Resource Server**: A server that will require authn/authz to access. In our case Report Stream
+- **Authorization Server**: A server that handles authn/authz and issuing/revoking credentials
 
 ## Architecture options
 
@@ -82,13 +105,15 @@ all requests to protected endpoints.
   - Traffic must flow through our authn/authz service  
   - Protected endpoints should not be accessible to the public internet
 
-A typical request flow would look like this
-- Incoming request to protected endpoint hits our authn/authz service
+A typical report request would look like this
+- Client makes request to authorization server (or us in the homegrown solution) to retrieve token with their own credentials
+- Client uses retrieved token with request to Report Stream
+- Request comes in and hits our auth microservice instead of Report Stream directly
 - Depending on our implementation, we decide if that request is legitimate and allowed to access the designated endpoint
-  - In cloud-based solutions, we would make calls out to an external IdP
+  - In cloud-based solutions, we would make calls out to an external authz server
+    - We could also introspect the token locally if speed is a factor but its more code to write/maintain
   - In a homegrown solution, we would introspect certain cookies and headers and compare them to what we have in a datastore
-- If the request is unauthenticated, forward the user along to a login page (often provided by the external IdP)
-- If the request is unauthorized, short-circuit the request to a 401 unauthorized
+- If the request is unauthenticated or unauthorized, short-circuit the request to a 401
 - If the request is authenticated and authorized for the resource, pass it along to the internal protected endpoint
 
 Pros
@@ -96,6 +121,7 @@ Pros
 - All authn/authz code is in one place
 - Security concerns can be centralized as all requests go through a single public endpoint
 - Simplifies business logic as it no longer has to worry about authn/authz
+- Extensible outside of core RS services if required
 
 Cons
 - Highly complex setup from both an engineering and devops perspective
@@ -120,13 +146,12 @@ fun protectedReadEndpoint(
     val authRequired = condigService.isAuthRequired(request.path, method)
     
     return if (authRequired) {
-        // call out to auth service if needed of particular endpoint
-        val authResult = authService.auth(request)
+        // call out to auth service
+        val authResult = authService.checkToken(request)
         
         // possible results
         when (authResult) {
-            is NeedsAuth -> httpClient.redirect(loginPage)
-            is Unauthorized -> UnauthorizedResponse
+            is Unauthorized, MissingToken -> UnauthorizedResponse
             is Authorized -> httpClient.request(method, protectedEndpoint, body)
         }
     } else {
@@ -156,30 +181,31 @@ Cons
 - Would have to deal with handling authn/authz with 2 different web frameworks
   -  Easy for Spring but could require some custom work for Azure Functions
 
+A typical report request would look like this
+- Client makes request to authorization server (or us in the homegrown solution) to retrieve token with their own credentials
+- Client uses retrieved token with request to Report Stream
+- Request hits Report Stream code directly
+- Depending on our implementation, we decide if that request is legitimate and allowed to access the designated endpoint
+    - In cloud-based solutions, we would make calls out to an external authz server
+      - We could also introspect the token locally if speed is a factor but its more code to write/maintain
+    - In a homegrown solution, we would introspect certain cookies and headers and compare them to what we have in a datastore
+- If the request is unauthenticated or unauthorized, short-circuit the request to a 401
+- If the request is authenticated and authorized for the resource, continue to the business logic
+
 Code example:
 ```kotlin
 
 // has read scope
 @GetMapping("/api/v1/protected/endpoint")
-@PreAuthorize("hasAuthority('SCOPE_read')")  
+@PreAuthorize("hasAuthority('SCOPE_read')") // scope 
 fun protectedReadEndpoint() {
     // read that anyone with the read scope can see
 }
 
 // has admin authority
 @PostMapping("/api/v1/protected/endpoint")
-@PreAuthorize("hasAuthority('Admin')")
+@PreAuthorize("hasAuthority('Admin')") // role
 fun protectedWriteEndpoint() {
     // write that only admins can do
 }
 ```
-
-## Definitions
-
-- **authn**: Authenticate/authentication
-- **authz**: Authorize/authorization
-- **IAM**: Identity and access management
-- **IdP**: Identity Provider
-- **Okta**: A cloud-hosted identity and access management service
-- **Server2Server**: Homegrown JWT authn/authz
-- **VPC**: Virtual Private Cloud
