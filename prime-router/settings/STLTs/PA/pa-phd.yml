@@ -44,76 +44,6 @@
         replaceDiiWithOid: null
         applyOTCDefault: false
         useOrderingFacilityName: "STANDARD"
-        valueSetOverrides:
-          hl70005:
-            name: "hl70005"
-            system: "HL7"
-            reference: "HL7 guidance for race, modified for PA standards"
-            referenceUrl: null
-            values:
-              - code: "1002-5"
-                display: "American Indian or Alaska Native"
-                version: "2.5.1"
-                replaces: null
-                system: null
-              - code: "2028-9"
-                display: "Asian"
-                version: "2.5.1"
-                replaces: null
-                system: null
-              - code: "2054-5"
-                display: "Black or African American"
-                version: "2.5.1"
-                replaces: null
-                system: null
-              - code: "2076-8"
-                display: "Native Hawaiian or Other Pacific Islander"
-                version: "2.5.1"
-                replaces: null
-                system: null
-              - code: "2106-3"
-                display: "White"
-                version: "2.5.1"
-                replaces: null
-                system: null
-              - code: "2131-1"
-                display: "Other"
-                version: "2.5.1"
-                replaces: null
-                system: null
-              - code: "U"
-                display: "Unknown"
-                version: "2.5.1"
-                replaces: "UNK"
-                system: null
-              - code: "U"
-                display: "Asked, but unknown"
-                version: "2.5.1"
-                replaces: "ASKU"
-                system: null
-            version: "2.5.1"
-          hl70189:
-            name: "hl70189"
-            system: "HL7"
-            reference: "HL7 guidance for ethnicity, modified for PA standards"
-            referenceUrl: null
-            values:
-              - code: "H"
-                display: "Hispanic or Latino"
-                version: null
-                replaces: null
-                system: null
-              - code: "NH"
-                display: "Non Hispanic or Latino"
-                version: null
-                replaces: "N"
-                system: null
-              - code: "U"
-                display: "Unknown"
-                version: null
-                replaces: null
-                system: null
-            version: "2.9"
         nameFormat: "standard"
         receivingOrganization: null
         convertPositiveDateTimeOffsetToNegative: false
@@ -156,14 +86,11 @@
           onlyOncePerDay: false
       description: "PADOH Primary Feed"
       transport:
-        endpoint: "https://www.ers.health.pa.gov/ELRWCF/ELRService.svc/ELR"
-        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
-        soapVersion: null
-        credentialName: null
-        namespaces:
-          xmlns:elr: "http://nedss.state.pa.us/2012/B01/elrwcf"
-        tlsKeystore: null
-        type: "SOAP"
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
       externalName: "ELR"
       enrichmentSchemaNames: []
       timeZone: null

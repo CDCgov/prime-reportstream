@@ -50,3 +50,15 @@ elements:
   - name: pa-org-name-type-code
     value: [ '"L"' ]
     hl7Spec: [ '%{ORC}-21-2' ]
+
+  - name: pa-ethnicity-non-hispanic-or-latino
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group")'
+    condition: '%resource.value.coding[0].code = "N"'
+    value: [ '"NH"' ]
+    hl7Spec: [ '%{PID}-22-1' ]
+
+  - name: pa-race-unknown
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd")'
+    condition: '%resource.value[x].coding[0].code = "UNK" or %resource.value.coding[0].code = "ASKU"'
+    value: [ '"U"' ]
+    hl7Spec: [ '%{PID}-10-1' ]
