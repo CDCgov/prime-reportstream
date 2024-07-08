@@ -102,13 +102,12 @@
           action: "NONE"
           onlyOncePerDay: false
       description: ""
-      transport: !<SFTP>
-        host: "moftp.mo.gov"
-        port: "22"
-        filePath: "/Distribution/DHSS/Epitrax_ELR_hl7/"
-        credentialName: null
-        type: "SFTP"
-        externalName: null
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
       enrichmentSchemaNames: []
       timeZone: "CENTRAL"
       dateTimeFormat: "LOCAL"
