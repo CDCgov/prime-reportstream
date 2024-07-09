@@ -1,20 +1,19 @@
 package gov.cdc.prime.reportstream.submissions.controllers
 
-import com.azure.messaging.eventgrid.EventGridPublisherAsyncClient
-import com.azure.storage.blob.BlobServiceClient
-import com.azure.storage.queue.QueueServiceClient
 import com.azure.data.tables.TableClient
 import com.azure.data.tables.models.TableEntity
 import com.azure.messaging.eventgrid.EventGridEvent
+import com.azure.messaging.eventgrid.EventGridPublisherAsyncClient
 import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobContainerClient
+import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.queue.QueueClient
+import com.azure.storage.queue.QueueServiceClient
 import com.azure.storage.queue.models.SendMessageResult
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import java.io.InputStream
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,6 +23,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.io.InputStream
 
 @WebMvcTest(SubmissionController::class)
 class SubmissionControllerTest {
@@ -55,7 +55,7 @@ class SubmissionControllerTest {
         // Mock BlobContainerClient and BlobClient
         blobContainerClient = mockk()
         blobClient = mockk()
-        every { blobServiceClient.getBlobContainerClient(any<String>()) } returns blobContainerClient
+        every { blobServiceClient.getBlobContainerClient("receive") } returns blobContainerClient
         every { blobContainerClient.getBlobClient(any<String>()) } returns blobClient
 
         // Mock QueueClient

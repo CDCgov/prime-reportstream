@@ -1,14 +1,14 @@
 package gov.cdc.prime.reportstream.submissions.controllers
 
 import com.azure.core.util.BinaryData
-import com.azure.messaging.eventgrid.EventGridEvent
-import com.azure.messaging.eventgrid.EventGridPublisherAsyncClient
 import com.azure.data.tables.TableClient
 import com.azure.data.tables.models.TableEntity
+import com.azure.messaging.eventgrid.EventGridEvent
+import com.azure.messaging.eventgrid.EventGridPublisherAsyncClient
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.queue.QueueServiceClient
-import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -25,8 +25,8 @@ class SubmissionController(
     private val queueServiceClient: QueueServiceClient,
     private val tableClient: TableClient,
     private val eventGridPublisherClient: EventGridPublisherAsyncClient<EventGridEvent>,
-    @Value("\${azure.storage.container-name}") private val containerName: String,
-    @Value("\${azure.storage.queue-name}") private val queueName: String,
+    @Value("\${azure.storage.container-name}") private val containerName: String = "receive",
+    @Value("\${azure.storage.queue-name}") private val queueName: String = "elr-fhir-convert",
 ) {
     @PostMapping("/api/v1/reports")
     fun submitReport(
@@ -115,9 +115,7 @@ class SubmissionController(
         headers: Map<String, String>,
     ): String {
         val senderName = headers["client_id"]?.lowercase()
-        val contentType = headers["content-type"]?.lowercase()
-
-        return when (contentType) {
+        return when (val contentType = headers["content-type"]?.lowercase()) {
             "application/hl7-v2" -> "receive/$senderName/$reportId.hl7"
             "application/fhir+ndjson" -> "receive/$senderName/$reportId.fhir"
             else -> throw IllegalArgumentException("Unsupported content-type: $contentType")

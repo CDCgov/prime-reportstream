@@ -22,8 +22,6 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("com.azure:azure-messaging-eventgrid:4.5.0")
-    testImplementation("com.azure:azure-storage-queue:12.11.2")
-    testImplementation("com.azure:azure-data-tables:12.2.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.8.1")
     implementation(project(":shared"))
