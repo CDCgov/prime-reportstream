@@ -55,12 +55,12 @@ class SubmissionControllerTest {
         // Mock BlobContainerClient and BlobClient
         blobContainerClient = mockk()
         blobClient = mockk()
-        every { blobServiceClient.getBlobContainerClient(any()) } returns blobContainerClient
-        every { blobContainerClient.getBlobClient(any()) } returns blobClient
+        every { blobServiceClient.getBlobContainerClient(any<String>()) } returns blobContainerClient
+        every { blobContainerClient.getBlobClient(any<String>()) } returns blobClient
 
         // Mock QueueClient
         queueClient = mockk()
-        every { queueServiceClient.getQueueClient(any()) } returns queueClient
+        every { queueServiceClient.getQueueClient(any<String>()) } returns queueClient
 
         // Mock sendMessageResult
         sendMessageResult = mockk()
