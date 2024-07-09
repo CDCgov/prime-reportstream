@@ -47,3 +47,9 @@ elements:
   - name: nm-receiving-facility-universal-id-type
     value: [ '"ISO"' ]
     hl7Spec: [ '%{MSH}-6-3' ]
+
+  - name: nm-race-unknown-as-blank
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd")'
+    condition: '%resource.value[x].coding[0].code = "UNK" or %resource.value.coding[0].code = "ASKU"'
+    value: [ '""' ]
+    hl7Spec: [ '%{PID}-10-1' ]
