@@ -93,7 +93,7 @@
       transport: !<SFTP>
         host: "ww12.doh.state.fl.us"
         port: "22"
-        filePath: "./Prod/outbox"
+        filePath: "./Test/outbox"
         credentialName: null
         type: "SFTP"
       externalName: null
