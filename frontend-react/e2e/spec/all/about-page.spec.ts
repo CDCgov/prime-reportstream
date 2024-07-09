@@ -72,6 +72,7 @@ test.describe("About page", () => {
         test("has 'Product roadmap' link", async ({ aboutPage }) => {
             await aboutPage.page
                 .getByRole("link", { name: /Product roadmap/ })
+                .first()
                 .click();
             await expect(aboutPage.page).toHaveURL(/.*about\/roadmap/);
         });
@@ -151,12 +152,12 @@ test.describe("About page", () => {
                     url: "",
                 },
                 {
-                    name: "ReportStream API",
-                    url: "/developer-resources/api",
+                    name: "Product roadmap",
+                    url: "/about/roadmap",
                 },
                 {
-                    name: "Release notes",
-                    url: "/about/release-notes",
+                    name: "ReportStream API",
+                    url: "/developer-resources/api",
                 },
             ];
 
