@@ -22,7 +22,10 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkClass
+import io.mockk.spyk
+import io.mockk.verify
 import org.apache.logging.log4j.kotlin.KotlinLogger
 import org.hl7.fhir.exceptions.PathEngineException
 import org.hl7.fhir.r4.model.Bundle
