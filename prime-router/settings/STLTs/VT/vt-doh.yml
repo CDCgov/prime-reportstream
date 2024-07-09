@@ -97,7 +97,7 @@
         credentialName: null
         type: "SFTP"
       externalName: "VT ELR Primary"
-      enrichmentSchemaNames: "classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
+      enrichmentSchemaNames: ["classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"]
       timeZone: null
       dateTimeFormat: "OFFSET"
     - name: "full-elr-secondary"
@@ -163,7 +163,7 @@
         - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists())
            or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
       routingFilter:
-      #        - "matches(test_result_status, F, C, P)"
+              - "matches(test_result_status, F, C, P)"
       processingModeFilter: [ ]
       reverseTheQualityFilter: false
       conditionFilter:
@@ -189,6 +189,6 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
       externalName: "VT ELR Primary"
-      enrichmentSchemaNames: "classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
+      enrichmentSchemaNames: ["classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"]
       timeZone: null
       dateTimeFormat: "OFFSET"
