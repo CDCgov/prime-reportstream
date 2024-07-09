@@ -63,7 +63,7 @@ data class UserJksCredential(
      * [trustAlias] is the alias for the trust/public certificate stored in the JKS
      */
     val trustAlias: String,
-) : Credential(), SoapCredential
+) : Credential(), SoapCredential, RestCredential
 
 /**
  * An API Key credential along with the user who stored it

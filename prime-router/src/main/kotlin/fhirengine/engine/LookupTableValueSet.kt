@@ -40,9 +40,8 @@ class LookupTableValueSet
             throw SchemaException("Value column not found in specified lookup table")
         }
 
-        val filterTable = lookupTable.table.retainColumns(configData.keyColumn, configData.valueColumn)
         val result = mutableMapOf<String, String>()
-        filterTable.forEach { row ->
+        lookupTable.table.forEach { row ->
             result[row.getString(configData.keyColumn)] = row.getString(configData.valueColumn)
         }
 
