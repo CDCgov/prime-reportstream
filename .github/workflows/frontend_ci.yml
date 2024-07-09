@@ -23,6 +23,8 @@ jobs:
   pre-job:
     name: Pre Job
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     outputs:
       # Should not run for deployment PRs
       is_permitted: ${{ github.event_name == 'pull_request' && steps.build_vars.outputs.has_frontend_change == 'true' && steps.build_vars.outputs.is_deployment_pr == 'false' }}
