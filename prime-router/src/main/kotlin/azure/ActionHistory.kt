@@ -1,9 +1,11 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatusType
+import com.networknt.org.apache.commons.validator.routines.InetAddressValidator
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
@@ -13,6 +15,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.ActionHistory.ReceivedReportSenderParameters.Companion.removeExcludedParameters
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -22,7 +25,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
-import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.SQLDataType
@@ -151,43 +154,61 @@ class ActionHistory(
         action.username = userName
     }
 
-    fun filterParameters(request: HttpRequestMessage<String?>): String {
-        // list of values to search and filter
-        val notAllowedHeaderParts = listOf("key", "cookie", "auth")
-        val notAllowedParameterParts = listOf("code")
+    /**
+     * Class captures data about the HTTP request from a sender to the report endpoint
+     *
+     */
+    data class ReceivedReportSenderParameters(
+        val method: HttpMethod,
+        val url: String,
+        @JsonProperty("Headers")
+        val headers: Map<String, String>,
+        @JsonProperty("QueryParameters")
+        val queryParameters: Map<String, String>,
+    ) {
+        companion object {
+            // These header/query params can potentially contain auth information, and we do not want to log them
+            // gitleaks:allow
+            private val parameterNamesToExclude = setOf(
+                "key",
+                "cookie",
+                "auth", // gitleaks:allow
+                "code" // gitleaks:allow
+            )
 
-        // Extract query parameters
-        val filteredParams = request.queryParameters.entries
-            .filter { (key, _) ->
-                notAllowedParameterParts.none { part ->
-                    key.contains(part, ignoreCase = true)
+            fun removeExcludedParameters(it: Map.Entry<String, String>) =
+                !parameterNamesToExclude.any { excluded ->
+                    it.key.contains(
+                        excluded,
+                        ignoreCase = true
+                    )
                 }
+        }
+    }
+
+    fun filterParameters(request: HttpRequestMessage<String?>): ReceivedReportSenderParameters {
+        val filteredHeaders = request.headers
+            .filter {
+                removeExcludedParameters(it)
             }
-            .associate { (key, value) -> key to value }
 
-        // Extract query parameters
-        val filteredHeaders = request.headers.entries
-            .filter { (key, _) ->
-                notAllowedHeaderParts.none { part ->
-                    key.contains(part, ignoreCase = true)
-                }
-            }
-            .associate { (key, value) -> key to value }
-
-        val jsonNode = jacksonObjectMapper.createObjectNode()
-            .put("method", request.httpMethod.name)
-            .put("url", request.uri.toString())
-
-        jsonNode.set<JsonNode>("queryParams", jacksonObjectMapper.valueToTree(filteredParams))
-        jsonNode.set<JsonNode>("headers", jacksonObjectMapper.valueToTree(filteredHeaders))
-
-        return jacksonObjectMapper.writeValueAsString(jsonNode)
+        val filteredQueryParams = request.queryParameters.filter {
+            removeExcludedParameters(it)
+        }
+        return ReceivedReportSenderParameters(
+            request.httpMethod,
+            request.uri.toString(),
+            filteredHeaders,
+            filteredQueryParams
+        )
     }
 
     /**
-     * Track the parmeters of a [request].
+     * Track the parameters of a [request].
      */
     fun trackActionParams(request: HttpRequestMessage<String?>) {
+        val params = filterParameters(request)
+
         action.contentLength = request.headers["content-length"]?.let {
             try {
                 it.toInt()
@@ -196,11 +217,17 @@ class ActionHistory(
             }
         }
         // capture the azure client IP but override with the first forwarded for if present
-        action.senderIp = request.headers["x-azure-clientip"]?.take(ACTION.SENDER_IP.dataType.length())
-        request.headers["x-forwarded-for"]?.let {
-            action.senderIp = it.split(",").firstOrNull()?.trim()?.take(ACTION.SENDER_IP.dataType.length())
+        val senderIp =
+            (
+                (
+                    request.headers["x-forwarded-for"]?.split(",")
+                        ?.firstOrNull()
+                    )?.take(ACTION.SENDER_IP.dataType.length()) ?: request.headers["x-azure-clientip"]
+                )
+        if (senderIp != null && InetAddressValidator.getInstance().isValid(senderIp)) {
+            action.senderIp = senderIp
         }
-        trackActionParams(filterParameters(request))
+        trackActionParams(JacksonMapperUtilities.objectMapper.writeValueAsString(params))
     }
 
     /**

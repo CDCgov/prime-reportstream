@@ -11,7 +11,7 @@ import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
-import java.lang.IllegalArgumentException
+import gov.cdc.prime.router.azure.db.tables.ReportFile
 import java.security.InvalidParameterException
 
 const val CLIENT_PARAMETER = "client"
@@ -51,14 +51,24 @@ abstract class RequestFunction(
             ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
     }
 
+    class InvalidExternalPayloadException(val externalName: String) : RuntimeException(externalName)
+
     /**
      * Extract the optional payloadName (aka sender-supplied filename) from request headers or query string parameters
      * @param request the http request message from the client
      */
-    protected fun extractPayloadName(request: HttpRequestMessage<String?>): String? {
+    internal fun extractPayloadName(request: HttpRequestMessage<String?>): String? {
         // payloadName can be in the header or in the url parameters.  Return null if not found.
-        return request.headers[PAYLOAD_NAME_PARAMETER]
+        val payloadName = request.headers[PAYLOAD_NAME_PARAMETER]
             ?: request.queryParameters[PAYLOAD_NAME_PARAMETER]
+
+        payloadName?.let {
+            if (it.length > ReportFile.REPORT_FILE.EXTERNAL_NAME.dataType.length()) {
+                throw InvalidExternalPayloadException(it)
+            }
+        }
+
+        return payloadName
     }
 
     /**
@@ -128,6 +138,7 @@ abstract class RequestFunction(
                             "Blank message(s) found within file. Blank messages cannot be processed."
                         )
                     )
+
                 else -> actionLogs.error(InvalidParamMessage("Expecting a post message with content"))
             }
         }
