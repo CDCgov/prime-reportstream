@@ -42,7 +42,8 @@ export default defineConfig({
         {
             name: "chromium-only",
             use: { browserName: "chromium" },
-            dependencies: ["setup"],
+            // currently only uses public pages, uncomment when not the case
+            // dependencies: ["setup"],
             testMatch: "spec/chromium-only/*.spec.ts",
         },
         {
