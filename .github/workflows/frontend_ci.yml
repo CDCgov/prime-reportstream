@@ -87,6 +87,16 @@ jobs:
         shardTotal: [6]
 
     steps:
+      - name: Add swapfile
+        working-directory: /
+        run: |
+          sudo swapoff -a
+          sudo fallocate -l 15G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
+          sudo swapon --show
+
       - name: Check out changes
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Use Node.js with yarn
@@ -113,8 +123,8 @@ jobs:
   # Merge reports after e2e-tests, even if some shards have failed
   merge_e2e_data:
     name: Merge E2E Data
-    if: ${{ !cancelled() && needs.pre-job.outputs.is_permitted == 'true' }}
     needs: [pre-job, e2e_tests]
+    if: ${{ !cancelled() && needs.pre-job.outputs.is_permitted == 'true' && needs.e2e_tests.result == 'success' }}
     runs-on: ubuntu-latest
     env:
       COMMENT:
@@ -170,6 +180,7 @@ jobs:
             })
 
       - name: Set Broken Links Comment
+        if: github.event.sender.login != 'dependabot[bot]'
         id: set-comment
         run: |
           if [ -f "$WARNING_LOG_FILE" ]; then

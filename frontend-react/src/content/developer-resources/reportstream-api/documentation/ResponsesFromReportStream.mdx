@@ -17,42 +17,20 @@ import Sidenav from "../Sidenav.mdx";
 
 <p className="usa-intro text-base">ReportStream responds to each API call with a response (JSON formatted) about the disposition of your data.</p>
 
-<p className="text-base">Last updated: 5/26/23</p>
+<p className="text-base">Last updated: 6/24/24</p>
 
 ***
-
-## Errors and warnings
-
-The ReportStream response may include warnings and/or errors based on validation of the submission against the expected format.
-
-An accepted submission returns a 201 “httpStatus” code. Submissions with warnings but no errors will still be accepted.
-While ReportStream will accept a submission with warnings, we encourage you to fix those issues to ensure you will not have future problems sending to public health departments.
-However, one or more errors fail the entire submission.
-
-**Common validation errors**
-* Missing or mislabeled required columns/fields
-* Missing or malformed data in required columns/fields
-* CSV with “jagged” rows — differing number of columns within the payload
-* Empty payload (an empty response is often a sign of a failed authorization, with a 401 response status). Make sure your token or key and the URL are correct.
-* Incorrect client-id or other headers
-* Incorrect data types (e.g. a character string when a numeric value is expected)
-
-**Common validation warnings**
-* Missing optional columns/fields
-
-{
-<Alert type="tip">
-    <span className="text-bold">Note:</span> There’s a flag allowing partial submissions. With this flag, successful elements in a batch will succeed, and the unsuccessful ones won’t. This flag requires extra code on your part to handle partial failures.
-</Alert>
-}
 
 ## Response messages
 
 **Asynchronous processing**
 
-In most cases, we'll ask you to submit via ReportStream asynchronous (async) processing. This configuration setting is automatically enabled for users. Upon submitting data via ReportStream async processing, the REST endpoint returns almost immediately. However, ReportStream doesn't return information about where the tests will be sent.
+ReportStream uses asynchronous (async) processing. Upon submitting data via ReportStream async processing, 
+the REST endpoint returns almost immediately. However, ReportStream doesn't return information about where the tests will be sent. 
 
-In exchange for speed, the async submission response provides less initial information in the JSON. The initial response will provide errors and warnings, but no destination or filter information. The History Details API can be queried later to get full information about expected and actual destinations.
+In exchange for speed, the async submission response provides less initial information in the JSON. 
+The initial response will provide errors and warnings, but no destination or filter information. 
+The History Details API can be queried later to get full information about expected and actual destinations.
 
 Example ReportStream response to an async submission:
 
@@ -74,50 +52,9 @@ Example ReportStream response to an async submission:
 }
 ```
 
-**Synchronous processing**
-
-Example JSON response to a successful synchronous submission.
-
-```
-{
-    "submissionId": 1588,
-    "timestamp": "2022-02-09T16:59:33.789532Z",
-    "sender": "simple_report",
-    "reportItemCount": 2,
-    "httpStatus": 201,
-    "id": "e8880dcf-a201-4690-8e02-2871da739b61",
-    "destinationCount": 2,
-    "destinations": [
-        {
-            "organization_id": "de-dph",
-            "service": "elr",
-            "filteredReportRows": [],
-            "sending_at": "2022-02-09T17:00:00.000000Z",
-            "itemCount": 1,
-            "sentReports": [ ],
-            "organization": "Delaware Division of Public Health"
-        },
-        {
-            "organization_id": "hi-phd",
-            "service": "elr",
-            "filteredReportRows": [],
-            "sending_at": "2022-02-09T19:00:00.000000Z",
-            "itemCount": 1,
-            "sentReports": [ ],
-            "organization": "Hawaii Public Health Department"
-        }
-    ],
-    "errors": [],
-    "warnings": [],
-    "topic": "covid-19",
-    "warningCount": 0,
-    "errorCount": 0
-}
-```
-
-Since the response is returned in real-time, the “destinations” section supplies information about where the submission is expected to be sent. The exact time that the public health department receives that data depends on the settings for that jurisdiction.
-
-ReportStream features a History Details API that can be later queried to obtain the actual destinations and relevant detail. If you’d like to use this API, let the ReportStream team know, and we’ll provide you with additional information about requirements for Okta authentication.
+ReportStream features a History Details API that can be later queried to obtain the actual destinations and relevant detail. 
+If you’d like to use this API, let the ReportStream team know, and we’ll provide you with additional information about requirements 
+for Okta authentication.
 
 The request is made with the submissionId in the earlier example.:
 
