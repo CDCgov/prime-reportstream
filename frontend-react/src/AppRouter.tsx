@@ -112,7 +112,6 @@ const LogoutCallback = lazy(
 );
 const Login = lazy(() => import("./pages/Login"));
 
-const FileHandler = lazy(() => import("./components/FileHandlers/FileHandler"));
 const ErrorNoPage = lazy(
     () => import("./pages/error/legacy-content/ErrorNoPage"),
 );
@@ -407,7 +406,10 @@ export const appRoutes: RouteObject[] = [
             },
             {
                 path: "/file-handler/validate",
-                element: <FileHandler />,
+                element: <ReportStreamApiGettingStarted />,
+                handle: {
+                    isContentPage: true,
+                },
             },
             {
                 path: "daily-data",
