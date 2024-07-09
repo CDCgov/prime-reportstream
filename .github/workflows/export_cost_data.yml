@@ -68,4 +68,4 @@ jobs:
         run: |
           az postgres server firewall-rule delete -g prime-data-hub-prod -s pdhprod-pgsql  -n github_actions_runner --yes
           sleep 10;
-#az postgres server update -g prime-data-hub-prod -n pdhprod-pgsql --public-network-access "Disabled"
+          az postgres server update -g prime-data-hub-prod -n pdhprod-pgsql --public-network-access "Disabled"
