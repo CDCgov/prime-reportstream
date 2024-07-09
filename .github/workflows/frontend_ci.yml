@@ -28,7 +28,7 @@ jobs:
       is_permitted: ${{ github.event_name == 'pull_request' && steps.build_vars.outputs.has_frontend_change == 'true' && steps.build_vars.outputs.is_deployment_pr == 'false' }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -41,7 +41,7 @@ jobs:
 
     steps:
       - name: Check out changes
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Use Node.js with yarn
         uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
@@ -61,7 +61,7 @@ jobs:
 
     steps:
       - name: Check out changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Use Node.js with yarn
         uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
@@ -98,7 +98,7 @@ jobs:
           sudo swapon --show
 
       - name: Check out changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Use Node.js with yarn
         uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
@@ -132,7 +132,7 @@ jobs:
 
     steps:
       - name: Check out changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Use Node.js with yarn
         uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
@@ -212,7 +212,7 @@ jobs:
 
     steps:
       - name: Checkout - On Pull Request
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
           fetch-depth: 0
           # By default the pull_request event will run on a ephermeral merge commit which simulates a merge between the pull request
@@ -283,7 +283,7 @@ jobs:
 
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+  #       uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
   #     - name: Initialize CodeQL
   #       uses: github/codeql-action/init@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
   #       with:
@@ -303,7 +303,7 @@ jobs:
 
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+  #       uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
   #       with:
   #         fetch-depth: 0
   #     - name: Use Node.js with yarn
@@ -337,7 +337,7 @@ jobs:
   #   runs-on: ubuntu-latest
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+  #       uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
   #     - name: Use Node.js with yarn
   #       uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
   #       with:
