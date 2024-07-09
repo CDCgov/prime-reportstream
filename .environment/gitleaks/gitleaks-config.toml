@@ -201,6 +201,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'author\"}]}, \"who\": {\"reference\"',                                         # Comes out of normal FHIR test data
             'authority\", \"extension\"',                                                  # FHIR extension URL also shows up in normal FHIR test data
             'ApiKeyCredential\(\"flexion\"',
+            'authType: \"two-legged\"',
+            'Authorization-Type: \"username/password\"',
         ]
         paths = [
             '.terraform/modules/',
