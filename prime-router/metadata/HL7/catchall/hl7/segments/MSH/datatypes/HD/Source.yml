@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 # Only populate name if HD.2 is not populated or it is populated and
 # HD.3 is not ISO, UUID, DNS, URI
 name:

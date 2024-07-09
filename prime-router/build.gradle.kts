@@ -33,14 +33,14 @@ apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 plugins {
     val kotlinVersion by System.getProperties()
     id("reportstream.project-conventions")
-    id("org.flywaydb.flyway") version "10.13.0"
+    id("org.flywaydb.flyway") version "10.15.0"
     id("nu.studer.jooq") version "9.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("com.microsoft.azure.azurefunctions") version "1.15.0"
+    id("com.microsoft.azure.azurefunctions") version "1.16.0"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.8.20"
-    id("com.avast.gradle.docker-compose") version "0.17.6"
+    id("com.avast.gradle.docker-compose") version "0.17.7"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.22"
@@ -59,14 +59,13 @@ azurefunctions {
     region = ""
 }
 val appJvmTarget = "17"
-val javaVersion =
-    when (appJvmTarget) {
-        "17" -> JavaVersion.VERSION_17
-        "19" -> JavaVersion.VERSION_19
-        "21" -> JavaVersion.VERSION_21
-        else -> JavaVersion.VERSION_17
-    }
-val ktorVersion = "2.3.11"
+val javaVersion = when (appJvmTarget) {
+    "17" -> JavaVersion.VERSION_17
+    "19" -> JavaVersion.VERSION_19
+    "21" -> JavaVersion.VERSION_21
+    else -> JavaVersion.VERSION_17
+}
+val ktorVersion = "2.3.12"
 val kotlinVersion by System.getProperties()
 val jacksonVersion = "2.17.1"
 jacoco.toolVersion = "0.8.12"
@@ -79,29 +78,26 @@ val KEY_DB_USER = "DB_USER"
 val KEY_DB_PASSWORD = "DB_PASSWORD"
 val KEY_DB_URL = "DB_URL"
 val KEY_PRIME_RS_API_ENDPOINT_HOST = "PRIME_RS_API_ENDPOINT_HOST"
-val dbUser =
-    (
-        project.properties[KEY_DB_USER]
-            ?: System.getenv(KEY_DB_USER)
-            ?: "prime"
+val dbUser = (
+    project.properties[KEY_DB_USER]
+        ?: System.getenv(KEY_DB_USER)
+        ?: "prime"
     ) as String
-val dbPassword =
-    (
-        project.properties[KEY_DB_PASSWORD]
-            ?: System.getenv(KEY_DB_PASSWORD)
-            ?: "changeIT!"
+val dbPassword = (
+    project.properties[KEY_DB_PASSWORD]
+        ?: System.getenv(KEY_DB_PASSWORD)
+        ?: "changeIT!"
     ) as String
-val dbUrl =
-    (
-        project.properties[KEY_DB_URL]
-            ?: System.getenv(KEY_DB_URL)
-            ?: "jdbc:postgresql://localhost:5432/prime_data_hub"
+val dbUrl = (
+    project.properties[KEY_DB_URL]
+        ?: System.getenv(KEY_DB_URL)
+        ?: "jdbc:postgresql://localhost:5432/prime_data_hub"
     ) as String
 
 val reportsApiEndpointHost = (
     System.getenv(KEY_PRIME_RS_API_ENDPOINT_HOST)
         ?: "localhost"
-)
+    )
 
 // This storage account key is not a secret, just a dummy value.
 val devAzureConnectString =
@@ -109,20 +105,19 @@ val devAzureConnectString =
         "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
         "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
 
-val env =
-    mutableMapOf<String, Any>(
-        "AzureWebJobsStorage" to devAzureConnectString,
-        "AzureBlobDownloadRetryCount" to 5,
-        "PartnerStorage" to devAzureConnectString,
-        "POSTGRES_USER" to dbUser,
-        "POSTGRES_PASSWORD" to dbPassword,
-        "POSTGRES_URL" to dbUrl,
-        "PRIME_ENVIRONMENT" to "local",
-        "VAULT_API_ADDR" to "http://localhost:8200",
-        "SFTP_HOST_OVERRIDE" to "localhost",
-        "SFTP_PORT_OVERRIDE" to "2222",
-        "RS_OKTA_baseUrl" to "reportstream.oktapreview.com",
-    )
+val env = mutableMapOf<String, Any>(
+    "AzureWebJobsStorage" to devAzureConnectString,
+    "AzureBlobDownloadRetryCount" to 5,
+    "PartnerStorage" to devAzureConnectString,
+    "POSTGRES_USER" to dbUser,
+    "POSTGRES_PASSWORD" to dbPassword,
+    "POSTGRES_URL" to dbUrl,
+    "PRIME_ENVIRONMENT" to "local",
+    "VAULT_API_ADDR" to "http://localhost:8200",
+    "SFTP_HOST_OVERRIDE" to "localhost",
+    "SFTP_PORT_OVERRIDE" to "2222",
+    "RS_OKTA_baseUrl" to "reportstream.oktapreview.com"
+)
 
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
@@ -190,7 +185,7 @@ tasks.test {
         fileTree("./") {
             include("settings/**/*.yml")
             include("metadata/**/*")
-        },
+        }
     )
     outputs.upToDateWhen {
         // Call gradle with the -Pforcetest option will force the unit tests to run
@@ -230,7 +225,7 @@ tasks.jacocoTestReport {
                 val packageDir = it.split(" ").last().replace(".", "/")
                 FileUtils.copyFile(
                     sourceFile,
-                    File(jacocoSourcesDir, "$packageDir/${FilenameUtils.getName(sourceFile.absolutePath)}"),
+                    File(jacocoSourcesDir, "$packageDir/${FilenameUtils.getName(sourceFile.absolutePath)}")
                 )
             }
         }
@@ -244,8 +239,8 @@ tasks.jacocoTestReport {
                 fileTree(it).matching {
                     exclude(coverageExcludedClasses)
                 }
-            },
-        ),
+            }
+        )
     )
 }
 
@@ -298,7 +293,7 @@ tasks.register<Test>("testIntegration") {
             include("settings/**/*.yml")
             include("metadata/**/*")
             include("src/testIntergation/resources/datatests/**/*")
-        },
+        }
     )
     outputs.upToDateWhen {
         // Call gradle with the -Pforcetest option will force the unit tests to run
@@ -426,7 +421,7 @@ tasks.register<JavaExec>("primeCLI") {
             println(
                 "Usage example: gradle primeCLI --args=\"data --input-fake 50 " +
                     "--input-schema waters/waters-covid-19 --output-dir ./ --target-states CA " +
-                    "--target-counties 'Santa Clara' --output-format CSV\"",
+                    "--target-counties 'Santa Clara' --output-format CSV\""
             )
         }
     }
@@ -485,16 +480,15 @@ tasks.register("reloadCredentials") {
     dependsOn("composeUp")
     group = rootProject.description ?: ""
     description = "Load the SFTP credentials used for local testing to the vault"
-    project.extra["cliArgs"] =
-        listOf(
-            "create-credential",
-            "--type=UserPass",
-            "--persist=DEFAULT-SFTP",
-            "--user",
-            "foo",
-            "--pass",
-            "pass",
-        )
+    project.extra["cliArgs"] = listOf(
+        "create-credential",
+        "--type=UserPass",
+        "--persist=DEFAULT-SFTP",
+        "--user",
+        "foo",
+        "--pass",
+        "pass"
+    )
     finalizedBy("primeCLI")
 }
 
@@ -658,8 +652,7 @@ flyway {
 jooq {
     version.set("3.18.6")
     configurations {
-        create("main") {
-            // name of the jOOQ configuration
+        create("main") { // name of the jOOQ configuration
             jooqConfiguration.apply {
                 logging = org.jooq.meta.jaxb.Logging.INFO
                 jdbc.apply {
@@ -693,8 +686,8 @@ jooq {
                                     // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
                                     // If provided, both "includeExpressions" and "includeTypes" must match.
                                     .withIncludeExpression("report_file.schema_topic")
-                                    .withIncludeTypes("VARCHAR"),
-                            ),
+                                    .withIncludeTypes("VARCHAR")
+                            )
                         )
                     }
                     generate.apply {
@@ -755,8 +748,7 @@ task<RunSQL>("clearDB") {
         password = dbPassword
         url = dbUrl
         driverClassName = "org.postgresql.Driver"
-        script =
-            """
+        script = """
             TRUNCATE TABLE public.action CASCADE;
             TRUNCATE TABLE public.action_log CASCADE;
             TRUNCATE TABLE public.covid_result_metadata CASCADE;
@@ -767,7 +759,7 @@ task<RunSQL>("clearDB") {
             TRUNCATE TABLE public.report_file CASCADE;
             TRUNCATE TABLE public.report_lineage CASCADE;
             TRUNCATE TABLE public.task CASCADE;
-            """.trimIndent()
+        """.trimIndent()
     }
 }
 
@@ -792,7 +784,7 @@ buildscript {
         // will need to be removed once this issue is resolved in Maven.
         classpath("net.minidev:json-smart:2.5.1")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
-        classpath("org.flywaydb:flyway-database-postgresql:10.13.0")
+        classpath("org.flywaydb:flyway-database-postgresql:10.15.0")
     }
 }
 
@@ -812,30 +804,30 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.1.0")
-    implementation("com.microsoft.azure:applicationinsights-core:3.5.2")
-//    implementation("com.azure:azure-core:1.49.0")
-//    implementation("com.azure:azure-core-http-netty:1.15.0")
-//    implementation("com.azure:azure-storage-blob:12.26.0") {
-//        exclude(group = "com.azure", module = "azure-core")
-//    }
-//    implementation("com.azure:azure-storage-queue:12.21.0") {
-//        exclude(group = "com.azure", module = "azure-core")
-//    }
+    implementation("com.microsoft.azure:applicationinsights-core:3.5.3")
+    implementation("com.azure:azure-core:1.49.1")
+    implementation("com.azure:azure-core-http-netty:1.15.1")
+    implementation("com.azure:azure-storage-blob:12.26.1") {
+        exclude(group = "com.azure", module = "azure-core")
+    }
+    implementation("com.azure:azure-storage-queue:12.21.1") {
+        exclude(group = "com.azure", module = "azure-core")
+    }
     implementation("com.azure:azure-security-keyvault-secrets:4.8.3") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.12.1") {
+    implementation("com.azure:azure-identity:1.13.0") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.nimbusds:nimbus-jose-jwt:9.39.3")
-//    implementation("org.apache.logging.log4j:log4j-api:2.23.1")
-//    implementation("org.apache.logging.log4j:log4j-core:2.23.1")
-//    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
-//    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.23.1")
-//    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.4.0")
-    implementation("io.github.oshai:kotlin-logging-jvm:6.0.9")
+    implementation("com.nimbusds:nimbus-jose-jwt:9.40")
+    implementation("org.apache.logging.log4j:log4j-api:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-core:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.4.0")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.3")
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:4.4.0")
@@ -852,14 +844,14 @@ dependencies {
             branch = "master"
         }
     }
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.2.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.2.1")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:7.2.0")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.2.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:7.2.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.2.1")
     implementation("ca.uhn.hapi:hapi-base:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.38")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.40")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.2")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
@@ -875,8 +867,8 @@ dependencies {
     implementation("commons-io:commons-io:2.16.1")
     implementation("org.postgresql:postgresql:42.7.3")
     implementation("com.zaxxer:HikariCP:5.1.0")
-    implementation("org.flywaydb:flyway-core:10.13.0")
-    implementation("org.flywaydb:flyway-database-postgresql:10.13.0")
+    implementation("org.flywaydb:flyway-core:10.15.0")
+    implementation("org.flywaydb:flyway-database-postgresql:10.15.0")
     implementation("org.commonmark:commonmark:0.22.0")
     implementation("com.google.guava:guava:33.2.1-jre")
     implementation("com.helger.as2:as2-lib:5.1.2")
@@ -884,7 +876,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
     implementation("org.bouncycastle:bcmail-jdk15to18:1.78.1")
 
-    implementation("commons-net:commons-net:3.11.0")
+    implementation("commons-net:commons-net:3.11.1")
     implementation("com.cronutils:cron-utils:9.2.1")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     implementation("de.m3y.kformat:kformat:0.11")
@@ -930,7 +922,7 @@ dependencies {
     implementation("xalan:xalan:2.7.3")
 
     // validations
-    implementation("com.networknt:json-schema-validator:1.4.0")
+    implementation("com.networknt:json-schema-validator:1.4.3")
     implementation("io.konform:konform-jvm:0.4.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
@@ -939,6 +931,7 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     testImplementation(kotlin("test-junit5"))
+    testImplementation("io.mockk:mockk:1.13.11")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 
     implementation(project(":shared"))
