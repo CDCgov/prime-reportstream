@@ -525,9 +525,9 @@ const ReportStreamHeader = ({
                                 <div className="nav-cta-container">
                                     {user.claims && isMobileNavOpen && (
                                         <>
-                                            <span className={styles.UserEmail}>
+                                            <p className="nav-cta-username">
                                                 {user.claims.email ?? "Unknown"}
-                                            </span>
+                                            </p>
                                             {user.isUserAdmin && (
                                                 <USLinkButton
                                                     outline
