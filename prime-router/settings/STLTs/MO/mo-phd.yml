@@ -67,7 +67,7 @@
             - "SPM-2-2-2"
             - "ORC-21-1"
             - "OBX-23-1"
-            - "BX-15.1"
+            - "OBX-15.1"
             - "OBX-23.10"
           customLengthHl7Fields: {}
       jurisdictionalFilter:
