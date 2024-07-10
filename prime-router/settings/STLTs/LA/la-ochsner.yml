@@ -2,27 +2,27 @@
 #
 # To submit to staging, run:
 # ./prime login --env staging
-# ./prime multiple-settings set --env staging --input ./settings/STLTs/LA/ochsner-la.yml
+# ./prime multiple-settings set --env staging --input ./settings/STLTs/LA/la-ochsner.yml
 #
 # Tho add the sender key:
-#  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "ochsner-la.*.report" --orgName ochsner-la --kid ochsner-la.etor-nbs-orders --doit
+#  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "la-ochsner.*.report" --orgName la-ochsner --kid la-ochsner.etor-nbs-orders --doit
 #
 # You may use the below curl command to submit a request. You just need to replace the TOKEN with the auth JWT and the path to the FHIR message to send 
 # curl -H 'Authorization: Bearer TOKEN' -H 'Client: flexion.etor-service-sender' -H 'Content-Type: application/fhir+ndjson' --data-binary '@/path/to/fhir/oru.fhir' 'https://staging.prime.cdc.gov/api/waters'
 ---
-- name: "ochsner-la"
+- name: "la-ochsner"
   description: "Ochsner - Louisiana"
   jurisdiction: "STATE"
   stateCode: "LA"
   senders:
     - name: "etor-nbs-orders"
-      organizationName: "ochsner-la"
+      organizationName: "la-ochsner"
       topic: "etor-ti"
       customerStatus: "active"
       format: "HL7"
   receivers:
     - name: "etor-nbs-results"
-      organizationName: "ochsner-la"
+      organizationName: "la-ochsner"
       topic: "etor-ti"
       customerStatus: "active"
       translation:
