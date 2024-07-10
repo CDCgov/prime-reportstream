@@ -9,7 +9,7 @@ elements:
 
 - name: suppressNonNPI-assigning-authority-namespace-id
   resource: 'Bundle.entry.resource.ofType(Practitioner)'
-  condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").exists() and %resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").exists() and %resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id")[0].value != "NPI"'
+  condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").exists() and %resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").exists() and %resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id")[0].value[x] != "NPI"'
   value: [ '""' ]
   bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id")[0].value'
 
