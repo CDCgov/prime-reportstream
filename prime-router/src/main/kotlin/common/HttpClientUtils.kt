@@ -542,44 +542,78 @@ class HttpClientUtils {
          * @return a HttpClient with all sensible defaults
          */
         fun createDefaultHttpClient(accessToken: String?): HttpClient {
-            httpClient ?: synchronized(this) {
-                httpClient ?: HttpClient(Apache) {
-                    // installs logging into the call to post to the server
-                    // commented out - not to override underlying default logger settings
-                    // enable to trace http client internals when needed
-                    // install(Logging) {
-                    //     logger = Logger.SIMPLE
-                    //     level = LogLevel.INFO
-                    // }
-                    // not using Bearer Auth handler due to refresh token behavior
-                    accessToken?.let {
-                        defaultRequest {
-                            header("Authorization", "Bearer $it")
+            return HttpClient(Apache) {
+                // installs logging into the call to post to the server
+                // commented out - not to override underlying default logger settings
+                // enable to trace http client internals when needed
+                // install(Logging) {
+                //     logger = Logger.SIMPLE
+                //     level = LogLevel.INFO
+                // }
+                // not using Bearer Auth handler due to refresh token behavior
+                accessToken?.let {
+                    defaultRequest {
+                        header("Authorization", "Bearer $it")
+                    }
+                }
+                install(ContentNegotiation) {
+                    json(
+                        Json {
+                            prettyPrint = true
+                            isLenient = true
+                            ignoreUnknownKeys = true
                         }
-                    }
-                    install(ContentNegotiation) {
-                        json(
-                            Json {
-                                prettyPrint = true
-                                isLenient = true
-                                ignoreUnknownKeys = true
-                            }
-                        )
-                    }
+                    )
+                }
 
-                    install(HttpTimeout)
-                    engine {
-                        followRedirects = true
-                        socketTimeout = TIMEOUT
-                        connectTimeout = TIMEOUT
-                        connectionRequestTimeout = TIMEOUT
-                        customizeClient {
-                        }
+                install(HttpTimeout)
+                engine {
+                    followRedirects = true
+                    socketTimeout = TIMEOUT
+                    connectTimeout = TIMEOUT
+                    connectionRequestTimeout = TIMEOUT
+                    customizeClient {
                     }
-                }.also { httpClient = it }
+                }
             }
-
-            return httpClient!!
+//            httpClient ?: synchronized(this) {
+//                httpClient ?: HttpClient(Apache) {
+//                    // installs logging into the call to post to the server
+//                    // commented out - not to override underlying default logger settings
+//                    // enable to trace http client internals when needed
+//                    // install(Logging) {
+//                    //     logger = Logger.SIMPLE
+//                    //     level = LogLevel.INFO
+//                    // }
+//                    // not using Bearer Auth handler due to refresh token behavior
+//                    accessToken?.let {
+//                        defaultRequest {
+//                            header("Authorization", "Bearer $it")
+//                        }
+//                    }
+//                    install(ContentNegotiation) {
+//                        json(
+//                            Json {
+//                                prettyPrint = true
+//                                isLenient = true
+//                                ignoreUnknownKeys = true
+//                            }
+//                        )
+//                    }
+//
+//                    install(HttpTimeout)
+//                    engine {
+//                        followRedirects = true
+//                        socketTimeout = TIMEOUT
+//                        connectTimeout = TIMEOUT
+//                        connectionRequestTimeout = TIMEOUT
+//                        customizeClient {
+//                        }
+//                    }
+//                }.also { httpClient = it }
+//            }
+//
+//            return httpClient!!
         }
     }
 }
