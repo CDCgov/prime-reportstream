@@ -7,6 +7,9 @@
 # Receiver settings
 # - Name: Natus.AL.STAG
 # - OOID: 2.16.840.1.114222.4.3.26.1.1
+#
+# You may use the below curl command to submit a request. You just need to replace the TOKEN with the auth JWT and the path to the FHIR message to send 
+# curl -H 'Authorization: Bearer TOKEN' -H 'Client: flexion.etor-service-sender' -H 'Content-Type: application/fhir+ndjson' --data-binary '@/path/to/fhir/oml.fhir' 'https://staging.prime.cdc.gov/api/waters'
 - name: "al-phl"
   description: "Alabama Public Health Lab"
   jurisdiction: "STATE"
