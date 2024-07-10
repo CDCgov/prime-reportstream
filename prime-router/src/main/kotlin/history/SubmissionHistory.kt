@@ -156,6 +156,11 @@ class DetailedSubmissionHistory(
     val warnings = mutableListOf<ConsolidatedActionLog>()
 
     /**
+     * The number of warnings.  Note this is not the number of consolidated warnings.
+     */
+    val warningCount = logs.count { it.type == ActionLogLevel.warning }
+
+    /**
      * The number of errors.  Note this is not the number of consolidated errors.
      */
     val errorCount = logs.count { it.type == ActionLogLevel.error }
@@ -255,15 +260,16 @@ class DetailedSubmissionHistory(
                     }
                 val sentReports = if (report.transportResult != null) mutableListOf(report) else mutableListOf()
                 val downloadedReports = if (report.downloadedBy != null) mutableListOf(report) else mutableListOf()
+
                 if (existingDestination == null) {
-                    val nextActionTime = if (report.receiverHasTransport) report.nextActionAt else null
+
                     destinations.add(
                         Destination(
                             report.receivingOrg,
                             report.receivingOrgSvc!!,
                             filteredReportRows.toMutableList(),
                             filteredReportItems.toMutableList(),
-                            nextActionTime,
+                            report.nextActionAt,
                             report.itemCount,
                             report.itemCountBeforeQualFilter,
                             sentReports = sentReports,
@@ -273,6 +279,9 @@ class DetailedSubmissionHistory(
                 } else {
                     existingDestination.sentReports.addAll(sentReports)
                     existingDestination.downloadedReports.addAll(downloadedReports)
+                    if (report.nextActionAt != null) {
+                        existingDestination.sendingAt = report.nextActionAt
+                    }
                 }
             }
 
@@ -487,7 +496,7 @@ data class Destination(
     val filteredReportItems: MutableList<ReportStreamFilterResultForResponse>?,
     @JsonProperty("sending_at")
     @JsonInclude(Include.NON_NULL)
-    val sendingAt: OffsetDateTime?,
+    var sendingAt: OffsetDateTime?,
     var itemCount: Int,
     @JsonProperty("itemCountBeforeQualityFiltering")
     var itemCountBeforeQualFilter: Int?,
