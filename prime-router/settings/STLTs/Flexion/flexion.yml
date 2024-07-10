@@ -3,11 +3,11 @@
 # To load the settings locally, run:
 # ./prime multiple-settings set --input ./settings/STLTs/Flexion/flexion.yml
 #
-# To load the settings to staging, run:
+# To load the settings in staging, run:
 # ./prime login --env staging
 # ./prime multiple-settings set --env staging --input ./settings/STLTs/Flexion/flexion.yml
 #
-# Tho add the sender keys in staging:
+# To add the sender keys in staging:
 #  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-hospital --doit
 #  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.etor-service-sender --doit
 #  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-lab --doit

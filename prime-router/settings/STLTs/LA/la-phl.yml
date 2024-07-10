@@ -1,10 +1,10 @@
 # Louisiana Public Health Lab settings for staging
 #
-# To load the settings to staging, run:
+# To load the settings in staging, run:
 # ./prime login --env staging
 # ./prime multiple-settings set --env staging --input ./settings/STLTs/LA/la-phl.yml
 #
-# Tho add the sender key in staging:
+# To add the sender key in staging:
 #  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "la-phl.*.report" --orgName la-phl --kid la-phl.etor-nbs-results --doit
 #
 # To submit a request to staging:

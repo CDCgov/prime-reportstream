@@ -1,10 +1,10 @@
 # Ochsner settings for Louisiana in staging
 #
-# To load the settings to staging, run:
+# To load the settings in staging, run:
 # ./prime login --env staging
 # ./prime multiple-settings set --env staging --input ./settings/STLTs/LA/la-ochsner.yml
 #
-# Tho add the sender key in staging:
+# To add the sender key in staging:
 #  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "la-ochsner.*.report" --orgName la-ochsner --kid la-ochsner.etor-nbs-orders --doit
 #
 # To submit a request to staging:
