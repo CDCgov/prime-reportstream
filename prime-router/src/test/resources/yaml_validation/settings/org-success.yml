@@ -1,0 +1,7 @@
+# $schema: ./../../../../../metadata/json_schema/organizations/organizations.json
+
+---
+- name: "org1"
+  description: "description"
+  jurisdiction: "STATE"
+  stateCode: "OG"

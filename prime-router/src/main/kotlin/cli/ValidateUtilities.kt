@@ -28,6 +28,7 @@ class ValidateUtilities() {
             if (anyFailed) {
                 throw CliktError()
             }
+            echo(green("\n${files.size} YAML files validated!"), true, false)
         }
 
         private fun printResult(
@@ -48,9 +49,9 @@ class ValidateUtilities() {
                     |${result.cause?.stackTraceToString() ?: ""}
                 """.trimMargin()
                     echo(red(output), true, true)
+                    echo("", true, false)
                 }
             }
-            echo("", true, false)
         }
 
         private fun isFailure(result: ConfigurationValidationResult<*>): Boolean {

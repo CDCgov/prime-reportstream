@@ -406,7 +406,11 @@ abstract class SettingCommand(
     }
 
     fun writeOutput(output: String) {
-        outStream.write(output.toByteArray())
+        if (outStream == System.out) {
+            echo(output)
+        } else {
+            outStream.write(output.toByteArray())
+        }
     }
 
     private fun handleHttpFailure(
@@ -633,7 +637,9 @@ abstract class PutSettingCommand(
     private val skipValidation: Boolean by skipValidationOption
 
     override fun run() {
-        if (useJson && !skipValidation) {
+        if (skipValidation) {
+            echo(yellow("${inputFile.name} will not be validated."))
+        } else if (useJson) {
             echo(
                 red(
                     "JSON files cannot be validated at this time! " +
@@ -641,7 +647,8 @@ abstract class PutSettingCommand(
                 )
             )
             confirm("Proceed anyway?")
-        } else if (!skipValidation) {
+            echo(yellow("${inputFile.name} will not be validated."))
+        } else {
             if (settingType != SettingType.ORGANIZATION) {
                 echo(
                     red(
@@ -650,6 +657,7 @@ abstract class PutSettingCommand(
                     )
                 )
                 confirm("Proceed anyway?")
+                echo(yellow("${inputFile.name} will not be validated."))
             } else {
                 ValidateUtilities.validateFiles(listOf(inputFile), ConfigurationType.Organizations, ::echo)
             }
