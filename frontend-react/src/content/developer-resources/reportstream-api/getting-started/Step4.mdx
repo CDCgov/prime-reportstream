@@ -3,14 +3,6 @@ import { CodeSnippet } from "../../../../shared";
 
 Use the access token returned above as the bearer token for the submission:
 
-CSV example
-
-<CodeSnippet>
-&#123;
-    curl -H "authorization:bearer&lt;long-bearer-token&gt;" -H "client:<span className="text-highlight">healthy-labs</span>"  -H "content-type:text/csv" --data-binary "@./<span className="text-highlight">healthy-labs</span>-nonPII-data.csv" "https://staging.prime.cdc.gov/api/waters"
-&#125;
-</CodeSnippet>
-
 HL7 example
 
 <CodeSnippet>

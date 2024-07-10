@@ -13,10 +13,10 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.BlobAccess
@@ -168,7 +168,7 @@ object UniversalPipelineTestUtils {
     val hl7Sender = UniversalPipelineSender(
         "elr-hl7-sender",
         "phd",
-        Sender.Format.HL7,
+        MimeFormat.HL7,
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
         schemaName = "classpath:/metadata/fhir_transforms/senders/test-sender-transform.yml"
@@ -176,7 +176,7 @@ object UniversalPipelineTestUtils {
     val fhirSender = UniversalPipelineSender(
         "elr-fhir-sender",
         "phd",
-        Sender.Format.FHIR,
+        MimeFormat.FHIR,
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
         schemaName = "classpath:/metadata/fhir_transforms/senders/test-sender-transform.yml"
@@ -184,21 +184,21 @@ object UniversalPipelineTestUtils {
     val hl7SenderWithNoTransform = UniversalPipelineSender(
         "hl7-elr-no-transform",
         "phd",
-        Sender.Format.HL7,
+        MimeFormat.HL7,
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
     )
     val fhirSenderWithNoTransform = UniversalPipelineSender(
         "fhir-elr-no-transform",
         "phd",
-        Sender.Format.HL7,
+        MimeFormat.HL7,
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
     )
     val senderWithValidation = UniversalPipelineSender(
         "marsotc-hl7-sender",
         "phd",
-        Sender.Format.HL7,
+        MimeFormat.HL7,
         CustomerStatus.ACTIVE,
         topic = Topic.MARS_OTC_ELR,
     )
@@ -230,7 +230,7 @@ object UniversalPipelineTestUtils {
                 jurisdictionalFilter = listOf("true"),
                 qualityFilter = listOf("true"),
                 processingModeFilter = listOf("true"),
-                format = Report.Format.HL7,
+                format = MimeFormat.HL7,
             )
         ),
     )

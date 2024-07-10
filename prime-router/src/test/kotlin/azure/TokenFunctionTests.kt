@@ -5,8 +5,8 @@ import assertk.assertions.isEqualTo
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.tokens.AccessToken
@@ -46,7 +46,7 @@ class TokenFunctionTests {
     var sender = CovidSender(
         "default",
         "simple_report",
-        Sender.Format.CSV,
+        MimeFormat.CSV,
         CustomerStatus.INACTIVE,
         "default"
     )

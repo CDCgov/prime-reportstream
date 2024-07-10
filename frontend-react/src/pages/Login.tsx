@@ -1,5 +1,6 @@
 import type { Tokens } from "@okta/okta-auth-js";
-import { useCallback, useMemo } from "react";
+import type { WidgetOptions } from "@okta/okta-signin-widget";
+import { useCallback, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
 import { Navigate, useLocation, useSearchParams } from "react-router-dom";
 import type { Location } from "react-router-dom";
@@ -14,12 +15,15 @@ export function Login() {
         useLocation();
     const [searchParams] = useSearchParams();
     const finalConfig = useMemo(
-        () => ({
-            ...config.OKTA_WIDGET,
-            otp: searchParams.get("otp"),
-            token: searchParams.get("token"),
-        }),
-        [config.OKTA_WIDGET, searchParams],
+        () =>
+            ({
+                ...config.OKTA_WIDGET,
+                // use our existing auth client, instead of the widget creating another one
+                authClient: oktaAuth,
+                otp: searchParams.get("otp") ?? undefined,
+                state: searchParams.get("state") ?? undefined,
+            }) satisfies WidgetOptions & { otp?: string },
+        [config.OKTA_WIDGET, oktaAuth, searchParams],
     );
 
     const onSuccess = useCallback(
@@ -34,6 +38,15 @@ export function Login() {
     );
 
     const onError = useCallback((_: any) => void 0, []);
+
+    // Assign state from url params to oktaAuth client (widget doesn't seem to modify a provided
+    // auth client)
+    useEffect(() => {
+        const state = searchParams.get("state") ?? undefined;
+        if (state !== oktaAuth.options.state) {
+            oktaAuth.options.state = state;
+        }
+    }, [oktaAuth.options, searchParams]);
 
     if (authState.isAuthenticated) {
         return <Navigate replace to={"/"} />;

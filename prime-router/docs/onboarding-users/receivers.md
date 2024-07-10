@@ -58,7 +58,7 @@ used as the schema name in the next step.
   receivers:
     - name: full-elr
       topic: full-elr
-      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'LT') or (%patientState.exists() and %patientState = 'LT')" ]
+      jurisdictionalFilter: [ "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'LT') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'LT')" ]
       translation: !<HL7>
         schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
         type: HL7
@@ -69,7 +69,7 @@ used as the schema name in the next step.
         receivingFacilityOID:
 ```
 * In the above example, the jurisdictional filter uses FHIR path to check if the patient or Test performer 
-are in the state of LT. `%performerState` and `%patientState` are shorthand FHIR paths defined in `metadata/tables/local/fhirpath_filter_shorthand.csv`
+are in the state of LT. `Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state` and `Bundle.entry.resource.ofType(Patient).address.state` are shorthand FHIR paths defined in `metadata/tables/local/fhirpath_filter_shorthand.csv`
 * Filters can be applied to the organization or receiver. For more information on filters see: 
 (https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/universal-pipeline/route.md)
 * In addition, there is the translation section, which specifies the output format that will be sent to the receiver. 
