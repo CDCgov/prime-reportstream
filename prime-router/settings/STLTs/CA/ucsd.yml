@@ -1,15 +1,15 @@
 # University of California San Diego settings for staging
 #
-# To submit to staging, run:
+# To load the settings in staging, run:
 # ./prime login --env staging
 # ./prime multiple-settings set --env staging --input ./settings/STLTs/CA/ucsd.yml
 #
-# Tho add the sender key:
+# To add the sender key in staging:
 #  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "ucsd.*.report" --orgName ucsd --kid ucsd.etor-nbs-orders --doit
 #
-# You may use the below curl command to submit a request. You just need to replace the TOKEN with the auth JWT and the path to the FHIR message to send 
+# To submit a request to staging:
+# Note: replace the TOKEN with the auth JWT and the path to the FHIR message to send
 # curl -H 'Authorization: Bearer TOKEN' -H 'Client: flexion.etor-service-sender' -H 'Content-Type: application/fhir+ndjson' --data-binary '@/path/to/fhir/oru.fhir' 'https://staging.prime.cdc.gov/api/waters'
-
 ---
 - name: "ucsd"
   description: "University of California San Diego"
@@ -35,8 +35,8 @@
       jurisdictionalFilter:
         - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"  # ORU_R01
         - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"  # required to avoid looping issue with TI
-        - "Bundle.entry.resource.ofType(MessageHeader).sender.resolve().identifier.where(value = 'CDPH').exists()"  # sender filter
-        - "Bundle.entry.resource.ofType(DiagnosticReport)[0].basedOn.resolve().requester.resolve().organization.resolve().extension.where(url = 'https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization').extension.where(url = 'XON.10').value in ('R797' | 'R508')"  # receiver filter
+        - "Bundle.entry.resource.ofType(MessageHeader).sender.resolve().identifier.where(value = 'CDPH').exists()"  # sender routing filter
+        - "Bundle.entry.resource.ofType(DiagnosticReport)[0].basedOn.resolve().requester.resolve().organization.resolve().extension.where(url = 'https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization').extension.where(url = 'XON.10').value in ('R797' | 'R508')"  # receiver routing filter
       qualityFilter:
         - "true"
       timing:
