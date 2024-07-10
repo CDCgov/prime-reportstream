@@ -30,6 +30,7 @@ updates:
   - package-ecosystem: "github-actions"
     # Workflow files stored in `.github/workflows`
     directory: "/"
+    open-pull-requests-limit: 100
     schedule:
       interval: "daily"
   # GitHub local actions
@@ -108,6 +109,10 @@ updates:
       interval: "daily"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/retry"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/az-cost"
     schedule:
       interval: "daily"
 
