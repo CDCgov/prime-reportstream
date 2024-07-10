@@ -10,6 +10,7 @@ import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -256,7 +257,7 @@ class FHIRRouterIntegrationTests : Logging {
     }
 
     private fun createReport(
-        fileFormat: Report.Format,
+        fileFormat: MimeFormat,
         currentAction: TaskAction,
         nextAction: TaskAction,
         nextEventAction: Event.EventAction,
@@ -340,7 +341,7 @@ class FHIRRouterIntegrationTests : Logging {
         )
 
         val convertReport = createReport(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             TaskAction.convert,
             TaskAction.route,
             Event.EventAction.ROUTE,
@@ -350,7 +351,7 @@ class FHIRRouterIntegrationTests : Logging {
         )
 
         val receiveReport = createReport(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             TaskAction.receive,
             TaskAction.convert,
             Event.EventAction.CONVERT,
