@@ -12,9 +12,15 @@
 #  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.etor-service-sender --doit
 #  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-lab --doit
 #
-# To submit a request to staging:
+# To submit an order or result to flexion.simulated-lab or flexion.simulated-hospital, in staging:
 # Note: replace the TOKEN with the auth JWT and the path to the FHIR message to send 
-# curl -H 'Authorization: Bearer TOKEN' -H 'Client: flexion.etor-service-sender' -H 'Content-Type: application/fhir+ndjson' --data-binary '@/path/to/fhir/message.fhir' 'https://staging.prime.cdc.gov/api/waters'
+# curl -H 'Authorization: Bearer TOKEN' -H 'Client: flexion.etor-service-sender' -H 'Content-Type: application/fhir+ndjson' --data-binary '@/path/to/message.fhir' 'https://staging.prime.cdc.gov/api/waters'
+#
+# To submit an order from flexion.simulated-hospital, in staging:
+# curl -H 'Authorization: Bearer TOKEN' -H 'Client: flexion.simulated-hospital' -H 'Content-Type: application/hl7-v2' --data-binary '@/path/to/order.hl7' 'https://staging.prime.cdc.gov/api/waters'
+#
+# To submit a result from flexion.simulated-lab, in staging:
+# curl -H 'Authorization: Bearer TOKEN' -H 'Client: flexion.simulated-lab' -H 'Content-Type: application/hl7-v2' --data-binary '@/path/to/result.hl7' 'https://staging.prime.cdc.gov/api/waters'
 ---
 - name: "flexion"
   description: "Flexion, Inc."
