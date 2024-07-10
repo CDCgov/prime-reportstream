@@ -4,6 +4,9 @@
 # ./prime login --env staging
 # ./prime multiple-settings set --env staging --input ./settings/STLTs/AL/al-phl.yml
 #
+# Tho add the sender key:
+#  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "al-phl.*.report" --orgName al-phl --kid al-phl.etor-nbs-results --doit
+#
 # Receiver settings
 # - Name: Natus.AL.STAG
 # - OOID: 2.16.840.1.114222.4.3.26.1.1
