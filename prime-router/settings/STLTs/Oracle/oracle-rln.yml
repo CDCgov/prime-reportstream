@@ -1,0 +1,49 @@
+# Oracle RLN settings in staging
+#
+# To submit to staging, run:
+# ./prime login --env staging
+# ./prime multiple-settings set --env staging --input ./settings/STLTs/Oracle/oracle-rln.yml
+#
+# Tho add the sender key:
+#  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "oracle-rln.*.report" --orgName oracle-rln --kid oracle-rln.etor-nbs-orders --doit
+#
+# You may use the below curl command to submit a request. You just need to replace the TOKEN with the auth JWT and the path to the FHIR message to send 
+# curl -H 'Authorization: Bearer TOKEN' -H 'Client: flexion.etor-service-sender' -H 'Content-Type: application/fhir+ndjson' --data-binary '@/path/to/fhir/oru.fhir' 'https://staging.prime.cdc.gov/api/waters'
+
+---
+- name: "oracle-rln"
+  description: "Oracle RLN"
+  jurisdiction: "FEDERAL"
+  senders:
+    - name: "etor-nbs-orders"
+      organizationName: "oracle-rln"
+      topic: "etor-ti"
+      customerStatus: "active"
+      format: "HL7"
+  receivers:
+    - name: "etor-nbs-results"
+      organizationName: "oracle-rln"
+      topic: "etor-ti"
+      customerStatus: "active"
+      translation:
+        type: "HL7"
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        useBatchHeaders: false
+      jurisdictionalFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"  # ORU_R01
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"  # required to avoid looping issue with TI
+        # Pending: add filter(s) for routing
+      qualityFilter:
+        - "true"
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+      transport:
+        type: "SFTP"
+        host: "172.17.6.20"
+        port: 22
+        filePath: "./upload"
+        credentialName: null
