@@ -76,7 +76,10 @@
       routingFilter: []
       processingModeFilter: []
       reverseTheQualityFilter: false
-      conditionFilter: []
+      conditionFilter:
+        # Accept following condition_code (see: observation-mapping.csv for more detail)
+        #        RSV:  	55735004, COVID:	840539006, FLU: 	6142004, MPOX:	414015000
+        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('55735004'|'840539006'|'6142004'|'414015000')).exists())"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
