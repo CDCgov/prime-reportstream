@@ -189,12 +189,12 @@ class FhirPathUtilsTests {
 
         // Invalid fhirpath syntax, throws FHIRLexerException
         val path = "Bundle.#*($&id.exists()"
-        assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
+        assertThat(fhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
 
         verify {
             mockedLogger.error(
                 "org.hl7.fhir.r4.utils.FHIRLexer\$FHIRLexerException: " +
-                "Syntax error in FHIR Path Bundle.#*(\\\$&id.exists()."
+                    "Syntax error in FHIR Path Bundle.#*(\$&id.exists()."
             )
         }
     }
