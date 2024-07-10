@@ -51,7 +51,7 @@ abstract class Sender(
     val topic: Topic,
     override val name: String,
     override val organizationName: String,
-    val format: Format,
+    val format: MimeFormat,
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     val schemaName: String,
     val processingType: ProcessingType = sync,
@@ -106,16 +106,6 @@ abstract class Sender(
         dataAggregator,
         facility,
         hospitalSystem,
-    }
-
-    /**
-     * The format this sender makes submissions in
-     */
-    enum class Format(val mimeType: String) {
-        CSV("text/csv"),
-        HL7("application/hl7-v2"),
-        FHIR("application/fhir+ndjson"),
-        HL7_BATCH("application/hl7-v2"),
     }
 
     /**
@@ -196,7 +186,7 @@ class UniversalPipelineSender : Sender {
     constructor(
         name: String,
         organizationName: String,
-        format: Format,
+        format: MimeFormat,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String = "",
         processingType: ProcessingType = sync,
@@ -246,7 +236,7 @@ open class LegacyPipelineSender : Sender {
     constructor(
         name: String,
         organizationName: String,
-        format: Format,
+        format: MimeFormat,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
         topic: Topic,
@@ -302,7 +292,7 @@ class CovidSender : LegacyPipelineSender {
     constructor(
         name: String,
         organizationName: String,
-        format: Format,
+        format: MimeFormat,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
         processingType: ProcessingType = sync,
@@ -346,7 +336,7 @@ class MonkeypoxSender : LegacyPipelineSender {
     constructor(
         name: String,
         organizationName: String,
-        format: Format,
+        format: MimeFormat,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
         processingType: ProcessingType = sync,

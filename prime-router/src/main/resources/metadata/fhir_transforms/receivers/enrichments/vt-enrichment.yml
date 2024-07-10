@@ -1,0 +1,1 @@
+extends: classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml,classpath:/metadata/fhir_transforms/common/suppress-non-npi.yml
