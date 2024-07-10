@@ -211,14 +211,9 @@ val processingModeFilterDefault: ReportStreamFilter = listOf(
 
 ### Condition Filter
 
-Filter data based on the test identifiers. A receiver expecting flu results should only accept tests for flu. If the
-message contains multiple observations, some that pass the condition filter and others that do not, the condition filter
-will pass if any bundle observations are of interest to the receiver.
-
-Filter data based on the test identifiers. A receiver expecting flu results should only accept tests for flu. If the
-message contains multiple observations, some that pass the condition filter and others that do not, the mapped
-condition filter will pass if the bundle contains any mapped conditions of interest to the receiver.
-
+Filter data based on the test identifiers using FHIR expressions. A receiver expecting flu results should only accept
+tests for flu. If the message contains multiple observations, some that pass the condition filter and others that do
+not, the condition filter will pass if any bundle observations are of interest to the receiver.
 
 <table>
   <tr>
@@ -243,10 +238,9 @@ condition filter will pass if the bundle contains any mapped conditions of inter
 
 ### Mapped Condition Filter
 
-Filter data based on the test identifiers. A receiver expecting flu results should only accept tests for flu. If the
-message contains multiple observations, some that pass others that do not, the mapped condition filter will pass if the
-bundle contains any mapped conditions of interest to the receiver.
-
+Filter data based on the condition stamp added by ReportStream. A receiver expecting flu results should only accept
+tests for flu. If the message contains multiple observations, some that pass others that do not, the mapped condition
+filter will pass if the bundle contains any mapped conditions of interest to the receiver.
 
 <table>
   <tr>
@@ -280,42 +274,28 @@ sub-folders equaling the name of the sender.
 
 ## Logging
 
-### Purpose
+### Action Logs
 
-Filtering logic can be extensive and complex. Recording the outcome of the filters provides internal and external users
-an important view of events. Logging is particularly important when reports do not pass filtering.
+This filter will log actions when:
+- Filtering observations due to any filter (incl: filter text, filter type, org details, index)
 
-* **Quality, Routing, Processing Mode Code, and Condition**
-    * Following Jurisdictional filtering, all other filter groups use `evaluateFilterAndLogResult()`. Upon failure of a
-      filter in a filter group, the outcome is logged to the Action Log table. See Action Log table
-      in [ReportStream Data Model](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/design/design/data-model.md#action_log-table)
+### Console Logging
 
-```kotlin
-if (!passes) {
-    val filterToLog = "${
-        if (isDefaultFilter(filterType, filters)) "(default filter) "
-        else ""
-    }${failingFilterName ?: "unknown"}"
-    logFilterResults(filterToLog, bundle, report, receiver, filterType, focusResource)
-}
-```
-
-* **Code Exceptions**
-    * Results of code exceptions on all filters(including jurisdictional) are logged as warnings in the Action Log
-      table:
-
-```kotlin
-catch(e: SchemaException) {
-    actionLogger?.warn(EvaluateFilterConditionErrorMessage(e.message))
-    exceptionFilters += filterElement
-}
-```
-
-Various scenarios for filter logging are outlined in the [filtering design](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/design/features/0001-universal-pipeline-filter-reporting.md#filter-log-scenarios).
+This filter will log messages to the console when:
+- First initialized
+- Downloading the bundle (includes duration)
+- Observations have been filtered from a bundle
+- Receiver filters passed and a pruned bundle is ready
+- Receiver filters failed and lineage will be terminated 
 
 ## Events
 
+This step emits one of the below events _per receiver_ each time it runs.
 
+| Event                                                                                   | Trigger                                                    |
+|-----------------------------------------------------------------------------------------|------------------------------------------------------------|
+| [ReportRouteEvent](../observability/azure-events.md#reportrouteevent)                   | When a report is routed to a receiver (all filters passed) |
+| [ReceiverFilterFailedEvent](../observability/azure-events.md#receiverfilterfailedevent) | When a report fails receiver filters                       |
 
 ## Retries
 

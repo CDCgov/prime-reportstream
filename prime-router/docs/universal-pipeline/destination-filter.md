@@ -4,7 +4,7 @@
 
 The Destination Filter function’s purpose is to match FHIR bundles with receivers. Each receiver connected with 
 ReportStream has unique interests in the data that flows through the pipeline. Destination filtering is designed to find
-the data that meet those interests.
+the data that may meet those interests (other steps could still filter out the data).
 
 The function follows the [Convert](convert.md) function. At this point all data will be in FHIR format. These messages
 are passed to the FHIR Destination Filter which first decodes a FHIR Bundle. It then evaluates jurisdiction filters for
@@ -14,9 +14,10 @@ the [Receiver Filter](receiver-filter.md) function to evaluate remaining receive
 ### Topic
 
 A Topic must be set for all senders and receivers. The choice of topic determines which pipeline is used (Universal or
-Legacy) and will affect how routing takes place. The routing step will start by limiting available receivers to only
-those with a topic matching the sender topic. Topics include:
+Legacy) and will affect how routing takes place. The destination filtering step will start by limiting available 
+receivers to only those with a topic matching the sender topic.
 
+Topics include:
 
 <table>
   <tr>
@@ -132,9 +133,9 @@ Filters are configured in the settings stored in the database. See the relevant 
 
 ### Jurisdictional Filter
 
-Identifies data that falls within a receiver’s jurisdiction as most of our organizations are geographic entities (e.g.,
-patient state is CO). Note that the non-matching result of the jurisdictional filter is not reported to users via the
-submission history API as this filter is just to decide to which receiver data needs to go.
+Identifies data that falls within a receiver’s jurisdiction as most ReportStream organizations are geographic entities
+(e.g. patient state is CO). Note that the non-matching result of the jurisdictional filter is not reported to users via
+the submission history API as this filter is just to decide to which receiver data needs to go.
 
 
 <table>
@@ -163,52 +164,34 @@ submission history API as this filter is just to decide to which receiver data n
 The `Destination Filter Function` retrieves messages from the `pdhprodstorageaccount` Azure Storage Account. Within that
 storage account there is a blob container named `reports` containing folders for use by the Universal Pipeline.
 The `Convert Function` places all messages into the `destination-filter` folder for retrieval by the
-`Destination Filter Function`. Those messages that match an active receiver's topic and jurisdiction ill then be placed
-in the `receiver-filter` folder for future retrieval by the `Receiver Filter Function`. Messages within the
-`receiver-filter` folder are saved to sub-folders equaling the name of the sender.
+`Destination Filter Function`. Messages that match an active receiver's topic and jurisdiction are then be placed in the
+`receiver-filter` folder for future retrieval by the `Receiver Filter Function`. Messages within the `receiver-filter`
+folder are saved to sub-folders equaling the name of the sender.
 
 ## Logging
 
-### Purpose
+### Action Logs
 
-Filtering logic can be extensive and complex. Recording the outcome of the filters provides internal and external users
-an important view of events. Logging is particularly important when reports do not pass filtering.
+This filter does not log any actions.
 
-* **Jurisdictional Filter**
-    * results of this filter are **not** logged. Given that most items are only meant for one or maybe a couple
-      jurisdictions out of hundreds, there is little value in logging here.
-* **Other Filters**(Quality, Routing, Processing Mode Code, and Condition)
-    * Following Jurisdictional filtering, all other filter groups use `evaluateFilterAndLogResult()`. Upon failure of a
-      filter in a filter group, the outcome is logged to the Action Log table. See Action Log table
-      in [ReportStream Data Model](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/design/design/data-model.md#action_log-table)
+### Console Logging
 
-```kotlin
-if (!passes) {
-    val filterToLog = "${
-        if (isDefaultFilter(filterType, filters)) "(default filter) "
-        else ""
-    }${failingFilterName ?: "unknown"}"
-    logFilterResults(filterToLog, bundle, report, receiver, filterType, focusResource)
-}
-```
-
-* **Code Exceptions**
-    * Results of code exceptions on all filters(including jurisdictional) are logged as warnings in the Action Log
-      table:
-
-```kotlin
-catch(e: SchemaException) {
-    actionLogger?.warn(EvaluateFilterConditionErrorMessage(e.message))
-    exceptionFilters += filterElement
-}
-```
-
-Various scenarios for filter logging are outlined in
-the [filtering design](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/design/features/0001-universal-pipeline-filter-reporting.md#filter-log-scenarios).
+This filter will log messages to the console when:
+- First initialized
+- Downloading the bundle (includes duration)
+- Routing a report to receivers (includes number of receivers)
+- No receivers are valid for a report
 
 ## Events
 
+This step emits one of two events below _once_ each time it runs.
+
+| Event                                                                         | Trigger                                                          |
+|-------------------------------------------------------------------------------|------------------------------------------------------------------|
+| [ReportAcceptedEvent](../observability/azure-events.md#reportacceptedevent)   | when a report is received by this step (precludes all filtering) |
+| [ReportNotRoutedEvent](../observability/azure-events.md#reportnotroutedevent) | when a report is not valid for any receivers                     |
+
 ## Retries
 
-There is no custom retry strategy for this step. If an error occurs during this step, the message is re-queued up to
-five times before being placed in the poison queue.
+There is no custom retry strategy for this step. If an uncaught exception occurs during this step, the message is
+re-queued up to five times before being placed in the poison queue.
