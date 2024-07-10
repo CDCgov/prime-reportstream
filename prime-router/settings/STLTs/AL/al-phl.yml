@@ -34,8 +34,6 @@
         - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = '2.16.840.1.114222.4.3.26.1.1').exists()"
       qualityFilter:
         - "true"
-      processingModeFilter:
-        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P'"
       timing:
         operation: "MERGE"
         numberPerDay: 1440
