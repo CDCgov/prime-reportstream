@@ -1,17 +1,28 @@
-# To submit this to staging, run:
+# University of California San Diego settings for staging
+#
+# To submit to staging, run:
+# ./prime login --env staging
 # ./prime multiple-settings set --env staging --input ./settings/STLTs/CA/ucsd.yml
 #
-# To submit this in localhost, run:
-# ./prime multiple-settings set --input ./settings/STLTs/CA/ucsd.yml
+# Tho add the sender key:
+#  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "ucsd.*.report" --orgName ucsd --kid ucsd.etor-nbs-orders --doit
+#
+# You may use the below curl command to submit a request. You just need to replace the TOKEN with the auth JWT and the path to the FHIR message to send 
+# curl -H 'Authorization: Bearer TOKEN' -H 'Client: flexion.etor-service-sender' -H 'Content-Type: application/fhir+ndjson' --data-binary '@/path/to/fhir/oru.fhir' 'https://staging.prime.cdc.gov/api/waters'
+
 ---
 - name: "ucsd"
   description: "University of California San Diego"
   jurisdiction: "STATE"
   stateCode: "CA"
-  senders: [ ]
+  senders:
+    - name: "etor-nbs-orders"
+      organizationName: "ucsd"
+      topic: "etor-ti"
+      customerStatus: "active"
+      format: "HL7"
   receivers:
     - name: "etor-nbs-results"
-      externalName: "UCSD"
       organizationName: "ucsd"
       topic: "etor-ti"
       customerStatus: "active"
