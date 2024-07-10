@@ -6,7 +6,6 @@ import * as homepage from "../../pages/homepage";
 import * as managingYourConnection from "../../pages/managing-your-connection";
 import * as ourNetwork from "../../pages/our-network";
 import * as security from "../../pages/security";
-import * as support from "../../pages/support";
 
 test.describe("Homepage", () => {
     test.beforeEach(async ({ page }) => {
@@ -24,17 +23,6 @@ test.describe("Homepage", () => {
     }) => {
         await page.getByRole("link", { name: "security of your data" }).click();
         await security.onLoad(page);
-        // Go back to the homepage
-        await header.clickOnHome(page);
-
-        expect(true).toBe(true);
-    });
-
-    test("opens the Support page on 'expert support team' click", async ({
-        page,
-    }) => {
-        await page.getByRole("link", { name: "expert support team" }).click();
-        await support.onLoad(page);
         // Go back to the homepage
         await header.clickOnHome(page);
 

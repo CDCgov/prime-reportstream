@@ -45,7 +45,7 @@ class SettingsProviderTest {
     val sender = CovidSender(
         "default",
         "simple_report",
-        Sender.Format.CSV,
+        MimeFormat.CSV,
         CustomerStatus.INACTIVE,
         "default"
     )

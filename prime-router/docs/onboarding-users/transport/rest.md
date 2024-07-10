@@ -81,6 +81,7 @@ The receiver's RESTTransport includes the following fields:
     - reportUrl:      The URL to post to. e.g. https://api2.health.ny.gov/services/uphn/V1.0/ECLRSPRE.
     - authTokenUrl:   The URL to get the OAuth token. e.g. https://api2.health.ny.gov/services/uphn/V1.0/auth.
     - authType:       Authentication type i.e two-legged.  It is default to null (API shared key)
+    - jwtParams:      The map of parameters for two-legged authentication, consists of "issuer" and "audience" to customize the JWT 
     - tlsKeystore:    The name for the credential manager to get the JKS used in TLS/SSL
     - parameters:     The map of parameters to be sent in the message (use with two-legged OAuth.  See ETOR RESTTransport)
     - headers:        The map of headers to be sent in the message
@@ -125,6 +126,9 @@ The receiver's RESTTransport includes the following fields:
               reportUrl: "https://sample.net/v1/etor/orders"
               authTokenUrl: "https://sample.net/v1/auth/token"
               authType: "two-legged"
+              jwtParams:
+                iss: "fake-issuer-123"
+                aud: "https://giveme.a/oauth2/token"
               tlsKeystore: null
               parameters:
                 scope: "report-stream"
