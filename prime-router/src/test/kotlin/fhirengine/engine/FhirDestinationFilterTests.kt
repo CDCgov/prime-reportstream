@@ -13,6 +13,7 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -278,7 +279,7 @@ class FhirDestinationFilterTests {
         mockkObject(BlobAccess)
         every { message.downloadContent() }.returns(File(VALID_FHIR_URL).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
         // act + assert
         accessSpy.transact { txn ->
@@ -308,7 +309,7 @@ class FhirDestinationFilterTests {
         mockkObject(BlobAccess)
         every { message.downloadContent() }.returns(File(VALID_FHIR_URL).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
         // act + assert
         accessSpy.transact { txn ->
@@ -414,7 +415,7 @@ class FhirDestinationFilterTests {
         mockkObject(BlobAccess)
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
         // act + assert
         accessSpy.transact { txn ->
@@ -451,7 +452,7 @@ class FhirDestinationFilterTests {
         mockkObject(BlobAccess)
         every { message.downloadContent() }.returns(File(VALID_FHIR_URL).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
         every { engine.findTopicReceivers(any()) } returns emptyList()
 
         // act + assert
