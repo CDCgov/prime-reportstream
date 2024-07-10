@@ -10,6 +10,7 @@ import gov.cdc.prime.router.FHIRConfiguration
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -154,7 +155,7 @@ class UniversalBatchFunctionTests {
             every { mockActionHistory.trackExistingInputReport(any()) } returns Unit
             every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns "somecontent".toByteArray()
             every { Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any(), any()) } returns
-                Triple(mockReport, mockEvent, BlobAccess.BlobInfo(Report.Format.HL7, "someurl", "digest".toByteArray()))
+                Triple(mockReport, mockEvent, BlobAccess.BlobInfo(MimeFormat.HL7, "someurl", "digest".toByteArray()))
             every { HL7MessageHelpers.batchMessages(any(), receiver) } returns "batchstring"
         }
         resetMocks()
@@ -285,7 +286,7 @@ class UniversalBatchFunctionTests {
             every { mockActionHistory.trackExistingInputReport(any()) } returns Unit
             every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns "somecontent".toByteArray()
             every { Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any(), any()) } returns
-                Triple(mockReport, mockEvent, BlobAccess.BlobInfo(Report.Format.HL7, "someurl", "digest".toByteArray()))
+                Triple(mockReport, mockEvent, BlobAccess.BlobInfo(MimeFormat.HL7, "someurl", "digest".toByteArray()))
             every { FHIRBundleHelpers.batchMessages(any()) } returns "batchstring"
         }
         resetMocks()
@@ -383,7 +384,7 @@ class UniversalBatchFunctionTests {
             "name", "org", Topic.FULL_ELR,
             translation = CustomConfiguration(
                 schemaName = "",
-                format = Report.Format.CSV,
+                format = MimeFormat.CSV,
                 receivingOrganization = null,
                 useBatching = true,
             ),
@@ -434,7 +435,7 @@ class UniversalBatchFunctionTests {
         val schemaName = "one"
         val mockBlobInfo = mockk<BlobAccess.BlobInfo>()
         every { mockBlobInfo.blobUrl } returns bodyURL
-        every { mockBlobInfo.format } returns Report.Format.CSV
+        every { mockBlobInfo.format } returns MimeFormat.CSV
         every { mockBlobInfo.digest } returns ByteArray(4)
         every { blobMock.uploadReport(any(), any(), any(), any()) } returns mockBlobInfo
         every { mockReportFile.reportId } returns randomUUID

@@ -1048,6 +1048,10 @@
           "type": "string",
           "format": "uri"
         },
+        "encryptionKeyUrl": {
+          "type": "string",
+          "format": "uri"
+        },
         "headers": {
           "type": "object"
         },

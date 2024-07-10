@@ -1,0 +1,98 @@
+- name: "pr-phd"
+  description: "Puerto Rico Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "PR"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: [ ]
+  receivers:
+    - name: "full-elr"
+      organizationName: "pr-phd"
+      topic: "full-elr"
+      customerStatus: "active"
+      translation:
+        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/PR/PR-receiver-transform.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+        receivingApplicationName: null
+        receivingApplicationOID: null
+        receivingFacilityName: null
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: { }
+        replaceValueAwithB: { }
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: { }
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: { }
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: false
+          truncateHl7Fields: [ ]
+          customLengthHl7Fields: { }
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'PR') or (Bundle.entry.resource.ofType(Patient).address.state = 'PR')"
+      qualityFilter:
+        - "Bundle.identifier.value.exists()"
+        - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
+        - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
+        - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
+        - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists())
+           or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
+      routingFilter: [ ]
+      processingModeFilter: [ ]
+      reverseTheQualityFilter: false
+      conditionFilter:
+        # Accept COVID only
+        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+      mappedConditionFilter: [ ]
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:09"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport:
+        host: "biosftp.blob.core.windows.net"
+        port: "22"
+        filePath: "./results"
+        credentialName: null
+        type: "SFTP"
+      externalName: null
+      enrichmentSchemaNames: [ ]
+      timeZone: null
+      dateTimeFormat: "OFFSET"

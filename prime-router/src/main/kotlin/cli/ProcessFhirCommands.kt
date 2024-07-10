@@ -18,7 +18,7 @@ import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.common.Environment
@@ -64,7 +64,7 @@ class ProcessFhirCommands : CliktCommand(
      * The format to output the data.
      */
     private val outputFormat by option("--output-format", help = "output format")
-        .choice(Report.Format.HL7.toString(), Report.Format.FHIR.toString()).required()
+        .choice(MimeFormat.HL7.toString(), MimeFormat.FHIR.toString()).required()
 
     /**
      * String of file names
@@ -106,7 +106,7 @@ class ProcessFhirCommands : CliktCommand(
         val inputFileType = inputFile.extension.uppercase()
         when {
             // HL7 to FHIR conversion
-            inputFileType == "HL7" && outputFormat == Report.Format.FHIR.toString() -> {
+            inputFileType == "HL7" && outputFormat == MimeFormat.FHIR.toString() -> {
                 var fhirMessage = convertHl7ToFhir(contents).first
                 fhirMessage = applyEnrichmentSchemas(fhirMessage)
                 outputResult(
@@ -115,17 +115,17 @@ class ProcessFhirCommands : CliktCommand(
             }
 
             // FHIR to HL7 conversion
-            (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == Report.Format.HL7.toString() -> {
+            (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == MimeFormat.HL7.toString() -> {
                 outputResult(convertFhirToHl7(contents))
             }
 
             // FHIR to FHIR conversion
-            (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == Report.Format.FHIR.toString() -> {
+            (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == MimeFormat.FHIR.toString() -> {
                 outputResult(convertFhirToFhir(contents), actionLogger)
             }
 
             // HL7 to FHIR to HL7 conversion
-            inputFileType == "HL7" && outputFormat == Report.Format.HL7.toString() -> {
+            inputFileType == "HL7" && outputFormat == MimeFormat.HL7.toString() -> {
                 val (bundle, inputMessage) = convertHl7ToFhir(contents)
                 val output = convertFhirToHl7(FhirTranscoder.encode(bundle))
                 outputResult(output)
