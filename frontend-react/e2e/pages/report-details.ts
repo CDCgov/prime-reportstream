@@ -12,25 +12,19 @@ import {
 import { MOCK_GET_DELIVERY } from "../mocks/delivery";
 import { MOCK_GET_FACILITIES } from "../mocks/facilities";
 import { MOCK_GET_HISTORY_REPORT } from "../mocks/historyReport";
+import { MOCK_GET_SUBMISSION_HISTORY } from "../mocks/submissionHistory";
 
 export const URL_REPORT_DETAILS = "/report-details";
 export const API_WATERS_REPORT = "**/api/waters/report";
 export const API_HISTORY_REPORT = "**/api/history/report";
 export const API_WATERS_ORG = "**/api/waters/org";
+
 export async function goto(page: Page, id: string) {
     await page.goto(`${URL_REPORT_DETAILS}/${id}`, {
         waitUntil: "domcontentloaded",
     });
 }
-
-export async function reportIdDetailPage(page: Page) {
-    const reportDetailsPage = page;
-    await reportDetailsPage.waitForLoadState();
-    await expect(reportDetailsPage.locator("h1")).toBeAttached();
-    return reportDetailsPage;
-}
-
-export async function mockGetDeliveryResponse(
+export async function mockGetReportDeliveryResponse(
     page: Page,
     id: string,
     responseStatus = 200,
@@ -137,13 +131,24 @@ export async function mockGetDeliveriesForOrgIgnoreResponse(
     }
 }
 
-export async function mockGetFacilitiesResponse(
+export async function mockGetReportFacilitiesResponse(
     page: Page,
     id: string,
     responseStatus = 200,
 ) {
     await page.route(`${API_WATERS_REPORT}/${id}/facilities`, async (route) => {
         const json = MOCK_GET_FACILITIES;
+        await route.fulfill({ json, status: responseStatus });
+    });
+}
+
+export async function mockGetSubmissionHistoryResponse(
+    page: Page,
+    id: string,
+    responseStatus = 200,
+) {
+    await page.route(`${API_WATERS_REPORT}/${id}/history`, async (route) => {
+        const json = MOCK_GET_SUBMISSION_HISTORY;
         await route.fulfill({ json, status: responseStatus });
     });
 }
