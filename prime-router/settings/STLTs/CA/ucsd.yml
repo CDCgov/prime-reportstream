@@ -33,10 +33,10 @@
         receivingApplicationName: "EPIC-INNERCONNECT"
         receivingFacilityName: "CA"
       jurisdictionalFilter:
-        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"
-        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"
-        - "Bundle.entry.resource.ofType(MessageHeader).sender.resolve().identifier.where(value = 'CDPH').exists()"
-        - "Bundle.entry.resource.ofType(DiagnosticReport)[0].basedOn.resolve().requester.resolve().organization.resolve().extension.where(url = 'https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization').extension.where(url = 'XON.10').value in ('R797' | 'R508')"
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"  # ORU_R01
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"  # required to avoid looping issue with TI
+        - "Bundle.entry.resource.ofType(MessageHeader).sender.resolve().identifier.where(value = 'CDPH').exists()"  # sender filter
+        - "Bundle.entry.resource.ofType(DiagnosticReport)[0].basedOn.resolve().requester.resolve().organization.resolve().extension.where(url = 'https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization').extension.where(url = 'XON.10').value in ('R797' | 'R508')"  # receiver filter
       qualityFilter:
         - "true"
       timing:
