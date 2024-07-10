@@ -42,11 +42,11 @@ import java.util.UUID
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
 class SubmissionFunctionIntegrationTests {
 
-    class NodeBuilder {
+    class ReportNodeBuilder {
         lateinit var theAction: TaskAction
         var theReportBlobUrl: String = UUID.randomUUID().toString()
         var theItemCount: Int = 1
-        val nodes: MutableList<NodeBuilder> = mutableListOf()
+        val reportGraphNodes: MutableList<ReportNodeBuilder> = mutableListOf()
         var receiver: Receiver? = null
         var logs: MutableList<ActionLog> = mutableListOf()
         var theTransportResult: String? = null
@@ -67,8 +67,8 @@ class SubmissionFunctionIntegrationTests {
             this.theItemCount = itemCount
         }
 
-        fun node(initializer: NodeBuilder.() -> Unit) {
-            this.nodes.add(NodeBuilder().apply(initializer))
+        fun reportGraphNode(initializer: ReportNodeBuilder.() -> Unit) {
+            this.reportGraphNodes.add(ReportNodeBuilder().apply(initializer))
         }
 
         fun log(actionLog: ActionLog) {
@@ -84,8 +84,8 @@ class SubmissionFunctionIntegrationTests {
         val children: MutableList<PipelineGraphNode> = mutableListOf()
     }
 
-    class PipelineGraphBuilder {
-        private lateinit var theRoot: NodeBuilder
+    class ReportGraphBuilder {
+        private lateinit var theSubmission: ReportNodeBuilder
         private lateinit var theTopic: Topic
         private lateinit var theFormat: Report.Format
         private lateinit var theSender: Sender
@@ -102,8 +102,8 @@ class SubmissionFunctionIntegrationTests {
             this.theSender = sender
         }
 
-        fun root(initializer: NodeBuilder.() -> Unit) {
-            this.theRoot = NodeBuilder().apply(initializer)
+        fun submission(initializer: ReportNodeBuilder.() -> Unit) {
+            this.theSubmission = ReportNodeBuilder().apply(initializer)
         }
 
         fun generate(dbAccess: DatabaseAccess): PipelineGraphNode {
@@ -113,21 +113,21 @@ class SubmissionFunctionIntegrationTests {
             if (!::theFormat.isInitialized) {
                 throw IllegalStateException("Format must be set")
             }
-            if (!::theRoot.isInitialized) {
+            if (!::theSubmission.isInitialized) {
                 throw IllegalStateException("Root must be set")
             }
             val graph = dbAccess.transactReturning { txn ->
                 val report = Report(
                     theFormat,
                     emptyList(),
-                    theRoot.theItemCount,
+                    theSubmission.theItemCount,
                     metadata = UnitTestUtils.simpleMetadata,
                     // TODO
                     nextAction = TaskAction.convert,
                     topic = theTopic
                 )
 
-                val action = Action().setActionName(theRoot.theAction).setExternalName("")
+                val action = Action().setActionName(theSubmission.theAction).setExternalName("")
                 action.setSendingOrg(theSender.organizationName)
                 action.setSendingOrgClient(theSender.name)
                 action.setHttpStatus(201)
@@ -141,17 +141,17 @@ class SubmissionFunctionIntegrationTests {
                     .setSendingOrg(theSender.organizationName)
                     .setSendingOrgClient(theSender.name)
                     .setBodyFormat(theFormat.toString())
-                    .setItemCount(theRoot.theItemCount)
+                    .setItemCount(theSubmission.theItemCount)
                     .setExternalName("test-external-name")
-                    .setBodyUrl(theRoot.theReportBlobUrl)
-                    .setNextAction(theRoot.nodes.firstOrNull()?.theAction)
+                    .setBodyUrl(theSubmission.theReportBlobUrl)
+                    .setNextAction(theSubmission.reportGraphNodes.firstOrNull()?.theAction)
                 dbAccess.insertReportFile(
                     reportFile, txn, action
                 )
 
                 val graph = PipelineGraphNode(reportFile)
 
-                theRoot.nodes.foldIndexed(graph) { nodeIndex, acc, node ->
+                theSubmission.reportGraphNodes.foldIndexed(graph) { nodeIndex, acc, node ->
                     acc.children.add(descend(node, dbAccess, txn, report, graph, nodeIndex))
                     acc
                 }
@@ -161,7 +161,7 @@ class SubmissionFunctionIntegrationTests {
         }
 
         private fun descend(
-            node: NodeBuilder,
+            node: ReportNodeBuilder,
             dbAccess: DatabaseAccess,
             txn: DataAccessTransaction,
             report: Report,
@@ -194,7 +194,7 @@ class SubmissionFunctionIntegrationTests {
                 .setExternalName("test-external-name")
                 .setBodyUrl(node.theReportBlobUrl)
                 .setTransportResult(node.theTransportResult)
-                .setNextAction(node.nodes.firstOrNull()?.theAction)
+                .setNextAction(node.reportGraphNodes.firstOrNull()?.theAction)
 
             if (node.receiver != null) {
                 childReportFile.setReceivingOrg(node.receiver!!.organizationName)
@@ -208,7 +208,7 @@ class SubmissionFunctionIntegrationTests {
                 log.reportId = childReport.id
                 dbAccess.insertActionLog(log, txn)
             }
-            // TODO item lineage
+
             dbAccess.insertReportLineage(
                 ReportLineage(
                     null,
@@ -234,10 +234,10 @@ class SubmissionFunctionIntegrationTests {
                         ""
                     )
                 ),
-                    txn, childAction
+                txn, childAction
             )
             val childGraph = PipelineGraphNode(childReportFile)
-            node.nodes.foldIndexed(graph) { childNodeIndex, acc, descendant ->
+            node.reportGraphNodes.foldIndexed(graph) { childNodeIndex, acc, descendant ->
                 descend(descendant, dbAccess, txn, report, childGraph, childNodeIndex)
                 acc
             }
@@ -245,42 +245,43 @@ class SubmissionFunctionIntegrationTests {
         }
     }
 
-    fun history(initializer: PipelineGraphBuilder.() -> Unit): PipelineGraphBuilder {
-        return PipelineGraphBuilder().apply(initializer)
+    fun reportGraph(initializer: ReportGraphBuilder.() -> Unit): ReportGraphBuilder {
+        return ReportGraphBuilder().apply(initializer)
     }
 
     @Test
     fun `it should return a history for partially delivered submission`() {
-        val submittedReport = history {
+        val submittedReport = reportGraph {
             topic(Topic.FULL_ELR)
             format(Report.Format.HL7)
+            // TODO: DSL for generating org,sender,receiver
             sender(UniversalPipelineTestUtils.hl7Sender)
 
-            root {
+            submission {
                 action(TaskAction.receive)
-                node {
+                reportGraphNode {
                     action(TaskAction.convert)
                     log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
-                    node {
+                    reportGraphNode {
                         action(TaskAction.route)
-                        node {
+                        reportGraphNode {
                             action(TaskAction.translate)
                             receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
                             itemCount(0)
                         }
                     }
-                    node {
+                    reportGraphNode {
                         action(TaskAction.route)
-                        node {
+                        reportGraphNode {
                             action(TaskAction.translate)
                             receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
-                            node {
+                            reportGraphNode {
                                 action(TaskAction.send)
                                 transportResult("Success")
                                 receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
                             }
                         }
-                        node {
+                        reportGraphNode {
                             action(TaskAction.translate)
                             receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
                             itemCount(0)
@@ -308,12 +309,12 @@ class SubmissionFunctionIntegrationTests {
 
     @Test
     fun `it should return a history that a submission has been received`() {
-        val submittedReport = history {
+        val submittedReport = reportGraph {
             topic(Topic.FULL_ELR)
             format(Report.Format.HL7)
             sender(UniversalPipelineTestUtils.hl7Sender)
 
-            root {
+            submission {
                 action(TaskAction.receive)
             }
         }.generate(ReportStreamTestDatabaseContainer.testDatabaseAccess)
@@ -336,17 +337,17 @@ class SubmissionFunctionIntegrationTests {
 
     @Test
     fun `it should return a history that indicates the report is not going to be delivered`() {
-        val submittedReport = history {
+        val submittedReport = reportGraph {
             topic(Topic.FULL_ELR)
             format(Report.Format.HL7)
             sender(UniversalPipelineTestUtils.hl7Sender)
 
-            root {
+            submission {
                 action(TaskAction.receive)
-                node {
+                reportGraphNode {
                     action(TaskAction.convert)
                     log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
-                    node {
+                    reportGraphNode {
                         action(TaskAction.route)
                     }
                 }
@@ -371,45 +372,45 @@ class SubmissionFunctionIntegrationTests {
 
     @Test
     fun `it should return a history that indicates waiting to deliver`() {
-        val submittedReport = history {
+        val submittedReport = reportGraph {
             topic(Topic.FULL_ELR)
             format(Report.Format.HL7)
             sender(UniversalPipelineTestUtils.hl7Sender)
 
-            root {
+            submission {
                 action(TaskAction.receive)
-                node {
+                reportGraphNode {
                     action(TaskAction.convert)
                     log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
-                    node {
+                    reportGraphNode {
                         action(TaskAction.route)
                         log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.error))
-                        node {
+                        reportGraphNode {
                             action(TaskAction.translate)
                             receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
-                            node {
+                            reportGraphNode {
                                 action(TaskAction.send)
                                 transportResult("Success")
                                 receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
                             }
                         }
-                        node {
+                        reportGraphNode {
                             action(TaskAction.translate)
                             receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
                         }
                     }
-                    node {
+                    reportGraphNode {
                         action(TaskAction.route)
-                        node {
+                        reportGraphNode {
                             action(TaskAction.translate)
                             receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
-                            node {
+                            reportGraphNode {
                                 action(TaskAction.send)
                                 transportResult("Success")
                                 receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
                             }
                         }
-                        node {
+                        reportGraphNode {
                             action(TaskAction.translate)
                             receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
                         }
@@ -436,53 +437,53 @@ class SubmissionFunctionIntegrationTests {
 
     @Test
     fun `it should return history of a submission that is delivered`() {
-        val submittedReport = history {
+        val submittedReport = reportGraph {
             topic(Topic.FULL_ELR)
             format(Report.Format.HL7)
             sender(UniversalPipelineTestUtils.hl7Sender)
 
-            root {
+            submission {
                 action(TaskAction.receive)
-                node {
+                reportGraphNode {
                     action(TaskAction.convert)
                     log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
-                    node {
+                    reportGraphNode {
                         action(TaskAction.route)
                         log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.error))
-                        node {
+                        reportGraphNode {
                             action(TaskAction.translate)
                             receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
-                            node {
+                            reportGraphNode {
                                 action(TaskAction.send)
                                 transportResult("Success")
                                 receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
                             }
                         }
-                        node {
+                        reportGraphNode {
                             action(TaskAction.translate)
                             receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
-                            node {
+                            reportGraphNode {
                                 action(TaskAction.send)
                                 transportResult("Success")
                                 receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
                             }
                         }
                     }
-                    node {
+                    reportGraphNode {
                         action(TaskAction.route)
-                        node {
+                        reportGraphNode {
                             action(TaskAction.translate)
                             receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
-                            node {
+                            reportGraphNode {
                                 action(TaskAction.send)
                                 transportResult("Success")
                                 receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
                             }
                         }
-                        node {
+                        reportGraphNode {
                             action(TaskAction.translate)
                             receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
-                            node {
+                            reportGraphNode {
                                 action(TaskAction.send)
                                 transportResult("Success")
                                 receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])

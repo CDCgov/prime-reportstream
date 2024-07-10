@@ -78,7 +78,7 @@ abstract class ReportFileFunction(
      * @param action Action from which the data for the report is loaded
      * @return
      */
-    abstract fun singleDetailedHistory(id: String, txn: DataAccessTransaction, action: Action): ReportHistory?
+    abstract fun singleDetailedHistory(txn: DataAccessTransaction, action: Action): ReportHistory?
 
     /**
      * Verify that the action being checked has the correct data/parameters
@@ -156,7 +156,7 @@ abstract class ReportFileFunction(
             } else {
                 val action = this.actionFromId(id)
                 val history = workflowEngine.db.transactReturning { txn ->
-                    this.singleDetailedHistory(id, txn, action)
+                    this.singleDetailedHistory(txn, action)
                 }
                 HttpUtilities.okJSONResponse(request, history)
             }

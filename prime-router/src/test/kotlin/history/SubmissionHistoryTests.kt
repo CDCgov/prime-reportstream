@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.history
 
-import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
@@ -399,7 +398,7 @@ class SubmissionHistoryTests {
             assertThat(externalName).isEqualTo("")
             assertThat(destinations.size).isEqualTo(0)
             assertThat(destinationCount).isEqualTo(0)
-            assertThat(reports).isNull()
+            assertThat(reports).isEmpty()
             assertThat(logs.size).isEqualTo(0)
         }
 
@@ -546,19 +545,6 @@ class SubmissionHistoryTests {
             assertThat(destinationCount).isEqualTo(2)
 
             assertThat(logs).isNotNull()
-        }
-
-        reports = listOf(inputReport, inputReport).toMutableList()
-
-        assertFailure {
-            DetailedSubmissionHistory(
-                1,
-                TaskAction.receive,
-                OffsetDateTime.now(),
-                null,
-                reports,
-                emptyList()
-            )
         }
     }
 

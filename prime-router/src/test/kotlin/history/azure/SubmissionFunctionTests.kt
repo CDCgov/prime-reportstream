@@ -468,6 +468,7 @@ class SubmissionFunctionTests : Logging {
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any(), any()) } returns returnBody
         every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
+        every { mockSubmissionFacade.fetchReportForActionId(any(), any()) } returns null
         response = function.getReportDetailedHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         var responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())

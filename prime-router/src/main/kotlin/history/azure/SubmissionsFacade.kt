@@ -23,7 +23,7 @@ import java.util.UUID
  */
 class SubmissionsFacade(
     private val dbSubmissionAccess: HistoryDatabaseAccess = DatabaseSubmissionsAccess(),
-    dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
+    val dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
     private val reportGraph: ReportGraph = ReportGraph(),
 ) : ReportFileFacade(
     dbAccess,

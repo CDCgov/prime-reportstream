@@ -92,11 +92,11 @@ class SubmissionFunction(
      * @return
      */
     override fun singleDetailedHistory(
-        id: String,
         txn: DataAccessTransaction,
         action: Action,
     ): DetailedSubmissionHistory? {
-        return submissionsFacade.findDetailedSubmissionHistory(txn, UUID.fromString(id), action)
+        val report = submissionsFacade.fetchReportForActionId(action.actionId, txn)
+        return submissionsFacade.findDetailedSubmissionHistory(txn, report?.reportId, action)
     }
 
     /**
