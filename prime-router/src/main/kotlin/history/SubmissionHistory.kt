@@ -12,7 +12,6 @@ import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.ReportStreamFilterResult
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
@@ -120,7 +119,7 @@ class DetailedSubmissionHistory(
     createdAt: OffsetDateTime,
     httpStatus: Int? = null,
     @JsonIgnore
-    val reports: MutableList<DetailedReport>? = mutableListOf(),
+    val reports: MutableList<DetailedReport>,
     @JsonIgnore
     var logs: List<DetailedActionLog> = emptyList(),
 ) : SubmissionHistory(
@@ -155,11 +154,6 @@ class DetailedSubmissionHistory(
      * Warnings logged for this Report File.
      */
     val warnings = mutableListOf<ConsolidatedActionLog>()
-
-    /**
-     * The number of warnings.  Note this is not the number of consolidated warnings.
-     */
-    val warningCount = logs.count { it.type == ActionLogLevel.warning }
 
     /**
      * The number of errors.  Note this is not the number of consolidated errors.
@@ -240,9 +234,14 @@ class DetailedSubmissionHistory(
         }
 
     init {
-        reports?.forEach { report ->
-            // For reports sent to a destination
-            report.receivingOrg?.let {
+        // Iterate over all the reports in the report lineage, processing them to generate the
+        // destinations
+        reports.forEach { report ->
+
+            // If the report has a receiving org, it means that it contains information about a destination
+            report.receivingOrg?.apply {
+
+                // TODO: TICKET re-implement this and include the index from the original report
                 val filterLogs = logs.filter {
                     it.type == ActionLogLevel.filter && it.reportId == report.reportId
                 }
@@ -250,16 +249,15 @@ class DetailedSubmissionHistory(
                 val filteredReportItems = filterLogs.map {
                     ReportStreamFilterResultForResponse(it.detail as ReportStreamFilterResult)
                 }
-                // If there is no transport defined, there will not be a next action so sending at
-                // should be null.
-                val nextActionTime = if (report.receiverHasTransport) report.nextActionAt else null
+
                 val existingDestination =
                     destinations.find {
                         it.organizationId == report.receivingOrg && it.service == report.receivingOrgSvc
                     }
+                val sentReports = if (report.transportResult != null) mutableListOf(report) else mutableListOf()
+                val downloadedReports = if (report.downloadedBy != null) mutableListOf(report) else mutableListOf()
                 if (existingDestination == null) {
-                    val sentReports = if (report.transportResult != null) mutableListOf(report) else mutableListOf()
-                    val downloadedReports = if (report.downloadedBy != null) mutableListOf(report) else mutableListOf()
+                    val nextActionTime = if (report.receiverHasTransport) report.nextActionAt else null
                     destinations.add(
                         Destination(
                             report.receivingOrg,
@@ -274,22 +272,14 @@ class DetailedSubmissionHistory(
                         )
                     )
                 } else {
-                    if (report.transportResult != null) {
-                        existingDestination.sentReports.add(report)
-                    }
-
-                    if (report.downloadedBy != null) {
-                        existingDestination.downloadedReports.add(report)
-                    } else {
-                        // TODO the let is wrong
-                    }
+                    existingDestination.sentReports.addAll(sentReports)
+                    existingDestination.downloadedReports.addAll(downloadedReports)
                 }
             }
 
+            // TODO: does this ever run?
             // For the report received from a sender
             if (report.sendingOrg != null) {
-                // There can only be one!
-                check(reportId == null)
                 // Reports with errors do not show an ID
                 reportId = if (errorCount == 0) report.reportId.toString() else null
                 externalName = report.externalName
@@ -297,19 +287,19 @@ class DetailedSubmissionHistory(
                 sender = ClientSource(report.sendingOrg, report.sendingOrgClient ?: "").name
                 topic = report.schemaTopic
             }
-
             // if there is ANY action scheduled on this submission history, ensure this flag is true
             if (report.nextActionAt != null) nextActionScheduled = true
         }
         destinations.forEach { destination ->
-            val reportsForDestination = reports?.filter {
+            val reportsForDestination = reports.filter {
                 destination.organizationId == it.receivingOrg && destination.service == it.receivingOrgSvc
-            }?.sortedBy { it.createdAt }
-            val oldestReport = reportsForDestination?.first()?.nextAction
-            val reportsGroupedByNextAction = reportsForDestination?.groupBy { it.nextAction }
-            val firstReceiverReports = reportsGroupedByNextAction?.get(oldestReport) ?: emptyList()
-            destination.itemCount = firstReceiverReports.sumOf { it.itemCount }
-            destination.itemCountBeforeQualFilter = firstReceiverReports.sumOf { it.itemCountBeforeQualFilter ?: 0 }
+            }.sortedBy { it.createdAt }
+            val latestAction = reportsForDestination.first().nextAction
+            val reportsGroupedByLatestAction = reportsForDestination.groupBy { it.nextAction }
+            val mostRecentReportsForDestination = reportsGroupedByLatestAction[latestAction] ?: emptyList()
+            destination.itemCount = mostRecentReportsForDestination.sumOf { it.itemCount }
+            destination.itemCountBeforeQualFilter =
+                mostRecentReportsForDestination.sumOf { it.itemCountBeforeQualFilter ?: 0 }
         }
         errors.addAll(consolidateLogs(ActionLogLevel.error))
         warnings.addAll(consolidateLogs(ActionLogLevel.warning))
@@ -355,240 +345,6 @@ class DetailedSubmissionHistory(
         return consolidatedList
     }
 
-    // TODO: https://github.com/CDCgov/prime-reportstream/issues/14350
-    /**
-     * Enrich the submission history with various other related bits of history.
-     *
-     * @param descendants[] the various bits of DetailedSubmissionHistory that will be used to enrich
-     */
-    fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
-        check(descendants.distinctBy { it.actionId }.size == descendants.size)
-        actionsPerformed.addAll(descendants.map { submission -> submission.actionName }.distinct())
-
-        // Enforce an order on the enrichment:  process/translate, send, download
-        if (topic?.isUniversalPipeline == true) {
-            // logs and destinations are handled very differently for UP
-            // both routing and translate are populated at different times,
-            // so we need to do special logic to handle them
-            descendants.filter { it.actionName == TaskAction.translate }.forEach { descendant ->
-                enrichWithTranslateAction(descendant)
-            }
-            descendants.filter { it.actionName == TaskAction.route }.forEach { descendant ->
-                enrichWithRouteAction(descendant)
-            }
-            descendants.filter { it.actionName == TaskAction.convert }.forEach { descendant ->
-                enrichWithConvertAction(descendant)
-            }
-        } else {
-            descendants.filter {
-                it.actionName == TaskAction.process
-            }.forEach { descendant ->
-                enrichWithProcessAction(descendant)
-            }
-        }
-
-        // note: we do not use any data from the batch action at this time.
-        descendants.filter { it.actionName == TaskAction.send }.forEach { descendant ->
-            enrichWithSendAction(descendant)
-        }
-        descendants.filter { it.actionName == TaskAction.download }.forEach { descendant ->
-            enrichWithDownloadAction(descendant)
-        }
-    }
-
-    /**
-     * Enrich a parent detailed history with details from translate actions.
-     * Add destinations, errors, and warnings, to the history details.
-     * Note: Route/Translate is exclusive to the Universal pipeline
-     * See enrichWithProcessAction for the TopicReceiver pipeline counterpart
-     *
-     * @param descendant translate action that will be used to enrich
-     */
-    private fun enrichWithTranslateAction(descendant: DetailedSubmissionHistory) {
-        require(
-            topic?.isUniversalPipeline == true &&
-                descendant.actionName == TaskAction.translate
-        ) {
-            "Must be translate action. Enrichment is only available for the Universal Pipeline"
-        }
-
-        // Grab destinations from the "translate" action
-        descendant.destinations.forEach { descendantDest ->
-            // Check if destination has already been added
-            // if it is increase item counts
-            // otherwise add it to destinations
-            destinations.firstOrNull {
-                it.organizationId == descendantDest.organizationId && it.service == descendantDest.service
-            }?.let { existingDestination ->
-                existingDestination.itemCount += descendantDest.itemCount
-                existingDestination.itemCountBeforeQualFilter =
-                    existingDestination.itemCountBeforeQualFilter?.plus(
-                        descendantDest.itemCountBeforeQualFilter ?: 0
-                    ) ?: descendantDest.itemCountBeforeQualFilter
-            } ?: run {
-                destinations += descendantDest
-            }
-        }
-    }
-
-    /**
-     * Enrich a parent detailed history with details from the convert action.
-     * Add errors, and warnings, to the history details.
-     *
-     * @param descendant route action that will be used to enrich
-     */
-    private fun enrichWithConvertAction(descendant: DetailedSubmissionHistory) {
-        require(
-            topic?.isUniversalPipeline == true &&
-                descendant.actionName == TaskAction.convert
-        ) {
-            "Must be route action. Enrichment is only available for the Universal Pipeline"
-        }
-        errors += descendant.errors
-        warnings += descendant.warnings
-    }
-
-    /**
-     * Enrich a parent detailed history with details from the route action.
-     * Add destinations, errors, and warnings, to the history details.
-     * Note: Route/Translate is exclusive to the Universal pipeline
-     * See enrichWithProcessAction for the TopicReceiver pipeline counterpart
-     *
-     * @param descendant route action that will be used to enrich
-     */
-    private fun enrichWithRouteAction(descendant: DetailedSubmissionHistory) {
-        require(
-            topic?.isUniversalPipeline == true &&
-                descendant.actionName == TaskAction.route
-        ) {
-            "Must be route action. Enrichment is only available for the Universal Pipeline"
-        }
-        // Grab the filter logs generated during the "route" action, as well as errors and warnings
-        val filterLogs = descendant.logs.filter { log -> log.type == ActionLogLevel.filter }
-        errors += descendant.errors
-        warnings += descendant.warnings
-
-        // add filter logs to its respective destination otherwise add new destination
-        if (filterLogs.isNotEmpty()) {
-            filterLogs.forEach { log ->
-                check(log.detail is ReportStreamFilterResult) { "Filter result not of type ReportStreamFilterResult" }
-                val filterResult = log.detail
-                val filterReport = log.detail.message
-                val receiverNameSegments = filterResult.receiverName.split(Sender.fullNameSeparator)
-                val filterResultResponse = ReportStreamFilterResultForResponse(filterResult)
-
-                destinations.firstOrNull {
-                    it.organizationId == receiverNameSegments[0] && it.service == receiverNameSegments[1]
-                }?.let { existingDestination ->
-                    // filteredReportRows and filteredReportItems are initialized
-                    // when a DetailedSubmissionHistory is created, so they shouldn't be null
-                    existingDestination.filteredReportRows!!.add(filterReport)
-                    existingDestination.filteredReportItems!!.add(filterResultResponse)
-                    existingDestination.itemCountBeforeQualFilter = existingDestination.itemCountBeforeQualFilter?.plus(
-                        filterResult.originalCount
-                    ) ?: filterResult.originalCount
-                } ?: run {
-                    destinations.add(
-                        Destination(
-                            receiverNameSegments[0],
-                            receiverNameSegments[1],
-                            mutableListOf(filterReport),
-                            mutableListOf(ReportStreamFilterResultForResponse(filterResult)),
-                            null,
-                            0,
-                            filterResult.originalCount,
-                        )
-                    )
-                }
-            }
-        }
-    }
-
-    /**
-     * Enrich a parent detailed history with details from the process action.
-     * Add destinations, errors, and warnings, to the history details.
-     * Note: Process is exclusive to the COVID pipeline
-     * See enrichWithRoutingAndTranslationActions for the Universal pipeline counterpart
-     *
-     * @param descendant the history used for enriching
-     */
-    private fun enrichWithProcessAction(descendant: DetailedSubmissionHistory) {
-        require(descendant.actionName == TaskAction.process) {
-            "Must be a process action"
-        }
-        destinations += descendant.destinations
-        errors += descendant.errors
-        warnings += descendant.warnings
-    }
-
-    /**
-     * Enrich a parent detailed history with details from the send action.
-     * Add sent report information to each destination present in the parent's historical details.
-     *
-     * @param descendant the history used for enriching
-     */
-    private fun enrichWithSendAction(descendant: DetailedSubmissionHistory) {
-        require(descendant.actionName == TaskAction.send) { "Must be a send action" }
-        descendant.reports?.let { it ->
-            it.forEach { report ->
-                destinations.find {
-                    it.organizationId == report.receivingOrg && it.service == report.receivingOrgSvc
-                }?.let {
-                    it.sentReports.add(report)
-                } ?: run {
-                    if (report.receivingOrg != null && report.receivingOrgSvc != null) {
-                        destinations.add(
-                            Destination(
-                                report.receivingOrg,
-                                report.receivingOrgSvc,
-                                null,
-                                null,
-                                null,
-                                report.itemCount,
-                                report.itemCountBeforeQualFilter,
-                            )
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Enrich a parent detailed history with details from the download action
-     * Add download report information to each destination present in the parent's historical details.
-     *
-     * @param descendant the history used for enriching
-     */
-    private fun enrichWithDownloadAction(descendant: DetailedSubmissionHistory) {
-        require(descendant.actionName == TaskAction.download) { "Must be a download action" }
-
-        descendant.reports?.let { it ->
-            it.forEach { report ->
-                destinations.find {
-                    it.organizationId == report.receivingOrg && it.service == report.receivingOrgSvc
-                }?.let {
-                    it.downloadedReports.add(report)
-                } ?: run {
-                    if (report.receivingOrg != null && report.receivingOrgSvc != null) {
-                        val dest = Destination(
-                            report.receivingOrg,
-                            report.receivingOrgSvc,
-                            null,
-                            null,
-                            null,
-                            report.itemCount,
-                            report.itemCountBeforeQualFilter,
-                        )
-
-                        destinations.add(dest)
-                        dest.downloadedReports.add(report)
-                    }
-                }
-            }
-        }
-    }
-
     /**
      *  Update the summary fields for this Submission report based on the destinations that
      *  will be receiving reports.
@@ -620,9 +376,12 @@ class DetailedSubmissionHistory(
              * The most likely scenario for that is when the item does not pass the jurisdictional filter for any of
              * the receivers.
              */
+            // TODO delete
             return if (
-                (actionsPerformed.contains(TaskAction.route) || actionsPerformed.contains(TaskAction.convert)) &&
-                !nextActionScheduled
+                (
+                    (actionsPerformed.contains(TaskAction.route) || actionsPerformed.contains(TaskAction.convert)) &&
+                    !nextActionScheduled
+                ) || reports.size > 1
             ) {
                 Status.NOT_DELIVERING
             } else {

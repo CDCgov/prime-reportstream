@@ -17,6 +17,7 @@ import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.common.JacksonMapperUtilities
@@ -30,6 +31,7 @@ import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockkObject
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -149,8 +151,8 @@ class SubmissionFunctionIntegrationTests {
 
                 val graph = PipelineGraphNode(reportFile)
 
-                theRoot.nodes.fold(graph) { acc, node ->
-                    acc.children.add(descend(node, dbAccess, txn, report, graph))
+                theRoot.nodes.foldIndexed(graph) { nodeIndex, acc, node ->
+                    acc.children.add(descend(node, dbAccess, txn, report, graph, nodeIndex))
                     acc
                 }
                 graph
@@ -164,6 +166,7 @@ class SubmissionFunctionIntegrationTests {
             txn: DataAccessTransaction,
             report: Report,
             graph: PipelineGraphNode,
+            nodeIndex: Int,
         ): PipelineGraphNode {
             val childReport = Report(
                 theFormat,
@@ -217,9 +220,25 @@ class SubmissionFunctionIntegrationTests {
                 txn
             )
 
+            dbAccess.insertItemLineages(
+                setOf(
+                    ItemLineage(
+                        null,
+                        graph.node.reportId,
+                        1,
+                        childReportFile.reportId,
+                        nodeIndex + 1,
+                        null,
+                        null,
+                        null,
+                        ""
+                    )
+                ),
+                    txn, childAction
+            )
             val childGraph = PipelineGraphNode(childReportFile)
-            node.nodes.fold(graph) { acc, descendant ->
-                descend(descendant, dbAccess, txn, report, childGraph)
+            node.nodes.foldIndexed(graph) { childNodeIndex, acc, descendant ->
+                descend(descendant, dbAccess, txn, report, childGraph, childNodeIndex)
                 acc
             }
             return childGraph
@@ -228,6 +247,191 @@ class SubmissionFunctionIntegrationTests {
 
     fun history(initializer: PipelineGraphBuilder.() -> Unit): PipelineGraphBuilder {
         return PipelineGraphBuilder().apply(initializer)
+    }
+
+    @Test
+    fun `it should return a history for partially delivered submission`() {
+        val submittedReport = history {
+            topic(Topic.FULL_ELR)
+            format(Report.Format.HL7)
+            sender(UniversalPipelineTestUtils.hl7Sender)
+
+            root {
+                action(TaskAction.receive)
+                node {
+                    action(TaskAction.convert)
+                    log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
+                    node {
+                        action(TaskAction.route)
+                        node {
+                            action(TaskAction.translate)
+                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                            itemCount(0)
+                        }
+                    }
+                    node {
+                        action(TaskAction.route)
+                        node {
+                            action(TaskAction.translate)
+                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                            node {
+                                action(TaskAction.send)
+                                transportResult("Success")
+                                receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                            }
+                        }
+                        node {
+                            action(TaskAction.translate)
+                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                            itemCount(0)
+                        }
+                    }
+                }
+            }
+        }.generate(ReportStreamTestDatabaseContainer.testDatabaseAccess)
+
+        val httpRequestMessage = MockHttpRequestMessage()
+
+        val func = setupSubmissionFunction()
+
+        val history = func
+            .getReportDetailedHistory(httpRequestMessage, submittedReport.node.reportId.toString())
+        assertThat(history).isNotNull()
+        val historyNode = JacksonMapperUtilities.defaultMapper.readTree(history.body.toString())
+        assertThat(
+            historyNode.get("overallStatus").asText()
+        ).isEqualTo(DetailedSubmissionHistory.Status.PARTIALLY_DELIVERED.toString())
+        assertThat(historyNode.get("destinations").size()).isEqualTo(2)
+        assertThat(historyNode.get("errors").size()).isEqualTo(0)
+        assertThat(historyNode.get("warnings").size()).isEqualTo(1)
+    }
+
+    @Test
+    fun `it should return a history that a submission has been received`() {
+        val submittedReport = history {
+            topic(Topic.FULL_ELR)
+            format(Report.Format.HL7)
+            sender(UniversalPipelineTestUtils.hl7Sender)
+
+            root {
+                action(TaskAction.receive)
+            }
+        }.generate(ReportStreamTestDatabaseContainer.testDatabaseAccess)
+
+        val httpRequestMessage = MockHttpRequestMessage()
+
+        val func = setupSubmissionFunction()
+
+        val history = func
+            .getReportDetailedHistory(httpRequestMessage, submittedReport.node.reportId.toString())
+        assertThat(history).isNotNull()
+        val historyNode = JacksonMapperUtilities.defaultMapper.readTree(history.body.toString())
+        assertThat(
+            historyNode.get("overallStatus").asText()
+        ).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED.toString())
+        assertThat(historyNode.get("destinations").size()).isEqualTo(0)
+        assertThat(historyNode.get("errors").size()).isEqualTo(0)
+        assertThat(historyNode.get("warnings").size()).isEqualTo(0)
+    }
+
+    @Test
+    fun `it should return a history that indicates the report is not going to be delivered`() {
+        val submittedReport = history {
+            topic(Topic.FULL_ELR)
+            format(Report.Format.HL7)
+            sender(UniversalPipelineTestUtils.hl7Sender)
+
+            root {
+                action(TaskAction.receive)
+                node {
+                    action(TaskAction.convert)
+                    log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
+                    node {
+                        action(TaskAction.route)
+                    }
+                }
+            }
+        }.generate(ReportStreamTestDatabaseContainer.testDatabaseAccess)
+
+        val httpRequestMessage = MockHttpRequestMessage()
+
+        val func = setupSubmissionFunction()
+
+        val history = func
+            .getReportDetailedHistory(httpRequestMessage, submittedReport.node.reportId.toString())
+        assertThat(history).isNotNull()
+        val historyNode = JacksonMapperUtilities.defaultMapper.readTree(history.body.toString())
+        assertThat(
+            historyNode.get("overallStatus").asText()
+        ).isEqualTo(DetailedSubmissionHistory.Status.NOT_DELIVERING.toString())
+        assertThat(historyNode.get("destinations").size()).isEqualTo(0)
+        assertThat(historyNode.get("errors").size()).isEqualTo(0)
+        assertThat(historyNode.get("warnings").size()).isEqualTo(1)
+    }
+
+    @Test
+    fun `it should return a history that indicates waiting to deliver`() {
+        val submittedReport = history {
+            topic(Topic.FULL_ELR)
+            format(Report.Format.HL7)
+            sender(UniversalPipelineTestUtils.hl7Sender)
+
+            root {
+                action(TaskAction.receive)
+                node {
+                    action(TaskAction.convert)
+                    log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
+                    node {
+                        action(TaskAction.route)
+                        log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.error))
+                        node {
+                            action(TaskAction.translate)
+                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                            node {
+                                action(TaskAction.send)
+                                transportResult("Success")
+                                receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                            }
+                        }
+                        node {
+                            action(TaskAction.translate)
+                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                        }
+                    }
+                    node {
+                        action(TaskAction.route)
+                        node {
+                            action(TaskAction.translate)
+                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                            node {
+                                action(TaskAction.send)
+                                transportResult("Success")
+                                receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                            }
+                        }
+                        node {
+                            action(TaskAction.translate)
+                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                        }
+                    }
+                }
+            }
+        }.generate(ReportStreamTestDatabaseContainer.testDatabaseAccess)
+
+        val httpRequestMessage = MockHttpRequestMessage()
+
+        val func = setupSubmissionFunction()
+
+        val history = func
+            .getReportDetailedHistory(httpRequestMessage, submittedReport.node.reportId.toString())
+        assertThat(history).isNotNull()
+        val historyNode = JacksonMapperUtilities.defaultMapper.readTree(history.body.toString())
+        assertThat(
+            historyNode.get("overallStatus").asText()
+        ).isEqualTo(DetailedSubmissionHistory.Status.WAITING_TO_DELIVER.toString())
+        assertThat(historyNode.get("destinations").size()).isEqualTo(2)
+        assertThat(historyNode.get("errors").size()).isEqualTo(1)
+        assertThat(historyNode.get("warnings").size()).isEqualTo(1)
     }
 
     @Test
@@ -264,32 +468,34 @@ class SubmissionFunctionIntegrationTests {
                             }
                         }
                     }
+                    node {
+                        action(TaskAction.route)
+                        node {
+                            action(TaskAction.translate)
+                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                            node {
+                                action(TaskAction.send)
+                                transportResult("Success")
+                                receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                            }
+                        }
+                        node {
+                            action(TaskAction.translate)
+                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                            node {
+                                action(TaskAction.send)
+                                transportResult("Success")
+                                receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                            }
+                        }
+                    }
                 }
             }
         }.generate(ReportStreamTestDatabaseContainer.testDatabaseAccess)
 
         val httpRequestMessage = MockHttpRequestMessage()
 
-        val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
-        val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
-        mockkObject(AuthenticatedClaims)
-        every { AuthenticatedClaims.authenticate(any()) } returns claims
-        val workflowEngine = WorkflowEngine
-            .Builder()
-            .metadata(UnitTestUtils.simpleMetadata)
-            .settingsProvider(
-                FileSettings().loadOrganizations(UniversalPipelineTestUtils.universalPipelineOrganization)
-            )
-            .databaseAccess(ReportStreamTestDatabaseContainer.testDatabaseAccess)
-            .build()
-
-        val func = SubmissionFunction(
-            SubmissionsFacade(
-                DatabaseSubmissionsAccess(ReportStreamTestDatabaseContainer.testDatabaseAccess),
-                ReportStreamTestDatabaseContainer.testDatabaseAccess
-            ),
-            workflowEngine,
-        )
+        val func = setupSubmissionFunction()
 
         val history = func
             .getReportDetailedHistory(httpRequestMessage, submittedReport.node.reportId.toString())
@@ -301,5 +507,34 @@ class SubmissionFunctionIntegrationTests {
         assertThat(historyNode.get("destinations").size()).isEqualTo(2)
         assertThat(historyNode.get("errors").size()).isEqualTo(1)
         assertThat(historyNode.get("warnings").size()).isEqualTo(1)
+        assertThat(historyNode.get("sender").asText()).isEqualTo("phd.elr-hl7-sender")
+        assertThat(historyNode.get("actualCompletionAt").asText()).isNotNull()
+    }
+
+    @BeforeEach
+    fun setupAuth() {
+        val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+        val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+        mockkObject(AuthenticatedClaims)
+        every { AuthenticatedClaims.authenticate(any()) } returns claims
+    }
+
+    private fun setupSubmissionFunction(): SubmissionFunction {
+        val workflowEngine = WorkflowEngine
+            .Builder()
+            .metadata(UnitTestUtils.simpleMetadata)
+            .settingsProvider(
+                FileSettings().loadOrganizations(UniversalPipelineTestUtils.universalPipelineOrganization)
+            )
+            .databaseAccess(ReportStreamTestDatabaseContainer.testDatabaseAccess)
+            .build()
+        return SubmissionFunction(
+            SubmissionsFacade(
+                DatabaseSubmissionsAccess(ReportStreamTestDatabaseContainer.testDatabaseAccess),
+                ReportStreamTestDatabaseContainer.testDatabaseAccess
+            ),
+            workflowEngine,
+
+            )
     }
 }

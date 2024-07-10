@@ -457,7 +457,7 @@ class SubmissionFunctionTests : Logging {
         // Good return
         val returnBody = DetailedSubmissionHistory(
             550, TaskAction.receive, OffsetDateTime.now(), 201,
-            null
+            mutableListOf()
         )
         // Happy path with a good UUID
         val action = Action()
@@ -466,7 +466,7 @@ class SubmissionFunctionTests : Logging {
         action.actionName = TaskAction.receive
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any(), any()) } returns returnBody
         every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
         response = function.getReportDetailedHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -498,7 +498,7 @@ class SubmissionFunctionTests : Logging {
         // Happy path with a good actionId
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
         every { mockSubmissionFacade.fetchAction(any()) } returns action
-        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any(), any()) } returns returnBody
         every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
         response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -677,7 +677,7 @@ class SubmissionFunctionTests : Logging {
         every { anyConstructed<ReportGraph>().getDescendantReports(any(), any(), any()) } returns emptyList()
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns null
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any(), any()) } returns null
         every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
 
         val restCreds = mockk<RestCredential>()
@@ -760,7 +760,7 @@ class SubmissionFunctionTests : Logging {
         } returns listOf(firstReport, secondReport)
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any(), any()) } returns returnBody
         every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
 
         val restCreds = mockk<RestCredential>()
@@ -850,7 +850,7 @@ class SubmissionFunctionTests : Logging {
         } returns listOf(firstReport, secondReport)
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any(), any()) } returns returnBody
         every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
 
         val restCreds = mockk<RestCredential>()

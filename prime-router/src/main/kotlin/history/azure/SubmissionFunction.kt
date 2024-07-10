@@ -9,6 +9,7 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -91,10 +92,11 @@ class SubmissionFunction(
      * @return
      */
     override fun singleDetailedHistory(
-        queryParams: MutableMap<String, String>,
+        id: String,
+        txn: DataAccessTransaction,
         action: Action,
     ): DetailedSubmissionHistory? {
-        return submissionsFacade.findDetailedSubmissionHistory(action)
+        return submissionsFacade.findDetailedSubmissionHistory(txn, UUID.fromString(id), action)
     }
 
     /**
@@ -129,7 +131,7 @@ class SubmissionFunction(
         ) request: HttpRequestMessage<String?>,
         @BindingName("id") id: String,
     ): HttpResponseMessage {
-        return this.getDetailedView(request, id, true)
+        return this.getDetailedView(request, id)
     }
 
     /**

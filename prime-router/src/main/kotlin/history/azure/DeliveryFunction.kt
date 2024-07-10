@@ -11,6 +11,7 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.ApiResponse
+import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -115,7 +116,7 @@ class DeliveryFunction(
      * @param action Action from which the data for the delivery is loaded
      * @return
      */
-    override fun singleDetailedHistory(queryParams: MutableMap<String, String>, action: Action): DeliveryHistory? {
+    override fun singleDetailedHistory(id: String, txn: DataAccessTransaction, action: Action): DeliveryHistory? {
         return deliveryFacade.findDetailedDeliveryHistory(action.actionId)
     }
 

@@ -6,13 +6,10 @@ import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.RESTTransportType
+import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
-import gov.cdc.prime.router.azure.db.Tables.ACTION_LOG
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
-import gov.cdc.prime.router.history.DetailedActionLog
-import gov.cdc.prime.router.history.DetailedReport
-import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.ReportHistory
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -30,7 +27,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
-import org.jooq.impl.DSL
 import java.net.URLEncoder
 import java.nio.charset.Charset
 import java.time.OffsetDateTime
@@ -82,7 +78,7 @@ abstract class ReportFileFunction(
      * @param action Action from which the data for the report is loaded
      * @return
      */
-    abstract fun singleDetailedHistory(queryParams: MutableMap<String, String>, action: Action): ReportHistory?
+    abstract fun singleDetailedHistory(id: String, txn: DataAccessTransaction, action: Action): ReportHistory?
 
     /**
      * Verify that the action being checked has the correct data/parameters
@@ -150,7 +146,6 @@ abstract class ReportFileFunction(
     fun getDetailedView(
         request: HttpRequestMessage<String?>,
         id: String,
-        useNewTechnique: Boolean = false,
     ): HttpResponseMessage {
         try {
             // Do authentication
@@ -160,57 +155,10 @@ abstract class ReportFileFunction(
                 authResult
             } else {
                 val action = this.actionFromId(id)
-                val history = if (!useNewTechnique) {
-                    this.singleDetailedHistory(request.queryParameters, action)
-                } else {
-                    workflowEngine.db.transactReturning { txn ->
-                        val graph = reportGraph.getDescendantReports(txn, UUID.fromString(id))
-                        val detailedReports = graph.map { reportFile ->
-                            DetailedReport(
-                                reportFile.reportId,
-                                reportFile.receivingOrg,
-                                reportFile.receivingOrgSvc,
-                                reportFile.sendingOrg,
-                                reportFile.sendingOrgClient,
-                                reportFile.schemaTopic,
-                                reportFile.externalName,
-                                reportFile.createdAt,
-                                reportFile.nextActionAt,
-                                reportFile.itemCount,
-                                reportFile.itemCountBeforeQualFilter,
-                                reportFile.transportResult != null,
-                                reportFile.transportResult,
-                                reportFile.downloadedBy,
-                                reportFile.nextAction
-                            )
-                        }.toMutableList()
-                        val reportIds = graph.map { it.reportId }
-                        val logs = DSL
-                            .using(txn)
-                            .select()
-                            .from(ACTION_LOG)
-                            .where(ACTION_LOG.REPORT_ID.`in`(reportIds))
-                            .fetchInto(DetailedActionLog::class.java)
-                        val history =
-                            DetailedSubmissionHistory(
-                                action.actionId,
-                                action.actionName,
-                                action.createdAt,
-                                httpStatus = action.httpStatus,
-                                logs = logs,
-                                reports = detailedReports
-
-                            )
-                        history.enrichWithSummary()
-                        history
-                    }
+                val history = workflowEngine.db.transactReturning { txn ->
+                    this.singleDetailedHistory(id, txn, action)
                 }
-
-                if (history != null) {
-                    HttpUtilities.okJSONResponse(request, history)
-                } else {
-                    HttpUtilities.notFoundResponse(request, "History entry ${action.actionId} was not found.")
-                }
+                HttpUtilities.okJSONResponse(request, history)
             }
         } catch (e: DataAccessException) {
             logger.error("Unable to fetch history for ID $id", e)
