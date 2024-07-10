@@ -12,6 +12,7 @@ import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -43,6 +44,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
 import java.util.UUID
+import org.junit.jupiter.api.assertThrows
 
 class ReportFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -201,7 +203,7 @@ class ReportFunctionTests {
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
         // does not matter what type of Sender it is for this test
-        val sender = CovidSender("default", "simple_report", Sender.Format.CSV, schemaName = "one")
+        val sender = CovidSender("default", "simple_report", MimeFormat.CSV, schemaName = "one")
         val req = MockHttpRequestMessage("test")
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -225,12 +227,12 @@ class ReportFunctionTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.CSV,
+            MimeFormat.CSV,
             schemaName =
             "one",
             allowDuplicates = false
         )
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.CSV, "test", ByteArray(0))
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.CSV, "test", ByteArray(0))
         val report1 = Report(
             Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b"))), listOf(),
             sources = listOf(ClientSource("myOrg", "myClient")),
@@ -379,7 +381,7 @@ class ReportFunctionTests {
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val sender = UniversalPipelineSender("Test ELR Sender", "test", Sender.Format.HL7, topic = Topic.FULL_ELR)
+        val sender = UniversalPipelineSender("Test ELR Sender", "test", MimeFormat.HL7, topic = Topic.FULL_ELR)
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -410,7 +412,7 @@ class ReportFunctionTests {
         // Setup
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val sender = CovidSender("Test Sender", "test", Sender.Format.CSV, schemaName = "one")
+        val sender = CovidSender("Test Sender", "test", MimeFormat.CSV, schemaName = "one")
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -440,7 +442,7 @@ class ReportFunctionTests {
         // Setup
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val sender = CovidSender("Test Sender", "test", Sender.Format.CSV, schemaName = "one")
+        val sender = CovidSender("Test Sender", "test", MimeFormat.CSV, schemaName = "one")
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -505,12 +507,12 @@ class ReportFunctionTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.CSV,
+            MimeFormat.CSV,
             schemaName =
             "one",
             allowDuplicates = false
         )
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.CSV, "test", ByteArray(0))
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.CSV, "test", ByteArray(0))
 
         val req = MockHttpRequestMessage(csvString_2Records)
 
@@ -559,12 +561,12 @@ class ReportFunctionTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.HL7,
+            MimeFormat.HL7,
             schemaName =
             "one",
             allowDuplicates = false
         )
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.HL7, "test", ByteArray(0))
 
         val req = MockHttpRequestMessage(hl7_valid)
 
@@ -628,12 +630,12 @@ class ReportFunctionTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.HL7,
+            MimeFormat.HL7,
             schemaName =
             "one",
             allowDuplicates = false
         )
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.HL7, "test", ByteArray(0))
 
         val req = MockHttpRequestMessage(hl7_5_separator)
 
@@ -712,5 +714,19 @@ class ReportFunctionTests {
         // Report Validated and no warnings returned
         assert(resp.status.equals(HttpStatus.OK))
         verify(exactly = 0) { actionHistory.trackLogs(any<ActionLog>()) }
+    }
+
+    @Test
+    fun `test throws an error for an invalid payloadname`() {
+        // 2052 character
+        val longpayloadname = "test".repeat(513)
+        val mockHttpRequest = MockHttpRequestMessage()
+        mockHttpRequest.httpHeaders["payloadname"] = longpayloadname
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val (reportFunc, _, _) = setupForProcessRequestTests(actionHistory)
+
+        assertThrows<RequestFunction.InvalidExternalPayloadException> {
+            reportFunc.extractPayloadName(mockHttpRequest)
+        }
     }
 }

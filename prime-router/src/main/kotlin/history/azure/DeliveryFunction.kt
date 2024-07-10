@@ -9,6 +9,7 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.ApiResponse
 import gov.cdc.prime.router.azure.DataAccessTransaction
@@ -21,12 +22,18 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.history.db.DeliveryApiSearch
 import gov.cdc.prime.router.history.db.DeliveryDatabaseAccess
+import gov.cdc.prime.router.history.db.DeliveryHistoryApiSearch
+import gov.cdc.prime.router.history.db.DeliveryHistoryDatabaseAccess
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.history.db.SubmitterApiSearch
 import gov.cdc.prime.router.history.db.SubmitterDatabaseAccess
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
+import gov.cdc.prime.router.tokens.authorizationFailure
+import java.net.URLEncoder
+import java.nio.charset.Charset
+import java.security.InvalidParameterException
 import java.util.UUID
 
 /**
@@ -50,12 +57,55 @@ class DeliveryFunction(
 
     private val submitterDatabaseAccess = SubmitterDatabaseAccess()
     private val deliveryDatabaseAccess = DeliveryDatabaseAccess()
+    private val deliveryHistoryDatabaseAccess = DeliveryHistoryDatabaseAccess()
 
     /**
      * Authorization and shared logic uses the organization name without the service
      * We store the service name here to pass to the facade
      */
     var receivingOrgSvc: String? = null
+
+    /**
+     * Container for extracted Delivery History API parameters.
+     *
+     * @property reportId is the reportId to get results for.
+     * @property fileName is the fileName to get results for.
+     * @property receivingOrgSvcStatus is the customer status of the receiver to get results for.
+     */
+    data class DeliveryHistoryApiParameters(
+        val reportId: String?,
+        val fileName: String?,
+        val receivingOrgSvcStatus: List<CustomerStatus>?,
+    ) {
+        constructor(query: Map<String, String>) : this(
+            reportId = query["reportId"],
+            fileName = extractFileName(query),
+            receivingOrgSvcStatus = extractReceivingOrgSvcStatus(query),
+        )
+
+        companion object {
+            /**
+             * Convert fileName from query into param used for the DB
+             * @param query Incoming query params
+             * @return encoded param
+             */
+            fun extractFileName(query: Map<String, String>): String? {
+                return if (query["fileName"] != null) {
+                    URLEncoder.encode(query["fileName"], Charset.defaultCharset())
+                } else {
+                    null
+                }
+            }
+
+            fun extractReceivingOrgSvcStatus(query: Map<String, String>): List<CustomerStatus>? {
+                return try {
+                    query["receivingOrgSvcStatus"]?.split(",")?.map { CustomerStatus.valueOf(it) }
+                } catch (e: IllegalArgumentException) {
+                    throw InvalidParameterException("Invalid value for receivingOrgSvcStatus.")
+                }
+            }
+        }
+    }
 
     /**
      * Verify the correct name for an organization based on the name
@@ -149,6 +199,62 @@ class DeliveryFunction(
         val results = deliveryDatabaseAccess.getDeliveries(search, receiver)
         val response = ApiResponse.buildFromApiSearch("delivery", search, results)
         return HttpUtilities.okJSONResponse(request, response)
+    }
+
+    @FunctionName("getDeliveriesHistory")
+    fun getDeliveriesHistory(
+        @HttpTrigger(
+            name = "getDeliveriesHistory",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "v1/waters/org/{organization}/deliveries"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("organization") organization: String,
+    ): HttpResponseMessage {
+        try {
+            val claims = AuthenticatedClaims.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+            val userOrganization = this.validateOrgSvcName(organization)
+                ?: return HttpUtilities.notFoundResponse(
+                    request,
+                    "$organization: invalid organization or service identifier"
+                )
+
+            if (!reportFileFacade.checkAccessAuthorizationForOrg(claims, userOrganization, null, request)) {
+                logger.warn(
+                    "Invalid Authorization for user ${claims.userName}:" +
+                        " ${request.httpMethod}:${request.uri.path}." +
+                        " ERR: Claims scopes are ${claims.scopes} but client id is $userOrganization"
+                )
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            }
+            logger.info(
+                "Authorized request by org ${claims.scopes} to getListByOrg on organization $userOrganization."
+            )
+
+            if (DeliveryHistoryApiParameters(request.queryParameters).reportId != null &&
+                DeliveryHistoryApiParameters(request.queryParameters).fileName != null
+            ) {
+                return HttpUtilities.badRequestResponse(request, "Either reportId or fileName can be provided")
+            }
+
+            request.body ?: HttpUtilities.badRequestResponse(request, "Search body must be included")
+            val search = DeliveryHistoryApiSearch.parse(request)
+            val params = DeliveryHistoryApiParameters(request.queryParameters)
+            val results = deliveryHistoryDatabaseAccess.getDeliveries(
+                search,
+                userOrganization,
+                receivingOrgSvc,
+                params.receivingOrgSvcStatus,
+                params.reportId,
+                params.fileName
+            )
+            val response = ApiResponse.buildFromApiSearch("delivery_history", search, results)
+            return HttpUtilities.okJSONResponse(request, response)
+        } catch (e: IllegalArgumentException) {
+            return HttpUtilities.badRequestResponse(request, HttpUtilities.errorJson(e.message ?: "Invalid Request"))
+        }
     }
 
     /**

@@ -9,6 +9,7 @@ FROM mcr.microsoft.com/azure-functions/java:4-java$JAVA_VERSION-build AS install
 COPY . /src/java-function-app
 RUN cd /src/java-function-app && \
     mkdir -p /home/site/wwwroot && \
+    cd ./build/azure-functions/ && \
     cd $(ls -d */|head -n 1) && \
     cp -a . /home/site/wwwroot
 
@@ -30,3 +31,12 @@ RUN cd $JAVA_HOME/conf/security \
 COPY ./certs/CDC-G2-S1.crt $JAVA_HOME/conf/security
 RUN cd $JAVA_HOME/conf/security \
     && $JAVA_HOME/bin/keytool -cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias G2 -file CDC-G2-S1.crt
+
+COPY ./certs/CA-CA-S1.crt $JAVA_HOME/conf/security
+RUN cd $JAVA_HOME/conf/security \
+    && $JAVA_HOME/bin/keytool -cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias S1 -file CA-CA-S1.crt
+    
+COPY ./certs/CA-CA-S2.crt $JAVA_HOME/conf/security
+RUN cd $JAVA_HOME/conf/security \
+    && $JAVA_HOME/bin/keytool -cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias S2 -file CA-CA-S2.crt
+

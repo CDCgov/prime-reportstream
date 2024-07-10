@@ -11,11 +11,11 @@ import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.TranslatorConfiguration
@@ -253,7 +253,7 @@ class SubmissionFunctionTests : Logging {
         val sender = CovidSender(
             name = "default",
             organizationName = organizationName,
-            format = Sender.Format.CSV,
+            format = MimeFormat.CSV,
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "one"
         )
@@ -329,7 +329,7 @@ class SubmissionFunctionTests : Logging {
         val sender = CovidSender(
             name = "default",
             organizationName = organizationName,
-            format = Sender.Format.CSV,
+            format = MimeFormat.CSV,
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "one"
         )
@@ -337,7 +337,7 @@ class SubmissionFunctionTests : Logging {
         val sender2 = CovidSender(
             name = "default",
             organizationName = otherOrganizationName,
-            format = Sender.Format.CSV,
+            format = MimeFormat.CSV,
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "one"
         )
@@ -627,15 +627,16 @@ class SubmissionFunctionTests : Logging {
 
         every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
 
+        every { anyConstructed<RESTTransport>().getHeaders(any(), any()) } returns mutableMapOf("a" to "b")
+
         coEvery {
             anyConstructed<RESTTransport>().getOAuthToken(
                 any(),
                 any(),
                 any(),
                 any(),
-                any()
             )
-        } returns Pair(mapOf("a" to "b"), "TEST")
+        } returns "TEST"
 
         val mock = MockEngine {
             respond(
@@ -688,15 +689,16 @@ class SubmissionFunctionTests : Logging {
 
         every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
 
+        every { anyConstructed<RESTTransport>().getHeaders(any(), any()) } returns mutableMapOf("a" to "b")
+
         coEvery {
             anyConstructed<RESTTransport>().getOAuthToken(
                 any(),
                 any(),
                 any(),
                 any(),
-                any()
             )
-        } returns Pair(mapOf("a" to "b"), "TEST")
+        } returns "TEST"
 
         val customContext = mockk<ExecutionContext>()
         every { customContext.logger } returns mockk<Logger>()
@@ -771,15 +773,16 @@ class SubmissionFunctionTests : Logging {
 
         every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
 
+        every { anyConstructed<RESTTransport>().getHeaders(any(), any()) } returns mutableMapOf("a" to "b")
+
         coEvery {
             anyConstructed<RESTTransport>().getOAuthToken(
                 any(),
                 any(),
                 any(),
                 any(),
-                any()
             )
-        } returns Pair(mapOf("a" to "b"), "TEST")
+        } returns "TEST"
 
         val mock = MockEngine {
             respond(
@@ -861,15 +864,16 @@ class SubmissionFunctionTests : Logging {
 
         every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
 
+        every { anyConstructed<RESTTransport>().getHeaders(any(), any()) } returns mutableMapOf("a" to "b")
+
         coEvery {
             anyConstructed<RESTTransport>().getOAuthToken(
                 any(),
                 any(),
                 any(),
                 any(),
-                any()
             )
-        } returns Pair(mapOf("a" to "b"), "TEST")
+        } returns "TEST"
 
         val mock = MockEngine {
             respond(

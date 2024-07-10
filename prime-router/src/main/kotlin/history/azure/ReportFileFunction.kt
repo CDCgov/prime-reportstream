@@ -42,7 +42,7 @@ import java.util.logging.Logger
  * @property workflowEngine Container for helpers and accessors used when dealing with the workflow.
  */
 abstract class ReportFileFunction(
-    private val reportFileFacade: ReportFileFacade,
+    val reportFileFacade: ReportFileFacade,
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val reportGraph: ReportGraph = ReportGraph(),
 ) : Logging {
@@ -241,11 +241,11 @@ abstract class ReportFileFunction(
         val (credential, jksCredential) = RESTTransport().getCredential(restTransportInfo, receiver)
         val logger: Logger = context.logger
 
-        val authPair = runBlocking {
+        val httpHeaders = RESTTransport().getHeaders(restTransportInfo, reportId.toString())
+        val accessToken = runBlocking {
             async {
                 RESTTransport().getOAuthToken(
                     restTransportInfo,
-                    reportId.toString(),
                     jksCredential,
                     credential,
                     logger
@@ -259,11 +259,11 @@ abstract class ReportFileFunction(
         val (status, responseBody) = runBlocking {
             async {
                 response = client.get("$etorTiBaseUrl/v1/etor/metadata/" + lookupId) {
-                    authPair.first.forEach { entry ->
+                    httpHeaders.forEach { entry ->
                         headers.append(entry.key, entry.value)
                     }
 
-                    headers.append(HttpHeaders.Authorization, "Bearer " + authPair.second!!)
+                    headers.append(HttpHeaders.Authorization, "Bearer $accessToken")
                 }
 
                 Pair<HttpStatusCode, String>(response!!.status, response!!.body())
