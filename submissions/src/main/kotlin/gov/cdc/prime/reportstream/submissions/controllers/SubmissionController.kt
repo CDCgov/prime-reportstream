@@ -9,9 +9,12 @@ import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.queue.QueueServiceClient
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
+import gov.cdc.prime.reportstream.submissions.validators.ClientIdValidator
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.WebDataBinder
+import org.springframework.web.bind.annotation.InitBinder
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
@@ -25,20 +28,22 @@ class SubmissionController(
     private val queueServiceClient: QueueServiceClient,
     private val tableClient: TableClient,
     private val eventGridPublisherClient: EventGridPublisherAsyncClient<EventGridEvent>,
+    private val clientIdValidator: ClientIdValidator,
     @Value("\${azure.storage.container-name}") private val containerName: String = "receive",
     @Value("\${azure.storage.queue-name}") private val queueName: String = "elr-fhir-convert",
 ) {
-    @PostMapping("/api/v1/reports")
+    // Validator for client_id header to confirm that the header is present and populated
+    @InitBinder
+    fun initBinder(binder: WebDataBinder) {
+        binder.addValidators(clientIdValidator)
+    }
+
+    @PostMapping("/api/v1/reports", consumes = ["application/hl7-v2", "application/fhir+ndjson"])
     fun submitReport(
         @RequestHeader headers: Map<String, String>,
+        @RequestHeader("client_id") clientId: String,
         @RequestBody data: Map<String, Any>,
     ): ResponseEntity<*> {
-        // find and return any issues with the headers
-        val headerValidationResult = validateHeaders(headers)
-        if (headerValidationResult != null) {
-            return headerValidationResult
-        }
-
         val reportId = UUID.randomUUID()
         val reportReceivedTime = OffsetDateTime.now()
         val status = "Received"
@@ -106,7 +111,7 @@ class SubmissionController(
     }
 
     private fun filterHeaders(headers: Map<String, String>): Map<String, String> {
-        val headersToInclude = listOf("client_id", "content-Type", "payloadName")
+        val headersToInclude = listOf("client_id", "Content-Type", "payloadName")
         return headers.filter { it.key in headersToInclude }
     }
 
@@ -115,34 +120,12 @@ class SubmissionController(
         headers: Map<String, String>,
     ): String {
         val senderName = headers["client_id"]?.lowercase()
-        return when (val contentType = headers["content-type"]?.lowercase()) {
+        return when (val contentType = headers["Content-Type"]?.lowercase()) {
             "application/hl7-v2" -> "receive/$senderName/$reportId.hl7"
             "application/fhir+ndjson" -> "receive/$senderName/$reportId.fhir"
             else -> throw IllegalArgumentException("Unsupported content-type: $contentType")
         }
     }
-
-    private fun validateHeaders(headers: Map<String, String>): ResponseEntity<String>? {
-        val client = headers["client_id"]?.lowercase()
-        val contentType = headers["content-Type"]?.lowercase()
-        val acceptableContentTypes = listOf("application/hl7-v2", "application/fhir+ndjson")
-
-        if (client.isNullOrEmpty()) {
-            return ResponseEntity.badRequest().body("Missing required header: client_id.")
-        }
-
-        if (contentType !in acceptableContentTypes) {
-            return ResponseEntity
-                .badRequest()
-                .body("Invalid content-Type header. Acceptable values include: $acceptableContentTypes")
-        }
-
-        return null
-    }
 }
 
-data class CreationResponse(
-    val reportId: UUID,
-    val overallStatus: String,
-    val timestamp: OffsetDateTime,
-)
+data class CreationResponse(val reportId: UUID, val overallStatus: String, val timestamp: OffsetDateTime)

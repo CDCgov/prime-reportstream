@@ -26,39 +26,27 @@ class AzureStorageConfig {
     private lateinit var tableName: String
 
     @Bean
-    fun blobServiceClient(): BlobServiceClient {
-        return BlobServiceClientBuilder()
+    fun blobServiceClient(): BlobServiceClient = BlobServiceClientBuilder()
             .connectionString(connectionString)
             .buildClient()
-    }
 
     @Bean
-    fun queueServiceClient(): QueueServiceClient {
-        return QueueServiceClientBuilder()
+    fun queueServiceClient(): QueueServiceClient = QueueServiceClientBuilder()
             .connectionString(connectionString)
             .buildClient()
-    }
 
     @Bean
-    fun tableClient(): TableClient {
-        return TableClientBuilder()
+    fun tableClient(): TableClient = TableClientBuilder()
             .connectionString(connectionString)
             .tableName(tableName)
             .buildClient()
-    }
 
     @Bean
-    fun containerName(): String {
-        return containerName
-    }
+    fun containerName(): String = containerName
 
     @Bean
-    fun queueName(): String {
-        return queueName
-    }
+    fun queueName(): String = queueName
 
     @Bean
-    fun tableName(): String {
-        return tableName
-    }
+    fun tableName(): String = tableName
 }

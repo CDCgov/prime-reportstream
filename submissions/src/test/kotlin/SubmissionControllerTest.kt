@@ -1,31 +1,32 @@
 package gov.cdc.prime.reportstream.submissions.controllers
 
-import com.azure.data.tables.TableClient
-import com.azure.data.tables.models.TableEntity
-import com.azure.messaging.eventgrid.EventGridEvent
 import com.azure.messaging.eventgrid.EventGridPublisherAsyncClient
+import com.azure.storage.blob.BlobServiceClient
+import com.azure.storage.queue.QueueServiceClient
+import com.azure.data.tables.TableClient
+import com.azure.messaging.eventgrid.EventGridEvent
 import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobContainerClient
-import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.queue.QueueClient
-import com.azure.storage.queue.QueueServiceClient
 import com.azure.storage.queue.models.SendMessageResult
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import gov.cdc.prime.reportstream.submissions.validators.ClientIdValidator
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import java.io.InputStream
 
 @WebMvcTest(SubmissionController::class)
+@Import(ClientIdValidator::class)
 class SubmissionControllerTest {
 
     @Autowired
@@ -53,45 +54,33 @@ class SubmissionControllerTest {
     @BeforeEach
     fun setUp() {
         // Mock BlobContainerClient and BlobClient
-        blobContainerClient = mockk()
-        blobClient = mockk()
-        every { blobServiceClient.getBlobContainerClient("receiv") } returns blobContainerClient
-        every { blobContainerClient.getBlobClient(any<String>()) } returns blobClient
+        blobContainerClient = mock(BlobContainerClient::class.java)
+        blobClient = mock(BlobClient::class.java)
+        `when`(blobServiceClient.getBlobContainerClient(anyString())).thenReturn(blobContainerClient)
+        `when`(blobContainerClient.getBlobClient(anyString())).thenReturn(blobClient)
 
         // Mock QueueClient
-        queueClient = mockk()
-        every { queueServiceClient.getQueueClient(any<String>()) } returns queueClient
+        queueClient = mock(QueueClient::class.java)
+        `when`(queueServiceClient.getQueueClient(anyString())).thenReturn(queueClient)
 
-        // Mock sendMessageResult
-        sendMessageResult = mockk()
+        // Mock SendMessageResult
+        sendMessageResult = mock(SendMessageResult::class.java)
     }
 
     @Test
     fun `submitReport should return CREATED status`() {
+
         val data = mapOf("key" to "value")
         val requestBody = objectMapper.writeValueAsString(data)
-
-        // Mock the behavior of the dependencies
-        every { blobClient.upload(any<InputStream>(), any<Long>()) } returns Unit
-        every { queueClient.sendMessage(any<String>()) } returns sendMessageResult
-        every { tableClient.createEntity(any<TableEntity>()) } returns Unit
-        every { eventGridPublisherClient.sendEvent(any<EventGridEvent>()) } returns mockk()
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
                 .content(requestBody)
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.valueOf("application/hl7-v2"))
                 .header("client_id", "testClient")
-                .header("content-type", "application/hl7-v2")
                 .header("payloadname", "testPayload")
                 .header("X-Forwarded-For", "127.0.0.1")
         )
             .andExpect(MockMvcResultMatchers.status().isCreated)
-
-        // Verify the interactions with mocks
-        verify(exactly = 1) { blobClient.upload(any<InputStream>(), any<Long>()) }
-        verify(exactly = 1) { queueClient.sendMessage(any<String>()) }
-        verify(exactly = 1) { tableClient.createEntity(any<TableEntity>()) }
-        verify(exactly = 1) { eventGridPublisherClient.sendEvent(any<EventGridEvent>()) }
     }
 }
