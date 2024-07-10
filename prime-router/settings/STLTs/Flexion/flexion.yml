@@ -60,7 +60,6 @@
         initialTime: "00:00"
       translation:
         type: "FHIR"
-        schemaName: "classpath:/metadata/fhir_transforms/receivers/fhir-transform-sample.yml"
         useBatching: false
       transport:
         type: "REST"
@@ -127,7 +126,6 @@
         initialTime: "00:00"
       translation:
         type: "FHIR"
-        schemaName: "classpath:/metadata/fhir_transforms/receivers/fhir-transform-sample.yml"
         useBatching: false
       transport:
         type: "REST"
