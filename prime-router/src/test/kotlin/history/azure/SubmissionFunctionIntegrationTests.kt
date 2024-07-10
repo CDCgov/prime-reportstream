@@ -7,6 +7,7 @@ import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.InvalidParamMessage
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
@@ -80,21 +81,21 @@ class SubmissionFunctionIntegrationTests {
         }
     }
 
-    class PipelineGraphNode(val node: ReportFile) {
-        val children: MutableList<PipelineGraphNode> = mutableListOf()
+    class ReportGraphNode(val node: ReportFile) {
+        val children: MutableList<ReportGraphNode> = mutableListOf()
     }
 
     class ReportGraphBuilder {
         private lateinit var theSubmission: ReportNodeBuilder
         private lateinit var theTopic: Topic
-        private lateinit var theFormat: Report.Format
+        private lateinit var theFormat: MimeFormat
         private lateinit var theSender: Sender
 
         fun topic(topic: Topic) {
             this.theTopic = topic
         }
 
-        fun format(format: Report.Format) {
+        fun format(format: MimeFormat) {
             this.theFormat = format
         }
 
@@ -106,7 +107,7 @@ class SubmissionFunctionIntegrationTests {
             this.theSubmission = ReportNodeBuilder().apply(initializer)
         }
 
-        fun generate(dbAccess: DatabaseAccess): PipelineGraphNode {
+        fun generate(dbAccess: DatabaseAccess): ReportGraphNode {
             if (!::theTopic.isInitialized) {
                 throw IllegalStateException("Topic must be set")
             }
@@ -149,7 +150,7 @@ class SubmissionFunctionIntegrationTests {
                     reportFile, txn, action
                 )
 
-                val graph = PipelineGraphNode(reportFile)
+                val graph = ReportGraphNode(reportFile)
 
                 theSubmission.reportGraphNodes.foldIndexed(graph) { nodeIndex, acc, node ->
                     acc.children.add(descend(node, dbAccess, txn, report, graph, nodeIndex))
@@ -165,9 +166,9 @@ class SubmissionFunctionIntegrationTests {
             dbAccess: DatabaseAccess,
             txn: DataAccessTransaction,
             report: Report,
-            graph: PipelineGraphNode,
+            graph: ReportGraphNode,
             nodeIndex: Int,
-        ): PipelineGraphNode {
+        ): ReportGraphNode {
             val childReport = Report(
                 theFormat,
                 emptyList(),
@@ -236,7 +237,7 @@ class SubmissionFunctionIntegrationTests {
                 ),
                 txn, childAction
             )
-            val childGraph = PipelineGraphNode(childReportFile)
+            val childGraph = ReportGraphNode(childReportFile)
             node.reportGraphNodes.foldIndexed(graph) { childNodeIndex, acc, descendant ->
                 descend(descendant, dbAccess, txn, report, childGraph, childNodeIndex)
                 acc
@@ -253,8 +254,7 @@ class SubmissionFunctionIntegrationTests {
     fun `it should return a history for partially delivered submission`() {
         val submittedReport = reportGraph {
             topic(Topic.FULL_ELR)
-            format(Report.Format.HL7)
-            // TODO: DSL for generating org,sender,receiver
+            format(MimeFormat.HL7)
             sender(UniversalPipelineTestUtils.hl7Sender)
 
             submission {
@@ -311,7 +311,7 @@ class SubmissionFunctionIntegrationTests {
     fun `it should return a history that a submission has been received`() {
         val submittedReport = reportGraph {
             topic(Topic.FULL_ELR)
-            format(Report.Format.HL7)
+            format(MimeFormat.HL7)
             sender(UniversalPipelineTestUtils.hl7Sender)
 
             submission {
@@ -339,7 +339,7 @@ class SubmissionFunctionIntegrationTests {
     fun `it should return a history that indicates the report is not going to be delivered`() {
         val submittedReport = reportGraph {
             topic(Topic.FULL_ELR)
-            format(Report.Format.HL7)
+            format(MimeFormat.HL7)
             sender(UniversalPipelineTestUtils.hl7Sender)
 
             submission {
@@ -374,7 +374,7 @@ class SubmissionFunctionIntegrationTests {
     fun `it should return a history that indicates waiting to deliver`() {
         val submittedReport = reportGraph {
             topic(Topic.FULL_ELR)
-            format(Report.Format.HL7)
+            format(MimeFormat.HL7)
             sender(UniversalPipelineTestUtils.hl7Sender)
 
             submission {
@@ -439,7 +439,7 @@ class SubmissionFunctionIntegrationTests {
     fun `it should return history of a submission that is delivered`() {
         val submittedReport = reportGraph {
             topic(Topic.FULL_ELR)
-            format(Report.Format.HL7)
+            format(MimeFormat.HL7)
             sender(UniversalPipelineTestUtils.hl7Sender)
 
             submission {

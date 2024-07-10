@@ -365,7 +365,8 @@ class SubmissionHistoryTests {
             1,
             TaskAction.receive,
             OffsetDateTime.now(),
-            reports = mutableListOf()
+            reports = mutableListOf(),
+            logs = emptyList()
         ).run {
             assertThat(actionId).isEqualTo(1)
             assertThat(createdAt).isNotNull()
@@ -435,7 +436,10 @@ class SubmissionHistoryTests {
             null,
             5,
             7,
-            false
+            false,
+            null,
+            null,
+            null
         )
 
         val refUUID = UUID.randomUUID()
@@ -453,7 +457,10 @@ class SubmissionHistoryTests {
                 null,
                 1,
                 1,
-                true
+                true,
+                null,
+                null,
+                null
             ),
             DetailedReport(
                 UUID.randomUUID(),
@@ -467,7 +474,10 @@ class SubmissionHistoryTests {
                 null,
                 2,
                 null,
-                true
+                true,
+                null,
+                null,
+                null
             ),
             DetailedReport(
                 UUID.randomUUID(),
@@ -480,7 +490,10 @@ class SubmissionHistoryTests {
                 null,
                 0,
                 null,
-                true
+                true,
+                null,
+                null,
+                null
             ),
         ).toMutableList()
 
@@ -559,7 +572,8 @@ class SubmissionHistoryTests {
             TaskAction.receive,
             OffsetDateTime.now(),
             HttpStatus.BAD_REQUEST.value(),
-            reports = mutableListOf()
+            reports = mutableListOf(),
+            logs = emptyList()
         )
         testError.enrichWithSummary()
         testError.run {
@@ -577,7 +591,8 @@ class SubmissionHistoryTests {
             TaskAction.receive,
             OffsetDateTime.now(),
             HttpStatus.OK.value(),
-            reports = mutableListOf()
+            reports = mutableListOf(),
+            logs = emptyList()
         )
         testReceived.actionsPerformed = mutableSetOf(TaskAction.receive)
         testReceived.enrichWithSummary()
@@ -588,7 +603,7 @@ class SubmissionHistoryTests {
         val noDestinationsCalculatedYet = emptyList<DetailedReport>().toMutableList()
         val testReceivedButNoDestinationsYet = DetailedSubmissionHistory(
             1, TaskAction.route, OffsetDateTime.now(),
-            HttpStatus.OK.value(), noDestinationsCalculatedYet
+            HttpStatus.OK.value(), noDestinationsCalculatedYet, logs = emptyList()
         )
         testReceivedButNoDestinationsYet.enrichWithSummary()
         testReceivedButNoDestinationsYet.run {
@@ -607,7 +622,10 @@ class SubmissionHistoryTests {
             null,
             5,
             null,
-            false
+            false,
+            null,
+            null,
+            null
         )
         // received: one of two destinations has been calculated, with all items for it filtered out
         val oneFilteredDestinationCalculated = listOf(
@@ -624,12 +642,15 @@ class SubmissionHistoryTests {
                 OffsetDateTime.now().plusDays(1),
                 0,
                 5,
-                true
+                true,
+                null,
+                null,
+                null
             ),
         ).toMutableList()
         val testReceivedOneFilteredDestination = DetailedSubmissionHistory(
             1, TaskAction.route, OffsetDateTime.now(),
-            HttpStatus.OK.value(), oneFilteredDestinationCalculated
+            HttpStatus.OK.value(), oneFilteredDestinationCalculated, logs = emptyList()
         )
         testReceivedOneFilteredDestination.enrichWithSummary()
         testReceivedOneFilteredDestination.run {
@@ -650,7 +671,10 @@ class SubmissionHistoryTests {
                 null,
                 0,
                 null,
-                true
+                true,
+                null,
+                null,
+                null
             ),
         ).toMutableList()
         val testReceivedNoDestination = DetailedSubmissionHistory(
@@ -659,6 +683,7 @@ class SubmissionHistoryTests {
             OffsetDateTime.now(),
             HttpStatus.OK.value(),
             reports,
+            emptyList()
         )
         testReceivedNoDestination.enrichWithSummary()
         testReceivedNoDestination.run {
@@ -675,6 +700,7 @@ class SubmissionHistoryTests {
             OffsetDateTime.now(),
             HttpStatus.OK.value(),
             reports = mutableListOf(),
+            logs = emptyList()
         )
         testReceived.actionsPerformed = mutableSetOf(TaskAction.receive)
         testReceived.enrichWithSummary()
@@ -697,7 +723,10 @@ class SubmissionHistoryTests {
                 null,
                 0,
                 null,
-                true
+                true,
+                null,
+                null,
+                null
             ),
         ).toMutableList()
         val testReceivedNoDestination = DetailedSubmissionHistory(
@@ -706,6 +735,7 @@ class SubmissionHistoryTests {
             OffsetDateTime.now(),
             HttpStatus.OK.value(),
             reports,
+            logs = emptyList()
         )
         testReceivedNoDestination.enrichWithSummary()
         testReceivedNoDestination.run {
@@ -730,7 +760,10 @@ class SubmissionHistoryTests {
             null,
             5,
             null,
-            false
+            false,
+            null,
+            null,
+            null
         )
         val latestReport = DetailedReport(
             UUID.randomUUID(),
@@ -743,7 +776,10 @@ class SubmissionHistoryTests {
             null,
             4,
             null,
-            true
+            true,
+            null,
+            null,
+            null
         )
         // waiting to deliver: one of two destinations has been calculated, with no items filtered out
         val oneUnfilteredDestinationCalculated = listOf(
@@ -760,12 +796,15 @@ class SubmissionHistoryTests {
                 null,
                 5,
                 5,
-                true
+                true,
+                null,
+                null,
+                null
             ),
         ).toMutableList()
         val testReceivedOneUnfilteredDestination = DetailedSubmissionHistory(
             1, TaskAction.route, OffsetDateTime.now(),
-            HttpStatus.OK.value(), oneUnfilteredDestinationCalculated
+            HttpStatus.OK.value(), oneUnfilteredDestinationCalculated, logs = emptyList()
         )
         testReceivedOneUnfilteredDestination.enrichWithSummary()
         testReceivedOneUnfilteredDestination.run {
@@ -787,7 +826,10 @@ class SubmissionHistoryTests {
                 null,
                 1,
                 null,
-                true
+                true,
+                null,
+                null,
+                null
             ),
             DetailedReport(
                 UUID.randomUUID(),
@@ -801,12 +843,15 @@ class SubmissionHistoryTests {
                 null,
                 0,
                 null,
-                true
+                true,
+                null,
+                null,
+                null
             ),
         ).toMutableList()
         val testWaitingToDeliver = DetailedSubmissionHistory(
             1, TaskAction.receive, OffsetDateTime.now(),
-            HttpStatus.OK.value(), reports
+            HttpStatus.OK.value(), reports, logs = emptyList()
         )
         testWaitingToDeliver.enrichWithSummary()
         testWaitingToDeliver.run {

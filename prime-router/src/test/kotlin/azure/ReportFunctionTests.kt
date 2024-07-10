@@ -602,6 +602,7 @@ class ReportFunctionTests {
             TaskAction.receive,
             OffsetDateTime.now(),
             reports = mutableListOf(),
+            logs = emptyList()
         )
         mockHistory.reportId = reportId.toString()
         every { mockSubmissionsFacade.findDetailedSubmissionHistory(any(), any(), any()) } returns mockHistory

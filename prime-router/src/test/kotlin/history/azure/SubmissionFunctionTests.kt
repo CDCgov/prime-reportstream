@@ -457,7 +457,7 @@ class SubmissionFunctionTests : Logging {
         // Good return
         val returnBody = DetailedSubmissionHistory(
             550, TaskAction.receive, OffsetDateTime.now(), 201,
-            mutableListOf()
+            mutableListOf(), emptyList()
         )
         // Happy path with a good UUID
         val action = Action()
@@ -725,13 +725,15 @@ class SubmissionFunctionTests : Logging {
         val detailedReport = DetailedReport(
             UUID.randomUUID(),
             "flexion", "flexion", "lab", "lab", Topic.ETOR_TI, "external",
-            null, null, 1, 1, true
+            null, null, 1, 1, true, null,
+            null,
+            null
         )
 
         // Good return
         val returnBody = DetailedSubmissionHistory(
             550, TaskAction.receive, OffsetDateTime.now(), 201,
-            mutableListOf(detailedReport)
+            mutableListOf(detailedReport), emptyList()
         )
 
         returnBody.destinations = listOf(
@@ -816,13 +818,15 @@ class SubmissionFunctionTests : Logging {
         val detailedReport = DetailedReport(
             UUID.randomUUID(),
             "flexion", "flexion", "lab", "lab", Topic.ETOR_TI, "external",
-            null, null, 1, 1, true
+            null, null, 1, 1, true, null,
+            null,
+            null
         )
 
         // Good return
         val returnBody = DetailedSubmissionHistory(
             550, TaskAction.receive, OffsetDateTime.now(), 201,
-            mutableListOf(detailedReport)
+            mutableListOf(detailedReport), emptyList()
         )
 
         returnBody.destinations = listOf(

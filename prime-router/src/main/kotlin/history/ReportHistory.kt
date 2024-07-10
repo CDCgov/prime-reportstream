@@ -79,11 +79,11 @@ data class DetailedReport(
     @JsonIgnore
     val receiverHasTransport: Boolean,
     @JsonIgnore
-    val transportResult: String? = null,
+    val transportResult: String?,
     @JsonIgnore
-    val downloadedBy: String? = null,
+    val downloadedBy: String?,
     @JsonIgnore
-    val nextAction: TaskAction? = null,
+    val nextAction: TaskAction?,
 )
 
 /**

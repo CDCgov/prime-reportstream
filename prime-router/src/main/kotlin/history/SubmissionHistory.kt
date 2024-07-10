@@ -119,9 +119,9 @@ class DetailedSubmissionHistory(
     createdAt: OffsetDateTime,
     httpStatus: Int? = null,
     @JsonIgnore
-    val reports: MutableList<DetailedReport>,
+    val reports: List<DetailedReport>,
     @JsonIgnore
-    var logs: List<DetailedActionLog> = emptyList(),
+    var logs: List<DetailedActionLog>,
 ) : SubmissionHistory(
     actionId,
     createdAt,
@@ -241,7 +241,6 @@ class DetailedSubmissionHistory(
             // If the report has a receiving org, it means that it contains information about a destination
             report.receivingOrg?.apply {
 
-                // TODO: TICKET re-implement this and include the index from the original report
                 val filterLogs = logs.filter {
                     it.type == ActionLogLevel.filter && it.reportId == report.reportId
                 }
@@ -376,12 +375,8 @@ class DetailedSubmissionHistory(
              * The most likely scenario for that is when the item does not pass the jurisdictional filter for any of
              * the receivers.
              */
-            // TODO delete
             return if (
-                (
-                    (actionsPerformed.contains(TaskAction.route) || actionsPerformed.contains(TaskAction.convert)) &&
-                    !nextActionScheduled
-                ) || reports.size > 1
+                reports.size > 1
             ) {
                 Status.NOT_DELIVERING
             } else {

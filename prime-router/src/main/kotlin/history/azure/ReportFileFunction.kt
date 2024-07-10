@@ -11,7 +11,6 @@ import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.history.ReportHistory
-import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
@@ -44,7 +43,6 @@ import java.util.logging.Logger
 abstract class ReportFileFunction(
     val reportFileFacade: ReportFileFacade,
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
-    private val reportGraph: ReportGraph = ReportGraph(),
 ) : Logging {
 
     internal val intermediaryReceiverName = "flexion.etor-service-receiver-orders"
