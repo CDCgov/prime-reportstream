@@ -409,12 +409,7 @@ function ReportStreamNavbar({
         }
 
         if (user.isAdminStrictCheck) {
-            menuItems = [
-                ...menuItems,
-                ...menuItemsSender,
-                ...menuItemsReceiver,
-                ...menuItemsAdmin,
-            ];
+            menuItems = [...menuItems, ...menuItemsAdmin];
         }
     }
 
