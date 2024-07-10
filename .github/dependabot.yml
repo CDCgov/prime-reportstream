@@ -110,6 +110,10 @@ updates:
     directory: "/.github/actions/retry"
     schedule:
       interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/az-cost"
+    schedule:
+      interval: "daily"
 
   # Frontend
   - package-ecosystem: "npm"
