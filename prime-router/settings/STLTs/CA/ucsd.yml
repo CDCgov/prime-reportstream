@@ -4,10 +4,7 @@
 # ./prime login --env staging
 # ./prime multiple-settings set --env staging --input ./settings/STLTs/CA/ucsd.yml
 #
-# To add the sender key in staging:
-#  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "ucsd.*.report" --orgName ucsd --kid ucsd.etor-nbs-orders --doit
-#
-# To submit a request to staging:
+# To submit a result to ucsd, in staging:
 # Note: replace the TOKEN with the auth JWT and the path to the FHIR message to send
 # curl -H 'Authorization: Bearer TOKEN' -H 'Client: flexion.etor-service-sender' -H 'Content-Type: application/fhir+ndjson' --data-binary '@/path/to/fhir/oru.fhir' 'https://staging.prime.cdc.gov/api/waters'
 ---
@@ -15,12 +12,7 @@
   description: "University of California San Diego"
   jurisdiction: "STATE"
   stateCode: "CA"
-  senders:
-    - name: "etor-nbs-orders"
-      organizationName: "ucsd"
-      topic: "etor-ti"
-      customerStatus: "active"
-      format: "HL7"
+  senders: []
   receivers:
     - name: "etor-nbs-results"
       organizationName: "ucsd"
