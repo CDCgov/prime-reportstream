@@ -406,9 +406,8 @@ export const appRoutes: RouteObject[] = [
             },
             {
                 path: "/file-handler/validate",
-                element: <ReportStreamApiGettingStarted />,
-                handle: {
-                    isContentPage: true,
+                loader: () => {
+                    return redirect("/developer-resources/api/getting-started");
                 },
             },
             {
