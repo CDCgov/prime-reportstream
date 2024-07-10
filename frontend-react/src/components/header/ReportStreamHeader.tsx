@@ -184,9 +184,6 @@ function ReportStreamAuthNavbar({
                 <USSmartLink href="/admin/value-sets" key="value-sets">
                     Value Sets
                 </USSmartLink>,
-                <USSmartLink href="/file-handler/validate" key="validate">
-                    Validate
-                </USSmartLink>,
             ]}
             activeDropdown={activeDropdown}
             setActiveDropdown={setActiveDropdown}
