@@ -32,10 +32,6 @@ test.describe.skip("Developer Resources page", () => {
                 url: "/resources/getting-started-submitting-data",
             },
             {
-                name: "ReportStream File Validator",
-                url: "/file-handler/validate",
-            },
-            {
                 name: "Account Registration Guide",
                 url: "/resources/account-registration-guide",
             },
