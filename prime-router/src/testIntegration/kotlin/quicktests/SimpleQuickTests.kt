@@ -5,7 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.MimeFormat
 import org.apache.commons.io.FileUtils
 import org.junit.jupiter.api.TestInstance
 import quicktests.QuickTestUtils
@@ -23,7 +23,7 @@ class SimpleQuickTests {
     fun `test waters data translation`() {
         val watersFilenameRegex = "waters.*\\.csv"
         var watersFile = QuickTestUtils.generateFakeData(
-            "waters/waters-covid-19", 50, Report.Format.CSV,
+            "waters/waters-covid-19", 50, MimeFormat.CSV,
             "CA", "Santa Clara"
         )
         QuickTestUtils.checkFilename(watersFile, watersFilenameRegex)
@@ -45,7 +45,7 @@ class SimpleQuickTests {
         fun generateStracData(county: String): String {
             val reddyFMCFile = QuickTestUtils.generateFakeData(
                 "iPatientCare/ReddyFMC-LA-covid-19", reddyFMCNumFakeRecords,
-                Report.Format.CSV, "AL", county
+                MimeFormat.CSV, "AL", county
             )
             QuickTestUtils.checkFilename(reddyFMCFile, reddyFMCFilenameRegex)
             return reddyFMCFile
@@ -72,7 +72,7 @@ class SimpleQuickTests {
         fun generateStracData(county: String): String {
             val stracsFile = QuickTestUtils.generateFakeData(
                 "strac/strac-covid-19", stracsNumFakeRecords,
-                Report.Format.CSV, county
+                MimeFormat.CSV, county
             )
             QuickTestUtils.checkFilename(stracsFile, stracsFilenameRegex)
             return stracsFile
@@ -135,7 +135,7 @@ class SimpleQuickTests {
 
         // And now generate some fake simplereport data
         val generatedFakeDataFile = QuickTestUtils.generateFakeData(
-            "primedatainput/pdi-covid-19", 50, Report.Format.CSV,
+            "primedatainput/pdi-covid-19", 50, MimeFormat.CSV,
             "IG", "CSV"
         )
         assertThat(pdFileRegex.containsMatchIn(generatedFakeDataFile)).isTrue()
