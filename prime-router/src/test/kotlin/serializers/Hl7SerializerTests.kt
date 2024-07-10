@@ -33,6 +33,7 @@ import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -813,7 +814,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
 
         val hl7Config = mockkClass(Hl7Configuration::class).also {
             every { it.replaceValue }.returns(mapOf("MSH-3-1" to "CDC PRIME - Atlanta,"))
-            every { it.format }.returns(Report.Format.HL7)
+            every { it.format }.returns(MimeFormat.HL7)
             every { it.useTestProcessingMode }.returns(false)
             every { it.suppressQstForAoe }.returns(false)
             every { it.suppressAoe }.returns(false)
@@ -836,7 +837,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         }
         val receiver = mockkClass(Receiver::class).also {
             every { it.translation }.returns(hl7Config)
-            every { it.format }.returns(Report.Format.HL7)
+            every { it.format }.returns(MimeFormat.HL7)
             every { it.organizationName }.returns("vt-dph")
         }
 
