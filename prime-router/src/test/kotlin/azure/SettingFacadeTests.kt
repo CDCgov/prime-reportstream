@@ -4,9 +4,8 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.common.JacksonMapperUtilities
@@ -170,7 +169,7 @@ class SettingFacadeTests {
         setupSenderDatabaseAccess()
         val list = SettingsFacade(testMetadata(), accessSpy).senders
         assertThat(list.first().name).isEqualTo("default")
-        assertThat(list.first().format).isEqualTo(Sender.Format.CSV)
+        assertThat(list.first().format).isEqualTo(MimeFormat.CSV)
     }
 
     @Test
@@ -178,7 +177,7 @@ class SettingFacadeTests {
         setupSenderDatabaseAccess()
         val sender = SettingsFacade(testMetadata(), accessSpy).findSender("test.default")
         assertThat(sender?.name).isEqualTo("default")
-        assertThat(sender?.format).isEqualTo(Sender.Format.CSV)
+        assertThat(sender?.format).isEqualTo(MimeFormat.CSV)
     }
 
     @Test
@@ -214,7 +213,7 @@ class SettingFacadeTests {
         setupReceiverDatabaseAccess()
         val list = SettingsFacade(testMetadata(), accessSpy).receivers
         assertThat(list.first().name).isEqualTo("elr-test")
-        assertThat(list.first().format).isEqualTo(Report.Format.CSV)
+        assertThat(list.first().format).isEqualTo(MimeFormat.CSV)
     }
 
     @Test
@@ -222,7 +221,7 @@ class SettingFacadeTests {
         setupReceiverDatabaseAccess()
         val receiver = SettingsFacade(testMetadata(), accessSpy).findReceiver("test.elr-test")
         assertThat(receiver?.name).isEqualTo("elr-test")
-        assertThat(receiver?.format).isEqualTo(Report.Format.CSV)
+        assertThat(receiver?.format).isEqualTo(MimeFormat.CSV)
     }
 
     @Test
