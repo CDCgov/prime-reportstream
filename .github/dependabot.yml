@@ -30,6 +30,7 @@ updates:
   - package-ecosystem: "github-actions"
     # Workflow files stored in `.github/workflows`
     directory: "/"
+    open-pull-requests-limit: 100
     schedule:
       interval: "daily"
   # GitHub local actions
