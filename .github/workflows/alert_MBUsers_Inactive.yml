@@ -19,6 +19,8 @@ jobs:
       - name: check for version upgrade
         id: PD
         shell: pwsh
+        env:
+            pass: ${{ secrets.RUNLEAKS_TOKEN }}
         run: |
             ./.github/scripts/MetabaseUsers/MBUserAPI.ps1 -pass "$Env:pass"
     
