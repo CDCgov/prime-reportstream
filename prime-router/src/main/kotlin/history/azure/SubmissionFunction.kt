@@ -92,11 +92,20 @@ class SubmissionFunction(
      * @return
      */
     override fun singleDetailedHistory(
+        id: String,
         txn: DataAccessTransaction,
         action: Action,
     ): DetailedSubmissionHistory? {
-        val report = submissionsFacade.fetchReportForActionId(action.actionId, txn)
-        return submissionsFacade.findDetailedSubmissionHistory(txn, report?.reportId, action)
+        val report = try {
+            val reportId = UUID.fromString(id)
+            submissionsFacade.findDetailedSubmissionHistory(txn, reportId, action)
+        } catch (ex: IllegalArgumentException) {
+            // We cannot consistently use this logic because the covid pipeline can process reports
+            // synchronously such that the intial action has multiple reports associated (i.e. receive and send)
+            val report = submissionsFacade.fetchReportForActionId(action.actionId, txn)
+            submissionsFacade.findDetailedSubmissionHistory(txn, report?.reportId, action)
+        }
+        return report
     }
 
     /**

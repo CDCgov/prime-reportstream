@@ -166,7 +166,7 @@ class DeliveryFunction(
      * @param action Action from which the data for the delivery is loaded
      * @return
      */
-    override fun singleDetailedHistory(txn: DataAccessTransaction, action: Action): DeliveryHistory? {
+    override fun singleDetailedHistory(id: String, txn: DataAccessTransaction, action: Action): DeliveryHistory? {
         return deliveryFacade.findDetailedDeliveryHistory(action.actionId)
     }
 
