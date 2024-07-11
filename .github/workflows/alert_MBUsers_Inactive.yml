@@ -1,4 +1,4 @@
-name: Alert if upgrade is necessary
+name: Alert about Metabase Inactive users
 
 on:
     workflow_dispatch:
