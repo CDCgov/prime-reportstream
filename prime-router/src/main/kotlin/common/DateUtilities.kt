@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.common
 
+import gov.cdc.prime.reportstream.shared.StringUtilities.trimToNull
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import java.time.DateTimeException
 import java.time.Duration
 import java.time.Instant

@@ -78,7 +78,7 @@ class CsvFileTests {
             .map { (report, _) -> report }
             .zip(expected)
             .forEach { (report, prefix) ->
-                val outputFile = File(outputPath, report.name)
+                val outputFile = File(outputPath, Report.formFilename(report.id, report.bodyFormat))
                 if (!outputFile.exists()) {
                     outputFile.createNewFile()
                 }

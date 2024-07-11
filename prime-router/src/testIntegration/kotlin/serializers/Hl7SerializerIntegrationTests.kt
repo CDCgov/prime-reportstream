@@ -22,10 +22,10 @@ import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.Translator
@@ -1146,7 +1146,7 @@ SPM|1|PH-388002^221010003714&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasoph
 
         val uploadStream = File("./src/testIntegration/resources/serializers/csv-upload-test.csv").inputStream()
         val uploadSchema = "upload-covid-19"
-        val sender = CovidSender("default", "upload", Sender.Format.CSV, CustomerStatus.TESTING, uploadSchema)
+        val sender = CovidSender("default", "upload", MimeFormat.CSV, CustomerStatus.TESTING, uploadSchema)
         val testReport = csvSerializer.readExternal(uploadSchema, uploadStream, TestSource, sender).report
         val output = serializer.buildMessage(testReport, 0)
         val hapiMsg = parser.parse(output.toString())

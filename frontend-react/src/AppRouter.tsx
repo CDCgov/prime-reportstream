@@ -36,9 +36,7 @@ const ReferHealthcareOrganizations = lazy(
             ),
     ),
 );
-const GettingStartedIndex = lazy(
-    lazyRouteMarkdown(() => import("./content/getting-started/index.mdx")),
-);
+
 const GettingStartedSendingData = lazy(
     lazyRouteMarkdown(
         () => import("./content/getting-started/sending-data.mdx"),
@@ -78,14 +76,6 @@ const ReportStreamApiDocumentation = lazy(
             ),
     ),
 );
-const ReportStreamApiDocumentationDataModel = lazy(
-    lazyRouteMarkdown(
-        () =>
-            import(
-                "./content/developer-resources/reportstream-api/documentation/data-model/DataModel.mdx"
-            ),
-    ),
-);
 const ReportStreamApiDocumentationResponses = lazy(
     lazyRouteMarkdown(
         () =>
@@ -113,6 +103,7 @@ const ReportStreamApiDocumentationPayloads = lazy(
 
 /* Public Pages */
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+
 const LoginCallback = lazy(
     () => import("./shared/LoginCallback/LoginCallback"),
 );
@@ -120,7 +111,7 @@ const LogoutCallback = lazy(
     () => import("./shared/LogoutCallback/LogoutCallback"),
 );
 const Login = lazy(() => import("./pages/Login"));
-const FileHandler = lazy(() => import("./components/FileHandlers/FileHandler"));
+
 const ErrorNoPage = lazy(
     () => import("./pages/error/legacy-content/ErrorNoPage"),
 );
@@ -142,7 +133,10 @@ const AdminMessageTrackerPage = lazy(
     () => import("./pages/admin/AdminMessageTracker"),
 );
 const AdminReceiverDashPage = lazy(
-    () => import("./pages/admin/AdminReceiverDashPage"),
+    () =>
+        import(
+            "./pages/admin/receiver-dashboard/AdminReceiverDashboardPage/AdminReceiverDashboardPage"
+        ),
 );
 const DeliveryDetailPage = lazy(
     () => import("./pages/deliveries/details/DeliveryDetail"),
@@ -300,14 +294,6 @@ export const appRoutes: RouteObject[] = [
                 path: "getting-started",
                 children: [
                     {
-                        index: true,
-                        element: <GettingStartedIndex />,
-                        handle: {
-                            isContentPage: true,
-                            isFullWidth: true,
-                        },
-                    },
-                    {
                         path: "sending-data",
                         element: <GettingStartedSendingData />,
                         handle: {
@@ -361,15 +347,6 @@ export const appRoutes: RouteObject[] = [
                                             <ReportStreamApiDocumentation />
                                         ),
                                         index: true,
-                                        handle: {
-                                            isContentPage: true,
-                                        },
-                                    },
-                                    {
-                                        path: "data-model",
-                                        element: (
-                                            <ReportStreamApiDocumentationDataModel />
-                                        ),
                                         handle: {
                                             isContentPage: true,
                                         },
@@ -429,7 +406,9 @@ export const appRoutes: RouteObject[] = [
             },
             {
                 path: "/file-handler/validate",
-                element: <FileHandler />,
+                loader: () => {
+                    return redirect("/developer-resources/api/getting-started");
+                },
             },
             {
                 path: "daily-data",

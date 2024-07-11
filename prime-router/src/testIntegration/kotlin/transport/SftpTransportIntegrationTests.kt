@@ -6,6 +6,7 @@ import assertk.assertions.isNull
 import assertk.assertions.startsWith
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.azure.ActionHistory
@@ -20,6 +21,7 @@ import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.credentials.UserPemCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
+import gov.cdc.prime.router.report.ReportService
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -55,6 +57,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         val transport = spyk(SftpTransport())
         val settings = FileSettings(FileSettings.defaultSettingsDirectory)
         val metadata = Metadata.getInstance()
+        val reportService = ReportService()
         val reportId = UUID.randomUUID()
 
         val credentialName = "DEFAULT-SFTP"
@@ -96,7 +99,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             content = contents.toByteArray(),
             true
         )
-        val fileName = Report.formExternalFilename(header)
+        val fileName = Report.formExternalFilename(header, reportService)
         val actionHistory = ActionHistory(TaskAction.send)
 
         val lsPath = "./path"
@@ -130,7 +133,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
                 any(),
                 any()
             )
-        } returns BlobAccess.BlobInfo(Report.Format.HL7, "", "".toByteArray())
+        } returns BlobAccess.BlobInfo(MimeFormat.HL7, "", "".toByteArray())
     }
 
     @AfterEach
@@ -167,6 +170,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.transportType,
             f.header,
             f.reportId,
+            f.fileName,
             null,
             context,
             f.actionHistory
@@ -206,6 +210,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.transportType,
             f.header,
             f.reportId,
+            f.fileName,
             null,
             context,
             f.actionHistory
@@ -245,6 +250,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.transportType,
             f.header,
             f.reportId,
+            f.fileName,
             null,
             context,
             f.actionHistory
@@ -267,6 +273,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.transportType,
             headerWithNullContent,
             f.reportId,
+            f.fileName,
             null,
             context,
             f.actionHistory
@@ -296,6 +303,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.transportType,
             f.header,
             f.reportId,
+            f.fileName,
             null,
             context,
             f.actionHistory
@@ -333,6 +341,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.transportType,
             f.header,
             f.reportId,
+            f.fileName,
             null,
             context,
             f.actionHistory
@@ -363,6 +372,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.transportType,
             f.header,
             f.reportId,
+            f.fileName,
             null,
             context,
             f.actionHistory

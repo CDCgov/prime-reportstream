@@ -8,6 +8,7 @@ import gov.cdc.prime.router.ConditionFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.PrunedObservationsLogMessage
 import gov.cdc.prime.router.Receiver
@@ -117,7 +118,7 @@ class FHIRRouter(
             return listOfReceivers.flatMap { receiver ->
                 val sources = emptyList<Source>()
                 val report = Report(
-                    Report.Format.FHIR,
+                    MimeFormat.FHIR,
                     sources,
                     1,
                     metadata = this.metadata,
@@ -170,9 +171,9 @@ class FHIRRouter(
                 // upload new copy to blobstore
                 val bodyString = FhirTranscoder.encode(receiverBundle)
                 val blobInfo = BlobAccess.uploadBody(
-                    Report.Format.FHIR,
+                    MimeFormat.FHIR,
                     bodyString.toByteArray(),
-                    report.name,
+                    report.id.toString(),
                     message.blobSubFolderName,
                     nextEvent.eventAction
                 )
@@ -226,7 +227,7 @@ class FHIRRouter(
                 emptyList()
             )
             val report = Report(
-                Report.Format.FHIR,
+                MimeFormat.FHIR,
                 emptyList(),
                 1,
                 metadata = this.metadata,
