@@ -1,0 +1,24 @@
+name: Alert if upgrade is necessary
+
+on:
+    workflow_dispatch:
+    push: 
+      branches:
+        - feature/1472-MetabaseMaintenance
+
+jobs:
+  alert_version_upgrade:
+    name: Alert on Version upgrade
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+        with:
+          fetch-depth: 0
+          
+      - name: check for version upgrade
+        id: PD
+        shell: pwsh
+        run: |
+            ./.github/scripts/MetabaseUsers/MBUserAPI.ps1 
+    
