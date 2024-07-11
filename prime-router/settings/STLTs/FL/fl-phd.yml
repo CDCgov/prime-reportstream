@@ -17,7 +17,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation: !<HL7>
-        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/FL/FL-receiver-transform.yml"
+        schemaName: "azure:/hl7_mapping/receivers/STLTs/FL/FL-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: "FDOH-ELR"
@@ -26,13 +26,7 @@
         receivingFacilityOID: "2.16.840.1.114222.1.3645"
         messageProfileId: null
         replaceValue: {}
-        replaceValueAwithB:
-          MSH-6:
-            - '*': "FDOH^2.16.840.1.114222.1.3645^ISO"
-          MSH-5:
-            - '*': "FDOH-ELR^2.16.840.1.114222.4.3.3.8.1.3^ISO"
-          MSH-3:
-            - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+        replaceValueAwithB: {}
         reportingFacilityName: null
         reportingFacilityId: null
         reportingFacilityIdType: null
@@ -83,8 +77,9 @@
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
-        # Accept COVID only
-        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+        # Accept following condition_code (see: observation-mapping.csv for more detail)
+        #        RSV:  	55735004, COVID:	840539006, FLU: 	6142004, MPOX:	414015000
+        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('55735004'|'840539006'|'6142004'|'414015000')).exists())"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
@@ -101,7 +96,7 @@
       transport: !<SFTP>
         host: "ww12.doh.state.fl.us"
         port: "22"
-        filePath: "./Prod/outbox"
+        filePath: "./Test/outbox"
         credentialName: null
         type: "SFTP"
       externalName: null
