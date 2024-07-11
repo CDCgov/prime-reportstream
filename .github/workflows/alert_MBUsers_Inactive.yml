@@ -20,5 +20,5 @@ jobs:
         id: PD
         shell: pwsh
         run: |
-            ./.github/scripts/MetabaseUsers/MBUserAPI.ps1 
+            ./.github/scripts/MetabaseUsers/MBUserAPI.ps1 -pass "$Env:pass"
     
