@@ -77,7 +77,6 @@ jobs:
   e2e_tests:
     name: E2E tests
     needs: lint
-    if: needs.lint.result == 'success'
     runs-on: ubuntu-latest
     # Keep shards under 6 minutes (1 minute dedicated to playwright install, 5 to tests)
     timeout-minutes: 7
@@ -120,6 +119,22 @@ jobs:
           name: frontend-e2e-data--shard-${{ matrix.shardIndex }}
           path: frontend-react/e2e-data
           retention-days: 1
+
+  # the e2e_tests job doesn't properly reflect being skipped when set as required on the repo.
+  # this step will always run and provide a status
+  e2e_tests_proxy:
+      if: ${{ always() }}
+      runs-on: ubuntu-latest
+      name: E2E Tests Proxy
+      needs: [e2e_tests]
+      steps:
+        - run: |
+            result="${{ needs.e2e_tests.result }}"
+            if [[ $result == "success" || $result == "skipped" ]]; then
+              exit 0
+            else
+              exit 1
+            fi
 
   # Merge reports after e2e-tests, even if some shards have failed
   merge_e2e_data:
