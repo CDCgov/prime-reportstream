@@ -285,7 +285,6 @@ class DetailedSubmissionHistory(
                 }
             }
 
-            // TODO: does this ever run?
             // For the report received from a sender
             if (report.sendingOrg != null) {
                 // Reports with errors do not show an ID
