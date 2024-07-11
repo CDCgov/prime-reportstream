@@ -59,6 +59,8 @@ const test = baseTest.extend<MockPageFixtures>({
             senderLogin,
             receiverLogin,
             storageState,
+            frontendWarningsLogPath,
+            isFrontendWarningsLog
         },
         use,
     ) => {
@@ -69,6 +71,8 @@ const test = baseTest.extend<MockPageFixtures>({
             senderLogin,
             receiverLogin,
             storageState,
+            frontendWarningsLogPath,
+            isFrontendWarningsLog,
         });
         await page.goto();
         await use(page);
