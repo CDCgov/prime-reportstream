@@ -8,7 +8,7 @@ on:
 
 jobs:
   alert_version_upgrade:
-    name: Alert on Version upgrade
+    name: Alert about Metabase Inactive users
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
