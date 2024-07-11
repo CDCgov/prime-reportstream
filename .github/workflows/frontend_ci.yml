@@ -77,6 +77,7 @@ jobs:
   e2e_tests:
     name: E2E tests
     needs: lint
+    if: needs.lint.result == 'success'
     runs-on: ubuntu-latest
     # Keep shards under 6 minutes (1 minute dedicated to playwright install, 5 to tests)
     timeout-minutes: 7
