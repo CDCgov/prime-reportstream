@@ -10,7 +10,6 @@ import { join } from "node:path";
 // eslint-disable-next-line import/export
 export * from "@playwright/test";
 
-const isMockDisabled = Boolean(process.env.MOCK_DISABLED);
 export interface TestLogin {
     username: string;
     password: string;
@@ -76,6 +75,7 @@ function createLogins<const T extends string[]>(
 
 export const logins = createLogins(["admin", "receiver", "sender"]);
 
+// eslint-disable-next-line import/export
 export const test = base.extend<CustomFixtures>({
     adminLogin: {
         ...logins.admin,
@@ -100,4 +100,3 @@ export type TestArgs<P extends keyof PlaywrightAllTestArgs> = Pick<
 > &
     CustomFixtures;
 
-export { expect } from "@playwright/test";
