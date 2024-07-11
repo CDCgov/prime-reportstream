@@ -38,6 +38,10 @@ const test = baseTest.extend<AboutPageFixtures>({
 });
 
 test.describe("About page", () => {
+    test("dummy fail", () => {
+        expect(true).toBe(false);
+    });
+
     test("nav contains the 'About' dropdown with 'About Reportstream' option", async ({
         aboutPage,
     }) => {
