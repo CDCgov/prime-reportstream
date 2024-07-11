@@ -9,12 +9,9 @@ import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.queue.QueueServiceClient
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
-import gov.cdc.prime.reportstream.submissions.validators.ClientIdValidator
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.WebDataBinder
-import org.springframework.web.bind.annotation.InitBinder
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
@@ -28,17 +25,12 @@ class SubmissionController(
     private val queueServiceClient: QueueServiceClient,
     private val tableClient: TableClient,
     private val eventGridPublisherClient: EventGridPublisherAsyncClient<EventGridEvent>,
-    private val clientIdValidator: ClientIdValidator,
     @Value("\${azure.storage.container-name}") private val containerName: String = "receive",
     @Value("\${azure.storage.queue-name}") private val queueName: String = "elr-fhir-convert",
 ) {
-    // Validator for client_id header to confirm that the header is present and populated
-    @InitBinder
-    fun initBinder(binder: WebDataBinder) {
-        binder.addValidators(clientIdValidator)
-    }
 
-    @PostMapping("/api/v1/reports", consumes = ["application/hl7-v2", "application/fhir+ndjson"])
+//    @PostMapping("/api/v1/reports", consumes = ["application/hl7-v2", "application/fhir+ndjson"])
+    @PostMapping("/api/v1/reports")
     fun submitReport(
         @RequestHeader headers: Map<String, String>,
         @RequestHeader("client_id") clientId: String,
@@ -120,10 +112,11 @@ class SubmissionController(
         headers: Map<String, String>,
     ): String {
         val senderName = headers["client_id"]?.lowercase()
-        return when (val contentType = headers["Content-Type"]?.lowercase()) {
+        return when (headers["Content-Type"]?.lowercase()) {
             "application/hl7-v2" -> "receive/$senderName/$reportId.hl7"
             "application/fhir+ndjson" -> "receive/$senderName/$reportId.fhir"
-            else -> throw IllegalArgumentException("Unsupported content-type: $contentType")
+            else -> "receive/$senderName/$reportId"
+                // throw IllegalArgumentException("Unsupported content-type: $contentType")
         }
     }
 }
