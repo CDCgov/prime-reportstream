@@ -1,6 +1,9 @@
 param (
     [string]$pass
 )
+param (
+    [string]$user
+)
 
 function Get-BasicAuthCreds {
     param([string]$Username, [string]$Password)
@@ -8,7 +11,7 @@ function Get-BasicAuthCreds {
     $AuthBytes = [System.Text.Encoding]::Ascii.GetBytes($AuthString)
     return [Convert]::ToBase64String($AuthBytes)
 }
-$BasicCreds = Get-BasicAuthCreds -Username "repo" -Password $pass
+$BasicCreds = Get-BasicAuthCreds -Username $user -Password $pass
 $headers = @{"Authorization" = "Basic $BasicCreds"}
 $SixMonthsOld=(Get-Date).AddMonths(-6)
 $stgendpoint = "https://staging.prime.cdc.gov/metabase/api/user"

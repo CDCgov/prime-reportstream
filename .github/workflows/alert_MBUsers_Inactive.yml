@@ -20,7 +20,8 @@ jobs:
         id: PD
         shell: pwsh
         env:
-            pass: ${{ secrets.RUNLEAKS_TOKEN }}
+            pass: ${{ secrets.MBPwd }}
+            user: ${{ secrets.MBUserName }}
         run: |
-            ./.github/scripts/MetabaseUsers/MBUserAPI.ps1 -pass "$Env:pass"
+            ./.github/scripts/MetabaseUsers/MBUserAPI.ps1 -pass "$Env:pass" -UserName "$Env:user" 
     
