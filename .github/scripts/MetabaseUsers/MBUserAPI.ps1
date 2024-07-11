@@ -1,5 +1,5 @@
 param (
-    [string]$pass
+    [string]$pass    
 )
 param (
     [string]$user

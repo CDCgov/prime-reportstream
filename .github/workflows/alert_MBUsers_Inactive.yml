@@ -23,5 +23,5 @@ jobs:
             pass: ${{ secrets.MBPwd }}
             user: ${{ secrets.MBUserName }}
         run: |
-            ./.github/scripts/MetabaseUsers/MBUserAPI.ps1 -pass "$Env:pass" -UserName "$Env:user" 
+            ./.github/scripts/MetabaseUsers/MBUserAPI.ps1 -pass "$Env:pass" -user "$Env:user" 
     
