@@ -386,7 +386,13 @@ open class BaseHistoryFunction : Logging {
                         }
                     )
                     .content(String(contents))
-                    .fileName(requestedReport.externalName)
+                    .fileName(
+                        if (requestedReport.externalName.isNullOrBlank()) {
+                            "${requestedReport.receivingOrgSvc}.${requestedReport.bodyFormat.lowercase()}"
+                        } else {
+                            requestedReport.externalName
+                        }
+                    )
                     .mimeType(mimeType)
                     .build()
 
