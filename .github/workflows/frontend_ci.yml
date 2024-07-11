@@ -122,10 +122,10 @@ jobs:
 
   # the e2e_tests job doesn't properly reflect being skipped when set as required on the repo.
   # this step will always run and provide a status
-  e2e_tests_proxy:
+  e2e_tests_result:
       if: ${{ always() }}
       runs-on: ubuntu-latest
-      name: E2E Tests Proxy
+      name: E2E Tests Result
       needs: [e2e_tests]
       steps:
         - run: |
