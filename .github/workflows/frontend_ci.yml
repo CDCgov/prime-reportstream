@@ -135,6 +135,7 @@ jobs:
             else
               exit 1
             fi
+          working-directory: /
 
   # Merge reports after e2e-tests, even if some shards have failed
   merge_e2e_data:
