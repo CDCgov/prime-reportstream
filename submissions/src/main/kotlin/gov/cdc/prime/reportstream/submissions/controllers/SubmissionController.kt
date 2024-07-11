@@ -29,77 +29,82 @@ class SubmissionController(
     @Value("\${azure.storage.queue-name}") private val queueName: String = "elr-fhir-convert",
 ) {
 
-//    @PostMapping("/api/v1/reports", consumes = ["application/hl7-v2", "application/fhir+ndjson"])
-    @PostMapping("/api/v1/reports")
+    // Use of consumes limits the options for Content-Type to only these values
+    @PostMapping("/api/v1/reports", consumes = ["application/hl7-v2", "application/fhir+ndjson"])
     fun submitReport(
         @RequestHeader headers: Map<String, String>,
+        @RequestHeader("Content-Type") contentType: String,
         @RequestHeader("client_id") clientId: String,
-        @RequestBody data: Map<String, Any>,
+        @RequestBody data: String,
     ): ResponseEntity<*> {
         val reportId = UUID.randomUUID()
         val reportReceivedTime = OffsetDateTime.now()
         val status = "Received"
+        try {
 
-        // Convert data to ByteArray
-        val dataByteArray = data.toString().toByteArray()
+            // Convert data to ByteArray
+            val dataByteArray = data.toByteArray()
 
-        // Upload to blob storage
-        val blobContainerClient = blobServiceClient.getBlobContainerClient(containerName)
-        val blobClient = blobContainerClient.getBlobClient(formBlobName(reportId, headers))
-        blobClient.upload(dataByteArray.inputStream(), dataByteArray.size.toLong())
+            // Upload to blob storage
+            val blobContainerClient = blobServiceClient.getBlobContainerClient(containerName)
+            val blobClient = blobContainerClient.getBlobClient(formBlobName(reportId, headers))
+            blobClient.upload(dataByteArray.inputStream(), dataByteArray.size.toLong())
 
-        // Create the message for the queue
-        val message = mapOf(
-            "reportId" to reportId.toString(),
-            "blobUrl" to blobClient.blobUrl,
-            "headers" to filterHeaders(headers)
-        )
-        val objectMapper = jacksonObjectMapper()
-        val messageString = objectMapper.writeValueAsString(message)
-
-        // Upload to Queue
-        val queueClient = queueServiceClient.getQueueClient(queueName)
-        queueClient.createIfNotExists()
-        queueClient.sendMessage(messageString)
-
-        // Insert into Table
-        // TableEntity() sets PartitionKey and RowKey. Both are required by azure and combine to create the PK
-        val tableEntity = TableEntity(reportId.toString(), reportId.toString())
-        val tableProperties = mapOf(
-            "report_received_time" to reportReceivedTime.toString(),
-            "report_accepted_time" to reportReceivedTime.toString(), // Will be updated when the report is accepted
-            "report_id" to reportId.toString(),
-            "status" to status
-        )
-        tableClient.createEntity(tableEntity.setProperties(tableProperties))
-
-        // Create and publish custom event
-        val reportReceivedEvent = ReportReceivedEvent(
-            timeStamp = reportReceivedTime,
-            reportId = reportId,
-            parentReportId = reportId,
-            rootReportId = reportId,
-            headers = filterHeaders(headers),
-            senderIP = headers["x-azure-clientip"].toString(),
-            fileSize = headers["content-length"].toString(),
-            blobUrl = blobClient.blobUrl
-        )
-        val eventGridEvent = EventGridEvent(
-            UUID.randomUUID().toString(),
-            "Received",
-            BinaryData.fromObject(reportReceivedEvent),
-            "Report.Received"
-        )
-        eventGridPublisherClient.sendEvent(eventGridEvent).block()
-
-        val response =
-            CreationResponse(
-                reportId,
-                status,
-                OffsetDateTime.now(),
+            // Create the message for the queue
+            val message = mapOf(
+                "reportId" to reportId.toString(),
+                "blobUrl" to blobClient.blobUrl,
+                "headers" to filterHeaders(headers)
             )
+            val objectMapper = jacksonObjectMapper()
+            val messageString = objectMapper.writeValueAsString(message)
 
-        return ResponseEntity(response, HttpStatus.CREATED)
+            // Upload to Queue
+            val queueClient = queueServiceClient.getQueueClient(queueName)
+            queueClient.createIfNotExists()
+            queueClient.sendMessage(messageString)
+
+            // Insert into Table
+            // TableEntity() sets PartitionKey and RowKey. Both are required by azure and combine to create the PK
+            val tableEntity = TableEntity(reportId.toString(), reportId.toString())
+            val tableProperties = mapOf(
+                "report_received_time" to reportReceivedTime.toString(),
+                "report_accepted_time" to reportReceivedTime.toString(), // Will be updated when the report is accepted
+                "report_id" to reportId.toString(),
+                "status" to status
+            )
+            tableClient.createEntity(tableEntity.setProperties(tableProperties))
+
+            // Create and publish custom event
+            val reportReceivedEvent = ReportReceivedEvent(
+                timeStamp = reportReceivedTime,
+                reportId = reportId,
+                parentReportId = reportId,
+                rootReportId = reportId,
+                headers = filterHeaders(headers),
+                senderIP = headers["x-azure-clientip"].toString(),
+                fileSize = headers["content-length"].toString(),
+                blobUrl = blobClient.blobUrl
+            )
+            val eventGridEvent = EventGridEvent(
+                UUID.randomUUID().toString(),
+                "Received",
+                BinaryData.fromObject(reportReceivedEvent),
+                "Report.Received"
+            )
+            eventGridPublisherClient.sendEvent(eventGridEvent).block()
+
+            val response =
+                CreationResponse(
+                    reportId,
+                    status,
+                    OffsetDateTime.now(),
+                )
+
+            return ResponseEntity(response, HttpStatus.CREATED)
+        } catch (e: Exception) {
+            return ResponseEntity("Internal Server Error: ${e.message}", HttpStatus.INTERNAL_SERVER_ERROR)
+        }
     }
 
     private fun filterHeaders(headers: Map<String, String>): Map<String, String> {

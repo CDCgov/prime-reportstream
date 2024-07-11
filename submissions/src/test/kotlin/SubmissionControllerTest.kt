@@ -16,6 +16,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.doNothing
+import org.mockito.Mockito.doThrow
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
@@ -80,7 +81,46 @@ class SubmissionControllerTest {
     }
 
     @Test
-    fun `submitReport should return CREATED status`() {
+    fun `submitReport should return CREATED status with content-type hl7-v2`() {
+        val data = mapOf("key" to "value")
+        val requestBody = objectMapper.writeValueAsString(data)
+
+        `when`(queueClient.sendMessage(anyString())).thenReturn(sendMessageResult)
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/v1/reports")
+                .content(requestBody)
+                .contentType(MediaType.valueOf("application/hl7-v2"))
+                .header("client_id", "testClient")
+                .header("payloadname", "testPayload")
+                .header("x-azure-clientip", "127.0.0.1")
+        )
+            .andExpect(MockMvcResultMatchers.status().isCreated)
+
+        verify(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
+        verify(queueClient).sendMessage(anyString())
+    }
+
+    @Test
+    fun `submitReport should return CREATED status with content-type fhir+ndjson`() {
+        val data = mapOf("key" to "value")
+        val requestBody = objectMapper.writeValueAsString(data)
+
+        `when`(queueClient.sendMessage(anyString())).thenReturn(sendMessageResult)
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/v1/reports")
+                .content(requestBody)
+                .contentType(MediaType.valueOf("application/fhir+ndjson"))
+                .header("client_id", "testClient")
+                .header("payloadname", "testPayload")
+                .header("x-azure-clientip", "127.0.0.1")
+        )
+            .andExpect(MockMvcResultMatchers.status().isCreated)
+    }
+
+    @Test
+    fun `submitReport should return UNSUPPORTED_MEDIA_TYPE status with unsupported content-type`() {
         val data = mapOf("key" to "value")
         val requestBody = objectMapper.writeValueAsString(data)
 
@@ -92,11 +132,93 @@ class SubmissionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("client_id", "testClient")
                 .header("payloadname", "testPayload")
-                .header("X-Forwarded-For", "127.0.0.1")
+                .header("x-azure-clientip", "127.0.0.1")
         )
-            .andExpect(MockMvcResultMatchers.status().isCreated)
+            .andExpect(MockMvcResultMatchers.status().isUnsupportedMediaType)
+    }
+
+    @Test
+    fun `submitReport should return BAD_REQUEST status when client_id is missing`() {
+        val data = mapOf("key" to "value")
+        val requestBody = objectMapper.writeValueAsString(data)
+
+        `when`(queueClient.sendMessage(anyString())).thenReturn(sendMessageResult)
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/v1/reports")
+                .content(requestBody)
+                .contentType(MediaType.valueOf("application/hl7-v2"))
+                .header("payloadname", "testPayload")
+                .header("x-azure-clientip", "127.0.0.1")
+        )
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+    }
+
+    @Test
+    fun `submitReport should return INTERNAL_SERVER_ERROR on blob storage failure`() {
+        val data = mapOf("key" to "value")
+        val requestBody = objectMapper.writeValueAsString(data)
+
+        doThrow(RuntimeException("Blob storage failure"))
+            .`when`(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/v1/reports")
+                .content(requestBody)
+                .contentType(MediaType.parseMediaType("application/hl7-v2"))
+                .header("client_id", "testClient")
+                .header("payloadname", "testPayload")
+                .header("x-azure-clientip", "127.0.0.1")
+        )
+            .andExpect(MockMvcResultMatchers.status().isInternalServerError)
+
+        verify(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
+    }
+
+    @Test
+    fun `submitReport should return INTERNAL_SERVER_ERROR on queue service failure`() {
+        val data = mapOf("key" to "value")
+        val requestBody = objectMapper.writeValueAsString(data)
+
+        doNothing().`when`(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
+        doThrow(RuntimeException("Queue service failure")).`when`(queueClient).sendMessage(anyString())
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/v1/reports")
+                .content(requestBody)
+                .contentType(MediaType.parseMediaType("application/hl7-v2"))
+                .header("client_id", "testClient")
+                .header("payloadname", "testPayload")
+                .header("x-azure-clientip", "127.0.0.1")
+        )
+            .andExpect(MockMvcResultMatchers.status().isInternalServerError)
 
         verify(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
         verify(queueClient).sendMessage(anyString())
+    }
+
+    @Test
+    fun `submitReport should return INTERNAL_SERVER_ERROR on Event Grid failure`() {
+        val data = mapOf("key" to "value")
+        val requestBody = objectMapper.writeValueAsString(data)
+
+        doNothing().`when`(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
+        `when`(queueClient.sendMessage(anyString())).thenReturn(sendMessageResult)
+        `when`(eventGridPublisherClient.sendEvent(any(EventGridEvent::class.java)))
+            .thenReturn(Mono.error(RuntimeException("Event Grid failure")))
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/v1/reports")
+                .content(requestBody)
+                .contentType(MediaType.parseMediaType("application/hl7-v2"))
+                .header("client_id", "testClient")
+                .header("payloadname", "testPayload")
+                .header("X-Forwarded-For", "127.0.0.1")
+        )
+            .andExpect(MockMvcResultMatchers.status().isInternalServerError)
+
+        verify(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
+        verify(queueClient).sendMessage(anyString())
+        verify(eventGridPublisherClient).sendEvent(any(EventGridEvent::class.java))
     }
 }

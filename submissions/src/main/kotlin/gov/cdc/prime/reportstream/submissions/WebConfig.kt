@@ -1,23 +1,25 @@
-@file:Suppress("ktlint:standard:no-empty-file")
-
 package gov.cdc.prime.reportstream.submissions
 
-// import org.springframework.context.annotation.Configuration
-// import org.springframework.http.MediaType
-// import org.springframework.http.converter.HttpMessageConverter
-// import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
-// import org.springframework.web.servlet.config.annotation.EnableWebMvc
-// import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
-//
-// val CUSTOM_MEDIA_TYPE = MediaType("application", "hl7-v2")
-//
-// @Configuration
-// class WebConfig: WebMvcConfigurer {
-//    override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
-//        configurer.mediaType("application/hl7-v2", CUSTOM_MEDIA_TYPE)
-//    }
-//
-//    override fun extendMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {
-//        converters.add(CustomMessageConverter())
-//    }
-// }
+ import gov.cdc.prime.reportstream.submissions.CustomMediaTypes.APPLICATION_FHIR_NDJSON
+import gov.cdc.prime.reportstream.submissions.CustomMediaTypes.APPLICATION_HL7_V2
+import org.springframework.context.annotation.Configuration
+import org.springframework.http.MediaType
+import org.springframework.http.converter.HttpMessageConverter
+import org.springframework.http.converter.StringHttpMessageConverter
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import java.nio.charset.StandardCharsets
+
+ @Configuration
+ class WebConfig : WebMvcConfigurer {
+
+     override fun extendMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {
+         val stringConverter = StringHttpMessageConverter(StandardCharsets.UTF_8)
+         stringConverter.setSupportedMediaTypes(
+             listOf(
+             MediaType(APPLICATION_HL7_V2),
+             MediaType(APPLICATION_FHIR_NDJSON)
+         )
+         )
+         converters.add(stringConverter)
+     }
+ }
