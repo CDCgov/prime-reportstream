@@ -1,0 +1,51 @@
+- name: "la-phl"
+  description: "Louisiana Public Health Lab"
+  jurisdiction: "STATE"
+  stateCode: "LA"
+  senders:
+    - name: "etor-nbs-results"
+      organizationName: "la-phl"
+      topic: "etor-ti"
+      customerStatus: "active"
+      format: "HL7"
+  receivers:
+    - name: "etor-nbs-orders"
+      organizationName: "la-phl"
+      externalName: "Louisiana State Public Health Lab ETOR Receiver"
+      topic: "etor-ti"
+      customerStatus: "active"
+      jurisdictionalFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'"  # OML_O21
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"
+        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = '2.16.840.1.114222.4.3.26.3.2').exists()"
+      qualityFilter:
+        - "true"
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+      translation:
+        type: "HL7"
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/Flexion/TILabOrder.yml"
+        useBatchHeaders: false
+        receivingApplicationName: "LA-PHL"
+        receivingFacilityName: "LA"
+      transport:
+        type: "REST"
+        reportUrl: "https://api.neometrics.com/natusAPI/api/v2/HL7"
+        authTokenUrl: "https://api.neometrics.com/natusAPI/api/v2/AUTH/Login"
+        encryptionKeyUrl: "https://api.neometrics.com/natusAPI/api/v2/HL7/GetFileEncryptionKey"
+        headers:
+          Content-Length:  "<calculated when request is sent>"
+          Content-Type:  "multipart/form-data"
+          Key: "files"  # Added for the key value as file.
+          Subscription: "23edf66e1fe14685bb9dfa2cbb14eb3b"  # Added the assigned subscription value.
+          Host: "api.neometrics.com"
+        authHeaders:
+          ExpectSuccess: true  # Added to auth header to expect success otherwise throw exception.
+          Content-Type: "application/json"
+          Subscription: "23edf66e1fe14685bb9dfa2cbb14eb3b"  # Added the assigned subscription value.
+          Host: "api.neometrics.com"
+          Authorization-Type: "username/password"  # Added for using username and password to authenticate and get token
