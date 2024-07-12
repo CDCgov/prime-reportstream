@@ -1,3 +1,4 @@
+import { selectTestOrg } from "../helpers/utils";
 import appInsightsConfig from "../mocks/appInsightsConfig.json" assert { type: "json" };
 import { Locator, Page, Request, Response, Route, TestArgs } from "../test";
 
@@ -38,7 +39,9 @@ export interface GotoRouteHandlerOptions {
     mockError?: boolean | RouteFulfillOptions;
 }
 
-export type BasePageTestArgs = TestArgs<"page" | "storageState">;
+export type BasePageTestArgs = TestArgs<"page" | "storageState"> & {
+    isTestOrg?: boolean;
+};
 
 export abstract class BasePage {
     readonly page: Page;
@@ -115,13 +118,25 @@ export abstract class BasePage {
         return !this.mockError;
     }
 
+    get isAdminSession() {
+        return this.testArgs.storageState === "e2e/.auth/admin.json";
+    }
+
     async reload() {
+        if (this.isAdminSession && this.testArgs.isTestOrg) {
+            await this.selectTestOrg();
+        }
+
         await this.route();
 
         return await this.handlePageLoad(this.page.reload());
     }
 
     async goto(opts?: GotoOptions) {
+        if (this.isAdminSession && this.testArgs.isTestOrg) {
+            await this.selectTestOrg();
+        }
+
         await this.route();
 
         return await this.handlePageLoad(
@@ -130,6 +145,10 @@ export abstract class BasePage {
                 ...opts,
             }),
         );
+    }
+
+    async selectTestOrg() {
+        await selectTestOrg(this.page);
     }
 
     async handlePageLoad(resP: Promise<Response | null>) {
