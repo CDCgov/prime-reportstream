@@ -53,20 +53,20 @@ The build will run the unit tests for you when you invoke commands like `./gradl
 
 ### Running smaller sets of unit tests
 
-The simplest way to run smaller sets of unit tests is through the IDE. Should you want to run a specific class of unit tests or single unit test in the command line, you may do so like the following:
+The simplest way to run smaller sets of unit tests is through the IDE. You should specify the project name of the tests (`:prime-router` in the below example). Should you want to run a specific class of unit tests or single unit test in the command line, you may do so like the following:
 
 ```bash
-./gradlew test --tests "[class path or class path with test name]"
+./gradlew :prime-router:test --tests "[class path or class path with test name]"
 ```
 
 To run an entire class: 
 ```bash
-./gradlew test --tests "gov.cdc.prime.router.fhirengine.engine.FhirRouterTests"
+./gradlew :prime-router:test --tests "gov.cdc.prime.router.fhirengine.engine.FhirRouterTests"
 ```
 
 To run a single test:
 ```bash
-./gradlew test --tests "gov.cdc.prime.router.fhirengine.engine.FhirRouterTests.test applyFilters receiver setting - (reverseTheQualityFilter = true) "
+./gradlew :prime-router:test --tests "gov.cdc.prime.router.fhirengine.engine.FhirRouterTests.test applyFilters receiver setting - (reverseTheQualityFilter = true) "
 ```
  
 ## End-to-end tests

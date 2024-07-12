@@ -199,7 +199,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'KeyVaults=\(',                                                                 # List of vaults
             'useResource } from \"rest-hooks\"',                                            # not a user
             'author\"}]}, \"who\": {\"reference\"',                                         # Comes out of normal FHIR test data
-            'authority\", \"extension\"',                                                   # FHIR extension URL also shows up in normal FHIR test data
+            'authority\", \"extension\"',                                                  # FHIR extension URL also shows up in normal FHIR test data
+            'ApiKeyCredential\(\"flexion\"',
             'authType: \"two-legged\"',
             'Authorization-Type: \"username/password\"',
         ]

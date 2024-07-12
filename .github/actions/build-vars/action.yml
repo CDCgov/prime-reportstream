@@ -169,7 +169,8 @@ runs:
           frontend_react:
             - 'frontend-react/**/!(*.md)'
             - '.github/actions/build-vars/action.yml'
-            - '.github/actions/build-frontend/action.yml'            
+            - '.github/actions/build-frontend/action.yml'
+            - '.github/workflows/frontend_ci.yml'          
           terraform:
             - 'operations/app/terraform/**/!(*.md)'
             - '.github/workflows/validate_terraform.yml'

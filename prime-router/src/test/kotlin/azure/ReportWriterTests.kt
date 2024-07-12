@@ -7,6 +7,7 @@ import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -53,7 +54,7 @@ class ReportWriterTests {
             one,
             listOf(listOf("1", "2")),
             TestSource,
-            bodyFormat = Report.Format.INTERNAL,
+            bodyFormat = MimeFormat.INTERNAL,
             metadata = metadata
         )
         val csvSerializer = CsvSerializer(metadata)
@@ -71,7 +72,7 @@ class ReportWriterTests {
             one,
             listOf(listOf("1", "2")),
             TestSource,
-            bodyFormat = Report.Format.HL7,
+            bodyFormat = MimeFormat.HL7,
             metadata = metadata
         )
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -90,7 +91,7 @@ class ReportWriterTests {
             one,
             listOf(listOf("1", "2")),
             TestSource,
-            bodyFormat = Report.Format.HL7_BATCH,
+            bodyFormat = MimeFormat.HL7_BATCH,
             metadata = metadata
         )
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -109,7 +110,7 @@ class ReportWriterTests {
             one,
             listOf(listOf("1", "2")),
             TestSource,
-            bodyFormat = Report.Format.CSV,
+            bodyFormat = MimeFormat.CSV,
             metadata = metadata
         )
         val csvSerializer = CsvSerializer(metadata)
@@ -127,7 +128,7 @@ class ReportWriterTests {
             one,
             listOf(listOf("1", "2")),
             TestSource,
-            bodyFormat = Report.Format.CSV_SINGLE,
+            bodyFormat = MimeFormat.CSV_SINGLE,
             metadata = metadata
         )
         val csvSerializer = CsvSerializer(metadata)
@@ -145,7 +146,7 @@ class ReportWriterTests {
             one,
             listOf(listOf("1", "2")),
             TestSource,
-            bodyFormat = Report.Format.FHIR, // so this test freaks out if fhir gets support
+            bodyFormat = MimeFormat.FHIR, // so this test freaks out if fhir gets support
             metadata = metadata
         )
         assertFailure { ReportWriter.getBodyBytes(report) }.hasClass(UnsupportedOperationException::class)
