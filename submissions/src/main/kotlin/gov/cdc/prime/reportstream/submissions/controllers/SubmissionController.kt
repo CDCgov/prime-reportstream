@@ -1,14 +1,15 @@
 package gov.cdc.prime.reportstream.submissions.controllers
 
-import com.azure.core.util.BinaryData
 import com.azure.data.tables.TableClient
 import com.azure.data.tables.models.TableEntity
-import com.azure.messaging.eventgrid.EventGridEvent
-import com.azure.messaging.eventgrid.EventGridPublisherAsyncClient
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.queue.QueueServiceClient
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.microsoft.applicationinsights.TelemetryClient
 import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
+import java.time.OffsetDateTime
+import java.util.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -16,15 +17,14 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
-import java.time.OffsetDateTime
-import java.util.UUID
+
 
 @RestController
 class SubmissionController(
     private val blobServiceClient: BlobServiceClient,
     private val queueServiceClient: QueueServiceClient,
+    private val telemetryClient: TelemetryClient,
     private val tableClient: TableClient,
-    private val eventGridPublisherClient: EventGridPublisherAsyncClient<EventGridEvent>,
     @Value("\${azure.storage.container-name}") private val containerName: String = "receive",
     @Value("\${azure.storage.queue-name}") private val queueName: String = "elr-fhir-convert",
 ) {
@@ -56,7 +56,7 @@ class SubmissionController(
                 "blobUrl" to blobClient.blobUrl,
                 "headers" to filterHeaders(headers)
             )
-            val objectMapper = jacksonObjectMapper()
+            val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
             val messageString = objectMapper.writeValueAsString(message)
 
             // Upload to Queue
@@ -86,13 +86,13 @@ class SubmissionController(
                 fileSize = headers["content-length"].toString(),
                 blobUrl = blobClient.blobUrl
             )
-            val eventGridEvent = EventGridEvent(
-                UUID.randomUUID().toString(),
-                "Received",
-                BinaryData.fromObject(reportReceivedEvent),
-                "Report.Received"
-            )
-            eventGridPublisherClient.sendEvent(eventGridEvent).block()
+
+            // Log to Application Insights
+            telemetryClient.trackEvent(
+                "ReportReceivedEvent",
+                mapOf("event" to objectMapper.writeValueAsString(reportReceivedEvent)),
+                null)
+            telemetryClient.flush()
 
             val response =
                 CreationResponse(

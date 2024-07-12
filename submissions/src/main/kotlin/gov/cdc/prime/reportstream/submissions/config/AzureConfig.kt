@@ -6,12 +6,13 @@ import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.queue.QueueServiceClient
 import com.azure.storage.queue.QueueServiceClientBuilder
+import com.microsoft.applicationinsights.TelemetryClient
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class AzureStorageConfig {
+class AzureConfig {
 
     @Value("\${azure.storage.connection-string}")
     private lateinit var connectionString: String
@@ -24,6 +25,9 @@ class AzureStorageConfig {
 
     @Value("\${azure.storage.table-name}")
     private lateinit var tableName: String
+
+    @Value("\${applicationinsights.connection-string}")
+    private lateinit var applicationInsightsConnectionString: String
 
     @Bean
     fun blobServiceClient(): BlobServiceClient = BlobServiceClientBuilder()
@@ -49,4 +53,10 @@ class AzureStorageConfig {
 
     @Bean
     fun tableName(): String = tableName
+
+    @Bean
+    fun telemetryClient(): TelemetryClient {
+        System.setProperty("APPLICATIONINSIGHTS_CONNECTION_STRING", applicationInsightsConnectionString)
+        return TelemetryClient()
+    }
 }
