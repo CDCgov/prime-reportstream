@@ -59,7 +59,7 @@ object FhirPathUtils : Logging {
     /**
      * Parse a FHIR path from a [fhirPath] string.  This will also provide some format validation.
      * @return the validated FHIR path
-     * @throws Exception if the path is invalid
+     * @throws FHIRLexerException if the path is invalid
      */
     fun parsePath(fhirPath: String?): ExpressionNode? {
         return if (fhirPath.isNullOrBlank()) {
@@ -97,13 +97,12 @@ object FhirPathUtils : Logging {
             } else {
                 pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
             }
-        } catch (e: Exception) {
-            // This is due to a bug in at least the extension() function
-            logger.error(
-                "Unknown error while evaluating FHIR expression $expression. " +
-                    "Returning empty resource list.",
-                e
-            )
+        } catch (e: FHIRLexerException) {
+            logger.error("${e.javaClass.name}: Syntax error in FHIR Path $expression.")
+            emptyList()
+        } catch (e: IndexOutOfBoundsException) {
+            // This happens when a non-string value is given to an extension field.
+            logger.error("${e.javaClass.name}: FHIR path could not find a specified field in $expression.")
             emptyList()
         }
         logger.trace("Evaluated '$expression' to '$retVal'")
@@ -145,10 +144,9 @@ object FhirPathUtils : Logging {
                 throw SchemaException("FHIR Path expression did not evaluate to a boolean type: $expression")
             }
         } catch (e: Exception) {
-            // This is due to a bug in at least the extension() function
             val msg = when (e) {
                 is FHIRLexerException -> "Syntax error in FHIR Path expression $expression"
-                is SchemaException -> throw e
+                is SchemaException -> e.message.toString()
                 else ->
                     "Unknown error while evaluating FHIR Path expression $expression for condition. " +
                         "Setting value of condition to false."
