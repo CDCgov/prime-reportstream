@@ -15,10 +15,7 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
-import io.ktor.http.ContentType
-import io.ktor.http.HttpMethod
-import io.ktor.http.Parameters
-import io.ktor.http.contentType
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
@@ -30,8 +27,12 @@ class HttpClientUtils {
          * The @Volatile annotation is needed to ensure that the instance property is updated atomically.
          * This prevents other threads from creating more instances and breaking the singleton pattern.
          */
+
         @Volatile
         private var httpClient: HttpClient? = null
+
+        @Volatile
+        private var httpClientWithAuth: HttpClient? = null
 
         /**
          * timeout for http calls
@@ -533,97 +534,98 @@ class HttpClientUtils {
             }
         }
 
+        fun createDefaultHttpClient(accessToken: String?): HttpClient {
+            if (accessToken != null) {
+                return getDefaultHttpClientWithAuth(accessToken)
+            } else {
+                httpClient ?: synchronized(this) {
+                    httpClient ?: HttpClient(Apache) {
+                        install(ContentNegotiation) {
+                            json(
+                                Json {
+                                    prettyPrint = true
+                                    isLenient = true
+                                    ignoreUnknownKeys = true
+                                }
+                            )
+                        }
+                        install(HttpTimeout)
+                        engine {
+                            followRedirects = true
+                            socketTimeout = TIMEOUT
+                            connectTimeout = TIMEOUT
+                            connectionRequestTimeout = TIMEOUT
+                            customizeClient {
+                            }
+                        }
+                    }.also { httpClient = it }
+                }
+                return httpClient!!
+            }
+        }
+
+
         /**
          * Create a http client with sensible default settings
          * note: most configuration parameters are overridable
          * e.g. expectSuccess default to false because most of the time
          * the caller wants to handle the whole range of response status
-         * @param bearerTokens null default, the access token needed to call the endpoint
+         * @param bearerTokens the access token needed to call the endpoint
          * @return a HttpClient with all sensible defaults
          */
-        fun createDefaultHttpClient(accessToken: String?): HttpClient {
-//            return HttpClient(Apache) {
-//                // installs logging into the call to post to the server
-//                // commented out - not to override underlying default logger settings
-//                // enable to trace http client internals when needed
-//                // install(Logging) {
-//                //     logger = Logger.SIMPLE
-//                //     level = LogLevel.INFO
-//                // }
-//                // not using Bearer Auth handler due to refresh token behavior
-//                accessToken?.let {
-//                    defaultRequest {
-//                        header("Authorization", "Bearer $it")
-//                    }
-//                }
-//                install(ContentNegotiation) {
-//                    json(
-//                        Json {
-//                            prettyPrint = true
-//                            isLenient = true
-//                            ignoreUnknownKeys = true
-//                        }
-//                    )
-//                }
-//
-//                install(HttpTimeout)
-//                engine {
-//                    followRedirects = true
-//                    socketTimeout = TIMEOUT
-//                    connectTimeout = TIMEOUT
-//                    connectionRequestTimeout = TIMEOUT
-//                    customizeClient {
-//                    }
-//                }
-//            }
-
-            httpClient ?: synchronized(this) {
-                httpClient ?: HttpClient(Apache) {
-//                    // installs logging into the call to post to the server
-//                    // commented out - not to override underlying default logger settings
-//                    // enable to trace http client internals when needed
-//                    // install(Logging) {
-//                    //     logger = Logger.SIMPLE
-//                    //     level = LogLevel.INFO
-//                    // }
-//                    // not using Bearer Auth handler due to refresh token behavior
-                    accessToken?.let {
-                        defaultRequest {
-                            header("Authorization", "Bearer $it")
+        fun getDefaultHttpClientWithAuth(accessToken: String): HttpClient {
+            return HttpClient(Apache) {
+                // not using Bearer Auth handler due to refresh token behavior
+                defaultRequest {
+                    header("Authorization", "Bearer $accessToken")
+                }
+                install(ContentNegotiation) {
+                    json(
+                        Json {
+                            prettyPrint = true
+                            isLenient = true
+                            ignoreUnknownKeys = true
                         }
-                    }
-                    install(ContentNegotiation) {
-                        json(
-                            Json {
-                                prettyPrint = true
-                                isLenient = true
-                                ignoreUnknownKeys = true
-                            }
-                        )
-                    }
-
-                    install(HttpTimeout)
-                    engine {
-                        followRedirects = true
-                        socketTimeout = TIMEOUT
-                        connectTimeout = TIMEOUT
-                        connectionRequestTimeout = TIMEOUT
-                        customizeClient {
-                        }
-                    }
-                }.also { httpClient = it }
-            }
-            // not using Bearer Auth handler due to refresh token behavior
-            accessToken?.let {
-                httpClient?.let {
-                    httpClient = it.config {
-                        defaultRequest {
-                            header("Authorization", "Bearer $it")
-                        }
+                    )
+                }
+                install(HttpTimeout)
+                engine {
+                    followRedirects = true
+                    socketTimeout = TIMEOUT
+                    connectTimeout = TIMEOUT
+                    connectionRequestTimeout = TIMEOUT
+                    customizeClient {
                     }
                 }
             }
-            return httpClient!!
+
+//            httpClientWithAuth ?: synchronized(this) {
+//                httpClientWithAuth ?: HttpClient(Apache) {
+//                    // not using Bearer Auth handler due to refresh token behavior
+//                    defaultRequest {
+//                        header("Authorization", "Bearer $accessToken")
+//                    }
+//                    install(ContentNegotiation) {
+//                        json(
+//                            Json {
+//                                prettyPrint = true
+//                                isLenient = true
+//                                ignoreUnknownKeys = true
+//                            }
+//                        )
+//                    }
+//                    install(HttpTimeout)
+//                    engine {
+//                        followRedirects = true
+//                        socketTimeout = TIMEOUT
+//                        connectTimeout = TIMEOUT
+//                        connectionRequestTimeout = TIMEOUT
+//                        customizeClient {
+//                        }
+//                    }
+//                }
+//            }.also { httpClientWithAuth = it }
+//            return httpClientWithAuth!!
         }
     }
 }
