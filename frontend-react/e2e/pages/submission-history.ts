@@ -1,35 +1,89 @@
 import { expect, Page } from "@playwright/test";
+import {
+    BasePage,
+    BasePageTestArgs,
+    type RouteHandlerFulfillEntry,
+} from "./BasePage";
+import { RSDelivery } from "../../src/config/endpoints/deliveries";
+import { TEST_ORG_IGNORE } from "../helpers/utils";
 import { MOCK_GET_SUBMISSION_HISTORY } from "../mocks/submissionHistory";
 import { MOCK_GET_SUBMISSIONS } from "../mocks/submissions";
 
 export const URL_SUBMISSION_HISTORY = "/submissions";
 export const API_GET_REPORT_HISTORY = `**/api/waters/report/**`;
 
-export async function goto(page: Page) {
-    await page.goto(URL_SUBMISSION_HISTORY, {
-        waitUntil: "domcontentloaded",
-    });
+export class SubmissionHistoryPage extends BasePage {
+    static readonly API_SUBMISSIONS = `**/api/waters/org/${TEST_ORG_IGNORE}/submissions?*`;
+    static readonly API_GET_REPORT_HISTORY = `**/api/waters/report/**`;
+    protected _submissions: RSDelivery[];
+    protected _submissionHistory: RSDelivery;
+
+    constructor(testArgs: BasePageTestArgs) {
+        super(
+            {
+                url: URL_SUBMISSION_HISTORY,
+                title: "ReportStream - CDC's free, interoperable data transfer platform",
+                heading: testArgs.page.getByRole("heading", {
+                    name: "Daily Data Details",
+                }),
+            },
+            testArgs,
+        );
+
+        this._submissions = [];
+        this._submissionHistory = {
+            batchReadyAt: "",
+            deliveryId: 0,
+            expires: "",
+            fileName: "",
+            fileType: "",
+            receiver: "",
+            reportId: "",
+            reportItemCount: 0,
+            topic: "",
+        };
+        this.addResponseHandlers([
+            [
+                SubmissionHistoryPage.API_SUBMISSIONS,
+                async (res) => (this._submissions = await res.json()),
+            ],
+            [
+                SubmissionHistoryPage.API_GET_REPORT_HISTORY,
+                async (res) => (this._submissionHistory = await res.json()),
+            ],
+        ]);
+        this.addMockRouteHandlers([
+            this.createMockSubmissionsHandler(),
+            this.createMockSubmissionHistoryHandler(),
+        ]);
+    }
+
+    createMockSubmissionsHandler(): RouteHandlerFulfillEntry {
+        return [
+            SubmissionHistoryPage.API_SUBMISSIONS,
+            () => {
+                return {
+                    json: MOCK_GET_SUBMISSIONS,
+                };
+            },
+        ];
+    }
+
+    createMockSubmissionHistoryHandler(): RouteHandlerFulfillEntry {
+        return [
+            SubmissionHistoryPage.API_GET_REPORT_HISTORY,
+            () => {
+                return {
+                    json: MOCK_GET_SUBMISSION_HISTORY,
+                };
+            },
+        ];
+    }
 }
 
 export async function gotoDetails(page: Page, id: string) {
     await page.goto(`${URL_SUBMISSION_HISTORY}/${id}`, {
         waitUntil: "domcontentloaded",
-    });
-}
-
-export function getOrgSubmissionsAPI(org: string) {
-    return `**/api/waters/org/${org}/submissions?*`;
-}
-
-export async function mockGetSubmissionsResponse(
-    page: Page,
-    org: string,
-    responseStatus = 200,
-) {
-    const submissionsApi = getOrgSubmissionsAPI(org);
-    await page.route(submissionsApi, async (route) => {
-        const json = MOCK_GET_SUBMISSIONS;
-        await route.fulfill({ json, status: responseStatus });
     });
 }
 

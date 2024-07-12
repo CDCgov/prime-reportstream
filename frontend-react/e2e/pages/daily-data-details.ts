@@ -49,7 +49,7 @@ export class DailyDataDetailsPage extends BasePage {
             ],
             [
                 DailyDataDetailsPage.API_FACILITIES,
-                async (res) => (this._reportDelivery = await res.json()),
+                async (res) => (this._facilities = await res.json()),
             ],
         ]);
         this.addMockRouteHandlers([
