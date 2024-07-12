@@ -1549,11 +1549,10 @@ class Report : Logging {
             translationConfig: TranslatorConfiguration? = null,
         ): String {
             val nameSuffix = format.ext
+            val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val fileName = if (translationConfig == null) {
-                val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
                 "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}"
             } else {
-                val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
                 metadata!!.fileNameTemplates[nameFormat?.lowercase()].run {
                     this?.getFileName(translationConfig, reportId)
                         ?: "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}"
