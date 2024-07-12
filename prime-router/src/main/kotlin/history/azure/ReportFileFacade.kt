@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.history.azure
 
 import com.microsoft.azure.functions.HttpRequestMessage
+import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -26,8 +27,8 @@ abstract class ReportFileFacade(
     /**
      * @return a single Report associated with this [actionId]
      */
-    fun fetchReportForActionId(actionId: Long): ReportFile? {
-        return dbAccess.fetchReportForActionId(actionId)
+    fun fetchReportForActionId(actionId: Long, txn: DataAccessTransaction? = null): ReportFile? {
+        return dbAccess.fetchReportForActionId(actionId, txn)
     }
 
     /**
