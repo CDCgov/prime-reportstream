@@ -85,7 +85,7 @@ object OrganizationValidation : KonformValidation<List<DeepOrganization>>() {
                     addConstraint("Invalid condition filter format: {value}", test = ::validateFilter)
                 }
                 addConstraint("Receiver must only configure one kind of condition filter", test = { receiver ->
-                    !receiver.conditionFilter.isNotEmpty() && !receiver.mappedConditionFilter.isNotEmpty()
+                    !(receiver.conditionFilter.isNotEmpty() && receiver.mappedConditionFilter.isNotEmpty())
                 })
             }
         }
