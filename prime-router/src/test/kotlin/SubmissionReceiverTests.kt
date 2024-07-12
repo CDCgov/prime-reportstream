@@ -394,7 +394,7 @@ class SubmissionReceiverTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.CSV,
+            MimeFormat.CSV,
             schemaName =
             "one",
             allowDuplicates = false
@@ -438,7 +438,7 @@ class SubmissionReceiverTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.CSV,
+            MimeFormat.CSV,
             schemaName =
             "one",
             allowDuplicates = false
@@ -480,7 +480,7 @@ class SubmissionReceiverTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.CSV,
+            MimeFormat.CSV,
             schemaName =
             "one",
             allowDuplicates = false
@@ -530,7 +530,7 @@ class SubmissionReceiverTests {
             metadata = metadata
         )
 
-        val bodyFormat = Report.Format.CSV
+        val bodyFormat = MimeFormat.CSV
         val bodyUrl = "http://anyblob.com"
         val bodyBytes = "".toByteArray()
         val csvSerializer = CsvSerializer(metadata)
@@ -579,10 +579,10 @@ class SubmissionReceiverTests {
             mapOf<String, List<String>>(Pair("test", listOf("1,2"))),
             source = ClientSource("ignore", "ignore"),
             metadata = metadata,
-            bodyFormat = Report.Format.HL7
+            bodyFormat = MimeFormat.HL7
         )
 
-        val bodyFormat = Report.Format.CSV
+        val bodyFormat = MimeFormat.CSV
         val bodyUrl = "http://anyblob.com"
 
         val bodyBytes = "".toByteArray()
@@ -639,14 +639,14 @@ class SubmissionReceiverTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.CSV,
+            MimeFormat.CSV,
             schemaName =
             "one",
             allowDuplicates = false
         )
         val actionLogs = ActionLogger()
         val readResult = ReadResult(report, actionLogs)
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.HL7, "test", ByteArray(0))
 
         every { engine.parseTopicReport(any(), any(), any()) } returns readResult
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
@@ -702,14 +702,14 @@ class SubmissionReceiverTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.CSV,
+            MimeFormat.CSV,
             schemaName =
             "one",
             allowDuplicates = false
         )
         val actionLogs = ActionLogger()
         val readResult = ReadResult(report, actionLogs)
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.HL7, "test", ByteArray(0))
         val routeResult = emptyList<ActionLog>()
 
         every { engine.parseTopicReport(any(), any(), any()) } returns readResult
@@ -771,7 +771,7 @@ class SubmissionReceiverTests {
         val sender = UniversalPipelineSender(
             "Test Sender",
             "test",
-            Sender.Format.HL7,
+            MimeFormat.HL7,
             schemaName = "one",
             allowDuplicates = false,
             customerStatus = CustomerStatus.ACTIVE,
@@ -779,7 +779,7 @@ class SubmissionReceiverTests {
         )
         val actionLogs = ActionLogger()
         val readResult = ReadResult(report, actionLogs)
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.HL7, "test", ByteArray(0))
         val routeResult = emptyList<ActionLog>()
 
         every { engine.parseTopicReport(any(), any(), any()) } returns readResult
@@ -816,20 +816,20 @@ class SubmissionReceiverTests {
 
     @Test
     fun `test ELR receiver validateAndMoveToProcessing, inactive sender`() {
-        testELRReceiverValidateAndMoveToProcessing(Report.Format.HL7, hl7_record)
+        testELRReceiverValidateAndMoveToProcessing(MimeFormat.HL7, hl7_record)
     }
 
     @Test
     fun `test ELR receiver validateAndMoveToProcessing, HL7_BATCH format with header`() {
-        testELRReceiverValidateAndMoveToProcessing(Report.Format.HL7_BATCH, hl7_record_batch_headers)
+        testELRReceiverValidateAndMoveToProcessing(MimeFormat.HL7_BATCH, hl7_record_batch_headers)
     }
 
     @Test
     fun `test ELR receiver validateAndMoveToProcessing, HL7_BATCH format no header, multiple records`() {
-        testELRReceiverValidateAndMoveToProcessing(Report.Format.HL7_BATCH, hl7_multiple_records_no_headers)
+        testELRReceiverValidateAndMoveToProcessing(MimeFormat.HL7_BATCH, hl7_multiple_records_no_headers)
     }
 
-    private fun testELRReceiverValidateAndMoveToProcessing(format: Report.Format, content: String) {
+    private fun testELRReceiverValidateAndMoveToProcessing(format: MimeFormat, content: String) {
         // setup
         mockkObject(SubmissionReceiver.Companion)
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
@@ -854,7 +854,7 @@ class SubmissionReceiverTests {
         val sender = UniversalPipelineSender(
             "Test Sender",
             "test",
-            Sender.Format.HL7,
+            MimeFormat.HL7,
             allowDuplicates = true,
             customerStatus = CustomerStatus.INACTIVE,
             topic = Topic.FULL_ELR
@@ -862,7 +862,7 @@ class SubmissionReceiverTests {
 
         val actionLogs = ActionLogger()
         val readResult = ReadResult(report, actionLogs)
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.HL7, "test", ByteArray(0))
         val routeResult = emptyList<ActionLog>()
 
         every { engine.parseTopicReport(any(), any(), any()) } returns readResult
@@ -925,7 +925,7 @@ class SubmissionReceiverTests {
         val sender = UniversalPipelineSender(
             "Test Sender",
             "test",
-            Sender.Format.FHIR,
+            MimeFormat.FHIR,
             allowDuplicates = true,
             customerStatus = CustomerStatus.INACTIVE,
             topic = Topic.FULL_ELR
@@ -933,7 +933,7 @@ class SubmissionReceiverTests {
 
         val actionLogs = ActionLogger()
         val readResult = ReadResult(report, actionLogs)
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.FHIR, "test", ByteArray(0))
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.FHIR, "test", ByteArray(0))
         val routeResult = emptyList<ActionLog>()
 
         every { engine.parseTopicReport(any(), any(), any()) } returns readResult
@@ -995,7 +995,7 @@ class SubmissionReceiverTests {
         val sender = UniversalPipelineSender(
             "Test Sender",
             "test",
-            Sender.Format.FHIR,
+            MimeFormat.FHIR,
             allowDuplicates = true,
             customerStatus = CustomerStatus.INACTIVE,
             topic = Topic.FULL_ELR
@@ -1003,7 +1003,7 @@ class SubmissionReceiverTests {
 
         val actionLogs = ActionLogger()
         val readResult = ReadResult(report, actionLogs)
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.FHIR, "test", ByteArray(0))
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.FHIR, "test", ByteArray(0))
         val routeResult = emptyList<ActionLog>()
 
         every { engine.parseTopicReport(any(), any(), any()) } returns readResult
@@ -1066,14 +1066,14 @@ class SubmissionReceiverTests {
         val sender = UniversalPipelineSender(
             "Test Sender",
             "test",
-            Sender.Format.HL7,
+            MimeFormat.HL7,
             schemaName = "one",
             allowDuplicates = true,
             topic = Topic.FULL_ELR
         )
         val actionLogs = ActionLogger()
         val readResult = ReadResult(report, actionLogs)
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.HL7, "test", ByteArray(0))
         val routeResult = emptyList<ActionLog>()
 
         every { engine.parseTopicReport(any(), any(), any()) } returns readResult
@@ -1139,14 +1139,14 @@ class SubmissionReceiverTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.HL7,
+            MimeFormat.HL7,
             schemaName =
             "one",
             allowDuplicates = true
         )
         val actionLogs = ActionLogger()
         val readResult = ReadResult(report, actionLogs)
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.HL7, "test", ByteArray(0))
         val routeResult = emptyList<ActionLog>()
 
         every { engine.parseTopicReport(any(), any(), any()) } returns readResult
@@ -1206,7 +1206,7 @@ class SubmissionReceiverTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.HL7,
+            MimeFormat.HL7,
             schemaName =
             "one",
             allowDuplicates = true
@@ -1265,7 +1265,7 @@ class SubmissionReceiverTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.HL7,
+            MimeFormat.HL7,
             schemaName =
             "one",
             allowDuplicates = true
@@ -1323,7 +1323,7 @@ class SubmissionReceiverTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.HL7,
+            MimeFormat.HL7,
             schemaName =
             "one",
             allowDuplicates = true
@@ -1362,7 +1362,7 @@ class SubmissionReceiverTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.HL7,
+            MimeFormat.HL7,
             schemaName =
             "one",
             allowDuplicates = true
@@ -1374,7 +1374,7 @@ class SubmissionReceiverTests {
         val universalPipelineSender = UniversalPipelineSender(
             "Test Sender",
             "test",
-            Sender.Format.HL7,
+            MimeFormat.HL7,
             allowDuplicates = true,
             topic = Topic.FULL_ELR
         )

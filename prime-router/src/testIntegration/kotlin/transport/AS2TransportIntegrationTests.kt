@@ -113,7 +113,8 @@ class AS2TransportIntegrationTests {
             .returns(UserJksCredential("x", "xzy", "pass", "a1", "a2"))
 
         // The Test
-        val retryItems = as2Transport.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
+        val retryItems =
+            as2Transport.send(transportType, header, UUID.randomUUID(), "test", null, context, actionHistory)
 
         assertThat(retryItems).isNull()
     }
@@ -129,7 +130,8 @@ class AS2TransportIntegrationTests {
             .returns(UserJksCredential("x", "xzy", "pass", "a1", "a2"))
 
         // Test that retryItems was returned
-        val retryItems = as2Transport.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
+        val retryItems =
+            as2Transport.send(transportType, header, UUID.randomUUID(), "test", null, context, actionHistory)
 
         assertThat(retryItems).isSameAs(RetryToken.allItems)
     }

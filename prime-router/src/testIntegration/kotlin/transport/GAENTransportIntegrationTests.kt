@@ -8,7 +8,7 @@ import assertk.assertions.isTrue
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.GAENTransportType
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
@@ -113,7 +113,7 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
                 any(),
                 any()
             )
-        } returns BlobAccess.BlobInfo(Report.Format.HL7, "", "".toByteArray())
+        } returns BlobAccess.BlobInfo(MimeFormat.HL7, "", "".toByteArray())
     }
 
     @Test
@@ -137,6 +137,7 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             transportType,
             header,
             UUID.randomUUID(),
+            "test",
             retryItems = null,
             context,
             actionHistory
@@ -167,6 +168,7 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             transportType,
             header,
             UUID.randomUUID(),
+            "test",
             retryItems = null,
             context,
             actionHistory
@@ -197,6 +199,7 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             transportType,
             header,
             UUID.randomUUID(),
+            "test",
             retryItems = null,
             context,
             actionHistory
@@ -228,6 +231,7 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             transportType,
             header,
             UUID.randomUUID(),
+            "test",
             retryItems = null,
             context,
             actionHistory

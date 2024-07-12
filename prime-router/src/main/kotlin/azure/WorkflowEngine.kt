@@ -7,6 +7,7 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -21,7 +22,10 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
@@ -59,6 +63,8 @@ class WorkflowEngine(
     val db: DatabaseAccess = databaseAccessSingleton,
     val blob: BlobAccess = BlobAccess(),
     queue: QueueAccess = QueueAccess,
+    val azureEventService: AzureEventService = AzureEventServiceImpl(),
+    val reportService: ReportService = ReportService(),
     val translator: Translator = Translator(metadata, settings),
     val sftpTransport: SftpTransport = SftpTransport(),
     val as2Transport: AS2Transport = AS2Transport(),
@@ -181,14 +187,13 @@ class WorkflowEngine(
             if (sender.topic.isUniversalPipeline) {
                 report.bodyFormat
             } else {
-                Report.Format.safeValueOf(sender.format.toString())
+                MimeFormat.safeValueOf(sender.format.toString())
             }
 
-        val blobFilename = report.name.replace(report.bodyFormat.ext, reportFormat.ext)
         val blobInfo = BlobAccess.uploadBody(
             reportFormat,
             rawBody,
-            blobFilename,
+            report.id.toString(),
             sender.fullName,
             Event.EventAction.RECEIVE
         )
@@ -486,7 +491,7 @@ class WorkflowEngine(
             receiver.timing != null && options != Options.SendImmediately -> {
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
-                val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
+                val batchReport = report.copy(bodyFormat = MimeFormat.INTERNAL)
                 val event = BatchEvent(Event.EventAction.BATCH, receiver.fullName, false, time)
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
@@ -928,7 +933,7 @@ class WorkflowEngine(
         defaults: Map<String, String>,
     ): ReadResult {
         return when (sender.format) {
-            Sender.Format.CSV -> {
+            MimeFormat.CSV -> {
                 try {
                     this.csvSerializer.readExternal(
                         schemaName = sender.schemaName,
@@ -950,7 +955,7 @@ class WorkflowEngine(
                 }
             }
 
-            Sender.Format.HL7, Sender.Format.HL7_BATCH -> {
+            MimeFormat.HL7, MimeFormat.HL7_BATCH -> {
                 try {
                     this.hl7Serializer.readExternal(
                         schemaName = sender.schemaName,

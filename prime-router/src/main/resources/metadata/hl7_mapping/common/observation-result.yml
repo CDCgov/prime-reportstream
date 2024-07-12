@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
   - name: result-set-id
     value: [ '%resultIndex + 1' ]
@@ -15,7 +17,7 @@ elements:
 
   - name: result-value-type-ce
     resource: '%resource.value'
-    condition: false
+    condition: 'false'
     # This element remains here for usage in receiver-transforms
     value: [ '"CE"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
@@ -197,16 +199,16 @@ elements:
 
   - name: performing-organization-name-pracrole
     condition: >
-      %observation.performer.resolve().ofType(PractitionerRole).exists() and 
-      (%observation.performer.resolve().ofType(PractitionerRole).practitioner.exists() or
-       %observation.performer.resolve().ofType(PractitionerRole).practitioner.identifier.type.coding.code="MDIR")
+      Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(PractitionerRole).exists() and 
+      (Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(PractitionerRole).practitioner.exists() or
+       Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(PractitionerRole).practitioner.identifier.type.coding.code="MDIR")
     resource: '%resource.performer.resolve().ofType(PractitionerRole).organization.resolve()'
     schema: classpath:/metadata/hl7_mapping/common/datatype/xon-organization.yml
     constants:
       hl7OrgField: '%{hl7OBXField}-23'
 
   - name: performing-organization-name-non-pracrole
-    condition: '%observation.performer.resolve().ofType(Organization).exists()'
+    condition: 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization).exists()'
     resource: '%resource.performer.resolve().ofType(Organization)'
     schema: classpath:/metadata/hl7_mapping/common/datatype/xon-organization.yml
     constants:
@@ -214,9 +216,9 @@ elements:
 
   - name: performing-organization-address-pracrole
     condition: >
-      %observation.performer.resolve().ofType(PractitionerRole).exists() and 
-      (%observation.performer.resolve().ofType(PractitionerRole).practitioner.exists() or
-       %observation.performer.resolve().ofType(PractitionerRole).practitioner.identifier.type.coding.code="MDIR")
+      Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(PractitionerRole).exists() and 
+      (Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(PractitionerRole).practitioner.exists() or
+       Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(PractitionerRole).practitioner.identifier.type.coding.code="MDIR")
     resource: '%resource.performer.resolve().ofType(PractitionerRole).organization.resolve().address'
     constants:
       hl7AddressField: '%{hl7OBXField}-24'
@@ -224,7 +226,7 @@ elements:
     resourceIndex: contactIndex
 
   - name: performing-organization-address-non-pracrole
-    condition: '%observation.performer.resolve().ofType(Organization).exists()'
+    condition: 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization).exists()'
     resource: '%resource.performer.resolve().ofType(Organization).address'
     constants:
       hl7AddressField: '%{hl7OBXField}-24'

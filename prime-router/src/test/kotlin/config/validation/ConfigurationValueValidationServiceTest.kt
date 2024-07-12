@@ -5,10 +5,11 @@ import assertk.assertions.contains
 import assertk.assertions.isInstanceOf
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import java.io.File
 import kotlin.test.Test
 
@@ -25,7 +26,7 @@ class ConfigurationValueValidationServiceTest {
             Topic.TEST,
             CustomerStatus.INACTIVE,
             "classpath:/metadata/hl7_mapping/fake.yml",
-            format = Report.Format.FHIR,
+            format = MimeFormat.FHIR,
             jurisdictionalFilter = listOf(
                 "matches(a, b)"
             )
@@ -54,7 +55,7 @@ class ConfigurationValueValidationServiceTest {
             Topic.TEST,
             CustomerStatus.INACTIVE,
             "classpath:/metadata/hl7_mapping/fake.yml",
-            format = Report.Format.FHIR,
+            format = MimeFormat.FHIR,
             jurisdictionalFilter = listOf(
                 "bad Filter formatting!"
             )
@@ -81,7 +82,8 @@ class ConfigurationValueValidationServiceTest {
     @Test
     fun organizations() {
         val yaml = File("settings/organizations.yml")
-        val orgs = ConfigurationType.Organizations.parse(yaml.inputStream())
+        val jsonNode = JacksonMapperUtilities.yamlMapper.readTree(yaml)
+        val orgs = ConfigurationType.Organizations.convert(jsonNode)
 
         val result = configurationValueValidationService.validate(
             ConfigurationType.Organizations,

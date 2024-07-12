@@ -15,6 +15,7 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -54,6 +55,7 @@ import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.unmockkAll
@@ -258,7 +260,7 @@ class FhirFunctionIntegrationTests() {
                 jurisdictionalFilter = listOf("true"),
                 qualityFilter = listOf("true"),
                 processingModeFilter = listOf("true"),
-                format = Report.Format.HL7,
+                format = MimeFormat.HL7,
             )
         ),
     )
@@ -275,7 +277,7 @@ class FhirFunctionIntegrationTests() {
     }
 
     private fun seedTask(
-        fileFormat: Report.Format,
+        fileFormat: MimeFormat,
         currentAction: TaskAction,
         nextAction: TaskAction,
         nextEventAction: Event.EventAction,
@@ -349,7 +351,7 @@ class FhirFunctionIntegrationTests() {
     @Test
     fun `test does not update the DB or send messages on an error`() {
         val report = seedTask(
-            Report.Format.HL7,
+            MimeFormat.HL7,
             TaskAction.receive,
             TaskAction.convert,
             Event.EventAction.CONVERT,
@@ -425,7 +427,7 @@ class FhirFunctionIntegrationTests() {
     @Test
     fun `test successfully processes a convert message for HL7`() {
         val report = seedTask(
-            Report.Format.HL7,
+            MimeFormat.HL7,
             TaskAction.receive,
             TaskAction.convert,
             Event.EventAction.CONVERT,
@@ -451,7 +453,7 @@ class FhirFunctionIntegrationTests() {
                 any(),
                 any()
             )
-        } returns BlobAccess.BlobInfo(Report.Format.FHIR, "", "".toByteArray())
+        } returns BlobAccess.BlobInfo(MimeFormat.FHIR, "", "".toByteArray())
         every { QueueAccess.sendMessage(any(), any()) } returns Unit
 
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -498,7 +500,7 @@ class FhirFunctionIntegrationTests() {
         }
         verify(exactly = 1) {
             QueueAccess.sendMessage(elrRoutingQueueName, any())
-            BlobAccess.uploadBody(Report.Format.FHIR, any(), any(), any(), any())
+            BlobAccess.uploadBody(MimeFormat.FHIR, any(), any(), any(), any())
         }
     }
 
@@ -506,7 +508,7 @@ class FhirFunctionIntegrationTests() {
     fun `test successfully processes a convert message for bulk HL7 message`() {
         val validBatch = cleanHL7Record + "\n" + invalidHL7Record
         val report = seedTask(
-            Report.Format.HL7,
+            MimeFormat.HL7,
             TaskAction.receive,
             TaskAction.convert,
             Event.EventAction.CONVERT,
@@ -532,7 +534,7 @@ class FhirFunctionIntegrationTests() {
                 any(),
                 any()
             )
-        } answers { BlobAccess.BlobInfo(Report.Format.FHIR, UUID.randomUUID().toString(), "".toByteArray()) }
+        } answers { BlobAccess.BlobInfo(MimeFormat.FHIR, UUID.randomUUID().toString(), "".toByteArray()) }
         every { QueueAccess.sendMessage(any(), any()) } returns Unit
 
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -582,12 +584,12 @@ class FhirFunctionIntegrationTests() {
         }
         verify(exactly = 1) {
             BlobAccess.uploadBody(
-                Report.Format.FHIR,
+                MimeFormat.FHIR,
                 match { bytes ->
                     val result = CompareData().compare(
                         cleanHL7RecordConverted.byteInputStream(),
                         bytes.inputStream(),
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         null
                     )
                     result.passed
@@ -595,12 +597,12 @@ class FhirFunctionIntegrationTests() {
                 any(), any(), any()
             )
             BlobAccess.uploadBody(
-                Report.Format.FHIR,
+                MimeFormat.FHIR,
                 match { bytes ->
                     val result = CompareData().compare(
                         invalidHL7RecordConverted.byteInputStream(),
                         bytes.inputStream(),
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         null
                     )
                     result.passed
@@ -615,7 +617,7 @@ class FhirFunctionIntegrationTests() {
         val validBatch =
             cleanHL7Record + "\n" + invalidHL7Record + "\n" + badEncodingHL7Record + "\n" + unparseableHL7Record
         val report = seedTask(
-            Report.Format.HL7,
+            MimeFormat.HL7,
             TaskAction.receive,
             TaskAction.convert,
             Event.EventAction.CONVERT,
@@ -641,7 +643,7 @@ class FhirFunctionIntegrationTests() {
                 any(),
                 any()
             )
-        } answers { BlobAccess.BlobInfo(Report.Format.FHIR, UUID.randomUUID().toString(), "".toByteArray()) }
+        } answers { BlobAccess.BlobInfo(MimeFormat.FHIR, UUID.randomUUID().toString(), "".toByteArray()) }
         every { QueueAccess.sendMessage(any(), any()) } returns Unit
 
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -695,12 +697,12 @@ class FhirFunctionIntegrationTests() {
 
         verify(exactly = 1) {
             BlobAccess.uploadBody(
-                Report.Format.FHIR,
+                MimeFormat.FHIR,
                 match { bytes ->
                     val result = CompareData().compare(
                         cleanHL7RecordConverted.byteInputStream(),
                         bytes.inputStream(),
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         null
                     )
                     result.passed
@@ -708,12 +710,12 @@ class FhirFunctionIntegrationTests() {
                 any(), any(), any()
             )
             BlobAccess.uploadBody(
-                Report.Format.FHIR,
+                MimeFormat.FHIR,
                 match { bytes ->
                     val result = CompareData().compare(
                         invalidHL7RecordConverted.byteInputStream(),
                         bytes.inputStream(),
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         null
                     )
                     result.passed
@@ -726,7 +728,7 @@ class FhirFunctionIntegrationTests() {
     @Test
     fun `test successfully processes a convert message for a bulk (ndjson) FHIR message`() {
         val report = seedTask(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             TaskAction.receive,
             TaskAction.convert,
             Event.EventAction.CONVERT,
@@ -762,7 +764,7 @@ class FhirFunctionIntegrationTests() {
                 any()
             )
         } answers {
-            BlobAccess.BlobInfo(Report.Format.FHIR, UUID.randomUUID().toString(), "".toByteArray())
+            BlobAccess.BlobInfo(MimeFormat.FHIR, UUID.randomUUID().toString(), "".toByteArray())
         }
         every { QueueAccess.sendMessage(any(), any()) } returns Unit
 
@@ -816,18 +818,18 @@ class FhirFunctionIntegrationTests() {
         }
         verify(exactly = 2) {
             QueueAccess.sendMessage(elrRoutingQueueName, any())
-            BlobAccess.uploadBody(Report.Format.FHIR, any(), any(), any(), any())
+            BlobAccess.uploadBody(MimeFormat.FHIR, any(), any(), any(), any())
         }
         verify(exactly = 1) {
             BlobAccess.uploadBody(
-                Report.Format.FHIR,
+                MimeFormat.FHIR,
                 validFHIRRecord1.toByteArray(),
                 any(),
                 any(),
                 any()
             )
             BlobAccess.uploadBody(
-                Report.Format.FHIR,
+                MimeFormat.FHIR,
                 validFHIRRecord2.toByteArray(),
                 any(),
                 any(),
@@ -839,7 +841,7 @@ class FhirFunctionIntegrationTests() {
     @Test
     fun `test successfully processes a convert message with invalid HL7 items`() {
         val receiveReport = seedTask(
-            Report.Format.HL7,
+            MimeFormat.HL7,
             TaskAction.receive,
             TaskAction.convert,
             Event.EventAction.CONVERT,
@@ -952,7 +954,7 @@ class FhirFunctionIntegrationTests() {
                     val invalidHL7Result = CompareData().compare(
                         invalidHL7RecordConverted.byteInputStream(),
                         bytes.inputStream(),
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         null
                     )
                     invalidHL7Result.passed
@@ -960,7 +962,7 @@ class FhirFunctionIntegrationTests() {
                     val cleanHL7Result = CompareData().compare(
                         cleanHL7RecordConverted.byteInputStream(),
                         bytes.inputStream(),
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         null
                     )
                     invalidHL7Result.passed || cleanHL7Result.passed
@@ -984,7 +986,7 @@ class FhirFunctionIntegrationTests() {
     @Test
     fun `test successfully processes a convert message with invalid FHIR items`() {
         val receiveReport = seedTask(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             TaskAction.receive,
             TaskAction.convert,
             Event.EventAction.CONVERT,
@@ -1127,7 +1129,7 @@ class FhirFunctionIntegrationTests() {
     @Test
     fun `test successfully converting a NIST ELR HL7 message`() {
         val receiveReport = seedTask(
-            Report.Format.HL7,
+            MimeFormat.HL7,
             TaskAction.receive,
             TaskAction.convert,
             Event.EventAction.CONVERT,
@@ -1240,7 +1242,7 @@ class FhirFunctionIntegrationTests() {
                     val nistELRResult = CompareData().compare(
                         nistELRHL7RecordConverted.byteInputStream(),
                         bytes.inputStream(),
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         null
                     )
                     nistELRResult.passed
@@ -1261,7 +1263,7 @@ class FhirFunctionIntegrationTests() {
     @Test
     fun `test successfully processes a valid RADxMARS HL7 message`() {
         val receiveReport = seedTask(
-            Report.Format.HL7,
+            MimeFormat.HL7,
             TaskAction.receive,
             TaskAction.convert,
             Event.EventAction.CONVERT,
@@ -1374,7 +1376,7 @@ class FhirFunctionIntegrationTests() {
                     val radxMarsResult = CompareData().compare(
                         validRadxMarsHL7MessageConverted.byteInputStream(),
                         bytes.inputStream(),
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         null
                     )
                     radxMarsResult.passed
@@ -1398,9 +1400,8 @@ class FhirFunctionIntegrationTests() {
 
     @Test
     fun `test successfully processes a route message`() {
-        val reportServiceMock = mockk<ReportService>()
         val report = seedTask(
-            Report.Format.HL7,
+            MimeFormat.HL7,
             TaskAction.receive,
             TaskAction.translate,
             Event.EventAction.TRANSLATE,
@@ -1412,6 +1413,7 @@ class FhirFunctionIntegrationTests() {
         mockkObject(BlobAccess)
         mockkObject(QueueMessage)
         mockkObject(QueueAccess)
+        val mockReport = mockk<ReportFile>()
         val routeFhirBytes =
             File(VALID_FHIR_PATH).readBytes()
         every {
@@ -1425,16 +1427,18 @@ class FhirFunctionIntegrationTests() {
                 any(),
                 any()
             )
-        } returns BlobAccess.BlobInfo(Report.Format.FHIR, "", "".toByteArray())
+        } returns BlobAccess.BlobInfo(MimeFormat.FHIR, "", "".toByteArray())
         every { QueueAccess.sendMessage(any(), any()) } returns Unit
-        every { reportServiceMock.getSenderName(any()) } returns "senderOrg.senderOrgClient"
+        every { mockReport.reportId } returns UUID.randomUUID()
+        mockkConstructor(ReportService::class)
+        every { anyConstructed<ReportService>().getSenderName(any()) } returns "senderOrg.senderOrgClient"
+        every { anyConstructed<ReportService>().getRootReport(any()) } returns mockReport
 
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val fhirEngine = FHIRRouter(
             UnitTestUtils.simpleMetadata,
             settings,
-            ReportStreamTestDatabaseContainer.testDatabaseAccess,
-            reportService = reportServiceMock
+            ReportStreamTestDatabaseContainer.testDatabaseAccess
         )
 
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -1517,7 +1521,7 @@ class FhirFunctionIntegrationTests() {
 
         // Seed the steps backwards so report lineage can be correctly generated
         val translateReport = seedTask(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             TaskAction.translate,
             TaskAction.send,
             Event.EventAction.SEND,
@@ -1526,7 +1530,7 @@ class FhirFunctionIntegrationTests() {
             oneOrganization
         )
         val routeReport = seedTask(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             TaskAction.route,
             TaskAction.translate,
             Event.EventAction.TRANSLATE,
@@ -1536,7 +1540,7 @@ class FhirFunctionIntegrationTests() {
             translateReport
         )
         val convertReport = seedTask(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             TaskAction.convert,
             TaskAction.route,
             Event.EventAction.ROUTE,
@@ -1546,7 +1550,7 @@ class FhirFunctionIntegrationTests() {
             routeReport
         )
         val receiveReport = seedTask(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             TaskAction.receive,
             TaskAction.convert,
             Event.EventAction.CONVERT,
@@ -1681,7 +1685,7 @@ class FhirFunctionIntegrationTests() {
 
         // Seed the steps backwards so report lineage can be correctly generated
         val translateReport = seedTask(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             TaskAction.translate,
             TaskAction.send,
             Event.EventAction.SEND,
@@ -1690,7 +1694,7 @@ class FhirFunctionIntegrationTests() {
             oneOrganization
         )
         val routeReport = seedTask(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             TaskAction.route,
             TaskAction.translate,
             Event.EventAction.TRANSLATE,
@@ -1700,7 +1704,7 @@ class FhirFunctionIntegrationTests() {
             translateReport
         )
         val convertReport = seedTask(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             TaskAction.convert,
             TaskAction.route,
             Event.EventAction.ROUTE,
@@ -1710,7 +1714,7 @@ class FhirFunctionIntegrationTests() {
             routeReport
         )
         val receiveReport = seedTask(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             TaskAction.receive,
             TaskAction.convert,
             Event.EventAction.CONVERT,
@@ -1806,7 +1810,7 @@ class FhirFunctionIntegrationTests() {
     @Test
     fun `test unmapped observation error messages`() {
         val report = seedTask(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             TaskAction.receive,
             TaskAction.convert,
             Event.EventAction.CONVERT,
@@ -1833,7 +1837,7 @@ class FhirFunctionIntegrationTests() {
                 any(),
                 any()
             )
-        } returns BlobAccess.BlobInfo(Report.Format.FHIR, "", "".toByteArray())
+        } returns BlobAccess.BlobInfo(MimeFormat.FHIR, "", "".toByteArray())
         every { QueueAccess.sendMessage(any(), any()) } returns Unit
 
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -1886,7 +1890,7 @@ class FhirFunctionIntegrationTests() {
     @Test
     fun `test codeless observation error message`() {
         val report = seedTask(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             TaskAction.receive,
             TaskAction.convert,
             Event.EventAction.CONVERT,
@@ -1913,7 +1917,7 @@ class FhirFunctionIntegrationTests() {
                 any(),
                 any()
             )
-        } returns BlobAccess.BlobInfo(Report.Format.FHIR, "", "".toByteArray())
+        } returns BlobAccess.BlobInfo(MimeFormat.FHIR, "", "".toByteArray())
         every { QueueAccess.sendMessage(any(), any()) } returns Unit
 
         val settings = FileSettings().loadOrganizations(oneOrganization)

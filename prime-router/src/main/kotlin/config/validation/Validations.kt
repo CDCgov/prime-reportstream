@@ -4,10 +4,22 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamFilterDefinition
+import gov.cdc.prime.router.config.validation.models.HL7ToFHIRMappingMessageTemplate
+import gov.cdc.prime.router.config.validation.models.HL7ToFHIRMappingResourceTemplate
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.HL7ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathCustomResolver
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import io.github.linuxforhealth.api.Condition
+import io.github.linuxforhealth.core.expression.condition.CheckNotNull
+import io.github.linuxforhealth.core.expression.condition.CheckNull
+import io.github.linuxforhealth.core.expression.condition.CompoundAndCondition
+import io.github.linuxforhealth.core.expression.condition.CompoundAndOrCondition
+import io.github.linuxforhealth.core.expression.condition.CompoundORCondition
+import io.github.linuxforhealth.core.expression.condition.SimpleBiCondition
+import io.github.linuxforhealth.core.expression.condition.SimpleBooleanCondition
 import io.konform.validation.Validation
 import io.konform.validation.onEach
 import kotlin.reflect.full.createInstance
@@ -98,6 +110,81 @@ object FhirToFhirTransformValidation : KonformValidation<FhirTransformSchema>() 
                     addConstraint("Invalid FHIR path: {value}", test = ::validFhirPath)
                 }
             }
+        }
+    }
+}
+
+/**
+ * Validations for FHIR to HL7 transforms
+ */
+object FhirToHL7MappingValidation : KonformValidation<HL7ConverterSchema>() {
+
+    override val validation: Validation<HL7ConverterSchema> = Validation {
+        HL7ConverterSchema::elements onEach {
+            ConverterSchemaElement::condition ifPresent {
+                addConstraint("Invalid FHIR path: {value}", test = ::validFhirPath)
+            }
+            ConverterSchemaElement::resource ifPresent {
+                addConstraint("Invalid FHIR path: {value}", test = ::validFhirPath)
+            }
+            ConverterSchemaElement::value ifPresent {
+                onEach {
+                    addConstraint("Invalid FHIR path: {value}", test = ::validFhirPath)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Validations for HL7 to FHIR message
+ */
+object HL7ToFHIRMappingMessageTemplateValidation : KonformValidation<HL7ToFHIRMappingMessageTemplate>() {
+
+    override val validation: Validation<HL7ToFHIRMappingMessageTemplate> = Validation {
+        // noop at the moment
+    }
+}
+
+/**
+ * Validations for HL7 to FHIR resource
+ */
+object HL7ToFHIRMappingResourceTemplateValidation : KonformValidation<HL7ToFHIRMappingResourceTemplate>() {
+
+    override val validation: Validation<HL7ToFHIRMappingResourceTemplate> = Validation {
+        HL7ToFHIRMappingResourceTemplate::flatConditions onEach {
+            addConstraint("Invalid format for condition variable: {value}", test = ::validateConditionFormatting)
+        }
+    }
+
+    /**
+     * Ensure all variables in conditions are formatted correctly.
+     */
+    private fun validateConditionFormatting(condition: Condition): Boolean {
+        return when (condition) {
+            is CheckNotNull -> isFormatted(condition.var1)
+            is CheckNull -> isFormatted(condition.var1)
+            is SimpleBiCondition -> isFormatted(condition.var1)
+            is CompoundAndCondition -> checkCompoundCondition(condition.conditions)
+            is CompoundORCondition -> checkCompoundCondition(condition.conditions)
+            is CompoundAndOrCondition -> checkCompoundCondition(condition.conditions)
+            // these don't contain variables
+            is SimpleBooleanCondition -> true
+            // Condition is not sealed
+            else -> throw IllegalArgumentException("Condition is of unrecognized type: ${condition.javaClass.name}")
+        }
+    }
+
+    private fun isFormatted(str: String): Boolean {
+        return str.startsWith("$")
+    }
+
+    /**
+     * recurses back over validateConditionFormatting for individual conditions
+     */
+    private fun checkCompoundCondition(conditions: List<Condition>): Boolean {
+        return conditions.fold(true) { acc, cur ->
+            acc && validateConditionFormatting(cur)
         }
     }
 }

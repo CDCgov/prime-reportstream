@@ -6,9 +6,13 @@ import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.SpecVersion
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.config.validation.models.HL7ToFHIRMappingMessageTemplate
+import gov.cdc.prime.router.config.validation.models.HL7ToFHIRMappingResourceTemplate
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.HL7ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
+import io.github.linuxforhealth.api.Condition
+import io.github.linuxforhealth.hl7.expression.ExpressionAttributes
 import java.io.File
-import java.io.InputStream
 
 /**
  * A configuration type containing all necessary data to parse and validate a YAML file
@@ -21,7 +25,6 @@ sealed class ConfigurationType<T> {
 
     // implementations for using Jackson to parse to a type
     abstract fun convert(node: JsonNode): T
-    abstract fun parse(inputStream: InputStream): T
 
     // helper function for loading a json schema file
     protected fun getSchema(path: String): JsonSchema {
@@ -47,10 +50,6 @@ sealed class ConfigurationType<T> {
         override fun convert(node: JsonNode): List<DeepOrganization> {
             return mapper.convertValue(node, Array<DeepOrganization>::class.java).toList()
         }
-
-        override fun parse(inputStream: InputStream): List<DeepOrganization> {
-            return mapper.readValue(inputStream, Array<DeepOrganization>::class.java).toList()
-        }
     }
 
     /**
@@ -66,14 +65,82 @@ sealed class ConfigurationType<T> {
         override fun convert(node: JsonNode): FhirTransformSchema {
             return mapper.convertValue(node, FhirTransformSchema::class.java)
         }
+    }
 
-        override fun parse(inputStream: InputStream): FhirTransformSchema {
-            return mapper.readValue(inputStream, FhirTransformSchema::class.java)
+    data object FhirToHL7Mapping : ConfigurationType<HL7ConverterSchema>() {
+        override val jsonSchema: JsonSchema by lazy {
+            getSchema("./metadata/json_schema/fhir/fhir-to-hl7-mapping.json")
+        }
+
+        override val konformValidation: KonformValidation<HL7ConverterSchema> = FhirToHL7MappingValidation
+
+        override fun convert(node: JsonNode): HL7ConverterSchema {
+            return mapper.convertValue(node, HL7ConverterSchema::class.java)
         }
     }
-//
-//    TODO: #14169
-//    data object FhirMappings : ConfigurationType<...>() {
-//
-//    }
+
+    data object HL7ToFhirMappingMessageTemplate : ConfigurationType<HL7ToFHIRMappingMessageTemplate>() {
+        override val jsonSchema: JsonSchema by lazy {
+            getSchema("./metadata/json_schema/fhir/hl7-to-fhir-mapping-message-template.json")
+        }
+
+        override val konformValidation: KonformValidation<HL7ToFHIRMappingMessageTemplate> =
+            HL7ToFHIRMappingMessageTemplateValidation
+
+        override fun convert(node: JsonNode): HL7ToFHIRMappingMessageTemplate {
+            return mapper.convertValue(node, HL7ToFHIRMappingMessageTemplate::class.java)
+        }
+    }
+
+    data object HL7ToFhirMappingResourceTemplate : ConfigurationType<HL7ToFHIRMappingResourceTemplate>() {
+        override val jsonSchema: JsonSchema by lazy {
+            getSchema("./metadata/json_schema/fhir/hl7-to-fhir-mapping-resource-template.json")
+        }
+
+        override val konformValidation: KonformValidation<HL7ToFHIRMappingResourceTemplate> =
+            HL7ToFHIRMappingResourceTemplateValidation
+
+        override fun convert(node: JsonNode): HL7ToFHIRMappingResourceTemplate {
+            // grab optional top-level resource type
+            val maybeResourceType = node.get("resourceType")?.textValue()
+
+            // parse each expression that is not the resourceType
+            val expressions = node
+                .fields()
+                .asSequence()
+                .associate { it.key to it.value }
+                .filter { it.key != "resourceType" }
+                .mapValues { mapper.convertValue(it.value, ExpressionAttributes::class.java) }
+
+            // extract all parsed conditions into one place
+            val flatConditions = expressions.flatMap { flattenConditions(it.value) }
+
+            return HL7ToFHIRMappingResourceTemplate(maybeResourceType, expressions, flatConditions)
+        }
+
+        /**
+         * Conditions are a part of each expression that we want to validate, so we need
+         * to extract them all into one place
+         */
+        private fun flattenConditions(
+            expression: ExpressionAttributes,
+        ): List<Condition> {
+            val conditions = mutableListOf<Condition>()
+
+            fun flattenConditionsHelper(currentExpression: ExpressionAttributes) {
+                if (currentExpression.filter != null) {
+                    conditions.add(currentExpression.filter)
+                }
+                currentExpression.expressions?.forEach {
+                    flattenConditionsHelper(it)
+                }
+                currentExpression.expressionsMap?.values?.forEach {
+                    flattenConditionsHelper(it)
+                }
+            }
+
+            flattenConditionsHelper(expression)
+            return conditions
+        }
+    }
 }

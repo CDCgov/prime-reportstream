@@ -77,6 +77,7 @@ variable "sa_partner_connection_string" {
   sensitive = true
 }
 variable "client_config_key_vault_id" {}
+variable "client_config_key_vault_name" {}
 variable "app_config_key_vault_id" {}
 variable "app_config_key_vault_name" {}
 variable "dns_ip" {}

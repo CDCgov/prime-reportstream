@@ -1,3 +1,5 @@
+# $schema: ./../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 type_1:
   condition: $identifierCoding NOT_NULL
   valueOf: datatype/CodeableConcept
@@ -15,7 +17,7 @@ type_2: # used in instance where objects are passed directly to the codeable con
 
 system_1:
   condition: $systemExists NOT_NULL
-  type: String
+  type: STRING
   valueOf: CX.4 | CWE.4 | EI.2
   expressionType: HL7Spec
   vars:
