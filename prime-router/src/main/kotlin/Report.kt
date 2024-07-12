@@ -15,7 +15,6 @@ import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.toLocalDate
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.DateUtilities.toYears
-import gov.cdc.prime.router.docgenerators.DocumentationFactory.Companion.formatter
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mappers
 import gov.cdc.prime.router.report.ReportService
@@ -102,11 +101,11 @@ enum class Options {
          *  is not one that is supported, it will be set to None.
          */
         fun valueOfOrNone(input: String): Options = try {
-            valueOf(input)
-        } catch (ex: IllegalArgumentException) {
-            val msg = "$input is not a valid Option. Valid options: ${Options.activeValues.joinToString()}"
-            throw InvalidOptionException(msg)
-        }
+                valueOf(input)
+            } catch (ex: IllegalArgumentException) {
+                val msg = "$input is not a valid Option. Valid options: ${Options.activeValues.joinToString()}"
+                throw InvalidOptionException(msg)
+            }
     }
 }
 
@@ -447,16 +446,16 @@ class Report : Logging {
             schema: Schema,
             values: List<List<String>>,
         ): List<Column<*>> = schema.elements.mapIndexed { index, element ->
-            StringColumn.create(element.name, values.map { it[index] })
-        }
+                StringColumn.create(element.name, values.map { it[index] })
+            }
 
         return Table.create("prime", valuesToColumns(schema, values))
     }
 
     private fun createTable(values: Map<String, List<String>>): Table {
         fun valuesToColumns(values: Map<String, List<String>>): List<Column<*>> = values.keys.map {
-            StringColumn.create(it, values[it])
-        }
+                StringColumn.create(it, values[it])
+            }
         return Table.create("prime", valuesToColumns(values))
     }
 
@@ -500,12 +499,12 @@ class Report : Logging {
     }
 
     fun getString(row: Int, column: Int, maxLength: Int? = null): String? = table.getString(row, column).let {
-        if (maxLength == null || maxLength > it.length) {
-            it
-        } else {
-            it.substring(0, maxLength)
+            if (maxLength == null || maxLength > it.length) {
+                it
+            } else {
+                it.substring(0, maxLength)
+            }
         }
-    }
 
     fun getString(row: Int, colName: String, maxLength: Int? = null): String? {
         val column = schema.findElementColumn(colName) ?: return null
@@ -531,10 +530,10 @@ class Report : Logging {
     }
 
     fun getRow(row: Int): List<String> = schema.elements.map {
-        val column = schema.findElementColumn(it.name)
-            ?: error("Internal Error: column for '${it.name}' is not found")
-        table.getString(row, column) ?: ""
-    }
+            val column = schema.findElementColumn(it.name)
+                ?: error("Internal Error: column for '${it.name}' is not found")
+            table.getString(row, column) ?: ""
+        }
 
     fun filter(
         filterFunctions: List<Pair<ReportStreamFilterDefinition, List<String>>>,
@@ -761,19 +760,19 @@ class Report : Logging {
      * Create a separate report for each item in the report
      */
     fun split(): List<Report> = itemIndices.map {
-        val row = getRow(it)
-        val oneItemReport = Report(
-            schema = schema,
-            values = listOf(row),
-            sources = fromThisReport("split"),
-            destination = destination,
-            bodyFormat = bodyFormat,
-            metadata = this.metadata
-        )
-        oneItemReport.itemLineages =
-            listOf(createItemLineageForRow(this, it, oneItemReport, 0))
-        oneItemReport
-    }
+            val row = getRow(it)
+            val oneItemReport = Report(
+                schema = schema,
+                values = listOf(row),
+                sources = fromThisReport("split"),
+                destination = destination,
+                bodyFormat = bodyFormat,
+                metadata = this.metadata
+            )
+            oneItemReport.itemLineages =
+                listOf(createItemLineageForRow(this, it, oneItemReport, 0))
+            oneItemReport
+        }
 
     /**
      * Here 'mapping' means to transform data from the current schema to a new schema per the rules in the [mapping].
@@ -799,255 +798,255 @@ class Report : Logging {
      * analysis off of.
      */
     fun getDeidentifiedResultMetaData(): List<ElrResultMetadata> = try {
-        table.mapIndexed { idx, row ->
-            ElrResultMetadata().also {
-                it.messageId = row.getStringOrNull("message_id")
-                it.previousMessageId = row.getStringOrNull("previous_message_id")
-                it.topic = row.getStringOrNull("topic")
-                it.reportId = this.id
-                // switched to 1-based index on items in Feb 2022
-                it.reportIndex = idx + 1
-                // For sender ID, use first the provided ID and if not use the client ID.
-                it.senderId = row.getStringOrNull("sender_id")
-                if (it.senderId.isNullOrBlank()) {
-                    val clientSource = sources.firstOrNull { source -> source is ClientSource } as ClientSource?
-                    if (clientSource != null) it.senderId = clientSource.name.trimToNull()
-                }
-                it.organizationName = row.getStringOrNull("organization_name")
+            table.mapIndexed { idx, row ->
+                ElrResultMetadata().also {
+                    it.messageId = row.getStringOrNull("message_id")
+                    it.previousMessageId = row.getStringOrNull("previous_message_id")
+                    it.topic = row.getStringOrNull("topic")
+                    it.reportId = this.id
+                    // switched to 1-based index on items in Feb 2022
+                    it.reportIndex = idx + 1
+                    // For sender ID, use first the provided ID and if not use the client ID.
+                    it.senderId = row.getStringOrNull("sender_id")
+                    if (it.senderId.isNullOrBlank()) {
+                        val clientSource = sources.firstOrNull { source -> source is ClientSource } as ClientSource?
+                        if (clientSource != null) it.senderId = clientSource.name.trimToNull()
+                    }
+                    it.organizationName = row.getStringOrNull("organization_name")
 
-                it.sendingApplicationId = row.getStringOrNull("sending_application_namespace_id")
-                it.sendingApplicationName = row.getStringOrNull("sending_application_universal_id")
+                    it.sendingApplicationId = row.getStringOrNull("sending_application_namespace_id")
+                    it.sendingApplicationName = row.getStringOrNull("sending_application_universal_id")
 
-                it.orderingProviderName =
-                    row.getStringOrNull("ordering_provider_first_name") +
-                        " " + row.getStringOrNull("ordering_provider_last_name")
-                it.orderingProviderId = row.getStringOrNull("ordering_provider_id")
-                it.orderingProviderCity = row.getStringOrNull("ordering_provider_city")
-                it.orderingProviderState = row.getStringOrNull("ordering_provider_state")
-                it.orderingProviderPostalCode = row.getStringOrNull("ordering_provider_zip_code")
-                it.orderingProviderCounty = row.getStringOrNull("ordering_provider_county")
+                    it.orderingProviderName =
+                        row.getStringOrNull("ordering_provider_first_name") +
+                            " " + row.getStringOrNull("ordering_provider_last_name")
+                    it.orderingProviderId = row.getStringOrNull("ordering_provider_id")
+                    it.orderingProviderCity = row.getStringOrNull("ordering_provider_city")
+                    it.orderingProviderState = row.getStringOrNull("ordering_provider_state")
+                    it.orderingProviderPostalCode = row.getStringOrNull("ordering_provider_zip_code")
+                    it.orderingProviderCounty = row.getStringOrNull("ordering_provider_county")
 
-                it.orderingFacilityId = row.getStringOrNull("ordering_facility_id")
-                it.orderingFacilityCity = row.getStringOrNull("ordering_facility_city")
-                it.orderingFacilityCounty = row.getStringOrNull("ordering_facility_county")
-                it.orderingFacilityName = row.getStringOrNull("ordering_facility_name")
-                it.orderingFacilityPostalCode = row.getStringOrNull("ordering_facility_zip_code")
-                it.orderingFacilityState = row.getStringOrNull("ordering_facility_state")
+                    it.orderingFacilityId = row.getStringOrNull("ordering_facility_id")
+                    it.orderingFacilityCity = row.getStringOrNull("ordering_facility_city")
+                    it.orderingFacilityCounty = row.getStringOrNull("ordering_facility_county")
+                    it.orderingFacilityName = row.getStringOrNull("ordering_facility_name")
+                    it.orderingFacilityPostalCode = row.getStringOrNull("ordering_facility_zip_code")
+                    it.orderingFacilityState = row.getStringOrNull("ordering_facility_state")
 
-                it.testingFacilityCity = row.getStringOrNull("testing_lab_city")
-                it.testingFacilityId = row.getStringOrNull("testing_lab_id")
-                it.testingFacilityCounty = row.getStringOrNull("testing_lab_county")
-                it.testingFacilityName = row.getStringOrNull("testing_lab_name")
-                it.testingFacilityPostalCode = row.getStringOrNull("testing_lab_zip_code")
-                it.testingFacilityState = row.getStringOrNull("testing_lab_state")
+                    it.testingFacilityCity = row.getStringOrNull("testing_lab_city")
+                    it.testingFacilityId = row.getStringOrNull("testing_lab_id")
+                    it.testingFacilityCounty = row.getStringOrNull("testing_lab_county")
+                    it.testingFacilityName = row.getStringOrNull("testing_lab_name")
+                    it.testingFacilityPostalCode = row.getStringOrNull("testing_lab_zip_code")
+                    it.testingFacilityState = row.getStringOrNull("testing_lab_state")
 
-                it.patientCounty = row.getStringOrNull("patient_county")
-                it.patientCountry = row.getStringOrNull("patient_country")
-                it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
-                it.patientEthnicity = if (it.patientEthnicityCode != null) {
-                    metadata.findValueSet("hl70189")?.toDisplayFromCode(it.patientEthnicityCode)
-                } else {
-                    null
-                }
-                it.patientGenderCode = row.getStringOrNull("patient_gender")
-                it.patientGender = if (it.patientGenderCode != null) {
-                    metadata.findValueSet("hl70001")?.toDisplayFromCode(it.patientGenderCode)
-                } else {
-                    null
-                }
-                it.patientPostalCode = row.getStringOrNull("patient_zip_code")
-                it.patientRaceCode = row.getStringOrNull("patient_race")
-                it.patientRace = if (it.patientRaceCode != null) {
-                    metadata.findValueSet("hl70005")?.toDisplayFromCode(it.patientRaceCode)
-                } else {
-                    null
-                }
-                it.patientState = row.getStringOrNull("patient_state")
-                it.patientTribalCitizenship = row.getStringOrNull("patient_tribal_citizenship")
-                it.patientTribalCitizenshipCode = row.getStringOrNull("patient_tribal_citizenship_code")
-                it.patientPreferredLanguage = row.getStringOrNull("patient_preferred_language")
-                it.patientNationality = row.getStringOrNull("patient_nationality")
-                it.patientSpecies = row.getStringOrNull("patient_species")
-                it.patientSpeciesCode = row.getStringOrNull("patient_species_code")
-
-                it.reasonForStudy = row.getStringOrNull("reason_for_study_text")
-                it.reasonForStudyCode = row.getStringOrNull("reason_for_study_id")
-
-                it.testResultCode = row.getStringOrNull("test_result_id")
-                it.testResult = row.getStringOrNull("test_result_text")
-                it.testResultNormalized = if (it.testResultCode != null) {
-                    metadata.findValueSet("monkeypox/test_result")?.toDisplayFromCode(it.testResultCode)
-                } else {
-                    null
-                }
-                it.equipmentModel = row.getStringOrNull("equipment_model_name")
-                it.specimenCollectionDateTime = row.getStringOrNull("specimen_collection_date_time").let { dt ->
-                    if (!dt.isNullOrEmpty()) {
-                        try {
-                            DateUtilities.parseDate(dt).toOffsetDateTime()
-                        } catch (_: Exception) {
-                            null
-                        }
+                    it.patientCounty = row.getStringOrNull("patient_county")
+                    it.patientCountry = row.getStringOrNull("patient_country")
+                    it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
+                    it.patientEthnicity = if (it.patientEthnicityCode != null) {
+                        metadata.findValueSet("hl70189")?.toDisplayFromCode(it.patientEthnicityCode)
                     } else {
                         null
                     }
-                }
-                it.patientAge = getAge(
-                    row.getStringOrNull("patient_age"),
-                    row.getStringOrNull("patient_dob"),
-                    it.specimenCollectionDateTime
-                )
-                it.specimenReceivedDateTime = row.getStringOrNull(
-                    "testing_lab_specimen_received_datetime"
-                ).let { dt ->
-                    if (!dt.isNullOrEmpty()) {
-                        try {
-                            DateUtilities.parseDate(dt).toOffsetDateTime()
-                        } catch (_: Exception) {
-                            null
-                        }
+                    it.patientGenderCode = row.getStringOrNull("patient_gender")
+                    it.patientGender = if (it.patientGenderCode != null) {
+                        metadata.findValueSet("hl70001")?.toDisplayFromCode(it.patientGenderCode)
                     } else {
                         null
                     }
-                }
-                it.specimenCollectionMethod = row.getStringOrNull("specimen_collection_method_text")
-                it.specimenCollectionMethodCode = row.getStringOrNull("specimen_collection_method_code")
-                it.specimenCollectionSite = row.getStringOrNull("specimen_collection_site_text")
-                it.specimenCollectionSiteCode = row.getStringOrNull("specimen_collection_site_code")
-                it.specimenType = row.getStringOrNull("specimen_type_name")
-                it.specimenTypeCode = row.getStringOrNull("specimen_type_code")
-                it.specimenTypeNormalized = if (it.specimenTypeCode != null) {
-                    metadata.findValueSet("monkeypox/specimen_type")?.toDisplayFromCode(it.specimenTypeCode)
-                } else {
-                    null
-                }
-                it.specimenSourceSite = row.getStringOrNull("specimen_source_site_text")
-                it.specimenSourceSiteCode = row.getStringOrNull("specimen_source_site_code")
+                    it.patientPostalCode = row.getStringOrNull("patient_zip_code")
+                    it.patientRaceCode = row.getStringOrNull("patient_race")
+                    it.patientRace = if (it.patientRaceCode != null) {
+                        metadata.findValueSet("hl70005")?.toDisplayFromCode(it.patientRaceCode)
+                    } else {
+                        null
+                    }
+                    it.patientState = row.getStringOrNull("patient_state")
+                    it.patientTribalCitizenship = row.getStringOrNull("patient_tribal_citizenship")
+                    it.patientTribalCitizenshipCode = row.getStringOrNull("patient_tribal_citizenship_code")
+                    it.patientPreferredLanguage = row.getStringOrNull("patient_preferred_language")
+                    it.patientNationality = row.getStringOrNull("patient_nationality")
+                    it.patientSpecies = row.getStringOrNull("patient_species")
+                    it.patientSpeciesCode = row.getStringOrNull("patient_species_code")
 
-                it.siteOfCare = row.getStringOrNull("site_of_care")
-                it.testKitNameId = row.getStringOrNull("test_kit_name_id")
-                it.testPerformedCode = row.getStringOrNull("test_performed_code")
-                it.testPerformed = row.getStringOrNull("test_performed_name")
-                it.testPerformedNormalized = if (it.testPerformedCode != null) {
-                    metadata.findValueSet("monkeypox/test_code")?.toDisplayFromCode(it.testPerformedCode)
-                } else {
-                    null
+                    it.reasonForStudy = row.getStringOrNull("reason_for_study_text")
+                    it.reasonForStudyCode = row.getStringOrNull("reason_for_study_id")
+
+                    it.testResultCode = row.getStringOrNull("test_result_id")
+                    it.testResult = row.getStringOrNull("test_result_text")
+                    it.testResultNormalized = if (it.testResultCode != null) {
+                        metadata.findValueSet("monkeypox/test_result")?.toDisplayFromCode(it.testResultCode)
+                    } else {
+                        null
+                    }
+                    it.equipmentModel = row.getStringOrNull("equipment_model_name")
+                    it.specimenCollectionDateTime = row.getStringOrNull("specimen_collection_date_time").let { dt ->
+                        if (!dt.isNullOrEmpty()) {
+                            try {
+                                DateUtilities.parseDate(dt).toOffsetDateTime()
+                            } catch (_: Exception) {
+                                null
+                            }
+                        } else {
+                            null
+                        }
+                    }
+                    it.patientAge = getAge(
+                        row.getStringOrNull("patient_age"),
+                        row.getStringOrNull("patient_dob"),
+                        it.specimenCollectionDateTime
+                    )
+                    it.specimenReceivedDateTime = row.getStringOrNull(
+                        "testing_lab_specimen_received_datetime"
+                    ).let { dt ->
+                        if (!dt.isNullOrEmpty()) {
+                            try {
+                                DateUtilities.parseDate(dt).toOffsetDateTime()
+                            } catch (_: Exception) {
+                                null
+                            }
+                        } else {
+                            null
+                        }
+                    }
+                    it.specimenCollectionMethod = row.getStringOrNull("specimen_collection_method_text")
+                    it.specimenCollectionMethodCode = row.getStringOrNull("specimen_collection_method_code")
+                    it.specimenCollectionSite = row.getStringOrNull("specimen_collection_site_text")
+                    it.specimenCollectionSiteCode = row.getStringOrNull("specimen_collection_site_code")
+                    it.specimenType = row.getStringOrNull("specimen_type_name")
+                    it.specimenTypeCode = row.getStringOrNull("specimen_type_code")
+                    it.specimenTypeNormalized = if (it.specimenTypeCode != null) {
+                        metadata.findValueSet("monkeypox/specimen_type")?.toDisplayFromCode(it.specimenTypeCode)
+                    } else {
+                        null
+                    }
+                    it.specimenSourceSite = row.getStringOrNull("specimen_source_site_text")
+                    it.specimenSourceSiteCode = row.getStringOrNull("specimen_source_site_code")
+
+                    it.siteOfCare = row.getStringOrNull("site_of_care")
+                    it.testKitNameId = row.getStringOrNull("test_kit_name_id")
+                    it.testPerformedCode = row.getStringOrNull("test_performed_code")
+                    it.testPerformed = row.getStringOrNull("test_performed_name")
+                    it.testPerformedNormalized = if (it.testPerformedCode != null) {
+                        metadata.findValueSet("monkeypox/test_code")?.toDisplayFromCode(it.testPerformedCode)
+                    } else {
+                        null
+                    }
+                    it.testPerformedLongName = if (it.testPerformedCode != null) {
+                        metadata.findValueSet("monkeypox/test_long_name")?.toDisplayFromCode(it.testPerformedCode)
+                    } else {
+                        null
+                    }
+                    it.testOrdered = row.getStringOrNull("ordered_test_name")
+                    it.testOrderedCode = row.getStringOrNull("ordered_test_code")
+                    it.testOrderedNormalized = if (it.testOrderedCode != null) {
+                        metadata.findValueSet("monkeypox/test_code")?.toDisplayFromCode(it.testOrderedCode)
+                    } else {
+                        null
+                    }
+                    it.testOrderedLongName = if (it.testOrderedCode != null) {
+                        metadata.findValueSet("monkeypox/test_long_name")?.toDisplayFromCode(it.testOrderedCode)
+                    } else {
+                        null
+                    }
+                    // trap the processing mode code as well
+                    it.processingModeCode = row.getStringOrNull("processing_mode_code")
                 }
-                it.testPerformedLongName = if (it.testPerformedCode != null) {
-                    metadata.findValueSet("monkeypox/test_long_name")?.toDisplayFromCode(it.testPerformedCode)
-                } else {
-                    null
-                }
-                it.testOrdered = row.getStringOrNull("ordered_test_name")
-                it.testOrderedCode = row.getStringOrNull("ordered_test_code")
-                it.testOrderedNormalized = if (it.testOrderedCode != null) {
-                    metadata.findValueSet("monkeypox/test_code")?.toDisplayFromCode(it.testOrderedCode)
-                } else {
-                    null
-                }
-                it.testOrderedLongName = if (it.testOrderedCode != null) {
-                    metadata.findValueSet("monkeypox/test_long_name")?.toDisplayFromCode(it.testOrderedCode)
-                } else {
-                    null
-                }
-                // trap the processing mode code as well
-                it.processingModeCode = row.getStringOrNull("processing_mode_code")
             }
+        } catch (e: Exception) {
+            logger.error(e)
+            emptyList()
         }
-    } catch (e: Exception) {
-        logger.error(e)
-        emptyList()
-    }
 
     fun getDeidentifiedCovidResults(): List<CovidResultMetadata> = try {
-        table.mapIndexed { idx, row ->
-            CovidResultMetadata().also {
-                it.messageId = row.getStringOrNull("message_id")
-                it.previousMessageId = row.getStringOrNull("previous_message_id")
-                it.orderingProviderName =
-                    row.getStringOrNull("ordering_provider_first_name") +
-                        " " + row.getStringOrNull("ordering_provider_last_name")
-                it.orderingProviderId = row.getStringOrNull("ordering_provider_id")
-                it.orderingProviderState = row.getStringOrNull("ordering_provider_state")
-                it.orderingProviderPostalCode = row.getStringOrNull("ordering_provider_zip_code")
-                it.orderingProviderCounty = row.getStringOrNull("ordering_provider_county")
-                it.orderingFacilityCity = row.getStringOrNull("ordering_facility_city")
-                it.orderingFacilityCounty = row.getStringOrNull("ordering_facility_county")
-                it.orderingFacilityName = row.getStringOrNull("ordering_facility_name")
-                it.orderingFacilityPostalCode = row.getStringOrNull("ordering_facility_zip_code")
-                it.orderingFacilityState = row.getStringOrNull("ordering_facility_state")
-                it.testingLabCity = row.getStringOrNull("testing_lab_city")
-                it.testingLabClia = row.getStringOrNull("testing_lab_clia")
-                it.testingLabCounty = row.getStringOrNull("testing_lab_county")
-                it.testingLabName = row.getStringOrNull("testing_lab_name")
-                it.testingLabPostalCode = row.getStringOrNull("testing_lab_zip_code")
-                it.testingLabState = row.getStringOrNull("testing_lab_state")
-                it.patientCounty = row.getStringOrNull("patient_county")
-                it.patientCountry = row.getStringOrNull("patient_country")
-                it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
-                it.patientEthnicity = if (it.patientEthnicityCode != null) {
-                    metadata.findValueSet("hl70189")?.toDisplayFromCode(it.patientEthnicityCode)
-                } else {
-                    null
-                }
-                it.patientGenderCode = row.getStringOrNull("patient_gender")
-                it.patientGender = if (it.patientGenderCode != null) {
-                    metadata.findValueSet("hl70001")?.toDisplayFromCode(it.patientGenderCode)
-                } else {
-                    null
-                }
-                it.patientPostalCode = row.getStringOrNull("patient_zip_code")
-                it.patientRaceCode = row.getStringOrNull("patient_race")
-                it.patientRace = if (it.patientRaceCode != null) {
-                    metadata.findValueSet("hl70005")?.toDisplayFromCode(it.patientRaceCode)
-                } else {
-                    null
-                }
-                it.patientState = row.getStringOrNull("patient_state")
-                it.testResultCode = row.getStringOrNull("test_result")
-                it.testResult = if (it.testResultCode != null) {
-                    metadata.findValueSet("covid-19/test_result")?.toDisplayFromCode(it.testResultCode)
-                } else {
-                    null
-                }
-                it.equipmentModel = row.getStringOrNull("equipment_model_name")
-                it.specimenCollectionDateTime = row.getStringOrNull("specimen_collection_date_time").let { dt ->
-                    if (!dt.isNullOrEmpty()) {
-                        try {
-                            LocalDate.from(DateUtilities.parseDate(dt))
-                        } catch (_: Exception) {
-                            null
-                        }
+            table.mapIndexed { idx, row ->
+                CovidResultMetadata().also {
+                    it.messageId = row.getStringOrNull("message_id")
+                    it.previousMessageId = row.getStringOrNull("previous_message_id")
+                    it.orderingProviderName =
+                        row.getStringOrNull("ordering_provider_first_name") +
+                            " " + row.getStringOrNull("ordering_provider_last_name")
+                    it.orderingProviderId = row.getStringOrNull("ordering_provider_id")
+                    it.orderingProviderState = row.getStringOrNull("ordering_provider_state")
+                    it.orderingProviderPostalCode = row.getStringOrNull("ordering_provider_zip_code")
+                    it.orderingProviderCounty = row.getStringOrNull("ordering_provider_county")
+                    it.orderingFacilityCity = row.getStringOrNull("ordering_facility_city")
+                    it.orderingFacilityCounty = row.getStringOrNull("ordering_facility_county")
+                    it.orderingFacilityName = row.getStringOrNull("ordering_facility_name")
+                    it.orderingFacilityPostalCode = row.getStringOrNull("ordering_facility_zip_code")
+                    it.orderingFacilityState = row.getStringOrNull("ordering_facility_state")
+                    it.testingLabCity = row.getStringOrNull("testing_lab_city")
+                    it.testingLabClia = row.getStringOrNull("testing_lab_clia")
+                    it.testingLabCounty = row.getStringOrNull("testing_lab_county")
+                    it.testingLabName = row.getStringOrNull("testing_lab_name")
+                    it.testingLabPostalCode = row.getStringOrNull("testing_lab_zip_code")
+                    it.testingLabState = row.getStringOrNull("testing_lab_state")
+                    it.patientCounty = row.getStringOrNull("patient_county")
+                    it.patientCountry = row.getStringOrNull("patient_country")
+                    it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
+                    it.patientEthnicity = if (it.patientEthnicityCode != null) {
+                        metadata.findValueSet("hl70189")?.toDisplayFromCode(it.patientEthnicityCode)
                     } else {
                         null
                     }
+                    it.patientGenderCode = row.getStringOrNull("patient_gender")
+                    it.patientGender = if (it.patientGenderCode != null) {
+                        metadata.findValueSet("hl70001")?.toDisplayFromCode(it.patientGenderCode)
+                    } else {
+                        null
+                    }
+                    it.patientPostalCode = row.getStringOrNull("patient_zip_code")
+                    it.patientRaceCode = row.getStringOrNull("patient_race")
+                    it.patientRace = if (it.patientRaceCode != null) {
+                        metadata.findValueSet("hl70005")?.toDisplayFromCode(it.patientRaceCode)
+                    } else {
+                        null
+                    }
+                    it.patientState = row.getStringOrNull("patient_state")
+                    it.testResultCode = row.getStringOrNull("test_result")
+                    it.testResult = if (it.testResultCode != null) {
+                        metadata.findValueSet("covid-19/test_result")?.toDisplayFromCode(it.testResultCode)
+                    } else {
+                        null
+                    }
+                    it.equipmentModel = row.getStringOrNull("equipment_model_name")
+                    it.specimenCollectionDateTime = row.getStringOrNull("specimen_collection_date_time").let { dt ->
+                        if (!dt.isNullOrEmpty()) {
+                            try {
+                                LocalDate.from(DateUtilities.parseDate(dt))
+                            } catch (_: Exception) {
+                                null
+                            }
+                        } else {
+                            null
+                        }
+                    }
+                    it.patientAge = getAge(
+                        row.getStringOrNull("patient_age"),
+                        row.getStringOrNull("patient_dob"),
+                        it.specimenCollectionDateTime?.toOffsetDateTime()
+                    )
+                    it.siteOfCare = row.getStringOrNull("site_of_care")
+                    it.reportId = this.id
+                    // switched to 1-based index on items in Feb 2022
+                    it.reportIndex = idx + 1
+                    // For sender ID, use first the provided ID and if not use the client ID.
+                    it.senderId = row.getStringOrNull("sender_id")
+                    if (it.senderId.isNullOrBlank()) {
+                        val clientSource = sources.firstOrNull { source -> source is ClientSource } as ClientSource?
+                        if (clientSource != null) it.senderId = clientSource.name.trimToNull()
+                    }
+                    it.testKitNameId = row.getStringOrNull("test_kit_name_id")
+                    it.testPerformedLoincCode = row.getStringOrNull("test_performed_code")
+                    it.organizationName = row.getStringOrNull("organization_name")
+                    // trap the processing mode code from submissions as well
+                    it.processingModeCode = row.getStringOrNull("processing_mode_code")
                 }
-                it.patientAge = getAge(
-                    row.getStringOrNull("patient_age"),
-                    row.getStringOrNull("patient_dob"),
-                    it.specimenCollectionDateTime?.toOffsetDateTime()
-                )
-                it.siteOfCare = row.getStringOrNull("site_of_care")
-                it.reportId = this.id
-                // switched to 1-based index on items in Feb 2022
-                it.reportIndex = idx + 1
-                // For sender ID, use first the provided ID and if not use the client ID.
-                it.senderId = row.getStringOrNull("sender_id")
-                if (it.senderId.isNullOrBlank()) {
-                    val clientSource = sources.firstOrNull { source -> source is ClientSource } as ClientSource?
-                    if (clientSource != null) it.senderId = clientSource.name.trimToNull()
-                }
-                it.testKitNameId = row.getStringOrNull("test_kit_name_id")
-                it.testPerformedLoincCode = row.getStringOrNull("test_performed_code")
-                it.organizationName = row.getStringOrNull("organization_name")
-                // trap the processing mode code from submissions as well
-                it.processingModeCode = row.getStringOrNull("processing_mode_code")
             }
+        } catch (e: Exception) {
+            logger.error(e)
+            emptyList()
         }
-    } catch (e: Exception) {
-        logger.error(e)
-        emptyList()
-    }
 
     /**
      * getAge - calculate the age of the patient according to the criteria below:
@@ -1097,24 +1096,24 @@ class Report : Logging {
         mapping: Translator.Mapping,
         toElement: Element,
     ): StringColumn? = when (toElement.name) {
-        in mapping.useDirectly -> {
-            table.stringColumn(mapping.useDirectly[toElement.name]).copy().setName(toElement.name)
-        }
+            in mapping.useDirectly -> {
+                table.stringColumn(mapping.useDirectly[toElement.name]).copy().setName(toElement.name)
+            }
 
-        in mapping.useMapper -> {
-            null
-        }
+            in mapping.useMapper -> {
+                null
+            }
 
-        in mapping.useDefault -> {
-            val defaultValue = mapping.useDefault[toElement.name]
-            val defaultValues = Array(table.rowCount()) { defaultValue }
-            StringColumn.create(toElement.name, defaultValues.asList())
-        }
+            in mapping.useDefault -> {
+                val defaultValue = mapping.useDefault[toElement.name]
+                val defaultValues = Array(table.rowCount()) { defaultValue }
+                StringColumn.create(toElement.name, defaultValues.asList())
+            }
 
-        else -> {
-            buildEmptyColumn(toElement.name)
+            else -> {
+                buildEmptyColumn(toElement.name)
+            }
         }
-    }
 
     /**
      * The second pass runs any mappers as needed for the given [toElement] and the [pass1Columns] data from the first
@@ -1363,8 +1362,8 @@ class Report : Logging {
             parentReport: Report,
             childReport: Report,
         ): List<ItemLineage> = selection.mapIndexed { childRowNum, parentRowNum ->
-            createItemLineageForRow(parentReport, parentRowNum, childReport, childRowNum)
-        }.toList()
+                createItemLineageForRow(parentReport, parentRowNum, childReport, childRowNum)
+            }.toList()
 
         fun createOneToOneItemLineages(parentReport: Report, childReport: Report): List<ItemLineage> {
             if (parentReport.itemCount != childReport.itemCount) {
@@ -1569,10 +1568,10 @@ class Report : Logging {
          * @param default the default value to return if there's an error getting a value. Defaults to null.
          */
         private fun Row.getStringOrDefault(columnName: String, default: String? = null): String? = try {
-            this.getString(columnName)
-        } catch (_: Exception) {
-            default
-        }
+                this.getString(columnName)
+            } catch (_: Exception) {
+                default
+            }
 
         /**
          * Tries to get a value in the underlying row for the column name, and if it doesn't exist, returns null
