@@ -123,17 +123,17 @@ class SubmissionsFacade(
      */
     fun findDetailedSubmissionHistory(
         txn: DataAccessTransaction,
-        id: UUID?,
+        reportId: UUID?,
         action: Action,
     ): DetailedSubmissionHistory? {
-        if (id == null) {
+        if (reportId == null) {
             return dbSubmissionAccess.fetchAction(
                 action.actionId,
                 action.sendingOrg,
                 DetailedSubmissionHistory::class.java
             )
         }
-        val graph = reportGraph.getDescendantReports(txn, id)
+        val graph = reportGraph.getDescendantReports(txn, reportId)
         val detailedReports = graph.map { reportFile ->
             DetailedReport(
                 reportFile.reportId,
