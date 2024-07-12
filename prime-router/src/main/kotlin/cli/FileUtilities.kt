@@ -4,6 +4,7 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -24,7 +25,7 @@ object FileUtilities {
         targetStates: String? = null,
         targetCounties: String? = null,
         directory: String = ".",
-        format: Report.Format = Report.Format.CSV,
+        format: MimeFormat = MimeFormat.CSV,
         locale: Locale? = null,
     ): File {
         val report = createFakeCovidReport(
@@ -57,7 +58,7 @@ object FileUtilities {
     }
 
     fun writeReportsToFile(
-        reports: List<Pair<Report, Report.Format>>,
+        reports: List<Pair<Report, MimeFormat>>,
         metadata: Metadata,
         settings: SettingsProvider,
         outputDir: String?,
@@ -86,7 +87,7 @@ object FileUtilities {
 
     fun writeReportToFile(
         report: Report,
-        format: Report.Format,
+        format: MimeFormat,
         metadata: Metadata,
         outputDir: String?,
         outputFileName: String?,
@@ -109,10 +110,10 @@ object FileUtilities {
         val hl7Serializer = Hl7Serializer(metadata, settings)
         outputFile.outputStream().use {
             when (format) {
-                Report.Format.INTERNAL -> csvSerializer.writeInternal(report, it)
-                Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer.write(report, it)
-                Report.Format.HL7 -> hl7Serializer.write(report, it)
-                Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, it)
+                MimeFormat.INTERNAL -> csvSerializer.writeInternal(report, it)
+                MimeFormat.CSV, MimeFormat.CSV_SINGLE -> csvSerializer.write(report, it)
+                MimeFormat.HL7 -> hl7Serializer.write(report, it)
+                MimeFormat.HL7_BATCH -> hl7Serializer.writeBatch(report, it)
                 else -> throw UnsupportedOperationException("Unsupported ${report.bodyFormat}")
             }
         }
