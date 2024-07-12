@@ -589,7 +589,7 @@ class FhirTransformerTests {
             )
         }
 
-        // Improper extension format
+        // Extension matcher is provided with a non-string value
         transformer.setBundleProperty(
             "Bundle.entry.resource.ofType(Patient).extension(regexNonMatch).value[x]", IdType("newId"),
             CustomContext(bundle, bundle), bundle, bundle

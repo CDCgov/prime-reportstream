@@ -59,6 +59,7 @@ import java.io.InputStream
 import java.security.KeyStore
 import java.time.OffsetDateTime
 import java.util.Base64
+import java.util.UUID
 import java.util.logging.Logger
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
@@ -234,8 +235,9 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      * @param receiver the receiver setting
      */
     fun getCredential(transport: RESTTransportType, receiver: Receiver): Pair<RestCredential, UserJksCredential?> {
+        val jwtParams = transport.jwtParams
         val credential: RestCredential = if (transport.authType == "two-legged") {
-            lookupTwoLeggedCredential(receiver)
+            lookupTwoLeggedCredential(receiver, jwtParams)
         } else {
             lookupDefaultCredential(receiver)
         }
@@ -266,16 +268,22 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      * Get a credential using PrivateKey to generate signed JWT authentication token (senderToken)
      * @param receiver the fullName of the receiver is the label of the credential
      */
-    fun lookupTwoLeggedCredential(receiver: Receiver): RestCredential {
+    fun lookupTwoLeggedCredential(receiver: Receiver, jwtParams: Map<String, String> = emptyMap()): RestCredential {
         val credential = lookupDefaultCredential(receiver)
         val privateKey = AuthUtils.readPrivateKeyPem((credential as UserApiKeyCredential).apiKey)
-        val senderToken = AuthUtils.generateOrganizationToken(
-            Organization(
-                receiver.name, receiver.fullName,
-                Organization.Jurisdiction.FEDERAL, null, null, null, null, null
-            ),
-            "", privateKey, ""
-        )
+        val senderToken = if (jwtParams.isEmpty()) {
+            AuthUtils.generateOrganizationToken(
+                Organization(
+                    receiver.name, receiver.fullName,
+                    Organization.Jurisdiction.FEDERAL, null, null, null, null, null
+                ),
+                "", privateKey, ""
+            )
+        } else {
+            val issuer = jwtParams["iss"] ?: receiver.name
+            val audience = jwtParams["aud"] ?: ""
+            AuthUtils.generateToken(issuer, audience, privateKey, "", UUID.randomUUID().toString())
+        }
         return UserApiKeyCredential(credential.user, senderToken)
     }
 
@@ -627,25 +635,17 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                                 boundary
                             )
                         }
-                        "elims/params" -> {
-                            MultiPartFormDataContent(
-                                formData {
-                                    append("System_ID", headers["System_ID"] ?: "")
-                                    append("Key", headers["Key"] ?: "")
-                                    append("DateReceived", reportCreateDate.toString())
-                                    append("FileName", "filename=\"${fileName}\"")
-                                    append(
-                                        "Message",
-                                        message,
-                                        Headers.build {
-                                            append(HttpHeaders.ContentType, "text/plain")
-                                            append(HttpHeaders.ContentDisposition, "filename=\"${fileName}\"")
-                                        }
-                                    )
-                                    append("Comment", "")
-                                },
-                                boundary
-                            )
+                        "elims/json" -> {
+                            contentType(ContentType.Application.Json)
+                            val body = JSONObject()
+                            body.put("System_ID", headers["System_ID"] ?: "")
+                            body.put("Key", headers["Key"] ?: "")
+                            body.put("DateReceived", reportCreateDate.toString())
+                            body.put("FileName", fileName)
+                            // This encodes "\" character as "\\", needed for Hl7 to be read as valid JSON
+                            body.put("Message", message.toString(Charsets.UTF_8))
+                            body.put("Comment", "")
+                            body.toString()
                         }
                         else -> {
                             // Note: It is here for default content-type.  It is used for integration test

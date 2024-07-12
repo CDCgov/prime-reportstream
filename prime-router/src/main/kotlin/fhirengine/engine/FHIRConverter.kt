@@ -16,6 +16,7 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
@@ -147,7 +148,7 @@ class FHIRConverter(
 
                         // make a 'report'
                         val report = Report(
-                            Report.Format.FHIR,
+                            MimeFormat.FHIR,
                             emptyList(),
                             parentItemLineageData = listOf(
                                 Report.ParentItemLineageData(queueMessage.reportId, bundleIndex.toInt() + 1)
@@ -169,7 +170,7 @@ class FHIRConverter(
                         // upload to blobstore
                         val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
                         val blobInfo = BlobAccess.uploadBody(
-                            Report.Format.FHIR,
+                            MimeFormat.FHIR,
                             bodyBytes,
                             report.id.toString(),
                             queueMessage.blobSubFolderName,
@@ -210,7 +211,7 @@ class FHIRConverter(
 
                 // TODO: https://github.com/CDCgov/prime-reportstream/issues/14349
                 val report = Report(
-                    Report.Format.FHIR,
+                    MimeFormat.FHIR,
                     emptyList(),
                     1,
                     metadata = this.metadata,
@@ -259,7 +260,7 @@ class FHIRConverter(
      * @return the bundles that should get routed
      */
     internal fun process(
-        format: Report.Format,
+        format: MimeFormat,
         queueMessage: ReportPipelineMessage,
         actionLogger: ActionLogger,
         routeReportWithInvalidItems: Boolean = true,
@@ -271,7 +272,7 @@ class FHIRConverter(
             emptyList()
         } else {
             val processedItems = when (format) {
-                Report.Format.HL7, Report.Format.HL7_BATCH -> {
+                MimeFormat.HL7, MimeFormat.HL7_BATCH -> {
                     try {
                         LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                             "Processed raw message into items",
@@ -289,7 +290,7 @@ class FHIRConverter(
                     }
                 }
 
-                Report.Format.FHIR -> {
+                MimeFormat.FHIR -> {
                     LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                         "Processed raw message into items",
                         mapOf(
