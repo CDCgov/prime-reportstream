@@ -126,6 +126,14 @@
     "resource" : {
       "resourceType" : "ServiceRequest",
       "id" : "1710884655034207000.166b8166-4bc7-4f4f-a81e-7bcc5e01daa6",
+      "id" : "1721668746681076000.d52f51ae-f254-4b96-9e2d-252cb7822d34",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
+        "extension" : [ {
+          "url" : "OBR.25",
+          "valueId" : "unknown"
+        } ]
+      } ],
       "identifier" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",

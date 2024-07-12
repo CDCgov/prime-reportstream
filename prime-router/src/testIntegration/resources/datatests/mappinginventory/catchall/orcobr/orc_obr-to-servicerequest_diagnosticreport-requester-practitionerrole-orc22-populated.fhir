@@ -190,6 +190,9 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
         "extension" : [ {
+          "url" : "OBR.25",
+          "valueId" : "unknown"
+        }, {
           "url" : "OBR.16",
           "valueReference" : {
             "reference" : "Practitioner/1710885296301112000.626f807b-8dd4-404e-8069-d152f0c71654"

@@ -132,6 +132,12 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event",
         "valueString" : "20230816123358-0500"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
+        "extension" : [ {
+          "url" : "OBR.25",
+          "valueId" : "unknown"
+        } ]
       } ],
       "status" : "unknown",
       "subject" : {

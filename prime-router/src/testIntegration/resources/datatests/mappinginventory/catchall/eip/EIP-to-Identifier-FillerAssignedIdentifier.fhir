@@ -172,7 +172,14 @@
     "fullUrl" : "ServiceRequest/1710881136848520000.680761ec-cc30-465c-adf6-8093960918dc",
     "resource" : {
       "resourceType" : "ServiceRequest",
-      "id" : "1710881136848520000.680761ec-cc30-465c-adf6-8093960918dc",
+      "id" : "1721677228907654000.c4ef73b8-3ad2-47c8-b002-fdb07886b98c",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
+        "extension" : [ {
+          "url" : "OBR.25",
+          "valueId" : "F"
+        } ]
+      } ],
       "status" : "unknown",
       "code" : {
         "coding" : [ {
