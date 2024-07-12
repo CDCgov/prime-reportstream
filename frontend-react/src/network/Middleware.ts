@@ -4,7 +4,7 @@ import { Fetcher, Middleware, SuspenseQueryHook } from "react-query-kit";
 
 import { RSEndpoint } from "../config/endpoints";
 import useSessionContext from "../contexts/Session/useSessionContext";
-import useAppInsightsContext from "../hooks/UseAppInsightsContext";
+import useAppInsightsContext from "../hooks/UseAppInsightsContext/UseAppInsightsContext";
 
 export type AuthMiddleware<TData> = Middleware<
     SuspenseQueryHook<TData, FetchVariables>

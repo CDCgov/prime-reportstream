@@ -18,6 +18,7 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -157,6 +158,12 @@ class FhirConverterTests {
         val actionLogger = mockk<ActionLogger>()
         val transformer = mockk<FhirTransformer>()
 
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable(
+                "observation-mapping",
+                emptyList()
+            )
+        )
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
             FhirConvertQueueMessage(
@@ -165,7 +172,7 @@ class FhirConverterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = "https://anyblob.com"
 
         every { actionLogger.hasErrors() } returns false
@@ -173,7 +180,7 @@ class FhirConverterTests {
         every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
         every { actionLogger.setReportId(any()) } returns actionLogger
         every { message.downloadContent() }.returns(validHl7)
-        every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.HL7
+        every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.HL7
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
@@ -220,7 +227,7 @@ class FhirConverterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = "https://anyblob.com"
 
         every { actionLogger.hasErrors() } returns false
@@ -229,7 +236,7 @@ class FhirConverterTests {
         every { actionLogger.setReportId(any()) } returns actionLogger
         every { message.downloadContent() }
             .returns(File(VALID_DATA_URL).readText())
-        every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.FHIR
+        every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.FHIR
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
@@ -289,14 +296,14 @@ class FhirConverterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = "http://anyblob.com"
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.setReportId(any()) } returns actionLogger
         every { message.downloadContent() }
             .returns(File("src/test/resources/fhirengine/engine/bundle_multiple_bundles.fhir").readText())
-        every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.FHIR
+        every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.FHIR
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         // Throw an exception the second time trackCreatedReport is called to exit processing early and demonstrate sendMessage is not called
@@ -381,7 +388,7 @@ class FhirConverterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = "https://anyblob.com"
 
         every { actionLogger.hasErrors() } returns false
@@ -389,7 +396,7 @@ class FhirConverterTests {
         every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
         every { actionLogger.setReportId(any()) } returns actionLogger
         every { message.downloadContent() } returns (fhirRecord)
-        every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.FHIR
+        every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.FHIR
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
@@ -472,7 +479,7 @@ class FhirConverterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = "https://anyblob.com"
 
         every { actionLogger.hasErrors() } returns false
@@ -480,7 +487,7 @@ class FhirConverterTests {
         every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
         every { actionLogger.setReportId(any()) } returns actionLogger
         every { message.downloadContent() } returns (fhirData)
-        every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.FHIR
+        every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.FHIR
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
@@ -551,7 +558,7 @@ class FhirConverterTests {
             val mockMessage = mockk<ReportPipelineMessage>()
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.downloadContent() } returns ""
-            val bundles = engine.process(Report.Format.FHIR, mockMessage, actionLogger)
+            val bundles = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
             assertThat(bundles).isEmpty()
             assertThat(actionLogger.errors.map { it.detail.message }).contains("Provided raw data is empty.")
         }
@@ -574,7 +581,7 @@ class FhirConverterTests {
             every {
                 mockMessage.downloadContent()
             } returns simpleHL7
-            val bundles = engine.process(Report.Format.HL7, mockMessage, actionLogger)
+            val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(bundles).isEmpty()
             assertThat(
                 actionLogger.errors.map {
@@ -591,7 +598,7 @@ class FhirConverterTests {
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every { mockMessage.downloadContent() } returns "test,1,2"
-            val bundles = engine.process(Report.Format.CSV, mockMessage, actionLogger)
+            val bundles = engine.process(MimeFormat.CSV, mockMessage, actionLogger)
             assertThat(bundles).isEmpty()
             assertThat(actionLogger.errors.map { it.detail.message })
                 .contains("Received unsupported report format: CSV")
@@ -605,7 +612,7 @@ class FhirConverterTests {
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every { mockMessage.downloadContent() } returns "{\"id\":}"
-            val bundles = engine.process(Report.Format.FHIR, mockMessage, actionLogger)
+            val bundles = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
             assertThat(bundles).isEmpty()
             assertThat(actionLogger.errors.map { it.detail.message }).contains(
                 @Suppress("ktlint:standard:max-line-length")
@@ -633,7 +640,7 @@ class FhirConverterTests {
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every { mockMessage.downloadContent() } returns "{\"id\":\"1\", \"resourceType\":\"Bundle\"}"
-            val bundles = engine.process(Report.Format.FHIR, mockMessage, actionLogger)
+            val bundles = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
             assertThat(bundles).isEmpty()
             assertThat(actionLogger.errors.map { it.detail.message }).contains(
                 "Item 1 in the report was not valid. Reason: Validation failed"
@@ -650,7 +657,7 @@ class FhirConverterTests {
             every {
                 mockMessage.downloadContent()
             } returns unparseableHL7
-            val bundles = engine.process(Report.Format.HL7, mockMessage, actionLogger)
+            val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(bundles).isEmpty()
             assertThat(
                 actionLogger.errors.map {
@@ -683,7 +690,7 @@ class FhirConverterTests {
             every {
                 mockMessage.downloadContent()
             } returns simpleHL7
-            val bundles = engine.process(Report.Format.HL7, mockMessage, actionLogger)
+            val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(bundles).isEmpty()
             @Suppress("ktlint:standard:max-line-length")
             assertThat(
@@ -710,7 +717,7 @@ class FhirConverterTests {
             every {
                 mockMessage.downloadContent()
             } returns simpleHL7
-            val bundles = engine.process(Report.Format.HL7, mockMessage, actionLogger)
+            val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(bundles).isEmpty()
             assertThat(
                 actionLogger.errors.map {
@@ -734,14 +741,14 @@ class FhirConverterTests {
             } returns """{\"id\":}
                 {"id":"1", "resourceType":"Bundle"}
             """.trimMargin()
-            val bundles = engine.process(Report.Format.FHIR, mockMessage, actionLogger)
+            val bundles = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
             assertThat(bundles).hasSize(1)
             assertThat(actionLogger.errors.map { it.detail.message }).contains(
                 @Suppress("ktlint:standard:max-line-length")
                 "Item 1 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected character ('\\' (code 92)): was expecting double-quote to start field name\n at [line: 1, column: 2]"
             )
 
-            val bundles2 = engine.process(Report.Format.FHIR, mockMessage, actionLogger, false)
+            val bundles2 = engine.process(MimeFormat.FHIR, mockMessage, actionLogger, false)
             assertThat(bundles2).hasSize(0)
             assertThat(actionLogger.errors.map { it.detail.message }).contains(
                 @Suppress("ktlint:standard:max-line-length")
@@ -760,7 +767,7 @@ class FhirConverterTests {
             every {
                 mockMessage.downloadContent()
             } returns simpleHL7
-            val bundles = engine.process(Report.Format.HL7, mockMessage, actionLogger)
+            val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(bundles).hasSize(1)
             assertThat(actionLogger.errors).isEmpty()
         }
@@ -779,7 +786,7 @@ class FhirConverterTests {
             every {
                 mockMessage.downloadContent()
             } returns simpleHL7 + "\n" + simpleHL7 + "\n" + simpleHL7
-            val bundles = engine.process(Report.Format.HL7, mockMessage, actionLogger)
+            val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(bundles).hasSize(3)
             assertThat(actionLogger.errors).isEmpty()
 
@@ -809,7 +816,7 @@ class FhirConverterTests {
             every {
                 mockMessage.downloadContent()
             } returns simpleHL7
-            val bundles = engine.process(Report.Format.HL7, mockMessage, actionLogger)
+            val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(bundles).hasSize(1)
             assertThat(actionLogger.errors).isEmpty()
         }

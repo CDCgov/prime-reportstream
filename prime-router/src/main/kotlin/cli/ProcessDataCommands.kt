@@ -18,6 +18,7 @@ import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
@@ -279,6 +280,7 @@ class ProcessData(
                 )
                 handleReadResult(result)
             }
+
             else -> {
                 val csvSerializer = CsvSerializer(metadata)
                 return if (FileUtilities.isInternalFile(file)) {
@@ -302,9 +304,9 @@ class ProcessData(
     }
 
     private fun writeReportsToFile(
-        reports: List<Pair<Report, Report.Format>>,
+        reports: List<Pair<Report, MimeFormat>>,
         metadata: Metadata,
-        writeBlock: (report: Report, format: Report.Format, outputStream: OutputStream) -> Unit,
+        writeBlock: (report: Report, format: MimeFormat, outputStream: OutputStream) -> Unit,
     ) {
         if (outputDir == null && outputFileName == null) return
 
@@ -324,20 +326,20 @@ class ProcessData(
                 val outputFile = if (outputFileName != null) {
                     File(outputFileName!!)
                 } else {
-                    // generate a translation config if we don't have
                     val translationConfig = report.destination?.translation ?: CustomConfiguration(
                         report.schema.baseName,
                         format,
                         receivingOrganization = null,
                         nameFormat = nameFormat ?: "standard"
                     )
-                    val fileName = Report.formFilename(
+                    val fileName = Report.formExternalFilename(
                         report.id,
                         report.schema.baseName,
                         format,
                         report.createdDateTime,
+                        metadata,
+                        translationConfig.nameFormat,
                         translationConfig,
-                        metadata
                     )
                     File(outputDir ?: ".", fileName)
                 }
@@ -369,8 +371,8 @@ class ProcessData(
         }
     }
 
-    private fun getOutputFormat(default: Report.Format): Report.Format {
-        return if (forcedFormat != null) Report.Format.valueOf(forcedFormat!!) else default
+    private fun getOutputFormat(default: MimeFormat): MimeFormat {
+        return if (forcedFormat != null) MimeFormat.valueOf(forcedFormat!!) else default
     }
 
     private fun getDefaultValues(): DefaultValues {
@@ -407,6 +409,7 @@ class ProcessData(
                     )
                 }
             }
+
             is InputClientInfo.InputSchema -> {
                 val inputSchema = (inputClientInfo as InputClientInfo.InputSchema).schemaName
                 val schName = inputSchema.lowercase()
@@ -417,6 +420,7 @@ class ProcessData(
                 }.randomOrNull()
                 Pair(metadata.findSchema(schName), sender)
             }
+
             else -> {
                 error("input schema or client's name must be specified")
             }
@@ -429,13 +433,16 @@ class ProcessData(
                     metadata, schema, sender, fileSettings,
                     (inputSource as InputSource.ListOfFilesSource).commaSeparatedList
                 )
+
             is InputSource.FileSource ->
                 readReportFromFile(
                     metadata, schema, sender, fileSettings,
                     (inputSource as InputSource.FileSource).fileName
                 )
+
             is InputSource.DirSource ->
                 TODO("Dir source is not implemented")
+
             is InputSource.FakeSource -> {
                 FakeReport(metadata).build(
                     schema as Schema,
@@ -446,6 +453,7 @@ class ProcessData(
                     includeNcesFacilities
                 )
             }
+
             else -> {
                 error("input source must be specified")
             }
@@ -486,7 +494,7 @@ class ProcessData(
         // Transform reports
         val translator = Translator(metadata, fileSettings)
         val warnings = mutableListOf<ActionLog>()
-        val outputReports: List<Pair<Report, Report.Format>> = when {
+        val outputReports: List<Pair<Report, MimeFormat>> = when {
             route -> {
                 val (reports, byReceiverWarnings) = translator
                     .filterAndTranslateByReceiver(inputReport, getDefaultValues(), emptyList())
@@ -494,6 +502,7 @@ class ProcessData(
                 reports.filter { it.report.itemCount > 0 }
                     .map { it.report to getOutputFormat(it.receiver.format) }
             }
+
             routeTo != null -> {
                 val pair = translator.translate(
                     input = inputReport,
@@ -506,6 +515,7 @@ class ProcessData(
                     emptyList()
                 }
             }
+
             outputSchema != null -> {
                 val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
                 val mapping = translator.buildMapping(
@@ -520,9 +530,10 @@ class ProcessData(
                     )
                 }
                 val toReport = inputReport.applyMapping(mapping)
-                listOf(Pair(toReport, getOutputFormat(Report.Format.CSV)))
+                listOf(Pair(toReport, getOutputFormat(MimeFormat.CSV)))
             }
-            else -> listOf(Pair(inputReport, getOutputFormat(Report.Format.CSV)))
+
+            else -> listOf(Pair(inputReport, getOutputFormat(MimeFormat.CSV)))
         }
 
         if (warnings.size > 0) {
@@ -536,9 +547,9 @@ class ProcessData(
         // Output reports
         writeReportsToFile(outputReports, metadata) { report, format, stream ->
             when (format) {
-                Report.Format.INTERNAL -> csvSerializer.writeInternal(report, stream)
-                Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer.write(report, stream)
-                Report.Format.HL7 -> {
+                MimeFormat.INTERNAL -> csvSerializer.writeInternal(report, stream)
+                MimeFormat.CSV, MimeFormat.CSV_SINGLE -> csvSerializer.write(report, stream)
+                MimeFormat.HL7 -> {
                     // create a default hl7 config
                     val hl7Configuration = Hl7Configuration(
                         nameFormat = nameFormat ?: "standard",
@@ -549,7 +560,7 @@ class ProcessData(
                         receivingApplicationOID = "",
                         receivingFacilityOID = "",
                         messageProfileId = "",
-                        useBatchHeaders = format == Report.Format.HL7_BATCH,
+                        useBatchHeaders = format == MimeFormat.HL7_BATCH,
                         reportingFacilityId = reportingFacilityId,
                         reportingFacilityName = reportingFacilityName,
                     )
@@ -562,13 +573,14 @@ class ProcessData(
                             CustomerStatus.INACTIVE,
                             hl7Configuration
                         )
-                        report.copy(destination, Report.Format.HL7_BATCH)
+                        report.copy(destination, MimeFormat.HL7_BATCH)
                     } else {
                         report
                     }
                     hl7Serializer.write(reportWithTranslation, stream)
                 }
-                Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream)
+
+                MimeFormat.HL7_BATCH -> hl7Serializer.writeBatch(report, stream)
                 else -> throw UnsupportedOperationException("Unsupported ${report.bodyFormat}")
             }
         }

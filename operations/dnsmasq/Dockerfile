@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # Latest patches
 RUN apt-get update && apt-get upgrade -y

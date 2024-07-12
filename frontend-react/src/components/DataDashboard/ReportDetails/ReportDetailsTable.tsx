@@ -1,10 +1,10 @@
 import styles from "./ReportDetailsTable.module.scss";
 import Table, { TableConfig } from "../../../components/Table/Table";
+import useReportsFacilities from "../../../hooks/api/deliveries/UseReportFacilities/UseReportFacilities";
 import useFilterManager, {
     FilterManagerDefaults,
-} from "../../../hooks/filters/UseFilterManager";
-import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
-import useAppInsightsContext from "../../../hooks/UseAppInsightsContext";
+} from "../../../hooks/filters/UseFilterManager/UseFilterManager";
+import useAppInsightsContext from "../../../hooks/UseAppInsightsContext/UseAppInsightsContext";
 import { EventName } from "../../../utils/AppInsights";
 import { FeatureName } from "../../../utils/FeatureName";
 import DataDashboardTableFilters from "../DataDashboardTable/DataDashboardTableFilters/DataDashboardTableFilters";

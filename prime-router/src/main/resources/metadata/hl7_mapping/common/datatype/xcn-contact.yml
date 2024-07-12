@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 constants:
   hl7XCNFieldPath: '%{hl7XCNField}(%{contactIndex})'
 # Practitioner to XCN mapping

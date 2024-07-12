@@ -1,9 +1,8 @@
-import { expect, Page } from "@playwright/test";
+import { Page } from "@playwright/test";
 import { TOTP } from "otpauth";
 
-import { test as setup } from "./rs-test";
-import type { TestLogin } from "./rs-test";
 import { fulfillGoogleAnalytics } from "./utils";
+import { expect, test as setup, type TestLogin } from "../test";
 
 async function logIntoOkta(page: Page, login: TestLogin) {
     const totp = new TOTP({ secret: login.totpCode });
@@ -17,14 +16,25 @@ async function logIntoOkta(page: Page, login: TestLogin) {
     await page.goto("/login", {
         waitUntil: "domcontentloaded",
     });
-    await page.getByLabel("Username").fill(login.username);
+    await page
+        .getByLabel("Username")
+        .or(page.getByLabel("Username or email"))
+        .fill(login.username);
+
+    const btnNext = page.getByRole("button", { name: "Next" });
+    if (btnNext) {
+        await btnNext.click();
+    }
 
     const pwd = page.getByLabel("Password");
     // Okta scripting will cause password input to fail if we don't
     // manually focus the field at this point
     await pwd.focus();
     await pwd.fill(login.password);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    const btnSubmit = page
+        .getByRole("button", { name: "Sign in" })
+        .or(page.getByRole("button", { name: "Verify" }));
+    await btnSubmit.click();
 
     if (login.totpCode !== "" && login.totpCode !== undefined) {
         await page.getByLabel("Enter Code ").fill(totp.generate());
@@ -34,7 +44,7 @@ async function logIntoOkta(page: Page, login: TestLogin) {
     await page.waitForLoadState("domcontentloaded");
 
     // Verify we are authenticated
-    await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
+    await expect(page.getByTestId("logout")).toBeVisible();
 }
 
 /**
@@ -47,10 +57,9 @@ setup(
         for (const login of [adminLogin, senderLogin, receiverLogin]) {
             await logIntoOkta(page, login);
 
-            const logoutBtn = page.getByRole("button", { name: "Logout" });
             await page.context().storageState({ path: login.path });
+            await page.getByTestId("logout").click();
 
-            await logoutBtn.click();
             await expect(
                 page.getByRole("link", { name: "Login" }),
             ).toBeAttached();

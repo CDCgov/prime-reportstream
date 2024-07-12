@@ -13,8 +13,8 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.PrunedObservationsLogMessage
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportStreamFilter
@@ -26,21 +26,22 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.observability.event.ConditionSummary
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
+import gov.cdc.prime.router.azure.observability.event.CodeSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
 import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
-import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
+import gov.cdc.prime.router.azure.observability.event.ReportNotRoutedEvent
+import gov.cdc.prime.router.azure.observability.event.TestSummary
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkObject
-import io.mockk.runs
 import io.mockk.spyk
 import io.mockk.verify
 import org.jooq.tools.jdbc.MockConnection
@@ -61,7 +62,11 @@ private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/routing
 private const val BLOB_URL = "https://blob.url"
 private const val BLOB_SUB_FOLDER_NAME = "test-sender"
 private const val BODY_URL = "https://anyblob.com"
-private const val PROVENANCE_COUNT_GREATER_THAN_10 = "Bundle.entry.resource.ofType(Provenance).count() > 10"
+private const val loincSystem = "http://loinc.org"
+private const val snomedSystem = "SNOMEDCT"
+
+private val PASS_FILTER: ReportStreamFilter = listOf("true")
+private val FAIL_FILTER: ReportStreamFilter = listOf("false")
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FhirDestinationFilterTests {
@@ -72,6 +77,7 @@ class FhirDestinationFilterTests {
     private val actionHistory = ActionHistory(TaskAction.route)
     private val azureEventService = InMemoryAzureEventService()
     private val reportServiceMock = mockk<ReportService>()
+    private val submittedId = UUID.randomUUID()
 
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
@@ -206,13 +212,8 @@ class FhirDestinationFilterTests {
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
     val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
     val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
-    val receiver = Receiver(
-        "myRcvr",
-        "topic",
-        Topic.TEST,
-        CustomerStatus.ACTIVE,
-        "mySchema"
-    )
+
+    private var actionLogger = ActionLogger()
 
     private fun makeOrgWithJurisdictionalFilter(filter: ReportStreamFilter) = DeepOrganization(
         ORGANIZATION_NAME,
@@ -231,7 +232,11 @@ class FhirDestinationFilterTests {
     )
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
-        every { reportServiceMock.getSenderName(any()) } returns "sendingOrg.sendingOrgClient"
+        val rootReport = mockk<ReportFile>()
+        every { rootReport.reportId } returns submittedId
+        every { rootReport.sendingOrg } returns "sendingOrg"
+        every { rootReport.sendingOrgClient } returns "sendingOrgClient"
+        every { reportServiceMock.getRootReport(any()) } returns rootReport
 
         return FHIREngine.Builder()
             .metadata(metadata)
@@ -245,6 +250,7 @@ class FhirDestinationFilterTests {
 
     @BeforeEach
     fun reset() {
+        actionLogger = ActionLogger()
         actionHistory.reportsIn.clear()
         actionHistory.reportsOut.clear()
         actionHistory.actionLogs.clear()
@@ -254,17 +260,10 @@ class FhirDestinationFilterTests {
 
     @Test
     fun `fail - jurisfilter does not pass`() {
-        val fhirData = File(VALID_FHIR_URL).readText()
-
-        mockkObject(BlobAccess)
-
-        // set up
+        // engine set up
         val settings = FileSettings().loadOrganizations(
-            makeOrgWithJurisdictionalFilter(listOf(PROVENANCE_COUNT_GREATER_THAN_10))
+            makeOrgWithJurisdictionalFilter(FAIL_FILTER)
         )
-
-        val actionLogger = mockk<ActionLogger>()
-
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRDestinationFilter)
         val message = spyk(
             FhirDestinationFilterQueueMessage(
@@ -276,15 +275,13 @@ class FhirDestinationFilterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = BODY_URL
-
-        every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(fhirData)
+        // mock setup
+        mockkObject(BlobAccess)
+        every { message.downloadContent() }.returns(File(VALID_FHIR_URL).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
-        // act
+        // act + assert
         accessSpy.transact { txn ->
             val messages = engine.run(message, actionLogger, actionHistory, txn)
             assertThat(messages).isEmpty()
@@ -293,16 +290,10 @@ class FhirDestinationFilterTests {
 
     @Test
     fun `success - jurisfilter passes`() {
-        val fhirData = File(VALID_FHIR_URL).readText()
-
-        mockkObject(BlobAccess)
-
-        // set up
+        // engine setup
         val settings = FileSettings().loadOrganizations(
-            makeOrgWithJurisdictionalFilter(listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO))
+            makeOrgWithJurisdictionalFilter(PASS_FILTER)
         )
-        val actionLogger = mockk<ActionLogger>()
-
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRDestinationFilter)
         val message = spyk(
             FhirDestinationFilterQueueMessage(
@@ -314,22 +305,87 @@ class FhirDestinationFilterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = BODY_URL
-
-        every { actionLogger.hasErrors() } returns false
-        every { actionLogger.info(any<PrunedObservationsLogMessage>()) } just runs
-        every { message.downloadContent() }.returns(fhirData)
+        // mock setup
+        mockkObject(BlobAccess)
+        every { message.downloadContent() }.returns(File(VALID_FHIR_URL).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
-        // act
+        // act + assert
         accessSpy.transact { txn ->
             val messages = engine.run(message, actionLogger, actionHistory, txn)
             assertThat(messages).hasSize(1)
             assertThat(actionHistory.actionLogs).isEmpty()
             assertThat(actionHistory.reportsIn).hasSize(1)
             assertThat(actionHistory.reportsOut).hasSize(1)
+
+            val azureEvents = azureEventService.getEvents()
+
+            val expectedAcceptedEvent = ReportAcceptedEvent(
+                message.reportId,
+                submittedId,
+                message.topic,
+                "sendingOrg.sendingOrgClient",
+                listOf(
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                listOf(
+                                    CodeSummary(
+                                        snomedSystem,
+                                        "840539006",
+                                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                    )
+                                ),
+                                loincSystem,
+                                "94558-4",
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95418-0",
+                                testPerformedSystem = loincSystem
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95417-2",
+                                testPerformedSystem = loincSystem
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95421-4",
+                                testPerformedSystem = loincSystem
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95419-8",
+                                testPerformedSystem = loincSystem
+                            )
+                        )
+                    ),
+                ),
+                36995,
+                AzureEventUtils.MessageID(
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
+                    "https://reportstream.cdc.gov/prime-router"
+                )
+            )
+
+            assertThat(azureEvents).hasSize(1)
+            assertThat(azureEvents.first())
+                .isInstanceOf<ReportAcceptedEvent>()
+                .isEqualTo(expectedAcceptedEvent)
         }
 
         // assert
@@ -341,14 +397,8 @@ class FhirDestinationFilterTests {
 
     @Test
     fun `test a message is queued per receiver that will have the report delivered`() {
-        val fhirData = File(VALID_FHIR_URL).readText()
-
-        mockkObject(BlobAccess)
-
-        // set up
+        // engine setup
         val settings = FileSettings().loadOrganizations(oneOrganization, secondElrOrganization)
-        val actionLogger = mockk<ActionLogger>()
-
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRDestinationFilter)
         val message = spyk(
             FhirDestinationFilterQueueMessage(
@@ -360,16 +410,14 @@ class FhirDestinationFilterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = BODY_URL
-
-        every { actionLogger.hasErrors() } returns false
-        every { actionLogger.info(any<PrunedObservationsLogMessage>()) } just runs
+        // data + mock setup
+        val fhirData = File(VALID_FHIR_URL).readText()
+        mockkObject(BlobAccess)
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
-        // act
+        // act + assert
         accessSpy.transact { txn ->
             val messages = engine.run(message, actionLogger, actionHistory, txn)
             assertThat(messages).hasSize(2)
@@ -387,36 +435,27 @@ class FhirDestinationFilterTests {
 
     @Test
     fun `test bundle with no receivers is not routed to translate function`() {
-        val fhirData = File(VALID_FHIR_URL).readText()
-
-        mockkObject(BlobAccess)
-
-        // set up
+        // engine setup
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val actionLogger = mockk<ActionLogger>()
-
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRDestinationFilter)
-        val message =
-            spyk(
-                FhirDestinationFilterQueueMessage(
-                    UUID.randomUUID(),
-                    BLOB_URL,
-                    "test",
-                    BLOB_SUB_FOLDER_NAME,
-                    topic = Topic.FULL_ELR
-                )
+        val message = spyk(
+            FhirDestinationFilterQueueMessage(
+                UUID.randomUUID(),
+                BLOB_URL,
+                "test",
+                BLOB_SUB_FOLDER_NAME,
+                topic = Topic.FULL_ELR
             )
+        )
 
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = BODY_URL
-
-        every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(fhirData)
+        // mock setup
+        mockkObject(BlobAccess)
+        every { message.downloadContent() }.returns(File(VALID_FHIR_URL).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
         every { engine.findTopicReceivers(any()) } returns emptyList()
 
-        // act
+        // act + assert
         accessSpy.transact { txn ->
             val messages = engine.run(message, actionLogger, actionHistory, txn)
             assertThat(messages).isEmpty()
@@ -426,51 +465,85 @@ class FhirDestinationFilterTests {
             val azureEvents = azureEventService.getEvents()
             val expectedAcceptedEvent = ReportAcceptedEvent(
                 message.reportId,
+                submittedId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
                 listOf(
                     ObservationSummary(
-                        ConditionSummary(
-                            "840539006",
-                            "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                        listOf(
+                            TestSummary(
+                                listOf(
+                                    CodeSummary(
+                                        snomedSystem,
+                                        "840539006",
+                                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                    )
+                                ),
+                                loincSystem,
+                                "94558-4",
+                            )
                         )
                     ),
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95418-0",
+                                testPerformedSystem = loincSystem
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95417-2",
+                                testPerformedSystem = loincSystem
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95421-4",
+                                testPerformedSystem = loincSystem
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95419-8",
+                                testPerformedSystem = loincSystem
+                            )
+                        )
+                    ),
                 ),
-                36942
+                36995,
+                AzureEventUtils.MessageID(
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
+                    "https://reportstream.cdc.gov/prime-router"
+                )
             )
-            val expectedRoutedEvent = ReportRouteEvent(
-                message.reportId,
+            val expectedRoutedEvent = ReportNotRoutedEvent(
                 UUID.randomUUID(),
+                message.reportId,
+                submittedId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
-                null,
-                listOf(
-                    ObservationSummary(
-                        ConditionSummary(
-                            "840539006",
-                            "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
-                        )
-                    ),
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY
-                ),
-                36942
+                36995,
+                AzureEventUtils.MessageID(
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
+                    "https://reportstream.cdc.gov/prime-router"
+                )
             )
 
             assertThat(azureEvents).hasSize(2)
             assertThat(azureEvents.first())
                 .isEqualTo(expectedAcceptedEvent)
             assertThat(azureEvents[1])
-                .isInstanceOf<ReportRouteEvent>()
+                .isInstanceOf<ReportNotRoutedEvent>()
                 .isEqualToIgnoringGivenProperties(
                     expectedRoutedEvent,
-                    ReportRouteEvent::reportId
+                    ReportNotRoutedEvent::reportId,
                 )
         }
 
@@ -483,14 +556,15 @@ class FhirDestinationFilterTests {
 
     @Test
     fun `test etor topic routing`() {
+        // engine setup
         val settings = FileSettings().loadOrganizations(etorOrganization)
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRDestinationFilter)
 
+        // assert
         // when doing routing for full-elr, verify that etor receiver isn't included (not even in logged results)
         var receivers = engine.findTopicReceivers(Topic.FULL_ELR)
         assertThat(report.filteringResults).isEmpty()
         assertThat(receivers).isEmpty()
-
         // when doing routing for etor, verify that etor receiver is included
         receivers = engine.findTopicReceivers(Topic.ETOR_TI)
         assertThat(actionHistory.actionLogs).isEmpty()
@@ -500,14 +574,15 @@ class FhirDestinationFilterTests {
 
     @Test
     fun `test elr topic routing`() {
+        // engine setup
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRDestinationFilter)
 
+        // assert
         // when doing routing for etor, verify that full-elr receiver isn't included (not even in logged results)
         var receivers = engine.findTopicReceivers(Topic.ETOR_TI)
         assertThat(report.filteringResults).isEmpty()
         assertThat(receivers).isEmpty()
-
         // when doing routing for full-elr, verify that full-elr receiver is included
         receivers = engine.findTopicReceivers(Topic.FULL_ELR)
         assertThat(actionHistory.actionLogs).isEmpty()
@@ -517,14 +592,15 @@ class FhirDestinationFilterTests {
 
     @Test
     fun `test elr-elims topic routing`() {
+        // engine setup
         val settings = FileSettings().loadOrganizations(elimsOrganization)
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRDestinationFilter)
 
+        // assert
         // when doing routing for full-elr, verify that elims receiver isn't included (not even in logged results)
         var receivers = engine.findTopicReceivers(Topic.FULL_ELR)
         assertThat(report.filteringResults).isEmpty()
         assertThat(receivers).isEmpty()
-
         // when doing routing for elims, verify that elims receiver is included
         receivers = engine.findTopicReceivers(Topic.ELR_ELIMS)
         assertThat(actionHistory.actionLogs).isEmpty()
@@ -534,38 +610,36 @@ class FhirDestinationFilterTests {
 
     @Test
     fun `test combined topic routing`() {
+        // engine setup
         val settings = FileSettings().loadOrganizations(etorAndElrOrganizations)
-        val actionLogger = mockk<ActionLogger>()
-
         val actionHistory = ActionHistory(TaskAction.destination_filter)
-        // All filters evaluate to true.
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRDestinationFilter)
 
+        // assert
         // when routing for etor, verify that only the active etor receiver is included (even in logged results)
         var receivers = engine.findTopicReceivers(Topic.ETOR_TI)
         assertThat(actionHistory.actionLogs).isEmpty()
         assertThat(receivers.size).isEqualTo(1)
         assertThat(receivers[0].name).isEqualTo("simulatedlab")
-
         // when routing for full-elr, verify that only the active full-elr receiver is included (even in logged results)
         receivers = engine.findTopicReceivers(Topic.FULL_ELR)
         assertThat(actionHistory.actionLogs).isEmpty()
         assertThat(receivers.size).isEqualTo(1)
         assertThat(receivers[0].name).isEqualTo(RECEIVER_NAME)
 
-        // Verify error when using non-UP topic
+        // verify error when using non-UP topic
         assertFailure {
             engine.doWork(
-            FhirDestinationFilterQueueMessage(
-                UUID.randomUUID(),
-                BLOB_URL,
-                "test",
-                BLOB_SUB_FOLDER_NAME,
-                topic = Topic.COVID_19
-            ),
-            actionLogger,
-            actionHistory
-        )
+                FhirDestinationFilterQueueMessage(
+                    UUID.randomUUID(),
+                    BLOB_URL,
+                    "test",
+                    BLOB_SUB_FOLDER_NAME,
+                    topic = Topic.COVID_19
+                ),
+                actionLogger,
+                actionHistory
+            )
         }.hasClass(java.lang.IllegalStateException::class.java)
     }
 }

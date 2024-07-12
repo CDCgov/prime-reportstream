@@ -55,6 +55,16 @@ class LookupTableTests {
     }
 
     @Test
+    fun `test isIn filtering`() {
+        val table = LookupTable(table = tableData2)
+        val result = table.FilterBuilder().isIn("a", listOf("valueA1", "repeatedValue3")).filter().dataRows
+
+        assertThat(result.size).isEqualTo(2)
+        assertThat(result[0]).isEqualTo(tableData2[1])
+        assertThat(result[1]).isEqualTo(tableData2[11])
+    }
+
+    @Test
     fun `test lookupBestMatch`() {
         val csv = """
             a,b

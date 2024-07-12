@@ -534,7 +534,8 @@
         "INDIANA_STARKE",
         "MICHIGAN",
         "CHAMORRO",
-        "UTC"
+        "UTC",
+        "ALASKA"
       ]
     },
     "Filter": {
@@ -1044,6 +1045,10 @@
           "format": "uri"
         },
         "reportUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "encryptionKeyUrl": {
           "type": "string",
           "format": "uri"
         },

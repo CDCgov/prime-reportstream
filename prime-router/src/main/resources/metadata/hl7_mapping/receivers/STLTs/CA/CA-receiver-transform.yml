@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 ##########################################################################
 # This is a temporary CA transform. These settings need to be #
 # moved to a sender transform once that feature is complete.             #
@@ -15,37 +17,37 @@ elements:
   # Using CA for now, but may need specific ones       #
   ######################################################
   - name: receiving-application-namespace-id
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '"CDPH CA REDIE"' ]
     hl7Spec: [ "MSH-5-1" ]
 
   - name: receiving-application-universal-id
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '"2.16.840.1.114222.4.3.3.10.1.1"' ]
     hl7Spec: [ "MSH-5-2" ]
 
   - name: receiving-application-universal-id-type
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '"ISO"' ]
     hl7Spec: [ "MSH-5-3" ]
 
   - name: receiving-facility-namespace-id
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '"CDPH_CID"' ]
     hl7Spec: [ "MSH-6-1" ]
 
   - name: receiving-facility-universal-id
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '"2.16.840.1.114222.4.1.214104"' ]
     hl7Spec: [ "MSH-6-2" ]
 
   - name: receiving-facility-universal-id-type
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '"ISO"' ]
     hl7Spec: [ "MSH-6-3" ]
@@ -55,19 +57,19 @@ elements:
   # Simple Report specific transforms #
   #####################################
   - name: sending-facility_namespace-id
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '%simpleReportName' ]
     hl7Spec: [ MSH-4-1 ]
 
   - name: sending-facility-universal-id
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '%simpleReportClia' ]
     hl7Spec: [ MSH-4-2 ]
 
   - name: sending-facility-universal-id-type
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '"CLIA"' ]
     hl7Spec: [ MSH-4-3 ]
@@ -77,12 +79,12 @@ elements:
     hl7Spec: [ MSH-18 ]
 
   - name: message-character-set
-    condition: false
+    condition: 'false'
 
   # The SR FHIR sends a value in event.display that does not align with HL7 -> FHIR
   # inventory, so it is overridden here
   - name: message-event-coding
-    condition: false
+    condition: 'false'
 
   - name: message-event-code-code
     value: [ '"ORU"' ]
@@ -114,28 +116,28 @@ elements:
 
   # SFT-1-2
   - name: software-vendor-name-type
-    condition: true
+    condition: 'true'
     value: [ '' ]
     hl7Spec: [ SFT-1-2 ]
 
 
   # SFT-1-6
   - name: software-vendor-assigning-authority-1
-    condition: true
+    condition: 'true'
     value: [ '' ]
     hl7Spec: [ SFT-1-6-1 ]
   - name: software-vendor-assigning-authority-2
-    condition: true
+    condition: 'true'
     value: [ '' ]
     hl7Spec: [ SFT-1-6-2 ]
   - name: software-vendor-assigning-authority-3
-    condition: true
+    condition: 'true'
     value: [ '' ]
     hl7Spec: [ SFT-1-6-3 ]
 
   # SFT-3
   - name: software-name
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '"PRIME ReportStream"' ]
 
@@ -152,27 +154,27 @@ elements:
 
   # OBX-2
   - name: OBX.2
-    condition: false
+    condition: 'false'
 
   # OBX-3
   - name: obx-code
-    condition: false
+    condition: 'false'
 
   # OBR-4
   - name: universal-service-identifier
-    condition: false
+    condition: 'false'
 
 
   # California requirement: move order notes and observation notes to last observation
   # suppressing default mapping for notes
   - name: order-note
-    condition: false
+    condition: 'false'
 
   - name: observation-note
-    condition: false
+    condition: 'false'
 
   - name: specimen-observation
-    condition: false
+    condition: 'false'
 
   # PID-10-2 gets either display or text
   - name: patient-race-display
@@ -208,7 +210,7 @@ elements:
 
   # OBR-10
   - name: entered-by
-    condition: false
+    condition: 'false'
 
   # XTN
   - name: xtn-use-code-from-system

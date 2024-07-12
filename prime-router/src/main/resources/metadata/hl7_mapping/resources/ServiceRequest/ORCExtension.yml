@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
   - name: order-status
     hl7Spec: [ '%{hl7Order}-5' ]
@@ -80,3 +82,13 @@ elements:
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{hl7Order}-31'
+
+  - name: advanced-beneficiary-notice-date
+    hl7Spec: [ '%{hl7Order}-32' ]
+    value: [ '%resource.extension.where(url = "ORC.32").value' ]
+
+  - name: order-workflow-profile
+    resource: '%resource.extension.where(url = "ORC.34").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-extension/EI.yml
+    constants:
+      eiFieldPath: '%{hl7Order}-34'

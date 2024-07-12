@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: Patient
 
 #  - PID.2 is deprecated in the HL7v2.7 and NIST HL7v2.5.1 specs. Further, the HAPI v2.7 model has set both fields to
@@ -437,7 +439,7 @@ extension:
           type: SYSTEM_URL
           value: patient-notes
         valueAnnotation:
-          valueOf: datatype/Annotation
+          valueOf: segments/NTE/Annotation
           expressionType: resource
     - expressionType: resource
       valueOf: segments/PID/PIDExtension

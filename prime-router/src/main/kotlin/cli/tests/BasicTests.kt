@@ -5,12 +5,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.google.common.base.CharMatcher
 import gov.cdc.prime.router.CovidSender
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.HttpUtilities
@@ -212,7 +211,7 @@ class End2EndUniversalPipeline : CoolTest() {
 
         expectedResults.forEach { (expectedReceiver, expectedFile) ->
             // Retrieve external filename
-            val actualFilename = findReportExternalName(historyResponse, expectedReceiver)
+            val actualFilename = findReportName(historyResponse, expectedReceiver)
             if (actualFilename.isEmpty()) {
                 passed = bad(
                     "***$name test FAILED***: " +
@@ -235,7 +234,7 @@ class End2EndUniversalPipeline : CoolTest() {
             }
 
             // Compare the actual file content with the expected content
-            val expectedFormat = Report.Format.valueOfFromExt(expectedReceiver.translation.type)
+            val expectedFormat = MimeFormat.valueOfFromExt(expectedReceiver.translation.type)
             val thisRoundPassed = CompareData().compare(
                 expectedFile.readBytes().inputStream(),
                 actualByteArray.inputStream(),
@@ -256,12 +255,12 @@ class End2EndUniversalPipeline : CoolTest() {
     }
 
     /**
-     * Searches a submission history json response for the external filename that matches the expected receiver.
+     * Searches a submission history json response for the filename that matches the expected receiver.
      * Will fail if the expected json objects are not populated.
      * @param response must be a response from the submission history endpoint for json lookup
      * @param expectedReceiver receiver for which to find a matching destination service
      */
-    private fun findReportExternalName(response: String, expectedReceiver: Receiver): String {
+    private fun findReportName(response: String, expectedReceiver: Receiver): String {
         var filename = ""
 
         try {
@@ -272,7 +271,8 @@ class End2EndUniversalPipeline : CoolTest() {
 
                 // Check that the destination service matches the expected receiver. Uses the first name listed.
                 if (expectedReceiver.name == destination.getString("service").removeSurrounding("\"")) {
-                    filename = destination.getJSONArray("sentReports").getJSONObject(0).getString("externalName")
+                    val reportId = destination.getJSONArray("sentReports").getJSONObject(0).getString("reportId")
+                    filename = "$reportId.${expectedReceiver.translation.type.lowercase()}"
                     good("The report was received by ${expectedReceiver.name}")
                 }
             }
@@ -1400,7 +1400,7 @@ class SantaClaus : CoolTest() {
                 settings = settings,
                 schemaName = (sender as CovidSender).schemaName,
                 count = states.size,
-                format = if (sender.format == Sender.Format.CSV) Report.Format.CSV else Report.Format.HL7_BATCH,
+                format = if (sender.format == MimeFormat.CSV) MimeFormat.CSV else MimeFormat.HL7_BATCH,
                 directory = System.getProperty("java.io.tmpdir"),
                 targetStates = states.joinToString(","),
                 targetCounties = null

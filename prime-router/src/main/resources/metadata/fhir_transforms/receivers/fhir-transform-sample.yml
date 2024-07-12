@@ -1,3 +1,4 @@
+# $schema: ../../../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
 elements:
   - name: test-element
     resource: 'Bundle.entry.resource.ofType(Patient)'
