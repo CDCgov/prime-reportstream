@@ -141,15 +141,11 @@ test.describe("Daily Data Details page", () => {
             });
 
             test.describe("table", () => {
-                test(
-                    "has correct headers",
-                    {
-                        tag: "@smoke",
-                    },
-                    async ({ dailyDataDetailsPage }) => {
-                        await detailsTableHeaders(dailyDataDetailsPage.page);
-                    },
-                );
+                test("has correct headers", async ({
+                    dailyDataDetailsPage,
+                }) => {
+                    await detailsTableHeaders(dailyDataDetailsPage.page);
+                });
 
                 test("'Facility' column has expected data", async ({
                     dailyDataDetailsPage,
