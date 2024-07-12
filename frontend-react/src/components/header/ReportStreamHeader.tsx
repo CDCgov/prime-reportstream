@@ -242,6 +242,7 @@ function ReportStreamNavbar({
     isMobileNavOpen,
     onToggleMobileNav,
     setActiveDropdown,
+    user,
 }: ReportStreamNavbarProps) {
     const defaultMenuItems = [
         <div className="primary-nav-link-container" key="developer-resources">
@@ -331,12 +332,86 @@ function ReportStreamNavbar({
             key="getting-started"
         />,
     ];
+
+    const menuItemsReceiver = [
+        <div className="primary-nav-link-container" key="daily">
+            <USSmartLink
+                className={primaryLinkClasses(!!useMatch("/daily-data/*"))}
+                href="/daily-data"
+            >
+                Daily Data
+            </USSmartLink>
+        </div>,
+    ];
+
+    const menuItemsSender = [
+        <div className="primary-nav-link-container" key="submissions">
+            <USSmartLink
+                className={primaryLinkClasses(!!useMatch("/submissions/*"))}
+                href="/submissions"
+            >
+                Submissions
+            </USSmartLink>
+        </div>,
+    ];
+
+    const menuItemsAdmin = [
+        <Dropdown
+            menuName="Admin"
+            dropdownList={[
+                <USSmartLink href="/admin/settings" key="settings">
+                    Organization Settings
+                </USSmartLink>,
+                <USSmartLink href="/admin/features" key="features">
+                    Feature Flags
+                </USSmartLink>,
+                <USSmartLink href="/admin/lastmile" key="lastmile">
+                    Last Mile Failures
+                </USSmartLink>,
+                <USSmartLink
+                    href="/admin/message-tracker"
+                    key="message-tracker"
+                >
+                    Message Id Search
+                </USSmartLink>,
+                <USSmartLink href="/admin/send-dash" key="send-dash">
+                    Receiver Status Dashboard
+                </USSmartLink>,
+                <USSmartLink href="/admin/value-sets" key="value-sets">
+                    Value Sets
+                </USSmartLink>,
+                <USSmartLink href="/file-handler/validate" key="validate">
+                    Validate
+                </USSmartLink>,
+            ]}
+            activeDropdown={activeDropdown}
+            setActiveDropdown={setActiveDropdown}
+            key="admin"
+        />,
+    ];
+
+    let menuItems = [
+        ...menuItemsAbout,
+        ...menuItemsGettingStarted,
+        ...defaultMenuItems,
+    ];
+
+    if (isMobileNavOpen) {
+        if (user.isUserSender || user.isUserTransceiver || user.isUserAdmin) {
+            menuItems = [...menuItems, ...menuItemsSender];
+        }
+
+        if (user.isUserReceiver || user.isUserTransceiver || user.isUserAdmin) {
+            menuItems = [...menuItems, ...menuItemsReceiver];
+        }
+
+        if (user.isAdminStrictCheck) {
+            menuItems = [...menuItems, ...menuItemsAdmin];
+        }
+    }
+
     const navbarItemBuilder = () => {
-        return [
-            ...menuItemsAbout,
-            ...menuItemsGettingStarted,
-            ...defaultMenuItems,
-        ];
+        return menuItems;
     };
 
     return (
@@ -433,23 +508,53 @@ const ReportStreamHeader = ({
                             <ReportStreamNavbar
                                 isMobileNavOpen={isMobileNavOpen}
                                 onToggleMobileNav={toggleMobileNav}
-                                user={user}
                                 activeMembership={activeMembership}
                                 logout={logout}
                                 activeDropdown={activeDropdown}
                                 setActiveDropdown={setActiveDropdown}
+                                user={user}
                             >
                                 <div className="nav-cta-container">
+                                    {user.claims && isMobileNavOpen && (
+                                        <>
+                                            <p className="nav-cta-username">
+                                                {user.claims.email ?? "Unknown"}
+                                            </p>
+                                            {user.isUserAdmin && (
+                                                <USLinkButton
+                                                    outline
+                                                    data-testid="org-settings"
+                                                    href="/admin/settings"
+                                                >
+                                                    {activeMembership?.parsedName ??
+                                                        " "}
+                                                    <Icon
+                                                        name="Loop"
+                                                        className="text-tbottom"
+                                                    />
+                                                </USLinkButton>
+                                            )}
+                                            <USLinkButton
+                                                id="logout"
+                                                type="button"
+                                                onClick={logout}
+                                            >
+                                                Logout
+                                            </USLinkButton>
+                                        </>
+                                    )}
                                     {!user.claims && (
                                         <USLinkButton outline href="/login">
                                             Login
                                         </USLinkButton>
                                     )}
-                                    <USLinkButton
-                                        href={site.forms.connectWithRS.url}
-                                    >
-                                        Contact us
-                                    </USLinkButton>
+                                    {!isMobileNavOpen && (
+                                        <USLinkButton
+                                            href={site.forms.connectWithRS.url}
+                                        >
+                                            Contact us
+                                        </USLinkButton>
+                                    )}
                                 </div>
                             </ReportStreamNavbar>
                         </Suspense>
