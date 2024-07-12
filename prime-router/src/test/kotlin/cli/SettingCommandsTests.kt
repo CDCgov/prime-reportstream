@@ -7,7 +7,16 @@ import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.ajalt.clikt.testing.test
 import com.github.ajalt.mordant.rendering.AnsiLevel
+import gov.cdc.prime.router.common.HttpClientUtils
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkAll
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
 
 class SettingCommandsTests {
@@ -15,6 +24,32 @@ class SettingCommandsTests {
     private val orgSettings = OrganizationSettings()
     private val senderSettings = SenderSettings()
     private val receiverSettings = ReceiverSettings()
+
+    @BeforeEach
+    fun setup() {
+        val httpResponse: HttpResponse = mockk(relaxed = true)
+        every { httpResponse.status } returns HttpStatusCode.OK
+        mockkObject(HttpClientUtils)
+        every {
+            // Note: IntelliJ might tell you HttpClientUtils is redundant here, it's not.
+            HttpClientUtils.putWithStringResponse(any(), any(), any(), any(), any(), any(), any(), any())
+        } returns Pair(
+            httpResponse,
+            "version"
+        )
+        every { HttpClientUtils.getWithStringResponse(any(), any(), any(), any(), any(), any()) } returns Pair(
+            httpResponse,
+            ""
+        )
+        mockkObject(CommandUtilities)
+        every { CommandUtilities.waitForApi(any(), any(), any(), any()) } returns Unit
+        every { CommandUtilities.isApiAvailable(any(), any()) } returns true
+    }
+
+    @AfterEach
+    fun teardown() {
+        unmockkAll()
+    }
 
     @Test
     fun `valid organization`() {
