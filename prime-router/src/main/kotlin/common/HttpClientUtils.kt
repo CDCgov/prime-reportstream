@@ -554,9 +554,8 @@ class HttpClientUtils {
                 if (accessToken != null) {
                     return getDefaultHttpClientWithAuth(accessToken)
                 } else {
-                    httpClient ?: {
-                        httpClient ?: HttpClient(Apache) {
-                            install(ContentNegotiation) {
+                    httpClient ?: HttpClient(Apache) {
+                        install(ContentNegotiation) {
                                 json(
                                     Json {
                                         prettyPrint = true
@@ -565,8 +564,8 @@ class HttpClientUtils {
                                     }
                                 )
                             }
-                            install(HttpTimeout)
-                            engine {
+                        install(HttpTimeout)
+                        engine {
                                 followRedirects = true
                                 socketTimeout = TIMEOUT
                                 connectTimeout = TIMEOUT
@@ -574,7 +573,8 @@ class HttpClientUtils {
                                 customizeClient {
                                 }
                             }
-                        }.also { httpClient = it }
+                    }.also {
+                        httpClient = it
                     }
                     return httpClient!!
                 }
@@ -608,8 +608,8 @@ class HttpClientUtils {
          * NEW auth token it expects to be there.
          */
         private fun getDefaultHttpClientWithAuth(accessToken: String): HttpClient {
-            // if no httpClientWithAuth exists, create it and keep the auth token hash
-            httpClientWithAuth?: {
+            if (accessTokenHash != accessToken.hashCode()) {
+                accessTokenHash = accessToken.hashCode()
                 httpClientWithAuth = HttpClient(Apache) {
                     // not using Bearer Auth handler due to refresh token behavior
                     defaultRequest {
@@ -634,22 +634,7 @@ class HttpClientUtils {
                         }
                     }
                 }
-                accessTokenHash = accessToken.hashCode();
             }
-            // at this point we are guaranteed to have an httpClientWithAuth obj and the hash of the auth token therein.
-            // if the hashes of the auth token don't match we create a copy of the existing httpClientWithAuth obj and
-            // update the auth token hash. this way we don't accidentally provide a caller with an httpClientWithAuth
-            // obj loaded with an auth token they didn't specify (and may not be authorized to use).
-            if (accessTokenHash != accessToken.hashCode()) {
-                httpClientWithAuth = httpClientWithAuth!!.config {
-                    //not using Bearer Auth handler due to refresh token behavior
-                    defaultRequest {
-                        header("Authorization", "Bearer $accessToken")
-                    }
-                }
-                accessTokenHash = accessToken.hashCode()
-            }
-
             return httpClientWithAuth!!
         }
     }
