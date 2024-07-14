@@ -225,7 +225,9 @@ class ReportFunction(
         workflowEngine.recordAction(actionHistory)
 
         check(actionHistory.action.actionId > 0)
-        val submission = SubmissionsFacade.instance.findDetailedSubmissionHistory(actionHistory.action)
+        val submission = workflowEngine.db.transactReturning { txn ->
+            SubmissionsFacade.instance.findDetailedSubmissionHistory(txn, null, actionHistory.action)
+        }
 
         val response = request.createResponseBuilder(httpStatus)
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
@@ -236,7 +238,7 @@ class ReportFunction(
             .header(
                 HttpHeaders.LOCATION,
                 request.uri.resolve(
-                    "/api/history/${sender.organizationName}/submissions/${actionHistory.action.actionId}"
+                    "/api/waters/report/${submission?.reportId}/history"
                 ).toString()
             )
             .build()

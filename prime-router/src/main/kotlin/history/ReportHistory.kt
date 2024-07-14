@@ -11,6 +11,7 @@ import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.ItemActionLogDetail
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -77,6 +78,12 @@ data class DetailedReport(
     val itemCountBeforeQualFilter: Int?,
     @JsonIgnore
     val receiverHasTransport: Boolean,
+    @JsonIgnore
+    val transportResult: String?,
+    @JsonIgnore
+    val downloadedBy: String?,
+    @JsonIgnore
+    val nextAction: TaskAction?,
 )
 
 /**
