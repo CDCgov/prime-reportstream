@@ -115,17 +115,8 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
     );
 };
 
-const DeliveriesFilterAndTable = ({
-    fetchResults,
-    filterManager,
-    services,
-    setService,
-}: {
-    fetchResults: ResultsFetcher<any>;
-    filterManager: FilterManager;
-    services: RSReceiver[];
-    setService?: Dispatch<SetStateAction<string>>;
-}) => {
+const DeliveriesFilterAndTable = ({ services }: { services: RSReceiver[] }) => {
+    const { fetchResults, filterManager, setService } = useOrgDeliveries();
     const { appInsights } = useAppInsightsContext();
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
     const pageSize = filterManager.pageSettings.size;
@@ -212,21 +203,13 @@ const DeliveriesFilterAndTable = ({
 export function DailyData() {
     const { isLoading, isDisabled, activeReceivers } =
         useOrganizationReceivers();
-    const { fetchResults, filterManager, setService } = useOrgDeliveries();
 
     if (isLoading) return <Spinner />;
 
     if (isDisabled) {
         return <AdminFetchAlert />;
     }
-    return (
-        <DeliveriesFilterAndTable
-            fetchResults={fetchResults}
-            filterManager={filterManager}
-            setService={setService}
-            services={activeReceivers}
-        />
-    );
+    return <DeliveriesFilterAndTable services={activeReceivers} />;
 }
 
 export default DailyData;

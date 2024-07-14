@@ -28,6 +28,11 @@ Deliveries API Endpoints
 * getDeliveryFacilities -> Retrieves a list of facilities who contributed to a report by a report id
 */
 export const deliveriesEndpoints: RSApiEndpoints = {
+    getDeliveriesHistory: new RSEndpoint({
+        path: "/v1/waters/org/:orgAndService/deliveries",
+        method: HTTPMethods.POST,
+        queryKey: "getDeliveriesHistory",
+    }),
     getOrgDeliveries: new RSEndpoint({
         path: "/waters/org/:orgAndService/deliveries",
         method: HTTPMethods.GET,
