@@ -1172,11 +1172,11 @@ class Server2ServerAuthTests : CoolTest() {
         )
         val orgEndpoint = "${environment.url}/api/settings/organizations"
 
-        val client = HttpClientUtils.createDefaultHttpClient(
+        val client = HttpClientUtils.getDefaultHttpClient(
             userToken
         )
 
-        val clientAdmin = HttpClientUtils.createDefaultHttpClient(
+        val clientAdmin = HttpClientUtils.getDefaultHttpClient(
             adminToken
         )
 
