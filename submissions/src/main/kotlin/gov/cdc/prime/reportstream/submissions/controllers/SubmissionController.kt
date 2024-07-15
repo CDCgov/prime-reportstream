@@ -42,20 +42,25 @@ class SubmissionController(
         val reportId = UUID.randomUUID()
         val reportReceivedTime = OffsetDateTime.now()
         val status = "Received"
+        logger.info("Received report submission: reportId=$reportId, contentType=$contentType, clientId=$clientId")
+
         try {
 
             val headerValidationResult = validateHeaders(clientId)
             if (headerValidationResult != null) {
+                logger.warn("Header validation failed: $headerValidationResult")
                 return headerValidationResult
             }
 
             // Convert data to ByteArray
             val dataByteArray = data.toByteArray()
+            logger.debug("Converted report data to ByteArray")
 
             // Upload to blob storage
             val blobContainerClient = blobServiceClient.getBlobContainerClient(containerName)
             val blobClient = blobContainerClient.getBlobClient(formBlobName(reportId, headers))
             blobClient.upload(dataByteArray.inputStream(), dataByteArray.size.toLong())
+            logger.info("Uploaded report to blob storage: blobUrl=${blobClient.blobUrl}")
 
             // Create the message for the queue
             val message = mapOf(
@@ -65,11 +70,13 @@ class SubmissionController(
             )
             val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
             val messageString = objectMapper.writeValueAsString(message)
+            logger.debug("Created message for queue")
 
             // Upload to Queue
             val queueClient = queueServiceClient.getQueueClient(queueName)
             queueClient.createIfNotExists()
             queueClient.sendMessage(messageString)
+            logger.info("Sent message to queue: queueName=$queueName")
 
             // Insert into Table
             // TableEntity() sets PartitionKey and RowKey. Both are required by azure and combine to create the PK
@@ -81,6 +88,7 @@ class SubmissionController(
                 "status" to status
             )
             tableClient.createEntity(tableEntity.setProperties(tableProperties))
+            logger.info("Inserted report into table storage: reportId=$reportId")
 
             // Create and publish custom event
             val reportReceivedEvent = ReportReceivedEvent(
@@ -93,6 +101,7 @@ class SubmissionController(
                 fileSize = headers["content-length"].toString(),
                 blobUrl = blobClient.blobUrl
             )
+            logger.debug("Created ReportReceivedEvent")
 
             // Log to Application Insights
             telemetryClient.trackEvent(
@@ -100,7 +109,7 @@ class SubmissionController(
                 mapOf("event" to objectMapper.writeValueAsString(reportReceivedEvent)),
                 null)
             telemetryClient.flush()
-            logger.info("Track ReportReceivedEvent")
+            logger.info("Tracked ReportReceivedEvent with Application Insights")
 
             val response =
                 CreationResponse(
@@ -108,9 +117,11 @@ class SubmissionController(
                     status,
                     OffsetDateTime.now(),
                 )
+            logger.info("Report submission successful: reportId=$reportId")
 
             return ResponseEntity(response, HttpStatus.CREATED)
         } catch (e: Exception) {
+            logger.error("Error during report submission: ${e.message}", e)
             return ResponseEntity("Internal Server Error: ${e.message}", HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
@@ -136,6 +147,7 @@ class SubmissionController(
     private fun validateHeaders(clientId: String?): ResponseEntity<String>? {
 
         if (clientId.isNullOrEmpty()) {
+            logger.warn("Missing required header: client_id")
             return ResponseEntity.badRequest().body("Missing required header: client_id.")
         }
         return null
