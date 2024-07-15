@@ -26,9 +26,6 @@ class AzureConfig {
     @Value("\${azure.storage.table-name}")
     private lateinit var tableName: String
 
-//    @Value("\${applicationinsights.connection-string}")
-//    private lateinit var applicationInsightsConnectionString: String
-
     @Bean
     fun blobServiceClient(): BlobServiceClient = BlobServiceClientBuilder()
             .connectionString(connectionString)
@@ -53,12 +50,6 @@ class AzureConfig {
 
     @Bean
     fun tableName(): String = tableName
-
-//    @Bean
-//    fun telemetryClient(): TelemetryClient {
-//        System.setProperty("APPLICATIONINSIGHTS_CONNECTION_STRING", applicationInsightsConnectionString)
-//        return TelemetryClient()
-//    }
 
     @Bean
     fun telemetryClient(): TelemetryClient {

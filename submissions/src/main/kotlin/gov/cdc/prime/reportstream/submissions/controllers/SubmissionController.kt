@@ -36,7 +36,7 @@ class SubmissionController(
     fun submitReport(
         @RequestHeader headers: Map<String, String>,
         @RequestHeader("Content-Type") contentType: String,
-        @RequestHeader("client_id") clientId: String,
+        @RequestHeader(value = "client_id", required = false) clientId: String?,
         @RequestBody data: String,
     ): ResponseEntity<*> {
         val reportId = UUID.randomUUID()
@@ -97,6 +97,7 @@ class SubmissionController(
                 parentReportId = reportId,
                 rootReportId = reportId,
                 headers = filterHeaders(headers),
+                sender = clientId!!,
                 senderIP = headers["x-azure-clientip"].toString(),
                 fileSize = headers["content-length"].toString(),
                 blobUrl = blobClient.blobUrl
