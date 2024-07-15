@@ -1511,25 +1511,29 @@ class Report : Logging {
             reportService: ReportService,
             metadata: Metadata? = null,
         ): String = if (header.receiver?.topic?.isSendOriginal == true) {
-                // the externalName of the root report should equal the submission payload name parameter
-                reportService.getRootReport(header.reportFile.reportId).externalName ?: formExternalFilename(
-                    header.reportFile.reportId,
-                    header.reportFile.schemaName,
-                    MimeFormat.valueOfIgnoreCase(header.reportFile.bodyFormat),
-                    header.reportFile.createdAt,
-                    metadata = metadata ?: Metadata.getInstance()
-                )
-            } else if (header.reportFile.externalName != null) {
-                header.reportFile.externalName
-            } else {
-                formExternalFilename(
-                    header.reportFile.reportId,
-                    header.reportFile.schemaName,
-                    MimeFormat.valueOfIgnoreCase(header.reportFile.bodyFormat),
-                    header.reportFile.createdAt,
-                    metadata = metadata ?: Metadata.getInstance()
-                )
-            }
+            // the externalName of the root report should equal the submission payload name parameter
+            reportService.getRootReport(header.reportFile.reportId).externalName ?: formExternalFilename(
+                header.reportFile.reportId,
+                header.reportFile.schemaName,
+                MimeFormat.valueOfIgnoreCase(header.reportFile.bodyFormat),
+                header.reportFile.createdAt,
+                metadata = metadata ?: Metadata.getInstance(),
+                translationConfig = header.receiver.translation,
+                nameFormat = header.receiver.translation.nameFormat
+            )
+        } else if (header.reportFile.externalName != null) {
+            header.reportFile.externalName
+        } else {
+            formExternalFilename(
+                header.reportFile.reportId,
+                header.reportFile.schemaName,
+                MimeFormat.valueOfIgnoreCase(header.reportFile.bodyFormat),
+                header.reportFile.createdAt,
+                metadata = metadata ?: Metadata.getInstance(),
+                translationConfig = header.receiver?.translation,
+                nameFormat = header.receiver?.translation?.nameFormat
+            )
+        }
 
         /**
          * Form external filename for a given [bodyUrl], [reportId], [schemaName], [format] and [createdAt].
@@ -1541,16 +1545,15 @@ class Report : Logging {
             format: MimeFormat,
             createdAt: OffsetDateTime,
             metadata: Metadata? = Metadata.getInstance(),
-            nameFormat: String = "standard",
+            nameFormat: String? = "standard",
             translationConfig: TranslatorConfiguration? = null,
         ): String {
             val nameSuffix = format.ext
+            val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val fileName = if (translationConfig == null) {
-                val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
                 "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}"
             } else {
-                val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-                metadata!!.fileNameTemplates[nameFormat.lowercase()].run {
+                metadata!!.fileNameTemplates[nameFormat?.lowercase()].run {
                     this?.getFileName(translationConfig, reportId)
                         ?: "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}"
                 }
