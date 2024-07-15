@@ -23,6 +23,9 @@
         "extension" : [ {
           "url" : "MSH.7",
           "valueString" : "20230816123358-0500"
+        }, {
+          "url" : "MSH.10",
+          "valueString" : "20230816123358"
         } ]
       } ],
       "eventCoding" : {

@@ -33,6 +33,10 @@
                 "valueString" : "20230506052916-0500"
               },
               {
+                "url" : "MSH.10",
+                "valueString" : "31808297"
+              },
+              {
                 "url" : "MSH.15",
                 "valueString" : "AL"
               },

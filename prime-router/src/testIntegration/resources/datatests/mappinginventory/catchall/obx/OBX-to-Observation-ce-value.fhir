@@ -31,6 +31,10 @@
               {
                 "url": "MSH.7",
                 "valueString": "20230501102531-0400"
+              },
+              {
+                "url": "MSH.10",
+                "valueString": "12345"
               }
             ]
           }

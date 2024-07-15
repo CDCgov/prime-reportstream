@@ -30,6 +30,9 @@
           "url" : "MSH.7",
           "valueString" : "20230405133610-0400"
         }, {
+          "url" : "MSH.10",
+          "valueString" : "24095_3015822725_04204575_5120"
+        }, {
           "url" : "MSH.15",
           "valueString" : "NE"
         }, {
