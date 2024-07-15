@@ -11,9 +11,9 @@ import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -106,7 +106,7 @@ class ValidateFunctionTests {
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
         // does not matter what type of Sender it is for this test
-        val sender = CovidSender("default", "simple_report", Sender.Format.CSV, schemaName = "one")
+        val sender = CovidSender("default", "simple_report", MimeFormat.CSV, schemaName = "one")
         val req = MockHttpRequestMessage("test")
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -202,7 +202,7 @@ class ValidateFunctionTests {
         // Setup
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val sender = CovidSender("Test Sender", "test", Sender.Format.CSV, schemaName = "one")
+        val sender = CovidSender("Test Sender", "test", MimeFormat.CSV, schemaName = "one")
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -232,7 +232,7 @@ class ValidateFunctionTests {
         // Setup
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val sender = CovidSender("Test Sender", "test", Sender.Format.CSV, schemaName = "one")
+        val sender = CovidSender("Test Sender", "test", MimeFormat.CSV, schemaName = "one")
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -296,7 +296,7 @@ class ValidateFunctionTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.CSV,
+            MimeFormat.CSV,
             schemaName = "one",
             allowDuplicates = false
         )
@@ -330,7 +330,7 @@ class ValidateFunctionTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.CSV,
+            MimeFormat.CSV,
             schemaName = "one",
             allowDuplicates = true
         )
@@ -375,7 +375,7 @@ class ValidateFunctionTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.CSV,
+            MimeFormat.CSV,
             schemaName = "one",
             allowDuplicates = true
         )
@@ -415,7 +415,7 @@ class ValidateFunctionTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.CSV,
+            MimeFormat.CSV,
             schemaName = "one",
             allowDuplicates = true
         )
@@ -478,7 +478,7 @@ class ValidateFunctionTests {
         val expectedSender = LegacyPipelineSender(
             "ValidationSender",
             "Internal",
-            Sender.Format.CSV,
+            MimeFormat.CSV,
             CustomerStatus.TESTING,
             "One",
             Topic.TEST

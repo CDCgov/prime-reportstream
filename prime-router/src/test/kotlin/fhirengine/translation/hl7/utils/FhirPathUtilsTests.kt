@@ -20,8 +20,14 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkClass
+import io.mockk.spyk
+import io.mockk.verify
+import org.apache.logging.log4j.kotlin.KotlinLogger
+import org.hl7.fhir.exceptions.PathEngineException
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DateType
@@ -32,10 +38,18 @@ import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.ServiceRequest
 import org.hl7.fhir.r4.model.TimeType
 import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
+import org.junit.jupiter.api.BeforeEach
 import java.util.Date
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 class FhirPathUtilsTests {
+
+    @BeforeEach
+    fun reset() {
+        clearAllMocks()
+    }
+
     @Test
     fun `test parse fhir path`() {
         // We can do some level of validation on a FHIR path string without an actual bundle
@@ -53,6 +67,9 @@ class FhirPathUtilsTests {
 
         // Empty string
         assertThat(FhirPathUtils.parsePath("")).isNull()
+
+        // Invalid fhir path syntax
+        assertFailsWith<FHIRLexerException> { FhirPathUtils.parsePath("Bundle.#*($&id.exists()") }
     }
 
     @Test
@@ -105,18 +122,81 @@ class FhirPathUtilsTests {
 
         var path = "Bundle.entry.resource.ofType(DiagnosticReport)[0]"
         val result = FhirPathUtils.evaluate(null, bundle, bundle, path)
-        assertThat(result).isNotEmpty()
         assertThat(result.size).isEqualTo(1)
         assertThat(result[0]).isInstanceOf(DiagnosticReport::class.java)
         assertThat((result[0] as DiagnosticReport).id).isEqualTo(diagReport.id)
 
-        // Bad extension names throw an out of bound exception (a bug in the library)
+        // Extension value does not exist
         path = "Bundle.extension('blah').value"
-        assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path))
         assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
 
         // Empty string
-        assertThat(FhirPathUtils.evaluate(null, bundle, bundle, "")).isEmpty()
+        path = ""
+        assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
+
+        // Invalid resource, throws uncaught PathEngineException
+        path = "Bundle.entry.resource.ofType(Messi)"
+        assertFailure { FhirPathUtils.evaluate(null, bundle, bundle, path) }.all {
+            hasClass(PathEngineException::class.java)
+        }
+    }
+
+    @Test
+    fun `test evaluate invalid extension exception`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val diagReport = DiagnosticReport()
+        diagReport.id = "ghi789"
+        val entry1 = Bundle.BundleEntryComponent()
+        entry1.resource = diagReport
+        bundle.addEntry(entry1)
+
+        val fhirPathUtils = spyk(FhirPathUtils)
+        val mockedLogger = mockk<KotlinLogger>()
+
+        every { fhirPathUtils.logger } returns mockedLogger
+        every { mockedLogger.error(any<String>()) } returns Unit
+        every { mockedLogger.trace(any<String>()) } returns Unit
+
+        // Extension provided with a non-string value, throws IndexOutOfBoundsException
+        val path = "Bundle.extension(blah).value"
+        assertThat(fhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
+
+        verify {
+            mockedLogger.error(
+                "java.lang.IndexOutOfBoundsException: " +
+                "FHIR path could not find a specified field in Bundle.extension(blah).value."
+            )
+        }
+    }
+
+    @Test
+    fun `test evaluate invalid fhirpath syntax exception`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val diagReport = DiagnosticReport()
+        diagReport.id = "ghi789"
+        val entry1 = Bundle.BundleEntryComponent()
+        entry1.resource = diagReport
+        bundle.addEntry(entry1)
+
+        val fhirPathUtils = spyk(FhirPathUtils)
+        val mockedLogger = mockk<KotlinLogger>()
+
+        every { fhirPathUtils.logger } returns mockedLogger
+        every { mockedLogger.error(any<String>()) } returns Unit
+        every { mockedLogger.trace(any<String>()) } returns Unit
+
+        // Invalid fhirpath syntax, throws FHIRLexerException
+        val path = "Bundle.#*($&id.exists()"
+        assertThat(fhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
+
+        verify {
+            mockedLogger.error(
+                "org.hl7.fhir.r4.utils.FHIRLexer\$FHIRLexerException: " +
+                    "Syntax error in FHIR Path Bundle.#*(\$&id.exists()."
+            )
+        }
     }
 
     @Test

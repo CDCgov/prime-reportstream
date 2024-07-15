@@ -1,0 +1,53 @@
+# Ochsner settings for Louisiana in staging
+#
+# To load the settings in staging, run:
+# ./prime login --env staging
+# ./prime multiple-settings set --env staging --input ./settings/STLTs/LA/la-ochsner.yml
+#
+# To add the sender key in staging:
+#  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "la-ochsner.*.report" --orgName la-ochsner --kid la-ochsner.etor-nbs-orders --doit
+#
+# To submit a result to la-ochsner, in staging:
+# Note: replace the TOKEN with the auth JWT and the path to the FHIR message to send
+# curl -H 'Authorization: Bearer TOKEN' -H 'Client: flexion.etor-service-sender' -H 'Content-Type: application/fhir+ndjson' --data-binary '@/path/to/oru.fhir' 'https://staging.prime.cdc.gov/api/waters'
+#
+# To submit an order from la-ochsner, in staging:
+# curl -H 'Authorization: Bearer TOKEN' -H 'Client: la-ochsner.etor-nbs-orders' -H 'Content-Type: application/hl7-v2' --data-binary '@/path/to/order.hl7' 'https://staging.prime.cdc.gov/api/waters'
+---
+- name: "la-ochsner"
+  description: "Ochsner - Louisiana"
+  jurisdiction: "STATE"
+  stateCode: "LA"
+  senders:
+    - name: "etor-nbs-orders"
+      organizationName: "la-ochsner"
+      topic: "etor-ti"
+      customerStatus: "active"
+      format: "HL7"
+  receivers:
+    - name: "etor-nbs-results"
+      organizationName: "la-ochsner"
+      topic: "etor-ti"
+      customerStatus: "active"
+      translation:
+        type: "HL7"
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        useBatchHeaders: false
+      jurisdictionalFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"  # ORU_R01
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"  # required to avoid looping issue with TI
+        # Pending: add filter(s) for routing
+      qualityFilter:
+        - "true"
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+      transport:
+        type: "SFTP"
+        host: "172.17.6.20"
+        port: 22
+        filePath: "./upload"
+        credentialName: null

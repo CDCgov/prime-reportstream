@@ -8,6 +8,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.matchesPredicate
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
@@ -157,7 +158,7 @@ class FHIRConverterIntegrationTests {
 
     // TODO https://github.com/CDCgov/prime-reportstream/issues/14256
     private fun setupConvertStep(
-        format: Report.Format,
+        format: MimeFormat,
         sender: Sender,
         receiveReportBlobUrl: String,
         itemCount: Int,
@@ -213,7 +214,7 @@ class FHIRConverterIntegrationTests {
             getBlobContainerMetadata()
         )
 
-        val receiveReport = setupConvertStep(Report.Format.HL7, hl7SenderWithNoTransform, receiveBlobUrl, 4)
+        val receiveReport = setupConvertStep(MimeFormat.HL7, hl7SenderWithNoTransform, receiveBlobUrl, 4)
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7SenderWithNoTransform)
         val fhirFunctions = createFHIRFunctionsInstance()
 
@@ -235,7 +236,7 @@ class FHIRConverterIntegrationTests {
                     val invalidHL7Result = CompareData().compare(
                         cleanHL7RecordConverted.byteInputStream(),
                         bytes.inputStream(),
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         null
                     )
                     invalidHL7Result.passed
@@ -243,7 +244,7 @@ class FHIRConverterIntegrationTests {
                     val cleanHL7Result = CompareData().compare(
                         invalidHL7RecordConverted.byteInputStream(),
                         bytes.inputStream(),
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         null
                     )
                     invalidHL7Result.passed || cleanHL7Result.passed
@@ -325,7 +326,7 @@ class FHIRConverterIntegrationTests {
         )
 
         val receiveReport = setupConvertStep(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             fhirSenderWithNoTransform, receiveBlobUrl, 4
         )
         val queueMessage = generateQueueMessage(
@@ -408,7 +409,7 @@ class FHIRConverterIntegrationTests {
             getBlobContainerMetadata()
         )
 
-        val receiveReport = setupConvertStep(Report.Format.HL7, senderWithValidation, receiveBlobUrl, 2)
+        val receiveReport = setupConvertStep(MimeFormat.HL7, senderWithValidation, receiveBlobUrl, 2)
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, senderWithValidation)
         val fhirFunctions = createFHIRFunctionsInstance()
 
@@ -430,7 +431,7 @@ class FHIRConverterIntegrationTests {
                     CompareData().compare(
                         validRadxMarsHL7MessageConverted.byteInputStream(),
                         bytes.inputStream(),
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         null
                     ).passed
                 }
@@ -477,7 +478,7 @@ class FHIRConverterIntegrationTests {
             getBlobContainerMetadata()
         )
 
-        val receiveReport = setupConvertStep(Report.Format.HL7, hl7Sender, receiveBlobUrl, 2)
+        val receiveReport = setupConvertStep(MimeFormat.HL7, hl7Sender, receiveBlobUrl, 2)
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7Sender)
         val fhirFunctions = createFHIRFunctionsInstance()
 
@@ -499,13 +500,13 @@ class FHIRConverterIntegrationTests {
                     val invalidHL7Result = CompareData().compare(
                         cleanHL7RecordConvertedAndTransformed.byteInputStream(),
                         bytes.inputStream(),
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         null
                     )
                     val cleanHL7Result = CompareData().compare(
                         invalidHL7RecordConvertedAndTransformed.byteInputStream(),
                         bytes.inputStream(),
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         null
                     )
                     invalidHL7Result.passed || cleanHL7Result.passed
@@ -546,7 +547,7 @@ class FHIRConverterIntegrationTests {
             getBlobContainerMetadata()
         )
 
-        val receiveReport = setupConvertStep(Report.Format.HL7, hl7Sender, receiveBlobUrl, 1)
+        val receiveReport = setupConvertStep(MimeFormat.HL7, hl7Sender, receiveBlobUrl, 1)
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7Sender)
         val fhirFunctions = createFHIRFunctionsInstance()
 

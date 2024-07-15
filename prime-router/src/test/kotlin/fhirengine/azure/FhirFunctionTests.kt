@@ -5,6 +5,7 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -76,7 +77,7 @@ class FhirFunctionTests {
                 jurisdictionalFilter = listOf("true"),
                 qualityFilter = listOf("true"),
                 processingModeFilter = listOf("true"),
-                format = Report.Format.HL7,
+                format = MimeFormat.HL7,
             )
         ),
     )
@@ -141,7 +142,7 @@ class FhirFunctionTests {
         every { queueMock.sendMessage(any(), any()) } returns Unit
 
         val report = Report(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             emptyList(),
             1,
             itemLineage = listOf(
@@ -226,7 +227,7 @@ class FhirFunctionTests {
         every { queueMock.sendMessage(any(), any()) } returns Unit
 
         val report = Report(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             emptyList(),
             1,
             itemLineage = listOf(
@@ -310,7 +311,7 @@ class FhirFunctionTests {
         every { actionHistory.action.sendingOrg } returns "Test Sender"
 
         val report = Report(
-            Report.Format.FHIR,
+            MimeFormat.FHIR,
             emptyList(),
             1,
             itemLineage = listOf(
