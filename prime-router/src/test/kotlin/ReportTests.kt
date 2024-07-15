@@ -1193,6 +1193,59 @@ class ReportTests {
 
         assertThat(Report.formExternalFilename(header, reportService, metadata)).isEqualTo(expectedFileName)
     }
+
+    @Test
+    fun `test formExternalFilename from header when receiver has a format specified`() {
+        val mockMetadata = mockk<Metadata>()
+        every { mockMetadata.fileNameTemplates } returns mapOf(
+            "aphl_light" to FileNameTemplate(
+            lowerCase = true,
+            elements = listOf(
+                "cdcprime_",
+                "receivingOrganization()",
+                "_",
+                "processingModeCode()",
+                "_",
+                "createdDate()"
+            )
+        )
+        )
+        val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+        val expectedReportId = UUID.randomUUID()
+        val expectedCreatedAtTime = OffsetDateTime.now()
+        val expectedSchemaName = "test-schema-name"
+        val expectedBodyFormat = "hl7"
+        val expectedFileName = "cdcprime_elr_production_${dateFormatter.format(expectedCreatedAtTime)}.hl7"
+        val reportUnderTest = ReportFile()
+        reportUnderTest.reportId = expectedReportId
+        reportUnderTest.schemaName = expectedSchemaName
+        reportUnderTest.bodyFormat = expectedBodyFormat
+        reportUnderTest.createdAt = expectedCreatedAtTime
+
+        val receiver = Receiver(
+            "test",
+            "ignore",
+            Topic.COVID_19,
+            translation = Hl7Configuration(
+                nameFormat = "APHL_LIGHT", receivingOrganization = "elr",
+                processingModeCode = "P", receivingApplicationName = null, receivingApplicationOID = null,
+                receivingFacilityName = null, receivingFacilityOID = null,
+                messageProfileId = null
+            )
+        )
+        val header = WorkflowEngine.Header(
+            Task(),
+            reportUnderTest,
+            null,
+            null,
+            receiver,
+            null,
+            null,
+            true
+        )
+
+        assertThat(Report.formExternalFilename(header, reportService, mockMetadata)).isEqualTo(expectedFileName)
+    }
 }
 
 class OptionTests {
