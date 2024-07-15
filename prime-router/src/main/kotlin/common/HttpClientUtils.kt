@@ -42,7 +42,7 @@ class HttpClientUtils {
         // return the existing object or return a new one. While the raw token is already in memory as a member of the
         // httpClientWithAuth object and the risk is very low we're using the hash for defense-in-depth purposes.
         @Volatile
-        private var accessTokenHash: Int = -1
+        private var accessTokenHash: Int = 0
 
         /**
          * timeout for http calls
@@ -50,6 +50,15 @@ class HttpClientUtils {
         private const val TIMEOUT = 50_000
         const val REQUEST_TIMEOUT_MILLIS: Long = 130000 // need to be public to be used by inline
         const val SETTINGS_REQUEST_TIMEOUT_MILLIS = 30000
+
+        /**
+         * resets client and token hash to default
+         */
+        private fun reset() {
+            httpClient = null
+            httpClientWithAuth = null
+            accessTokenHash = 0
+        }
 
         /**
          * GET (query resource) operation to the given endpoint resource [url]
