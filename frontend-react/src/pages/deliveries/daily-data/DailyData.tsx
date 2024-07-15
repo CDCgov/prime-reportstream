@@ -1,49 +1,42 @@
-import { Dispatch, FC, SetStateAction } from "react";
+import { Button, Pagination } from "@trussworks/react-uswds";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
 import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 import Spinner from "../../../components/Spinner";
-import { PaginationProps } from "../../../components/Table/Pagination";
-import Table, {
-    ColumnConfig,
-    TableConfig,
-} from "../../../components/Table/Table";
 import TableFilters, {
     TableFilterDateLabel,
 } from "../../../components/Table/TableFilters";
-import { RSDelivery } from "../../../config/endpoints/deliveries";
+import { USLink } from "../../../components/USLink";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import useSessionContext from "../../../contexts/Session/useSessionContext";
-import useOrgDeliveries, {
-    DeliveriesDataAttr,
-} from "../../../hooks/api/deliveries/UseOrgDeliveries/UseOrgDeliveries";
+import useDeliveriesHistory from "../../../hooks/api/deliveries/UseDeliveriesHistory/UseDeliveriesHistory";
+import { DeliveriesDataAttr } from "../../../hooks/api/deliveries/UseOrgDeliveries/UseOrgDeliveries";
 import useOrganizationReceivers from "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers";
-import { FilterManager } from "../../../hooks/filters/UseFilterManager/UseFilterManager";
+import { PageSettingsActionType } from "../../../hooks/filters/UsePages/UsePages";
+import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder/UseSortOrder";
 import useAppInsightsContext from "../../../hooks/UseAppInsightsContext/UseAppInsightsContext";
-import usePagination, {
-    ResultsFetcher,
-} from "../../../hooks/UsePagination/UsePagination";
+import Table from "../../../shared/Table/Table";
 import { EventName } from "../../../utils/AppInsights";
-import { isDateExpired } from "../../../utils/DateTimeUtils";
+import {
+    formatDateWithoutSeconds,
+    isDateExpired,
+} from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
 
-const extractCursor = (d: RSDelivery) => d.batchReadyAt;
-
-interface DeliveriesTableContentProps {
-    filterManager: FilterManager;
-    paginationProps?: PaginationProps;
-    isLoading: boolean;
-    serviceReportsList: RSDelivery[] | undefined;
-}
-
-const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
-    filterManager,
-    paginationProps,
-    isLoading,
-    serviceReportsList,
-}) => {
+const DeliveriesFilterAndTable = ({ services }: { services: RSReceiver[] }) => {
+    const {
+        data: results,
+        filterManager,
+        searchTerm,
+        setSearchTerm,
+        setService,
+        isLoading,
+    } = useDeliveriesHistory();
     const { authState, activeMembership } = useSessionContext();
+    const { appInsights } = useAppInsightsContext();
+    const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
+    const currentPageNum = filterManager.pageSettings.currentPage;
     const handleFetchAndDownload = (id: string) => {
         getReportAndDownload(
             id,
@@ -51,103 +44,6 @@ const DeliveriesTable: FC<DeliveriesTableContentProps> = ({
             activeMembership?.parsedName ?? "",
         );
     };
-    const transformDate = (s: string) => {
-        return new Date(s).toLocaleString();
-    };
-    const handleExpirationDate = (expiresDate: string) => {
-        return !isDateExpired(expiresDate);
-    };
-    const columns: ColumnConfig[] = [
-        {
-            dataAttr: DeliveriesDataAttr.REPORT_ID,
-            columnHeader: "Report ID",
-            feature: {
-                link: true,
-                linkBasePath: "/report-details/",
-            },
-        },
-        {
-            dataAttr: DeliveriesDataAttr.BATCH_READY,
-            columnHeader: "Time received",
-            sortable: true,
-            transform: transformDate,
-        },
-        {
-            dataAttr: DeliveriesDataAttr.EXPIRES,
-            columnHeader: "File available until",
-            sortable: true,
-            transform: transformDate,
-        },
-        {
-            dataAttr: DeliveriesDataAttr.ITEM_COUNT,
-            columnHeader: "Items",
-        },
-        {
-            dataAttr: DeliveriesDataAttr.FILE_NAME,
-            columnHeader: "Filename",
-            feature: {
-                action: handleFetchAndDownload,
-                param: DeliveriesDataAttr.REPORT_ID,
-                actionButtonHandler: handleExpirationDate,
-                actionButtonParam: DeliveriesDataAttr.EXPIRES,
-            },
-        },
-        {
-            dataAttr: DeliveriesDataAttr.RECEIVER,
-            columnHeader: "Receiver",
-        },
-    ];
-
-    const resultsTableConfig: TableConfig = {
-        columns: columns,
-        rows: serviceReportsList ?? [],
-    };
-
-    if (isLoading) return <Spinner />;
-    return (
-        <>
-            <Table
-                config={resultsTableConfig}
-                filterManager={filterManager}
-                paginationProps={paginationProps}
-            />
-        </>
-    );
-};
-
-const DeliveriesFilterAndTable = ({ services }: { services: RSReceiver[] }) => {
-    const { fetchResults, filterManager, setService } = useOrgDeliveries();
-    const { appInsights } = useAppInsightsContext();
-    const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
-    const pageSize = filterManager.pageSettings.size;
-    const sortOrder = filterManager.sortSettings.order;
-    const rangeTo = filterManager.rangeSettings.to;
-    const rangeFrom = filterManager.rangeSettings.from;
-
-    // The start cursor is the high value when results are in descending order
-    // and the low value when the results are in ascending order.
-    const startCursor = sortOrder === "DESC" ? rangeTo : rangeFrom;
-    const isCursorInclusive = sortOrder === "ASC";
-    const analyticsEventName = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_PAGINATION}`;
-
-    const {
-        currentPageResults: serviceReportsList,
-        paginationProps,
-        isLoading,
-        setSearchTerm,
-        searchTerm,
-    } = usePagination<RSDelivery>({
-        startCursor,
-        isCursorInclusive,
-        pageSize,
-        fetchResults,
-        extractCursor,
-        analyticsEventName,
-    });
-
-    if (paginationProps) {
-        paginationProps.label = "Pagination";
-    }
 
     const receiverDropdown = [
         ...new Set(
@@ -158,6 +54,80 @@ const DeliveriesFilterAndTable = ({ services }: { services: RSReceiver[] }) => {
     ].map((receiver) => {
         return { value: receiver, label: receiver };
     });
+
+    const onColumnCustomSort = (columnID: string) => {
+        filterManager?.updateSort({
+            type: SortSettingsActionType.CHANGE_COL,
+            payload: {
+                column: columnID,
+            },
+        });
+        filterManager?.updateSort({
+            type: SortSettingsActionType.SWAP_ORDER,
+        });
+    };
+
+    const data = results?.data.map((dataRow) => [
+        {
+            columnKey: DeliveriesDataAttr.REPORT_ID,
+            columnHeader: "Report ID",
+            content: (
+                <USLink href={`/report-details/${dataRow.reportId}`}>
+                    {dataRow.reportId}
+                </USLink>
+            ),
+        },
+        {
+            columnKey: DeliveriesDataAttr.BATCH_READY,
+            columnHeader: "Time received",
+            content: (
+                <p className="font-mono-2xs">
+                    {formatDateWithoutSeconds(dataRow.createdAt)}
+                </p>
+            ),
+            columnCustomSort: () =>
+                onColumnCustomSort(DeliveriesDataAttr.BATCH_READY),
+            columnCustomSortSettings: filterManager.sortSettings,
+        },
+        {
+            columnKey: DeliveriesDataAttr.EXPIRES,
+            columnHeader: "File available until",
+            content: (
+                <p className="font-mono-2xs">
+                    {formatDateWithoutSeconds(dataRow.expiresAt)}
+                </p>
+            ),
+            columnCustomSort: () =>
+                onColumnCustomSort(DeliveriesDataAttr.EXPIRES),
+            columnCustomSortSettings: filterManager.sortSettings,
+        },
+        {
+            columnKey: DeliveriesDataAttr.ITEM_COUNT,
+            columnHeader: "Items",
+            content: <p className="font-mono-2xs">{dataRow.reportItemCount}</p>,
+        },
+        {
+            columnKey: DeliveriesDataAttr.FILE_NAME,
+            columnHeader: "Filename",
+            content: isDateExpired(dataRow.expiresAt) ? (
+                <p>{dataRow.fileName}</p>
+            ) : (
+                <Button
+                    className="font-mono-2xs line-height-alt-4"
+                    type="button"
+                    unstyled
+                    onClick={() => handleFetchAndDownload(dataRow.reportId)}
+                >
+                    {dataRow.fileName}
+                </Button>
+            ),
+        },
+        {
+            columnKey: DeliveriesDataAttr.RECEIVER,
+            columnHeader: "Receiver",
+            content: dataRow.receiver,
+        },
+    ]);
 
     return (
         <>
@@ -181,20 +151,45 @@ const DeliveriesFilterAndTable = ({ services }: { services: RSReceiver[] }) => {
                         },
                     })
                 }
-                resultLength={paginationProps?.resultLength}
-                isPaginationLoading={paginationProps?.isPaginationLoading}
+                resultLength={results?.meta.totalFilteredCount}
+                isPaginationLoading={isLoading}
             />
             {services.length === 0 ? (
                 <div className="usa-section margin-bottom-5">
                     <NoServicesBanner />
                 </div>
             ) : (
-                <DeliveriesTable
-                    filterManager={filterManager}
-                    paginationProps={paginationProps}
-                    isLoading={isLoading}
-                    serviceReportsList={serviceReportsList}
-                />
+                <>
+                    <Table apiSortable borderless striped rowData={data} />
+                    {data?.length > 0 && (
+                        <Pagination
+                            currentPage={currentPageNum}
+                            pathname=""
+                            onClickPageNumber={(e) => {
+                                const pageNumValue = parseInt(
+                                    (e.target as HTMLElement).innerText,
+                                );
+                                filterManager.updatePage({
+                                    type: PageSettingsActionType.SET_PAGE,
+                                    payload: { page: pageNumValue },
+                                });
+                            }}
+                            onClickNext={() => {
+                                filterManager.updatePage({
+                                    type: PageSettingsActionType.SET_PAGE,
+                                    payload: { page: currentPageNum + 1 },
+                                });
+                            }}
+                            onClickPrevious={() => {
+                                filterManager.updatePage({
+                                    type: PageSettingsActionType.SET_PAGE,
+                                    payload: { page: currentPageNum - 1 },
+                                });
+                            }}
+                            maxSlots={results?.meta.totalPages}
+                        />
+                    )}
+                </>
             )}
         </>
     );

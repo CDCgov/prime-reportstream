@@ -1,9 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useCallback, useMemo } from "react";
-import {
-    deliveriesEndpoints,
-    RSDelivery,
-} from "../../../../config/endpoints/deliveries";
+import { useCallback, useMemo, useState } from "react";
+import { validate as uuidValidate } from "uuid";
+import { RSReceiverDeliveryResponse } from "../../../../config/endpoints/dataDashboard";
+import { deliveriesEndpoints } from "../../../../config/endpoints/deliveries";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 import useFilterManager, {
     FilterManagerDefaults,
@@ -44,15 +43,17 @@ const filterManagerDefaults: FilterManagerDefaults = {
 };
 
 const useDeliveriesHistory = (initialService?: string) => {
+    const [service, setService] = useState(initialService ?? "");
     const { activeMembership, authorizedFetch } = useSessionContext();
     const adminSafeOrgName = useAdminSafeOrganizationName(
         activeMembership?.parsedName,
     ); // "PrimeAdmins" -> "ignore"
     const orgAndService = useMemo(
-        () => `${adminSafeOrgName}.${initialService}`,
-        [adminSafeOrgName, initialService],
+        () =>
+            service ? `${adminSafeOrgName}.${service}` : `${adminSafeOrgName}`,
+        [adminSafeOrgName, service],
     );
-
+    const [searchTerm, setSearchTerm] = useState("");
     // Pagination and filter props
     const filterManager = useFilterManager(filterManagerDefaults);
     const sortColumn = filterManager.sortSettings.column;
@@ -63,8 +64,22 @@ const useDeliveriesHistory = (initialService?: string) => {
     const rangeFrom = filterManager.rangeSettings.from;
 
     const memoizedDataFetch = useCallback(() => {
+        // Search terms can either be fileName string or a UUID,
+        // and we need to know since we have to query the API by
+        // that specific query param. All reportId(s) are UUIDs, so
+        // if the searchTerm is a UUID, assume reportId, otherwise
+        // assume fileName
+        const searchParam = searchTerm
+            ? uuidValidate(searchTerm)
+                ? { reportId: searchTerm }
+                : { fileName: searchTerm }
+            : {};
+        const params = {
+            receivingOrgSvcStatus: "ACTIVE,TESTING",
+            ...searchParam,
+        };
         if (activeMembership?.parsedName) {
-            return authorizedFetch<RSDelivery[]>(
+            return authorizedFetch<RSReceiverDeliveryResponse>(
                 {
                     segments: { orgAndService },
                     data: {
@@ -84,6 +99,7 @@ const useDeliveriesHistory = (initialService?: string) => {
                             },
                         ],
                     },
+                    params,
                 },
                 getDeliveriesHistory,
             );
@@ -97,6 +113,7 @@ const useDeliveriesHistory = (initialService?: string) => {
         orgAndService,
         rangeFrom,
         rangeTo,
+        searchTerm,
         sortColumn,
         sortDirection,
     ]);
@@ -110,7 +127,14 @@ const useDeliveriesHistory = (initialService?: string) => {
         queryFn: memoizedDataFetch,
     });
 
-    return { data, filterManager, isLoading: false };
+    return {
+        data,
+        filterManager,
+        searchTerm,
+        setSearchTerm,
+        setService,
+        isLoading: false,
+    };
 };
 
 export default useDeliveriesHistory;
