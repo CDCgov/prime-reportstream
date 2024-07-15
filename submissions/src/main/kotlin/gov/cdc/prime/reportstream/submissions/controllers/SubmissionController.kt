@@ -10,6 +10,7 @@ import com.microsoft.applicationinsights.TelemetryClient
 import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
 import java.time.OffsetDateTime
 import java.util.UUID
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -25,9 +26,10 @@ class SubmissionController(
     private val queueServiceClient: QueueServiceClient,
     private val telemetryClient: TelemetryClient,
     private val tableClient: TableClient,
-    @Value("\${azure.storage.container-name}") private val containerName: String = "receive",
-    @Value("\${azure.storage.queue-name}") private val queueName: String = "elr-fhir-convert",
+    @Value("\${azure.storage.container-name}") private val containerName: String,
+    @Value("\${azure.storage.queue-name}") private val queueName: String,
 ) {
+    private val logger = LoggerFactory.getLogger(SubmissionController::class.java)
 
     // Use of consumes limits the options for Content-Type to only these values
     @PostMapping("/api/v1/reports", consumes = ["application/hl7-v2", "application/fhir+ndjson"])
@@ -41,6 +43,11 @@ class SubmissionController(
         val reportReceivedTime = OffsetDateTime.now()
         val status = "Received"
         try {
+
+            val headerValidationResult = validateHeaders(clientId)
+            if (headerValidationResult != null) {
+                return headerValidationResult
+            }
 
             // Convert data to ByteArray
             val dataByteArray = data.toByteArray()
@@ -93,6 +100,7 @@ class SubmissionController(
                 mapOf("event" to objectMapper.writeValueAsString(reportReceivedEvent)),
                 null)
             telemetryClient.flush()
+            logger.info("Track ReportReceivedEvent")
 
             val response =
                 CreationResponse(
@@ -123,6 +131,14 @@ class SubmissionController(
             else -> "receive/$senderName/$reportId"
                 // throw IllegalArgumentException("Unsupported content-type: $contentType")
         }
+    }
+
+    private fun validateHeaders(clientId: String?): ResponseEntity<String>? {
+
+        if (clientId.isNullOrEmpty()) {
+            return ResponseEntity.badRequest().body("Missing required header: client_id.")
+        }
+        return null
     }
 }
 
