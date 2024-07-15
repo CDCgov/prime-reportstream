@@ -14,6 +14,7 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import com.okta.jwt.JwtVerifiers
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.db.ReportFileApiSearch
@@ -386,7 +387,26 @@ open class BaseHistoryFunction : Logging {
                         }
                     )
                     .content(String(contents))
-                    .fileName(requestedReport.externalName)
+                    .fileName(
+                        if (requestedReport.externalName.isNullOrBlank()) {
+                            val receiver = workflowEngine
+                                .settings
+                                .findReceiver(
+                                    "${requestedReport.receivingOrg}.${requestedReport.receivingOrgSvc}"
+                                )
+                            Report.formExternalFilename(
+                                requestedReport.reportId,
+                                requestedReport.schemaName,
+                                MimeFormat.valueOf(requestedReport.bodyFormat),
+                                requestedReport.createdAt,
+                                workflowEngine.metadata,
+                                receiver?.translation?.nameFormat,
+                                receiver?.translation
+                            )
+                        } else {
+                            requestedReport.externalName
+                        }
+                    )
                     .mimeType(mimeType)
                     .build()
 

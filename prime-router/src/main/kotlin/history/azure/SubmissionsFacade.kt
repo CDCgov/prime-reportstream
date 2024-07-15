@@ -1,14 +1,19 @@
 package gov.cdc.prime.router.history.azure
 
 import com.microsoft.azure.functions.HttpRequestMessage
+import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.history.DetailedActionLog
+import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.SubmissionHistory
+import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -18,7 +23,8 @@ import java.util.UUID
  */
 class SubmissionsFacade(
     private val dbSubmissionAccess: HistoryDatabaseAccess = DatabaseSubmissionsAccess(),
-    dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
+    val dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
+    private val reportGraph: ReportGraph = ReportGraph(),
 ) : ReportFileFacade(
     dbAccess,
 ) {
@@ -116,30 +122,56 @@ class SubmissionsFacade(
      * @return Report details
      */
     fun findDetailedSubmissionHistory(
+        txn: DataAccessTransaction,
+        reportId: UUID?,
         action: Action,
     ): DetailedSubmissionHistory? {
-        // This assumes that ReportFileFunction.authSingleBlocks has already run, and has checked that the
-        // sendingOrg is good.  If that assumption is incorrect, die here.
-        assert(action.sendingOrg != null && action.actionName == TaskAction.receive)
-        val submission = dbSubmissionAccess.fetchAction(
-            action.actionId,
-            action.sendingOrg,
-            DetailedSubmissionHistory::class.java
-        )
-        submission?.actionsPerformed?.add(action.actionName)
-
-        // Submissions with a report ID (means had no errors) can have a lineage
-        submission?.reportId?.let {
-            val relatedSubmissions = dbSubmissionAccess.fetchRelatedActions(
-                UUID.fromString(it),
+        if (reportId == null) {
+            return dbSubmissionAccess.fetchAction(
+                action.actionId,
+                action.sendingOrg,
                 DetailedSubmissionHistory::class.java
             )
-            submission.enrichWithDescendants(relatedSubmissions)
         }
+        val graph = reportGraph.getDescendantReports(txn, reportId)
+        val detailedReports = graph.map { reportFile ->
+            DetailedReport(
+                reportFile.reportId,
+                reportFile.receivingOrg,
+                reportFile.receivingOrgSvc,
+                reportFile.sendingOrg,
+                reportFile.sendingOrgClient,
+                reportFile.schemaTopic,
+                reportFile.externalName,
+                reportFile.createdAt,
+                reportFile.nextActionAt,
+                reportFile.itemCount,
+                reportFile.itemCountBeforeQualFilter,
+                reportFile.transportResult != null,
+                reportFile.transportResult,
+                reportFile.downloadedBy,
+                reportFile.nextAction
+            )
+        }.toMutableList()
+        val reportIds = graph.map { it.reportId }
+        val logs = DSL
+            .using(txn)
+            .select()
+            .from(Tables.ACTION_LOG)
+            .where(Tables.ACTION_LOG.REPORT_ID.`in`(reportIds))
+            .fetchInto(DetailedActionLog::class.java)
+        val history =
+            DetailedSubmissionHistory(
+                action.actionId,
+                action.actionName,
+                action.createdAt,
+                httpStatus = action.httpStatus,
+                logs = logs,
+                reports = detailedReports
 
-        submission?.enrichWithSummary()
-
-        return submission
+            )
+        history.enrichWithSummary()
+        return history
     }
 
     /**
