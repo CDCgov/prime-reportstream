@@ -15,13 +15,14 @@ import kotlin.collections.Map
 class MockHttpResponseMessage : HttpResponseMessage.Builder, HttpResponseMessage {
     var httpStatus: HttpStatusType = HttpStatus.OK
     var content: Any? = null
+    var headers: MutableMap<String, String> = mutableMapOf()
 
     override fun getStatus(): HttpStatusType {
         return this.httpStatus
     }
 
     override fun getHeader(var1: String): String {
-        return "world"
+        return headers.getOrDefault(var1, "world")
     }
 
     override fun getBody(): Any? {
@@ -34,6 +35,7 @@ class MockHttpResponseMessage : HttpResponseMessage.Builder, HttpResponseMessage
     }
 
     override fun header(key: String, value: String): HttpResponseMessage.Builder {
+        headers[key] = value
         return this
     }
 
