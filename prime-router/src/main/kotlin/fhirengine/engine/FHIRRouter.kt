@@ -50,7 +50,7 @@ import org.hl7.fhir.r4.model.Observation
 import org.jooq.Field
 import java.time.OffsetDateTime
 
-// TODO: deprecated (see https://github.com/CDCgov/prime-reportstream/issues/15039)
+// TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
 /**
  * [metadata] mockable metadata
  * [settings] mockable settings

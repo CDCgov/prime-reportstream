@@ -45,7 +45,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
 
-// TODO: deprecated (see https://github.com/CDCgov/prime-reportstream/issues/15039)
+// TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
 class FhirFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
@@ -194,7 +194,7 @@ class FhirFunctionTests {
         }
     }
 
-    // TODO: deprecated (see https://github.com/CDCgov/prime-reportstream/issues/15039)
+    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     // test route-fhir
     @Test
     fun `test route-fhir`() {

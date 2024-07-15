@@ -228,7 +228,7 @@ NTE|1|L|Note
 OBX|2|NM|35659-2^Age at specimen collection^LN^^^^2.71||24|a^year^UCUM^^^^2.1|||||F||||00Z0000042||||||||SA.OTCSelfReport^^^^^&2.16.840.1.113883.3.8589.4.1.152&ISO^XX^^^00Z0000042||||||QST
 SPM|1|^dba7572cc6334f1ea0744c5f235c823e&MMTC.PROD&2.16.840.1.113883.3.8589.4.2.106.1&ISO||697989009^Anterior nares swab^SCT^^^^20200901|||||||||||||20240403120000-0400|20240403120000-0400"""
 
-// TODO: deprecated (see https://github.com/CDCgov/prime-reportstream/issues/15039)
+// TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
 class FhirFunctionIntegrationTests() {
@@ -1400,7 +1400,7 @@ class FhirFunctionIntegrationTests() {
         }
     }
 
-    // TODO: deprecated (see https://github.com/CDCgov/prime-reportstream/issues/15039)
+    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     @Test
     fun `test successfully processes a route message`() {
         val report = seedTask(

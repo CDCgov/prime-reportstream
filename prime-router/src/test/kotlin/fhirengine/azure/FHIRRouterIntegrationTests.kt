@@ -74,7 +74,7 @@ private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/valid_d
 private const val MULTIPLE_OBSERVATIONS_FHIR_URL =
     "src/test/resources/fhirengine/engine/bundle_multiple_observations.fhir"
 
-// TODO: deprecated (see https://github.com/CDCgov/prime-reportstream/issues/15039)
+// TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
 class FHIRRouterIntegrationTests : Logging {

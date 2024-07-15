@@ -287,7 +287,7 @@ object UniversalPipelineTestUtils {
         return reportFiles
     }
 
-    // TODO: deprecated (see https://github.com/CDCgov/prime-reportstream/issues/15039)
+    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     fun verifyLineageAndFetchCreatedReportFiles(
         previousStepReport: Report,
         expectedRootReport: Report,

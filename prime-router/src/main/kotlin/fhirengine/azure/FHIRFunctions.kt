@@ -71,7 +71,7 @@ class FHIRFunctions(
         }
     }
 
-    // TODO: deprecated (see https://github.com/CDCgov/prime-reportstream/issues/15039)
+    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     /**
      * An azure function for routing full-ELR FHIR data.
      */
@@ -86,7 +86,7 @@ class FHIRFunctions(
         doRoute(message, dequeueCount, FHIRRouter())
     }
 
-    // TODO: deprecated (see https://github.com/CDCgov/prime-reportstream/issues/15039)
+    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     /**
      * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
      * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error

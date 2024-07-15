@@ -29,8 +29,8 @@ All filters for receivers and organizations can be created/updated/deleted via t
 2. Use the following commands to load the information from the .yml files into the staging database. First obtain a
    login token for staging
 
-`./prime login –env staging`
+`./prime login -–env staging`
 
 Next update the staging DB
 
-`./prime multiple-settings set –env staging –input <file-location>`
+`./prime multiple-settings set –-env staging -–input <file-location>`
