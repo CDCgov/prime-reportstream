@@ -31,6 +31,7 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.config.validation.ConfigurationType
+import gov.cdc.prime.router.config.validation.ConfigurationValidationServiceImpl
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.lastModified
 import org.json.JSONArray
@@ -659,7 +660,11 @@ abstract class PutSettingCommand(
                 confirm("Proceed anyway?")
                 echo(yellow("${inputFile.name} will not be validated."))
             } else {
-                ValidateUtilities.validateFiles(listOf(inputFile), ConfigurationType.Organizations, ::echo)
+                ValidateUtilities(ConfigurationValidationServiceImpl()).validateFiles(
+                    listOf(inputFile),
+                    ConfigurationType.Organizations,
+                    ::echo
+                )
             }
         }
         checkApi(environment)
@@ -910,7 +915,11 @@ class PutMultipleSettings : SettingCommand(
 
     override fun run() {
         if (!skipValidation) {
-            ValidateUtilities.validateFiles(listOf(inputFile), ConfigurationType.Organizations, ::echo)
+            ValidateUtilities(ConfigurationValidationServiceImpl()).validateFiles(
+                listOf(inputFile),
+                ConfigurationType.Organizations,
+                ::echo
+            )
         } else {
             echo(yellow("${inputFile.name} will not be validated."))
         }

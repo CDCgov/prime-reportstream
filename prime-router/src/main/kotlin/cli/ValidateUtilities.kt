@@ -7,12 +7,10 @@ import gov.cdc.prime.router.config.validation.ConfigurationType
 import gov.cdc.prime.router.config.validation.ConfigurationValidationFailure
 import gov.cdc.prime.router.config.validation.ConfigurationValidationResult
 import gov.cdc.prime.router.config.validation.ConfigurationValidationService
-import gov.cdc.prime.router.config.validation.ConfigurationValidationServiceImpl
 import gov.cdc.prime.router.config.validation.ConfigurationValidationSuccess
 import java.io.File
 
-object ValidateUtilities {
-    val service: ConfigurationValidationService = ConfigurationValidationServiceImpl()
+class ValidateUtilities(val service: ConfigurationValidationService) {
 
     fun validateFiles(
         files: List<File>,

@@ -95,7 +95,7 @@ class ValidateYAMLCommand : CliktCommand(
             throw CliktError()
         }
 
-        ValidateUtilities.validateFiles(filteredFiles, type, ::echo)
+        ValidateUtilities(ConfigurationValidationServiceImpl()).validateFiles(filteredFiles, type, ::echo)
     }
 
     private fun isFileInDirectory(file: File, directories: List<File>): Boolean {
