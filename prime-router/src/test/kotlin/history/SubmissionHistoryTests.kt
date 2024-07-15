@@ -444,7 +444,7 @@ class SubmissionHistoryTests {
 
         val refUUID = UUID.randomUUID()
 
-        var reports = listOf(
+        val reports = listOf(
             inputReport,
             DetailedReport(
                 refUUID, "recvOrg1",
@@ -602,7 +602,7 @@ class SubmissionHistoryTests {
         // received: no destinations have been calculated yet
         val noDestinationsCalculatedYet = emptyList<DetailedReport>().toMutableList()
         val testReceivedButNoDestinationsYet = DetailedSubmissionHistory(
-            1, TaskAction.route, OffsetDateTime.now(),
+            1, TaskAction.destination_filter, OffsetDateTime.now(),
             HttpStatus.OK.value(), noDestinationsCalculatedYet, logs = emptyList()
         )
         testReceivedButNoDestinationsYet.enrichWithSummary()
@@ -649,7 +649,7 @@ class SubmissionHistoryTests {
             ),
         ).toMutableList()
         val testReceivedOneFilteredDestination = DetailedSubmissionHistory(
-            1, TaskAction.route, OffsetDateTime.now(),
+            1, TaskAction.destination_filter, OffsetDateTime.now(),
             HttpStatus.OK.value(), oneFilteredDestinationCalculated, logs = emptyList()
         )
         testReceivedOneFilteredDestination.enrichWithSummary()
@@ -679,7 +679,7 @@ class SubmissionHistoryTests {
         ).toMutableList()
         val testReceivedNoDestination = DetailedSubmissionHistory(
             1,
-            TaskAction.route,
+            TaskAction.destination_filter,
             OffsetDateTime.now(),
             HttpStatus.OK.value(),
             reports,
@@ -731,7 +731,7 @@ class SubmissionHistoryTests {
         ).toMutableList()
         val testReceivedNoDestination = DetailedSubmissionHistory(
             1,
-            TaskAction.route,
+            TaskAction.destination_filter,
             OffsetDateTime.now(),
             HttpStatus.OK.value(),
             reports,
@@ -803,7 +803,7 @@ class SubmissionHistoryTests {
             ),
         ).toMutableList()
         val testReceivedOneUnfilteredDestination = DetailedSubmissionHistory(
-            1, TaskAction.route, OffsetDateTime.now(),
+            1, TaskAction.destination_filter, OffsetDateTime.now(),
             HttpStatus.OK.value(), oneUnfilteredDestinationCalculated, logs = emptyList()
         )
         testReceivedOneUnfilteredDestination.enrichWithSummary()
