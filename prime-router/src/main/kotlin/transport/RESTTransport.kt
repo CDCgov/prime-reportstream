@@ -635,25 +635,17 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                                 boundary
                             )
                         }
-                        "elims/params" -> {
-                            MultiPartFormDataContent(
-                                formData {
-                                    append("System_ID", headers["System_ID"] ?: "")
-                                    append("Key", headers["Key"] ?: "")
-                                    append("DateReceived", reportCreateDate.toString())
-                                    append("FileName", "filename=\"${fileName}\"")
-                                    append(
-                                        "Message",
-                                        message,
-                                        Headers.build {
-                                            append(HttpHeaders.ContentType, "text/plain")
-                                            append(HttpHeaders.ContentDisposition, "filename=\"${fileName}\"")
-                                        }
-                                    )
-                                    append("Comment", "")
-                                },
-                                boundary
-                            )
+                        "elims/json" -> {
+                            contentType(ContentType.Application.Json)
+                            val body = JSONObject()
+                            body.put("System_ID", headers["System_ID"] ?: "")
+                            body.put("Key", headers["Key"] ?: "")
+                            body.put("DateReceived", reportCreateDate.toString())
+                            body.put("FileName", fileName)
+                            // This encodes "\" character as "\\", needed for Hl7 to be read as valid JSON
+                            body.put("Message", message.toString(Charsets.UTF_8))
+                            body.put("Comment", "")
+                            body.toString()
                         }
                         else -> {
                             // Note: It is here for default content-type.  It is used for integration test
