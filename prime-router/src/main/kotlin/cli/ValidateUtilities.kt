@@ -10,8 +10,15 @@ import gov.cdc.prime.router.config.validation.ConfigurationValidationService
 import gov.cdc.prime.router.config.validation.ConfigurationValidationSuccess
 import java.io.File
 
+/**
+ * Shared functionality for validating Configuration files through PrimeCLI
+ */
 class ValidateUtilities(val service: ConfigurationValidationService) {
 
+    /**
+     * Validates [files] of [type] and uses [echo] to output information on the result. Will throw a [CliktError]
+     * on validation failure.
+     */
     fun validateFiles(
         files: List<File>,
         type: ConfigurationType<*>,
@@ -28,6 +35,9 @@ class ValidateUtilities(val service: ConfigurationValidationService) {
         echo(green("\n${files.size} YAML files validated!"), true, false)
     }
 
+    /**
+     * Uses [echo] to output the [result] of validation of the [file].
+     */
     private fun printResult(
         file: File,
         result: ConfigurationValidationResult<*>,
@@ -51,6 +61,9 @@ class ValidateUtilities(val service: ConfigurationValidationService) {
         }
     }
 
+    /**
+     * Returns whether the [result] is a [ConfigurationValidationFailure] or not.
+     */
     private fun isFailure(result: ConfigurationValidationResult<*>): Boolean {
         return result is ConfigurationValidationFailure
     }
