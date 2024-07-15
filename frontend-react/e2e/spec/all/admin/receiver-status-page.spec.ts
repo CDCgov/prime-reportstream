@@ -119,6 +119,7 @@ test.describe("Admin Receiver Status Page", () => {
                             );
                             await expect(modalOverlay).toBeHidden();
                         });
+
                         test("receiver name", async ({
                             adminReceiverStatusPage,
                         }) => {
@@ -144,6 +145,7 @@ test.describe("Admin Receiver Status Page", () => {
                                 expectedTooltipText,
                             );
                         });
+
                         test("results message", async ({
                             adminReceiverStatusPage,
                         }) => {
@@ -169,6 +171,7 @@ test.describe("Admin Receiver Status Page", () => {
                                 expectedTooltipText,
                             );
                         });
+
                         test("success type", async ({
                             adminReceiverStatusPage,
                         }) => {
