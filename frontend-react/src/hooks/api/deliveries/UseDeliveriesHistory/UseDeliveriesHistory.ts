@@ -1,8 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { validate as uuidValidate } from "uuid";
-import { RSReceiverDeliveryResponse } from "../../../../config/endpoints/dataDashboard";
-import { deliveriesEndpoints } from "../../../../config/endpoints/deliveries";
+import {
+    deliveriesEndpoints,
+    RSDeliveryHistoryResponse,
+} from "../../../../config/endpoints/deliveries";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 import useFilterManager, {
     FilterManagerDefaults,
@@ -79,7 +81,7 @@ const useDeliveriesHistory = (initialService?: string) => {
             ...searchParam,
         };
         if (activeMembership?.parsedName) {
-            return authorizedFetch<RSReceiverDeliveryResponse>(
+            return authorizedFetch<RSDeliveryHistoryResponse>(
                 {
                     segments: { orgAndService },
                     data: {

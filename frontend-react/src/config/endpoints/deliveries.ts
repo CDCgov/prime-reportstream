@@ -20,6 +20,32 @@ export interface RSFacility {
     total: number | undefined;
 }
 
+export interface RSDeliveryHistoryMeta {
+    totalCount: number; // The total number of results before applying the filters
+    totalFilteredCount: number; // The total number of results after applying the filters
+    totalPages: number; // The number of pages for the results
+    nextPage: number; // The next page of results (optional)
+    previousPage: number; // The previous page of results (optional)
+}
+
+export interface RSDeliveryHistory {
+    deliveryId: string; // The delivery ID in the report
+    createdAt: string; // When the report was sent, in date-time format
+    expiresAt: string; // When the report will no longer be available, in date-time format
+    receiver: string; // The name of the organization receiving the report and the service used by the organization
+    receivingOrgSvcStatus: string; // Customer status of the service used by the organization
+    reportId: string; // The ID for the sent report, in UUID format
+    topic: string; // The schema topic (e.g., COVID-19, Flu)
+    reportItemCount: string; // The total number of reports sent by the submitter
+    fileName: string; // The filename for the delivered report
+    fileType: string; // The format in which the report was originally sent
+}
+
+export interface RSDeliveryHistoryResponse {
+    meta: RSDeliveryHistoryMeta;
+    data: RSDeliveryHistory[];
+}
+
 /*
 Deliveries API Endpoints
 
