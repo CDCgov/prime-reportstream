@@ -5,10 +5,10 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.DataAccessTransaction
@@ -144,7 +144,7 @@ object UniversalPipelineTestUtils {
     val hl7Sender = UniversalPipelineSender(
         "elr-hl7-sender",
         "phd",
-        Sender.Format.HL7,
+        MimeFormat.HL7,
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
         schemaName = "classpath:/metadata/fhir_transforms/senders/test-sender-transform.yml"
@@ -152,7 +152,7 @@ object UniversalPipelineTestUtils {
     val fhirSender = UniversalPipelineSender(
         "elr-fhir-sender",
         "phd",
-        Sender.Format.FHIR,
+        MimeFormat.FHIR,
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
         schemaName = "classpath:/metadata/fhir_transforms/senders/test-sender-transform.yml"
@@ -160,21 +160,21 @@ object UniversalPipelineTestUtils {
     val hl7SenderWithNoTransform = UniversalPipelineSender(
         "hl7-elr-no-transform",
         "phd",
-        Sender.Format.HL7,
+        MimeFormat.HL7,
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
     )
     val fhirSenderWithNoTransform = UniversalPipelineSender(
         "fhir-elr-no-transform",
         "phd",
-        Sender.Format.HL7,
+        MimeFormat.HL7,
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
     )
     val senderWithValidation = UniversalPipelineSender(
         "marsotc-hl7-sender",
         "phd",
-        Sender.Format.HL7,
+        MimeFormat.HL7,
         CustomerStatus.ACTIVE,
         topic = Topic.MARS_OTC_ELR,
     )
@@ -206,7 +206,7 @@ object UniversalPipelineTestUtils {
                 jurisdictionalFilter = listOf("true"),
                 qualityFilter = listOf("true"),
                 processingModeFilter = listOf("true"),
-                format = Report.Format.HL7,
+                format = MimeFormat.HL7,
             )
         ),
     )
@@ -227,7 +227,19 @@ object UniversalPipelineTestUtils {
             .fetchInto(gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage::class.java)
         assertThat(itemLineages).hasSize(expectedNumberOfItems)
         assertThat(itemLineages.map { it.childIndex }).isEqualTo(MutableList(expectedNumberOfItems) { 1 })
-        assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expectedNumberOfItems).toList())
+
+        // if the previousStepReport had multiple items, then the parent indexes will be a list of numbers
+        // starting at "1" and ascending by one for every item. if the previousStepReport had one item but
+        // that item goes to multiple places then the parent index will always be "1".
+        // for example - the result of the "convert" step will fall into the if block. The result of a "route"
+        // step will fall into the "else" block because the preceding "convert" step will always create
+        // reports with one and only one item to be routed.
+        if (previousStepReport.itemCount > 1) {
+            assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expectedNumberOfItems).toList())
+        } else {
+            assertThat(itemLineages.map { it.parentIndex }).isEqualTo(MutableList(expectedNumberOfItems) { 1 })
+        }
+
         val reportLineages = DSL
             .using(txn)
             .select(ReportLineage.REPORT_LINEAGE.asterisk())
@@ -249,8 +261,8 @@ object UniversalPipelineTestUtils {
             )
             .fetchInto(ReportFile::class.java)
         assertThat(reportFiles).hasSize(expectedNumberOfItems)
-        assertThat(itemLineages).transform { lineages -> lineages.map { it.childReportId } }
-            .isEqualTo(reportFiles.map { it.reportId })
+        assertThat(itemLineages).transform { lineages -> lineages.map { it.childReportId }.sorted() }
+            .isEqualTo(reportFiles.map { it.reportId }.sorted())
         childReportIds.forEach {
             val rootReport = reportService.getRootReport(it)
             assertThat(rootReport.reportId).isEqualTo(expectedRootReport.id)

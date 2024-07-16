@@ -39,13 +39,12 @@ runs:
         distribution: "temurin"
         cache: "gradle"
 
+    - uses: gradle/actions/wrapper-validation@dbbdc275be76ac10734476cc723d82dfe7ec6eda
+
     - name: Lint
       if: inputs.run-integration-tests == 'true'
-      working-directory: prime-router
-      run: ./gradlew ktlintCheck
+      run: ./gradlew :prime-router:ktlintCheck
       shell: bash
-
-    - uses: gradle/actions/wrapper-validation@db19848a5fa7950289d3668fb053140cf3028d43
 
     - name: Spin up build containers
       working-directory: prime-router
@@ -59,8 +58,7 @@ runs:
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
-          cd prime-router
-          ./gradlew package -x fatjar -Pshowtests
+          ./gradlew :prime-router:package -x fatjar -Pshowtests
         shell: bash
 
     - name: Tar router files
@@ -102,7 +100,7 @@ runs:
         shell: bash
 
     - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action/linux@30eadd5010312f995f0d3b3cff7fe2984f69409e
+      uses: EnricoMi/publish-unit-test-result-action/linux@567cc7f8dcea3eba5da355f6ebc95663310d8a07
       if: >
         always() &&
         github.event.sender.login != 'dependabot[bot]' &&
@@ -141,21 +139,19 @@ runs:
 
     - name: Load the configuration
       if: inputs.run-integration-tests == 'true'
-      working-directory: prime-router
       run: |
-        ./gradlew reloadTables
-        ./gradlew reloadSettings
+        ./gradlew :prime-router:reloadTables
+        ./gradlew :prime-router:reloadSettings
       shell: bash
 
     # Integrations tests require the metadata catalog
     - name: Run Integration Tests
       if: inputs.run-integration-tests == 'true'
-      working-directory: prime-router
-      run: ./gradlew testIntegration -Pshowtests
+      run: ./gradlew :prime-router:testIntegration -Pshowtests
       shell: bash
 
     - name: Publish Integration Test Results
-      uses: EnricoMi/publish-unit-test-result-action/linux@30eadd5010312f995f0d3b3cff7fe2984f69409e
+      uses: EnricoMi/publish-unit-test-result-action/linux@567cc7f8dcea3eba5da355f6ebc95663310d8a07
       if: >
         always() &&
         github.event.sender.login != 'dependabot[bot]' &&
@@ -180,10 +176,8 @@ runs:
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
-          cd prime-router
-          export $(xargs < .vault/env/.env.local)
-          ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
-          ./gradlew testSmoke
+          ./gradlew :prime-router:reloadCredentials
+          ./gradlew :prime-router:testSmoke
         shell: bash
 
     - name: Dump docker logs
@@ -200,7 +194,7 @@ runs:
 
     - name: Upload Artifact
       if: inputs.upload-build == 'true'
-      uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+      uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router/prime-router-build.tar.gz

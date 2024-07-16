@@ -16,11 +16,10 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
   target_resource_id         = each.value.id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
 
-  dynamic "log" {
-    for_each = setsubtract(each.value.logs, ["StorageRead"])
+  dynamic "enabled_log" {
+    for_each = setsubtract(each.value.logs, ["StorageRead", "AppServiceAuthenticationLogs"])
     content {
-      category = log.value
-      enabled  = log.value == "AppServiceAuthenticationLogs" ? false : true
+      category = enabled_log.value
     }
   }
 

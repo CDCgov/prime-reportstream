@@ -23,6 +23,8 @@ import ca.uhn.hl7v2.util.Terser
 import com.anyascii.AnyAscii
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.google.i18n.phonenumbers.Phonenumber
+import gov.cdc.prime.reportstream.shared.StringUtilities.trimAndTruncate
+import gov.cdc.prime.reportstream.shared.StringUtilities.trimToNull
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
@@ -44,8 +46,6 @@ import gov.cdc.prime.router.ValueSet
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.formatDateTimeForReceiver
 import gov.cdc.prime.router.common.Hl7Utilities
-import gov.cdc.prime.router.common.StringUtilities.trimAndTruncate
-import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.fhirengine.translation.hl7.CovidPipelineHL7Truncator
 import gov.cdc.prime.router.fhirengine.translation.hl7.config.TruncationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.CE_FIELDS
@@ -59,7 +59,6 @@ import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
-import java.lang.IllegalArgumentException
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
