@@ -3,6 +3,7 @@ package gov.cdc.prime.router.config.validation
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isInstanceOf
+import gov.cdc.prime.router.ConditionLookupConditionFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.MimeFormat
@@ -77,6 +78,37 @@ class ConfigurationValueValidationServiceTest {
             .isInstanceOf<ConfigurationValidationFailure<List<Organization>>>()
             .transform { it.errors.first() }
             .contains("bad Filter formatting!")
+    }
+
+    @Test
+    fun `test both condition filters configured`() {
+        val receiver = Receiver(
+            "Unit test receiver",
+            "org",
+            Topic.TEST,
+            CustomerStatus.INACTIVE,
+            "classpath:/metadata/hl7_mapping/fake.yml",
+            format = MimeFormat.FHIR,
+            conditionFilter = listOf("%resource"),
+            mappedConditionFilter = listOf(ConditionLookupConditionFilter("123"))
+        )
+
+        val org = DeepOrganization(
+            name = "UnitTest",
+            description = "unit test description",
+            jurisdiction = Organization.Jurisdiction.FEDERAL,
+            receivers = listOf(receiver)
+        )
+
+        val result = configurationValueValidationService.validate(
+            ConfigurationType.Organizations,
+            listOf(org)
+        )
+
+        assertThat(result)
+            .isInstanceOf<ConfigurationValidationFailure<List<Organization>>>()
+            .transform { it.errors.first() }
+            .contains("Receiver must only configure one kind of condition filter")
     }
 
     @Test
