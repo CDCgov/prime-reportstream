@@ -28,7 +28,7 @@ jobs:
       is_permitted: ${{ github.event_name == 'pull_request' && steps.build_vars.outputs.has_frontend_change == 'true' && steps.build_vars.outputs.is_deployment_pr == 'false' }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -41,9 +41,9 @@ jobs:
 
     steps:
       - name: Check out changes
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Use Node.js with yarn
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
         with:
           node-version-file: frontend-react/.nvmrc
           cache: yarn
@@ -61,9 +61,9 @@ jobs:
 
     steps:
       - name: Check out changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Use Node.js with yarn
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -98,9 +98,9 @@ jobs:
           sudo swapon --show
 
       - name: Check out changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Use Node.js with yarn
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -114,17 +114,34 @@ jobs:
         run: yarn run test:e2e --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
       - name: Upload blob report to GitHub Actions Artifacts
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b
         with:
           name: frontend-e2e-data--shard-${{ matrix.shardIndex }}
           path: frontend-react/e2e-data
           retention-days: 1
 
+  # the e2e_tests job doesn't properly reflect being skipped when set as required on the repo.
+  # this step will always run and provide a status
+  e2e_tests_result:
+      if: ${{ always() }}
+      runs-on: ubuntu-latest
+      name: E2E Tests Result
+      needs: [e2e_tests]
+      steps:
+        - run: |
+            result="${{ needs.e2e_tests.result }}"
+            if [[ $result == "success" || $result == "skipped" ]]; then
+              exit 0
+            else
+              exit 1
+            fi
+          working-directory: /
+
   # Merge reports after e2e-tests, even if some shards have failed
   merge_e2e_data:
     name: Merge E2E Data
-    if: ${{ !cancelled() && needs.pre-job.outputs.is_permitted == 'true' }}
     needs: [pre-job, e2e_tests]
+    if: ${{ !cancelled() && needs.pre-job.outputs.is_permitted == 'true' && needs.e2e_tests.result == 'success' }}
     runs-on: ubuntu-latest
     env:
       COMMENT:
@@ -132,9 +149,9 @@ jobs:
 
     steps:
       - name: Check out changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Use Node.js with yarn
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -153,7 +170,7 @@ jobs:
       - name: Merge folders
         run: mv ./playwright-report/* ./e2e-data/report && rmdir ./playwright-report && rm ./e2e-data/report/*.zip && rm -rf ./e2e-data/report/resources
       - name: Upload final e2e-data
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b
         with:
           name: frontend-e2e-data--attempt-${{ github.run_attempt }}
           path: frontend-react/e2e-data
@@ -212,7 +229,7 @@ jobs:
 
     steps:
       - name: Checkout - On Pull Request
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
           fetch-depth: 0
           # By default the pull_request event will run on a ephermeral merge commit which simulates a merge between the pull request
@@ -220,7 +237,7 @@ jobs:
           # Hopefully by checking out the HEAD commit of a PR instead of the merge commit we can avoid some of those issues.
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Use Node.js with yarn
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -230,7 +247,7 @@ jobs:
 
       - name: Run Chromatic
         id: chromatic
-        uses: chromaui/action@ea1eee60c663ccb7e5d4cfd7a05fcc3a25b7c494
+        uses: chromaui/action@fbf458b6cd4dfd06cf25c06e937bea66b93a0587
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -283,7 +300,7 @@ jobs:
 
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+  #       uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
   #     - name: Initialize CodeQL
   #       uses: github/codeql-action/init@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
   #       with:
@@ -303,11 +320,11 @@ jobs:
 
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+  #       uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
   #       with:
   #         fetch-depth: 0
   #     - name: Use Node.js with yarn
-  #       uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+  #       uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
   #       with:
   #         node-version-file: "frontend-react/.nvmrc"
   #         cache: yarn
@@ -337,9 +354,9 @@ jobs:
   #   runs-on: ubuntu-latest
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+  #       uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
   #     - name: Use Node.js with yarn
-  #       uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+  #       uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
   #       with:
   #         node-version-file: "frontend-react/.nvmrc"
   #         cache: yarn

@@ -160,18 +160,19 @@ runs:
         list-files: json
         filters: |
           router:
-            - 'prime-router/**/**.!(md)'
+            - 'prime-router/**/!(*.md)'
             - 'operations/!((app|readme-assets|slack-boltjs-app|vpn))/**'
             - '.github/actions/build-backend/action.yml'
             - '.github/actions/deploy-backend/action.yml'
             - '.github/actions/build-vars/action.yml'
             - '.github/workflows/build_hub.yml'
           frontend_react:
-            - 'frontend-react/**/**.!(md)'
+            - 'frontend-react/**/!(*.md)'
             - '.github/actions/build-vars/action.yml'
-            - '.github/actions/build-frontend/action.yml'            
+            - '.github/actions/build-frontend/action.yml'
+            - '.github/workflows/frontend_ci.yml'          
           terraform:
-            - 'operations/app/terraform/**/**.!(md)'
+            - 'operations/app/terraform/**/!(*.md)'
             - '.github/workflows/validate_terraform.yml'
             - '.github/workflows/deploy_terraform.yml'
 
