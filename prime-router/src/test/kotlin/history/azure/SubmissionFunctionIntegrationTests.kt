@@ -263,7 +263,7 @@ class SubmissionFunctionIntegrationTests {
                     action(TaskAction.convert)
                     log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
                     reportGraphNode {
-                        action(TaskAction.route)
+                        action(TaskAction.destination_filter)
                         reportGraphNode {
                             action(TaskAction.translate)
                             receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
@@ -271,7 +271,7 @@ class SubmissionFunctionIntegrationTests {
                         }
                     }
                     reportGraphNode {
-                        action(TaskAction.route)
+                        action(TaskAction.destination_filter)
                         reportGraphNode {
                             action(TaskAction.translate)
                             receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
@@ -348,7 +348,7 @@ class SubmissionFunctionIntegrationTests {
                     action(TaskAction.convert)
                     log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
                     reportGraphNode {
-                        action(TaskAction.route)
+                        action(TaskAction.destination_filter)
                     }
                 }
             }
@@ -383,7 +383,7 @@ class SubmissionFunctionIntegrationTests {
                     action(TaskAction.convert)
                     log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
                     reportGraphNode {
-                        action(TaskAction.route)
+                        action(TaskAction.destination_filter)
                         log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.error))
                         reportGraphNode {
                             action(TaskAction.translate)
@@ -400,7 +400,7 @@ class SubmissionFunctionIntegrationTests {
                         }
                     }
                     reportGraphNode {
-                        action(TaskAction.route)
+                        action(TaskAction.destination_filter)
                         reportGraphNode {
                             action(TaskAction.translate)
                             receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
@@ -448,7 +448,7 @@ class SubmissionFunctionIntegrationTests {
                     action(TaskAction.convert)
                     log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
                     reportGraphNode {
-                        action(TaskAction.route)
+                        action(TaskAction.destination_filter)
                         log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.error))
                         reportGraphNode {
                             action(TaskAction.translate)
@@ -470,7 +470,7 @@ class SubmissionFunctionIntegrationTests {
                         }
                     }
                     reportGraphNode {
-                        action(TaskAction.route)
+                        action(TaskAction.destination_filter)
                         reportGraphNode {
                             action(TaskAction.translate)
                             receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
