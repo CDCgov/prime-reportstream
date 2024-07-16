@@ -56,6 +56,7 @@ const useDeliveriesHistory = (initialService?: string) => {
         [adminSafeOrgName, service],
     );
     const [searchTerm, setSearchTerm] = useState("");
+
     // Pagination and filter props
     const filterManager = useFilterManager(filterManagerDefaults);
     const sortColumn = filterManager.sortSettings.column;
@@ -125,6 +126,7 @@ const useDeliveriesHistory = (initialService?: string) => {
             activeMembership,
             orgAndService,
             filterManager,
+            searchTerm,
         ],
         queryFn: memoizedDataFetch,
     });

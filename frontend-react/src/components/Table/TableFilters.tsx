@@ -292,9 +292,9 @@ function TableFilters({
     const resetHandler = useCallback(
         (e: FormEvent) => {
             e.preventDefault();
+            setSearchTerm("");
             resetFilterFields(e);
             setSearchReset(searchReset + 1);
-            setSearchTerm("");
 
             appInsights?.trackEvent({
                 name: `${FeatureName.DAILY_DATA} | Reset`,

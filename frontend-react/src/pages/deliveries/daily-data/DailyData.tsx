@@ -129,8 +129,6 @@ const DeliveriesFilterAndTable = ({ services }: { services: RSReceiver[] }) => {
         },
     ]);
 
-    console.log("results = ", results);
-
     return (
         <>
             <TableFilters
