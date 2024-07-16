@@ -20,6 +20,14 @@ import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 
 
+
+/**
+ * Controller for handling report submissions.
+ *
+ * This controller provides an endpoint for submitting reports in various formats.
+ * The reports are processed and stored in Azure Blob Storage, queued for further processing,
+ * and their metadata is saved in Azure Table Storage.
+ */
 @RestController
 class SubmissionController(
     private val blobServiceClient: BlobServiceClient,
@@ -31,7 +39,19 @@ class SubmissionController(
 ) {
     private val logger = LoggerFactory.getLogger(SubmissionController::class.java)
 
-    // Use of consumes limits the options for Content-Type to only these values
+    /**
+     * Submits a report.
+     *
+     * This endpoint accepts reports in HL7 V2 and FHIR NDJSON formats. The report data is uploaded
+     * to Azure Blob Storage, queued for further processing, and its metadata is stored in Azure Table Storage.
+     * A custom event is also tracked in Application Insights for monitoring.
+     *
+     * @param headers the HTTP headers of the request
+     * @param contentType the content type of the report (must be "application/hl7-v2" or "application/fhir+ndjson")
+     * @param clientId the ID of the client submitting the report. Should represent org.senderName
+     * @param data the report data
+     * @return a ResponseEntity containing the reportID, status, and timestamp
+     */
     @PostMapping("/api/v1/reports", consumes = ["application/hl7-v2", "application/fhir+ndjson"])
     fun submitReport(
         @RequestHeader headers: Map<String, String>,
@@ -155,4 +175,11 @@ class SubmissionController(
     }
 }
 
+/**
+ * Data class representing the response for a successful report creation.
+ *
+ * @property reportId the unique ID of the report
+ * @property overallStatus the overall status of the report submission
+ * @property timestamp the timestamp when the report was received
+ */
 data class CreationResponse(val reportId: UUID, val overallStatus: String, val timestamp: OffsetDateTime)
