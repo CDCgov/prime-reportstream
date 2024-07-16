@@ -17,7 +17,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation: !<HL7>
-        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/MN/MN-receiver-transform.yml"
+        schemaName: "azure:/hl7_mapping/receivers/STLTs/MN/MN-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: "MEDSS-ELR"
@@ -90,10 +90,10 @@
           onlyOncePerDay: false
       description: "ELR Primary for MN DOH"
       transport: !<SFTP>
-        host: "mdh-ftp.health.state.mn.us"
+        host: "sftp"
         port: "22"
-        filePath: "./PROD"
-        credentialName: null
+        filePath: "./upload"
+        credentialName: DEFAULT_SFTP
         type: "SFTP"
       externalName: "ELR PRIMARY MN"
       enrichmentSchemaNames: []
