@@ -120,6 +120,23 @@ jobs:
           path: frontend-react/e2e-data
           retention-days: 1
 
+  # the e2e_tests job doesn't properly reflect being skipped when set as required on the repo.
+  # this step will always run and provide a status
+  e2e_tests_result:
+      if: ${{ always() }}
+      runs-on: ubuntu-latest
+      name: E2E Tests Result
+      needs: [e2e_tests]
+      steps:
+        - run: |
+            result="${{ needs.e2e_tests.result }}"
+            if [[ $result == "success" || $result == "skipped" ]]; then
+              exit 0
+            else
+              exit 1
+            fi
+          working-directory: /
+
   # Merge reports after e2e-tests, even if some shards have failed
   merge_e2e_data:
     name: Merge E2E Data
