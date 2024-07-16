@@ -364,11 +364,14 @@ test.describe("Daily Data Details page", () => {
     test.describe("sender user", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
 
-        test.beforeEach(async ({ dailyDataDetailsPage }) => {
-            await reportDetails.goto(dailyDataDetailsPage.page, id);
-        });
+        // test.beforeEach(async ({ dailyDataDetailsPage }) => {
+        //     await reportDetails.goto(dailyDataDetailsPage.page, id);
+        // });
 
         test("has alert", async ({ dailyDataDetailsPage }) => {
+            dailyDataDetailsPage.mockError = true;
+            await dailyDataDetailsPage.reload();
+
             await expect(
                 dailyDataDetailsPage.page.getByTestId("alert"),
             ).toBeAttached();

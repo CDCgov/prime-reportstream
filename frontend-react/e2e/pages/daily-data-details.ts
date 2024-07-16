@@ -8,9 +8,7 @@ import { RSDelivery, RSFacility } from "../../src/config/endpoints/deliveries";
 import { MOCK_GET_DELIVERY } from "../mocks/delivery";
 import { MOCK_GET_FACILITIES } from "../mocks/facilities";
 
-// const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
-// This id is from staging dbs
-const id = "02117a82-9fd8-42d4-b769-7a99094173a1";
+const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
 
 export class DailyDataDetailsPage extends BasePage {
     static readonly API_DELIVERY = `${API_WATERS_REPORT}/${id}/delivery`;
@@ -22,7 +20,7 @@ export class DailyDataDetailsPage extends BasePage {
         super(
             {
                 url: `${URL_REPORT_DETAILS}/${id}`,
-                title: "ReportStream - CDC's free, interoperable data transfer platform",
+                title: "Daily Data - ReportStream",
                 heading: testArgs.page.getByRole("heading", {
                     name: "Daily Data Details",
                 }),
