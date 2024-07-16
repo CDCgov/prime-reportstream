@@ -24,14 +24,20 @@ import {
 } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
 
-const DeliveriesFilterAndTable = ({ services }: { services: RSReceiver[] }) => {
+const DeliveriesFilterAndTable = ({
+    services,
+    isOrgReceiversLoading,
+}: {
+    services: RSReceiver[];
+    isOrgReceiversLoading: boolean;
+}) => {
     const {
         data: results,
         filterManager,
         searchTerm,
         setSearchTerm,
         setService,
-        isLoading,
+        isLoading: isDeliveriesHistoryLoading,
     } = useDeliveriesHistory();
     const { authState, activeMembership } = useSessionContext();
     const { appInsights } = useAppInsightsContext();
@@ -44,6 +50,8 @@ const DeliveriesFilterAndTable = ({ services }: { services: RSReceiver[] }) => {
             activeMembership?.parsedName ?? "",
         );
     };
+    if (isOrgReceiversLoading || isDeliveriesHistoryLoading || !results)
+        return <Spinner />;
 
     const receiverDropdown = [
         ...new Set(
@@ -152,7 +160,7 @@ const DeliveriesFilterAndTable = ({ services }: { services: RSReceiver[] }) => {
                     })
                 }
                 resultLength={results?.meta.totalFilteredCount}
-                isPaginationLoading={isLoading}
+                isPaginationLoading={isDeliveriesHistoryLoading}
             />
             {services.length === 0 ? (
                 <div className="usa-section margin-bottom-5">
@@ -199,12 +207,15 @@ export function DailyData() {
     const { isLoading, isDisabled, activeReceivers } =
         useOrganizationReceivers();
 
-    if (isLoading) return <Spinner />;
-
     if (isDisabled) {
         return <AdminFetchAlert />;
     }
-    return <DeliveriesFilterAndTable services={activeReceivers} />;
+    return (
+        <DeliveriesFilterAndTable
+            isOrgReceiversLoading={isLoading}
+            services={activeReceivers}
+        />
+    );
 }
 
 export default DailyData;
