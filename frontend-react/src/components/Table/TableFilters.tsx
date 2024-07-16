@@ -54,7 +54,7 @@ interface TableFilterProps {
     searchTerm: string;
     onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
     receivers: { value: string; label: string }[];
-    setService?: Dispatch<SetStateAction<string>>;
+    setService: Dispatch<SetStateAction<string>>;
     showDateHints?: boolean;
     startDateLabel: string;
     resultLength?: number;
@@ -282,7 +282,7 @@ function TableFilters({
             setStartTime(DEFAULT_FROM_TIME_STRING);
             setEndTime(DEFAULT_TO_TIME_STRING);
             setCurrentServiceSelect("");
-            setService?.("");
+            setService("");
             filterManager.resetAll();
         },
         [filterManager, filterReset, setService],

@@ -129,6 +129,8 @@ const DeliveriesFilterAndTable = ({ services }: { services: RSReceiver[] }) => {
         },
     ]);
 
+    console.log("results = ", results);
+
     return (
         <>
             <TableFilters
@@ -161,7 +163,7 @@ const DeliveriesFilterAndTable = ({ services }: { services: RSReceiver[] }) => {
             ) : (
                 <>
                     <Table apiSortable borderless striped rowData={data} />
-                    {data?.length ?? (
+                    {data?.length && (
                         <Pagination
                             currentPage={currentPageNum}
                             pathname=""
@@ -186,7 +188,7 @@ const DeliveriesFilterAndTable = ({ services }: { services: RSReceiver[] }) => {
                                     payload: { page: currentPageNum - 1 },
                                 });
                             }}
-                            maxSlots={results?.meta.totalPages}
+                            totalPages={results?.meta.totalPages}
                         />
                     )}
                 </>
