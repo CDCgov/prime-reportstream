@@ -1,57 +1,60 @@
-# To submit this to localhost, run:
+# Flexion settings in staging
+#
+# To load the settings locally, run:
 # ./prime multiple-settings set --input ./settings/STLTs/Flexion/flexion.yml
 #
-# To submit this to staging, run:
+# To load the settings in staging, run:
 # ./prime login --env staging
 # ./prime multiple-settings set --env staging --input ./settings/STLTs/Flexion/flexion.yml
 #
-# Then add keys to it, as needed, like this:
+# To add the sender keys in staging:
 #  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-hospital --doit
 #  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.etor-service-sender --doit
 #  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-lab --doit
 #
-# You may use the below curl command to submit a request. You just need to replace the TOKEN with the auth JWT and the path to the FHIR message to send 
-# curl -H 'Authorization: Bearer TOKEN' -H 'Client: flexion.etor-service-sender' -H 'Content-Type: application/fhir+ndjson' --data-binary '@/path/to/fhir/message.fhir' 'https://staging.prime.cdc.gov/api/waters'
+# To submit an order or result to flexion.simulated-lab or flexion.simulated-hospital, in staging:
+# Note: replace the TOKEN with the auth JWT and the path to the FHIR message to send 
+# curl -H 'Authorization: Bearer TOKEN' -H 'Client: flexion.etor-service-sender' -H 'Content-Type: application/fhir+ndjson' --data-binary '@/path/to/message.fhir' 'https://staging.prime.cdc.gov/api/waters'
+#
+# To submit an order from flexion.simulated-hospital, in staging:
+# curl -H 'Authorization: Bearer TOKEN' -H 'Client: flexion.simulated-hospital' -H 'Content-Type: application/hl7-v2' --data-binary '@/path/to/order.hl7' 'https://staging.prime.cdc.gov/api/waters'
+#
+# To submit a result from flexion.simulated-lab, in staging:
+# curl -H 'Authorization: Bearer TOKEN' -H 'Client: flexion.simulated-lab' -H 'Content-Type: application/hl7-v2' --data-binary '@/path/to/result.hl7' 'https://staging.prime.cdc.gov/api/waters'
 ---
 - name: "flexion"
   description: "Flexion, Inc."
   jurisdiction: "FEDERAL"
   senders:
-    # Orders Senders
-    # Hospital => RS
-    # Simulated Hospital ETOR Sender - Sending HL7 orders
-    - name: "simulated-hospital"
-      organizationName: "flexion"
-      topic: "etor-ti"
-      customerStatus: "active"
-      format: "HL7"
-    # TI => RS
-    # ETOR Service Sender Channel to ReportStream - Sending FHIR orders and results
+    # ETOR Service Sender - Sending FHIR orders and results from TI
     - name: "etor-service-sender"
       organizationName: "flexion"
       topic: "etor-ti"
       customerStatus: "active"
       format: "FHIR"
       schemaName: "classpath:/metadata/fhir_transforms/senders/Flexion/TILabOrder.yml"
-    # Results Senders
-    # PHL => RS
-    # Simulated State Public Health Lab ETOR Sender - Sending HL7 results
+    # *** Settings used for testing below ***
+    # Simulated Hospital Sender - Sending HL7 orders
+    - name: "simulated-hospital"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
+      format: "HL7"
+    # Simulated State Public Health Lab Sender - Sending HL7 results
     - name: "simulated-lab"
       organizationName: "flexion"
       topic: "etor-ti"
       customerStatus: "active"
       format: "HL7"
   receivers:
-    # Orders Receivers
-    # RS => TI: translates ORM_O01 from HL7 to FHIR and sends the message to the TI service orders API
+    # ETOR Service Receiver for orders - Routes ORM_O01 and OML_O21 FHIR orders to TI orders endpoint
     - name: "etor-service-receiver-orders"
-      externalName: "ETOR Service Receiver Channel from ReportStream - Receiving ORM_O01 and OML_O21 FHIR orders"
       organizationName: "flexion"
       topic: "etor-ti"
       customerStatus: "active"
       jurisdictionalFilter:
-        - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01') or (Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21')" # ORM_O01 or OML_O21
-        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.exists(system = 'http://localcodes.org/ETOR').not()"
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01') or (Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21')"  # ORM_O01 or OML_O21
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.exists(system = 'http://localcodes.org/ETOR').not()"  # required to avoid looping issue
       qualityFilter:
         - "true"
       timing:
@@ -60,7 +63,6 @@
         initialTime: "00:00"
       translation:
         type: "FHIR"
-        schemaName: "classpath:/metadata/fhir_transforms/receivers/fhir-transform-sample.yml"
         useBatching: false
       transport:
         type: "REST"
@@ -82,43 +84,15 @@
         authHeaders:
           Content-Type: "application/x-www-form-urlencoded"
           Host: "cdcti-stg-api.azurewebsites.net"
-    # RS => PHL: translates OML_O21 from FHIR to HL7 and uploads the message to the SFTP folder
-    - name: "simulated-lab"
-      externalName: "Simulated State Public Health Lab ETOR Receiver - Receiving OML_O21 HL7 orders"
-      organizationName: "flexion"
-      topic: "etor-ti"
-      customerStatus: "active"
-      jurisdictionalFilter:
-        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'" # OML_O21
-        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"
-        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = 'simulated-lab-id').exists()"
-      qualityFilter:
-        - "true"
-      timing:
-        operation: "MERGE"
-        numberPerDay: 1440 # Every minute
-        initialTime: "00:00"
-      translation:
-        type: "HL7"
-        schemaName: "classpath:/metadata/hl7_mapping/receivers/Flexion/TILabOrder.yml"
-        useTestProcessingMode: false
-        useBatchHeaders: false
-      transport:
-        type: "SFTP"
-        host: "172.17.6.20" # use "sftp" if running locally
-        port: 22
-        filePath: "./upload"
-        credentialName: null # use "DEFAULT-SFTP" if running locally
-    # Results Receivers
-    # RS => TI: translates ORU_R01 from HL7 to FHIR and uploads the message to the SFTP folder
+    # ETOR Service Receiver for results - Routes ORU_R01 FHIR results to TI results endpoint
     - name: "etor-service-receiver-results"
       externalName: "ETOR Service Receiver Channel from ReportStream for results - Receiving ORU_R01 FHIR results"
       organizationName: "flexion"
       topic: "etor-ti"
       customerStatus: "active"
       jurisdictionalFilter:
-        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'" # ORU_R01
-        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.exists(system = 'http://localcodes.org/ETOR').not()"
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"  # ORU_R01
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.exists(system = 'http://localcodes.org/ETOR').not()"  # required to avoid looping issue
       qualityFilter:
         - "true"
       timing:
@@ -127,7 +101,6 @@
         initialTime: "00:00"
       translation:
         type: "FHIR"
-        schemaName: "classpath:/metadata/fhir_transforms/receivers/fhir-transform-sample.yml"
         useBatching: false
       transport:
         type: "REST"
@@ -147,16 +120,16 @@
         authHeaders:
           Content-Type: "application/x-www-form-urlencoded"
           Host: "cdcti-stg-api.azurewebsites.net"
-    # RS => Hospital: translates ORU_R01 from FHIR to HL7 and uploads the message to the SFTP folder
+    # *** Settings used for testing below ***
+    # Simulated Hospital Receiver: converts ORU_R01 from FHIR to HL7 and routes the message to the SFTP folder
     - name: "simulated-hospital"
-      externalName: "Simulated Hospital ETOR Receiver - Receiving ORU_R01 HL7 results"
       organizationName: "flexion"
       topic: "etor-ti"
       customerStatus: "active"
       jurisdictionalFilter:
-        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'" # ORU_R01
-        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"
-        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = 'simulated-hospital-id').exists()"
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"  # ORU_R01
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"  # required to avoid looping issue
+        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = 'simulated-hospital-id').exists()"  # receiver routing filter
       qualityFilter:
         - "true"
       timing:
@@ -166,6 +139,32 @@
       translation:
         type: "HL7"
         schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+      transport:
+        type: "SFTP"
+        host: "172.17.6.20" # use "sftp" if running locally
+        port: 22
+        filePath: "./upload"
+        credentialName: null # use "DEFAULT-SFTP" if running locally
+    # Simulated State Public Health Lab Receiver: converts OML_O21 from FHIR to HL7 and routes the message to the SFTP folder
+    - name: "simulated-lab"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
+      jurisdictionalFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'"  # OML_O21
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"  # required to avoid looping issue
+        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = 'simulated-lab-id').exists()"  # receiver routing filter
+      qualityFilter:
+        - "true"
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440 # Every minute
+        initialTime: "00:00"
+      translation:
+        type: "HL7"
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/Flexion/TILabOrder.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
       transport:
