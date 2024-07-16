@@ -1,5 +1,5 @@
-import { BasePage, type BasePageTestArgs } from "../pages/BasePage";
-import { test as baseTest, expect } from "../test";
+import { BasePage, type BasePageTestArgs } from "../../pages/BasePage";
+import { test as baseTest, expect } from "../../test";
 
 export interface MockPageFixtures {
     mockPage: MockPage;
@@ -60,7 +60,7 @@ const test = baseTest.extend<MockPageFixtures>({
             receiverLogin,
             storageState,
             frontendWarningsLogPath,
-            isFrontendWarningsLog
+            isFrontendWarningsLog,
         },
         use,
     ) => {

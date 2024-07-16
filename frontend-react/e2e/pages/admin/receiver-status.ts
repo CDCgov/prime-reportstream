@@ -90,7 +90,9 @@ export class AdminReceiverStatusPage extends BasePage {
         );
 
         this.addMockRouteHandlers([this.createMockReceiverStatusHandler()]);
-        this.addResponseHandlers([this.createMockReceiverStatusResponseHandler()]);
+        this.addResponseHandlers([
+            this.createMockReceiverStatusResponseHandler(),
+        ]);
 
         const now = new Date();
 
@@ -191,8 +193,8 @@ export class AdminReceiverStatusPage extends BasePage {
      */
     get isPageLoadExpected() {
         return (
-            super.isPageLoadExpected ||
-            this.testArgs.storageState !== this.testArgs.adminLogin.path
+            super.isPageLoadExpected &&
+            this.testArgs.storageState === this.testArgs.adminLogin.path
         );
     }
 
