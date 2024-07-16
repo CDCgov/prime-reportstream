@@ -110,7 +110,7 @@ const DeliveriesFilterAndTable = ({ services }: { services: RSReceiver[] }) => {
             columnKey: DeliveriesDataAttr.FILE_NAME,
             columnHeader: "Filename",
             content: isDateExpired(dataRow.expiresAt) ? (
-                <p>{dataRow.fileName}</p>
+                <p>{decodeURIComponent(dataRow.fileName)}</p>
             ) : (
                 <Button
                     className="font-mono-2xs line-height-alt-4"
@@ -118,7 +118,7 @@ const DeliveriesFilterAndTable = ({ services }: { services: RSReceiver[] }) => {
                     unstyled
                     onClick={() => handleFetchAndDownload(dataRow.reportId)}
                 >
-                    {dataRow.fileName}
+                    {decodeURIComponent(dataRow.fileName)}
                 </Button>
             ),
         },
@@ -161,7 +161,7 @@ const DeliveriesFilterAndTable = ({ services }: { services: RSReceiver[] }) => {
             ) : (
                 <>
                     <Table apiSortable borderless striped rowData={data} />
-                    {data?.length > 0 && (
+                    {data?.length ?? (
                         <Pagination
                             currentPage={currentPageNum}
                             pathname=""
