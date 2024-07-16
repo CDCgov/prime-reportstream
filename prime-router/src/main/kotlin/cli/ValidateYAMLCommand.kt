@@ -7,21 +7,17 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.varargValues
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
-import com.github.ajalt.mordant.rendering.TextColors.green
 import com.github.ajalt.mordant.rendering.TextColors.red
 import com.github.ajalt.mordant.rendering.TextColors.yellow
 import gov.cdc.prime.router.config.validation.ConfigurationType
-import gov.cdc.prime.router.config.validation.ConfigurationValidationFailure
-import gov.cdc.prime.router.config.validation.ConfigurationValidationResult
 import gov.cdc.prime.router.config.validation.ConfigurationValidationService
 import gov.cdc.prime.router.config.validation.ConfigurationValidationServiceImpl
-import gov.cdc.prime.router.config.validation.ConfigurationValidationSuccess
 import org.apache.commons.io.FileUtils
 import java.io.File
 
 class ValidateYAMLCommand : CliktCommand(
-        name = "validate-yaml",
-        help = """
+    name = "validate-yaml",
+    help = """
             A CLI command to validate YAML files' structure and values.
             
             Examples:
@@ -30,7 +26,7 @@ class ValidateYAMLCommand : CliktCommand(
             ./gradlew primeCLI --args='validate-yaml --type organizations --dir path/to/directory --exclude-file path/to/excludedFile'
             ./gradlew primeCLI --args='validate-yaml --type organizations --dir path/to/directory --exclude-dir path/to/excludedDir'
         """.trimIndent()
-    ) {
+) {
 
     private val typeChoices = ConfigurationType::class
         .sealedSubclasses
@@ -46,7 +42,7 @@ class ValidateYAMLCommand : CliktCommand(
 
     private val files by option(
         "-f", "--file",
-        help = "Path to a YAML file to validate."
+        help = "Path(s) to YAML file(s) to validate."
     ).file(
         mustBeReadable = true,
         canBeFile = true,
@@ -55,7 +51,7 @@ class ValidateYAMLCommand : CliktCommand(
 
     private val directories by option(
         "-d", "--dir",
-        help = "Path to a directory containing multiple YAML files to validate."
+        help = "Path to a directory containing YAML file(s) to validate. Recursive."
     ).file(
         mustBeReadable = true,
         canBeFile = false,
@@ -64,7 +60,7 @@ class ValidateYAMLCommand : CliktCommand(
 
     private val excludeFiles by option(
         "--exclude-file",
-        help = "Path to a YAML file to validate."
+        help = "Path to files to be excluded from validation."
     ).file(
         mustBeReadable = true,
         canBeFile = true,
@@ -73,7 +69,7 @@ class ValidateYAMLCommand : CliktCommand(
 
     private val excludeDirectories by option(
         "--exclude-dir",
-        help = "Path to a YAML file to validate."
+        help = "Directories to be excluded from validation."
     ).file(
         mustBeReadable = true,
         canBeFile = false,
@@ -99,44 +95,7 @@ class ValidateYAMLCommand : CliktCommand(
             throw CliktError()
         }
 
-        validateFiles(filteredFiles)
-    }
-
-    private fun printResult(file: File, result: ConfigurationValidationResult<*>) {
-        when (result) {
-            is ConfigurationValidationSuccess -> {
-                echo(green("${file.path} is valid!"))
-            }
-            is ConfigurationValidationFailure -> {
-                val output = """
-                    |${file.path} is invalid!
-                    |${"-".repeat(100)}
-                    |${result.errors.joinToString("\n")}
-                    |
-                    |${result.cause?.stackTraceToString() ?: ""}
-                """.trimMargin()
-                echo(red(output), err = true)
-                echo()
-            }
-        }
-    }
-
-    private fun validateFiles(files: List<File>) {
-        echo("Validating ${files.size} YAML files...")
-
-        val anyFailed = files.map {
-            val result = service.validateYAML(type, it)
-            printResult(it, result)
-            isFailure(result)
-        }.contains(true)
-        if (anyFailed) {
-            throw CliktError()
-        }
-        echo(green("\n${files.size} YAML files validated!"))
-    }
-
-    private fun isFailure(result: ConfigurationValidationResult<*>): Boolean {
-        return result is ConfigurationValidationFailure
+        ValidateUtilities(ConfigurationValidationServiceImpl()).validateFiles(filteredFiles, type, ::echo)
     }
 
     private fun isFileInDirectory(file: File, directories: List<File>): Boolean {

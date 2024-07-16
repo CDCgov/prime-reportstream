@@ -37,9 +37,9 @@ object JacksonMapperUtilities {
          */
         class NoOptionalFieldsOffsetDateTimeSerializer :
             OffsetDateTimeSerializer(
-            INSTANCE, false, false,
-            timestampFormatter
-        )
+                INSTANCE, false, false,
+                timestampFormatter
+            )
 
         // Serialize (object->JSON) date/times with no second fraction.
         addSerializer(OffsetDateTime::class.java, NoOptionalFieldsOffsetDateTimeSerializer())
@@ -96,6 +96,7 @@ object JacksonMapperUtilities {
             )
             .registerModule(JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
 
         // This line is required to keep the separation of ValueSetCollection subtypes if we ever
         // want to open-source that portion of the codebase
