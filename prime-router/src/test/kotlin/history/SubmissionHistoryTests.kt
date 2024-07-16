@@ -692,6 +692,116 @@ class SubmissionHistoryTests {
         }
     }
 
+    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
+    @Test
+    fun `test DetailedSubmissionHistory UP overallStatus (received) (legacy route step)`() {
+        // received: freshly received, no routing yet
+        val testReceived = DetailedSubmissionHistory(
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+            HttpStatus.OK.value(),
+            reports = mutableListOf(),
+            logs = emptyList()
+        )
+        testReceived.actionsPerformed = mutableSetOf(TaskAction.receive)
+        testReceived.enrichWithSummary()
+        testReceived.run {
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED)
+        }
+        // received: no destinations have been calculated yet
+        val noDestinationsCalculatedYet = emptyList<DetailedReport>().toMutableList()
+        val testReceivedButNoDestinationsYet = DetailedSubmissionHistory(
+            1, TaskAction.route, OffsetDateTime.now(),
+            HttpStatus.OK.value(), noDestinationsCalculatedYet, logs = emptyList()
+        )
+        testReceivedButNoDestinationsYet.enrichWithSummary()
+        testReceivedButNoDestinationsYet.run {
+            assertThat(destinations.count()).isEqualTo(0)
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED)
+        }
+        val inputReport = DetailedReport(
+            UUID.randomUUID(),
+            null,
+            null,
+            "org",
+            "client",
+            Topic.FULL_ELR,
+            "externalName",
+            null,
+            null,
+            5,
+            null,
+            false,
+            null,
+            null,
+            null
+        )
+        // received: one of two destinations has been calculated, with all items for it filtered out
+        val oneFilteredDestinationCalculated = listOf(
+            inputReport,
+            DetailedReport(
+                UUID.randomUUID(),
+                "recvOrg4",
+                "recvSvc4",
+                null,
+                null,
+                Topic.FULL_ELR,
+                "one item dest",
+                null,
+                OffsetDateTime.now().plusDays(1),
+                0,
+                5,
+                true,
+                null,
+                null,
+                null
+            ),
+        ).toMutableList()
+        val testReceivedOneFilteredDestination = DetailedSubmissionHistory(
+            1, TaskAction.route, OffsetDateTime.now(),
+            HttpStatus.OK.value(), oneFilteredDestinationCalculated, logs = emptyList()
+        )
+        testReceivedOneFilteredDestination.enrichWithSummary()
+        testReceivedOneFilteredDestination.run {
+            assertThat(destinations.count()).isEqualTo(1)
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED)
+        }
+        // received: one of two destinations has been calculated, with no items filtered out
+        val reports = listOf(
+            DetailedReport(
+                UUID.randomUUID(),
+                null,
+                null,
+                null,
+                null,
+                Topic.FULL_ELR,
+                "no item count dest",
+                null,
+                null,
+                0,
+                null,
+                true,
+                null,
+                null,
+                null
+            ),
+        ).toMutableList()
+        val testReceivedNoDestination = DetailedSubmissionHistory(
+            1,
+            TaskAction.route,
+            OffsetDateTime.now(),
+            HttpStatus.OK.value(),
+            reports,
+            emptyList()
+        )
+        testReceivedNoDestination.enrichWithSummary()
+        testReceivedNoDestination.run {
+            assertThat(destinationCount).isEqualTo(0)
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED)
+        }
+    }
+
     @Test
     fun `test DetailedSubmissionHistory LEGACY overallStatus calculations (received)`() {
         val testReceived = DetailedSubmissionHistory(
@@ -732,6 +842,61 @@ class SubmissionHistoryTests {
         val testReceivedNoDestination = DetailedSubmissionHistory(
             1,
             TaskAction.destination_filter,
+            OffsetDateTime.now(),
+            HttpStatus.OK.value(),
+            reports,
+            logs = emptyList()
+        )
+        testReceivedNoDestination.enrichWithSummary()
+        testReceivedNoDestination.run {
+            assertThat(destinationCount).isEqualTo(0)
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED)
+            assertThat(plannedCompletionAt).isNull()
+            assertThat(actualCompletionAt).isNull()
+        }
+    }
+
+    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
+    @Test
+    fun `test DetailedSubmissionHistory LEGACY overallStatus calculations (received) (legacy route step)`() {
+        val testReceived = DetailedSubmissionHistory(
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+            HttpStatus.OK.value(),
+            reports = mutableListOf(),
+            logs = emptyList()
+        )
+        testReceived.actionsPerformed = mutableSetOf(TaskAction.receive)
+        testReceived.enrichWithSummary()
+        testReceived.run {
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED)
+            assertThat(plannedCompletionAt).isNull()
+            assertThat(actualCompletionAt).isNull()
+        }
+
+        val reports = listOf(
+            DetailedReport(
+                UUID.randomUUID(),
+                null,
+                null,
+                null,
+                null,
+                Topic.TEST,
+                "no item count dest",
+                null,
+                null,
+                0,
+                null,
+                true,
+                null,
+                null,
+                null
+            ),
+        ).toMutableList()
+        val testReceivedNoDestination = DetailedSubmissionHistory(
+            1,
+            TaskAction.route,
             OffsetDateTime.now(),
             HttpStatus.OK.value(),
             reports,
@@ -804,6 +969,120 @@ class SubmissionHistoryTests {
         ).toMutableList()
         val testReceivedOneUnfilteredDestination = DetailedSubmissionHistory(
             1, TaskAction.destination_filter, OffsetDateTime.now(),
+            HttpStatus.OK.value(), oneUnfilteredDestinationCalculated, logs = emptyList()
+        )
+        testReceivedOneUnfilteredDestination.enrichWithSummary()
+        testReceivedOneUnfilteredDestination.run {
+            assertThat(destinations.count()).isEqualTo(1)
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.WAITING_TO_DELIVER)
+        }
+        val reports = listOf(
+            inputReport,
+            latestReport,
+            DetailedReport(
+                UUID.randomUUID(),
+                "recvOrg1",
+                "recvSvc1",
+                null,
+                null,
+                Topic.FULL_ELR,
+                "otherExternalName1",
+                null,
+                null,
+                1,
+                null,
+                true,
+                null,
+                null,
+                null
+            ),
+            DetailedReport(
+                UUID.randomUUID(),
+                "recvOrg3",
+                "recvSvc3",
+                null,
+                null,
+                Topic.FULL_ELR,
+                "no item count dest",
+                null,
+                null,
+                0,
+                null,
+                true,
+                null,
+                null,
+                null
+            ),
+        ).toMutableList()
+        val testWaitingToDeliver = DetailedSubmissionHistory(
+            1, TaskAction.receive, OffsetDateTime.now(),
+            HttpStatus.OK.value(), reports, logs = emptyList()
+        )
+        testWaitingToDeliver.enrichWithSummary()
+        testWaitingToDeliver.run {
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.WAITING_TO_DELIVER)
+        }
+    }
+
+    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
+    @Test
+    fun `test DetailedSubmissionHistory overallStatus (waiting to deliver) (legacy route step)`() {
+        val inputReport = DetailedReport(
+            UUID.randomUUID(),
+            null,
+            null,
+            "org",
+            "client",
+            Topic.FULL_ELR,
+            "externalName",
+            null,
+            null,
+            5,
+            null,
+            false,
+            null,
+            null,
+            null
+        )
+        val latestReport = DetailedReport(
+            UUID.randomUUID(),
+            "recvOrg2",
+            "recvSvc2",
+            null, null,
+            Topic.FULL_ELR,
+            "otherExternalName2",
+            null,
+            null,
+            4,
+            null,
+            true,
+            null,
+            null,
+            null
+        )
+        // waiting to deliver: one of two destinations has been calculated, with no items filtered out
+        val oneUnfilteredDestinationCalculated = listOf(
+            inputReport,
+            DetailedReport(
+                UUID.randomUUID(),
+                "recvOrg4",
+                "recvSvc4",
+                null,
+                null,
+                Topic.FULL_ELR,
+                "one item dest",
+                null,
+                null,
+                5,
+                5,
+                true,
+                null,
+                null,
+                null
+            ),
+        ).toMutableList()
+        val testReceivedOneUnfilteredDestination = DetailedSubmissionHistory(
+            1, TaskAction.route, OffsetDateTime.now(),
             HttpStatus.OK.value(), oneUnfilteredDestinationCalculated, logs = emptyList()
         )
         testReceivedOneUnfilteredDestination.enrichWithSummary()
