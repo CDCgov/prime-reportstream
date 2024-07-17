@@ -65,12 +65,13 @@ class FHIRFunctions(
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
-                elrRoutingQueueName,
+                elrDestinationFilterQueueName,
                 it.serialize()
             )
         }
     }
 
+    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     /**
      * An azure function for routing full-ELR FHIR data.
      */
@@ -85,6 +86,7 @@ class FHIRFunctions(
         doRoute(message, dequeueCount, FHIRRouter())
     }
 
+    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     /**
      * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
      * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
@@ -130,7 +132,7 @@ class FHIRFunctions(
         message: String,
         dequeueCount: Int,
         fhirEngine: FHIRDestinationFilter,
-        actionHistory: ActionHistory = ActionHistory(TaskAction.route),
+        actionHistory: ActionHistory = ActionHistory(TaskAction.destination_filter),
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
 
@@ -166,7 +168,7 @@ class FHIRFunctions(
         message: String,
         dequeueCount: Int,
         fhirEngine: FHIRReceiverFilter,
-        actionHistory: ActionHistory = ActionHistory(TaskAction.route),
+        actionHistory: ActionHistory = ActionHistory(TaskAction.receiver_filter),
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
