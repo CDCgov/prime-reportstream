@@ -23,14 +23,10 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
-import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.FhirDestinationFilterQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
-import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
-import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -191,92 +187,6 @@ class FhirFunctionTests {
             actionHistory.trackLogs(emptyList()) // list actionLog
             queueMock.sendMessage(elrDestinationFilterQueueName, message.serialize())
             workflowEngine.recordAction(any(), any())
-        }
-    }
-
-    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
-    // test route-fhir
-    @Test
-    fun `test route-fhir`() {
-        mockkObject(BlobAccess.Companion)
-        mockkObject(QueueMessage.Companion)
-        // setup
-        commonSetup()
-        val metadata = spyk(UnitTestUtils.simpleMetadata)
-        every { metadata.findLookupTable("fhirpath_filter_shorthand") } returns LookupTable()
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val fhirEngine = spyk(
-            FHIRRouter(
-                metadata,
-                settings,
-                accessSpy,
-                blobMock,
-            )
-        )
-
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val workflowEngine = makeWorkflowEngine(metadata, settings)
-
-        val fhirFunc = spyk(FHIRFunctions(workflowEngine, queueAccess = queueMock))
-        every { accessSpy.insertAction(any(), any()) } returns 0
-        every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
-
-        every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
-        every { actionHistory.action.actionId } returns 1
-        every { actionHistory.action.sendingOrg } returns "Test Sender"
-        every { queueMock.sendMessage(any(), any()) } returns Unit
-
-        val report = Report(
-            MimeFormat.FHIR,
-            emptyList(),
-            1,
-            itemLineage = listOf(
-                ItemLineage()
-            ),
-            metadata = UnitTestUtils.simpleMetadata,
-            topic = Topic.FULL_ELR,
-        )
-        val nextEvent = ProcessEvent(
-            Event.EventAction.TRANSLATE,
-            report.id,
-            Options.None,
-            emptyMap(),
-            emptyList()
-        )
-        val message = FhirRouteQueueMessage(
-            report.id,
-            "",
-            "",
-            "ignore.ignore-full-elr",
-            Topic.FULL_ELR
-        )
-        every { fhirEngine.doWork(any(), any(), any()) } returns listOf(
-            FHIREngine.FHIREngineRunResult(
-                nextEvent,
-                report,
-                "",
-                message
-            )
-        )
-
-        val queueMessage = "{\"type\":\"route\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
-            "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
-            "None-011bb9ab-15c7-4ecd-8fae-0dd21e04d353-20220729171318.hl7\",\"digest\":\"58ffffffaaffffffc22ffffff" +
-            "f044ffffff85ffffffd4ffffffc9ffffffceffffff9bffffffe3ffffff8fffffff86ffffff9a5966fffffff6ffffff87fffff" +
-            "fff5bffffffae6015fffffffbffffffdd363037ffffffed51ffffffd3\",\"sender\":\"ignore.ignore-full-elr\"," +
-            "\"blobSubFolderName\":\"ignore.ignore-full-elr\",\"topic\":\"full-elr\"}"
-
-        // act
-        fhirFunc.doRoute(queueMessage, 1, fhirEngine, actionHistory)
-
-        // assert
-        verify(exactly = 1) {
-            fhirEngine.doWork(any(), any(), any())
-            actionHistory.trackActionParams(queueMessage) // string
-            actionHistory.trackLogs(emptyList()) // list actionLog
-            workflowEngine.recordAction(any(), any())
-            queueMock.sendMessage(elrTranslationQueueName, message.serialize())
         }
     }
 

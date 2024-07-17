@@ -21,7 +21,6 @@ import org.jooq.Field
 import java.time.OffsetDateTime
 
 const val elrConvertQueueName = "elr-fhir-convert"
-const val elrRoutingQueueName = "elr-fhir-route"
 const val elrDestinationFilterQueueName = "elr-fhir-destination-filter"
 const val elrReceiverFilterQueueName = "elr-fhir-receiver-filter"
 const val elrTranslationQueueName = "elr-fhir-translate"
@@ -122,14 +121,6 @@ abstract class FHIREngine(
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl()
-                )
-                TaskAction.route -> FHIRRouter(
-                    metadata ?: Metadata.getInstance(),
-                    settingsProvider!!,
-                    databaseAccess ?: databaseAccessSingleton,
-                    blobAccess ?: BlobAccess(),
-                    azureEventService ?: AzureEventServiceImpl(),
-                    reportService ?: ReportService()
                 )
                 TaskAction.destination_filter -> FHIRDestinationFilter(
                     metadata ?: Metadata.getInstance(),
