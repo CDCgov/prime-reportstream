@@ -126,9 +126,12 @@ class FHIRConverter(
             // TODO: https://github.com/CDCgov/prime-reportstream/issues/14287
             FhirPathUtils
 
-            val fhirBundles = process(format, queueMessage, actionLogger)
+            val processedItems = process(format, queueMessage, actionLogger)
 
-            if (fhirBundles.isNotEmpty()) {
+            // processedItems can be empty in two scenarios:
+            // - the blob had no contents, i.e. an empty file was submitted
+            // - the format is HL7 and the contents were not parseable, so the number of items is unknown
+            if (processedItems.isNotEmpty()) {
                 return LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                     "Applied sender transform and routed"
                 ) {
@@ -137,68 +140,92 @@ class FHIRConverter(
                     )
 
                     maybeParallelize(
-                        fhirBundles.size,
-                        Streams.mapWithIndex(fhirBundles.stream()) { bundle, index ->
+                        processedItems.size,
+                        Streams.mapWithIndex(processedItems.stream()) { bundle, index ->
                             Pair(bundle, index)
                         },
                         "Applying sender transforms and routing"
-                    ).map { (bundle, bundleIndex) ->
+                    ).map { (processedItem, itemIndex) ->
                         // conduct FHIR Transform
-                        transformer?.process(bundle)
-
-                        // make a 'report'
-                        val report = Report(
-                            MimeFormat.FHIR,
-                            emptyList(),
-                            parentItemLineageData = listOf(
-                                Report.ParentItemLineageData(queueMessage.reportId, bundleIndex.toInt() + 1)
-                            ),
-                            metadata = this.metadata,
-                            topic = queueMessage.topic,
-                            nextAction = TaskAction.route
-                        )
-
-                        // create route event
-                        val routeEvent = ProcessEvent(
-                            Event.EventAction.ROUTE,
-                            report.id,
-                            Options.None,
-                            emptyMap(),
-                            emptyList()
-                        )
-
-                        // upload to blobstore
-                        val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
-                        val blobInfo = BlobAccess.uploadBody(
-                            MimeFormat.FHIR,
-                            bodyBytes,
-                            report.id.toString(),
-                            queueMessage.blobSubFolderName,
-                            routeEvent.eventAction
-                        )
-
-                        // track created report
-                        actionHistory.trackCreatedReport(routeEvent, report, blobInfo = blobInfo)
-                        azureEventService.trackEvent(
-                            ReportCreatedEvent(
-                                report.id,
-                                queueMessage.topic
+                        if (processedItem.bundle == null) {
+                            val report = Report(
+                                MimeFormat.FHIR,
+                                emptyList(),
+                                parentItemLineageData = listOf(
+                                    Report.ParentItemLineageData(queueMessage.reportId, itemIndex.toInt() + 1)
+                                ),
+                                metadata = this.metadata,
+                                topic = queueMessage.topic,
+                                nextAction = TaskAction.none
                             )
-                        )
-
-                        FHIREngineRunResult(
-                            routeEvent,
-                            report,
-                            blobInfo.blobUrl,
-                            FhirRouteQueueMessage(
+                            val noneEvent = ProcessEvent(
+                                Event.EventAction.NONE,
                                 report.id,
-                                blobInfo.blobUrl,
-                                BlobAccess.digestToString(blobInfo.digest),
+                                Options.None,
+                                emptyMap(),
+                                emptyList()
+                            )
+                            actionHistory.trackCreatedReport(noneEvent, report)
+                            null
+                        } else {
+                            // We know from the null check above that this cannot be null
+                            val bundle = processedItem.bundle!!
+                            transformer?.process(bundle)
+
+                            // make a 'report'
+                            val report = Report(
+                                MimeFormat.FHIR,
+                                emptyList(),
+                                parentItemLineageData = listOf(
+                                    Report.ParentItemLineageData(queueMessage.reportId, itemIndex.toInt() + 1)
+                                ),
+                                metadata = this.metadata,
+                                topic = queueMessage.topic,
+                                nextAction = TaskAction.route
+                            )
+
+                            // create route event
+                            val routeEvent = ProcessEvent(
+                                Event.EventAction.ROUTE,
+                                report.id,
+                                Options.None,
+                                emptyMap(),
+                                emptyList()
+                            )
+
+                            // upload to blobstore
+                            val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
+                            val blobInfo = BlobAccess.uploadBody(
+                                MimeFormat.FHIR,
+                                bodyBytes,
+                                report.id.toString(),
                                 queueMessage.blobSubFolderName,
-                                queueMessage.topic
+                                routeEvent.eventAction
                             )
-                        )
-                    }.collect(Collectors.toList())
+
+                            // track created report
+                            actionHistory.trackCreatedReport(routeEvent, report, blobInfo = blobInfo)
+                            azureEventService.trackEvent(
+                                ReportCreatedEvent(
+                                    report.id,
+                                    queueMessage.topic
+                                )
+                            )
+
+                            FHIREngineRunResult(
+                                routeEvent,
+                                report,
+                                blobInfo.blobUrl,
+                                FhirRouteQueueMessage(
+                                    report.id,
+                                    blobInfo.blobUrl,
+                                    BlobAccess.digestToString(blobInfo.digest),
+                                    queueMessage.blobSubFolderName,
+                                    queueMessage.topic
+                                )
+                            )
+                        }
+                    }.collect(Collectors.toList()).filterNotNull()
                 }
             } else {
                 val nextEvent = ProcessEvent(
@@ -264,7 +291,7 @@ class FHIRConverter(
         queueMessage: ReportPipelineMessage,
         actionLogger: ActionLogger,
         routeReportWithInvalidItems: Boolean = true,
-    ): List<Bundle> {
+    ): List<IProcessedItem<*>> {
         val validator = queueMessage.topic.validator
         val rawReport = queueMessage.downloadContent()
         return if (rawReport.isBlank()) {
@@ -309,7 +336,7 @@ class FHIRConverter(
             }
 
             val areAllItemsParsedAndValid = processedItems.all { it.getError() == null }
-            val bundles = processedItems.mapNotNull { item ->
+            val bundles = processedItems.map { item ->
                 val error = item.getError()
                 if (error != null) {
                     actionLogger.getItemLogger(error.index + 1, item.getTrackingId()).error(error)
@@ -321,7 +348,7 @@ class FHIRConverter(
                             .warn(this)
                     }
                 }
-                item.bundle
+                item
             }
 
             withLoggingContext(
