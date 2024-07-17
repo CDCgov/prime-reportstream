@@ -17,7 +17,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation: !<HL7>
-        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/MS/MS-receiver-transform.yml"
+        schemaName: "azure:/hl7_mapping/receivers/STLTs/MS/MS-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: "MSDH-ELR"
@@ -61,8 +61,7 @@
           truncateHl7Fields: []
           customLengthHl7Fields: {}
       jurisdictionalFilter:
-        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state\
-      \ = 'MS') or (Bundle.entry.resource.ofType(Patient).address.state = 'MS')"
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'MS') or (Bundle.entry.resource.ofType(Patient).address.state = 'MS')"
       qqualityFilter:
         - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or Bundle.entry.resource.ofType(serviceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists())"
         - "(Bundle.entry.resource.ofType(Patient).address.line.exists() or Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or Bundle.entry.resource.ofType(Patient).telecom.exists())"
