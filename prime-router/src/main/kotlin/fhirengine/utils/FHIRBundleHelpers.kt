@@ -129,9 +129,7 @@ fun Bundle.getObservations() = this.entry.map { it.resource }.filterIsInstance<O
 
 fun Bundle.getObservationsWithCondition(codes: List<String>): List<Observation> =
     if (codes.isEmpty()) {
-        // TODO: consider throwing IllegalArgumentException here while implementing
-        //  https://github.com/CDCgov/prime-reportstream/issues/12705
-        emptyList()
+        throw IllegalArgumentException("Invalid mapped condition filter")
     } else {
         this.getObservations().filter {
             it.getMappedConditionCodes().any(codes::contains)

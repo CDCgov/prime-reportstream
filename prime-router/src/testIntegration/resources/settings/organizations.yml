@@ -144,10 +144,6 @@
         - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count() = 0"
         - "Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.value.getIdType() = 'CLIA'"
         - "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.value.getIdType() = 'CLIA'"
-      conditionFilter:
-        # Accept all conditions except Covid results in the LIVD look up table
-        # Covid flows through the Covid pipeline
-        - "%resource.livdTableLookup('Component').contains('coronavirus').not()"
       mappedConditionFilter:
         - type: codeString
           value: 840539006,1234

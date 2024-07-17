@@ -1,5 +1,8 @@
 package gov.cdc.prime.router.azure
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
@@ -21,12 +24,15 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.TopicReceiver
 import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.history.DetailedSubmissionHistory
+import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
@@ -37,6 +43,8 @@ import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.OffsetDateTime
+import java.util.UUID
 
 class ReportFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -585,6 +593,20 @@ class ReportFunctionTests {
 
         every { accessSpy.isDuplicateItem(any(), any()) } returns false
 
+        val mockSubmissionsFacade = mockk<SubmissionsFacade>()
+        mockkObject(SubmissionsFacade)
+        every { SubmissionsFacade.instance } returns mockSubmissionsFacade
+        val reportId = UUID.randomUUID()
+        val mockHistory = DetailedSubmissionHistory(
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+            reports = mutableListOf(),
+            logs = emptyList()
+        )
+        mockHistory.reportId = reportId.toString()
+        every { mockSubmissionsFacade.findDetailedSubmissionHistory(any(), any(), any()) } returns mockHistory
+
         // act
         val resp = reportFunc.processRequest(req, sender)
 
@@ -592,6 +614,8 @@ class ReportFunctionTests {
         verify(exactly = 1) { engine.isDuplicateItem(any()) }
         verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
         assert(resp.status.equals(HttpStatus.CREATED))
+        assertThat(resp.getHeader(HttpHeaders.LOCATION))
+            .isEqualTo("http://localhost/api/waters/report/$reportId/history")
     }
 
     // test processFunction when basic hl7 message with 5 separators is passed
