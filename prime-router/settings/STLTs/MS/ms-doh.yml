@@ -91,10 +91,10 @@
           onlyOncePerDay: false
       description: ""
       transport: !<SFTP>
-        host: "sftp-east.inductivehealth.com"
+        host: "sftp"
         port: "22"
-        filePath: "./prod"
-        credentialName: null
+        filePath: "./upload"
+        credentialName: DEFAULT-SFTP
         type: "SFTP"
       externalName: null
       enrichmentSchemaNames:
