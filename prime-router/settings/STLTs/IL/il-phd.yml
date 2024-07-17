@@ -16,7 +16,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation: !<HL7>
-        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/IL/IL-receiver-transform.yml"
+        schemaName: "azure:/hl7_mapping/receivers/STLTs/IL/IL-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: null
@@ -94,10 +94,10 @@
           onlyOncePerDay: false
       description: ""
       transport: !<SFTP>
-        host: "moveit.illinois.gov"
+        host: "sftp"
         port: "22"
-        filePath: "/Distribution/DPH/LabData/HL7-251/"
-        credentialName: null
+        filePath: "./upload"
+        credentialName: DEFAULT-SFTP
         type: "SFTP"
       externalName: "Primary Feed"
       enrichmentSchemaNames: []
