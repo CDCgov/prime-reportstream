@@ -35,6 +35,7 @@ class FHIRFunctions(
     private val databaseAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
     private val queueAccess: QueueAccess = QueueAccess,
 ) : Logging {
+
     /**
      * An azure function for ingesting full-ELR HL7 data and converting it to FHIR
      */
@@ -64,12 +65,13 @@ class FHIRFunctions(
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
-                elrRoutingQueueName,
-                it.serialize(),
+                elrDestinationFilterQueueName,
+                it.serialize()
             )
         }
     }
 
+    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     /**
      * An azure function for routing full-ELR FHIR data.
      */
@@ -84,6 +86,7 @@ class FHIRFunctions(
         doRoute(message, dequeueCount, FHIRRouter())
     }
 
+    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     /**
      * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
      * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
@@ -100,7 +103,7 @@ class FHIRFunctions(
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
                 elrTranslationQueueName,
-                it.serialize(),
+                it.serialize()
             )
         }
     }
@@ -129,14 +132,14 @@ class FHIRFunctions(
         message: String,
         dequeueCount: Int,
         fhirEngine: FHIRDestinationFilter,
-        actionHistory: ActionHistory = ActionHistory(TaskAction.route),
+        actionHistory: ActionHistory = ActionHistory(TaskAction.destination_filter),
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
 
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
                 elrReceiverFilterQueueName,
-                it.serialize(),
+                it.serialize()
             )
         }
     }
@@ -165,13 +168,13 @@ class FHIRFunctions(
         message: String,
         dequeueCount: Int,
         fhirEngine: FHIRReceiverFilter,
-        actionHistory: ActionHistory = ActionHistory(TaskAction.route),
+        actionHistory: ActionHistory = ActionHistory(TaskAction.receiver_filter),
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
                 elrTranslationQueueName,
-                it.serialize(),
+                it.serialize()
             )
         }
     }
@@ -207,7 +210,7 @@ class FHIRFunctions(
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
                 elrSendQueueName,
-                it.serialize(),
+                it.serialize()
             )
         }
     }
@@ -229,12 +232,11 @@ class FHIRFunctions(
     ): List<QueueMessage> {
         val messageContent = readMessage(fhirEngine.engineType, message, dequeueCount)
 
-        val newMessages =
-            databaseAccess.transactReturning { txn ->
-                val results = fhirEngine.run(messageContent, actionLogger, actionHistory, txn)
-                recordResults(message, actionHistory, txn)
-                results
-            }
+        val newMessages = databaseAccess.transactReturning { txn ->
+            val results = fhirEngine.run(messageContent, actionLogger, actionHistory, txn)
+            recordResults(message, actionHistory, txn)
+            results
+        }
 
         return newMessages
     }
@@ -243,13 +245,9 @@ class FHIRFunctions(
      * Deserializes the [message] into a Fhir Convert/Route/Translate Message, verifies it is of the correct type.
      * Logs the [engineType] and [dequeueCount]
      */
-    private fun readMessage(
-        engineType: String,
-        message: String,
-        dequeueCount: Int,
-    ): ReportPipelineMessage {
+    private fun readMessage(engineType: String, message: String, dequeueCount: Int): ReportPipelineMessage {
         logger.debug(
-            "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time",
+            "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
         )
 
         return QueueMessage.deserialize(message) as ReportPipelineMessage
@@ -258,11 +256,7 @@ class FHIRFunctions(
     /**
      * Tracks any action params that are part of the [message] and records the logs and actions to the database
      */
-    private fun recordResults(
-        message: String,
-        actionHistory: ActionHistory,
-        txn: DataAccessTransaction,
-    ) {
+    private fun recordResults(message: String, actionHistory: ActionHistory, txn: DataAccessTransaction) {
         actionHistory.trackActionParams(message)
         actionHistory.trackLogs(actionLogger.logs)
         workflowEngine.recordAction(actionHistory, txn)
