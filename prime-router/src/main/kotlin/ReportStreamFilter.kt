@@ -20,8 +20,11 @@ fun ReportStreamConditionFilter.codes(): List<String> = this.flatMap { it.codes(
     JsonSubTypes.Type(FHIRExpressionConditionFilter::class, name = "fhirExpression"),
 )
 abstract class ConditionFilter(val value: String) {
-    // TODO: change to .filter() or .passes() method and combine with legacy filter
     abstract fun codes(): List<String>
+
+    override fun toString(): String {
+        return value
+    }
 }
 
 class CodeStringConditionFilter(value: String) : ConditionFilter(value) {

@@ -25,17 +25,15 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
-import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.FhirDestinationFilterQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.QueueMessage
-import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import gov.cdc.prime.router.metadata.LookupTable
-import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
@@ -47,6 +45,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
 
+// TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
 class FhirFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
@@ -54,7 +53,6 @@ class FhirFunctionTests {
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val timing1 = mockkClass(Receiver.Timing::class)
-    val reportServiceMock = mockk<ReportService>()
 
     val oneOrganization = DeepOrganization(
         "phd", "test", Organization.Jurisdiction.FEDERAL,
@@ -154,13 +152,13 @@ class FhirFunctionTests {
             topic = Topic.FULL_ELR,
         )
         val routeEvent = ProcessEvent(
-            Event.EventAction.ROUTE,
+            Event.EventAction.DESTINATION_FILTER,
             report.id,
             Options.None,
             emptyMap(),
             emptyList()
         )
-        val message = FhirConvertQueueMessage(
+        val message = FhirDestinationFilterQueueMessage(
             report.id,
             "",
             "BlobAccess.digestToString(blobInfo.digest)",
@@ -191,11 +189,12 @@ class FhirFunctionTests {
             fhirEngine.doWork(any(), any(), any())
             actionHistory.trackActionParams(queueMessage) // string
             actionHistory.trackLogs(emptyList()) // list actionLog
-            queueMock.sendMessage(elrRoutingQueueName, message.serialize())
+            queueMock.sendMessage(elrDestinationFilterQueueName, message.serialize())
             workflowEngine.recordAction(any(), any())
         }
     }
 
+    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     // test route-fhir
     @Test
     fun `test route-fhir`() {
