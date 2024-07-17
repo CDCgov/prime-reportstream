@@ -1,0 +1,45 @@
+name: "Start Frontend Smoke Tests"
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment Environment:'
+        required: true
+        options:
+          - prod
+          - staging
+          - test
+        type: choice
+      username:
+        description: 'Administrator username for the environment chosen:'
+        required: true
+        type: string
+      password:
+        description: 'Administrator password for the environment chosen:'
+        required: true
+        type: string
+
+jobs:
+  run_smoke:
+    name: Smoke Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Run frontend smoke tests on ${{ github.event.inputs.environment }}"
+        working-directory: frontend-react
+        env:
+          TEST_ADMIN_USERNAME: ${{ github.event.inputs.username }}
+          TEST_ADMIN_PASSWORD: ${{ github.event.inputs.password }}
+        run: |
+          echo "::group::E2E smoke tests"
+          yarn run test:e2e-smoke
+          echo "::endgroup::"
+        shell: bash
+
+      - name: "Store E2E Results"
+        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b
+        with:
+         name: e2e-data
+         path: frontend-react/e2e-data/
+         retention-days: 7
