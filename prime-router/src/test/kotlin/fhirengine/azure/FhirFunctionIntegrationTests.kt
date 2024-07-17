@@ -231,7 +231,7 @@ SPM|1|^dba7572cc6334f1ea0744c5f235c823e&MMTC.PROD&2.16.840.1.113883.3.8589.4.2.1
 // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
-class FhirFunctionIntegrationTests {
+class FhirFunctionIntegrationTests() {
 
     @Container
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
@@ -271,10 +271,12 @@ class FhirFunctionIntegrationTests {
         metadata: Metadata,
         settings: SettingsProvider,
         databaseAccess: DatabaseAccess,
-    ): WorkflowEngine = spyk(
-        WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(databaseAccess)
-            .build()
-    )
+    ): WorkflowEngine {
+        return spyk(
+            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(databaseAccess)
+                .build()
+        )
+    }
 
     private fun seedTask(
         fileFormat: MimeFormat,

@@ -87,7 +87,8 @@ class SendFunctionTests {
         every { workflowEngine.reportService }.returns(mockk<ReportService>())
     }
 
-    fun makeHeader(): WorkflowEngine.Header = WorkflowEngine.Header(
+    fun makeHeader(): WorkflowEngine.Header {
+        return WorkflowEngine.Header(
             task, reportFile,
             null,
             settings.findOrganization("ignore"),
@@ -95,6 +96,7 @@ class SendFunctionTests {
             metadata.findSchema("covid-19"), "hello".toByteArray(),
             true
         )
+    }
 
     @AfterEach
     fun reset() {

@@ -24,7 +24,9 @@ import java.time.OffsetDateTime
  *
  * A [workflowEngine] can be passed in for mocking/testing purposes.
  */
-class UniversalBatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) : Logging {
+class UniversalBatchFunction(
+    private val workflowEngine: WorkflowEngine = WorkflowEngine(),
+) : Logging {
     @FunctionName(BatchConstants.Function.UNIVERSAL_BATCH_FUNCTION)
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -40,11 +42,10 @@ class UniversalBatchFunction(private val workflowEngine: WorkflowEngine = Workfl
                 logger.error("UniversalBatchFunction received a $message")
                 return
             }
-            val actionHistory =
-                ActionHistory(
-                    event.eventAction.toTaskAction(),
-                    event.isEmptyBatch,
-                )
+            val actionHistory = ActionHistory(
+                event.eventAction.toTaskAction(),
+                event.isEmptyBatch
+            )
             doBatch(message, event, actionHistory)
         } catch (e: Exception) {
             // already logged, silent catch to not break existing functionality
@@ -63,20 +64,17 @@ class UniversalBatchFunction(private val workflowEngine: WorkflowEngine = Workfl
     ) {
         var backstopTime: OffsetDateTime? = null
         try {
-            val receiver =
-                workflowEngine.settings.findReceiver(event.receiverName)
-                    ?: error("Internal Error: receiver name ${event.receiverName}")
+            val receiver = workflowEngine.settings.findReceiver(event.receiverName)
+                ?: error("Internal Error: receiver name ${event.receiverName}")
             actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
             val maxBatchSize = receiver.timing?.maxReportCount ?: BatchConstants.DEFAULT_BATCH_SIZE
 
             actionHistory.trackActionParams(message)
-            backstopTime =
-                OffsetDateTime.now().minusMinutes(
-                    BaseEngine.getBatchLookbackMins(
-                        receiver.timing?.numberPerDay ?: 1,
-                        BatchConstants.NUM_BATCH_RETRIES,
-                    ),
+            backstopTime = OffsetDateTime.now().minusMinutes(
+                BaseEngine.getBatchLookbackMins(
+                    receiver.timing?.numberPerDay ?: 1, BatchConstants.NUM_BATCH_RETRIES
                 )
+            )
             logger.trace("UniversalBatchFunction (msg=$message) using backstopTime=$backstopTime")
 
             // if this 'batch' event is for an empty batch, create the empty file
@@ -88,12 +86,12 @@ class UniversalBatchFunction(private val workflowEngine: WorkflowEngine = Workfl
                 if (receiver.format == MimeFormat.HL7) {
                     logger.error(
                         "'Empty Batch' not supported for individual HL7 file. Only CSV/HL7_BATCH " +
-                            "formats are supported.",
+                            "formats are supported."
                     )
                 } else {
                     workflowEngine.generateEmptyReport(
                         actionHistory,
-                        receiver,
+                        receiver
                     )
                     workflowEngine.recordAction(actionHistory)
                 }
@@ -130,8 +128,7 @@ class UniversalBatchFunction(private val workflowEngine: WorkflowEngine = Workfl
         receiver: Receiver,
         txn: Configuration?,
     ) {
-        if (!receiver.useBatching ||
-            receiver.timing == null ||
+        if (!receiver.useBatching || receiver.timing == null ||
             receiver.timing.operation != Receiver.BatchOperation.MERGE
         ) {
             // Send each report separately
@@ -140,16 +137,15 @@ class UniversalBatchFunction(private val workflowEngine: WorkflowEngine = Workfl
                 actionHistory.trackExistingInputReport(it.task.reportId)
 
                 // get a Report from the message
-                val (report, sendEvent, blobInfo) =
-                    Report.generateReportAndUploadBlob(
-                        Event.EventAction.SEND,
-                        it.content!!,
-                        listOf(it.task.reportId),
-                        receiver,
-                        workflowEngine.metadata,
-                        actionHistory,
-                        topic = receiver.topic,
-                    )
+                val (report, sendEvent, blobInfo) = Report.generateReportAndUploadBlob(
+                    Event.EventAction.SEND,
+                    it.content!!,
+                    listOf(it.task.reportId),
+                    receiver,
+                    workflowEngine.metadata,
+                    actionHistory,
+                    topic = receiver.topic,
+                )
 
                 // insert the 'Send' task
                 workflowEngine.db.insertTask(
@@ -157,21 +153,20 @@ class UniversalBatchFunction(private val workflowEngine: WorkflowEngine = Workfl
                     blobInfo.format.toString(),
                     blobInfo.blobUrl,
                     sendEvent,
-                    txn,
+                    txn
                 )
             }
         } else if (validHeaders.isNotEmpty() ||
             (receiver.timing.whenEmpty.action == Receiver.EmptyOperation.SEND)
         ) {
             // Batch all reports into one
-            val messages =
-                validHeaders.map {
-                    // track reportId as 'parent'
-                    actionHistory.trackExistingInputReport(it.task.reportId)
+            val messages = validHeaders.map {
+                // track reportId as 'parent'
+                actionHistory.trackExistingInputReport(it.task.reportId)
 
-                    // return message as string
-                    String(it.content!!)
-                }
+                // return message as string
+                String(it.content!!)
+            }
 
             // Generate the batch message
             val batchMessage = when (receiver.format) {
@@ -181,16 +176,15 @@ class UniversalBatchFunction(private val workflowEngine: WorkflowEngine = Workfl
             }
 
             // get a Report from the message
-            val (report, sendEvent, blobInfo) =
-                Report.generateReportAndUploadBlob(
-                    Event.EventAction.SEND,
-                    batchMessage.toByteArray(),
-                    validHeaders.map { it.task.reportId },
-                    receiver,
-                    workflowEngine.metadata,
-                    actionHistory,
-                    topic = receiver.topic,
-                )
+            val (report, sendEvent, blobInfo) = Report.generateReportAndUploadBlob(
+                Event.EventAction.SEND,
+                batchMessage.toByteArray(),
+                validHeaders.map { it.task.reportId },
+                receiver,
+                workflowEngine.metadata,
+                actionHistory,
+                topic = receiver.topic,
+            )
 
             // insert the 'Send' task
             workflowEngine.db.insertTask(
@@ -198,7 +192,7 @@ class UniversalBatchFunction(private val workflowEngine: WorkflowEngine = Workfl
                 blobInfo.format.toString(),
                 blobInfo.blobUrl,
                 sendEvent,
-                txn,
+                txn
             )
         }
     }

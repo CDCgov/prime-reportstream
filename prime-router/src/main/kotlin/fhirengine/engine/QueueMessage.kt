@@ -32,7 +32,7 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
     JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "translate"),
     JsonSubTypes.Type(BatchEventQueueMessage::class, name = "batch"),
     JsonSubTypes.Type(ProcessEventQueueMessage::class, name = "process"),
-    JsonSubTypes.Type(ReportEventQueueMessage::class, name = "report"),
+    JsonSubTypes.Type(ReportEventQueueMessage::class, name = "report")
 )
 abstract class QueueMessage {
     fun serialize(): String {
@@ -42,20 +42,22 @@ abstract class QueueMessage {
     }
 
     companion object {
-        private val ptv =
-            BasicPolymorphicTypeValidator.builder()
-                .build()
-        val mapper: JsonMapper =
-            jacksonMapperBuilder()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .polymorphicTypeValidator(ptv)
-                .activateDefaultTyping(ptv)
-                .build()
+        private val ptv = BasicPolymorphicTypeValidator.builder()
+            .build()
+        val mapper: JsonMapper = jacksonMapperBuilder()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .polymorphicTypeValidator(ptv)
+            .activateDefaultTyping(ptv)
+            .build()
 
-        fun deserialize(s: String): QueueMessage = mapper.readValue(s)
+        fun deserialize(s: String): QueueMessage {
+            return mapper.readValue(s)
+        }
     }
 
-    override fun toString(): String = mapper.writeValueAsString(this)
+    override fun toString(): String {
+        return mapper.writeValueAsString(this)
+    }
 }
 
 interface WithDownloadableReport {
@@ -82,9 +84,9 @@ interface ReportIdentifyingInformation {
 }
 
 abstract class ReportPipelineMessage :
-    QueueMessage(),
     ReportIdentifyingInformation,
-    WithDownloadableReport
+    WithDownloadableReport,
+    QueueMessage()
 
 @JsonTypeName("convert")
 data class FhirConvertQueueMessage(

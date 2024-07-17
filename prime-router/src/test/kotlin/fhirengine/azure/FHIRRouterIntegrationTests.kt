@@ -159,8 +159,8 @@ class FHIRRouterIntegrationTests : Logging {
         val reverseQuality: Boolean = false,
     )
 
-    private fun createReceivers(receiverSetupDataList: List<ReceiverSetupData>): List<Receiver> =
-        receiverSetupDataList.map {
+    private fun createReceivers(receiverSetupDataList: List<ReceiverSetupData>): List<Receiver> {
+        return receiverSetupDataList.map {
             Receiver(
                 it.name,
                 it.orgName,
@@ -176,20 +176,23 @@ class FHIRRouterIntegrationTests : Logging {
                 reverseTheQualityFilter = it.reverseQuality
             )
         }
+    }
 
-    private fun createOrganizationWithReceivers(receiverList: List<Receiver>): DeepOrganization = DeepOrganization(
-        "phd",
-        "test",
-        Organization.Jurisdiction.FEDERAL,
-        senders = listOf(
-            hl7Sender,
-            fhirSender,
-            hl7SenderWithNoTransform,
-            fhirSenderWithNoTransform,
-            senderWithValidation
-        ),
-        receivers = receiverList
-    )
+    private fun createOrganizationWithReceivers(receiverList: List<Receiver>): DeepOrganization {
+        return DeepOrganization(
+            "phd",
+            "test",
+            Organization.Jurisdiction.FEDERAL,
+            senders = listOf(
+                hl7Sender,
+                fhirSender,
+                hl7SenderWithNoTransform,
+                fhirSenderWithNoTransform,
+                senderWithValidation
+            ),
+            receivers = receiverList
+        )
+    }
 
     private fun createFHIRFunctionsInstance(): FHIRFunctions {
         val settings = FileSettings().loadOrganizations(universalPipelineOrganization)
@@ -221,7 +224,8 @@ class FHIRRouterIntegrationTests : Logging {
         )
     }
 
-    private fun generateQueueMessage(report: Report, blobContents: String, sender: Sender): String = """
+    private fun generateQueueMessage(report: Report, blobContents: String, sender: Sender): String {
+        return """
             {
                 "type": "route",
                 "reportId": "${report.id}",
@@ -232,6 +236,7 @@ class FHIRRouterIntegrationTests : Logging {
                 "schemaName": "${sender.schemaName}" 
             }
         """.trimIndent()
+    }
 
     private fun getBlobContainerMetadata(): BlobAccess.BlobContainerMetadata {
         val blobConnectionString =

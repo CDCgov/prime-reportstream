@@ -17,7 +17,9 @@ import org.apache.logging.log4j.kotlin.Logging
  * TODO: This class will need to be further refactored / fleshed out. Only minimal changes required for #4824 are
  *  included in this file at this time to limit scope
  */
-abstract class BaseEngine(val queue: QueueAccess = QueueAccess) : Logging {
+abstract class BaseEngine(
+    val queue: QueueAccess = QueueAccess,
+) : Logging {
     companion object {
         val sequentialLimit = 500
 
@@ -73,16 +75,12 @@ abstract class BaseEngine(val queue: QueueAccess = QueueAccess) : Logging {
          *
          * Calculation is done in minutes.
          */
-        internal fun getBatchLookbackMins(
-            numberBatchesPerDay: Int,
-            minNumRetries: Int,
-        ): Long {
-            val frequencyMins =
-                if (numberBatchesPerDay > 0) {
-                    1440 / numberBatchesPerDay
-                } else {
-                    1440
-                }
+        internal fun getBatchLookbackMins(numberBatchesPerDay: Int, minNumRetries: Int): Long {
+            val frequencyMins = if (numberBatchesPerDay > 0) {
+                1440 / numberBatchesPerDay
+            } else {
+                1440
+            }
             return ((minNumRetries + 1) * frequencyMins + BATCH_LOOKBACK_PADDING_MINS)
         }
     }

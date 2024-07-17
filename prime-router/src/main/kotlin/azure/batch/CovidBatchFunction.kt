@@ -22,7 +22,9 @@ import java.time.OffsetDateTime
  *
  * A [workflowEngine] can be passed in for mocking/testing purposes.
  */
-class CovidBatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) : Logging {
+class CovidBatchFunction(
+    private val workflowEngine: WorkflowEngine = WorkflowEngine(),
+) : Logging {
     @FunctionName(BatchConstants.Function.COVID_BATCH_FUNCTION)
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -38,11 +40,10 @@ class CovidBatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEn
                 logger.error("CovidBatchFunction received a $message")
                 return
             }
-            val actionHistory =
-                ActionHistory(
-                    event.eventAction.toTaskAction(),
-                    event.isEmptyBatch,
-                )
+            val actionHistory = ActionHistory(
+                event.eventAction.toTaskAction(),
+                event.isEmptyBatch
+            )
             doBatch(message, event, actionHistory)
         } catch (e: Exception) {
             // already logged, silent catch to not break existing functionality
@@ -61,20 +62,17 @@ class CovidBatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEn
     ) {
         var backstopTime: OffsetDateTime? = null
         try {
-            val receiver =
-                workflowEngine.settings.findReceiver(event.receiverName)
-                    ?: error("Internal Error: receiver name ${event.receiverName}")
+            val receiver = workflowEngine.settings.findReceiver(event.receiverName)
+                ?: error("Internal Error: receiver name ${event.receiverName}")
             actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
             val maxBatchSize = receiver.timing?.maxReportCount ?: BatchConstants.DEFAULT_BATCH_SIZE
 
             actionHistory.trackActionParams(message)
-            backstopTime =
-                OffsetDateTime.now().minusMinutes(
-                    BaseEngine.getBatchLookbackMins(
-                        receiver.timing?.numberPerDay ?: 1,
-                        BatchConstants.NUM_BATCH_RETRIES,
-                    ),
+            backstopTime = OffsetDateTime.now().minusMinutes(
+                BaseEngine.getBatchLookbackMins(
+                    receiver.timing?.numberPerDay ?: 1, BatchConstants.NUM_BATCH_RETRIES
                 )
+            )
             logger.trace("CovidBatchFunction (msg=$message) using backstopTime=$backstopTime")
 
             // if this 'batch' event is for an empty batch, create the empty file
@@ -86,12 +84,12 @@ class CovidBatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEn
                 if (receiver.format == MimeFormat.HL7) {
                     logger.error(
                         "'Empty Batch' not supported for individual HL7 file. Only CSV/HL7_BATCH " +
-                            "formats are supported.",
+                            "formats are supported."
                     )
                 } else {
                     workflowEngine.generateEmptyReport(
                         actionHistory,
-                        receiver,
+                        receiver
                     )
                     workflowEngine.recordAction(actionHistory)
                 }
@@ -105,45 +103,40 @@ class CovidBatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEn
                     }
 
                     // only batch files that have the expected content - only for reports that are not already HL7
-                    val inReports =
-                        validHeaders.map {
-                            val report = workflowEngine.createReport(it)
-                            // todo replace the use of task.reportId with info from ReportFile.
-                            actionHistory.trackExistingInputReport(it.task.reportId)
-                            report
-                        }
-                    val mergedReports =
-                        when {
-                            receiver.format.isSingleItemFormat -> inReports // don't merge, when we are about to split
-                            receiver.timing?.operation == Receiver.BatchOperation.MERGE ->
-                                listOf(Report.merge(inReports))
+                    val inReports = validHeaders.map {
+                        val report = workflowEngine.createReport(it)
+                        // todo replace the use of task.reportId with info from ReportFile.
+                        actionHistory.trackExistingInputReport(it.task.reportId)
+                        report
+                    }
+                    val mergedReports = when {
+                        receiver.format.isSingleItemFormat -> inReports // don't merge, when we are about to split
+                        receiver.timing?.operation == Receiver.BatchOperation.MERGE ->
+                            listOf(Report.merge(inReports))
 
-                            else -> inReports
-                        }
-                    val outReports =
-                        if (receiver.format.isSingleItemFormat) {
-                            mergedReports.flatMap { it.split() }
-                        } else {
-                            mergedReports
-                        }
+                        else -> inReports
+                    }
+                    val outReports = if (receiver.format.isSingleItemFormat) {
+                        mergedReports.flatMap { it.split() }
+                    } else {
+                        mergedReports
+                    }
 
                     outReports.forEach {
                         val outReport = it.copy(destination = receiver, bodyFormat = receiver.format)
-                        val outEvent =
-                            ReportEvent(
-                                Event.EventAction.SEND,
-                                outReport.id,
-                                actionHistory.generatingEmptyReport,
-                            )
+                        val outEvent = ReportEvent(
+                            Event.EventAction.SEND,
+                            outReport.id,
+                            actionHistory.generatingEmptyReport
+                        )
                         workflowEngine.dispatchReport(outEvent, outReport, actionHistory, receiver, txn)
                     }
-                    val msg =
-                        if (inReports.size == 1 && outReports.size == 1) {
-                            "Success: " +
-                                "No merging needed - batch of 1"
-                        } else {
-                            "Success: merged ${inReports.size} reports into ${outReports.size} reports"
-                        }
+                    val msg = if (inReports.size == 1 && outReports.size == 1) {
+                        "Success: " +
+                            "No merging needed - batch of 1"
+                    } else {
+                        "Success: merged ${inReports.size} reports into ${outReports.size} reports"
+                    }
                     actionHistory.trackActionResult(msg)
 
                     workflowEngine.recordAction(actionHistory, txn) // save to db
@@ -153,7 +146,7 @@ class CovidBatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEn
             logger.trace("CovidBatchFunction succeeded for message: $message")
         } catch (e: Exception) {
             logger.error(
-                "CovidBatchFunction Exception (msg=$message, backstopTime=$backstopTime) : " + e.stackTraceToString(),
+                "CovidBatchFunction Exception (msg=$message, backstopTime=$backstopTime) : " + e.stackTraceToString()
             )
             throw e
         }

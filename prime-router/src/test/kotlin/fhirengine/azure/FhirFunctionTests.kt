@@ -84,10 +84,12 @@ class FhirFunctionTests {
         metadata: Metadata,
         settings: SettingsProvider,
         databaseAccess: DatabaseAccess = accessSpy,
-    ): WorkflowEngine = spyk(
-        WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(databaseAccess)
-            .blobAccess(blobMock).queueAccess(queueMock).build()
-    )
+    ): WorkflowEngine {
+        return spyk(
+            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(databaseAccess)
+                .blobAccess(blobMock).queueAccess(queueMock).build()
+        )
+    }
 
     @BeforeEach
     fun reset() {

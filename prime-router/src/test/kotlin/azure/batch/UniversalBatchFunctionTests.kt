@@ -70,10 +70,12 @@ class UniversalBatchFunctionTests {
         ),
     )
 
-    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine = spyk(
-        WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).queueAccess(queueMock).build()
-    )
+    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
+        return spyk(
+            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
+                .blobAccess(blobMock).queueAccess(queueMock).build()
+        )
+    }
 
     @BeforeEach
     fun reset() {

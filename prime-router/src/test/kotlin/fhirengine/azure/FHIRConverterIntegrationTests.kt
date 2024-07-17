@@ -112,7 +112,8 @@ class FHIRConverterIntegrationTests {
         )
     }
 
-    private fun generateQueueMessage(report: Report, blobContents: String, sender: Sender): String = """
+    private fun generateQueueMessage(report: Report, blobContents: String, sender: Sender): String {
+        return """
             {
                 "type": "convert",
                 "reportId": "${report.id}",
@@ -123,6 +124,7 @@ class FHIRConverterIntegrationTests {
                 "schemaName": "${sender.schemaName}" 
             }
         """.trimIndent()
+    }
 
     @BeforeEach
     fun beforeEach() {
@@ -163,45 +165,47 @@ class FHIRConverterIntegrationTests {
         sender: Sender,
         receiveReportBlobUrl: String,
         itemCount: Int,
-    ): Report = ReportStreamTestDatabaseContainer.testDatabaseAccess.transactReturning { txn ->
-        val report = Report(
-            format,
-            emptyList(),
-            itemCount,
-            metadata = UnitTestUtils.simpleMetadata,
-            nextAction = TaskAction.convert,
-            topic = sender.topic,
-        )
-        report.bodyURL = receiveReportBlobUrl
-        val receiveAction = Action().setActionName(TaskAction.receive)
-        val receiveActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, receiveAction)
-        val reportFile = ReportFile()
-            .setSchemaTopic(sender.topic)
-            .setReportId(report.id)
-            .setActionId(receiveActionId)
-            .setSchemaName("")
-            .setBodyFormat(sender.format.toString())
-            .setItemCount(itemCount)
-            .setExternalName("test-external-name")
-            .setBodyUrl(receiveReportBlobUrl)
-        ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
-            reportFile, txn, receiveAction
-        )
-        ReportStreamTestDatabaseContainer.testDatabaseAccess.insertTask(
-            report,
-            format.toString().lowercase(),
-            report.bodyURL,
-            nextAction = ProcessEvent(
-                Event.EventAction.CONVERT,
-                report.id,
-                Options.None,
-                emptyMap(),
-                emptyList()
-            ),
-            txn
-        )
+    ): Report {
+        return ReportStreamTestDatabaseContainer.testDatabaseAccess.transactReturning { txn ->
+            val report = Report(
+                format,
+                emptyList(),
+                itemCount,
+                metadata = UnitTestUtils.simpleMetadata,
+                nextAction = TaskAction.convert,
+                topic = sender.topic,
+            )
+            report.bodyURL = receiveReportBlobUrl
+            val receiveAction = Action().setActionName(TaskAction.receive)
+            val receiveActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, receiveAction)
+            val reportFile = ReportFile()
+                .setSchemaTopic(sender.topic)
+                .setReportId(report.id)
+                .setActionId(receiveActionId)
+                .setSchemaName("")
+                .setBodyFormat(sender.format.toString())
+                .setItemCount(itemCount)
+                .setExternalName("test-external-name")
+                .setBodyUrl(receiveReportBlobUrl)
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
+                reportFile, txn, receiveAction
+            )
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertTask(
+                report,
+                format.toString().lowercase(),
+                report.bodyURL,
+                nextAction = ProcessEvent(
+                    Event.EventAction.CONVERT,
+                    report.id,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                ),
+                txn
+            )
 
-        report
+            report
+        }
     }
 
     @Test
@@ -380,12 +384,10 @@ class FHIRConverterIntegrationTests {
             assertThat(actionLogs).hasSize(4)
             @Suppress("ktlint:standard:max-line-length")
             val expectedDetailedActions = listOf(
-                2 to
-                    "Item 2 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1838: Invalid JSON content detected, missing required element: 'resourceType'",
+                2 to "Item 2 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1838: Invalid JSON content detected, missing required element: 'resourceType'",
                 3 to "Missing mapping for code(s): 41458-1",
                 3 to "Missing mapping for code(s): 260373001",
-                4 to
-                    "Item 4 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected end-of-input: was expecting closing quote for a string value\n" +
+                4 to "Item 4 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected end-of-input: was expecting closing quote for a string value\n" +
                     " at [line: 1, column: 23]"
             )
 
