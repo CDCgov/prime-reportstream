@@ -1,10 +1,10 @@
 package gov.cdc.prime.reportstream.submissions.config
 
 import com.azure.data.tables.TableClient
-import com.azure.data.tables.TableClientBuilder
-import com.azure.storage.blob.BlobServiceClient
+import com.azure.data.tables.TableServiceClientBuilder
+import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.BlobServiceClientBuilder
-import com.azure.storage.queue.QueueServiceClient
+import com.azure.storage.queue.QueueClient
 import com.azure.storage.queue.QueueServiceClientBuilder
 import com.microsoft.applicationinsights.TelemetryClient
 import org.springframework.beans.factory.annotation.Value
@@ -27,29 +27,28 @@ class AzureConfig {
     private lateinit var tableName: String
 
     @Bean
-    fun blobServiceClient(): BlobServiceClient = BlobServiceClientBuilder()
+    fun blobContainerClient(): BlobContainerClient {
+        return BlobServiceClientBuilder()
             .connectionString(connectionString)
             .buildClient()
+            .getBlobContainerClient(containerName)
+    }
 
     @Bean
-    fun queueServiceClient(): QueueServiceClient = QueueServiceClientBuilder()
+    fun queueClient(): QueueClient {
+        return QueueServiceClientBuilder()
             .connectionString(connectionString)
             .buildClient()
+            .getQueueClient(queueName)
+    }
 
     @Bean
-    fun tableClient(): TableClient = TableClientBuilder()
+    fun tableClient(): TableClient {
+        return TableServiceClientBuilder()
             .connectionString(connectionString)
-            .tableName(tableName)
             .buildClient()
-
-    @Bean
-    fun containerName(): String = containerName
-
-    @Bean
-    fun queueName(): String = queueName
-
-    @Bean
-    fun tableName(): String = tableName
+            .getTableClient(tableName)
+    }
 
     @Bean
     fun telemetryClient(): TelemetryClient {

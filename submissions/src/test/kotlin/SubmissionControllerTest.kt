@@ -3,9 +3,7 @@ package gov.cdc.prime.reportstream.submissions.controllers
 import com.azure.data.tables.TableClient
 import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobContainerClient
-import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.queue.QueueClient
-import com.azure.storage.queue.QueueServiceClient
 import com.azure.storage.queue.models.SendMessageResult
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -36,7 +34,6 @@ import org.mockito.ArgumentMatchers.isNull
 import org.mockito.Mockito.reset
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.whenever
 import org.springframework.context.annotation.Import
 
 @WebMvcTest(SubmissionController::class)
@@ -47,10 +44,10 @@ class SubmissionControllerTest {
     private lateinit var mockMvc: MockMvc
 
     @MockBean
-    private lateinit var blobServiceClient: BlobServiceClient
+    private lateinit var blobContainerClient: BlobContainerClient
 
     @MockBean
-    private lateinit var queueServiceClient: QueueServiceClient
+    private lateinit var queueClient: QueueClient
 
     @MockBean
     private lateinit var tableClient: TableClient
@@ -60,9 +57,7 @@ class SubmissionControllerTest {
 
     private lateinit var objectMapper: ObjectMapper
 
-    private lateinit var blobContainerClient: BlobContainerClient
     private lateinit var blobClient: BlobClient
-    private lateinit var queueClient: QueueClient
     private lateinit var sendMessageResult: SendMessageResult
 
     @BeforeEach
@@ -72,17 +67,8 @@ class SubmissionControllerTest {
         objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
 
         // Mock BlobContainerClient and BlobClient
-        blobContainerClient = mock(BlobContainerClient::class.java)
         blobClient = mock(BlobClient::class.java)
-        `when`(blobServiceClient.getBlobContainerClient(anyString())).thenReturn(blobContainerClient)
         `when`(blobContainerClient.getBlobClient(anyString())).thenReturn(blobClient)
-
-        // Mock QueueClient
-        queueClient = mock(QueueClient::class.java)
-        `when`(queueServiceClient.getQueueClient(anyString())).thenReturn(queueClient)
-
-        // Mock SendMessageResult
-        sendMessageResult = mock(SendMessageResult::class.java)
 
         // Ensure blobUrl is mocked properly
         `when`(blobClient.blobUrl).thenReturn("https://example.com/blobUrl")
@@ -90,7 +76,8 @@ class SubmissionControllerTest {
         // Mock the upload method
         doNothing().`when`(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
 
-        // Mock the queue sendMessage method
+        // Mock QueueClient
+        sendMessageResult = mock(SendMessageResult::class.java)
         `when`(queueClient.sendMessage(anyString())).thenReturn(sendMessageResult)
 
         // Mock the table createEntity method
@@ -105,16 +92,13 @@ class SubmissionControllerTest {
     fun tearDown() {
         // Reset all mocks after each test to ensure isolation
         reset(
-            blobServiceClient,
-            queueServiceClient,
+            blobClient,
+            blobContainerClient,
+            queueClient,
             tableClient,
             telemetryClient,
-            blobContainerClient,
-            blobClient,
-            queueClient
         )
     }
-
 
     @Test
     fun `submitReport should return CREATED status with content-type hl7-v2`() {
@@ -159,6 +143,7 @@ class SubmissionControllerTest {
 
         verify(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
         verify(queueClient).sendMessage(anyString())
+        verify(tableClient).createEntity(any())
         verify(telemetryClient).trackEvent(anyString(), anyMap(), isNull())
         verify(telemetryClient).flush()
     }
@@ -167,8 +152,6 @@ class SubmissionControllerTest {
     fun `submitReport should return UNSUPPORTED_MEDIA_TYPE status with unsupported content-type`() {
         val data = mapOf("key" to "value")
         val requestBody = objectMapper.writeValueAsString(data)
-
-        `when`(queueClient.sendMessage(anyString())).thenReturn(sendMessageResult)
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
@@ -185,8 +168,6 @@ class SubmissionControllerTest {
     fun `submitReport should return BAD_REQUEST status when client_id is missing`() {
         val data = mapOf("key" to "value")
         val requestBody = objectMapper.writeValueAsString(data)
-
-        `when`(queueClient.sendMessage(anyString())).thenReturn(sendMessageResult)
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
@@ -259,8 +240,6 @@ class SubmissionControllerTest {
         val data = mapOf("key" to "value")
         val requestBody = objectMapper.writeValueAsString(data)
         val expectedBlobUrl = "https://example.com/blobUrl"
-
-        whenever(queueClient.sendMessage(anyString())).thenReturn(sendMessageResult)
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")

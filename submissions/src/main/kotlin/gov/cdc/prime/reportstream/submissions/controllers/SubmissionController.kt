@@ -2,8 +2,8 @@ package gov.cdc.prime.reportstream.submissions.controllers
 
 import com.azure.data.tables.TableClient
 import com.azure.data.tables.models.TableEntity
-import com.azure.storage.blob.BlobServiceClient
-import com.azure.storage.queue.QueueServiceClient
+import com.azure.storage.blob.BlobContainerClient
+import com.azure.storage.queue.QueueClient
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.applicationinsights.TelemetryClient
@@ -11,7 +11,6 @@ import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
 import java.time.OffsetDateTime
 import java.util.UUID
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -30,12 +29,10 @@ import org.springframework.web.bind.annotation.RestController
  */
 @RestController
 class SubmissionController(
-    private val blobServiceClient: BlobServiceClient,
-    private val queueServiceClient: QueueServiceClient,
-    private val telemetryClient: TelemetryClient,
+    private val blobContainerClient: BlobContainerClient,
+    private val queueClient: QueueClient,
     private val tableClient: TableClient,
-    @Value("\${azure.storage.container-name}") private val containerName: String,
-    @Value("\${azure.storage.queue-name}") private val queueName: String,
+    private val telemetryClient: TelemetryClient,
 ) {
     private val logger = LoggerFactory.getLogger(SubmissionController::class.java)
 
@@ -77,7 +74,6 @@ class SubmissionController(
             logger.debug("Converted report data to ByteArray")
 
             // Upload to blob storage
-            val blobContainerClient = blobServiceClient.getBlobContainerClient(containerName)
             val blobClient = blobContainerClient.getBlobClient(formBlobName(reportId, headers))
             blobClient.upload(dataByteArray.inputStream(), dataByteArray.size.toLong())
             logger.info("Uploaded report to blob storage: blobUrl=${blobClient.blobUrl}")
@@ -93,10 +89,9 @@ class SubmissionController(
             logger.debug("Created message for queue")
 
             // Upload to Queue
-            val queueClient = queueServiceClient.getQueueClient(queueName)
             queueClient.createIfNotExists()
             queueClient.sendMessage(messageString)
-            logger.info("Sent message to queue: queueName=$queueName")
+            logger.info("Sent message to queue: queueName=${queueClient.queueName}")
 
             // Insert into Table
             // TableEntity() sets PartitionKey and RowKey. Both are required by azure and combine to create the PK
