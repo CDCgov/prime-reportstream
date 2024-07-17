@@ -69,7 +69,20 @@
         - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
         - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
         - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
+        # hasValidDataFor(specimen_type)
         - "Bundle.entry.resource.ofType(Specimen).type.exists()"
+        # hasValidDataFor(ordering_provider = ORC-12-1)
+        - "Bundle.entry.resource.ofType(Practitioner).identifier.type.coding.code = 'NPI'"
+        # hasValidDataFor(equipment_model_name = OBX-17-2)
+        - "Bundle.entry.resource.ofType(Observation).valueCodeableConcept.coding.extension.value = 'coding'",
+        # hasValidDataFor(test_result = OBX-5)
+        - "Bundle.entry.resource.ofType(Observation).valueCodeableConcept.coding.code.exists()"
+        # isValidCLIA(testing_lab_clia)
+        - "Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.where(type.coding.code = 'CLIA').value.getIdType() = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.where(type.coding.code = 'CLIA').value.getIdType() = 'CLIA'"
+        # hasValidDataFor(ordering_facility_name = ORC-21-1)
+        - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count()= 0"
+        - "Bundle.identifier.value.empty().not()"
       routingFilter: []
       processingModeFilter: []
       reverseTheQualityFilter: false
