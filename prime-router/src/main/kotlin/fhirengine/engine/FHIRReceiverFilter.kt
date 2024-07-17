@@ -7,6 +7,7 @@ import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -223,7 +224,8 @@ class FHIRReceiverFilter(
         } else if (mappedConditionFilters.isNotEmpty()) {
             val codes = mappedConditionFilters.codes()
             val keptObservations = bundle.getObservationsWithCondition(codes)
-            if (keptObservations.isEmpty() || keptObservations.all {
+            if (keptObservations.isEmpty() ||
+                keptObservations.all {
                     it.getMappedConditionCodes().all { code -> code == "AOE" }
                 }
             ) {
@@ -343,7 +345,7 @@ class FHIRReceiverFilter(
                     logger.info("Bundle was returned after evaluating receiver filters.")
                     val receiverBundle = filterResult.bundle
                     val report = Report(
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         emptyList(),
                         parentItemLineageData = listOf(
                             Report.ParentItemLineageData(queueMessage.reportId, 1)
@@ -364,9 +366,9 @@ class FHIRReceiverFilter(
                     // upload new copy to blobstore
                     val bodyString = FhirTranscoder.encode(receiverBundle)
                     val blobInfo = BlobAccess.uploadBody(
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         bodyString.toByteArray(),
-                        report.name,
+                        report.id.toString(),
                         queueMessage.blobSubFolderName,
                         nextEvent.eventAction
                     )
@@ -430,7 +432,7 @@ class FHIRReceiverFilter(
                         emptyList()
                     )
                     val emptyReport = Report(
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         emptyList(),
                         1,
                         metadata = this.metadata,

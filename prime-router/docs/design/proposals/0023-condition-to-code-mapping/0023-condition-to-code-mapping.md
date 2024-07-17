@@ -609,7 +609,7 @@ Example condition logic:
       topic: full-elr
       customerStatus: active
       jurisdictionalFilter:
-        - "(%performerState.exists() and %performerState = 'TEST') or (%patientState.exists() and %patientState = 'TEST')"
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'TEST') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'TEST')"
       qualityFilter: []
       conditionFilter:
           - "%resource.where(newRSextension.coding.code in (398102009' |'13906002' |'409498004' |'40610006' |'21061004' |'75702008' |'359761005' |'414015000' |'840539006' |'416925005' |'83436008')).exists()"
@@ -930,7 +930,7 @@ Creation of a receiver with the correct filters will allow us to catch all messa
   jurisdiction: "FEDERAL"
   filters:
       - topic: full-elr
-        jurisdictionalFilter: ["%patientState.exists()"]
+        jurisdictionalFilter: ["Bundle.entry.resource.ofType(Patient).address.state.exists()"]
         conditionFilter: ["Bundle.entry.resource.ofType(Observation).where.<newRSExtension>.exists().not()"]
   featureFlags: null
   keys: null

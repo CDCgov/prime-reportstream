@@ -5,7 +5,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.SoapTransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
@@ -107,7 +107,7 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
                 any(),
                 any()
             )
-        } returns BlobAccess.BlobInfo(Report.Format.HL7, "", "".toByteArray())
+        } returns BlobAccess.BlobInfo(MimeFormat.HL7, "", "".toByteArray())
     }
 
     @Test
@@ -117,7 +117,7 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
         every { mockSoapTransport.lookupCredentials(any()) }.returns(
             UserPassCredential(UUID.randomUUID().toString(), UUID.randomUUID().toString())
         )
-        val retryItems = mockSoapTransport.send(transportType, header, reportId, null, context, actionHistory)
+        val retryItems = mockSoapTransport.send(transportType, header, reportId, "test", null, context, actionHistory)
         assertThat(retryItems).isNull()
     }
 
@@ -128,7 +128,7 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
         every { mockSoapTransport.lookupCredentials(any()) }.returns(
             UserPassCredential(UUID.randomUUID().toString(), UUID.randomUUID().toString())
         )
-        val retryItems = mockSoapTransport.send(transportType, header, reportId, null, context, actionHistory)
+        val retryItems = mockSoapTransport.send(transportType, header, reportId, "test", null, context, actionHistory)
         assertThat(retryItems).isNotNull()
     }
 }

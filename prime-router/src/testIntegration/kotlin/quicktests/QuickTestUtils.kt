@@ -5,7 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isGreaterThan
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.cli.ProcessData
 import org.apache.commons.io.FilenameUtils
 import kotlin.test.assertTrue
@@ -69,7 +69,7 @@ object QuickTestUtils {
     fun generateFakeData(
         schema: String,
         numReports: Int,
-        outputFormat: Report.Format = Report.Format.CSV,
+        outputFormat: MimeFormat = MimeFormat.CSV,
         targetState: String = "",
         targetCounty: String = "",
     ): String {
