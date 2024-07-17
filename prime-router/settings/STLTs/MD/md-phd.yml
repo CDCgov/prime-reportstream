@@ -93,10 +93,10 @@
           onlyOncePerDay: false
       description: ""
       transport: !<SFTP>
-        host: "essence.health.maryland.gov"
-        port: "22"
-        filePath: "./"
-        credentialName: null
+        host: SFTP
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
         type: "SFTP"
       externalName: "ELR Primary Feed"
       enrichmentSchemaNames: [ ]
