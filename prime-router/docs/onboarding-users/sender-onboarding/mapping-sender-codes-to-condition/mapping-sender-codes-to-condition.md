@@ -4,7 +4,7 @@
 Because most STLT routing will have a condition filter, we need to ensure that all possible results from a sender are mapped to a reportable condition for routing. In order to accomplish this we will need the list of LOINC/SNOMED order and result codes the sender will be sending (also known as a "compendium") in a CSV file.
 
 ### ReportStream Mapping Template
-A [Mapping template](docs/onboarding-users/sender-onboarding/mapping-sender-codes-to-condition/ReportStream Mapping Template.xlsm) is available to senders to help them generate the needed CSV file. This template can be found on the ReportStream website.
+A [Mapping template](docs/onboarding-users/sender-onboarding/mapping-sender-codes-to-condition/ReportStream Mapping Template.xlsm) is available to senders to help them generate the needed CSV file. This template can be found on the ReportStream website. If senders are unable to use the mapping template, instructions for creating a 
 
 ### Compendium File Format
 This CSV file should be in the following format:
