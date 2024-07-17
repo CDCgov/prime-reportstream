@@ -28,13 +28,16 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.io.ByteArrayInputStream
+import java.util.UUID
 import org.junit.jupiter.api.AfterEach
 import org.mockito.ArgumentMatchers.anyMap
 import org.mockito.ArgumentMatchers.isNull
+import org.mockito.Mockito.mockStatic
 import org.mockito.Mockito.reset
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.argumentCaptor
 import org.springframework.context.annotation.Import
+import java.io.InputStream
 
 @WebMvcTest(SubmissionController::class)
 @Import(AzureConfig::class)
@@ -101,10 +104,22 @@ class SubmissionControllerTest {
     }
 
     @Test
-    fun `submitReport should return CREATED status with content-type hl7-v2`() {
+    fun `submitReport should return CREATED status with content-type hl7-v2 and correct arguments`() {
         val data = mapOf("key" to "value")
         val requestBody = objectMapper.writeValueAsString(data)
+        val expectedBlobUrl = "https://example.com/blobUrl"
 
+        // Mock the UUID generation to ensure a predictable report ID
+        val reportId = UUID.randomUUID()
+        val uuidMockedStatic = mockStatic(UUID::class.java)
+        uuidMockedStatic.`when`<UUID> { UUID.randomUUID() }.thenReturn(reportId)
+
+        // Capture the arguments passed to the upload and sendMessage methods
+        val blobInputStreamCaptor = argumentCaptor<InputStream>()
+        val blobSizeCaptor = argumentCaptor<Long>()
+        val messageCaptor = argumentCaptor<String>()
+
+        `when`(blobClient.blobUrl).thenReturn(expectedBlobUrl)
         `when`(queueClient.sendMessage(anyString())).thenReturn(sendMessageResult)
 
         mockMvc.perform(
@@ -117,18 +132,41 @@ class SubmissionControllerTest {
         )
             .andExpect(MockMvcResultMatchers.status().isCreated)
 
-        verify(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
-        verify(queueClient).sendMessage(anyString())
-        verify(tableClient).createEntity(any())
-        verify(telemetryClient).trackEvent(anyString(), anyMap(), isNull())
-        verify(telemetryClient).flush()
+        verify(blobClient).upload(blobInputStreamCaptor.capture(), blobSizeCaptor.capture())
+        verify(queueClient).sendMessage(messageCaptor.capture())
+
+        // Assert the captured arguments
+        assert(blobSizeCaptor.firstValue == requestBody.length.toLong())
+        val capturedMessage = objectMapper.readValue(messageCaptor.firstValue, Map::class.java)
+        assert(capturedMessage["reportId"] == reportId.toString())
+        assert(capturedMessage["blobUrl"] == expectedBlobUrl)
+        assert(capturedMessage["headers"] != null)
+        val headers = capturedMessage["headers"] as Map<*, *>
+        assert(headers["client_id"] == "testClient")
+        assert(headers["Content-Type"] == "application/hl7-v2;charset=UTF-8")
+        assert(headers["payloadname"] == "testPayload")
+
+        uuidMockedStatic.close()
     }
 
     @Test
-    fun `submitReport should return CREATED status with content-type fhir+ndjson`() {
+    fun `submitReport should return CREATED status with content-type fhir+ndjson and correct arguments`() {
         val data = mapOf("key" to "value")
         val requestBody = objectMapper.writeValueAsString(data)
+        val expectedBlobUrl = "https://example.com/blobUrl"
 
+        // Mock the UUID generation to ensure a predictable report ID
+        val reportId = UUID.randomUUID()
+
+        val uuidMockedStatic = mockStatic(UUID::class.java)
+        uuidMockedStatic.`when`<UUID> { UUID.randomUUID() }.thenReturn(reportId)
+
+        // Capture the arguments passed to the upload and sendMessage methods
+        val blobInputStreamCaptor = argumentCaptor<InputStream>()
+        val blobSizeCaptor = argumentCaptor<Long>()
+        val messageCaptor = argumentCaptor<String>()
+
+        `when`(blobClient.blobUrl).thenReturn(expectedBlobUrl)
         `when`(queueClient.sendMessage(anyString())).thenReturn(sendMessageResult)
 
         mockMvc.perform(
@@ -141,11 +179,21 @@ class SubmissionControllerTest {
         )
             .andExpect(MockMvcResultMatchers.status().isCreated)
 
-        verify(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
-        verify(queueClient).sendMessage(anyString())
-        verify(tableClient).createEntity(any())
-        verify(telemetryClient).trackEvent(anyString(), anyMap(), isNull())
-        verify(telemetryClient).flush()
+        verify(blobClient).upload(blobInputStreamCaptor.capture(), blobSizeCaptor.capture())
+        verify(queueClient).sendMessage(messageCaptor.capture())
+
+        // Assert the captured arguments
+        assert(blobSizeCaptor.firstValue == requestBody.length.toLong())
+        val capturedMessage = objectMapper.readValue(messageCaptor.firstValue, Map::class.java)
+        assert(capturedMessage["reportId"] == reportId.toString())
+        assert(capturedMessage["blobUrl"] == expectedBlobUrl)
+        assert(capturedMessage["headers"] != null)
+        val headers = capturedMessage["headers"] as Map<*, *>
+        assert(headers["client_id"] == "testClient")
+        assert(headers["Content-Type"] == "application/fhir+ndjson;charset=UTF-8")
+        assert(headers["payloadname"] == "testPayload")
+
+        uuidMockedStatic.close()
     }
 
     @Test
@@ -177,6 +225,8 @@ class SubmissionControllerTest {
                 .header("x-azure-clientip", "127.0.0.1")
         )
             .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andExpect(MockMvcResultMatchers.content()
+                .string("Bad Request: Missing required header: client_id"))
     }
 
     @Test
@@ -196,6 +246,7 @@ class SubmissionControllerTest {
                 .header("x-azure-clientip", "127.0.0.1")
         )
             .andExpect(MockMvcResultMatchers.status().isInternalServerError)
+            .andExpect(MockMvcResultMatchers.content().string("Internal Server Error: Blob storage failure"))
 
         verify(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
     }
@@ -240,6 +291,11 @@ class SubmissionControllerTest {
         val data = mapOf("key" to "value")
         val requestBody = objectMapper.writeValueAsString(data)
         val expectedBlobUrl = "https://example.com/blobUrl"
+        val reportId = UUID.randomUUID()
+
+        // Mock the UUID generation to ensure a predictable report ID
+        val uuidMockedStatic = mockStatic(UUID::class.java)
+        uuidMockedStatic.`when`<UUID> { UUID.randomUUID() }.thenReturn(reportId)
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
@@ -261,9 +317,15 @@ class SubmissionControllerTest {
 
         assert(capturedEvent == "ReportReceivedEvent")
         val eventDetails = objectMapper.readValue(capturedProperties["event"], Map::class.java)
-        assert(eventDetails["reportId"] != null)
+        assert(eventDetails["reportId"] == reportId.toString())
         assert(eventDetails["blobUrl"] == expectedBlobUrl)
-        assert(eventDetails["headers"] != null)
         assert(eventDetails["senderIP"] == "127.0.0.1")
+        val headers = eventDetails["headers"] as Map<*, *>
+        assert(headers["client_id"] == "testClient")
+        assert(headers["Content-Type"] == "application/hl7-v2;charset=UTF-8")
+        assert(headers["payloadname"] == "testPayload")
+        assert(headers["x-azure-clientip"] == "127.0.0.1")
+
+        uuidMockedStatic.close()
     }
 }
