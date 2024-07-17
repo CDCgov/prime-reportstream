@@ -30,7 +30,7 @@ class HttpClientUtilsTests {
         httpClientWithAuth.trySetAccessible()
         assertEquals(null, httpClientWithAuth.get(HttpClient::class))
 
-        // accessTokenHash should be initialized as -1
+        // accessTokenHash should be initialized as 0
         val accessTokenHash: Field = HttpClientUtils::class.java.getDeclaredField("accessTokenHash")
         accessTokenHash.trySetAccessible()
         assertEquals(0, accessTokenHash.get(Int::class))

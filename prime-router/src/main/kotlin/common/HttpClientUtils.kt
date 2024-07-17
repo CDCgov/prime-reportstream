@@ -594,15 +594,21 @@ class HttpClientUtils {
         }
 
         /**
-         * Called by getDefaultHttpClient as a helper to handle clients with auth tokens. Caller handles thread safety.
-         * This method ensures auth client can be reused if possible. Where not possible (ie - the provided token
+         * Called by getDefaultHttpClient as a helper to handle clients with auth tokens. Caller handles thread safety
+         * where object creation and fetching is concerned by way of calling this method within a "synchronized" block.
+         * This helper method ensures auth client can be reused if possible. Where not possible (ie - the provided token
          * doesn't match the hash of the auth token in the existing auth client), a new one is created and the hash of
          * the new auth token is stored. The goal is to reuse the existing auth client obj as much as possible while
          * ensuring callers are always using a client obj with the auth token they expect to be using.
          *
          * **NOTE**  Java and Kotlin both use pass-by-value with reference copy to pass arguments to a method. There is
          * therefore NO risk of one caller having an httpClientWithAuth obj change out from under them by a subsequent
-         * caller who provides a different auth token.
+         * caller who provides a different auth token. This speaks to the second thread-safety concern re: what happens
+         * when a caller requests an httpClientWithAuth obj with one auth token and, before that client is able to use
+         * the client obj, a second caller requests client obj with a different auth token which results in the
+         * httpClientWithAuth obj in this companion class to change.
+         *
+         * here's why: 
          *
          * The client objects in this class are private and there is no direct reference to them outside the
          * "getter" methods which are written in a manner that ensures they are thread safe. All the places where we
