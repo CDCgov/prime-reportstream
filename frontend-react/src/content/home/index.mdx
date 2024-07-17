@@ -16,9 +16,9 @@ import site from "../site.json";
     <div className="grid-container">
         <header className="usa-section usa-prose tablet:grid-col-10">
             <h1>CDC’s free, single connection to streamline your data transfer and improve public health</h1>
-            <p className="rs-subtitle">Now supporting COVID, mpox, flu and RSV data with more coming soon. Connect with us to learn how we can help you.</p>
+            <p className="rs-subtitle">ReportStream now supports all reportable conditions. Contact us to learn what conditions we are currently receiving and how we can help you. </p>
             <div className="grid-row margin-top-8 margin-bottom-2">
-                <A href={site.forms.connectWithRS.url} className="usa-button usa-button--big" target="_blank">Connect with us</A>
+                <A href={site.forms.connectWithRS.url} className="usa-button usa-button--big" target="_blank">Contact us</A>
             </div>
         </header>
     </div>
@@ -36,9 +36,9 @@ import site from "../site.json";
                         Talk with our team to create your plan
                     </CardHeader>
                     <CardBody>
-                        Our expert team works with your preferences to accept ELR data in HL7, FHIR, CSV and more, and deliver data through multiple connection types.
+                        Our expert team works with your preferences to accept ELR data in HL7 and FHIR and deliver data through SFTP or REST.
 
-                        Learn [how to set up transfer](/getting-started) of COVID, mpox, flu and RSV data.
+                        Learn about onboarding as a [public health agency](/getting-started/receiving-data) or [healthcare organization](/getting-started/sending-data).
                     </CardBody>
                 </Card>
                 <Card gridLayout={{col: "fill"}} isAlternate>
@@ -78,7 +78,7 @@ import site from "../site.json";
     <div className="grid-container">
         <section className="usa-section padding-bottom-0">
             <h2 className="font-sans-xl margin-top-0">How it works</h2>
-            <p className="font-sans-lg margin-top-4">Our open-source platform aggregates and [securely delivers](/about/security) healthcare data from organizations and testing facilities directly to public health entities. Born in response to the COVID-19 pandemic, ReportStream is built to thrive and evolve within the complex environment of public health.</p>
+            <p className="font-sans-lg margin-top-4">As CDC’s intermediary platform, ReportStream aggregates and [securely delivers](/about/security) healthcare data from organizations and testing facilities directly to public health entities. Born in response to the COVID-19 pandemic, ReportStream is built to thrive and evolve within the complex environment of public health.</p>
             <img
                 className="margin-y-8"
                 src="/assets/img/ReportStreamDiagram_2023.png"
@@ -87,13 +87,14 @@ import site from "../site.json";
             <div className="grid-row">
                 <div className="grid-col-fill margin-right-3">
                     ### Accepted data types and conditions
-                    ReportStream currently accepts data via HL7, FHIR, and CSV for COVID, mpox, and flu. We are adding support for RSV and HIV and building support for all conditions.
+                    ReportStream accepts data in HL7 and FHIR. Our platform can receive all conditions and is currently receiving COVID, mpox, flu and RSV. 
                 </div>
                 <div className="grid-col-fill margin-right-3">
                     ### What is ReportStream compatible with?
                     ReportStream is flexible and can often integrate with systems and products you are already using. <A href={site.forms.connectWithRS.url}>Connect with our team</A> to explore specific integration options for you.
                 </div>
             </div>
+            <p className="font-sans-lg">Learn more about how we are expanding to support more data types on [our roadmap](/about/roadmap).</p>
         </section>
     </div>
 </HeroWrapper>
@@ -111,7 +112,7 @@ import site from "../site.json";
                 headerFirst
                 isAlternate>
                 <CardHeader className="font-sans-lg">
-                    Health care organizations, facilities, and labs
+                    Healthcare organizations, facilities, and labs
                 </CardHeader>
                 <CardBody className="grid-col-8">
                     Throughout the country, a wide range of labs, testing facilities, and other healthcare organizations connect to ReportStream for their data transfer.

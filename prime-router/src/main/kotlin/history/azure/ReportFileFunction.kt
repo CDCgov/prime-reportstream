@@ -6,6 +6,7 @@ import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.RESTTransportType
+import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -40,7 +41,7 @@ import java.util.logging.Logger
  * @property workflowEngine Container for helpers and accessors used when dealing with the workflow.
  */
 abstract class ReportFileFunction(
-    private val reportFileFacade: ReportFileFacade,
+    val reportFileFacade: ReportFileFacade,
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
 
@@ -75,7 +76,7 @@ abstract class ReportFileFunction(
      * @param action Action from which the data for the report is loaded
      * @return
      */
-    abstract fun singleDetailedHistory(queryParams: MutableMap<String, String>, action: Action): ReportHistory?
+    abstract fun singleDetailedHistory(id: String, txn: DataAccessTransaction, action: Action): ReportHistory?
 
     /**
      * Verify that the action being checked has the correct data/parameters
@@ -152,13 +153,10 @@ abstract class ReportFileFunction(
                 authResult
             } else {
                 val action = this.actionFromId(id)
-                val history = this.singleDetailedHistory(request.queryParameters, action)
-
-                if (history != null) {
-                    HttpUtilities.okJSONResponse(request, history)
-                } else {
-                    HttpUtilities.notFoundResponse(request, "History entry ${action.actionId} was not found.")
+                val history = workflowEngine.db.transactReturning { txn ->
+                    this.singleDetailedHistory(id, txn, action)
                 }
+                HttpUtilities.okJSONResponse(request, history)
             }
         } catch (e: DataAccessException) {
             logger.error("Unable to fetch history for ID $id", e)
@@ -241,11 +239,11 @@ abstract class ReportFileFunction(
         val (credential, jksCredential) = RESTTransport().getCredential(restTransportInfo, receiver)
         val logger: Logger = context.logger
 
-        val authPair = runBlocking {
+        val httpHeaders = RESTTransport().getHeaders(restTransportInfo, reportId.toString())
+        val accessToken = runBlocking {
             async {
                 RESTTransport().getOAuthToken(
                     restTransportInfo,
-                    reportId.toString(),
                     jksCredential,
                     credential,
                     logger
@@ -259,11 +257,11 @@ abstract class ReportFileFunction(
         val (status, responseBody) = runBlocking {
             async {
                 response = client.get("$etorTiBaseUrl/v1/etor/metadata/" + lookupId) {
-                    authPair.first.forEach { entry ->
+                    httpHeaders.forEach { entry ->
                         headers.append(entry.key, entry.value)
                     }
 
-                    headers.append(HttpHeaders.Authorization, "Bearer " + authPair.second!!)
+                    headers.append(HttpHeaders.Authorization, "Bearer $accessToken")
                 }
 
                 Pair<HttpStatusCode, String>(response!!.status, response!!.body())

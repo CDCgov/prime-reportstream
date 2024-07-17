@@ -3,26 +3,43 @@ package gov.cdc.prime.router.common
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.MimeFormat
+import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.UniversalPipelineSender
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DataAccessTransaction
+import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.ProcessEvent
+import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.ReportLineage
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
+import gov.cdc.prime.router.fhirengine.azure.FHIRFunctions
 import gov.cdc.prime.router.history.db.ReportGraph
+import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import org.jooq.impl.DSL
+import org.testcontainers.containers.GenericContainer
+import java.time.OffsetDateTime
 
 @Suppress("ktlint:standard:max-line-length")
 const val validFHIRRecord1 =
     """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
+const val validFHIRRecord1Identifier = "1234d1d1-95fe-462c-8ac6-46728dba581c"
 
 @Suppress("ktlint:standard:max-line-length")
 const val conditionCodedValidFHIRRecord1 =
@@ -144,7 +161,7 @@ object UniversalPipelineTestUtils {
     val hl7Sender = UniversalPipelineSender(
         "elr-hl7-sender",
         "phd",
-        Sender.Format.HL7,
+        MimeFormat.HL7,
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
         schemaName = "classpath:/metadata/fhir_transforms/senders/test-sender-transform.yml"
@@ -152,7 +169,7 @@ object UniversalPipelineTestUtils {
     val fhirSender = UniversalPipelineSender(
         "elr-fhir-sender",
         "phd",
-        Sender.Format.FHIR,
+        MimeFormat.FHIR,
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
         schemaName = "classpath:/metadata/fhir_transforms/senders/test-sender-transform.yml"
@@ -160,21 +177,21 @@ object UniversalPipelineTestUtils {
     val hl7SenderWithNoTransform = UniversalPipelineSender(
         "hl7-elr-no-transform",
         "phd",
-        Sender.Format.HL7,
+        MimeFormat.HL7,
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
     )
     val fhirSenderWithNoTransform = UniversalPipelineSender(
         "fhir-elr-no-transform",
         "phd",
-        Sender.Format.HL7,
+        MimeFormat.HL7,
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
     )
     val senderWithValidation = UniversalPipelineSender(
         "marsotc-hl7-sender",
         "phd",
-        Sender.Format.HL7,
+        MimeFormat.HL7,
         CustomerStatus.ACTIVE,
         topic = Topic.MARS_OTC_ELR,
     )
@@ -206,11 +223,71 @@ object UniversalPipelineTestUtils {
                 jurisdictionalFilter = listOf("true"),
                 qualityFilter = listOf("true"),
                 processingModeFilter = listOf("true"),
-                format = Report.Format.HL7,
+                format = MimeFormat.HL7,
             )
         ),
     )
 
+    /**
+     * fetch child reports associated with a [parent] report and ensure we find an [expected] number of children
+     */
+    fun fetchChildReports(
+        parent: Report,
+        txn: DataAccessTransaction,
+        expected: Int? = null,
+    ): List<ReportFile> {
+        val itemLineages = DSL
+            .using(txn)
+            .select(ItemLineage.ITEM_LINEAGE.asterisk())
+            .from(ItemLineage.ITEM_LINEAGE)
+            .where(ItemLineage.ITEM_LINEAGE.PARENT_REPORT_ID.eq(parent.id))
+            .fetchInto(gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage::class.java)
+
+        if (expected != null) {
+            assertThat(itemLineages).hasSize(expected)
+            assertThat(itemLineages.map { it.childIndex }).isEqualTo(MutableList(expected) { 1 })
+
+            if (parent.itemCount > 1) {
+                assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expected).toList())
+            } else {
+                assertThat(itemLineages.map { it.parentIndex }).isEqualTo(MutableList(expected) { 1 })
+            }
+        }
+
+        val reportLineages = DSL
+            .using(txn)
+            .select(ReportLineage.REPORT_LINEAGE.asterisk())
+            .from(ReportLineage.REPORT_LINEAGE)
+            .where(ReportLineage.REPORT_LINEAGE.PARENT_REPORT_ID.eq(parent.id))
+            .fetchInto(gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage::class.java)
+
+        if (expected != null) {
+            assertThat(reportLineages).hasSize(expected)
+        }
+
+        val childReportIds = reportLineages.map {
+            it.childReportId
+        }
+        val reportFiles = DSL
+            .using(txn)
+            .select(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.asterisk())
+            .from(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
+            .where(
+                gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.REPORT_ID.`in`(
+                    childReportIds
+                )
+            )
+            .fetchInto(ReportFile::class.java)
+        if (expected != null) {
+            assertThat(reportFiles).hasSize(expected)
+        }
+        assertThat(itemLineages).transform { lineages -> lineages.map { it.childReportId }.sorted() }
+            .isEqualTo(reportFiles.map { it.reportId }.sorted())
+
+        return reportFiles
+    }
+
+    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     fun verifyLineageAndFetchCreatedReportFiles(
         previousStepReport: Report,
         expectedRootReport: Report,
@@ -269,5 +346,202 @@ object UniversalPipelineTestUtils {
         }
 
         return reportFiles
+    }
+
+    data class ReceiverSetupData(
+        val name: String,
+        val orgName: String = "phd",
+        val topic: Topic = Topic.FULL_ELR,
+        val jurisdictionalFilter: List<String> = emptyList(),
+        val qualityFilter: List<String> = emptyList(),
+        val routingFilter: List<String> = emptyList(),
+        val processingModeFilter: List<String> = emptyList(),
+        val conditionFilter: List<String> = emptyList(),
+        val mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
+        val status: CustomerStatus = CustomerStatus.ACTIVE,
+    )
+
+    fun createReceivers(receiverSetupDataList: List<ReceiverSetupData>): List<Receiver> {
+        return receiverSetupDataList.map {
+            Receiver(
+                it.name,
+                it.orgName,
+                it.topic,
+                it.status,
+                "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml",
+                timing = Receiver.Timing(numberPerDay = 1, maxReportCount = 1, whenEmpty = Receiver.WhenEmpty()),
+                jurisdictionalFilter = it.jurisdictionalFilter,
+                qualityFilter = it.qualityFilter,
+                routingFilter = it.routingFilter,
+                processingModeFilter = it.processingModeFilter,
+                conditionFilter = it.conditionFilter,
+                mappedConditionFilter = it.mappedConditionFilter
+            )
+        }
+    }
+
+    fun createOrganizationWithReceivers(receiverList: List<Receiver>): DeepOrganization {
+        return DeepOrganization(
+            "phd",
+            "test",
+            Organization.Jurisdiction.FEDERAL,
+            senders = listOf(
+                hl7Sender,
+                fhirSender,
+                hl7SenderWithNoTransform,
+                fhirSenderWithNoTransform,
+                senderWithValidation
+            ),
+            receivers = receiverList
+        )
+    }
+
+    fun createFHIRFunctionsInstance(): FHIRFunctions {
+        val settings = FileSettings().loadOrganizations(universalPipelineOrganization)
+        val metadata = UnitTestUtils.simpleMetadata
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable("observation-mapping", emptyList())
+        )
+        val workflowEngine = WorkflowEngine.Builder()
+            .metadata(metadata)
+            .settingsProvider(settings)
+            .databaseAccess(ReportStreamTestDatabaseContainer.testDatabaseAccess)
+            .build()
+        return FHIRFunctions(workflowEngine, databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess)
+    }
+
+    fun getBlobContainerMetadata(azuriteContainer: GenericContainer<*>): BlobAccess.BlobContainerMetadata {
+        val blobConnectionString =
+            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;
+                    BlobEndpoint=http://${azuriteContainer.host}:${
+
+                azuriteContainer.getMappedPort(
+                    10000
+                )
+            }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer.host}:${
+                azuriteContainer.getMappedPort(
+                    10001
+                )
+            }/devstoreaccount1;"""
+        return BlobAccess.BlobContainerMetadata(
+            "container1",
+            blobConnectionString
+        )
+    }
+
+    fun createReport(
+        reportContents: String,
+        action: TaskAction,
+        event: Event.EventAction,
+        azuriteContainer: GenericContainer<*>,
+        previousAction: TaskAction = TaskAction.receive,
+        parentReport: Report? = null,
+    ): Report {
+        val blobUrl = BlobAccess.uploadBlob(
+            "${TaskAction.receive.literal}/mr_fhir_face.fhir",
+            reportContents.toByteArray(),
+            getBlobContainerMetadata(azuriteContainer)
+        )
+
+        return createReport(
+            MimeFormat.FHIR,
+            previousAction,
+            action,
+            event,
+            Topic.FULL_ELR,
+            parentReport,
+            blobUrl
+        )
+    }
+
+    fun createReport(
+        fileFormat: MimeFormat,
+        currentAction: TaskAction,
+        nextAction: TaskAction,
+        nextEventAction: Event.EventAction,
+        topic: Topic,
+        parentReport: Report? = null,
+        bodyURL: String? = null,
+    ): Report {
+        val report = Report(
+            fileFormat,
+            listOf(
+                ClientSource(
+                    organization = universalPipelineOrganization.name,
+                    client = "Test Sender"
+                )
+            ),
+            1,
+            metadata = UnitTestUtils.simpleMetadata,
+            nextAction = nextAction,
+            topic = topic
+        )
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val action = Action().setActionName(currentAction)
+            val actionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
+            report.bodyURL = bodyURL ?: "http://${report.id}.${fileFormat.toString().lowercase()}"
+
+            val reportFile = ReportFile().setSchemaTopic(topic)
+                .setReportId(report.id)
+                .setActionId(actionId)
+                .setSchemaName("")
+                .setBodyFormat(fileFormat.toString())
+                .setItemCount(1)
+                .setExternalName("test-external-name")
+                .setBodyUrl(report.bodyURL)
+                .setSendingOrg(universalPipelineOrganization.name)
+                .setSendingOrgClient("Test Sender")
+
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
+                reportFile, txn, action
+            )
+            if (parentReport != null) {
+                ReportStreamTestDatabaseContainer.testDatabaseAccess
+                    .insertReportLineage(
+                        gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage(
+                            null,
+                            actionId,
+                            parentReport.id,
+                            report.id,
+                            OffsetDateTime.now()
+                        ),
+                        txn
+                    )
+            }
+
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertTask(
+                report,
+                fileFormat.toString().lowercase(),
+                report.bodyURL,
+                nextAction = ProcessEvent(
+                    nextEventAction,
+                    report.id,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                ),
+                txn
+            )
+        }
+
+        return report
+    }
+
+    /**
+     * check the action table for a list of [expectedTaskActions]
+     */
+    fun checkActionTable(expectedTaskActions: List<TaskAction>) {
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val actionRecords = DSL.using(txn)
+                .select(Tables.ACTION.asterisk())
+                .from(Tables.ACTION)
+                .fetchInto(
+                    Action::class.java
+                )
+
+            for (i in 0 until actionRecords.size) {
+                assertThat(expectedTaskActions[i]).isEqualTo(actionRecords[i].actionName)
+            }
+        }
     }
 }
