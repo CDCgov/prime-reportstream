@@ -58,7 +58,7 @@ class SubmissionController(
         @RequestHeader("Content-Type") contentType: String,
         @RequestHeader("client_id") clientId: String,
         @RequestHeader("content-length") contentLength: String,
-        @RequestHeader("x-azure-clientip", required = false) senderIp: String?,
+        @RequestHeader("x-azure-clientip") senderIp: String,
         @RequestHeader(value = "payloadName", required = false) payloadName: String?,
         @RequestBody data: String,
     ): ResponseEntity<*> {
