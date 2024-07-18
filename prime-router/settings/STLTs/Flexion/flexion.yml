@@ -32,7 +32,7 @@
       topic: "etor-ti"
       customerStatus: "active"
       format: "FHIR"
-      schemaName: "classpath:/metadata/fhir_transforms/senders/Flexion/TILabOrder.yml"
+      schemaName: "classpath:/metadata/fhir_transforms/senders/Flexion/etor-sender-transform.yml"
     # *** Settings used for testing below ***
     # Simulated Hospital Sender - Sending HL7 orders
     - name: "simulated-hospital"
@@ -164,7 +164,7 @@
         initialTime: "00:00"
       translation:
         type: "HL7"
-        schemaName: "classpath:/metadata/hl7_mapping/receivers/Flexion/TILabOrder.yml"
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/Flexion/etor-oml-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
       transport:
