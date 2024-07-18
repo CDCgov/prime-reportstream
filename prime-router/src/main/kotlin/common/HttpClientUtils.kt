@@ -54,7 +54,7 @@ class HttpClientUtils {
         /**
          * resets client and token hash to default - which is null for the clients and zero for accessTokenHash
          */
-        fun reset() {
+        internal fun reset() {
             httpClient = null
             httpClientWithAuth = null
             accessTokenHash = 0

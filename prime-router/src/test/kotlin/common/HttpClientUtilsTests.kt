@@ -13,9 +13,7 @@ class HttpClientUtilsTests {
 
     @BeforeEach
     fun setup() {
-        val resetMethod: Method = Companion::class.java.getDeclaredMethod("reset")
-        resetMethod.trySetAccessible()
-        resetMethod.invoke(HttpClientUtils)
+        HttpClientUtils.reset()
     }
 
     @Test
