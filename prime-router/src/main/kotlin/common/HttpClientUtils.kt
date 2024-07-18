@@ -52,9 +52,9 @@ class HttpClientUtils {
         const val SETTINGS_REQUEST_TIMEOUT_MILLIS = 30000
 
         /**
-         * resets client and token hash to default
+         * resets client and token hash to default - which is null for the clients and zero for accessTokenHash
          */
-        private fun reset() {
+        fun reset() {
             httpClient = null
             httpClientWithAuth = null
             accessTokenHash = 0
