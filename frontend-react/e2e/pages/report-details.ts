@@ -49,7 +49,7 @@ interface MockGetDeliveriesForOrgResponseOptions {
     byFileName?: boolean;
     receiver?: string;
     responseStatus?: number;
-    v1?: boolean;
+    v1?: boolean; // since we maintain two APIs to get deliveries, an explicit option to choose between them
 }
 
 export async function mockGetDeliveriesForOrgAlaskaResponse({
