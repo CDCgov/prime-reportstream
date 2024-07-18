@@ -18,6 +18,7 @@ export const URL_REPORT_DETAILS = "/report-details";
 export const API_WATERS_REPORT = "**/api/waters/report";
 export const API_HISTORY_REPORT = "**/api/history/report";
 export const API_WATERS_ORG = "**/api/waters/org";
+export const API_V1_WATERS_ORG = "**/api/v1/waters/org";
 
 export async function goto(page: Page, id: string) {
     await page.goto(`${URL_REPORT_DETAILS}/${id}`, {

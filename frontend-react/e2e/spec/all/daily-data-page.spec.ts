@@ -123,7 +123,9 @@ test.describe("Daily Data page", () => {
             });
 
             test("table has pagination", async ({ page }) => {
-                await expect(page.getByTestId("Pagination")).toBeAttached();
+                await expect(
+                    page.locator('[aria-label="Pagination"]'),
+                ).toBeAttached();
             });
 
             test("has footer", async ({ page }) => {
@@ -869,7 +871,9 @@ test.describe("Daily Data page", () => {
                 });
 
                 test("has pagination", async ({ page }) => {
-                    await expect(page.getByTestId("Pagination")).toBeAttached();
+                    await expect(
+                        page.locator('[aria-label="Pagination"]'),
+                    ).toBeAttached();
                 });
             });
         });
@@ -928,7 +932,9 @@ test.describe("Daily Data page", () => {
         });
 
         test("table has pagination", async ({ page }) => {
-            await expect(page.getByTestId("Pagination")).toBeAttached();
+            await expect(
+                page.locator('[aria-label="Pagination"]'),
+            ).toBeAttached();
         });
 
         test("has footer", async ({ page }) => {
@@ -1586,7 +1592,9 @@ test.describe("Daily Data page", () => {
             });
 
             test("has pagination", async ({ page }) => {
-                await expect(page.getByTestId("Pagination")).toBeAttached();
+                await expect(
+                    page.locator('[aria-label="Pagination"]'),
+                ).toBeAttached();
             });
         });
     });
