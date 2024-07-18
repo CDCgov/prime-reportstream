@@ -10,34 +10,34 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.applicationinsights.TelemetryClient
 import gov.cdc.prime.reportstream.submissions.config.AzureConfig
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyLong
+import org.mockito.ArgumentMatchers.anyMap
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.ArgumentMatchers.isNull
 import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.doThrow
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.mockStatic
+import org.mockito.Mockito.reset
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
+import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.argumentCaptor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.io.ByteArrayInputStream
-import java.util.UUID
-import org.junit.jupiter.api.AfterEach
-import org.mockito.ArgumentMatchers.anyMap
-import org.mockito.ArgumentMatchers.isNull
-import org.mockito.Mockito.mockStatic
-import org.mockito.Mockito.reset
-import org.mockito.MockitoAnnotations
-import org.mockito.kotlin.argumentCaptor
-import org.springframework.context.annotation.Import
 import java.io.InputStream
+import java.util.UUID
 
 @WebMvcTest(SubmissionController::class)
 @Import(AzureConfig::class)
@@ -225,8 +225,10 @@ class SubmissionControllerTest {
                 .header("x-azure-clientip", "127.0.0.1")
         )
             .andExpect(MockMvcResultMatchers.status().isBadRequest)
-            .andExpect(MockMvcResultMatchers.content()
-                .string("Bad Request: Missing required header: client_id"))
+            .andExpect(
+                MockMvcResultMatchers.content()
+                .string("Bad Request: Missing required header: client_id")
+            )
     }
 
     @Test

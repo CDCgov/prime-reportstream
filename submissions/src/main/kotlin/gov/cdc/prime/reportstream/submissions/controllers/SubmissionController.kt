@@ -9,8 +9,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.applicationinsights.TelemetryClient
 import gov.cdc.prime.reportstream.shared.SubmissionQueueMessage
 import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
-import java.time.OffsetDateTime
-import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -22,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.HttpClientErrorException.UnsupportedMediaType
+import java.time.Instant
+import java.util.UUID
 
 private val logger = LoggerFactory.getLogger(SubmissionController::class.java)
 
@@ -58,16 +58,18 @@ class SubmissionController(
         @RequestHeader("Content-Type") contentType: String,
         @RequestHeader("client_id") clientId: String,
         @RequestHeader("content-length") contentLength: String,
-        @RequestHeader("x-azure-clientip") senderIp: String,
+        @RequestHeader("x-azure-clientip", required = false) senderIp: String?,
         @RequestHeader(value = "payloadName", required = false) payloadName: String?,
         @RequestBody data: String,
     ): ResponseEntity<*> {
         val reportId = UUID.randomUUID()
-        val reportReceivedTime = OffsetDateTime.now()
+        val reportReceivedTime = Instant.now()
         val contentTypeMime = contentType.substringBefore(';')
         val status = "Received"
-        logger.info("Received report submission: reportId=$reportId, contentType=$contentTypeMime" +
-            ", clientId=$clientId${payloadName?.let { ", payloadName=$it" } ?: ""}}")
+        logger.info(
+            "Received report submission: reportId=$reportId, contentType=$contentTypeMime" +
+            ", clientId=$clientId${payloadName?.let { ", payloadName=$it" } ?: ""}}"
+        )
 
         // Convert data to ByteArray
         val dataByteArray = data.toByteArray()
@@ -119,7 +121,8 @@ class SubmissionController(
         telemetryClient.trackEvent(
             "ReportReceivedEvent",
             mapOf("event" to objectMapper.writeValueAsString(reportReceivedEvent)),
-            null)
+            null
+        )
         telemetryClient.flush()
         logger.info("Tracked ReportReceivedEvent with Application Insights")
 
@@ -127,7 +130,7 @@ class SubmissionController(
             CreationResponse(
                 reportId,
                 status,
-                OffsetDateTime.now(),
+                Instant.now(),
             )
         logger.info("Report submission successful: reportId=$reportId")
 
@@ -207,7 +210,7 @@ class SubmissionController(
     private fun formBlobName(
         reportId: UUID,
         contentTypeMime: String,
-        clientId: String
+        clientId: String,
     ): String {
         val senderName = clientId.lowercase()
         return when (contentTypeMime.lowercase()) {
@@ -225,4 +228,4 @@ class SubmissionController(
  * @property overallStatus the overall status of the report submission
  * @property timestamp the timestamp when the report was received
  */
-data class CreationResponse(val reportId: UUID, val overallStatus: String, val timestamp: OffsetDateTime)
+data class CreationResponse(val reportId: UUID, val overallStatus: String, val timestamp: Instant)
