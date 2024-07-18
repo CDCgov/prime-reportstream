@@ -1,5 +1,11 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrReceiverFilterQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrSendQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
@@ -13,6 +19,8 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.fhirengine.azure.FHIRFunctions
 import java.util.Base64
 import java.util.UUID
 
@@ -35,6 +43,22 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
     JsonSubTypes.Type(ReportEventQueueMessage::class, name = "report")
 )
 abstract class QueueMessage {
+
+    //abstract fun getClass(): Class<in QueueMessage>
+
+    fun send(queueAccess: QueueAccess): Unit {
+
+        when (this.javaClass) {
+            FhirRouteQueueMessage::class.java -> {
+                queueAccess.sendMessage(
+                    elrTranslationQueueName,
+                    serialize()
+                )
+            }
+        }
+
+    }
+
     fun serialize(): String {
         val bytes = mapper.writeValueAsBytes(this)
         check(bytes.size < MESSAGE_SIZE_LIMIT) { "Message is too big for the queue." }

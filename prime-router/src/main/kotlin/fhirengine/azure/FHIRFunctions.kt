@@ -101,10 +101,11 @@ class FHIRFunctions(
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
-            queueAccess.sendMessage(
-                elrTranslationQueueName,
-                it.serialize()
-            )
+            it.send(queueAccess)
+//            queueAccess.sendMessage(
+//                elrTranslationQueueName,
+//                it.serialize()
+//            )
         }
     }
 
