@@ -230,6 +230,9 @@
         }, {
           "url" : "CNN.7",
           "valueString" : "MD"
+        }, {
+          "url" : "CNN.8",
+          "valueString" : "J"
         } ]
       } ],
       "identifier" : [ {
