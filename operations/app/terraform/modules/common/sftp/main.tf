@@ -26,9 +26,15 @@ resource "azurerm_container_group" "sftp" {
     protocol = "TCP"
   }]
 
+  image_registry_credential {
+    server   = var.container_registry.login_server
+    username = var.container_registry.admin_username
+    password = var.container_registry.admin_password
+  }
+
   container {
     name         = "sftp-source"
-    image        = "atmoz/sftp:latest"
+    image        = "${var.container_registry.login_server}/sftp:latest"
     cpu          = var.cpu
     cpu_limit    = 0
     memory       = var.memory

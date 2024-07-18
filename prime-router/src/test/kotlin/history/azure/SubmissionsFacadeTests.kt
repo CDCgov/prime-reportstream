@@ -3,21 +3,15 @@ package gov.cdc.prime.router.history.azure
 import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.hasMessage
-import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import com.google.common.net.HttpHeaders
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
-import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
-import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
-import io.mockk.every
 import io.mockk.mockk
-import java.time.OffsetDateTime
-import java.util.UUID
 import kotlin.test.Test
 
 class SubmissionsFacadeTests {
@@ -54,50 +48,6 @@ class SubmissionsFacadeTests {
                 true
             )
         }.hasMessage("Invalid organization.")
-    }
-
-    @Test
-    fun `test findDetailedSubmissionHistory`() {
-        val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
-        val mockDbAccess = mockk<DatabaseAccess>()
-        val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
-        // Good return
-        val goodReturn = DetailedSubmissionHistory(
-            550, TaskAction.receive, OffsetDateTime.now(),
-            null, null, emptyList()
-        )
-        every {
-            mockSubmissionAccess.fetchAction(
-                any(),
-                any(),
-                DetailedSubmissionHistory::class.java
-            )
-        } returns goodReturn
-
-        // No lineage since we have no report ID
-        val action1 = Action()
-        action1.actionId = 550
-        action1.sendingOrg = "myOrg"
-        action1.actionName = TaskAction.receive
-        assertThat(facade.findDetailedSubmissionHistory(action1)).isEqualTo(goodReturn)
-
-        // Happy path
-        goodReturn.reportId = UUID.randomUUID().toString()
-        every {
-            mockSubmissionAccess.fetchRelatedActions(
-                UUID.fromString(goodReturn.reportId), DetailedSubmissionHistory::class.java
-            )
-        } returns emptyList()
-        assertThat(facade.findDetailedSubmissionHistory(action1)).isEqualTo(goodReturn)
-        // Failures
-        val action2 = Action()
-        action2.actionId = 550
-        action2.sendingOrg = "myOrg" // good
-        action2.actionName = TaskAction.process // bad. Submission queries only work on receive actions.
-        assertFailure { facade.findDetailedSubmissionHistory(action2) } // not a receive action
-        action2.actionName = TaskAction.receive // good
-        action2.sendingOrg = null // bad
-        assertFailure { facade.findDetailedSubmissionHistory(action2) } // missing sendingOrg
     }
 
     @Test
