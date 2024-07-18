@@ -3,14 +3,6 @@ name: "Start Frontend Smoke Tests"
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        description: 'Deployment Environment:'
-        required: true
-        options:
-          - prod
-          - staging
-          - test
-        type: choice
       username:
         description: 'Administrator username for the environment chosen:'
         required: true
@@ -22,11 +14,11 @@ on:
 
 jobs:
   run_smoke:
-    name: Smoke Test
+    name: Frontend Smoke Tests
     runs-on: ubuntu-latest
 
     steps:
-      - name: "Run frontend smoke tests on ${{ github.event.inputs.environment }}"
+      - name: "Run frontend smoke tests"
         working-directory: frontend-react
         env:
           TEST_ADMIN_USERNAME: ${{ github.event.inputs.username }}
