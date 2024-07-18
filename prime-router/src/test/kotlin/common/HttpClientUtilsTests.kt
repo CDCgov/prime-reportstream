@@ -1,12 +1,10 @@
 package gov.cdc.prime.router.common
 
-import gov.cdc.prime.router.common.HttpClientUtils.Companion
 import io.ktor.client.HttpClient
 import junit.framework.TestCase.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.jupiter.api.BeforeEach
 import java.lang.reflect.Field
-import java.lang.reflect.Method
 import kotlin.test.Test
 
 class HttpClientUtilsTests {
