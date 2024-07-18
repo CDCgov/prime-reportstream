@@ -83,7 +83,9 @@
         # hasValidDataFor(ordering_facility_name = ORC-21-1)
         - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count()= 0"
         - "Bundle.identifier.value.empty().not()"
-      routingFilter: []
+      routingFilter:
+        # marches(test_result_status, F, C, P)
+        - "Bundle.entry.resource.ofType(DiagnosticReport).where(status in 'final'|'corrected'|'preliminary'|'amended').exists()"
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
