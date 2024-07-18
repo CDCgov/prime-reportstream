@@ -122,6 +122,10 @@ export abstract class BasePage {
         return this.testArgs.storageState === "e2e/.auth/admin.json";
     }
 
+    /**
+     * Reloads the page.
+     * Useful when setting a network error in a test.
+     */
     async reload() {
         if (this.isAdminSession && this.testArgs.isTestOrg) {
             await this.selectTestOrg();
@@ -147,6 +151,10 @@ export abstract class BasePage {
         );
     }
 
+    /**
+     * Used to select the test org if logged-in user is Admin and the isTestOrg prop is set to true.
+     * This is needed for smoke tests since they use live data.
+     */
     async selectTestOrg() {
         await selectTestOrg(this.page);
     }
