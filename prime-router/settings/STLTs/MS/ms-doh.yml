@@ -62,7 +62,7 @@
           customLengthHl7Fields: {}
       jurisdictionalFilter:
         - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'MS') or (Bundle.entry.resource.ofType(Patient).address.state = 'MS')"
-      qqualityFilter:
+      qualityFilter:
         - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or Bundle.entry.resource.ofType(serviceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists())"
         - "(Bundle.entry.resource.ofType(Patient).address.line.exists() or Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or Bundle.entry.resource.ofType(Patient).telecom.exists())"
         - "Bundle.entry.resource.ofType(MessageHeader).id.exists()"
@@ -73,7 +73,7 @@
       routingFilter: []
       processingModeFilter: []
       reverseTheQualityFilter: false
-      cconditionFilter:
+      conditionFilter:
         # HIV only
         - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('86406008')).exists())"
       mappedConditionFilter: []
