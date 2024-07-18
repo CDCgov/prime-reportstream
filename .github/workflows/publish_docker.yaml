@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - master
-      - josiahsiegel/update/github-sftp-image
   schedule:
     - cron:  "0 0 1 * *"
 
