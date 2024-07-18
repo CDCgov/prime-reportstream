@@ -12,6 +12,7 @@ import com.azure.storage.blob.models.BlobStorageException
 import com.azure.storage.blob.models.DownloadRetryOptions
 import com.azure.storage.blob.models.ListBlobsOptions
 import gov.cdc.prime.router.BlobStoreTransportType
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.Environment
 import org.apache.commons.io.FileUtils
@@ -38,7 +39,7 @@ class BlobAccess() : Logging {
      * Contains basic info about a Report blob: format, url in Azure, and SHA256 hash
      */
     data class BlobInfo(
-        val format: Report.Format,
+        val format: MimeFormat,
         val blobUrl: String,
         val digest: ByteArray,
     ) {
@@ -128,7 +129,7 @@ class BlobAccess() : Logging {
         subfolderName: String? = null,
         action: Event.EventAction = Event.EventAction.NONE,
     ): BlobInfo {
-        return uploadBody(report.bodyFormat, blobBytes, report.name, subfolderName, action)
+        return uploadBody(report.bodyFormat, blobBytes, report.id.toString(), subfolderName, action)
     }
 
     companion object : Logging {
@@ -155,7 +156,7 @@ class BlobAccess() : Logging {
          * @return the information about the uploaded blob
          */
         fun uploadBody(
-            bodyFormat: Report.Format,
+            bodyFormat: MimeFormat,
             blobBytes: ByteArray,
             reportName: String,
             subfolderName: String? = null,
@@ -163,14 +164,14 @@ class BlobAccess() : Logging {
         ): BlobInfo {
             val subfolderNameChecked = if (subfolderName.isNullOrBlank()) "" else "$subfolderName/"
             val blobName = when (action) {
-                Event.EventAction.RECEIVE -> "receive/$subfolderNameChecked$reportName"
-                Event.EventAction.SEND -> "ready/$subfolderNameChecked$reportName"
-                Event.EventAction.BATCH -> "batch/$subfolderNameChecked$reportName"
-                Event.EventAction.PROCESS -> "process/$subfolderNameChecked$reportName"
-                Event.EventAction.ROUTE -> "route/$subfolderNameChecked$reportName"
-                Event.EventAction.TRANSLATE -> "translate/$subfolderNameChecked$reportName"
-                Event.EventAction.NONE -> "none/$subfolderNameChecked$reportName"
-                else -> "other/$subfolderNameChecked$reportName"
+                Event.EventAction.RECEIVE -> "receive/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+                Event.EventAction.SEND -> "ready/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+                Event.EventAction.BATCH -> "batch/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+                Event.EventAction.PROCESS -> "process/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+                Event.EventAction.ROUTE -> "route/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+                Event.EventAction.TRANSLATE -> "translate/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+                Event.EventAction.NONE -> "none/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+                else -> "other/$subfolderNameChecked$reportName.${bodyFormat.ext}"
             }
             val digest = sha256Digest(blobBytes)
             val blobUrl = uploadBlob(blobName, blobBytes)

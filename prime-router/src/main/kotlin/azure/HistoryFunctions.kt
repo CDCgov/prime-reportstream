@@ -12,6 +12,7 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import com.okta.jwt.JwtVerifiers
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -282,16 +283,8 @@ open class BaseHistoryFunction : Logging {
                     }
                 val receiver = workflowEngine.settings.findReceiver("${it.receivingOrg}.${it.receivingOrgSvc}")
 
-                val filename = Report.formExternalFilename(
-                    it.bodyUrl,
-                    it.reportId,
-                    it.schemaName,
-                    Report.Format.safeValueOf(it.bodyFormat),
-                    it.createdAt
-                )
-
                 val content = if (header !== null && header.content !== null) String(header.content) else ""
-                val mimeType = Report.Format.safeValueOf(it.bodyFormat).mimeType
+                val mimeType = MimeFormat.safeValueOf(it.bodyFormat).mimeType
                 val externalOrgName = receiver?.displayName
 
                 ReportView.Builder()
@@ -309,7 +302,7 @@ open class BaseHistoryFunction : Logging {
                     .sendingOrg(it.sendingOrg ?: "")
                     .displayName(if (it.externalName.isNullOrBlank()) it.receivingOrgSvc else it.externalName)
                     .content(content) // don't get the content for now. that can get beefy
-                    .fileName(filename)
+                    .fileName(it.externalName)
                     .mimeType(mimeType)
                     .build()
             }
@@ -374,14 +367,7 @@ open class BaseHistoryFunction : Logging {
             if (contents.isEmpty()) {
                 return HttpUtilities.notFoundResponse(request)
             } else {
-                val filename = Report.formExternalFilename(
-                    requestedReport.bodyUrl,
-                    requestedReport.reportId,
-                    requestedReport.schemaName,
-                    Report.Format.safeValueOf(requestedReport.bodyFormat),
-                    requestedReport.createdAt,
-                )
-                val mimeType = Report.Format.safeValueOf(requestedReport.bodyFormat).mimeType
+                val mimeType = MimeFormat.safeValueOf(requestedReport.bodyFormat).mimeType
                 val report = ReportView.Builder()
                     .reportId(requestedReport.reportId.toString())
                     .sent(requestedReport.createdAt.toEpochSecond() * 1000)
@@ -401,7 +387,26 @@ open class BaseHistoryFunction : Logging {
                         }
                     )
                     .content(String(contents))
-                    .fileName(filename)
+                    .fileName(
+                        if (requestedReport.externalName.isNullOrBlank()) {
+                            val receiver = workflowEngine
+                                .settings
+                                .findReceiver(
+                                    "${requestedReport.receivingOrg}.${requestedReport.receivingOrgSvc}"
+                                )
+                            Report.formExternalFilename(
+                                requestedReport.reportId,
+                                requestedReport.schemaName,
+                                MimeFormat.valueOf(requestedReport.bodyFormat),
+                                requestedReport.createdAt,
+                                workflowEngine.metadata,
+                                receiver?.translation?.nameFormat,
+                                receiver?.translation
+                            )
+                        } else {
+                            requestedReport.externalName
+                        }
+                    )
                     .mimeType(mimeType)
                     .build()
 
@@ -419,7 +424,6 @@ open class BaseHistoryFunction : Logging {
                 val externalReportId = UUID.randomUUID()
                 actionHistory.trackDownloadedReport(
                     requestedReport,
-                    filename,
                     externalReportId,
                     claims.userName,
                 )

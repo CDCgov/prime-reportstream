@@ -16,6 +16,7 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
@@ -147,19 +148,19 @@ class FHIRConverter(
 
                         // make a 'report'
                         val report = Report(
-                            Report.Format.FHIR,
+                            MimeFormat.FHIR,
                             emptyList(),
                             parentItemLineageData = listOf(
                                 Report.ParentItemLineageData(queueMessage.reportId, bundleIndex.toInt() + 1)
                             ),
                             metadata = this.metadata,
                             topic = queueMessage.topic,
-                            nextAction = TaskAction.route
+                            nextAction = TaskAction.destination_filter
                         )
 
                         // create route event
                         val routeEvent = ProcessEvent(
-                            Event.EventAction.ROUTE,
+                            Event.EventAction.DESTINATION_FILTER,
                             report.id,
                             Options.None,
                             emptyMap(),
@@ -169,9 +170,9 @@ class FHIRConverter(
                         // upload to blobstore
                         val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
                         val blobInfo = BlobAccess.uploadBody(
-                            Report.Format.FHIR,
+                            MimeFormat.FHIR,
                             bodyBytes,
-                            report.name,
+                            report.id.toString(),
                             queueMessage.blobSubFolderName,
                             routeEvent.eventAction
                         )
@@ -189,7 +190,7 @@ class FHIRConverter(
                             routeEvent,
                             report,
                             blobInfo.blobUrl,
-                            FhirRouteQueueMessage(
+                            FhirDestinationFilterQueueMessage(
                                 report.id,
                                 blobInfo.blobUrl,
                                 BlobAccess.digestToString(blobInfo.digest),
@@ -210,7 +211,7 @@ class FHIRConverter(
 
                 // TODO: https://github.com/CDCgov/prime-reportstream/issues/14349
                 val report = Report(
-                    Report.Format.FHIR,
+                    MimeFormat.FHIR,
                     emptyList(),
                     1,
                     metadata = this.metadata,
@@ -259,7 +260,7 @@ class FHIRConverter(
      * @return the bundles that should get routed
      */
     internal fun process(
-        format: Report.Format,
+        format: MimeFormat,
         queueMessage: ReportPipelineMessage,
         actionLogger: ActionLogger,
         routeReportWithInvalidItems: Boolean = true,
@@ -271,7 +272,7 @@ class FHIRConverter(
             emptyList()
         } else {
             val processedItems = when (format) {
-                Report.Format.HL7, Report.Format.HL7_BATCH -> {
+                MimeFormat.HL7, MimeFormat.HL7_BATCH -> {
                     try {
                         LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                             "Processed raw message into items",
@@ -288,7 +289,8 @@ class FHIRConverter(
                         emptyList()
                     }
                 }
-                Report.Format.FHIR -> {
+
+                MimeFormat.FHIR -> {
                     LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                         "Processed raw message into items",
                         mapOf(
@@ -298,6 +300,7 @@ class FHIRConverter(
                         getBundlesFromRawFHIR(rawReport, validator)
                     }
                 }
+
                 else -> {
                     logger.error("Received unsupported report format: $format")
                     actionLogger.error(InvalidReportMessage("Received unsupported report format: $format"))

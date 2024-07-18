@@ -20,6 +20,7 @@ import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.ReportReceivedEvent
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -36,7 +37,8 @@ private const val PROCESSING_TYPE_PARAMETER = "processing"
 class ReportFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive),
-) : Logging, RequestFunction(workflowEngine) {
+) : RequestFunction(workflowEngine),
+    Logging {
 
     /**
      * POST a report to the router
@@ -172,7 +174,7 @@ class ReportFunction(
                         }
                     val rawBody = content.toByteArray()
                     // send report on its way, either via the COVID pipeline or the full ELR pipeline
-                    receiver.validateAndMoveToProcessing(
+                    val report = receiver.validateAndMoveToProcessing(
                         sender,
                         content,
                         validatedRequest.defaults,
@@ -184,6 +186,16 @@ class ReportFunction(
                         payloadName
                     )
 
+                    workflowEngine.azureEventService.trackEvent(
+                        ReportReceivedEvent(
+                            report.id,
+                            sender,
+                            actionHistory.filterParameters(request),
+                            request.headers["x-forwarded-for"]?.split(",")?.first()
+                                ?: request.headers["x-azure-clientip"].toString(),
+                            request.headers["content-length"].toString()
+                        )
+                    )
                     // return CREATED status, report submission was successful
                     HttpStatus.CREATED
                 } else {
@@ -213,7 +225,9 @@ class ReportFunction(
         workflowEngine.recordAction(actionHistory)
 
         check(actionHistory.action.actionId > 0)
-        val submission = SubmissionsFacade.instance.findDetailedSubmissionHistory(actionHistory.action)
+        val submission = workflowEngine.db.transactReturning { txn ->
+            SubmissionsFacade.instance.findDetailedSubmissionHistory(txn, null, actionHistory.action)
+        }
 
         val response = request.createResponseBuilder(httpStatus)
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
@@ -224,7 +238,7 @@ class ReportFunction(
             .header(
                 HttpHeaders.LOCATION,
                 request.uri.resolve(
-                    "/api/history/${sender.organizationName}/submissions/${actionHistory.action.actionId}"
+                    "/api/waters/report/${submission?.reportId}/history"
                 ).toString()
             )
             .build()

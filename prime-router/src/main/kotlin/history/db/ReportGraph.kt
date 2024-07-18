@@ -17,8 +17,10 @@ import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.CommonTableExpression
 import org.jooq.DSLContext
+import org.jooq.Record
 import org.jooq.Record1
 import org.jooq.Record2
+import org.jooq.SelectOnConditionStep
 import org.jooq.impl.CustomRecord
 import org.jooq.impl.CustomTable
 import org.jooq.impl.DSL
@@ -146,7 +148,7 @@ class ReportGraph(
     }
 
     /**
-     * Recursively goes down the report_linage table from any report until it reaches
+     * Recursively goes down the report_lineage table from any report until it reaches
      * all descendant reports with the specified action type(s)
      *
      * This will return an empty list if no report with the specified action type is present or if
@@ -156,10 +158,10 @@ class ReportGraph(
      */
     fun getDescendantReports(
         txn: DataAccessTransaction,
-        childReportId: UUID,
-        searchedForTaskActions: Set<TaskAction>,
+        parentReportId: UUID,
+        searchedForTaskActions: Set<TaskAction>? = null,
     ): List<ReportFile> {
-        val cte = reportDescendantGraphCommonTableExpression(listOf(childReportId))
+        val cte = reportDescendantGraphCommonTableExpression(listOf(parentReportId))
         return descendantReportRecords(txn, cte, searchedForTaskActions).fetchInto(ReportFile::class.java)
     }
 
@@ -408,15 +410,22 @@ class ReportGraph(
     private fun descendantReportRecords(
         txn: DataAccessTransaction,
         cte: CommonTableExpression<Record1<UUID>>,
-        searchedForTaskActions: Set<TaskAction>,
-    ) = DSL.using(txn)
-        .withRecursive(cte)
-        .select(REPORT_FILE.asterisk())
-        .distinctOn(REPORT_FILE.REPORT_ID)
-        .from(cte)
-        .join(REPORT_FILE)
-        .on(REPORT_FILE.REPORT_ID.eq(cte.field(0, UUID::class.java)))
-        .join(ACTION)
-        .on(ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
-        .where(ACTION.ACTION_NAME.`in`(searchedForTaskActions))
+        searchedForTaskActions: Set<TaskAction>?,
+    ): SelectOnConditionStep<Record> {
+        val select = DSL.using(txn)
+            .withRecursive(cte)
+            .select(REPORT_FILE.asterisk())
+            .distinctOn(REPORT_FILE.REPORT_ID)
+            .from(cte)
+            .join(REPORT_FILE)
+            .on(REPORT_FILE.REPORT_ID.eq(cte.field(0, UUID::class.java)))
+            .join(ACTION)
+            .on(ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
+
+        if (searchedForTaskActions != null) {
+            select.where(ACTION.ACTION_NAME.`in`(searchedForTaskActions))
+        }
+
+        return select
+    }
 }

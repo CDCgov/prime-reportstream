@@ -151,6 +151,7 @@ module "function_app" {
   app_config_key_vault_name         = module.key_vault.app_config_key_vault_name
   sa_partner_connection_string      = module.storage.sa_partner_connection_string
   client_config_key_vault_id        = module.key_vault.client_config_key_vault_id
+  client_config_key_vault_name      = module.key_vault.client_config_key_vault_name
   app_config_key_vault_id           = module.key_vault.app_config_key_vault_id
   dns_ip                            = local.network.dns_ip
   function_runtime_version          = local.app.function_runtime_version
@@ -201,6 +202,7 @@ module "sftp" {
   sshnames                    = module.ssh.sshnames
   sshinstances                = module.ssh.sshinstances
   sftp_dir                    = module.ssh.sftp_dir
+  container_registry          = module.container_registry.meta
 
   depends_on = [
     module.ssh

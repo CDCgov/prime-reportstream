@@ -12,6 +12,10 @@ on:
       - "prime-router/**"
       - "frontend-react/**"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 env:
   # These are for CI and not credentials of any system
   DB_USER: prime
@@ -38,7 +42,7 @@ jobs:
           sudo swapon --show
 
       - name: "Check out everything"
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
           fetch-depth: 0
 
@@ -48,7 +52,7 @@ jobs:
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
-        uses: tj-actions/changed-files@d6babd6899969df1a11d14c368283ea4436bca78
+        uses: tj-actions/changed-files@cc733854b1f224978ef800d29e4709d5ee2883e4
         with:
           files_yaml: |
             frontend:
@@ -66,7 +70,7 @@ jobs:
 
       - name: Gradle Validation
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: gradle/actions/wrapper-validation@db19848a5fa7950289d3668fb053140cf3028d43
+        uses: gradle/actions/wrapper-validation@d9c87d481d55275bb5441eef3fe0e46805f9ef70
 
       - name: Spin up build containers
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
@@ -86,9 +90,7 @@ jobs:
           timeout_minutes: 30
           max_attempts: 2
           retry_wait_seconds: 30
-          command: |
-            cd prime-router
-            ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x fatjar
+          command: ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" :prime-router:package -x fatjar
           shell: bash
 
       - name: Perform Java CodeQL Analysis
@@ -97,7 +99,7 @@ jobs:
 
       - name: Use Node.js with yarn
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
         with:
           node-version-file: "frontend-react/.nvmrc"
 
