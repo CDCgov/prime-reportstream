@@ -67,7 +67,6 @@ test.describe("Support page", () => {
     });
 
     for (const card of cards) {
-        // eslint-disable-next-line playwright/expect-expect
         test(`should have ${card.name} link`, async ({ supportPage }) => {
             const cardHeader = supportPage.page.locator(".usa-card__header", {
                 hasText: card.name,

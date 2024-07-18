@@ -71,7 +71,6 @@ test.describe(
 
         test.describe("Quick links", () => {
             for (const card of cards) {
-                // eslint-disable-next-line playwright/expect-expect
                 test(`should have ${card.name} links`, async ({
                     managingYourConnectionPage,
                 }) => {
