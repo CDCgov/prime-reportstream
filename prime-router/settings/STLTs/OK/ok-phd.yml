@@ -13,7 +13,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation:
-        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/OK/OK-receiver-transform.yml"
+        schemaName: "azure:/hl7_mapping/receivers/STLTs/OK/OK-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: null
@@ -70,8 +70,9 @@
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
-        # Accept COVID only
-        -  "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+        # Accept following condition_code (see: observation-mapping.csv for more detail)
+        #        COVID:	840539006, MPOX:	414015000
+        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006'|'414015000')).exists())"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
