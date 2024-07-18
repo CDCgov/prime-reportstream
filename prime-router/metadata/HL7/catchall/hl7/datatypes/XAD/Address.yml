@@ -38,7 +38,7 @@ postalCode:
 country:
   type: STRING
   expressionType: HL7Spec
-  valueOf: XAD.6
+  valueOf: $country | XAD.6
 
 type:
   vars:

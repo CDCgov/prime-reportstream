@@ -40,4 +40,22 @@ class HDToOrganizationTests {
             ).passed
         )
     }
+
+    @Test
+    fun `test that Organization country uses MSH17 when MSH17 present`() {
+        assert(
+            verifyHL7ToFHIRToHL7Mapping(
+                "catchall/hd/HD-to-Organization-country-msh"
+            ).passed
+        )
+    }
+
+    @Test
+    fun `test that Organization country is null when MSH17 absent`() {
+        assert(
+            verifyHL7ToFHIRToHL7Mapping(
+                "catchall/hd/HD-to-Organization-country-null"
+            ).passed
+        )
+    }
 }
