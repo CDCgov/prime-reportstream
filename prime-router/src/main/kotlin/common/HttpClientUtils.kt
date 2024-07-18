@@ -564,6 +564,15 @@ class HttpClientUtils {
         fun getDefaultHttpClient(accessToken: String?): HttpClient {
             synchronized(this) {
                 if (accessToken != null) {
+                    /*
+                     * Java and Kotlin both use pass-by-value with reference copy to pass arguments to a
+                     * method. There is therefore NO risk of one caller having an httpClientWithAuth obj change out
+                     * from under them by a subsequent caller who provides a different auth token. This speaks to the
+                     * thread-safety concern re: what happens when a caller requests an httpClientWithAuth obj with one
+                     * auth token and, before that client is able to use the client obj, a second caller requests
+                     * client obj with a different auth token which results in the httpClientWithAuth obj in this
+                     * companion class to change.
+                     */
                     return getDefaultHttpClientWithAuth(accessToken)
                 } else {
                     httpClient ?: HttpClient(Apache) {
@@ -582,8 +591,6 @@ class HttpClientUtils {
                                 socketTimeout = TIMEOUT
                                 connectTimeout = TIMEOUT
                                 connectionRequestTimeout = TIMEOUT
-                                customizeClient {
-                                }
                             }
                     }.also {
                         httpClient = it
@@ -594,36 +601,16 @@ class HttpClientUtils {
         }
 
         /**
-         * Called by getDefaultHttpClient as a helper to handle clients with auth tokens. Caller handles thread safety
-         * where object creation and fetching is concerned by way of calling this method within a "synchronized" block.
-         * This helper method ensures auth client can be reused if possible. Where not possible (ie - the provided token
-         * doesn't match the hash of the auth token in the existing auth client), a new one is created and the hash of
-         * the new auth token is stored. The goal is to reuse the existing auth client obj as much as possible while
-         * ensuring callers are always using a client obj with the auth token they expect to be using.
+         * Called by getDefaultHttpClient as a helper to handle clients with auth tokens. Caller is expected to handle
+         * thread safety where object creation and fetching is concerned by way of calling this method within a
+         * "synchronized" block. This method ensures returned auth client can be reused if possible. Where not possible
+         * (ie - the provided token doesn't match the hash of the auth token in the existing auth client), a new one is
+         * created and the hash of the new auth token is stored. The goal is to reuse the existing auth client obj as
+         * much as possible while ensuring callers are always using a client obj with the auth token they expect to be
+         * using.
          *
-         * **NOTE**  Java and Kotlin both use pass-by-value with reference copy to pass arguments to a method. There is
-         * therefore NO risk of one caller having an httpClientWithAuth obj change out from under them by a subsequent
-         * caller who provides a different auth token. This speaks to the second thread-safety concern re: what happens
-         * when a caller requests an httpClientWithAuth obj with one auth token and, before that client is able to use
-         * the client obj, a second caller requests client obj with a different auth token which results in the
-         * httpClientWithAuth obj in this companion class to change.
-         *
-         * here's why: 
-         *
-         * The client objects in this class are private and there is no direct reference to them outside the
-         * "getter" methods which are written in a manner that ensures they are thread safe. All the places where we
-         * actually use the httpClientWithAuth obj in this class are scoped to within a method call using a provided
-         * reference copy passed to the method as an argument. All external callers have no access to private members
-         * and thus are forced to use the objs in the same safe manner.
-         *
-         * In other words, in the case where two callers attempt, one immediately after the other, to create and use an
-         * httpClientWithAuth object with differing auth token values, the first caller has a COPY of the stack
-         * reference to the ORIGINAL object, NOT the actual reference which would point to the NEW obj once the NEW obj
-         * is created. Even in the case of an immediate subsequent caller to this method that provides an auth token
-         * value different than the first caller, the ORIGINAL caller has a copy of the reference to the still-in-scope
-         * ORIGINAL obj in the heap, and thus, is using the ORIGINAL obj with the auth token it provided, and the
-         * subsequent caller is using the NEW stack reference copy that points to the NEW client obj that contains the
-         * NEW auth token it expects to be there.
+         * @param bearerTokens the access token needed to call the endpoint
+         * @return a HttpClient with all sensible defaults
          */
         private fun getDefaultHttpClientWithAuth(accessToken: String): HttpClient {
             if (accessTokenHash != accessToken.hashCode()) {
@@ -648,8 +635,6 @@ class HttpClientUtils {
                         socketTimeout = TIMEOUT
                         connectTimeout = TIMEOUT
                         connectionRequestTimeout = TIMEOUT
-                        customizeClient {
-                        }
                     }
                 }
             }
