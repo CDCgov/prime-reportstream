@@ -13,7 +13,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation:
-        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/SD/SD-receiver-transform.yml"
+        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/SD/SD-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
         receivingApplicationName: null
@@ -72,8 +72,7 @@
       deidentifiedValue: ""
       timing:
         operation: "MERGE"
-        #        numberPerDay: 12
-        numberPerDay: 1440
+        numberPerDay: 12
         initialTime: "01:09"
         timeZone: "EASTERN"
         maxReportCount: 100
