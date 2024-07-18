@@ -47,7 +47,7 @@ class AzureConfig {
         return TableServiceClientBuilder()
             .connectionString(connectionString)
             .buildClient()
-            .getTableClient(tableName)
+            .createTableIfNotExists(tableName)
     }
 
     @Bean
