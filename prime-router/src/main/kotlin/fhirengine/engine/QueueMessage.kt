@@ -49,7 +49,31 @@ abstract class QueueMessage {
     fun send(queueAccess: QueueAccess): Unit {
 
         when (this.javaClass) {
+            FhirConvertQueueMessage::class.java -> {
+                queueAccess.sendMessage(
+                    elrConvertQueueName,
+                    serialize()
+                )
+            }
             FhirRouteQueueMessage::class.java -> {
+                queueAccess.sendMessage(
+                    elrRoutingQueueName,
+                    serialize()
+                )
+            }
+            FhirDestinationFilterQueueMessage::class.java -> {
+                queueAccess.sendMessage(
+                    elrDestinationFilterQueueName,
+                    serialize()
+                )
+            }
+            FhirReceiverFilterQueueMessage::class.java -> {
+                queueAccess.sendMessage(
+                    elrReceiverFilterQueueName,
+                    serialize()
+                )
+            }
+            FhirTranslateQueueMessage::class.java -> {
                 queueAccess.sendMessage(
                     elrTranslationQueueName,
                     serialize()

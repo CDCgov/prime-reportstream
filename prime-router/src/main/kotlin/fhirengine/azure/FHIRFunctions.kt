@@ -64,10 +64,11 @@ class FHIRFunctions(
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
-            queueAccess.sendMessage(
-                elrDestinationFilterQueueName,
-                it.serialize()
-            )
+            it.send(queueAccess)
+//            queueAccess.sendMessage(
+//                elrDestinationFilterQueueName,
+//                it.serialize()
+//            )
         }
     }
 
@@ -138,10 +139,11 @@ class FHIRFunctions(
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
 
         messagesToDispatch.forEach {
-            queueAccess.sendMessage(
-                elrReceiverFilterQueueName,
-                it.serialize()
-            )
+            it.send(queueAccess)
+//            queueAccess.sendMessage(
+//                elrReceiverFilterQueueName,
+//                it.serialize()
+//            )
         }
     }
 
@@ -173,10 +175,11 @@ class FHIRFunctions(
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
-            queueAccess.sendMessage(
-                elrTranslationQueueName,
-                it.serialize()
-            )
+            it.send(queueAccess)
+//            queueAccess.sendMessage(
+//                elrTranslationQueueName,
+//                it.serialize()
+//            )
         }
     }
 
@@ -209,10 +212,11 @@ class FHIRFunctions(
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         // Only dispatches event if Topic.isSendOriginal was true
         messagesToDispatch.forEach {
-            queueAccess.sendMessage(
-                elrSendQueueName,
-                it.serialize()
-            )
+            it.send(queueAccess)
+//            queueAccess.sendMessage(
+//                elrSendQueueName,
+//                it.serialize()
+//            )
         }
     }
 
