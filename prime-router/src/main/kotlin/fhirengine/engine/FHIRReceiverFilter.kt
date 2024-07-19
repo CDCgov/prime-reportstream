@@ -21,6 +21,8 @@ import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestExtractor
+import gov.cdc.prime.router.azure.observability.bundleDigest.FhirPathBundleDigestLabResultExtractorStrategy
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
@@ -28,6 +30,8 @@ import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.ReceiverFilterFailedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -478,7 +482,25 @@ class FHIRReceiverFilter(
                             AzureEventUtils.getIdentifier(bundle)
                         )
                     )
-
+                    val bundleDigestExtractor = BundleDigestExtractor(
+                        FhirPathBundleDigestLabResultExtractorStrategy()
+                    )
+                    reportEventService.createItemEvent(
+                        eventName = ReportStreamEventName.ITEM_FILTER_FAILED,
+                        childReport = emptyReport,
+                        pipelineStepName = TaskAction.receiver_filter
+                    ) {
+                        parentReportId(queueMessage.reportId)
+                        trackingId(bundle)
+                        params(
+                            mapOf(
+                                ReportStreamEventProperties.FAILING_FILTERS to filterResult.failingFilter.filters,
+                                ReportStreamEventProperties.FILTER_TYPE to filterResult.failingFilter.filterType,
+                                ReportStreamEventProperties.BUNDLE_DIGEST
+                                    to bundleDigestExtractor.generateDigest(bundle)
+                            )
+                        )
+                    }.sendToAzure().logEvent()
                     return emptyList()
                 }
             }

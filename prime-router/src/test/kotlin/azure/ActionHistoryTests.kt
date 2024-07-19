@@ -23,6 +23,9 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.ReportEventData
+import gov.cdc.prime.router.azure.observability.event.ReportEventService
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
@@ -321,6 +324,25 @@ class ActionHistoryTests {
             "http://blobUrl",
             "".toByteArray()
         )
+        val mockAzureEventService = mockk<AzureEventService>()
+        every { mockAzureEventService.trackEvent(any()) } returns Unit
+        val mockReportEventService = mockk<ReportEventService>()
+        every {
+            mockReportEventService.getReportEventData(
+                any<ReportFile>(),
+                any(),
+                any(),
+                any()
+            )
+        } returns ReportEventData(
+            UUID.randomUUID(),
+            uuid,
+            emptyList(),
+            Topic.TEST,
+            "http://blobUrl",
+            TaskAction.send,
+            OffsetDateTime.now()
+        )
         val header = mockk<WorkflowEngine.Header>()
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
@@ -330,7 +352,17 @@ class ActionHistoryTests {
         val orgReceiver = org.receivers[0]
         val actionHistory1 = ActionHistory(TaskAction.receive)
         actionHistory1.action
-        actionHistory1.trackSentReport(orgReceiver, uuid, "filename1", "params1", "result1", header)
+        actionHistory1.trackSentReport(
+            orgReceiver,
+            uuid,
+            "filename1",
+            "params1",
+            "result1",
+            header,
+            mockReportEventService,
+            mockAzureEventService,
+            ""
+        )
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
         val reportFile = actionHistory1.reportsOut[uuid]!!
         assertThat(reportFile.schemaName).isEqualTo("schema1")
@@ -349,7 +381,15 @@ class ActionHistoryTests {
         // not allowed to track the same report twice.
         assertFailure {
             actionHistory1.trackSentReport(
-                orgReceiver, uuid, "filename1", "params1", "result1", header
+                orgReceiver,
+                uuid,
+                "filename1",
+                "params1",
+                "result1",
+                header,
+                mockReportEventService,
+                mockAzureEventService,
+                ""
             )
         }
     }
@@ -379,6 +419,25 @@ class ActionHistoryTests {
                     )
                 )
             )
+        val mockAzureEventService = mockk<AzureEventService>()
+        every { mockAzureEventService.trackEvent(any()) } returns Unit
+        val mockReportEventService = mockk<ReportEventService>()
+        every {
+            mockReportEventService.getReportEventData(
+                any<ReportFile>(),
+                any(),
+                any(),
+                any()
+            )
+        } returns ReportEventData(
+            UUID.randomUUID(),
+            uuid,
+            emptyList(),
+            Topic.TEST,
+            "http://blobUrl",
+            TaskAction.send,
+            OffsetDateTime.now()
+        )
         mockkObject(BlobAccess.Companion)
         val blobUrls = mutableListOf<String>()
         every { BlobAccess.uploadBlob(capture(blobUrls), any()) } returns "http://blobUrl"
@@ -392,14 +451,34 @@ class ActionHistoryTests {
         every { inReportFile.reportId } returns uuid
         val actionHistory1 = ActionHistory(TaskAction.receive)
 
-        actionHistory1.trackSentReport(org.receivers[0], uuid, "filename1", "params1", "result1", header)
+        actionHistory1.trackSentReport(
+            org.receivers[0],
+            uuid,
+            "filename1",
+            "params1",
+            "result1",
+            header,
+            mockReportEventService,
+            mockAzureEventService,
+            ""
+        )
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
         assertThat(actionHistory1.reportsOut[uuid]?.schemaName)
             .isEqualTo("g/receivers/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME")
 
         val actionHistory2 = ActionHistory(TaskAction.receive)
 
-        actionHistory2.trackSentReport(org.receivers[1], uuid, "filename1", "params1", "result1", header)
+        actionHistory2.trackSentReport(
+            org.receivers[1],
+            uuid,
+            "filename1",
+            "params1",
+            "result1",
+            header,
+            mockReportEventService,
+            mockAzureEventService,
+            ""
+        )
         assertThat(actionHistory2.reportsOut[uuid]).isNotNull()
         assertThat(actionHistory2.reportsOut[uuid]?.schemaName)
             .isEqualTo("STED/NESTED/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME")
@@ -574,6 +653,25 @@ class ActionHistoryTests {
                     )
                 )
             )
+        val mockAzureEventService = mockk<AzureEventService>()
+        every { mockAzureEventService.trackEvent(any()) } returns Unit
+        val mockReportEventService = mockk<ReportEventService>()
+        every {
+            mockReportEventService.getReportEventData(
+                any<ReportFile>(),
+                any(),
+                any(),
+                any()
+            )
+        } returns ReportEventData(
+            UUID.randomUUID(),
+            uuid,
+            emptyList(),
+            Topic.TEST,
+            "http://blobUrl",
+            TaskAction.send,
+            OffsetDateTime.now()
+        )
         mockkObject(BlobAccess.Companion)
         val blobUrls = mutableListOf<String>()
         every { BlobAccess.uploadBlob(capture(blobUrls), any()) } returns "http://blobUrl"
@@ -587,11 +685,31 @@ class ActionHistoryTests {
         every { inReportFile.reportId } returns uuid
         val actionHistory1 = ActionHistory(TaskAction.receive)
         actionHistory1.action
-        actionHistory1.trackSentReport(org.receivers[0], uuid, "filename1", "params1", "result1", header)
+        actionHistory1.trackSentReport(
+            org.receivers[0],
+            uuid,
+            "filename1",
+            "params1",
+            "result1",
+            header,
+            mockReportEventService,
+            mockAzureEventService,
+            ""
+        )
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
         val actionHistory2 = ActionHistory(TaskAction.receive)
         actionHistory2.action
-        actionHistory2.trackSentReport(org.receivers[1], uuid2, "filename1", "params1", "result1", header)
+        actionHistory2.trackSentReport(
+            org.receivers[1],
+            uuid2,
+            "filename1",
+            "params1",
+            "result1",
+            header,
+            mockReportEventService,
+            mockAzureEventService,
+            ""
+        )
         assertThat(actionHistory2.reportsOut[uuid2]).isNotNull()
         assertNotEquals(blobUrls[0], blobUrls[1])
         assertContains(blobUrls[0], org.receivers[0].fullName)

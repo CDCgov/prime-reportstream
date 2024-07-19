@@ -25,6 +25,9 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.observability.event.ReportEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
@@ -533,6 +536,7 @@ class ActionHistory(
             reportFile.blobDigest = blobInfo.digest
             reportFile.itemCount = report.itemCount
         } else {
+            // TODO: this doesn't seem correct
             reportFile.bodyFormat = MimeFormat.FHIR.toString() // currently only the UP sends null blobs
             reportFile.itemCount = 0
         }
@@ -560,6 +564,8 @@ class ActionHistory(
         params: String,
         result: String,
         header: WorkflowEngine.Header,
+        reportEventService: ReportEventService,
+        transportType: String,
     ) {
         if (isReportAlreadyTracked(sentReportId)) {
             error(
@@ -594,6 +600,24 @@ class ActionHistory(
         reportFile.itemCount = header.reportFile.itemCount
         reportFile.blobDigest = blobInfo.digest
         reportFile.bodyUrl = blobInfo.blobUrl
+
+        reportEventService.createItemEvent(
+            childReport = reportFile,
+            eventName = ReportStreamEventName.REPORT_SENT,
+            pipelineStepName = TaskAction.send
+        ) {
+            parentReportId(header.reportFile.reportId)
+            params(
+                mapOf(
+                    ReportStreamEventProperties.TRANSPORT_TYPE to transportType,
+                    ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
+                ) + if (filename != null) {
+                    mapOf(ReportStreamEventProperties.FILENAME to filename)
+                } else {
+                    emptyMap()
+                }
+            )
+        }
 
         reportsOut[reportFile.reportId] = reportFile
     }

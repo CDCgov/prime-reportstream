@@ -10,6 +10,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.ReportEventService
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.SoapCredential
@@ -152,6 +153,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
+        reportEventService: ReportEventService,
     ): RetryItems? {
         // verify that we have a SOAP transport type for our parameters. I think if we ever fell
         // into this scenario with different parameters there's something seriously wrong in the system,
@@ -207,7 +209,9 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                         externalFileName,
                         soapTransportType.toString(),
                         msg,
-                        header
+                        header,
+                        reportEventService,
+                        this::class.java.simpleName
                     )
                     actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
                 }

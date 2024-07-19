@@ -756,7 +756,6 @@ class FhirFunctionIntegrationTests {
         every { mockReport.reportId } returns UUID.randomUUID()
         mockkConstructor(ReportService::class)
         every { anyConstructed<ReportService>().getSenderName(any()) } returns "senderOrg.senderOrgClient"
-        every { anyConstructed<ReportService>().getRootReport(any()) } returns mockReport
 
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val fhirEngine = FHIRRouter(

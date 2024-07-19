@@ -30,7 +30,11 @@ import java.util.UUID
 
 private const val PARENT_REPORT_ID_FIELD = "parent_report_id"
 
+private const val CHILD_REPORT_ID_FIELD = "child_report_id"
+
 private const val PARENT_INDEX_FIELD = "parent_index"
+
+private const val CHILD_INDEX_FIELD = "child_index"
 
 private const val METADATA_CTE = "metadata"
 
@@ -41,8 +45,9 @@ private const val STARTING_REPORT_ID_FIELD = "starting_report_id"
 class ItemGraphTable : CustomTable<ItemGraphRecord>(DSL.name("item_graph")) {
 
     val PARENT_REPORT_ID = createField(DSL.name(PARENT_REPORT_ID_FIELD), SQLDataType.UUID)
+    val CHIld_REPORT_ID = createField(DSL.name(CHILD_REPORT_ID_FIELD), SQLDataType.UUID)
     val PARENT_INDEX = createField(DSL.name(PARENT_INDEX_FIELD), SQLDataType.INTEGER)
-    val PATH = createField(DSL.name(PATH_FIELD), SQLDataType.VARCHAR)
+    val CHILD_INDEX = createField(DSL.name(CHILD_INDEX_FIELD), SQLDataType.INTEGER)
     val STARTING_REPORT_ID = createField(DSL.name(STARTING_REPORT_ID_FIELD), SQLDataType.UUID)
 
     companion object {
@@ -129,6 +134,33 @@ class ReportGraph(
             val cte = reportAncestorGraphCommonTableExpression(listOf(childReportId))
             rootReportRecords(txn, cte).fetchOneInto(ReportFile::class.java)
         }
+    }
+
+    data class Item(
+        val parentReportId: UUID,
+        val parentIndex: Int,
+        val childReportId: UUID,
+        val childIndex: Int,
+    )
+
+    fun getRootItem(childReportId: UUID, childIndex: Int, txn: DataAccessTransaction): Item? {
+        val cte = itemAncestorGraphCommonTableExpression(
+            childReportId,
+            childIndex
+        )
+        val rootItem = DSL.using(txn)
+            .withRecursive(cte)
+            .select(
+                ItemGraphTable.ITEM_GRAPH.asterisk()
+            )
+            .from(cte)
+            .join(REPORT_FILE)
+            .on(REPORT_FILE.REPORT_ID.eq(ItemGraphTable.ITEM_GRAPH.PARENT_REPORT_ID))
+            .join(ACTION)
+            .on(ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
+            .where(ACTION.ACTION_NAME.eq(TaskAction.receive))
+            .fetchOneInto(Item::class.java)
+        return rootItem
     }
 
     /**
@@ -253,6 +285,55 @@ class ReportGraph(
                     )
                     .coerce(ItemGraphTable.ITEM_GRAPH)
             )
+
+    fun itemAncestorGraphCommonTableExpression(childId: UUID, childIndex: Int): CommonTableExpression<ItemGraphRecord> {
+        val baseCase = DSL.select(
+            ITEM_LINEAGE.PARENT_REPORT_ID,
+            ITEM_LINEAGE.CHILD_REPORT_ID,
+            ITEM_LINEAGE.PARENT_INDEX,
+            ITEM_LINEAGE.CHILD_INDEX,
+            ITEM_LINEAGE.CHILD_REPORT_ID.`as`(STARTING_REPORT_ID_FIELD)
+        )
+            .from(ITEM_LINEAGE)
+            .where(
+                ITEM_LINEAGE.CHILD_REPORT_ID.`in`(
+                    DSL.select(REPORT_FILE.REPORT_ID)
+                        .from(REPORT_FILE)
+                        .where(ITEM_LINEAGE.CHILD_REPORT_ID.eq(childId))
+                        .and(ITEM_LINEAGE.CHILD_INDEX.eq(childIndex))
+                )
+            )
+        return DSL
+            .name(ItemGraphTable.ITEM_GRAPH.name)
+            .`as`(
+                baseCase
+                    .unionAll(
+                        DSL.select(
+                            ITEM_LINEAGE.PARENT_REPORT_ID,
+                            ITEM_LINEAGE.CHILD_REPORT_ID,
+                            ITEM_LINEAGE.PARENT_INDEX,
+                            ITEM_LINEAGE.CHILD_INDEX,
+                            DSL.field("${ItemGraphTable.ITEM_GRAPH.name}.$STARTING_REPORT_ID_FIELD", SQLDataType.UUID)
+                        )
+                            .from(ITEM_LINEAGE)
+                            .join(DSL.table(DSL.name(ItemGraphTable.ITEM_GRAPH.name)))
+                            .on(
+                                DSL.field(
+                                    DSL.name(ItemGraphTable.ITEM_GRAPH.name, PARENT_REPORT_ID_FIELD), SQLDataType.UUID
+                                )
+                                    .eq(
+                                        ITEM_LINEAGE.CHILD_REPORT_ID
+                                    ),
+                                DSL.field(
+                                    DSL.name(ItemGraphTable.ITEM_GRAPH.name, PARENT_INDEX_FIELD), SQLDataType.INTEGER
+                                ).eq(
+                                    ITEM_LINEAGE.CHILD_INDEX
+                                )
+                            )
+                    )
+                    .coerce(ItemGraphTable.ITEM_GRAPH)
+            )
+    }
 
     /**
      * Accepts a list of report ids and then finds all the items associated with that report

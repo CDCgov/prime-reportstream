@@ -11,6 +11,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.ReportEventService
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
@@ -46,6 +47,7 @@ class SftpTransport : ITransport, Logging {
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
+        reportEventService: ReportEventService,
     ): RetryItems? {
         val sftpTransportType = transportType as SFTPTransportType
 
@@ -68,7 +70,9 @@ class SftpTransport : ITransport, Logging {
                 externalFileName,
                 sftpTransportType.toString(),
                 msg,
-                header
+                header,
+                reportEventService,
+                this::class.java.simpleName
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null

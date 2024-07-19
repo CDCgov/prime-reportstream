@@ -15,6 +15,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.ReportEventService
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
@@ -76,6 +77,7 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
+        reportEventService: ReportEventService,
     ): RetryItems? {
         val gaenTransportInfo = transportType as GAENTransportType
         val reportId = header.reportFile.reportId
@@ -104,7 +106,7 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
 
             // Record the work in history and logs
             when (postResult) {
-                PostResult.SUCCESS -> recordFullSuccess(params)
+                PostResult.SUCCESS -> recordFullSuccess(params, reportEventService)
                 PostResult.RETRY -> recordFailureWithRetry(params)
                 PostResult.FAIL -> recordFailure(params)
             }
@@ -121,7 +123,7 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
     /**
      * Record in [ActionHistory] the full success of this notification. Log an info message as well.
      */
-    private fun recordFullSuccess(params: SendParams) {
+    private fun recordFullSuccess(params: SendParams, reportEventService: ReportEventService) {
         val msg = "${params.receiver.fullName}: Successful exposure notifications of ${params.comboId}"
         val history = params.actionHistory
         params.context.logger.info(msg)
@@ -133,7 +135,9 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
             null,
             params.gaenTransportInfo.toString(),
             msg,
-            params.header
+            params.header,
+            reportEventService,
+            this::class.java.simpleName
         )
         history.trackItemLineages(Report.createItemLineagesFromDb(params.header, params.sentReportId))
     }

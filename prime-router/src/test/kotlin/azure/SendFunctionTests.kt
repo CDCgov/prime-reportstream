@@ -115,7 +115,7 @@ class SendFunctionTests {
             val header = makeHeader()
             nextEvent = block(header, null, null)
         }
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any()) }.returns(null)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }.returns(null)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         every { workflowEngine.azureEventService.trackEvent(any()) }.returns(Unit)
         every { workflowEngine.reportService.getRootReports(any()) } returns reportList
@@ -146,7 +146,8 @@ class SendFunctionTests {
             nextEvent = block(header, null, null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }
+            .returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId, false)
@@ -177,7 +178,8 @@ class SendFunctionTests {
             )
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }
+            .returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
 
         // Invoke
@@ -212,7 +214,8 @@ class SendFunctionTests {
             )
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }
+            .returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
 
         // Invoke

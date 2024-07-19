@@ -1,8 +1,6 @@
 package gov.cdc.prime.router.azure.observability.event
 
-data class ReportSentEvent(
+class ProcessingErrorEvent(
     override val reportEventData: ReportEventData,
-    val externalFileName: String?,
-    val transportType: String,
-    val receiver: String,
+    val message: String,
 ) : IReportEvent

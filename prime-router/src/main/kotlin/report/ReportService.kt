@@ -1,14 +1,18 @@
 package gov.cdc.prime.router.report
 
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.db.ReportGraph
+import java.util.UUID
 
 /**
  * Collection of report related operations
  */
 class ReportService(
     private val reportGraph: ReportGraph = ReportGraph(),
+    val db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
 ) {
 
     /**
@@ -20,6 +24,13 @@ class ReportService(
     fun getRootReport(childReportId: ReportId): ReportFile {
         return reportGraph.getRootReport(childReportId)
             ?: reportGraph.db.fetchReportFile(childReportId)
+    }
+
+    fun getRootItemIndex(childReportId: UUID, childIndex: Int): Int? {
+        val rootItem = db.transactReturning { txn ->
+            reportGraph.getRootItem(childReportId, childIndex, txn)
+        }
+        return rootItem?.parentIndex
     }
 
     /**

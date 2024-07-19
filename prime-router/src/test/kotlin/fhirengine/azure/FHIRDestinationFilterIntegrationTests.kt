@@ -108,6 +108,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         return FHIRDestinationFilter(
             metadata,
             settings,
+            db = ReportStreamTestDatabaseContainer.testDatabaseAccess,
             reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess)),
             azureEventService = azureEventService
         )
@@ -228,9 +229,9 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             }
 
             // check events
-            assertThat(azureEventsService.events).hasSize(1)
+            assertThat(azureEventsService.events).hasSize(3)
             val bundle = FhirTranscoder.decode(reportContents)
-            assertThat(azureEventsService.events.single()).isEqualTo(
+            assertThat(azureEventsService.events.first()).isEqualTo(
                 ReportAcceptedEvent(
                     report.id,
                     report.id,
@@ -306,9 +307,9 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             }
 
             // check events
-            assertThat(azureEventsService.events).hasSize(1)
+            assertThat(azureEventsService.events).hasSize(2)
             val bundle = FhirTranscoder.decode(reportContents)
-            assertThat(azureEventsService.events.single()).isEqualTo(
+            assertThat(azureEventsService.events.first()).isEqualTo(
                 ReportAcceptedEvent(
                     report.id,
                     report.id,
@@ -373,7 +374,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         }
 
         // check events
-        assertThat(azureEventsService.events).hasSize(2)
+        assertThat(azureEventsService.events).hasSize(3)
         val bundle = FhirTranscoder.decode(reportContents)
         assertThat(azureEventsService.events.first())
             .isInstanceOf<ReportAcceptedEvent>()
@@ -388,7 +389,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                     AzureEventUtils.getIdentifier(bundle)
                 )
         )
-        assertThat(azureEventsService.events.last())
+        assertThat(azureEventsService.events[1])
             .isInstanceOf<ReportNotRoutedEvent>()
             .isEqualToIgnoringGivenProperties(
                 ReportNotRoutedEvent(

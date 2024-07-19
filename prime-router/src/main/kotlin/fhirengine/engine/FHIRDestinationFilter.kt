@@ -18,6 +18,8 @@ import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestExtractor
+import gov.cdc.prime.router.azure.observability.bundleDigest.FhirPathBundleDigestLabResultExtractorStrategy
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
@@ -25,6 +27,8 @@ import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportNotRoutedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -189,6 +193,14 @@ class FHIRDestinationFilter(
                     // ensure tracking is set
                     actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
+                    reportEventService.createItemEvent(
+                        eventName = ReportStreamEventName.ITEM_ROUTED,
+                        childReport = report,
+                        pipelineStepName = TaskAction.destination_filter
+                    ) {
+                        parentReportId(queueMessage.reportId)
+                    }.sendToAzure()
+
                     listOf(
                         FHIREngineRunResult(
                             nextEvent,
@@ -254,6 +266,24 @@ class FHIRDestinationFilter(
                         AzureEventUtils.getIdentifier(bundle)
                     )
                 )
+
+                val bundleDigestExtractor = BundleDigestExtractor(
+                    FhirPathBundleDigestLabResultExtractorStrategy()
+                )
+
+                reportEventService.createItemEvent(
+                    eventName = ReportStreamEventName.ITEM_NOT_ROUTED,
+                    childReport = report,
+                    pipelineStepName = TaskAction.destination_filter
+                ) {
+                    parentReportId(queueMessage.reportId)
+                    params(
+                        mapOf(
+                            ReportStreamEventProperties.BUNDLE_DIGEST
+                                to bundleDigestExtractor.generateDigest(bundle)
+                        )
+                    )
+                }.sendToAzure().logEvent()
 
                 return emptyList()
             }

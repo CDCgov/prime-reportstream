@@ -202,6 +202,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         return FHIRReceiverFilter(
             metadata,
             settings,
+            db = ReportStreamTestDatabaseContainer.testDatabaseAccess,
             reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess)),
             azureEventService = azureEventService
         )
@@ -461,9 +462,9 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             }
 
             // check events
-            assertThat(azureEventService.events).hasSize(1)
+            assertThat(azureEventService.events).hasSize(2)
             val bundle = FhirTranscoder.decode(reportContents)
-            assertThat(azureEventService.events.single())
+            assertThat(azureEventService.events.first())
                 .isInstanceOf<ReceiverFilterFailedEvent>()
                 .isEqualToIgnoringGivenProperties(
                     ReceiverFilterFailedEvent(
@@ -714,9 +715,9 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             }
 
             // check events
-            assertThat(azureEventService.events).hasSize(1)
+            assertThat(azureEventService.events).hasSize(2)
             val bundle = FhirTranscoder.decode(reportContents)
-            assertThat(azureEventService.events.single())
+            assertThat(azureEventService.events.first())
                 .isInstanceOf<ReceiverFilterFailedEvent>()
                 .isEqualToIgnoringGivenProperties(
                     ReceiverFilterFailedEvent(
@@ -812,9 +813,9 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         }
 
         // check events
-        assertThat(azureEventService.events).hasSize(1)
+        assertThat(azureEventService.events).hasSize(2)
         val bundle = FhirTranscoder.decode(reportContents)
-        assertThat(azureEventService.events.single()).isInstanceOf<ReceiverFilterFailedEvent>()
+        assertThat(azureEventService.events.first()).isInstanceOf<ReceiverFilterFailedEvent>()
             .isEqualToIgnoringGivenProperties(
                 ReceiverFilterFailedEvent(
                     UUID.randomUUID(), // ignored
@@ -1078,9 +1079,9 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         }
 
         // check events
-        assertThat(azureEventService.events).hasSize(1)
+        assertThat(azureEventService.events).hasSize(2)
         val bundle = FhirTranscoder.decode(reportContents)
-        assertThat(azureEventService.events.single()).isInstanceOf<ReceiverFilterFailedEvent>()
+        assertThat(azureEventService.events.first()).isInstanceOf<ReceiverFilterFailedEvent>()
             .isEqualToIgnoringGivenProperties(
                 ReceiverFilterFailedEvent(
                     UUID.randomUUID(), // ignored

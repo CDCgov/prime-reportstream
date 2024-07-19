@@ -13,6 +13,8 @@ interface AzureEventService {
      * @param event the event to be tracked
      */
     fun trackEvent(event: AzureCustomEvent)
+
+    fun trackEvent(eventName: ReportStreamEventName, event: AzureCustomEvent)
 }
 
 /**
@@ -30,6 +32,11 @@ class AzureEventServiceImpl(
         logger.debug("Sending event of type $name to Azure AppInsights")
         telemetryClient.trackEvent(name, event.serialize(), emptyMap())
     }
+
+    override fun trackEvent(eventName: ReportStreamEventName, event: AzureCustomEvent) {
+        logger.debug("Sending event of type $eventName to Azure AppInsights")
+        telemetryClient.trackEvent(eventName.name, event.serialize(), emptyMap())
+    }
 }
 
 /**
@@ -45,6 +52,11 @@ class LocalAzureEventServiceImpl(
     override fun trackEvent(event: AzureCustomEvent) {
         val name = event.javaClass.simpleName
         logger.debug("Recording'$name' event in memory.")
+        events.add(event)
+    }
+
+    override fun trackEvent(eventName: ReportStreamEventName, event: AzureCustomEvent) {
+        logger.debug("Recording'$eventName' event in memory.")
         events.add(event)
     }
 }
