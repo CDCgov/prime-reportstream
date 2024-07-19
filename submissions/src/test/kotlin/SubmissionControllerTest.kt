@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.applicationinsights.TelemetryClient
+import gov.cdc.prime.reportstream.submissions.TelemetryService
 import gov.cdc.prime.reportstream.submissions.config.AzureConfig
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -56,7 +57,7 @@ class SubmissionControllerTest {
     private lateinit var tableClient: TableClient
 
     @MockBean
-    private lateinit var telemetryClient: TelemetryClient
+    private lateinit var telemetryService: TelemetryService
 
     private lateinit var objectMapper: ObjectMapper
 
@@ -86,9 +87,9 @@ class SubmissionControllerTest {
         // Mock the table createEntity method
         doNothing().`when`(tableClient).createEntity(any())
 
-        // Ensure telemetryClient methods are mocked
-        doNothing().`when`(telemetryClient).trackEvent(anyString(), anyMap(), isNull())
-        doNothing().`when`(telemetryClient).flush()
+        // Ensure telemetryService methods are mocked
+        doNothing().`when`(telemetryService).trackEvent(anyString(), anyMap())
+        doNothing().`when`(telemetryService).flush()
     }
 
     @AfterEach
@@ -99,7 +100,7 @@ class SubmissionControllerTest {
             blobContainerClient,
             queueClient,
             tableClient,
-            telemetryClient,
+            telemetryService,
         )
     }
 
@@ -312,7 +313,7 @@ class SubmissionControllerTest {
         val eventCaptor = argumentCaptor<String>()
         val propertiesCaptor = argumentCaptor<Map<String, String>>()
 
-        verify(telemetryClient).trackEvent(eventCaptor.capture(), propertiesCaptor.capture(), isNull())
+        verify(telemetryService).trackEvent(eventCaptor.capture(), propertiesCaptor.capture())
 
         val capturedEvent = eventCaptor.firstValue
         val capturedProperties = mapToStringString(propertiesCaptor.firstValue)

@@ -6,7 +6,6 @@ import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.queue.QueueClient
 import com.azure.storage.queue.QueueServiceClientBuilder
-import com.microsoft.applicationinsights.TelemetryClient
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -44,14 +43,14 @@ class AzureConfig {
 
     @Bean
     fun tableClient(): TableClient {
-        return TableServiceClientBuilder()
+
+        val tableServiceClient = TableServiceClientBuilder()
             .connectionString(connectionString)
             .buildClient()
-            .createTableIfNotExists(tableName)
-    }
 
-    @Bean
-    fun telemetryClient(): TelemetryClient {
-        return TelemetryClient()
+        // Ensure the table is created if it does not exist
+        tableServiceClient.createTableIfNotExists(tableName)
+
+        return tableServiceClient.getTableClient(tableName)
     }
 }

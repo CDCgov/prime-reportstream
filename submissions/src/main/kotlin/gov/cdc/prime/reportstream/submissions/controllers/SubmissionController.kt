@@ -6,9 +6,9 @@ import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.queue.QueueClient
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.microsoft.applicationinsights.TelemetryClient
 import gov.cdc.prime.reportstream.shared.SubmissionQueueMessage
 import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
+import gov.cdc.prime.reportstream.submissions.TelemetryService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -37,7 +37,7 @@ class SubmissionController(
     private val blobContainerClient: BlobContainerClient,
     private val queueClient: QueueClient,
     private val tableClient: TableClient,
-    private val telemetryClient: TelemetryClient,
+    private val telemetryService: TelemetryService,
 ) {
     /**
      * Submits a report.
@@ -118,12 +118,11 @@ class SubmissionController(
         logger.debug("Created ReportReceivedEvent")
 
         // Log to Application Insights
-        telemetryClient.trackEvent(
+        telemetryService.trackEvent(
             "ReportReceivedEvent",
             mapOf("event" to objectMapper.writeValueAsString(reportReceivedEvent)),
-            null
         )
-        telemetryClient.flush()
+        telemetryService.flush()
         logger.info("Tracked ReportReceivedEvent with Application Insights")
 
         val response =
