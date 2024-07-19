@@ -1,7 +1,12 @@
 import { expect, Page } from "@playwright/test";
 import { format } from "date-fns";
+import {
+    MOCK_GET_RECEIVERS_AK,
+    MOCK_GET_RECEIVERS_IGNORE,
+} from "../mocks/organizations";
 
 const URL_DAILY_DATA = "/daily-data";
+const API_ORGANIZATIONS = "**/api/settings/organizations";
 
 export async function goto(page: Page) {
     await page.goto(URL_DAILY_DATA, {
@@ -155,4 +160,24 @@ export function filterStatus(page: Page, filters: (string | undefined)[]) {
         }
     }
     return filterStatus;
+}
+
+export async function mockGetOrgAlaskaReceiversResponse(
+    page: Page,
+    responseStatus = 200,
+) {
+    await page.route(`${API_ORGANIZATIONS}/ak-phd/receivers`, async (route) => {
+        const json = MOCK_GET_RECEIVERS_AK;
+        await route.fulfill({ json, status: responseStatus });
+    });
+}
+
+export async function mockGetOrgIgnoreReceiversResponse(
+    page: Page,
+    responseStatus = 200,
+) {
+    await page.route(`${API_ORGANIZATIONS}/ignore/receivers`, async (route) => {
+        const json = MOCK_GET_RECEIVERS_IGNORE;
+        await route.fulfill({ json, status: responseStatus });
+    });
 }
