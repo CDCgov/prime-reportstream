@@ -50,32 +50,43 @@ const test = baseTest.extend<SupportPageFixtures>({
     },
 });
 
-test.describe("Support page", () => {
-    test("Should have a way of contacting support", async ({ supportPage }) => {
-        const contactLink = supportPage.page
-            .locator(`a[href="${site.forms.contactUs.url}"]`)
-            .first();
+test.describe(
+    "Support page",
+    {
+        tag: "@smoke",
+    },
+    () => {
+        test("Should have a way of contacting support", async ({
+            supportPage,
+        }) => {
+            const contactLink = supportPage.page
+                .locator(`a[href="${site.forms.contactUs.url}"]`)
+                .first();
 
-        await contactLink.scrollIntoViewIfNeeded();
-        await expect(contactLink).toBeVisible();
-    });
-
-    for (const card of cards) {
-        // eslint-disable-next-line playwright/expect-expect
-        test(`should have ${card.name} link`, async ({ supportPage }) => {
-            const cardHeader = supportPage.page.locator(".usa-card__header", {
-                hasText: card.name,
-            });
-
-            await expect(cardHeader).toBeVisible();
-
-            const cardContainer = cardHeader.locator("..");
-            const viewAllLink = cardContainer.locator("a").last();
-
-            await viewAllLink.click();
-            await expect(
-                supportPage.page.locator(`#${card.anchorID}`),
-            ).toBeVisible();
+            await contactLink.scrollIntoViewIfNeeded();
+            await expect(contactLink).toBeVisible();
         });
-    }
-});
+
+        for (const card of cards) {
+            // eslint-disable-next-line playwright/expect-expect
+            test(`should have ${card.name} link`, async ({ supportPage }) => {
+                const cardHeader = supportPage.page.locator(
+                    ".usa-card__header",
+                    {
+                        hasText: card.name,
+                    },
+                );
+
+                await expect(cardHeader).toBeVisible();
+
+                const cardContainer = cardHeader.locator("..");
+                const viewAllLink = cardContainer.locator("a").last();
+
+                await viewAllLink.click();
+                await expect(
+                    supportPage.page.locator(`#${card.anchorID}`),
+                ).toBeVisible();
+            });
+        }
+    },
+);
