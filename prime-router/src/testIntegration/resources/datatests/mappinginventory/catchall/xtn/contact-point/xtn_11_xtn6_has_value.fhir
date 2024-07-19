@@ -147,6 +147,12 @@
           "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
           "valueString" : "218"
         }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+          "extension" : [ {
+            "url" : "XTN.11",
+            "valueString" : "4"
+          } ]
+        }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
           "valueString" : "NK1.40"
         } ],
