@@ -1,10 +1,7 @@
 param (
-    [string]$pass    
-)
-param (
+    [string]$pass,
     [string]$user
 )
-
 function Get-BasicAuthCreds {
     param([string]$Username, [string]$Password)
     $AuthString = "{0}:{1}" -f $Username, $Password
@@ -12,18 +9,34 @@ function Get-BasicAuthCreds {
     return [Convert]::ToBase64String($AuthBytes)
 }
 $BasicCreds = Get-BasicAuthCreds -Username $user -Password $pass
-$headers = @{"Authorization" = "Basic $BasicCreds"}
-$SixMonthsOld=(Get-Date).AddMonths(-6)
-$stgendpoint = "https://staging.prime.cdc.gov/metabase/api/user"
+$headers = @{"x-api-key" = "mb_5ovOOr1U+zZ1a/MmRIB5ITEJyPTiGKh4FfV+8Bthf2w=" }
+$SixMonthsOld = (Get-Date).AddMonths(-6)
+$stgendpoint = "https://staging.prime.cdc.gov//metabase/api/user"
 $val = Invoke-RestMethod -Uri $stgendpoint  -Headers $headers -Method Get
 
 $LastLogin = $val.last_login
-$commonName=""
+$commonName = ""
 
-if ($LastLogin -gt $SixMonthsOld)
-{
-    $commonName = $val.common_name
+foreach ($User in $val.data) {
+    $LastLogin = $User.last_login
+    if ($LastLogin -eq $null || $LastLogin -le $SixMonthsOld) {
+            $commonName = $User.common_name
+            Write-Host "Name - " $commonName
+            Write-Host "Login - " $User.date_joined
 
+            $data.InactiveMBUsers += @{
+                Name       = $commonName
+                DateJoined = $User.date_joined
+                LastLogin  = $LastLogin
+            }
+    }
 }
+$json1 = $data | ConvertTo-Json
 
-Write-Host "Name - " $commonName
+$jsonstring=$json1 | ConvertFrom-Json | ConvertTo-Json -Compress -Depth 100
+ Write-Host $jsonstring
+echo "InactiveMBUsers=$jsonstring"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+
+
+$encodedslackMessageUsers = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($jsonstring))
+Write-Output "SLACK_MESSAGE_Users=$encodedslackMessageUsers" >> $env:GITHUB_ENV
