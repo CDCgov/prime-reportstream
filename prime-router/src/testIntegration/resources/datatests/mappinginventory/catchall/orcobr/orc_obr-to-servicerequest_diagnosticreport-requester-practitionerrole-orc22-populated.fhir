@@ -158,6 +158,9 @@
                 "url" : "XAD.2",
                 "valueString" : "Ordering Facility Address"
               }, {
+                "url" : "XAD.6",
+                "valueString" : "USA"
+              }, {
                 "url" : "XAD.7",
                 "valueCode" : "H"
               }, {
@@ -389,6 +392,9 @@
           }, {
             "url" : "XAD.2",
             "valueString" : "Ordering Facility Address"
+          }, {
+            "url" : "XAD.6",
+            "valueString" : "USA"
           }, {
             "url" : "XAD.7",
             "valueCode" : "H"

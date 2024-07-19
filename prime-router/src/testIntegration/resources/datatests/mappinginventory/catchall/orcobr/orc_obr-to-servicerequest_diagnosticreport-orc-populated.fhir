@@ -260,6 +260,10 @@
                           "valueString" : "Ordering Facility Address"
                         },
                         {
+                          "url" : "XAD.6",
+                          "valueString" : "USA"
+                        },
+                        {
                           "url" : "XAD.7",
                           "valueCode" : "H"
                         },
@@ -322,6 +326,10 @@
                           ]
                         },
                         {
+                          "url" : "XAD.6",
+                          "valueString" : "USA"
+                        },
+                        {
                           "url" : "XAD.7",
                           "valueCode" : "H"
                         }
@@ -369,6 +377,10 @@
                         {
                           "url" : "XAD.2",
                           "valueString" : "Ordering Provider Address"
+                        },
+                        {
+                          "url" : "XAD.6",
+                          "valueString" : "USA"
                         },
                         {
                           "url" : "XAD.7",
@@ -431,6 +443,10 @@
                               "valueString" : "600 5TH AVE"
                             }
                           ]
+                        },
+                        {
+                          "url" : "XAD.6",
+                          "valueString" : "USA"
                         },
                         {
                           "url" : "XAD.7",
@@ -1219,6 +1235,10 @@
                     "valueString" : "Ordering Provider Address"
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "H"
                   },
@@ -1521,6 +1541,10 @@
                   {
                     "url" : "XAD.2",
                     "valueString" : "Ordering Facility Address"
+                  },
+                  {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",

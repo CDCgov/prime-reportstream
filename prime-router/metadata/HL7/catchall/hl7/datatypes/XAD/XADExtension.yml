@@ -32,6 +32,18 @@ extension:
           expressionType: HL7Spec
     - expressionType: nested
       vars:
+        xad6: STRING_ALL, XAD.6
+      condition: $xad6 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: XAD.6
+        valueString:
+          type: STRING
+          valueOf: XAD.6
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
         xad7: STRING_ALL, XAD.7
       condition: $xad7 NOT_NULL
       expressionsMap:

@@ -311,6 +311,9 @@
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
           "extension" : [ {
+            "url" : "XAD.6",
+            "valueString" : "USA"
+          }, {
             "url" : "XAD.7",
             "valueCode" : "H"
           } ]
