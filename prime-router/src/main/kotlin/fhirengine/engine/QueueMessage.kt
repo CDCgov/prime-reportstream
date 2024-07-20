@@ -36,9 +36,6 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
     JsonSubTypes.Type(ReportEventQueueMessage::class, name = "report")
 )
 abstract class QueueMessage {
-
-    // abstract fun getClass(): Class<in QueueMessage>
-
     fun send(queueAccess: QueueAccess) {
         when (this.javaClass) {
             FhirConvertQueueMessage::class.java -> {
