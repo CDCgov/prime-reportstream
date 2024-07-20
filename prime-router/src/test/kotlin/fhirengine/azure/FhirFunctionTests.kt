@@ -26,7 +26,6 @@ import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.FhirDestinationFilterQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName

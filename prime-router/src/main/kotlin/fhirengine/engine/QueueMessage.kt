@@ -1,11 +1,5 @@
 package gov.cdc.prime.router.fhirengine.engine
 
-import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
-import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
-import gov.cdc.prime.router.fhirengine.engine.elrReceiverFilterQueueName
-import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
-import gov.cdc.prime.router.fhirengine.engine.elrSendQueueName
-import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
@@ -20,7 +14,6 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.QueueAccess
-import gov.cdc.prime.router.fhirengine.azure.FHIRFunctions
 import java.util.Base64
 import java.util.UUID
 
@@ -44,10 +37,9 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
 )
 abstract class QueueMessage {
 
-    //abstract fun getClass(): Class<in QueueMessage>
+    // abstract fun getClass(): Class<in QueueMessage>
 
-    fun send(queueAccess: QueueAccess): Unit {
-
+    fun send(queueAccess: QueueAccess) {
         when (this.javaClass) {
             FhirConvertQueueMessage::class.java -> {
                 queueAccess.sendMessage(
@@ -85,9 +77,7 @@ abstract class QueueMessage {
                     serialize()
                 )
             }
-
         }
-
     }
 
     fun serialize(): String {
