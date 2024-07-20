@@ -398,6 +398,12 @@
             "code" : "TRANS"
           } ]
         }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/ndl-practitioner-role",
+        "extension" : [ {
+          "url" : "NDL.9",
+          "valueString" : "C"
+        } ]
       } ],
       "period" : {
         "start" : "2023-04-01T10:25:31-04:00",

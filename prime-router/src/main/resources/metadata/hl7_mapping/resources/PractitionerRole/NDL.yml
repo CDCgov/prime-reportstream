@@ -49,3 +49,7 @@ elements:
   - name: room
     value: [ '%resource.location.resolve().where(physicalType.coding.code = "lvl").identifier.value' ]
     hl7Spec: [ '%{hl7NDLField}-11' ]
+
+  - name: ndl-extension-value
+    resource: '%resource.extension(%`rsext-ndl-practitioner-role`)'
+    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/PractitionerRole/NDLExtension.yml
