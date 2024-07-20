@@ -79,6 +79,13 @@ abstract class QueueMessage {
                     serialize()
                 )
             }
+            ReportEventQueueMessage::class.java -> {
+                queueAccess.sendMessage(
+                    elrSendQueueName,
+                    serialize()
+                )
+            }
+
         }
 
     }

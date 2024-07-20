@@ -24,7 +24,6 @@ import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrReceiverFilterQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
-import gov.cdc.prime.router.fhirengine.engine.elrSendQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
@@ -65,10 +64,6 @@ class FHIRFunctions(
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
             it.send(queueAccess)
-//            queueAccess.sendMessage(
-//                elrDestinationFilterQueueName,
-//                it.serialize()
-//            )
         }
     }
 
@@ -103,10 +98,6 @@ class FHIRFunctions(
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
             it.send(queueAccess)
-//            queueAccess.sendMessage(
-//                elrTranslationQueueName,
-//                it.serialize()
-//            )
         }
     }
 
@@ -140,10 +131,6 @@ class FHIRFunctions(
 
         messagesToDispatch.forEach {
             it.send(queueAccess)
-//            queueAccess.sendMessage(
-//                elrReceiverFilterQueueName,
-//                it.serialize()
-//            )
         }
     }
 
@@ -176,10 +163,6 @@ class FHIRFunctions(
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
             it.send(queueAccess)
-//            queueAccess.sendMessage(
-//                elrTranslationQueueName,
-//                it.serialize()
-//            )
         }
     }
 
@@ -213,10 +196,6 @@ class FHIRFunctions(
         // Only dispatches event if Topic.isSendOriginal was true
         messagesToDispatch.forEach {
             it.send(queueAccess)
-//            queueAccess.sendMessage(
-//                elrSendQueueName,
-//                it.serialize()
-//            )
         }
     }
 

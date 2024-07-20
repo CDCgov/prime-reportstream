@@ -27,6 +27,7 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.FhirDestinationFilterQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
@@ -244,12 +245,13 @@ class FhirFunctionTests {
             emptyMap(),
             emptyList()
         )
-        val message = FhirRouteQueueMessage(
+        val message = FhirTranslateQueueMessage(
             report.id,
             "",
             "",
             "ignore.ignore-full-elr",
-            Topic.FULL_ELR
+            Topic.FULL_ELR,
+            ""
         )
         every { fhirEngine.doWork(any(), any(), any()) } returns listOf(
             FHIREngine.FHIREngineRunResult(
