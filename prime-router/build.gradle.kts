@@ -863,7 +863,7 @@ dependencies {
     implementation("org.apache.commons:commons-csv:1.11.0")
     implementation("org.apache.commons:commons-lang3:3.14.0")
     implementation("org.apache.commons:commons-text:1.12.0")
-    implementation("commons-codec:commons-codec:1.17.0")
+    implementation("commons-codec:commons-codec:1.17.1")
     implementation("commons-io:commons-io:2.16.1")
     implementation("org.postgresql:postgresql:42.7.3")
     implementation("com.zaxxer:HikariCP:5.1.0")
