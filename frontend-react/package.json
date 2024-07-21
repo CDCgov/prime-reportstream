@@ -111,7 +111,7 @@
     "devDependencies": {
         "@mdx-js/react": "^3.0.1",
         "@mdx-js/rollup": "^3.0.1",
-        "@playwright/test": "^1.45.1",
+        "@playwright/test": "^1.45.2",
         "@rest-hooks/test": "^7.3.1",
         "@storybook/addon-a11y": "^8.1.10",
         "@storybook/addon-actions": "^8.1.10",
