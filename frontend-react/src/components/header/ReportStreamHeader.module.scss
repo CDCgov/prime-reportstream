@@ -127,6 +127,15 @@ header.Navbar {
             .nav-cta-container {
                 margin-top: 16px;
                 order: 2;
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+
+                .nav-cta-username {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
 
                 & .usa-button {
                     margin-bottom: 8px;

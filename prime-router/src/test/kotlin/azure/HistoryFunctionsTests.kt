@@ -7,7 +7,7 @@ import assertk.assertions.isTrue
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 class HistoryFunctionsTests {
@@ -105,7 +106,7 @@ class HistoryFunctionsTests {
             reportFile.bodyUrl = "http://bodyUrl"
             reportFile.createdAt = OffsetDateTime.now()
             reportFile.itemCount = 1
-            reportFile.bodyFormat = Report.Format.HL7.toString()
+            reportFile.bodyFormat = MimeFormat.HL7.toString()
             reportFile.receivingOrgSvc = "default"
             reportFile.schemaName = "default"
             reportFile.externalName = "external-name"
@@ -156,7 +157,7 @@ class HistoryFunctionsTests {
             reportFile.receivingOrg = "test1"
             reportFile.createdAt = OffsetDateTime.now()
             reportFile.itemCount = 1
-            reportFile.bodyFormat = Report.Format.HL7.toString()
+            reportFile.bodyFormat = MimeFormat.HL7.toString()
             reportFile.receivingOrgSvc = "default"
             reportFile.schemaName = "default"
             reportFile.externalName = "externalFile.hl7"
@@ -201,7 +202,7 @@ class HistoryFunctionsTests {
             reportFile.bodyUrl = "http://bodyUrl"
             reportFile.createdAt = OffsetDateTime.now()
             reportFile.itemCount = 1
-            reportFile.bodyFormat = Report.Format.HL7.toString()
+            reportFile.bodyFormat = MimeFormat.HL7.toString()
             reportFile.receivingOrgSvc = "default"
             reportFile.schemaName = "default"
 
@@ -221,6 +222,57 @@ class HistoryFunctionsTests {
             assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
             verify(exactly = 1) {
                 mockDb.fetchReportFile(reportFile.reportId)
+                BlobAccess.downloadBlobAsByteArray(reportFile.bodyUrl, any(), any())
+            }
+        }
+
+        @Test
+        fun `test getReportById when there is no externalName`() {
+            val request = MockHttpRequestMessage()
+            request.httpHeaders["organization"] = "test1"
+
+            val jwt = mapOf("organization" to listOf("DHSender_test1Admins"), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.authenticate(any()) } returns claims
+
+            val now = OffsetDateTime.now()
+            val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+            val reportFile = ReportFile()
+            reportFile.reportId = UUID.randomUUID()
+            reportFile.receivingOrg = "test1"
+            reportFile.bodyUrl = "http://bodyUrl"
+            reportFile.createdAt = now
+            reportFile.itemCount = 1
+            reportFile.bodyFormat = MimeFormat.HL7.toString()
+            reportFile.receivingOrgSvc = "default"
+            reportFile.schemaName = "default"
+
+            mockkObject(BlobAccess.Companion)
+            every { BlobAccess.downloadBlobAsByteArray(reportFile.bodyUrl) } returns "test".toByteArray()
+
+            val context = mockkClass(ExecutionContext::class)
+
+            val mockDb = mockk<DatabaseAccess>()
+            every { mockDb.fetchReportFile(any()) } returns reportFile
+            every { mockDb.fetchItemLineagesForReport(reportFile.reportId, reportFile.itemCount) } returns emptyList()
+            mockkConstructor(WorkflowEngine::class)
+            every { anyConstructed<WorkflowEngine>().db } returns mockDb
+            every { anyConstructed<WorkflowEngine>().recordAction(any()) } returns Unit
+
+            val response = BaseHistoryFunction().getReportById(request, reportFile.reportId.toString(), context)
+
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+            val body = response.body as ReportView
+            assertThat(body.fileType).isEqualTo("HL7")
+            assertThat(body.total).isEqualTo(1)
+            assertThat(body.displayName).isEqualTo("default")
+            assertThat(body.fileName).isEqualTo("default-${reportFile.reportId}-${formatter.format(now)}.hl7")
+            assertThat(body.content).isEqualTo("test")
+
+            verify(exactly = 1) {
+                mockDb.fetchReportFile(reportFile.reportId)
+                mockDb.fetchItemLineagesForReport(reportFile.reportId, reportFile.itemCount)
                 BlobAccess.downloadBlobAsByteArray(reportFile.bodyUrl, any(), any())
             }
         }

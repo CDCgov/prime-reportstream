@@ -1,17 +1,3 @@
-resource "azurerm_network_profile" "sftp_vnet_network_profile" {
-  name                = "sftp_vnet_network_profile"
-  location            = var.location
-  resource_group_name = var.resource_group
-
-  container_network_interface {
-    name = "sftp_container_vnet_network_interface"
-    ip_configuration {
-      name      = "sftp_container_vnet_ip_configuration"
-      subnet_id = data.azurerm_subnet.container_subnet.id
-    }
-  }
-}
-
 resource "azurerm_container_group" "sftp_container" {
   name                = "${var.resource_prefix}-sftpserver"
   location            = var.location
@@ -29,7 +15,7 @@ resource "azurerm_container_group" "sftp_container" {
 
   container {
     name   = "${var.resource_prefix}-sftpserver"
-    image  = "atmoz/sftp:alpine"
+    image  = "ghcr.io/cdcgov/prime-reportstream_sftp:alpine"
     cpu    = 1.0
     memory = 1.5
 
@@ -60,8 +46,7 @@ resource "azurerm_container_group" "sftp_container" {
   }
 
   depends_on = [
-    azurerm_storage_share.sftp_share,
-    azurerm_network_profile.sftp_vnet_network_profile
+    azurerm_storage_share.sftp_share
   ]
 }
 

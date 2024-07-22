@@ -1,11 +1,17 @@
-import { expect, Page } from "@playwright/test";
+import { BasePage, BasePageTestArgs } from "./BasePage";
 
-export async function goto(page: Page) {
-    await page.goto("/support", {
-        waitUntil: "domcontentloaded",
-    });
-}
-export async function onLoad(page: Page) {
-    await expect(page).toHaveURL(/support/);
-    await expect(page).toHaveTitle(/ReportStream support/);
+export class SupportPage extends BasePage {
+    constructor(testArgs: BasePageTestArgs) {
+        super(
+            {
+                url: "/support",
+                title: "ReportStream support",
+                heading: testArgs.page.getByRole("heading", {
+                    name: "Support",
+                    exact: true,
+                }),
+            },
+            testArgs,
+        );
+    }
 }

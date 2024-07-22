@@ -407,8 +407,8 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         txn: DataAccessTransaction? = null,
     ): CovidResultMetadata? {
         val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx.selectFrom(Tables.COVID_RESULT_METADATA)
-            .where(Tables.COVID_RESULT_METADATA.MESSAGE_ID.eq(messageID.toString()))
+        return ctx.selectFrom(COVID_RESULT_METADATA)
+            .where(COVID_RESULT_METADATA.MESSAGE_ID.eq(messageID.toString()))
             .fetchOne()
             ?.into(CovidResultMetadata::class.java)
     }
@@ -476,11 +476,11 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     ): List<DetailedActionLog> {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
-            .selectFrom(Tables.ACTION_LOG)
+            .selectFrom(ACTION_LOG)
             .where(
-                Tables.ACTION_LOG.REPORT_ID.eq(reportId)
-                    .and(Tables.ACTION_LOG.TRACKING_ID.eq(trackingId))
-                    .and(Tables.ACTION_LOG.TYPE.eq(type))
+                ACTION_LOG.REPORT_ID.eq(reportId)
+                    .and(ACTION_LOG.TRACKING_ID.eq(trackingId))
+                    .and(ACTION_LOG.TYPE.eq(type))
             )
             .limit(100)
             .fetchInto(DetailedActionLog::class.java)
@@ -1280,8 +1280,8 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         // todo: migrate away from the covid test data which is legacy
         // we are going to have a more generic full elr table that we want to use
         // instead, but for now we need to maintain the older covid result metadata table
-        DatabaseAccess.saveTestData(actionHistory.elrMetaDataRecords, txn)
-        DatabaseAccess.saveCovidTestData(actionHistory.covidResultMetadataRecords, txn)
+        saveTestData(actionHistory.elrMetaDataRecords, txn)
+        saveCovidTestData(actionHistory.covidResultMetadataRecords, txn)
 
         // generate lineage records
         actionHistory.generateLineages()
@@ -1347,8 +1347,8 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     /**
      * Inserts the provided [actionLog] using [txn] as the data context.
      */
-    private fun insertActionLog(actionLog: ActionLog, txn: Configuration) {
-        val detailRecord = DSL.using(txn).newRecord(Tables.ACTION_LOG, actionLog)
+    fun insertActionLog(actionLog: ActionLog, txn: Configuration) {
+        val detailRecord = DSL.using(txn).newRecord(ACTION_LOG, actionLog)
         detailRecord.store()
     }
 

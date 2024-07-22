@@ -1,0 +1,66 @@
+# Louisiana Public Health Lab settings for staging
+#
+# To load the settings in staging, run:
+# ./prime login --env staging
+# ./prime multiple-settings set --env staging --input ./settings/STLTs/LA/la-phl.yml
+#
+# To add the sender key in staging:
+#  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "la-phl.*.report" --orgName la-phl --kid la-phl.etor-nbs-results --doit
+#
+# To submit an order to la-phl, in staging:
+# Note: replace the TOKEN with the auth JWT and the path to the FHIR message to send
+# curl -H 'Authorization: Bearer TOKEN' -H 'Client: flexion.etor-service-sender' -H 'Content-Type: application/fhir+ndjson' --data-binary '@/path/to/oml.fhir' 'https://staging.prime.cdc.gov/api/waters'
+#
+# To submit a result from la-phl, in staging:
+# curl -H 'Authorization: Bearer TOKEN' -H 'Client: la-phl.etor-nbs-results' -H 'Content-Type: application/hl7-v2' --data-binary '@/path/to/oru.hl7' 'https://staging.prime.cdc.gov/api/waters'
+---
+- name: "la-phl"
+  description: "Louisiana Public Health Lab"
+  jurisdiction: "STATE"
+  stateCode: "LA"
+  senders:
+    - name: "etor-nbs-results"
+      organizationName: "la-phl"
+      topic: "etor-ti"
+      customerStatus: "active"
+      format: "HL7"
+  receivers:
+    - name: "etor-nbs-orders"
+      organizationName: "la-phl"
+      topic: "etor-ti"
+      customerStatus: "active"
+      jurisdictionalFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'"  # OML_O21
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"  # required to avoid looping issue with TI
+        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = '2.16.840.1.114222.4.3.26.3.2').exists()"  # receiver routing filter
+      qualityFilter:
+        - "true"
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+      translation:
+        type: "HL7"
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/Flexion/etor-oml-receiver-transform.yml"
+        useBatchHeaders: false
+        receivingApplicationName: "LA-PHL"
+        receivingFacilityName: "LA"
+      transport:
+        type: "REST"
+        reportUrl: "https://api.neometrics.com/natusAPI/api/v2/HL7"
+        authTokenUrl: "https://api.neometrics.com/natusAPI/api/v2/AUTH/Login"
+        encryptionKeyUrl: "https://api.neometrics.com/natusAPI/api/v2/HL7/GetFileEncryptionKey"
+        headers:
+          Content-Length:  "<calculated when request is sent>"
+          Content-Type:  "multipart/form-data"
+          Key: "files"  # Added for the key value as file.
+          Subscription: "23edf66e1fe14685bb9dfa2cbb14eb3b"  # Added the assigned subscription value.
+          Host: "api.neometrics.com"
+        authHeaders:
+          ExpectSuccess: true  # Added to auth header to expect success otherwise throw exception.
+          Content-Type: "application/json"
+          Subscription: "23edf66e1fe14685bb9dfa2cbb14eb3b"  # Added the assigned subscription value.
+          Host: "api.neometrics.com"
+          Authorization-Type: "username/password"  # Added for using username and password to authenticate and get token
