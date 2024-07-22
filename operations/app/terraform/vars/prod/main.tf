@@ -202,7 +202,6 @@ module "sftp" {
   sshnames                    = module.ssh.sshnames
   sshinstances                = module.ssh.sshinstances
   sftp_dir                    = module.ssh.sftp_dir
-  container_registry          = module.container_registry.meta
 
   depends_on = [
     module.ssh
