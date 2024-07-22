@@ -30,7 +30,7 @@ elements:
     hl7Spec: [ '%{MSH}-4-1' ]
 
   - name: oh-sending-application-universal-id
-    value: [ '"6DSMP9999"' ]
+    value: [ '"36DSMP9999"' ]
     hl7Spec: [ '%{MSH}-4-2' ]
 
   - name: oh-receiving-application-namespace-id

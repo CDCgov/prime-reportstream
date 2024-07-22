@@ -21,7 +21,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation:
-        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/OH/OH-receiver-transform.yml"
+        schemaName: "azure:/hl7_mapping/receivers/STLTs/OH/OH-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: "OHDOH^2.16.840.1.114222.4.1.3674^ISO"
@@ -30,15 +30,7 @@
         receivingFacilityOID: "2.16.840.1.114222.4.1.3674"
         messageProfileId: null
         replaceValue: {}
-        replaceValueAwithB:
-          MSH-3:
-            - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
-          MSH-4:
-            - '*': "CDC PRIME^36DSMP9999"
-          MSH-5:
-            - '*': "OHDOH^2.16.840.1.114222.4.1.3674^ISO"
-          MSH-6:
-            - '*': "OHDOH^2.16.840.1.114222.4.1.3674^ISO"
+        replaceValueAwithB: {}
         reportingFacilityName: "CDC PRIME"
         reportingFacilityId: "36DSMP9999"
         reportingFacilityIdType: null
@@ -120,7 +112,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation:
-        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/OH/OH-receiver-transform.yml"
+        schemaName: "azure:/hl7_mapping/receivers/STLTs/OH/OH-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: "OHDOH^2.16.840.1.114222.4.1.3674^ISO"
@@ -129,15 +121,7 @@
         receivingFacilityOID: "2.16.840.1.114222.4.1.3674"
         messageProfileId: null
         replaceValue: {}
-        replaceValueAwithB:
-          MSH-3:
-            - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
-          MSH-4:
-            - '*': "CDC PRIME^36DSMP9999"
-          MSH-5:
-            - '*': "OHDOH^2.16.840.1.114222.4.1.3674^ISO"
-          MSH-6:
-            - '*': "OHDOH^2.16.840.1.114222.4.1.3674^ISO"
+        replaceValueAwithB: {}
         reportingFacilityName: "CDC PRIME"
         reportingFacilityId: "36DSMP9999"
         reportingFacilityIdType: null
