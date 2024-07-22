@@ -8,7 +8,6 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
-import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.report.ReportService
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
@@ -271,13 +270,74 @@ class ReportStreamItemProcessingErrorEventBuilder(
     }
 }
 
-class ReportEventService(
-    private val reportService: ReportService = ReportService(),
-    private val dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
-    private val azureEventService: AzureEventService,
-) {
+interface IReportEventService {
+    fun createReportEvent(
+        eventName: ReportStreamEventName,
+        childReport: Report,
+        pipelineStepName: TaskAction,
+        initializer: ReportStreamReportEventBuilder.() -> Unit,
+    ): ReportStreamReportEventBuilder
 
     fun createReportEvent(
+        eventName: ReportStreamEventName,
+        report: ReportFile,
+        pipelineStepName: TaskAction,
+        initializer: ReportStreamReportEventBuilder.() -> Unit,
+    ): ReportStreamReportEventBuilder
+
+    fun createItemEvent(
+        eventName: ReportStreamEventName,
+        childReport: Report,
+        pipelineStepName: TaskAction,
+        initializer: ReportStreamItemEventBuilder.() -> Unit,
+    ): AbstractReportStreamEventBuilder<ReportStreamItemEvent>
+
+    fun createItemEvent(
+        eventName: ReportStreamEventName,
+        childReport: ReportFile,
+        pipelineStepName: TaskAction,
+        initializer: ReportStreamItemEventBuilder.() -> Unit,
+    ): AbstractReportStreamEventBuilder<ReportStreamItemEvent>
+
+    fun createItemProcessingError(
+        eventName: ReportStreamEventName,
+        childReport: ReportFile,
+        pipelineStepName: TaskAction,
+        error: String,
+        initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
+    ): ReportStreamItemProcessingErrorEventBuilder
+
+    fun createItemProcessingError(
+        eventName: ReportStreamEventName,
+        childReport: Report,
+        pipelineStepName: TaskAction,
+        error: String,
+        initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
+    ): ReportStreamItemProcessingErrorEventBuilder
+
+    fun getReportEventData(
+        childReportId: UUID,
+        childBodyUrl: String,
+        parentReportId: UUID?,
+        pipelineStepName: TaskAction,
+        topic: Topic,
+    ): ReportEventData
+
+    fun getItemEventData(
+        childItemIndex: Int,
+        parentReportId: UUID,
+        parentItemIndex: Int,
+        trackingId: String?,
+    ): ItemEventData
+}
+
+class ReportEventService(
+    private val dbAccess: DatabaseAccess,
+    private val azureEventService: AzureEventService,
+    private val reportService: ReportService,
+) : IReportEventService {
+
+    override fun createReportEvent(
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
@@ -296,7 +356,7 @@ class ReportEventService(
         )
     }
 
-    fun createReportEvent(
+    override fun createReportEvent(
         eventName: ReportStreamEventName,
         report: ReportFile,
         pipelineStepName: TaskAction,
@@ -315,7 +375,7 @@ class ReportEventService(
         )
     }
 
-    fun createItemEvent(
+    override fun createItemEvent(
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
@@ -332,7 +392,7 @@ class ReportEventService(
         ).apply(initializer)
     }
 
-    fun createItemEvent(
+    override fun createItemEvent(
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
@@ -349,7 +409,7 @@ class ReportEventService(
         ).apply(initializer)
     }
 
-    fun createItemProcessingError(
+    override fun createItemProcessingError(
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
@@ -368,7 +428,7 @@ class ReportEventService(
         ).apply(initializer)
     }
 
-    fun createItemProcessingError(
+    override fun createItemProcessingError(
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
@@ -387,7 +447,7 @@ class ReportEventService(
         ).apply(initializer)
     }
 
-    fun getReportEventData(
+    override fun getReportEventData(
         childReportId: UUID,
         childBodyUrl: String,
         parentReportId: UUID?,
@@ -411,7 +471,7 @@ class ReportEventService(
         )
     }
 
-    fun getItemEventData(
+    override fun getItemEventData(
         childItemIndex: Int,
         parentReportId: UUID,
         parentItemIndex: Int,

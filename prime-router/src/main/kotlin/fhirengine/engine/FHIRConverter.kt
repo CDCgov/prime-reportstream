@@ -34,7 +34,6 @@ import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
-import gov.cdc.prime.router.azure.observability.event.ReportCreatedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
@@ -46,6 +45,7 @@ import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
 import gov.cdc.prime.router.fhirengine.utils.addMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.logging.LogMeasuredTime
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.validation.IItemValidator
 import io.github.oshai.kotlinlogging.withLoggingContext
 import org.apache.commons.lang3.exception.ExceptionUtils
@@ -69,7 +69,8 @@ class FHIRConverter(
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
-) : FHIREngine(metadata, settings, db, blob, azureEventService) {
+    reportService: ReportService = ReportService(),
+) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
 
@@ -227,12 +228,6 @@ class FHIRConverter(
 
                             // track created report
                             actionHistory.trackCreatedReport(routeEvent, report, blobInfo = blobInfo)
-                            azureEventService.trackEvent(
-                                ReportCreatedEvent(
-                                    report.id,
-                                    queueMessage.topic
-                                )
-                            )
 
                             val bundleDigestExtractor = BundleDigestExtractor(
                                 FhirPathBundleDigestLabResultExtractorStrategy()
@@ -242,6 +237,7 @@ class FHIRConverter(
                                 report,
                                 TaskAction.convert
                             ) {
+                                parentReportId(queueMessage.reportId)
                                 params(
                                     mapOf(
                                         ReportStreamEventProperties.BUNDLE_DIGEST

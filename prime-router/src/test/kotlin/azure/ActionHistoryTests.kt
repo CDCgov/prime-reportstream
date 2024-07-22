@@ -23,9 +23,11 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.observability.event.AbstractReportStreamEventBuilder
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
@@ -329,7 +331,8 @@ class ActionHistoryTests {
         val mockReportEventService = mockk<ReportEventService>()
         every {
             mockReportEventService.getReportEventData(
-                any<ReportFile>(),
+                any<UUID>(),
+                any(),
                 any(),
                 any(),
                 any()
@@ -343,6 +346,9 @@ class ActionHistoryTests {
             TaskAction.send,
             OffsetDateTime.now()
         )
+        every {
+            mockReportEventService.createItemEvent(any(), any<ReportFile>(), any(), any())
+        } returns mockk<AbstractReportStreamEventBuilder<ReportStreamItemEvent>>(relaxed = true)
         val header = mockk<WorkflowEngine.Header>()
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
@@ -360,7 +366,6 @@ class ActionHistoryTests {
             "result1",
             header,
             mockReportEventService,
-            mockAzureEventService,
             ""
         )
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
@@ -388,7 +393,6 @@ class ActionHistoryTests {
                 "result1",
                 header,
                 mockReportEventService,
-                mockAzureEventService,
                 ""
             )
         }
@@ -424,7 +428,8 @@ class ActionHistoryTests {
         val mockReportEventService = mockk<ReportEventService>()
         every {
             mockReportEventService.getReportEventData(
-                any<ReportFile>(),
+                any<UUID>(),
+                any(),
                 any(),
                 any(),
                 any()
@@ -444,6 +449,9 @@ class ActionHistoryTests {
         every { BlobAccess.sha256Digest(any()) } returns byteArrayOf()
         every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
         val header = mockk<WorkflowEngine.Header>()
+        every {
+            mockReportEventService.createItemEvent(any(), any<ReportFile>(), any(), any())
+        } returns mockk<AbstractReportStreamEventBuilder<ReportStreamItemEvent>>(relaxed = true)
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
@@ -459,7 +467,6 @@ class ActionHistoryTests {
             "result1",
             header,
             mockReportEventService,
-            mockAzureEventService,
             ""
         )
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
@@ -476,7 +483,6 @@ class ActionHistoryTests {
             "result1",
             header,
             mockReportEventService,
-            mockAzureEventService,
             ""
         )
         assertThat(actionHistory2.reportsOut[uuid]).isNotNull()
@@ -658,7 +664,8 @@ class ActionHistoryTests {
         val mockReportEventService = mockk<ReportEventService>()
         every {
             mockReportEventService.getReportEventData(
-                any<ReportFile>(),
+                any<UUID>(),
+                any(),
                 any(),
                 any(),
                 any()
@@ -678,6 +685,9 @@ class ActionHistoryTests {
         every { BlobAccess.sha256Digest(any()) } returns byteArrayOf()
         every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
         val header = mockk<WorkflowEngine.Header>()
+        every {
+            mockReportEventService.createItemEvent(any(), any<ReportFile>(), any(), any())
+        } returns mockk<AbstractReportStreamEventBuilder<ReportStreamItemEvent>>(relaxed = true)
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
@@ -693,7 +703,6 @@ class ActionHistoryTests {
             "result1",
             header,
             mockReportEventService,
-            mockAzureEventService,
             ""
         )
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
@@ -707,7 +716,6 @@ class ActionHistoryTests {
             "result1",
             header,
             mockReportEventService,
-            mockAzureEventService,
             ""
         )
         assertThat(actionHistory2.reportsOut[uuid2]).isNotNull()

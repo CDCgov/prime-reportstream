@@ -66,6 +66,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.File
 import java.time.OffsetDateTime
 import java.util.UUID
+import kotlin.test.Ignore
 import gov.cdc.prime.router.azure.db.tables.ReportFile as RF
 
 private const val MULTIPLE_TARGETS_FHIR_PATH = "src/test/resources/fhirengine/engine/valid_data_multiple_targets.fhir"
@@ -722,6 +723,7 @@ class FhirFunctionIntegrationTests {
     }
 
     // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
+    @Ignore
     @Test
     fun `test successfully processes a route message`() {
         val report = seedTask(

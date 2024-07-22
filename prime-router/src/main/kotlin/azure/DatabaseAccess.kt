@@ -39,6 +39,7 @@ import gov.cdc.prime.router.azure.db.tables.records.ElrResultMetadataRecord
 import gov.cdc.prime.router.azure.db.tables.records.ItemLineageRecord
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.messageTracker.MessageActionLog
 import io.github.oshai.kotlinlogging.withLoggingContext
@@ -1348,6 +1349,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
      * Inserts the provided [actionLog] using [txn] as the data context.
      */
     fun insertActionLog(actionLog: ActionLog, txn: Configuration) {
+        logger.info(JacksonMapperUtilities.jacksonObjectMapper.writeValueAsString(actionLog))
         val detailRecord = DSL.using(txn).newRecord(ACTION_LOG, actionLog)
         detailRecord.store()
     }

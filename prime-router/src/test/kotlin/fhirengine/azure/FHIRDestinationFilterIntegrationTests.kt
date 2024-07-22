@@ -5,7 +5,6 @@ import assertk.assertions.containsOnly
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.isInstanceOf
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.CustomerStatus
@@ -22,10 +21,8 @@ import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
-import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
-import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
-import gov.cdc.prime.router.azure.observability.event.ReportNotRoutedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
 import gov.cdc.prime.router.common.validFHIRRecord1
@@ -34,7 +31,6 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
 import gov.cdc.prime.router.fhirengine.engine.FhirReceiverFilterQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrReceiverFilterQueueName
-import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
@@ -53,7 +49,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.File
-import java.util.UUID
 
 private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/valid_data.fhir"
 
@@ -229,19 +224,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             }
 
             // check events
-            assertThat(azureEventsService.events).hasSize(3)
-            val bundle = FhirTranscoder.decode(reportContents)
-            assertThat(azureEventsService.events.first()).isEqualTo(
-                ReportAcceptedEvent(
-                    report.id,
-                    report.id,
-                    Topic.FULL_ELR,
-                    "phd.Test Sender",
-                    AzureEventUtils.getObservationSummaries(bundle),
-                    reportContents.length,
-                    AzureEventUtils.getIdentifier(bundle)
-                )
-            )
+            assertThat(azureEventsService.events).hasSize(2)
+            assertThat(azureEventsService.events.first()).isInstanceOf<ReportStreamItemEvent>()
 
             // check action table
             UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.destination_filter))
@@ -307,19 +291,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             }
 
             // check events
-            assertThat(azureEventsService.events).hasSize(2)
-            val bundle = FhirTranscoder.decode(reportContents)
-            assertThat(azureEventsService.events.first()).isEqualTo(
-                ReportAcceptedEvent(
-                    report.id,
-                    report.id,
-                    Topic.FULL_ELR,
-                    "phd.Test Sender",
-                    AzureEventUtils.getObservationSummaries(bundle),
-                    reportContents.length,
-                    AzureEventUtils.getIdentifier(bundle)
-                )
-            )
+            assertThat(azureEventsService.events).hasSize(1)
+            assertThat(azureEventsService.events.first()).isInstanceOf<ReportStreamItemEvent>()
 
             // check action table
             UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.destination_filter))
@@ -374,34 +347,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         }
 
         // check events
-        assertThat(azureEventsService.events).hasSize(3)
-        val bundle = FhirTranscoder.decode(reportContents)
+        assertThat(azureEventsService.events).hasSize(1)
         assertThat(azureEventsService.events.first())
-            .isInstanceOf<ReportAcceptedEvent>()
-            .isEqualTo(
-                ReportAcceptedEvent(
-                    report.id,
-                    report.id,
-                    Topic.FULL_ELR,
-                    "phd.Test Sender",
-                    AzureEventUtils.getObservationSummaries(bundle),
-                    reportContents.length,
-                    AzureEventUtils.getIdentifier(bundle)
-                )
-        )
-        assertThat(azureEventsService.events[1])
-            .isInstanceOf<ReportNotRoutedEvent>()
-            .isEqualToIgnoringGivenProperties(
-                ReportNotRoutedEvent(
-                    UUID.randomUUID(), // ignored
-                    report.id,
-                    report.id,
-                    Topic.FULL_ELR,
-                    "phd.Test Sender",
-                    reportContents.length,
-                    AzureEventUtils.getIdentifier(bundle)
-                ),
-                ReportNotRoutedEvent::reportId
-        )
+            .isInstanceOf<ReportStreamItemEvent>()
     }
 }

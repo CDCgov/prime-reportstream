@@ -40,9 +40,9 @@ class ReportFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive),
     private val reportEventService: ReportEventService = ReportEventService(
-        workflowEngine.reportService,
         workflowEngine.db,
-        workflowEngine.azureEventService
+        workflowEngine.azureEventService,
+        workflowEngine.reportService
     ),
 ) : RequestFunction(workflowEngine),
     Logging {

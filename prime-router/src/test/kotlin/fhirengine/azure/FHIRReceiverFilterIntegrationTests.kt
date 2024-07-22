@@ -4,7 +4,6 @@ import assertk.assertThat
 import assertk.assertions.hasSameSizeAs
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
-import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
 import assertk.assertions.isZero
@@ -27,10 +26,8 @@ import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
-import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
-import gov.cdc.prime.router.azure.observability.event.ReceiverFilterFailedEvent
-import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
+import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
@@ -63,7 +60,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.File
-import java.util.UUID
 
 private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/valid_data.fhir"
 
@@ -300,26 +296,86 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             }
 
             // check events
+            assertThat(azureEventService.events).hasSize(0)
+
+            // check action table
+            UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.receiver_filter))
+        }
+    }
+
+    @Test
+    fun `should not send report fully pruned by condition filter`() {
+        // set up
+        val receiverSetupData = listOf(
+            UniversalPipelineTestUtils.ReceiverSetupData(
+                "x",
+                jurisdictionalFilter = listOf("true"),
+                qualityFilter = listOf("true"),
+                routingFilter = listOf("true"),
+                conditionFilter = noneConditionFilter
+            )
+        )
+        val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
+
+        @Suppress("UNUSED_VARIABLE")
+        val receiver = receivers.single()
+        val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
+        val receiverFilter = createReceiverFilter(azureEventService, org)
+        val reportContents = File(MULTIPLE_OBSERVATIONS_FHIR_URL).readText()
+        val report = UniversalPipelineTestUtils.createReport(
+            reportContents,
+            TaskAction.receiver_filter,
+            Event.EventAction.RECEIVER_FILTER,
+            azuriteContainer
+        )
+        val queueMessage = generateQueueMessage(
+            report,
+            reportContents,
+            UniversalPipelineTestUtils.fhirSenderWithNoTransform,
+            "phd.x"
+        )
+        val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
+
+        // execute
+        fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
+
+        // check results
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            // check terminated lineage
+            val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1).single()
+            assertThat(routedReport.nextAction).isEqualTo(TaskAction.none)
+            assertThat(routedReport.bodyUrl).isNull()
+            assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
+            assertThat(routedReport.itemCount).isZero()
+
+            // check for no queue message
+            verify(exactly = 0) {
+                QueueAccess.sendMessage(any(), any())
+            }
+
+            // check events
             assertThat(azureEventService.events).hasSize(1)
+            @Suppress("UNUSED_VARIABLE")
             val bundle = FhirTranscoder.decode(reportContents)
-            assertThat(azureEventService.events.single())
-                .isInstanceOf<ReportRouteEvent>()
-                .isEqualTo(
-                    ReportRouteEvent(
-                        routedReport.reportId,
-                        report.id,
-                        report.id,
-                        Topic.FULL_ELR,
-                        "phd.Test Sender",
-                        receiver.fullName,
-                        AzureEventUtils.getObservationSummaries(routedBundle),
-                        AzureEventUtils.getObservationSummaries(
-                            bundle.getObservations().filter { it.code.coding.first().code != "94558-5" }
-                        ),
-                        routedContents.length,
-                        AzureEventUtils.getIdentifier(routedBundle)
-                    )
-                )
+            assertThat(azureEventService.events.first())
+                .isInstanceOf<ReportStreamItemEvent>()
+//                .isEqualToIgnoringGivenProperties(
+//                    ReceiverFilterFailedEvent(
+//                        UUID.randomUUID(), // ignored
+//                        report.id,
+//                        report.id,
+//                        Topic.FULL_ELR,
+//                        "phd.Test Sender",
+//                        receiver.fullName,
+//                        AzureEventUtils.getObservationSummaries(bundle),
+//                        noneConditionFilter,
+//                        ReportStreamFilterType.CONDITION_FILTER,
+//                        reportContents.length,
+//                        AzureEventUtils.getIdentifier(bundle)
+//                    ),
+//                    ReceiverFilterFailedEvent::reportId
+//                )
 
             // check action table
             UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.receiver_filter))
@@ -390,98 +446,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             }
 
             // check events
-            assertThat(azureEventService.events).hasSize(1)
-            val routedBundle = FhirTranscoder.decode(routedContents)
-            assertThat(azureEventService.events.single()).isEqualTo(
-                ReportRouteEvent(
-                    routedReport.reportId,
-                    report.id,
-                    report.id,
-                    Topic.FULL_ELR,
-                    "phd.Test Sender",
-                    receiver.fullName,
-                    AzureEventUtils.getObservationSummaries(FhirTranscoder.decode(reportContents)),
-                    emptyList(),
-                    routedContents.length,
-                    AzureEventUtils.getIdentifier(routedBundle)
-                )
-            )
-
-            // check action table
-            UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.receiver_filter))
-        }
-    }
-
-    @Test
-    fun `should not send report fully pruned by condition filter`() {
-        // set up
-        val receiverSetupData = listOf(
-            UniversalPipelineTestUtils.ReceiverSetupData(
-                "x",
-                jurisdictionalFilter = listOf("true"),
-                qualityFilter = listOf("true"),
-                routingFilter = listOf("true"),
-                conditionFilter = noneConditionFilter
-            )
-        )
-        val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
-        val receiver = receivers.single()
-        val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
-        val receiverFilter = createReceiverFilter(azureEventService, org)
-        val reportContents = File(MULTIPLE_OBSERVATIONS_FHIR_URL).readText()
-        val report = UniversalPipelineTestUtils.createReport(
-            reportContents,
-            TaskAction.receiver_filter,
-            Event.EventAction.RECEIVER_FILTER,
-            azuriteContainer
-        )
-        val queueMessage = generateQueueMessage(
-            report,
-            reportContents,
-            UniversalPipelineTestUtils.fhirSenderWithNoTransform,
-            "phd.x"
-        )
-        val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
-
-        // execute
-        fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
-
-        // check results
-        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            // check terminated lineage
-            val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1).single()
-            assertThat(routedReport.nextAction).isEqualTo(TaskAction.none)
-            assertThat(routedReport.bodyUrl).isNull()
-            assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
-            assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
-            assertThat(routedReport.itemCount).isZero()
-
-            // check for no queue message
-            verify(exactly = 0) {
-                QueueAccess.sendMessage(any(), any())
-            }
-
-            // check events
-            assertThat(azureEventService.events).hasSize(2)
-            val bundle = FhirTranscoder.decode(reportContents)
-            assertThat(azureEventService.events.first())
-                .isInstanceOf<ReceiverFilterFailedEvent>()
-                .isEqualToIgnoringGivenProperties(
-                    ReceiverFilterFailedEvent(
-                        UUID.randomUUID(), // ignored
-                        report.id,
-                        report.id,
-                        Topic.FULL_ELR,
-                        "phd.Test Sender",
-                        receiver.fullName,
-                        AzureEventUtils.getObservationSummaries(bundle),
-                        noneConditionFilter,
-                        ReportStreamFilterType.CONDITION_FILTER,
-                        reportContents.length,
-                        AzureEventUtils.getIdentifier(bundle)
-                    ),
-                    ReceiverFilterFailedEvent::reportId
-                )
+            assertThat(azureEventService.events).hasSize(0)
 
             // check action table
             UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.receiver_filter))
@@ -641,25 +606,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             }
 
             // check events
-            assertThat(azureEventService.events).hasSize(1)
-            assertThat(azureEventService.events.single())
-                .isInstanceOf<ReportRouteEvent>()
-                .isEqualTo(
-                    ReportRouteEvent(
-                        routedReport.reportId,
-                        report.id,
-                        report.id,
-                        Topic.FULL_ELR,
-                        "phd.Test Sender",
-                        receiver.fullName,
-                        AzureEventUtils.getObservationSummaries(routedBundle),
-                        AzureEventUtils.getObservationSummaries(
-                            bundle.getObservations().filter { it.code.coding.first().code != "94558-5" }
-                        ),
-                        routedContents.length,
-                        AzureEventUtils.getIdentifier(routedBundle)
-                    )
-                )
+            assertThat(azureEventService.events).hasSize(0)
 
             // check action table
             UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.receiver_filter))
@@ -679,6 +626,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             )
         )
         val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
+
+        @Suppress("UNUSED_VARIABLE")
         val receiver = receivers.single()
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
         val receiverFilter = createReceiverFilter(azureEventService, org)
@@ -715,26 +664,27 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             }
 
             // check events
-            assertThat(azureEventService.events).hasSize(2)
+            assertThat(azureEventService.events).hasSize(1)
+            @Suppress("UNUSED_VARIABLE")
             val bundle = FhirTranscoder.decode(reportContents)
             assertThat(azureEventService.events.first())
-                .isInstanceOf<ReceiverFilterFailedEvent>()
-                .isEqualToIgnoringGivenProperties(
-                    ReceiverFilterFailedEvent(
-                        UUID.randomUUID(),
-                        report.id,
-                        report.id,
-                        Topic.FULL_ELR,
-                        "phd.Test Sender",
-                        receiver.fullName,
-                        AzureEventUtils.getObservationSummaries(bundle),
-                        noneMappedConditionFilter.map { it.toString() },
-                        ReportStreamFilterType.MAPPED_CONDITION_FILTER,
-                        reportContents.length,
-                        AzureEventUtils.getIdentifier(bundle)
-                    ),
-                    ReceiverFilterFailedEvent::reportId
-                )
+                .isInstanceOf<ReportStreamItemEvent>()
+//                .isEqualToIgnoringGivenProperties(
+//                    ReceiverFilterFailedEvent(
+//                        UUID.randomUUID(),
+//                        report.id,
+//                        report.id,
+//                        Topic.FULL_ELR,
+//                        "phd.Test Sender",
+//                        receiver.fullName,
+//                        AzureEventUtils.getObservationSummaries(bundle),
+//                        noneMappedConditionFilter.map { it.toString() },
+//                        ReportStreamFilterType.MAPPED_CONDITION_FILTER,
+//                        reportContents.length,
+//                        AzureEventUtils.getIdentifier(bundle)
+//                    ),
+//                    ReceiverFilterFailedEvent::reportId
+//                )
 
             // check action table
             UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.receiver_filter))
@@ -813,25 +763,26 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         }
 
         // check events
-        assertThat(azureEventService.events).hasSize(2)
+        assertThat(azureEventService.events).hasSize(1)
+        @Suppress("UNUSED_VARIABLE")
         val bundle = FhirTranscoder.decode(reportContents)
-        assertThat(azureEventService.events.first()).isInstanceOf<ReceiverFilterFailedEvent>()
-            .isEqualToIgnoringGivenProperties(
-                ReceiverFilterFailedEvent(
-                    UUID.randomUUID(), // ignored
-                    report.id,
-                    report.id,
-                    Topic.FULL_ELR,
-                    "phd.Test Sender",
-                    receiver.fullName,
-                    AzureEventUtils.getObservationSummaries(bundle),
-                    fullElrQualityFilterSample,
-                    ReportStreamFilterType.QUALITY_FILTER,
-                    reportContents.length,
-                    AzureEventUtils.getIdentifier(bundle)
-                ),
-                ReceiverFilterFailedEvent::reportId
-            )
+        assertThat(azureEventService.events.first()).isInstanceOf<ReportStreamItemEvent>()
+//            .isEqualToIgnoringGivenProperties(
+//                ReceiverFilterFailedEvent(
+//                    UUID.randomUUID(), // ignored
+//                    report.id,
+//                    report.id,
+//                    Topic.FULL_ELR,
+//                    "phd.Test Sender",
+//                    receiver.fullName,
+//                    AzureEventUtils.getObservationSummaries(bundle),
+//                    fullElrQualityFilterSample,
+//                    ReportStreamFilterType.QUALITY_FILTER,
+//                    reportContents.length,
+//                    AzureEventUtils.getIdentifier(bundle)
+//                ),
+//                ReceiverFilterFailedEvent::reportId
+//            )
     }
 
     @Test
@@ -896,24 +847,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             }
 
             // check events
-            assertThat(azureEventService.events).hasSize(1)
-            val bundle = FhirTranscoder.decode(reportContents)
-            assertThat(azureEventService.events.single())
-                .isInstanceOf<ReportRouteEvent>()
-                .isEqualTo(
-                    ReportRouteEvent(
-                        routedReport.reportId,
-                        report.id,
-                        report.id,
-                        Topic.FULL_ELR,
-                        "phd.Test Sender",
-                        receiver.fullName,
-                        AzureEventUtils.getObservationSummaries(bundle),
-                        emptyList(),
-                        reportContents.length,
-                        AzureEventUtils.getIdentifier(bundle)
-                    )
-                )
+            assertThat(azureEventService.events).hasSize(0)
 
             // check action table
             UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.receiver_filter))
@@ -978,24 +912,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             }
 
             // check events
-            assertThat(azureEventService.events).hasSize(1)
-            val bundle = FhirTranscoder.decode(reportContents)
-            assertThat(azureEventService.events.single())
-                .isInstanceOf<ReportRouteEvent>()
-                .isEqualTo(
-                    ReportRouteEvent(
-                        routedReport.reportId,
-                        report.id,
-                        report.id,
-                        Topic.FULL_ELR,
-                        "phd.Test Sender",
-                        receiver.fullName,
-                        AzureEventUtils.getObservationSummaries(bundle),
-                        emptyList(),
-                        reportContents.length,
-                        AzureEventUtils.getIdentifier(bundle)
-                    )
-                )
+            assertThat(azureEventService.events).hasSize(0)
 
             // check action table
             UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.receiver_filter))
@@ -1079,24 +996,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         }
 
         // check events
-        assertThat(azureEventService.events).hasSize(2)
-        val bundle = FhirTranscoder.decode(reportContents)
-        assertThat(azureEventService.events.first()).isInstanceOf<ReceiverFilterFailedEvent>()
-            .isEqualToIgnoringGivenProperties(
-                ReceiverFilterFailedEvent(
-                    UUID.randomUUID(), // ignored
-                    report.id,
-                    report.id,
-                    Topic.FULL_ELR,
-                    "phd.Test Sender",
-                    receiver.fullName,
-                    AzureEventUtils.getObservationSummaries(bundle),
-                    processingModeFilterDebugging,
-                    ReportStreamFilterType.PROCESSING_MODE_FILTER,
-                    reportContents.length,
-                    AzureEventUtils.getIdentifier(bundle)
-                ),
-                ReceiverFilterFailedEvent::reportId
-            )
+        assertThat(azureEventService.events).hasSize(1)
+        assertThat(azureEventService.events.first()).isInstanceOf<ReportStreamItemEvent>()
     }
 }

@@ -45,9 +45,9 @@ abstract class FHIREngine(
     val azureEventService: AzureEventService = AzureEventServiceImpl(),
     val reportService: ReportService = ReportService(ReportGraph(db), db),
     val reportEventService: ReportEventService = ReportEventService(
-        reportService,
         db,
-        azureEventService
+        azureEventService,
+        reportService
     ),
 ) : BaseEngine() {
 
@@ -111,6 +111,10 @@ abstract class FHIREngine(
             this.reportService = reportService
         }
 
+        fun reportEventService(reportEventService: ReportEventService) = apply {
+            this.reportEventService = reportEventService
+        }
+
         /**
          * Build the fhir engine instance.
          * @return the fhir engine instance
@@ -130,6 +134,7 @@ abstract class FHIREngine(
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
+                    reportService ?: ReportService()
                 )
                 TaskAction.route -> FHIRRouter(
                     metadata ?: Metadata.getInstance(),
@@ -138,6 +143,7 @@ abstract class FHIREngine(
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
                     reportService ?: ReportService()
+
                 )
                 TaskAction.destination_filter -> FHIRDestinationFilter(
                     metadata ?: Metadata.getInstance(),
@@ -153,7 +159,7 @@ abstract class FHIREngine(
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
-                    reportService ?: ReportService()
+                    reportService ?: ReportService(),
                 )
                 TaskAction.translate -> FHIRTranslator(
                     metadata ?: Metadata.getInstance(),

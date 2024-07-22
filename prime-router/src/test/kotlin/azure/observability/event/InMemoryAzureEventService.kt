@@ -13,6 +13,10 @@ class InMemoryAzureEventService : AzureEventService {
         events.add(event)
     }
 
+    override fun trackEvent(eventName: ReportStreamEventName, event: AzureCustomEvent) {
+        events.add(event)
+    }
+
     fun getEvents(): List<AzureCustomEvent> {
         return Collections.unmodifiableList(events)
     }

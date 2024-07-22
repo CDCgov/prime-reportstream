@@ -119,6 +119,7 @@ class SendFunctionTests {
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         every { workflowEngine.azureEventService.trackEvent(any()) }.returns(Unit)
         every { workflowEngine.reportService.getRootReports(any()) } returns reportList
+        every { workflowEngine.db } returns mockk<DatabaseAccess>()
         mockkObject(Report.Companion)
         every { Report.formExternalFilename(any(), any(), any(), any(), any(), any(), any()) } returns ""
 
@@ -149,6 +150,7 @@ class SendFunctionTests {
         every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }
             .returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
+        every { workflowEngine.db } returns mockk<DatabaseAccess>()
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId, false)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
@@ -181,6 +183,7 @@ class SendFunctionTests {
         every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }
             .returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
+        every { workflowEngine.db } returns mockk<DatabaseAccess>()
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId, false)
@@ -217,6 +220,7 @@ class SendFunctionTests {
         every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }
             .returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
+        every { workflowEngine.db } returns mockk<DatabaseAccess>()
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId, false)

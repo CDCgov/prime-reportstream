@@ -24,9 +24,6 @@ import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
-import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
-import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
-import gov.cdc.prime.router.azure.observability.event.ReportNotRoutedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -113,24 +110,6 @@ class FHIRDestinationFilter(
             }
             val bundle = FhirTranscoder.decode(fhirJson)
             val bodyString = FhirTranscoder.encode(bundle)
-
-            // go up the report lineage to get the sender of the root report
-            val rootReport = reportService.getRootReport(queueMessage.reportId)
-            val sender = "${rootReport.sendingOrg}.${rootReport.sendingOrgClient}"
-
-            // send event to Azure AppInsights
-            val observationSummary = AzureEventUtils.getObservationSummaries(bundle)
-            azureEventService.trackEvent(
-                ReportAcceptedEvent(
-                    queueMessage.reportId,
-                    rootReport.reportId,
-                    queueMessage.topic,
-                    sender,
-                    observationSummary,
-                    fhirJson.length,
-                    AzureEventUtils.getIdentifier(bundle)
-                )
-            )
 
             // get the receivers that this bundle should go to
             val receivers = findTopicReceivers(queueMessage.topic).filter { receiver ->
@@ -254,23 +233,9 @@ class FHIRDestinationFilter(
                 // ensure tracking is set
                 actionHistory.trackCreatedReport(nextEvent, report)
 
-                // send event to Azure AppInsights
-                azureEventService.trackEvent(
-                    ReportNotRoutedEvent(
-                        report.id,
-                        queueMessage.reportId,
-                        rootReport.reportId,
-                        queueMessage.topic,
-                        sender,
-                        fhirJson.length,
-                        AzureEventUtils.getIdentifier(bundle)
-                    )
-                )
-
                 val bundleDigestExtractor = BundleDigestExtractor(
                     FhirPathBundleDigestLabResultExtractorStrategy()
                 )
-
                 reportEventService.createItemEvent(
                     eventName = ReportStreamEventName.ITEM_NOT_ROUTED,
                     childReport = report,

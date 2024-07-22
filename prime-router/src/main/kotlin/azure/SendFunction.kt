@@ -61,9 +61,9 @@ val retryDurationInMin = mapOf(
 class SendFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val reportEventService: ReportEventService = ReportEventService(
-        workflowEngine.reportService,
         workflowEngine.db,
-        workflowEngine.azureEventService
+        workflowEngine.azureEventService,
+        workflowEngine.reportService
     ),
 ) : Logging {
     @FunctionName(send)
