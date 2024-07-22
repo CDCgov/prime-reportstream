@@ -20,18 +20,6 @@ elements:
     value: [ '""' ]
     hl7Spec: [ '%{ORC}-23-1', '%{ORC}-14-1', '%{OBR}-17-1', '%{OBX}-18-1', '%{OBX}-18-2', '%{OBX}-18-3', '%{PID}-13-1']
 
-  - name: nh-sending-application-namespace-id
-    value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
-    hl7Spec: [ '%{MSH}-3-1']
-
-  - name: nh-sending-application-universal-id
-    value: [ '"2.16.840.1.114222.4.1.237821"' ]
-    hl7Spec: [ '%{MSH}-3-2' ]
-
-  - name: nh-sending-application-universal-id-type
-    value: [ '"ISO"' ]
-    hl7Spec: [ '%{MSH}-3-3' ]
-
   - name: nh-sending-facility-namespace-id
     value: [ '"CDC PRIME"' ]
     hl7Spec: [ '%{MSH}-4-1' ]
@@ -79,3 +67,13 @@ elements:
   - name: nh-message-profile-identifier-universal-id-type
     value: [ '"ISO"' ]
     hl7Spec: [ '%{MSH}-21-4' ]
+
+  - name: nh-relpaceDiiWithOid-18-3
+    condition: true
+    value: [ '"2.16.840.1.113883.3.3719"' ]
+    hl7Spec: [ '%{OBX}-18-3' ]
+
+  - name: nh-relpaceDiiWithOid-18-4
+    condition: true
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{OBX}-18-4' ]
