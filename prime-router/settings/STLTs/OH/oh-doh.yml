@@ -7,8 +7,7 @@
     - topic: "covid-19"
       jurisdictionalFilter: []
       qualityFilter: null
-      routingFilter:
-        - "matches(abnormal_flag, A)"
+      routingFilter: {}
       processingModeFilter: null
       conditionFilter: null
       mappedConditionFilter: null
@@ -78,7 +77,8 @@
         - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
         - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists())
                    or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
-      routingFilter: []
+      routingFilter:
+        - "Bundle.entry.resource.ofType(Observation).interpretation.coding.code = 'A'"
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
@@ -169,7 +169,8 @@
         - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
         - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists())
                    or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
-      routingFilter: []
+      routingFilter:
+        - "Bundle.entry.resource.ofType(Observation).interpretation.coding.code = 'A'"
       processingModeFilter: []
       reverseTheQualityFilter: true
       conditionFilter:
