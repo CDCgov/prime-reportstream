@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.HttpClientErrorException.UnsupportedMediaType
+import java.io.IOException
 import java.time.Instant
 import java.util.UUID
 
@@ -66,6 +67,7 @@ class SubmissionController(
         val reportReceivedTime = Instant.now()
         val contentTypeMime = contentType.substringBefore(';')
         val status = "Received"
+        val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
         logger.info(
             "Received report submission: reportId=$reportId, contentType=$contentTypeMime" +
             ", clientId=$clientId${payloadName?.let { ", payloadName=$it" } ?: ""}}"
@@ -79,17 +81,6 @@ class SubmissionController(
         val blobClient = blobContainerClient.getBlobClient(formBlobName(reportId, contentTypeMime, clientId))
         blobClient.upload(dataByteArray.inputStream(), dataByteArray.size.toLong())
         logger.info("Uploaded report to blob storage: blobUrl=${blobClient.blobUrl}")
-
-        // Create the message for the queue
-        val message = SubmissionQueueMessage(reportId, blobClient.blobUrl, filterHeaders(headers))
-        val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
-        val messageString = objectMapper.writeValueAsString(message)
-        logger.debug("Created message for queue")
-
-        // Upload to Queue
-        queueClient.createIfNotExists()
-        queueClient.sendMessage(messageString)
-        logger.info("Sent message to queue: queueName=${queueClient.queueName}")
 
         // Insert into Table
         // TableEntity() sets PartitionKey and RowKey. Both are required by azure and combine to create the PK
@@ -124,6 +115,17 @@ class SubmissionController(
         )
         telemetryService.flush()
         logger.info("Tracked ReportReceivedEvent with Application Insights")
+
+        // Queue upload should occur as the last step ensuring the other steps successfully process
+        // Create the message for the queue
+        val message = SubmissionQueueMessage(reportId, blobClient.blobUrl, filterHeaders(headers))
+        val messageString = objectMapper.writeValueAsString(message)
+        logger.debug("Created message for queue")
+
+        // Upload to Queue
+        queueClient.createIfNotExists()
+        queueClient.sendMessage(messageString)
+        logger.info("Sent message to queue: queueName=${queueClient.queueName}")
 
         val response =
             CreationResponse(
@@ -183,6 +185,21 @@ class SubmissionController(
 
             // Return a response entity with a specific error message and bad request status
             return ResponseEntity("Bad Request: ${e.message}", HttpStatus.BAD_REQUEST)
+        }
+
+        /**
+         * Handles any IO exception that occurs during report submission.
+         *
+         * @param e The IO exception that was thrown.
+         * @return A ResponseEntity with an error message and HTTP status code 500 (Internal Server Error).
+         */
+        @ExceptionHandler(IOException::class)
+        fun handleIOException(e: IOException): ResponseEntity<String> {
+            // Log the error message and stack trace for debugging purposes
+            logger.error("IO exception during report submission: ${e.message}", e)
+
+            // Return a response entity with a generic error message and internal server error status
+            return ResponseEntity("Internal Server Error: ${e.message}", HttpStatus.INTERNAL_SERVER_ERROR)
         }
 
         /**
