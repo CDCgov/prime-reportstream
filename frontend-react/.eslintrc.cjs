@@ -80,8 +80,8 @@ module.exports = {
             extends: ["plugin:playwright/recommended"],
             rules: {
                 // TODO: investigate these for reconsideration or per-module ignoring
-                "eslint-plugin-playwright/no-conditional-in-test": ["off"],
-                "eslint-plugin-playwright/no-force-option": ["off"],
+                "playwright/no-conditional-in-test": ["off"],
+                "playwright/no-force-option": ["off"],
             },
         },
     ],
