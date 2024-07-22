@@ -59,7 +59,7 @@
           customLengthHl7Fields: {}
       jurisdictionalFilter:
         - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'NH') or (Bundle.entry.resource.ofType(Patient).address.state = 'NH')"
-        - "matches(processing_mode_code, P)"
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code != 'P'"
       qualityFilter:
         - "Bundle.identifier.value.exists()"
         - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
