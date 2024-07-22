@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - master
-      - josiahsiegel/update/sftpalpine-image
   schedule:
     - cron:  "0 0 1 * *"
 
@@ -60,8 +59,6 @@ jobs:
         id: check_sftp_alpine_image
         run: |
           docker pull atmoz/sftp:alpine
-          docker tag atmoz/sftp:alpine ghcr.io/cdcgov/prime-reportstream_sftp:alpine
-          docker push ghcr.io/cdcgov/prime-reportstream_sftp:alpine
           docker pull ${{ env.REGISTRY }}/${{ env.SFTP_IMAGE_NAME }}:alpine
           LATEST_IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' atmoz/sftp:alpine)
           REPO_IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.REGISTRY }}/${{ env.SFTP_IMAGE_NAME }}:alpine 2> /dev/null || true)
