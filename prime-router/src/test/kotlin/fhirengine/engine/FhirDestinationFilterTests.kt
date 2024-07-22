@@ -6,6 +6,7 @@ import assertk.assertions.hasClass
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.isInstanceOf
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -26,12 +27,13 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
-import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
+import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestLabResult
 import gov.cdc.prime.router.azure.observability.event.CodeSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
+import gov.cdc.prime.router.azure.observability.event.ItemEventData
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
-import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
-import gov.cdc.prime.router.azure.observability.event.ReportNotRoutedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportEventData
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.azure.observability.event.TestSummary
 import gov.cdc.prime.router.metadata.LookupTable
@@ -51,6 +53,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayInputStream
 import java.io.File
+import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
 
@@ -323,72 +326,32 @@ class FhirDestinationFilterTests {
 
             val azureEvents = azureEventService.getEvents()
 
-            @Suppress("UNUSED_VARIABLE")
-            val expectedAcceptedEvent = ReportAcceptedEvent(
-                message.reportId,
-                submittedId,
-                message.topic,
-                "sendingOrg.sendingOrgClient",
-                listOf(
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                listOf(
-                                    CodeSummary(
-                                        snomedSystem,
-                                        "840539006",
-                                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
-                                    )
-                                ),
-                                loincSystem,
-                                "94558-4",
-                            )
-                        )
-                    ),
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                testPerformedCode = "95418-0",
-                                testPerformedSystem = loincSystem
-                            )
-                        )
-                    ),
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                testPerformedCode = "95417-2",
-                                testPerformedSystem = loincSystem
-                            )
-                        )
-                    ),
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                testPerformedCode = "95421-4",
-                                testPerformedSystem = loincSystem
-                            )
-                        )
-                    ),
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                testPerformedCode = "95419-8",
-                                testPerformedSystem = loincSystem
-                            )
-                        )
-                    ),
-                ),
-                36995,
-                AzureEventUtils.MessageID(
-                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                    "https://reportstream.cdc.gov/prime-router"
-                )
-            )
-
             assertThat(azureEvents).hasSize(1)
             assertThat(azureEvents.first())
                 .isInstanceOf<ReportStreamItemEvent>()
-//                .isEqualTo(expectedAcceptedEvent)
+            val event: ReportStreamItemEvent = azureEvents.first() as ReportStreamItemEvent
+            assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+                ReportEventData(
+                    actionHistory.reportsOut.values.first().reportId,
+                    message.reportId,
+                    listOf(submittedId),
+                    Topic.FULL_ELR,
+                    "",
+                    TaskAction.destination_filter,
+                    OffsetDateTime.now()
+                ),
+                ReportEventData::timestamp
+            )
+            assertThat(event.itemEventData).isEqualTo(
+                ItemEventData(
+                    1,
+                    1,
+                    1,
+                    null,
+                    "sendingOrg.sendingOrgClient"
+                )
+            )
+            assertThat(event.params).isEqualTo(emptyMap())
         }
 
         // assert
@@ -466,92 +429,91 @@ class FhirDestinationFilterTests {
             assertThat(actionHistory.reportsOut).hasSize(1)
 
             val azureEvents = azureEventService.getEvents()
-
-            @Suppress("UNUSED_VARIABLE")
-            val expectedAcceptedEvent = ReportAcceptedEvent(
-                message.reportId,
-                submittedId,
-                message.topic,
-                "sendingOrg.sendingOrgClient",
-                listOf(
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                listOf(
-                                    CodeSummary(
-                                        snomedSystem,
-                                        "840539006",
-                                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
-                                    )
-                                ),
-                                loincSystem,
-                                "94558-4",
-                            )
-                        )
-                    ),
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                testPerformedCode = "95418-0",
-                                testPerformedSystem = loincSystem
-                            )
-                        )
-                    ),
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                testPerformedCode = "95417-2",
-                                testPerformedSystem = loincSystem
-                            )
-                        )
-                    ),
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                testPerformedCode = "95421-4",
-                                testPerformedSystem = loincSystem
-                            )
-                        )
-                    ),
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                testPerformedCode = "95419-8",
-                                testPerformedSystem = loincSystem
-                            )
-                        )
-                    ),
-                ),
-                36995,
-                AzureEventUtils.MessageID(
-                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                    "https://reportstream.cdc.gov/prime-router"
-                )
-            )
-
-            @Suppress("UNUSED_VARIABLE")
-            val expectedRoutedEvent = ReportNotRoutedEvent(
-                UUID.randomUUID(),
-                message.reportId,
-                submittedId,
-                message.topic,
-                "sendingOrg.sendingOrgClient",
-                36995,
-                AzureEventUtils.MessageID(
-                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                    "https://reportstream.cdc.gov/prime-router"
-                )
-            )
-
             assertThat(azureEvents).hasSize(1)
             assertThat(azureEvents.first())
                 .isInstanceOf(ReportStreamItemEvent::class)
-//            assertThat(azureEvents[1])
-//                .isInstanceOf<ReportNotRoutedEvent>()
-//                .isEqualToIgnoringGivenProperties(
-//                    expectedRoutedEvent,
-//                    ReportNotRoutedEvent::reportId,
-//                )
+            val event: ReportStreamItemEvent = azureEvents.first() as ReportStreamItemEvent
+                assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+                    ReportEventData(
+                        actionHistory.reportsOut.values.first().reportId,
+                        message.reportId,
+                        listOf(submittedId),
+                        Topic.FULL_ELR,
+                        "",
+                        TaskAction.destination_filter,
+                        OffsetDateTime.now()
+                    ),
+                    ReportEventData::timestamp
+                )
+                    assertThat(event.itemEventData).isEqualTo(
+                        ItemEventData(
+                            1,
+                            1,
+                            1,
+                            null,
+                            "sendingOrg.sendingOrgClient"
+                        )
+                    )
+                    assertThat(event.params).isEqualTo(
+                        mapOf(
+                        ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                            observationSummaries = listOf(
+                                ObservationSummary(
+                                    listOf(
+                                        TestSummary(
+                                            listOf(
+                                                CodeSummary(
+                                                    snomedSystem,
+                                                    "840539006",
+                                                    @Suppress("ktlint:standard:max-line-length")
+                                                    "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                                )
+                                            ),
+                                            loincSystem,
+                                            "94558-4",
+                                        )
+                                    )
+                                ),
+                                ObservationSummary(
+                                    listOf(
+                                        TestSummary(
+                                            testPerformedCode = "95418-0",
+                                            testPerformedSystem = loincSystem
+                                        )
+                                    )
+                                ),
+                                ObservationSummary(
+                                    listOf(
+                                        TestSummary(
+                                            testPerformedCode = "95417-2",
+                                            testPerformedSystem = loincSystem
+                                        )
+                                    )
+                                ),
+                                ObservationSummary(
+                                    listOf(
+                                        TestSummary(
+                                            testPerformedCode = "95421-4",
+                                            testPerformedSystem = loincSystem
+                                        )
+                                    )
+                                ),
+                                ObservationSummary(
+                                    listOf(
+                                        TestSummary(
+                                            testPerformedCode = "95419-8",
+                                            testPerformedSystem = loincSystem
+                                        )
+                                    )
+                                ),
+                            ),
+                            patientState = listOf("CA"),
+                            performerState = emptyList(),
+                            orderingFacilityState = emptyList(),
+                            eventType = "ORU/ACK - Unsolicited transmission of an observation message"
+                        )
+                    )
+                    )
         }
 
         // assert

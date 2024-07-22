@@ -44,6 +44,7 @@ class AzureEventServiceImpl(
  */
 class LocalAzureEventServiceImpl(
     val events: MutableList<AzureCustomEvent> = mutableListOf(),
+    val reportStreamEvents: MutableMap<ReportStreamEventName, MutableList<AzureCustomEvent>> = mutableMapOf(),
 ) : AzureEventService, Logging {
 
     /**
@@ -56,7 +57,8 @@ class LocalAzureEventServiceImpl(
     }
 
     override fun trackEvent(eventName: ReportStreamEventName, event: AzureCustomEvent) {
-        logger.debug("Recording'$eventName' event in memory.")
-        events.add(event)
+        reportStreamEvents.getOrPut(eventName) {
+         mutableListOf()
+        }.add(event)
     }
 }

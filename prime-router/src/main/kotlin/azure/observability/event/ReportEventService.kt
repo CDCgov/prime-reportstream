@@ -214,12 +214,16 @@ open class ReportStreamItemEventBuilder(
     theTopic,
     pipelineStepName
 ) {
-    var theParentReportIndex = 1
+    var theParentITemIndex = 1
     var theChildIndex = 1
     var theTrackingId: String? = null
 
     fun trackingId(bundle: Bundle) {
         theTrackingId = AzureEventUtils.getIdentifier(bundle).value
+    }
+
+    fun parentItemIndex(parentItemIndex: Int) {
+        theParentITemIndex = parentItemIndex
     }
 
     protected fun getItemEventData(): ItemEventData {
@@ -229,7 +233,7 @@ open class ReportStreamItemEventBuilder(
         return reportEventService.getItemEventData(
             theChildIndex,
             theParentReportId!!,
-            theParentReportIndex,
+            theParentITemIndex,
             theTrackingId
         )
     }
@@ -455,7 +459,10 @@ class ReportEventService(
         topic: Topic,
     ): ReportEventData {
         val submittedReportIds = if (parentReportId != null) {
-            reportService.getRootReports(parentReportId)
+            val rootReports = reportService.getRootReports(parentReportId)
+            rootReports.ifEmpty {
+                listOf(dbAccess.fetchReportFile(parentReportId))
+            }
         } else {
             emptyList()
         }.map { it.reportId }
@@ -477,7 +484,7 @@ class ReportEventService(
         parentItemIndex: Int,
         trackingId: String?,
     ): ItemEventData {
-        val submittedIndex = reportService.getRootItemIndex(parentReportId, parentItemIndex)
+        val submittedIndex = reportService.getRootItemIndex(parentReportId, parentItemIndex) ?: parentItemIndex
         val rootReport =
             reportService.getRootReports(parentReportId).firstOrNull() ?: dbAccess.fetchReportFile(parentReportId)
         return ItemEventData(

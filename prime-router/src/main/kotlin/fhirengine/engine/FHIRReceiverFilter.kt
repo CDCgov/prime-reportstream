@@ -448,6 +448,7 @@ class FHIRReceiverFilter(
                             mapOf(
                                 ReportStreamEventProperties.FAILING_FILTERS to filterResult.failingFilter.filters,
                                 ReportStreamEventProperties.FILTER_TYPE to filterResult.failingFilter.filterType,
+                                ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
                                 ReportStreamEventProperties.BUNDLE_DIGEST
                                     to bundleDigestExtractor.generateDigest(bundle)
                             )

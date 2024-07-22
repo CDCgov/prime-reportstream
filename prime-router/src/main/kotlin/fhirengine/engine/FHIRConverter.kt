@@ -180,6 +180,7 @@ class FHIRConverter(
                                     processedItem.validationError!!.message,
                                 ) {
                                     parentReportId(queueMessage.reportId)
+                                    parentItemIndex(itemIndex.toInt() + 1)
                                     params(
                                         mapOf(
                                             ReportStreamEventProperties.ITEM_FORMAT to format,
@@ -225,6 +226,7 @@ class FHIRConverter(
                                 queueMessage.blobSubFolderName,
                                 routeEvent.eventAction
                             )
+                            report.bodyURL = blobInfo.blobUrl
 
                             // track created report
                             actionHistory.trackCreatedReport(routeEvent, report, blobInfo = blobInfo)
@@ -238,6 +240,7 @@ class FHIRConverter(
                                 TaskAction.convert
                             ) {
                                 parentReportId(queueMessage.reportId)
+                                parentItemIndex(itemIndex.toInt() + 1)
                                 params(
                                     mapOf(
                                         ReportStreamEventProperties.BUNDLE_DIGEST
@@ -271,7 +274,7 @@ class FHIRConverter(
                     emptyList()
                 )
 
-                // TODO: https://github.com/CDCgov/prime-reportstream/issues/14349
+                // TODO: https://github.com/CDCgov/prime-reportstream/issues/15223
                 val report = Report(
                     MimeFormat.FHIR,
                     emptyList(),

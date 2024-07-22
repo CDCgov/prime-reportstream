@@ -33,6 +33,24 @@ class AzureEventServiceTest {
             )
         }
     }
+
+    @Test
+    fun `pass event data class to Azure telemetry client via ReportStreamEventName`() {
+        val f = Fixture()
+
+        f.azureEventService.trackEvent(ReportStreamEventName.REPORT_RECEIVED_EVENT, f.event)
+
+        verify(exactly = 1) {
+            f.mockedTelemetryClient.trackEvent(
+                ReportStreamEventName.REPORT_RECEIVED_EVENT.name,
+                mapOf(
+                    "property1" to "some value",
+                    "property2" to "25"
+                ),
+                emptyMap()
+            )
+        }
+    }
 }
 
 data class TestEvent(
