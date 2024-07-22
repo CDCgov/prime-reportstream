@@ -4,7 +4,6 @@ extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
 
 constants:
   MSH: '/MSH'
-  FHS: '/FHS'
   PID: '/PATIENT_RESULT/PATIENT/PID'
   ORC: '/PATIENT_RESULT/ORDER_OBSERVATION/ORC'
   OBR: '/PATIENT_RESULT/ORDER_OBSERVATION/OBR'
