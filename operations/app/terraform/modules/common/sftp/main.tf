@@ -28,7 +28,7 @@ resource "azurerm_container_group" "sftp" {
 
   container {
     name         = "sftp-source"
-    image        = "atmoz/sftp:latest"
+    image        = "ghcr.io/cdcgov/prime-reportstream_sftp:latest"
     cpu          = var.cpu
     cpu_limit    = 0
     memory       = var.memory
