@@ -26,12 +26,12 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fetchChildReports
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransform
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.hl7Sender
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.hl7SenderWithNoTransform
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.senderWithValidation
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.universalPipelineOrganization
-import gov.cdc.prime.router.common.UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles
 import gov.cdc.prime.router.common.badEncodingHL7Record
 import gov.cdc.prime.router.common.cleanHL7Record
 import gov.cdc.prime.router.common.cleanHL7RecordConverted
@@ -51,7 +51,8 @@ import gov.cdc.prime.router.common.validRadxMarsHL7MessageConverted
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
-import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.FhirDestinationFilterQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -225,7 +226,7 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, receiveReport, txn, 2)
+            val routedReports = fetchChildReports(receiveReport, txn, 2)
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -255,8 +256,8 @@ class FHIRConverterIntegrationTests {
                 }
             }
 
-            val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
-                FhirRouteQueueMessage(
+            val expectedQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
+                FhirDestinationFilterQueueMessage(
                     report.reportId,
                     report.bodyUrl,
                     BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
@@ -266,7 +267,10 @@ class FHIRConverterIntegrationTests {
             }.map { it.serialize() }
 
             verify(exactly = 2) {
-                QueueAccess.sendMessage("elr-fhir-route", match { expectedRouteQueueMessages.contains(it) })
+                QueueAccess.sendMessage(
+                    elrDestinationFilterQueueName,
+                    match { expectedQueueMessages.contains(it) }
+                )
             }
 
             val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk()).from(Tables.ACTION_LOG)
@@ -342,7 +346,7 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, receiveReport, txn, 2)
+            val routedReports = fetchChildReports(receiveReport, txn, 2)
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -354,8 +358,8 @@ class FHIRConverterIntegrationTests {
                     .map { Pair(it.first, it.second.toString(Charset.defaultCharset())) }
             assertThat(reportAndBundles).transform { pairs -> pairs.map { it.second } }
                 .containsOnly(conditionCodedValidFHIRRecord1, validFHIRRecord2)
-            val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
-                FhirRouteQueueMessage(
+            val expectedQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
+                FhirDestinationFilterQueueMessage(
                     report.reportId,
                     report.bodyUrl,
                     BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle.toByteArray())),
@@ -364,7 +368,10 @@ class FHIRConverterIntegrationTests {
                 )
             }.map { it.serialize() }
             verify(exactly = 2) {
-                QueueAccess.sendMessage("elr-fhir-route", match { expectedRouteQueueMessages.contains(it) })
+                QueueAccess.sendMessage(
+                    elrDestinationFilterQueueName,
+                    match { expectedQueueMessages.contains(it) }
+                )
             }
 
             val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk()).from(Tables.ACTION_LOG)
@@ -418,7 +425,7 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, receiveReport, txn, 1)
+            val routedReports = fetchChildReports(receiveReport, txn, 1)
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -439,8 +446,8 @@ class FHIRConverterIntegrationTests {
                 }
             }
 
-            val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
-                FhirRouteQueueMessage(
+            val expectedQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
+                FhirDestinationFilterQueueMessage(
                     report.reportId,
                     report.bodyUrl,
                     BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
@@ -449,7 +456,10 @@ class FHIRConverterIntegrationTests {
                 )
             }.map { it.serialize() }
             verify(exactly = 1) {
-                QueueAccess.sendMessage("elr-fhir-route", match { expectedRouteQueueMessages.contains(it) })
+                QueueAccess.sendMessage(
+                    elrDestinationFilterQueueName,
+                    match { expectedQueueMessages.contains(it) }
+                )
             }
 
             val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk()).from(Tables.ACTION_LOG)
@@ -487,7 +497,7 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = verifyLineageAndFetchCreatedReportFiles(receiveReport, receiveReport, txn, 2)
+            val routedReports = fetchChildReports(receiveReport, txn, 2)
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -515,8 +525,8 @@ class FHIRConverterIntegrationTests {
                 }
             }
 
-            val expectedRouteQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
-                FhirRouteQueueMessage(
+            val expectedQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
+                FhirDestinationFilterQueueMessage(
                     report.reportId,
                     report.bodyUrl,
                     BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
@@ -526,7 +536,10 @@ class FHIRConverterIntegrationTests {
             }.map { it.serialize() }
 
             verify(exactly = 2) {
-                QueueAccess.sendMessage("elr-fhir-route", match { expectedRouteQueueMessages.contains(it) })
+                QueueAccess.sendMessage(
+                    elrDestinationFilterQueueName,
+                    match { expectedQueueMessages.contains(it) }
+                )
             }
 
             val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk()).from(Tables.ACTION_LOG)
@@ -559,7 +572,7 @@ class FHIRConverterIntegrationTests {
             QueueAccess.sendMessage(any(), any())
         }
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            verifyLineageAndFetchCreatedReportFiles(receiveReport, receiveReport, txn, 1)
+            fetchChildReports(receiveReport, txn, 1)
         }
     }
 }
