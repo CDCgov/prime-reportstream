@@ -13,7 +13,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation:
-        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/SD/SD-receiver-transform.yml"
+        schemaName: "azure:/hl7_mapping/receivers/STLTs/SD/SD-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
         receivingApplicationName: null
@@ -58,15 +58,13 @@
           customLengthHl7Fields: {}
       jurisdictionalFilter:
         - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'SD') or (Bundle.entry.resource.ofType(Patient).address.state = 'SD')"
-      qualityFilter:
-        - "Bundle.entry.resource.ofType(Observation).value.coding.code != '260385009'"
-        - "Bundle.entry.resource.ofType(Observation).value.coding.code != '260415000'"
-        - "Bundle.entry.resource.ofType(Observation).value.coding.code != '895231008'"
+      # previously had a quality filter, combined it into the condition filter, so they did not use the default quality filter before and it should not be added here
+      qualityFilter: []
       routingFilter: []
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
-        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+        - "%resource.ofType(Observation).where(interpretation.coding.code = 'A').code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in (''840539006' )).exists()"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
