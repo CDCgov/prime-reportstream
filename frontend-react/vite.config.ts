@@ -22,15 +22,13 @@ const TRIALFRONTEND_MODES = /^trialfrontend\d+$/;
  */
 function createProxyUrl(mode: string) {
     if (LOCAL_PROXY_MODES.includes(mode)) return "http://127.0.0.1:7071";
-    const subdomain =
-        mode === "production" ? "" : mode === "ci" ? "staging" : mode;
+    const subdomain = mode === "production" ? "" : mode === "ci" ? "staging" : mode;
     return `https://${subdomain ? subdomain + "." : ""}prime.cdc.gov`;
 }
 
 function createBackendUrl(mode: string) {
     const port = getPort(mode);
-    if (LOCAL_BACKEND_MODES.includes(mode))
-        return `http://localhost${port ? ":" + port.toString() : ""}`;
+    if (LOCAL_BACKEND_MODES.includes(mode)) return `http://localhost${port ? ":" + port.toString() : ""}`;
     return `https://${mode !== "production" ? (mode.startsWith("trialfrontend") ? "staging" : mode) + "." : ""}prime.cdc.gov`;
 }
 
@@ -78,19 +76,14 @@ export default defineConfig(async ({ mode }) => {
             mdx({
                 mdExtensions: [],
                 providerImportSource: "@mdx-js/react",
-                remarkPlugins: [
-                    remarkMdxToc,
-                    remarkFrontmatter,
-                    remarkMdxFrontmatter,
-                ],
+                remarkPlugins: [remarkMdxToc, remarkFrontmatter, remarkMdxFrontmatter],
                 rehypePlugins: [rehypeSlug],
             }),
             svgr(),
             checker({
                 typescript: true,
                 eslint: {
-                    lintCommand:
-                        'eslint "./src/**/*[!.test][!.stories].{ts,tsx}"',
+                    lintCommand: 'eslint "./src/**/*[!.test][!.stories].{ts,tsx}"',
                 },
             }),
         ],
@@ -146,10 +139,7 @@ export default defineConfig(async ({ mode }) => {
                     // than index
                     index: resolve(__dirname, "index.html"),
                     notfound: resolve(__dirname, "404.html"),
-                    unsupportedBrowser: resolve(
-                        __dirname,
-                        "unsupported-browser.html",
-                    ),
+                    unsupportedBrowser: resolve(__dirname, "unsupported-browser.html"),
                 },
             },
         },
@@ -166,10 +156,7 @@ export default defineConfig(async ({ mode }) => {
             environment: "jsdom",
             setupFiles: "./src/setupTests.ts",
             globalSetup: "./src/globalSetup.ts",
-            include: [
-                "./src/**/__tests__/**/*.[jt]s?(x)",
-                "./src/**/?(*.)+(spec|test).[jt]s?(x)",
-            ],
+            include: ["./src/**/__tests__/**/*.[jt]s?(x)", "./src/**/?(*.)+(spec|test).[jt]s?(x)"],
             css: false,
             coverage: {
                 include: ["src/**/*.{js,jsx,ts,tsx}", "!src/**/*.d.ts"],
@@ -187,10 +174,7 @@ export default defineConfig(async ({ mode }) => {
         },
         resolve: {
             alias: {
-                "msw/native": resolve(
-                    __dirname,
-                    "./node_modules/msw/lib/native/index.mjs",
-                ),
+                "msw/native": resolve(__dirname, "./node_modules/msw/lib/native/index.mjs"),
             },
         },
     };

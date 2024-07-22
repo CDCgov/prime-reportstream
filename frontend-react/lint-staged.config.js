@@ -6,25 +6,17 @@ export default {
      */
     "{src/AppRouter.tsx,public/sitemap.xml}": (filenames) => "echo 'TODO'",
     /* Linting and formatting */
-    "*.{js,mjs,cjs,ts,mts,cts,tsx}": [
-        "eslint --fix",
-        "prettier --write --list-different",
-    ],
+    "*.{js,mjs,cjs,ts,mts,cts,tsx}": ["eslint --fix", "prettier --write --list-different"],
     "*.{md,css,scss,json}": "prettier --write --check",
     /**
      * If either yarn.lock or package.json changed: run dedupe, manually add yarn.lock
      * (in case it wasn't already staged).
      */
-    "{yarn.lock, package.json}": [
-        () => "yarn dedupe",
-        () => "git add frontend-react/yarn.lock",
-    ],
+    "{yarn.lock, package.json}": [() => "yarn dedupe", () => "git add frontend-react/yarn.lock"],
     /**
      * Determine if whole project needs testing or not
      */
-    "{**/*.{ts,tsx},yarn.lock,package.json}": (
-        /** @type string[] */ filenames,
-    ) => {
+    "{**/*.{ts,tsx},yarn.lock,package.json}": (/** @type string[] */ filenames) => {
         // if dependencies changed, test the whole project
         if (filenames.some((f) => /(package.json)|(yarn.lock)$/.exec(f))) {
             return "cross-env TZ=UTC vitest --run --silent";
