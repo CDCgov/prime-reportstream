@@ -33,14 +33,7 @@ module.exports = {
         project: true,
         tsconfigRootDir: __dirname,
     },
-    plugins: [
-        "react-refresh",
-        "@typescript-eslint",
-        "react-hooks",
-        "react",
-        "jsx-a11y",
-        "import",
-    ],
+    plugins: ["react-refresh", "@typescript-eslint", "react-hooks", "react", "jsx-a11y", "import"],
     settings: {
         react: {
             version: "detect",
@@ -53,10 +46,7 @@ module.exports = {
     overrides: [
         /* Vitest */
         {
-            files: [
-                "./src/**/__tests__/**/*.[jt]s?(x)",
-                "./src/**/?(*.)+(spec|test).[jt]s?(x)",
-            ],
+            files: ["./src/**/__tests__/**/*.[jt]s?(x)", "./src/**/?(*.)+(spec|test).[jt]s?(x)"],
             extends: [
                 "plugin:testing-library/react",
                 "plugin:vitest/legacy-recommended",
@@ -72,10 +62,7 @@ module.exports = {
                 "@typescript-eslint/unbound-method": "off",
 
                 /* Custom project rules */
-                "testing-library/no-await-sync-events": [
-                    "error",
-                    { eventModules: ["fire-event"] },
-                ],
+                "testing-library/no-await-sync-events": ["error", { eventModules: ["fire-event"] }],
                 "testing-library/no-render-in-lifecycle": "error",
                 "testing-library/prefer-screen-queries": "warn",
                 "testing-library/no-unnecessary-act": "warn",
@@ -96,10 +83,7 @@ module.exports = {
     rules: {
         /* Temporarily changed to warnings or disabled pending future work */
         "jsx-a11y/no-autofocus": ["warn"],
-        "react-refresh/only-export-components": [
-            "off",
-            { allowConstantExport: true },
-        ],
+        "react-refresh/only-export-components": ["off", { allowConstantExport: true }],
 
         // Requires extensive updates to types in code, however SHOULD BE ENABLED EVENTUALLY
         "react/prop-types": ["warn"],
@@ -134,14 +118,7 @@ module.exports = {
         "import/order": [
             1,
             {
-                groups: [
-                    "external",
-                    "builtin",
-                    "internal",
-                    "sibling",
-                    "parent",
-                    "index",
-                ],
+                groups: ["external", "builtin", "internal", "sibling", "parent", "index"],
                 pathGroups: [
                     { pattern: "components", group: "internal" },
                     { pattern: "common", group: "internal" },
@@ -156,10 +133,7 @@ module.exports = {
                 alphabetize: { order: "asc", caseInsensitive: true },
             },
         ],
-        "sort-imports": [
-            "error",
-            { ignoreCase: true, ignoreDeclarationSort: true },
-        ],
+        "sort-imports": ["error", { ignoreCase: true, ignoreDeclarationSort: true }],
         "@typescript-eslint/prefer-nullish-coalescing": ["error"],
     },
 };
