@@ -4071,9 +4071,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/dom@npm:^10.1.0":
-  version: 10.1.0
-  resolution: "@testing-library/dom@npm:10.1.0"
+"@testing-library/dom@npm:^10.4.0":
+  version: 10.4.0
+  resolution: "@testing-library/dom@npm:10.4.0"
   dependencies:
     "@babel/code-frame": ^7.10.4
     "@babel/runtime": ^7.12.5
@@ -4083,7 +4083,7 @@ __metadata:
     dom-accessibility-api: ^0.5.9
     lz-string: ^1.5.0
     pretty-format: ^27.0.2
-  checksum: 275f53e57914e13361aa01a9fe155a3919ec911b61abddc44a7cd077e49d24672cdd43c76d840f7cdacea2f42c4aae92321066e6ddaff039f413745797d1b390
+  checksum: bb128b90be0c8cd78c5f5e67aa45f53de614cc048a2b50b230e736ec710805ac6c73375af354b83c74d710b3928d52b83a273a4cb89de4eb3efe49e91e706837
   languageName: node
   linkType: hard
 
@@ -4103,7 +4103,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/jest-dom@npm:^6.4.2, @testing-library/jest-dom@npm:^6.4.6":
+"@testing-library/jest-dom@npm:^6.4.2":
   version: 6.4.6
   resolution: "@testing-library/jest-dom@npm:6.4.6"
   dependencies:
@@ -4133,6 +4133,22 @@ __metadata:
     vitest:
       optional: true
   checksum: d70acbfc5d842065292dc1b4113ac2b4c2a2b83f9868e454d7f24d97ee92fddf7852e0e079b6eecaf21154bfe6e9ad03eb32e72f16854f64d7ce1ff42288828b
+  languageName: node
+  linkType: hard
+
+"@testing-library/jest-dom@npm:^6.4.8":
+  version: 6.4.8
+  resolution: "@testing-library/jest-dom@npm:6.4.8"
+  dependencies:
+    "@adobe/css-tools": ^4.4.0
+    "@babel/runtime": ^7.9.2
+    aria-query: ^5.0.0
+    chalk: ^3.0.0
+    css.escape: ^1.5.1
+    dom-accessibility-api: ^0.6.3
+    lodash: ^4.17.21
+    redent: ^3.0.0
+  checksum: b601688950e522557c2c6bbc0f026ae31a10583577c8a557814b0eb33648fe82afc06299f3cdb79ff0c5076fd1a6106f3d76e2ca0dde6f7ee0555e63008fbd72
   languageName: node
   linkType: hard
 
@@ -13023,8 +13039,8 @@ __metadata:
     "@storybook/theming": ^8.1.10
     "@tanstack/react-query": ^5.49.2
     "@tanstack/react-query-devtools": ^5.49.2
-    "@testing-library/dom": ^10.1.0
-    "@testing-library/jest-dom": ^6.4.6
+    "@testing-library/dom": ^10.4.0
+    "@testing-library/jest-dom": ^6.4.8
     "@testing-library/react": ^16.0.0
     "@testing-library/user-event": ^14.5.2
     "@trussworks/react-uswds": ^9.0.0
