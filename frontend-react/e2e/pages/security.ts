@@ -1,3 +1,4 @@
+import { expect, Page } from "@playwright/test";
 import { BasePage, BasePageTestArgs } from "./BasePage";
 
 export class SecurityPage extends BasePage {
@@ -13,4 +14,9 @@ export class SecurityPage extends BasePage {
             testArgs,
         );
     }
+}
+
+export async function onLoad(page: Page) {
+    await expect(page).toHaveURL(/security/);
+    await expect(page).toHaveTitle(/ReportStream security/);
 }
