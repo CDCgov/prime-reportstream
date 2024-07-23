@@ -20,6 +20,7 @@ import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.IReportEventService
 import gov.cdc.prime.router.azure.observability.event.ReportEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
@@ -39,7 +40,7 @@ private const val PROCESSING_TYPE_PARAMETER = "processing"
 class ReportFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive),
-    private val reportEventService: ReportEventService = ReportEventService(
+    private val reportEventService: IReportEventService = ReportEventService(
         workflowEngine.db,
         workflowEngine.azureEventService,
         workflowEngine.reportService

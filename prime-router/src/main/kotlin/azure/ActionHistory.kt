@@ -25,7 +25,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
-import gov.cdc.prime.router.azure.observability.event.ReportEventService
+import gov.cdc.prime.router.azure.observability.event.IReportEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.common.JacksonMapperUtilities
@@ -536,7 +536,6 @@ class ActionHistory(
             reportFile.blobDigest = blobInfo.digest
             reportFile.itemCount = report.itemCount
         } else {
-            // TODO: this doesn't seem correct
             reportFile.bodyFormat = MimeFormat.FHIR.toString() // currently only the UP sends null blobs
             reportFile.itemCount = 0
         }
@@ -564,7 +563,7 @@ class ActionHistory(
         params: String,
         result: String,
         header: WorkflowEngine.Header,
-        reportEventService: ReportEventService,
+        reportEventService: IReportEventService,
         transportType: String,
     ) {
         if (isReportAlreadyTracked(sentReportId)) {

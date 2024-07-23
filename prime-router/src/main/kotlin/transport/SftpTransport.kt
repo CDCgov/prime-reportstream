@@ -11,7 +11,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.observability.event.ReportEventService
+import gov.cdc.prime.router.azure.observability.event.IReportEventService
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
@@ -47,7 +47,7 @@ class SftpTransport : ITransport, Logging {
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
-        reportEventService: ReportEventService,
+        reportEventService: IReportEventService,
     ): RetryItems? {
         val sftpTransportType = transportType as SFTPTransportType
 

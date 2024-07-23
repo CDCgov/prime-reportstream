@@ -15,6 +15,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.IReportEventService
 import gov.cdc.prime.router.azure.observability.event.ReportEventService
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.credentials.CredentialHelper
@@ -77,7 +78,7 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
-        reportEventService: ReportEventService,
+        reportEventService: IReportEventService,
     ): RetryItems? {
         val gaenTransportInfo = transportType as GAENTransportType
         val reportId = header.reportFile.reportId

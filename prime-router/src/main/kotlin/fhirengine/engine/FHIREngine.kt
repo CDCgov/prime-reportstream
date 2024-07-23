@@ -13,6 +13,7 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.IReportEventService
 import gov.cdc.prime.router.azure.observability.event.ReportEventService
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.db.ReportGraph
@@ -44,7 +45,7 @@ abstract class FHIREngine(
     val blob: BlobAccess = BlobAccess(),
     val azureEventService: AzureEventService = AzureEventServiceImpl(),
     val reportService: ReportService = ReportService(ReportGraph(db), db),
-    val reportEventService: ReportEventService = ReportEventService(
+    val reportEventService: IReportEventService = ReportEventService(
         db,
         azureEventService,
         reportService
@@ -69,7 +70,7 @@ abstract class FHIREngine(
         var csvSerializer: CsvSerializer? = null,
         var azureEventService: AzureEventService? = null,
         var reportService: ReportService? = null,
-        var reportEventService: ReportEventService? = null,
+        var reportEventService: IReportEventService? = null,
     ) {
         /**
          * Set the metadata instance.

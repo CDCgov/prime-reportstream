@@ -3,14 +3,10 @@ package gov.cdc.prime.router.azure.observability.event
 import com.fasterxml.jackson.annotation.JsonUnwrapped
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
-import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.report.ReportService
-import org.apache.logging.log4j.kotlin.Logging
-import org.hl7.fhir.r4.model.Bundle
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -56,6 +52,7 @@ enum class ReportStreamEventName {
     REPORT_SENT,
     REPORT_RECEIVED_EVENT,
     ITEM_ROUTED,
+    REPORT_LAST_MILE_FAILURE,
 }
 
 data class ReportStreamReportEvent(
@@ -73,206 +70,6 @@ data class ReportStreamItemEvent(
     @JsonUnwrapped
     val params: Map<ReportStreamEventProperties, Any>,
 ) : AzureCustomEvent
-
-abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
-    protected val reportEventService: ReportEventService,
-    val azureEventService: AzureEventService,
-    private val theName: ReportStreamEventName,
-    private val childReportId: UUID,
-    private val childBodyUrl: String,
-    private val theTopic: Topic,
-    private val pipelineStepName: TaskAction,
-) : Logging {
-
-    constructor(
-        reportEventService: ReportEventService,
-        azureEventService: AzureEventService,
-        theName: ReportStreamEventName,
-        report: ReportFile,
-        pipelineStepName: TaskAction,
-    ) : this(
-        reportEventService,
-        azureEventService,
-        theName,
-        report.reportId,
-        report.bodyUrl,
-        report.schemaTopic,
-        pipelineStepName
-    )
-
-    constructor(
-        reportEventService: ReportEventService,
-        azureEventService: AzureEventService,
-        theName: ReportStreamEventName,
-        report: Report,
-        pipelineStepName: TaskAction,
-    ) : this(
-        reportEventService,
-        azureEventService,
-        theName,
-        report.id,
-        report.bodyURL,
-        report.schema.topic,
-        pipelineStepName
-    )
-    var theParams: Map<ReportStreamEventProperties, Any> = emptyMap()
-    var theParentReportId: UUID? = null
-
-    companion object {
-
-        fun <Event, T : AbstractReportStreamEventBuilder<Event>> buildEvent(
-            reportEventService: ReportEventService,
-            azureEventService: AzureEventService,
-            eventBuilderClass: Class<T>,
-            initializer: T.() -> Unit,
-        ): T {
-            val constructor =
-                eventBuilderClass.getDeclaredConstructor(ReportEventService::class.java, AzureEventService::class.java)
-            return constructor.newInstance(reportEventService, azureEventService).apply(initializer)
-        }
-    }
-
-    fun parentReportId(parentReportId: UUID?) {
-        theParentReportId = parentReportId
-    }
-
-    fun params(params: Map<ReportStreamEventProperties, Any>) {
-        theParams = params
-    }
-
-    abstract fun buildEvent(): T
-
-    fun getReportEventData(): ReportEventData {
-        return reportEventService.getReportEventData(
-            childReportId,
-            childBodyUrl,
-            theParentReportId,
-            pipelineStepName,
-            theTopic
-        )
-    }
-
-    fun sendToAzure(): AbstractReportStreamEventBuilder<T> {
-        val event = buildEvent()
-        azureEventService.trackEvent(theName, event)
-        return this
-    }
-
-    fun logEvent(): AbstractReportStreamEventBuilder<T> {
-        val event = buildEvent()
-        withLoggingContext(event) {
-            logger.info("$theName event occurred")
-        }
-        return this
-    }
-}
-
-fun sendToActionLog(@Suppress("UNUSED_PARAMETER") actionHistory: ActionHistory) {
-    throw NotImplementedError()
-}
-
-class ReportStreamReportEventBuilder(
-    reportEventService: ReportEventService,
-    azureEventService: AzureEventService,
-    theName: ReportStreamEventName,
-    childReportId: UUID,
-    childBodyUrl: String,
-    theTopic: Topic,
-    pipelineStepName: TaskAction,
-) : AbstractReportStreamEventBuilder<ReportStreamReportEvent>(
-    reportEventService,
-    azureEventService,
-    theName,
-    childReportId,
-    childBodyUrl,
-    theTopic,
-    pipelineStepName
-) {
-
-    override fun buildEvent(): ReportStreamReportEvent {
-        return ReportStreamReportEvent(
-            getReportEventData(),
-            theParams
-        )
-    }
-}
-
-open class ReportStreamItemEventBuilder(
-    reportEventService: ReportEventService,
-    azureEventService: AzureEventService,
-    theName: ReportStreamEventName,
-    childReportId: UUID,
-    childBodyUrl: String,
-    theTopic: Topic,
-    pipelineStepName: TaskAction,
-) : AbstractReportStreamEventBuilder<ReportStreamItemEvent>(
-    reportEventService,
-    azureEventService,
-    theName,
-    childReportId,
-    childBodyUrl,
-    theTopic,
-    pipelineStepName
-) {
-    var theParentITemIndex = 1
-    var theChildIndex = 1
-    var theTrackingId: String? = null
-
-    fun trackingId(bundle: Bundle) {
-        theTrackingId = AzureEventUtils.getIdentifier(bundle).value
-    }
-
-    fun parentItemIndex(parentItemIndex: Int) {
-        theParentITemIndex = parentItemIndex
-    }
-
-    protected fun getItemEventData(): ItemEventData {
-        if (theParentReportId == null) {
-            throw IllegalStateException("Parent Report ID must be set to generate an ItemEvent")
-        }
-        return reportEventService.getItemEventData(
-            theChildIndex,
-            theParentReportId!!,
-            theParentITemIndex,
-            theTrackingId
-        )
-    }
-
-    override fun buildEvent(): ReportStreamItemEvent {
-        return ReportStreamItemEvent(
-            getReportEventData(),
-            getItemEventData(),
-            theParams
-        )
-    }
-}
-
-class ReportStreamItemProcessingErrorEventBuilder(
-    reportEventService: ReportEventService,
-    azureEventService: AzureEventService,
-    theName: ReportStreamEventName,
-    childReportId: UUID,
-    childBodyUrl: String,
-    theTopic: Topic,
-    pipelineStepName: TaskAction,
-    private val error: String,
-) : ReportStreamItemEventBuilder(
-    reportEventService,
-    azureEventService,
-    theName,
-    childReportId,
-    childBodyUrl,
-    theTopic,
-    pipelineStepName
-) {
-    override fun buildEvent(): ReportStreamItemEvent {
-        return ReportStreamItemEvent(
-            getReportEventData(),
-            getItemEventData(),
-            theParams + mapOf(ReportStreamEventProperties.PROCESSING_ERROR to error)
-        )
-    }
-}
 
 interface IReportEventService {
     fun createReportEvent(

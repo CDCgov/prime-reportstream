@@ -9,7 +9,7 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.observability.event.ReportEventService
+import gov.cdc.prime.router.azure.observability.event.IReportEventService
 
 class BlobStoreTransport : ITransport {
     override fun send(
@@ -20,7 +20,7 @@ class BlobStoreTransport : ITransport {
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
-        reportEventService: ReportEventService,
+        reportEventService: IReportEventService,
     ): RetryItems? {
         val blobTransportType = transportType as BlobStoreTransportType
         val envVar: String = blobTransportType.containerName

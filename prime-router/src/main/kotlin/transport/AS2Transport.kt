@@ -18,7 +18,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.observability.event.ReportEventService
+import gov.cdc.prime.router.azure.observability.event.IReportEventService
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserJksCredential
@@ -49,7 +49,7 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
-        reportEventService: ReportEventService,
+        reportEventService: IReportEventService,
     ): RetryItems? {
         // DevNote: This code is similar to the SFTP code in structure
         //
