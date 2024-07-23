@@ -184,7 +184,7 @@ object UniversalPipelineTestUtils {
     val fhirSenderWithNoTransform = UniversalPipelineSender(
         "fhir-elr-no-transform",
         "phd",
-        MimeFormat.HL7,
+        MimeFormat.FHIR,
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
     )
@@ -367,6 +367,7 @@ object UniversalPipelineTestUtils {
         val mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
         val status: CustomerStatus = CustomerStatus.ACTIVE,
         val format: MimeFormat = MimeFormat.CSV,
+        val schemaName: String = "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml",
     )
 
     fun createReceivers(receiverSetupDataList: List<ReceiverSetupData>): List<Receiver> {
@@ -376,7 +377,7 @@ object UniversalPipelineTestUtils {
                 it.orgName,
                 it.topic,
                 it.status,
-                "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml",
+                it.schemaName,
                 timing = Receiver.Timing(numberPerDay = 1, maxReportCount = 1, whenEmpty = Receiver.WhenEmpty()),
                 jurisdictionalFilter = it.jurisdictionalFilter,
                 qualityFilter = it.qualityFilter,
