@@ -155,12 +155,12 @@ class FHIRConverter(
                             ),
                             metadata = this.metadata,
                             topic = queueMessage.topic,
-                            nextAction = TaskAction.route
+                            nextAction = TaskAction.destination_filter
                         )
 
                         // create route event
                         val routeEvent = ProcessEvent(
-                            Event.EventAction.ROUTE,
+                            Event.EventAction.DESTINATION_FILTER,
                             report.id,
                             Options.None,
                             emptyMap(),
@@ -190,7 +190,7 @@ class FHIRConverter(
                             routeEvent,
                             report,
                             blobInfo.blobUrl,
-                            FhirRouteQueueMessage(
+                            FhirDestinationFilterQueueMessage(
                                 report.id,
                                 blobInfo.blobUrl,
                                 BlobAccess.digestToString(blobInfo.digest),
