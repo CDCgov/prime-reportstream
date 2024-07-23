@@ -188,6 +188,13 @@ object UniversalPipelineTestUtils {
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
     )
+    val fhirSenderWithSendOriginal = UniversalPipelineSender(
+        "fhir-elr-send_original",
+        "phd",
+        MimeFormat.FHIR,
+        CustomerStatus.ACTIVE,
+        topic = Topic.ELR_ELIMS,
+    )
     val senderWithValidation = UniversalPipelineSender(
         "marsotc-hl7-sender",
         "phd",
@@ -359,6 +366,7 @@ object UniversalPipelineTestUtils {
         val conditionFilter: List<String> = emptyList(),
         val mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
         val status: CustomerStatus = CustomerStatus.ACTIVE,
+        val format: MimeFormat = MimeFormat.CSV,
     )
 
     fun createReceivers(receiverSetupDataList: List<ReceiverSetupData>): List<Receiver> {
@@ -375,7 +383,8 @@ object UniversalPipelineTestUtils {
                 routingFilter = it.routingFilter,
                 processingModeFilter = it.processingModeFilter,
                 conditionFilter = it.conditionFilter,
-                mappedConditionFilter = it.mappedConditionFilter
+                mappedConditionFilter = it.mappedConditionFilter,
+                format = it.format
             )
         }
     }
