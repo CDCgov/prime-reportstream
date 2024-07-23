@@ -70,6 +70,9 @@ private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/valid_d
 private const val MULTIPLE_OBSERVATIONS_FHIR_URL =
     "src/test/resources/fhirengine/engine/bundle_multiple_observations.fhir"
 
+private const val ONE_CONDITION_4_AOE_FHIR_URL =
+    "src/test/resources/fhirengine/engine/bundle_one_condition_four_aoe.fhir"
+
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
 class FHIRReceiverFilterIntegrationTests : Logging {
@@ -425,6 +428,82 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
         val receiverFilter = createReceiverFilter(azureEventService, org)
         val reportContents = File(MULTIPLE_OBSERVATIONS_FHIR_URL).readText()
+        val report = UniversalPipelineTestUtils.createReport(
+            reportContents,
+            TaskAction.receiver_filter,
+            Event.EventAction.RECEIVER_FILTER,
+            azuriteContainer
+        )
+        val queueMessage = generateQueueMessage(
+            report,
+            reportContents,
+            UniversalPipelineTestUtils.fhirSenderWithNoTransform,
+            "phd.x"
+        )
+        val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
+
+        // execute
+        fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
+
+        // check results
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            // check terminated lineage
+            val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1).single()
+            assertThat(routedReport.nextAction).isEqualTo(TaskAction.none)
+            assertThat(routedReport.bodyUrl).isNull()
+            assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
+            assertThat(routedReport.itemCount).isZero()
+
+            // check for no queue message
+            verify(exactly = 0) {
+                QueueAccess.sendMessage(any(), any())
+            }
+
+            // check events
+            assertThat(azureEventService.events).hasSize(1)
+            val bundle = FhirTranscoder.decode(reportContents)
+            assertThat(azureEventService.events.single())
+                .isInstanceOf<ReceiverFilterFailedEvent>()
+                .isEqualToIgnoringGivenProperties(
+                    ReceiverFilterFailedEvent(
+                        UUID.randomUUID(), // ignored
+                        report.id,
+                        report.id,
+                        Topic.FULL_ELR,
+                        "phd.Test Sender",
+                        receiver.fullName,
+                        AzureEventUtils.getObservationSummaries(bundle),
+                        noneConditionFilter,
+                        ReportStreamFilterType.CONDITION_FILTER,
+                        reportContents.length,
+                        AzureEventUtils.getIdentifier(bundle)
+                    ),
+                    ReceiverFilterFailedEvent::reportId
+                )
+
+            // check action table
+            UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.receiver_filter))
+        }
+    }
+
+    @Test
+    fun `should not send report where the only unpruned observations are AOE`() {
+        // set up
+        val receiverSetupData = listOf(
+            UniversalPipelineTestUtils.ReceiverSetupData(
+                "x",
+                jurisdictionalFilter = listOf("true"),
+                qualityFilter = listOf("true"),
+                routingFilter = listOf("true"),
+                conditionFilter = noneConditionFilter
+            )
+        )
+        val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
+        val receiver = receivers.single()
+        val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
+        val receiverFilter = createReceiverFilter(azureEventService, org)
+        val reportContents = File(ONE_CONDITION_4_AOE_FHIR_URL).readText()
         val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
