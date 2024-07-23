@@ -131,6 +131,7 @@ class FHIRConverter(
             // processedItems can be empty in two scenarios:
             // - the blob had no contents, i.e. an empty file was submitted
             // - the format is HL7 and the contents were not parseable, so the number of items is unknown
+            // - the format is unexpected like CSV
             if (processedItems.isNotEmpty()) {
                 return LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                     "Applied sender transform and routed"

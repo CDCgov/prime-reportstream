@@ -614,6 +614,7 @@ class FhirConverterTests {
             every { mockMessage.downloadContent() } returns "{\"id\":}"
             val processedItems = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
             assertThat(processedItems).hasSize(1)
+            assertThat(processedItems.first().bundle).isNull()
             assertThat(actionLogger.errors.map { it.detail.message }).contains(
                 @Suppress("ktlint:standard:max-line-length")
                 "Item 1 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected character ('}' (code 125)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n at [line: 1, column: 7]"
@@ -642,6 +643,7 @@ class FhirConverterTests {
             every { mockMessage.downloadContent() } returns "{\"id\":\"1\", \"resourceType\":\"Bundle\"}"
             val processedItems = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
             assertThat(processedItems).hasSize(1)
+            assertThat(processedItems.first().bundle).isNull()
             assertThat(actionLogger.errors.map { it.detail.message }).contains(
                 "Item 1 in the report was not valid. Reason: Validation failed"
             )
@@ -659,6 +661,7 @@ class FhirConverterTests {
             } returns unparseableHL7
             val processedItems = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(processedItems).hasSize(1)
+            assertThat(processedItems.first().bundle).isNull()
             assertThat(
                 actionLogger.errors.map {
                     it.detail.message
@@ -692,6 +695,7 @@ class FhirConverterTests {
             } returns simpleHL7
             val processedItems = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(processedItems).hasSize(1)
+            assertThat(processedItems.first().bundle).isNull()
             @Suppress("ktlint:standard:max-line-length")
             assertThat(
                 actionLogger.errors.map {
@@ -719,6 +723,7 @@ class FhirConverterTests {
             } returns simpleHL7
             val processedItems = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(processedItems).hasSize(1)
+            assertThat(processedItems.first().bundle).isNull()
             assertThat(
                 actionLogger.errors.map {
                     it.detail.message

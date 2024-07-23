@@ -108,7 +108,7 @@ class FHIRConverterIntegrationTests {
         return FHIRConverter(
             metadata,
             settings,
-            ReportStreamTestDatabaseContainer.testDatabaseAccess
+            ReportStreamTestDatabaseContainer.testDatabaseAccess,
         )
     }
 
