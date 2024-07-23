@@ -620,6 +620,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             // create JSON object for the BODY. This encodes "/" character as "//", needed for WA to accept as valid JSON
                             JSONObject().put("body", message.toString(Charsets.UTF_8)).toString()
                         }
+                        "application/hl7-v2" -> {
+                            // The following line doesn't work. It shows one seg on their server
+                            val filteredMsg = message.toString(Charsets.UTF_8).replace("\n", "\r").dropLast(1) + "\r"
+                            TextContent(filteredMsg, ContentType("application", "hl7-v2"))
+                        }
                         // NY Content-Type: multipart/form-data
                         "multipart/form-data" -> {
                             MultiPartFormDataContent(
