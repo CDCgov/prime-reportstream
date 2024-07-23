@@ -128,7 +128,7 @@ class FHIRConverter(
 
             val processedItems = process(format, queueMessage, actionLogger)
 
-            // processedItems can be empty in two scenarios:
+            // processedItems can be empty in three scenarios:
             // - the blob had no contents, i.e. an empty file was submitted
             // - the format is HL7 and the contents were not parseable, so the number of items is unknown
             // - the format is unexpected like CSV
