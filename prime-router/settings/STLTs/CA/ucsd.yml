@@ -46,7 +46,8 @@
           grant_type: "client_credentials"
           client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
           client_assertion: "client_secret"
-        headers: { }
+        headers:
+          Content-Type: "application/hl7-v2"
         authHeaders:
           Content-Type: "application/x-www-form-urlencoded"
         jwtParams:
