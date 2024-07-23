@@ -12,6 +12,11 @@ on:
         required: true
         type: string
 
+defaults:
+  run:
+    working-directory: frontend-react
+    shell: bash
+
 jobs:
   run_smoke:
     name: Frontend Smoke Tests
@@ -31,7 +36,6 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps
       - name: "Run frontend smoke tests"
-        working-directory: frontend-react
         env:
           TEST_ADMIN_USERNAME: ${{ github.event.inputs.username }}
           TEST_ADMIN_PASSWORD: ${{ github.event.inputs.password }}
@@ -39,7 +43,6 @@ jobs:
           echo "::group::E2E smoke tests"
           yarn run test:e2e-smoke
           echo "::endgroup::"
-        shell: bash
 
       - name: "Store E2E Results"
         uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b
