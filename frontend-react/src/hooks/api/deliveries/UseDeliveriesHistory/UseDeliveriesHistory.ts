@@ -46,7 +46,6 @@ const useDeliveriesHistory = (initialService?: string) => {
         () => (service ? `${adminSafeOrgName}.${service}` : `${adminSafeOrgName}`),
         [adminSafeOrgName, service],
     );
-
     // Pagination and filter props
     const filterManager = useFilterManager(filterManagerDefaults);
     const sortColumn = filterManager.sortSettings.column;
