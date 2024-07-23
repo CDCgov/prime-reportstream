@@ -8,7 +8,7 @@ const { mockSessionContentReturnValue } = await vi.importMock<
     typeof import("../../../../contexts/Session/__mocks__/useSessionContext")
 >("../../../../contexts/Session/useSessionContext");
 
-describe("useReportsList", () => {
+describe("useDeliveriesHistory", () => {
     beforeAll(() => deliveriesHistoryServer.listen());
     afterEach(() => deliveriesHistoryServer.resetHandlers());
     afterAll(() => deliveriesHistoryServer.close());

@@ -6,7 +6,7 @@ import { RSDeliveryHistory, RSDeliveryHistoryResponse } from "../config/endpoint
 
 const base = `${config.API_ROOT}/v1/waters/org`;
 
-/** TEST UTILITY - generates `RSReceiverDelivery[]`
+/** TEST UTILITY - generates `RSDeliveryHistory[]`
  *
  * @param id {string} Used to generate reportId. */
 export const makeRSReceiverDeliveryFixture = (
@@ -32,9 +32,9 @@ export const makeRSDeliveryFixtureArray = (count: number) => {
     return fixtures;
 };
 
-/** TEST UTILITY - generates `RSReceiverDeliveryResponse`, with the number of RSReceiverDelivery[] requested
+/** TEST UTILITY - generates `RSDeliveryHistoryResponse`, with the number of RSDeliveryHistory[] requested
  *
- * @param deliveryCount {number} How many unique RSReceiverDelivery you want. */
+ * @param deliveryCount {number} How many unique RSDeliveryHistory you want. */
 export const makeRSDeliveryHistoryResponseFixture = (
     deliveryCount: number,
     overrides?: Partial<RSDeliveryHistoryResponse>,
