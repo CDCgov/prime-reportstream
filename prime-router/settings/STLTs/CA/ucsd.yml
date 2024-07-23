@@ -49,3 +49,6 @@
         headers: { }
         authHeaders:
           Content-Type: "application/x-www-form-urlencoded"
+        jwtParams:
+          aud: "https://epicproxy-np.et0502.epichosted.com/FhirProxy/oauth2/token"
+          iss: "8f347aa4-2e06-4331-9349-750a8be10dce"
