@@ -69,11 +69,11 @@ elements:
     hl7Spec: [ '%{MSH}-21-4' ]
 
   - name: nh-relpaceDiiWithOid-18-3
-    condition: true
+    condition: 'Bundle.entry.resource.ofType(Observation).device.resolve().identifier.value.exists() and Bundle.entry.resource.ofType(Observation).device.resolve().identifier.value != ""'
     value: [ '"2.16.840.1.113883.3.3719"' ]
     hl7Spec: [ '%{OBX}-18-3' ]
 
   - name: nh-relpaceDiiWithOid-18-4
-    condition: true
+    condition: 'Bundle.entry.resource.ofType(Observation).device.resolve().identifier.value.exists() and Bundle.entry.resource.ofType(Observation).device.resolve().identifier.value != ""'
     value: [ '"ISO"' ]
     hl7Spec: [ '%{OBX}-18-4' ]
