@@ -39,13 +39,13 @@ const filterManagerDefaults: FilterManagerDefaults = {
 
 const useDeliveriesHistory = (initialService?: string) => {
     const [service, setService] = useState(initialService ?? "");
+    const [searchTerm, setSearchTerm] = useState("");
     const { activeMembership, authorizedFetch } = useSessionContext();
     const adminSafeOrgName = useAdminSafeOrganizationName(activeMembership?.parsedName); // "PrimeAdmins" -> "ignore"
     const orgAndService = useMemo(
         () => (service ? `${adminSafeOrgName}.${service}` : `${adminSafeOrgName}`),
         [adminSafeOrgName, service],
     );
-    const [searchTerm, setSearchTerm] = useState("");
 
     // Pagination and filter props
     const filterManager = useFilterManager(filterManagerDefaults);

@@ -49,6 +49,7 @@ export interface RSDeliveryHistoryResponse {
 /*
 Deliveries API Endpoints
 
+* getDeliveriesHistory -> Retrieves a filterable list of reports using orgAndService (ex: xx-phd.elr) or individual report by fileName or reportId
 * getOrgDeliveries -> Retrieves a list of reports using orgAndService (ex: xx-phd.elr)
 * getDeliveryDetails -> Retrieves details of a single report using a report id
 * getDeliveryFacilities -> Retrieves a list of facilities who contributed to a report by a report id
