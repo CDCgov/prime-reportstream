@@ -1,4 +1,4 @@
-name: Publish Container to GitHub
+name: Publish Images to GitHub
 
 on:
   workflow_dispatch:
@@ -10,6 +10,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  SFTP_IMAGE_NAME: cdcgov/prime-reportstream_sftp
 
 jobs:
   pre_job:
@@ -17,7 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       has_tfcli_change: ${{ steps.skip_check.outputs.tfcli && github.event_name != 'schedule'}}
-      has_dnsmasq_change: ${{ steps.skip_check.outputs.dnsmasq  || github.event_name == 'schedule'}}
+      has_dnsmasq_change: ${{ steps.skip_check.outputs.dnsmasq || github.event_name == 'schedule'}}
+      run_publish_sftp: ${{ steps.check_sftp_image.outputs.run_job }}
+      run_publish_sftp_alpine: ${{ steps.check_sftp_alpine_image.outputs.run_job }}
     steps:
       - name: "Check out changes"
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
@@ -26,29 +29,8 @@ jobs:
         with:
           list-files: csv
           filters: |
-            tfcli:
-              - 'operations/docker-compose.yml'
-              - 'operations/Dockerfile'
-              - '.github/workflows/build_docker.yml'
             dnsmasq:
               - 'operations/dnsmasq/**'
-
-  publish_tfcli:
-    name: Publish Terraform CLI
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_tfcli_change == 'true'}}
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: operations
-    env:
-      IMAGE_NAME: cdcgov/prime-reportstream_tfcli
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Check Out Changes
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
       - name: Log In to the Container Registry
         uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446
@@ -57,13 +39,37 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build Docker Terraform CLI
+      - name: Check sftp image
+        id: check_sftp_image
         run: |
-          make build-tf-cli
+          docker pull atmoz/sftp
+          docker pull ${{ env.REGISTRY }}/${{ env.SFTP_IMAGE_NAME }}
+          LATEST_IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' atmoz/sftp)
+          REPO_IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.REGISTRY }}/${{ env.SFTP_IMAGE_NAME }} 2> /dev/null || true)
 
-      - name: Push to the Container Registry
+          if [ "$LATEST_IMAGE_DIGEST" != "$REPO_IMAGE_DIGEST" ]; then
+            echo "image outdated"
+            echo "run_job=true" >> $GITHUB_OUTPUT
+          else
+            echo "image current"
+            echo "run_job=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check sftp alpine image
+        id: check_sftp_alpine_image
         run: |
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} --all-tags
+          docker pull atmoz/sftp:alpine
+          docker pull ${{ env.REGISTRY }}/${{ env.SFTP_IMAGE_NAME }}:alpine
+          LATEST_IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' atmoz/sftp:alpine)
+          REPO_IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.REGISTRY }}/${{ env.SFTP_IMAGE_NAME }}:alpine 2> /dev/null || true)
+
+          if [ "$LATEST_IMAGE_DIGEST" != "$REPO_IMAGE_DIGEST" ]; then
+            echo "image outdated"
+            echo "run_job=true" >> $GITHUB_OUTPUT
+          else
+            echo "image current"
+            echo "run_job=false" >> $GITHUB_OUTPUT
+          fi
 
   publish_dnsmasq:
     name: Publish dnsmasq
@@ -86,7 +92,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
       - name: Log In to the Container Registry
-        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -99,3 +105,59 @@ jobs:
       - name: Push to the Container Registry
         run: |
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} --all-tags
+
+  publish_sftp:
+    name: Publish SFTP
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.run_publish_sftp == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Log In to the Container Registry
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag Image
+        run: |
+          docker pull atmoz/sftp
+          docker tag atmoz/sftp  ${{ env.REGISTRY }}/${{ env.SFTP_IMAGE_NAME }}
+
+      - name: Push to the Container Registry
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ env.SFTP_IMAGE_NAME }} --all-tags
+
+  publish_sftp_alpine:
+    name: Publish SFTP Alpine
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.run_publish_sftp_alpine == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Log In to the Container Registry
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag Image
+        run: |
+          docker pull atmoz/sftp:alpine
+          docker tag atmoz/sftp:alpine  ${{ env.REGISTRY }}/${{ env.SFTP_IMAGE_NAME }}:alpine
+
+      - name: Push to the Container Registry
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ env.SFTP_IMAGE_NAME }}:alpine
