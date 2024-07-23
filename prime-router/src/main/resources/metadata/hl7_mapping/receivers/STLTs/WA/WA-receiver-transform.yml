@@ -127,7 +127,7 @@ elements:
     hl7Spec: [ '%{PID}-22-7' ]
 
   - name: wa-suppress-qst-for-aoe
-    condition: '%resource.meta.tag.code="AOE"'
+    condition: 'Bundle.entry.resource.ofType(Observation).code.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code").value.code = "AOE"'
     value: [ '""' ]
     hl7Spec: [ '%{hl7OBXField}-29' ]
 
