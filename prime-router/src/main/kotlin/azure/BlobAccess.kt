@@ -168,6 +168,10 @@ class BlobAccess() : Logging {
                 Event.EventAction.SEND -> "ready/$subfolderNameChecked$reportName.${bodyFormat.ext}"
                 Event.EventAction.BATCH -> "batch/$subfolderNameChecked$reportName.${bodyFormat.ext}"
                 Event.EventAction.PROCESS -> "process/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+                Event.EventAction.DESTINATION_FILTER ->
+                    "destination-filter/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+                Event.EventAction.RECEIVER_FILTER ->
+                    "receiver-filter/$subfolderNameChecked$reportName.${bodyFormat.ext}"
                 Event.EventAction.ROUTE -> "route/$subfolderNameChecked$reportName.${bodyFormat.ext}"
                 Event.EventAction.TRANSLATE -> "translate/$subfolderNameChecked$reportName.${bodyFormat.ext}"
                 Event.EventAction.NONE -> "none/$subfolderNameChecked$reportName.${bodyFormat.ext}"
