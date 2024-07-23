@@ -4,24 +4,20 @@ import { getReportAndDownload } from "./ReportsUtils";
 import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
 import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 import Spinner from "../../../components/Spinner";
-import TableFilters, {
-    TableFilterDateLabel,
-} from "../../../components/Table/TableFilters";
+import TableFilters, { TableFilterDateLabel } from "../../../components/Table/TableFilters";
 import { USLink } from "../../../components/USLink";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import useSessionContext from "../../../contexts/Session/useSessionContext";
-import useDeliveriesHistory from "../../../hooks/api/deliveries/UseDeliveriesHistory/UseDeliveriesHistory";
-import { DeliveriesDataAttr } from "../../../hooks/api/deliveries/UseOrgDeliveries/UseOrgDeliveries";
+import useDeliveriesHistory, {
+    DeliveriesDataAttr,
+} from "../../../hooks/api/deliveries/UseDeliveriesHistory/UseDeliveriesHistory";
 import useOrganizationReceivers from "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers";
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder/UseSortOrder";
 import useAppInsightsContext from "../../../hooks/UseAppInsightsContext/UseAppInsightsContext";
 import Table from "../../../shared/Table/Table";
 import { EventName } from "../../../utils/AppInsights";
-import {
-    formatDateWithoutSeconds,
-    isDateExpired,
-} from "../../../utils/DateTimeUtils";
+import { formatDateWithoutSeconds, isDateExpired } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
 
 const DeliveriesFilterAndTable = ({
@@ -44,14 +40,9 @@ const DeliveriesFilterAndTable = ({
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
     const currentPageNum = filterManager.pageSettings.currentPage;
     const handleFetchAndDownload = (id: string) => {
-        getReportAndDownload(
-            id,
-            authState.accessToken?.accessToken ?? "",
-            activeMembership?.parsedName ?? "",
-        );
+        getReportAndDownload(id, authState.accessToken?.accessToken ?? "", activeMembership?.parsedName ?? "");
     };
-    if (isOrgReceiversLoading || isDeliveriesHistoryLoading || !results)
-        return <Spinner />;
+    if (isOrgReceiversLoading || isDeliveriesHistoryLoading || !results) return <Spinner />;
 
     const receiverDropdown = [
         ...new Set(
@@ -79,34 +70,20 @@ const DeliveriesFilterAndTable = ({
         {
             columnKey: DeliveriesDataAttr.REPORT_ID,
             columnHeader: "Report ID",
-            content: (
-                <USLink href={`/report-details/${dataRow.reportId}`}>
-                    {dataRow.reportId}
-                </USLink>
-            ),
+            content: <USLink href={`/report-details/${dataRow.reportId}`}>{dataRow.reportId}</USLink>,
         },
         {
-            columnKey: DeliveriesDataAttr.BATCH_READY,
+            columnKey: DeliveriesDataAttr.CREATED_AT,
             columnHeader: "Time received",
-            content: (
-                <p className="font-mono-2xs">
-                    {formatDateWithoutSeconds(dataRow.createdAt)}
-                </p>
-            ),
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesDataAttr.BATCH_READY),
+            content: <p className="font-mono-2xs">{formatDateWithoutSeconds(dataRow.createdAt)}</p>,
+            columnCustomSort: () => onColumnCustomSort(DeliveriesDataAttr.CREATED_AT),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
-            columnKey: DeliveriesDataAttr.EXPIRES,
+            columnKey: DeliveriesDataAttr.EXPIRES_AT,
             columnHeader: "File available until",
-            content: (
-                <p className="font-mono-2xs">
-                    {formatDateWithoutSeconds(dataRow.expiresAt)}
-                </p>
-            ),
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesDataAttr.EXPIRES),
+            content: <p className="font-mono-2xs">{formatDateWithoutSeconds(dataRow.expiresAt)}</p>,
+            columnCustomSort: () => onColumnCustomSort(DeliveriesDataAttr.EXPIRES_AT),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
@@ -174,9 +151,7 @@ const DeliveriesFilterAndTable = ({
                             currentPage={currentPageNum}
                             pathname=""
                             onClickPageNumber={(e) => {
-                                const pageNumValue = parseInt(
-                                    (e.target as HTMLElement).innerText,
-                                );
+                                const pageNumValue = parseInt((e.target as HTMLElement).innerText);
                                 filterManager.updatePage({
                                     type: PageSettingsActionType.SET_PAGE,
                                     payload: { page: pageNumValue },
@@ -204,18 +179,12 @@ const DeliveriesFilterAndTable = ({
 };
 
 export function DailyData() {
-    const { isLoading, isDisabled, activeReceivers } =
-        useOrganizationReceivers();
+    const { isLoading, isDisabled, activeReceivers } = useOrganizationReceivers();
 
     if (isDisabled) {
         return <AdminFetchAlert />;
     }
-    return (
-        <DeliveriesFilterAndTable
-            isOrgReceiversLoading={isLoading}
-            services={activeReceivers}
-        />
-    );
+    return <DeliveriesFilterAndTable isOrgReceiversLoading={isLoading} services={activeReceivers} />;
 }
 
 export default DailyData;

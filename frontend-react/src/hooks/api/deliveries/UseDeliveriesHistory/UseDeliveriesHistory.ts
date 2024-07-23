@@ -1,22 +1,17 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { validate as uuidValidate } from "uuid";
-import {
-    deliveriesEndpoints,
-    RSDeliveryHistoryResponse,
-} from "../../../../config/endpoints/deliveries";
+import { deliveriesEndpoints, RSDeliveryHistoryResponse } from "../../../../config/endpoints/deliveries";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
-import useFilterManager, {
-    FilterManagerDefaults,
-} from "../../../filters/UseFilterManager/UseFilterManager";
+import useFilterManager, { FilterManagerDefaults } from "../../../filters/UseFilterManager/UseFilterManager";
 import useAdminSafeOrganizationName from "../../../UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
 
 const { getDeliveriesHistory } = deliveriesEndpoints;
 
 export enum DeliveriesDataAttr {
     REPORT_ID = "reportId",
-    BATCH_READY = "batchReadyAt",
-    EXPIRES = "expires",
+    CREATED_AT = "createdAt",
+    EXPIRES_AT = "expiresAt",
     ITEM_COUNT = "reportItemCount",
     FILE_NAME = "fileName",
     RECEIVER = "receiver",
@@ -30,13 +25,11 @@ export type SearchParams =
           fileName: string;
       };
 
-export type SearchFetcher<T> = (
-    additionalParams?: SearchParams,
-) => Promise<T[]>;
+export type SearchFetcher<T> = (additionalParams?: SearchParams) => Promise<T[]>;
 
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
-        column: DeliveriesDataAttr.BATCH_READY,
+        column: DeliveriesDataAttr.CREATED_AT,
         locally: true,
     },
     pageDefaults: {
@@ -47,12 +40,9 @@ const filterManagerDefaults: FilterManagerDefaults = {
 const useDeliveriesHistory = (initialService?: string) => {
     const [service, setService] = useState(initialService ?? "");
     const { activeMembership, authorizedFetch } = useSessionContext();
-    const adminSafeOrgName = useAdminSafeOrganizationName(
-        activeMembership?.parsedName,
-    ); // "PrimeAdmins" -> "ignore"
+    const adminSafeOrgName = useAdminSafeOrganizationName(activeMembership?.parsedName); // "PrimeAdmins" -> "ignore"
     const orgAndService = useMemo(
-        () =>
-            service ? `${adminSafeOrgName}.${service}` : `${adminSafeOrgName}`,
+        () => (service ? `${adminSafeOrgName}.${service}` : `${adminSafeOrgName}`),
         [adminSafeOrgName, service],
     );
     const [searchTerm, setSearchTerm] = useState("");
@@ -121,13 +111,7 @@ const useDeliveriesHistory = (initialService?: string) => {
         sortDirection,
     ]);
     const { data } = useSuspenseQuery({
-        queryKey: [
-            getDeliveriesHistory.queryKey,
-            activeMembership,
-            orgAndService,
-            filterManager,
-            searchTerm,
-        ],
+        queryKey: [getDeliveriesHistory.queryKey, activeMembership, orgAndService, filterManager, searchTerm],
         queryFn: memoizedDataFetch,
     });
 
