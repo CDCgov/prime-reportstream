@@ -5,11 +5,9 @@ import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.accept
 import io.ktor.client.request.forms.submitForm
-import io.ktor.client.request.header
 import io.ktor.client.request.headers
 import io.ktor.client.request.parameter
 import io.ktor.client.request.request
@@ -18,6 +16,7 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.Parameters
+import io.ktor.http.append
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.runBlocking
@@ -34,16 +33,6 @@ class HttpClientUtils {
         @Volatile
         private var httpClient: HttpClient? = null
 
-        @Volatile
-        private var httpClientWithAuth: HttpClient? = null
-
-        // the httpClient object does not provide a direct means of inspecting its configuration and we need to know
-        // what auth token was supplied to the existing client so we can make a determination as to whether or not to
-        // return the existing object or return a new one. While the raw token is already in memory as a member of the
-        // httpClientWithAuth object and the risk is very low we're using the hash for defense-in-depth purposes.
-        @Volatile
-        private var accessTokenHash: Int = 0
-
         /**
          * timeout for http calls
          */
@@ -56,8 +45,6 @@ class HttpClientUtils {
          */
         internal fun reset() {
             httpClient = null
-            httpClientWithAuth = null
-            accessTokenHash = 0
         }
 
         /**
@@ -175,7 +162,7 @@ class HttpClientUtils {
         /**
          * PUT (modify resource) operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param tokens: null default, the access token needed to call the endpoint
+         * @param accessToken: null default, the access token needed to call the endpoint
          * @param headers: null default, the headers of the request
          * @param acceptedContent: default application/json the accepted content type
          * @param timeout: default to a system base value in millis
@@ -340,7 +327,7 @@ class HttpClientUtils {
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                (httpClient ?: getDefaultHttpClient(accessToken)).submitForm(
+                (httpClient ?: getDefaultHttpClient()).submitForm(
                     url,
                     formParameters = Parameters.build {
                         formParams?.forEach { param ->
@@ -359,7 +346,11 @@ class HttpClientUtils {
                             }
                         }
                     }
-
+                    accessToken?.let {
+                        headers {
+                            append("Authorization", "Bearer $accessToken")
+                        }
+                    }
                     accept(acceptedContent)
                 }
             }
@@ -524,22 +515,26 @@ class HttpClientUtils {
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                (httpClient ?: getDefaultHttpClient(accessToken)).request(url) {
+                (httpClient ?: getDefaultHttpClient()).request(url) {
                     this.method = method
                     timeout {
                         requestTimeoutMillis = timeout
                     }
                     url {
                         queryParameters?.forEach {
-                            parameter(it.key, it.value.toString())
+                            parameter(it.key, it.value)
                         }
                     }
-
                     headers?.let {
                         headers {
                             headers.forEach {
                                 append(it.key, it.value)
                             }
+                        }
+                    }
+                    accessToken?.let {
+                        headers {
+                            append("Authorization", "Bearer $accessToken")
                         }
                     }
                     acceptedContent?.let {
@@ -561,84 +556,30 @@ class HttpClientUtils {
          * @param bearerTokens the access token needed to call the endpoint
          * @return a HttpClient with all sensible defaults
          */
-        fun getDefaultHttpClient(accessToken: String?): HttpClient {
+        fun getDefaultHttpClient(): HttpClient {
             synchronized(this) {
-                if (accessToken != null) {
-                    /*
-                     * Java and Kotlin both use pass-by-value with reference copy to pass arguments to a
-                     * method. There is therefore NO risk of one caller having an httpClientWithAuth obj change out
-                     * from under them by a subsequent caller who provides a different auth token. This speaks to the
-                     * thread-safety concern re: what happens when a caller requests an httpClientWithAuth obj with one
-                     * auth token and, before that client is able to use the client obj, a second caller requests
-                     * client obj with a different auth token which results in the httpClientWithAuth obj in this
-                     * companion class to change.
-                     */
-                    return getDefaultHttpClientWithAuth(accessToken)
-                } else {
-                    httpClient ?: HttpClient(Apache) {
-                        install(ContentNegotiation) {
-                                json(
-                                    Json {
-                                        prettyPrint = true
-                                        isLenient = true
-                                        ignoreUnknownKeys = true
-                                    }
-                                )
-                            }
-                        install(HttpTimeout)
-                        engine {
-                                followRedirects = true
-                                socketTimeout = TIMEOUT
-                                connectTimeout = TIMEOUT
-                                connectionRequestTimeout = TIMEOUT
-                            }
-                    }.also {
-                        httpClient = it
-                    }
-                    return httpClient!!
-                }
-            }
-        }
-
-        /**
-         * Called by getDefaultHttpClient as a helper to handle clients with auth tokens. Caller is expected to handle
-         * thread safety where object creation and fetching is concerned by way of calling this method within a
-         * "synchronized" block. This method ensures returned auth client can be reused if possible. Where not possible
-         * (ie - the provided token doesn't match the hash of the auth token in the existing auth client), a new one is
-         * created and the hash of the new auth token is stored. The goal is to reuse the existing auth client obj as
-         * much as possible while ensuring callers are always using a client obj with the auth token they expect to be
-         * using.
-         *
-         * @param bearerTokens the access token needed to call the endpoint
-         * @return a HttpClient with all sensible defaults
-         */
-        private fun getDefaultHttpClientWithAuth(accessToken: String): HttpClient {
-            if (accessTokenHash != accessToken.hashCode()) {
-                accessTokenHash = accessToken.hashCode()
-                httpClientWithAuth = HttpClient(Apache) {
-                    // not using Bearer Auth handler due to refresh token behavior
-                    defaultRequest {
-                        header("Authorization", "Bearer $accessToken")
-                    }
+                httpClient ?: HttpClient(Apache) {
                     install(ContentNegotiation) {
-                        json(
-                            Json {
-                                prettyPrint = true
-                                isLenient = true
-                                ignoreUnknownKeys = true
-                            }
-                        )
+                            json(
+                                Json {
+                                    prettyPrint = true
+                                    isLenient = true
+                                    ignoreUnknownKeys = true
+                                }
+                            )
                     }
                     install(HttpTimeout)
                     engine {
-                        followRedirects = true
-                        socketTimeout = TIMEOUT
-                        connectTimeout = TIMEOUT
-                        connectionRequestTimeout = TIMEOUT
+                            followRedirects = true
+                            socketTimeout = TIMEOUT
+                            connectTimeout = TIMEOUT
+                            connectionRequestTimeout = TIMEOUT
                     }
+                }.also {
+                    httpClient = it
                 }
+                return httpClient!!
             }
-            return httpClientWithAuth!!
         }
     }
 }
