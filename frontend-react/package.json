@@ -8,7 +8,7 @@
     "@microsoft/applicationinsights-react-js": "^17.3.0",
     "@microsoft/applicationinsights-web": "^3.3.0",
     "@okta/okta-react": "^6.9.0",
-    "@okta/okta-signin-widget": "^7.19.6",
+    "@okta/okta-signin-widget": "^7.20.1",
     "@rest-hooks/rest": "^3.0.3",
     "@tanstack/react-query": "^5.49.2",
     "@tanstack/react-query-devtools": "^5.49.2",
