@@ -33,6 +33,10 @@
                 "valueString" : "20240403205305+0000"
               },
               {
+                "url" : "MSH.10",
+                "valueString" : "20240403205305_dba7572cc6334f1ea0744c5f235c823e"
+              },
+              {
                 "url" : "MSH.15",
                 "valueString" : "NE"
               },
@@ -471,6 +475,17 @@
         ],
         "address" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                "extension" : [
+                  {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  }
+                ]
+              }
+            ],
             "city" : "ROCINANTE",
             "state" : "IG",
             "postalCode" : "02139",
@@ -1047,6 +1062,17 @@
               {
                 "url" : "orc-22-ordering-facility-address",
                 "valueAddress" : {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                      "extension" : [
+                        {
+                          "url" : "XAD.6",
+                          "valueString" : "USA"
+                        }
+                      ]
+                    }
+                  ],
                   "state" : "IG",
                   "postalCode" : "12345",
                   "country" : "USA"
@@ -1090,6 +1116,10 @@
               {
                 "url" : "OBR.22",
                 "valueString" : "20240403120000-0400"
+              },
+              {
+                "url" : "OBR.25",
+                "valueId" : "F"
               },
               {
                 "url" : "OBR.16",
@@ -1237,6 +1267,17 @@
         ],
         "address" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                "extension" : [
+                  {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  }
+                ]
+              }
+            ],
             "state" : "IG",
             "postalCode" : "12345",
             "country" : "USA"

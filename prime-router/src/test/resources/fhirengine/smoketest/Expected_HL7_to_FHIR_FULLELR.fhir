@@ -37,6 +37,10 @@
                 "valueString" : "20280808092805-0600"
               },
               {
+                "url" : "MSH.10",
+                "valueString" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+              },
+              {
                 "url" : "MSH.21",
                 "valueIdentifier" : {
                   "extension" : [
@@ -1025,6 +1029,10 @@
                     "valueString" : "CHERRY CRK NURSING CTR"
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "H"
                   }
@@ -1169,6 +1177,10 @@
                           "valueString" : "4861 20TH AVE"
                         }
                       ]
+                    },
+                    {
+                      "url" : "XAD.6",
+                      "valueString" : "USA"
                     },
                     {
                       "url" : "XAD.7",
@@ -1340,6 +1352,10 @@
                           "valueString" : "4861 20TH AVE"
                         }
                       ]
+                    },
+                    {
+                      "url" : "XAD.6",
+                      "valueString" : "USA"
                     },
                     {
                       "url" : "XAD.7",
@@ -1601,6 +1617,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "H"
                   }
@@ -1633,6 +1653,10 @@
                         "valueString" : "4861 20TH AVE"
                       }
                     ]
+                  },
+                  {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -2831,6 +2855,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -2980,22 +3008,6 @@
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
                   "valueString" : "SCT"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding" : {
-                    "system" : "SNOMEDCT",
-                    "code" : "406575008",
-                    "display" : "Infection caused by vancomycin resistant enterococcus (disorder)"
-                  }
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding" : {
-                    "system" : "SNOMEDCT",
-                    "code" : "406575008",
-                    "display" : "Infection caused by vancomycin resistant enterococcus (disorder)"
-                  }
                 }
               ],
               "system" : "http://snomed.info/sct",
@@ -3195,6 +3207,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -3344,14 +3360,6 @@
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
                   "valueString" : "SCT"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding" : {
-                    "system" : "SNOMEDCT",
-                    "code" : "45170000",
-                    "display" : "Encephalitis (disorder)"
-                  }
                 }
               ],
               "system" : "http://snomed.info/sct",
@@ -4327,6 +4335,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -4698,6 +4710,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -5045,6 +5061,10 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
+                  },
+                  {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -5432,6 +5452,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -5779,6 +5803,10 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
+                  },
+                  {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -6166,6 +6194,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -6513,6 +6545,10 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
+                  },
+                  {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -7945,6 +7981,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -8326,6 +8366,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -8681,6 +8725,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -9034,6 +9082,10 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
+                  },
+                  {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -9398,6 +9450,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -9751,6 +9807,10 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
+                  },
+                  {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -10108,6 +10168,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -10461,6 +10525,10 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
+                  },
+                  {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -10818,6 +10886,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -11173,6 +11245,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -11526,6 +11602,10 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
+                  },
+                  {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -11928,6 +12008,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -12328,6 +12412,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -12714,6 +12802,10 @@
                         "valueString" : "4567 E. NINTH AVENUE"
                       }
                     ]
+                  },
+                  {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -13116,6 +13208,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -13504,6 +13600,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -13646,14 +13746,6 @@
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
                   "valueString" : "LN"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding" : {
-                    "system" : "SNOMEDCT",
-                    "code" : "406604002",
-                    "display" : "Infection caused by vancomycin intermediate Staphylococcus aureus (disorder)"
-                  }
                 }
               ],
               "system" : "http://loinc.org",
@@ -13910,6 +14002,10 @@
                         "valueString" : "4567 E. NINTH AVENUE"
                       }
                     ]
+                  },
+                  {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -14865,6 +14961,10 @@
                           ]
                         },
                         {
+                          "url" : "XAD.6",
+                          "valueString" : "USA"
+                        },
+                        {
                           "url" : "XAD.7",
                           "valueCode" : "B"
                         }
@@ -14897,6 +14997,10 @@
                               "valueString" : "5600 S Quebec St #312A"
                             }
                           ]
+                        },
+                        {
+                          "url" : "XAD.6",
+                          "valueString" : "USA"
                         },
                         {
                           "url" : "XAD.7",
@@ -15000,6 +15104,10 @@
               {
                 "url" : "OBR.22",
                 "valueString" : "20210810062500-0600"
+              },
+              {
+                "url" : "OBR.25",
+                "valueId" : "P"
               },
               {
                 "url" : "OBR.10",
@@ -15725,6 +15833,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -15880,6 +15992,10 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
+                  },
+                  {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -16215,6 +16331,10 @@
                           ]
                         },
                         {
+                          "url" : "XAD.6",
+                          "valueString" : "USA"
+                        },
+                        {
                           "url" : "XAD.7",
                           "valueCode" : "B"
                         }
@@ -16247,6 +16367,10 @@
                               "valueString" : "5600 S Quebec St #312A"
                             }
                           ]
+                        },
+                        {
+                          "url" : "XAD.6",
+                          "valueString" : "USA"
                         },
                         {
                           "url" : "XAD.7",
@@ -16350,6 +16474,10 @@
               {
                 "url" : "OBR.22",
                 "valueString" : "20210810062500-0600"
+              },
+              {
+                "url" : "OBR.25",
+                "valueId" : "P"
               },
               {
                 "url" : "OBR.10",
@@ -17075,6 +17203,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -17230,6 +17362,10 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
+                  },
+                  {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -17565,6 +17701,10 @@
                           ]
                         },
                         {
+                          "url" : "XAD.6",
+                          "valueString" : "USA"
+                        },
+                        {
                           "url" : "XAD.7",
                           "valueCode" : "B"
                         }
@@ -17597,6 +17737,10 @@
                               "valueString" : "5600 S Quebec St #312A"
                             }
                           ]
+                        },
+                        {
+                          "url" : "XAD.6",
+                          "valueString" : "USA"
                         },
                         {
                           "url" : "XAD.7",
@@ -17700,6 +17844,10 @@
               {
                 "url" : "OBR.22",
                 "valueString" : "20210810062500-0600"
+              },
+              {
+                "url" : "OBR.25",
+                "valueId" : "P"
               },
               {
                 "url" : "OBR.10",
@@ -18425,6 +18573,10 @@
                     ]
                   },
                   {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
+                  },
+                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -18580,6 +18732,10 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
+                  },
+                  {
+                    "url" : "XAD.6",
+                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -18887,6 +19043,10 @@
               {
                 "url" : "OBR.22",
                 "valueString" : "20210810062500-0600"
+              },
+              {
+                "url" : "OBR.25",
+                "valueId" : "P"
               },
               {
                 "url" : "OBR.26",
@@ -19364,6 +19524,10 @@
               {
                 "url" : "OBR.22",
                 "valueString" : "20210810062500-0600"
+              },
+              {
+                "url" : "OBR.25",
+                "valueId" : "P"
               },
               {
                 "url" : "OBR.26",
