@@ -1,19 +1,87 @@
-import { expect, Page } from "@playwright/test";
+import {
+    BasePage,
+    BasePageTestArgs,
+    type RouteHandlerFulfillEntry,
+} from "./BasePage";
+import { API_WATERS_REPORT, URL_REPORT_DETAILS } from "./report-details";
+import { RSDelivery, RSFacility } from "../../src/config/endpoints/deliveries";
+import { MOCK_GET_DELIVERY } from "../mocks/delivery";
+import { MOCK_GET_FACILITIES } from "../mocks/facilities";
 
-export async function title(page: Page) {
-    await expect(page).toHaveTitle(
-        /ReportStream - CDC's free, interoperable data transfer platform/,
-    );
-}
+const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
 
-export async function tableHeaders(page: Page) {
-    await expect(page.locator(".usa-table th").nth(0)).toHaveText(/Facility/);
-    await expect(page.locator(".usa-table th").nth(1)).toHaveText(/Location/);
-    await expect(page.locator(".usa-table th").nth(2)).toHaveText(/CLIA/);
-    await expect(page.locator(".usa-table th").nth(3)).toHaveText(
-        /Total tests/,
-    );
-    await expect(page.locator(".usa-table th").nth(4)).toHaveText(
-        /Total positive/,
-    );
+export class DailyDataDetailsPage extends BasePage {
+    static readonly API_DELIVERY = `${API_WATERS_REPORT}/${id}/delivery`;
+    static readonly API_FACILITIES = `${API_WATERS_REPORT}/${id}/facilities`;
+    protected _reportDelivery: RSDelivery;
+    protected _facilities: RSFacility[];
+
+    constructor(testArgs: BasePageTestArgs) {
+        super(
+            {
+                url: `${URL_REPORT_DETAILS}/${id}`,
+                title: "Daily Data - ReportStream",
+                heading: testArgs.page.getByRole("heading", {
+                    name: "Daily Data Details",
+                }),
+            },
+            testArgs,
+        );
+
+        this._reportDelivery = {
+            batchReadyAt: "",
+            deliveryId: 0,
+            expires: "",
+            fileName: "",
+            fileType: "",
+            receiver: "",
+            reportId: "",
+            reportItemCount: 0,
+            topic: "",
+        };
+        this._facilities = [];
+        this.addResponseHandlers([
+            [
+                DailyDataDetailsPage.API_DELIVERY,
+                async (res) => (this._reportDelivery = await res.json()),
+            ],
+            [
+                DailyDataDetailsPage.API_FACILITIES,
+                async (res) => (this._facilities = await res.json()),
+            ],
+        ]);
+        this.addMockRouteHandlers([
+            this.createMockDeliveryHandler(),
+            this.createMockFacilitiesHandler(),
+        ]);
+    }
+
+    get isPageLoadExpected() {
+        return (
+            super.isPageLoadExpected &&
+            this.testArgs.storageState === this.testArgs.adminLogin.path
+        );
+    }
+
+    createMockDeliveryHandler(): RouteHandlerFulfillEntry {
+        return [
+            DailyDataDetailsPage.API_DELIVERY,
+            () => {
+                return {
+                    json: MOCK_GET_DELIVERY,
+                };
+            },
+        ];
+    }
+
+    createMockFacilitiesHandler(): RouteHandlerFulfillEntry {
+        return [
+            DailyDataDetailsPage.API_FACILITIES,
+            () => {
+                return {
+                    json: MOCK_GET_FACILITIES,
+                };
+            },
+        ];
+    }
 }
