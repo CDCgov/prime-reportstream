@@ -16,6 +16,11 @@ env:
   TEST_RECEIVER_USERNAME: ${{ secrets.TEST_RECEIVER_USERNAME }}
   TEST_RECEIVER_PASSWORD: ${{ secrets.TEST_RECEIVER_PASSWORD }}
 
+defaults:
+  run:
+    working-directory: frontend-react
+    shell: bash
+
 jobs:
   run_smoke:
     name: Frontend Smoke Tests
