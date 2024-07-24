@@ -33,7 +33,6 @@ const test = baseTest.extend<AdminReceiverStatusPageFixtures>({
             storageState,
             isFrontendWarningsLog,
             frontendWarningsLogPath,
-            isTestOrg: true,
         });
         await page.goto();
         await use(page);
@@ -79,237 +78,178 @@ test.describe("Admin Receiver Status Page", () => {
             ).toBeVisible();
         });
 
-        test(
-            "Has correct title",
-            {
-                tag: "@smoke",
-            },
-            async ({ adminReceiverStatusPage }) => {
-                await expect(adminReceiverStatusPage.page).toHaveURL(
-                    adminReceiverStatusPage.url,
-                );
-                await expect(adminReceiverStatusPage.page).toHaveTitle(
-                    adminReceiverStatusPage.title,
-                );
-            },
-        );
+        test("Has correct title", async ({ adminReceiverStatusPage }) => {
+            await expect(adminReceiverStatusPage.page).toHaveURL(
+                adminReceiverStatusPage.url,
+            );
+            await expect(adminReceiverStatusPage.page).toHaveTitle(
+                adminReceiverStatusPage.title,
+            );
+        });
 
         test.describe("When there is no error", () => {
-            test.describe(
-                "Displays correctly",
-                {
-                    tag: "@smoke",
-                },
-                () => {
-                    test("header", async ({ adminReceiverStatusPage }) => {
-                        await expect(
-                            adminReceiverStatusPage.heading,
-                        ).toBeVisible();
+            test.describe("Displays correctly", () => {
+                test("header", async ({ adminReceiverStatusPage }) => {
+                    await expect(adminReceiverStatusPage.heading).toBeVisible();
+                });
+
+                test.describe("filters", () => {
+                    test("date range", async ({ adminReceiverStatusPage }) => {
+                        const { button, label, modalOverlay, valueDisplay } =
+                            adminReceiverStatusPage.filterFormInputs.dateRange;
+                        await expect(label).toBeVisible();
+                        await expect(button).toBeVisible();
+                        await expect(valueDisplay).toHaveText(
+                            adminReceiverStatusPage.expectedDateRangeLabelText,
+                        );
+                        await expect(modalOverlay).toBeHidden();
                     });
+                    test("receiver name", async ({
+                        adminReceiverStatusPage,
+                    }) => {
+                        const {
+                            input,
+                            expectedTooltipText,
+                            label,
+                            tooltip,
+                            expectedDefaultValue,
+                        } =
+                            adminReceiverStatusPage.filterFormInputs
+                                .receiverName;
+                        await expect(label).toBeVisible();
+                        await expect(input).toBeVisible();
+                        await expect(input).toHaveValue(expectedDefaultValue);
 
-                    test.describe(
-                        "filters",
-                        {
-                            tag: "@smoke",
-                        },
-                        () => {
-                            test("date range", async ({
-                                adminReceiverStatusPage,
-                            }) => {
-                                const {
-                                    button,
-                                    label,
-                                    modalOverlay,
-                                    valueDisplay,
-                                } =
-                                    adminReceiverStatusPage.filterFormInputs
-                                        .dateRange;
-                                await expect(label).toBeVisible();
-                                await expect(button).toBeVisible();
-                                await expect(valueDisplay).toHaveText(
-                                    adminReceiverStatusPage.expectedDateRangeLabelText,
-                                );
-                                await expect(modalOverlay).toBeHidden();
-                            });
+                        await expect(tooltip).toBeHidden();
+                        await input.hover();
+                        await expect(tooltip).toBeVisible();
+                        await expect(tooltip).toHaveText(expectedTooltipText);
+                    });
+                    test("results message", async ({
+                        adminReceiverStatusPage,
+                    }) => {
+                        const {
+                            input,
+                            expectedTooltipText,
+                            label,
+                            tooltip,
+                            expectedDefaultValue,
+                        } =
+                            adminReceiverStatusPage.filterFormInputs
+                                .resultMessage;
+                        await expect(label).toBeVisible();
+                        await expect(input).toBeVisible();
+                        await expect(input).toHaveValue(expectedDefaultValue);
 
-                            test("receiver name", async ({
-                                adminReceiverStatusPage,
-                            }) => {
-                                const {
-                                    input,
-                                    expectedTooltipText,
-                                    label,
-                                    tooltip,
-                                    expectedDefaultValue,
-                                } =
-                                    adminReceiverStatusPage.filterFormInputs
-                                        .receiverName;
-                                await expect(label).toBeVisible();
-                                await expect(input).toBeVisible();
-                                await expect(input).toHaveValue(
-                                    expectedDefaultValue,
-                                );
+                        await expect(tooltip).toBeHidden();
+                        await input.hover();
+                        await expect(tooltip).toBeVisible();
+                        await expect(tooltip).toHaveText(expectedTooltipText);
+                    });
+                    test("success type", async ({
+                        adminReceiverStatusPage,
+                    }) => {
+                        const {
+                            input,
+                            expectedTooltipText,
+                            label,
+                            tooltip,
+                            expectedDefaultValue,
+                        } =
+                            adminReceiverStatusPage.filterFormInputs
+                                .successType;
+                        await expect(label).toBeVisible();
+                        await expect(input).toBeVisible();
+                        await expect(input).toHaveValue(expectedDefaultValue);
 
-                                await expect(tooltip).toBeHidden();
-                                await input.hover();
-                                await expect(tooltip).toBeVisible();
-                                await expect(tooltip).toHaveText(
-                                    expectedTooltipText,
-                                );
-                            });
+                        await expect(tooltip).toBeHidden();
+                        await input.hover();
+                        await expect(tooltip).toBeVisible();
+                        await expect(tooltip).toHaveText(expectedTooltipText);
+                    });
+                });
 
-                            test("results message", async ({
-                                adminReceiverStatusPage,
-                            }) => {
-                                const {
-                                    input,
-                                    expectedTooltipText,
-                                    label,
-                                    tooltip,
-                                    expectedDefaultValue,
-                                } =
-                                    adminReceiverStatusPage.filterFormInputs
-                                        .resultMessage;
-                                await expect(label).toBeVisible();
-                                await expect(input).toBeVisible();
-                                await expect(input).toHaveValue(
-                                    expectedDefaultValue,
-                                );
-
-                                await expect(tooltip).toBeHidden();
-                                await input.hover();
-                                await expect(tooltip).toBeVisible();
-                                await expect(tooltip).toHaveText(
-                                    expectedTooltipText,
-                                );
-                            });
-
-                            test("success type", async ({
-                                adminReceiverStatusPage,
-                            }) => {
-                                const {
-                                    input,
-                                    expectedTooltipText,
-                                    label,
-                                    tooltip,
-                                    expectedDefaultValue,
-                                } =
-                                    adminReceiverStatusPage.filterFormInputs
-                                        .successType;
-                                await expect(label).toBeVisible();
-                                await expect(input).toBeVisible();
-                                await expect(input).toHaveValue(
-                                    expectedDefaultValue,
-                                );
-
-                                await expect(tooltip).toBeHidden();
-                                await input.hover();
-                                await expect(tooltip).toBeVisible();
-                                await expect(tooltip).toHaveText(
-                                    expectedTooltipText,
-                                );
-                            });
-                        },
-                    );
-
-                    // Failures here indicate potential misalignment of playwright/browser timezone
-                    test.describe(
-                        "receiver statuses",
-                        {
-                            tag: "@smoke",
-                        },
-                        () => {
-                            test("time periods", async ({
-                                adminReceiverStatusPage,
-                            }) => {
-                                const result =
-                                    await adminReceiverStatusPage.testReceiverStatusDisplay();
-                                expect(result).toBe(true);
-                            });
-                        },
-                    );
-                },
-            );
+                // Failures here indicate potential misalignment of playwright/browser timezone
+                test.describe("receiver statuses", () => {
+                    test("time periods", async ({
+                        adminReceiverStatusPage,
+                    }) => {
+                        const result =
+                            await adminReceiverStatusPage.testReceiverStatusDisplay();
+                        expect(result).toBe(true);
+                    });
+                });
+            });
 
             test.describe("Functions correctly", () => {
                 test.describe("filters", () => {
-                    test.describe(
-                        "date range",
-                        {
-                            tag: "@smoke",
-                        },
-                        () => {
-                            test("works through calendar", async ({
-                                adminReceiverStatusPage,
-                            }) => {
-                                const { valueDisplay } =
-                                    adminReceiverStatusPage.filterFormInputs
-                                        .dateRange;
-                                const now = new Date();
-                                const targetFrom = startOfDay(subDays(now, 3));
-                                const targetTo = addDays(endOfDay(now), 1);
+                    test.describe("date range", () => {
+                        test("works through calendar", async ({
+                            adminReceiverStatusPage,
+                        }) => {
+                            const { valueDisplay } =
+                                adminReceiverStatusPage.filterFormInputs
+                                    .dateRange;
+                            const now = new Date();
+                            const targetFrom = startOfDay(subDays(now, 3));
+                            const targetTo = addDays(endOfDay(now), 1);
 
-                                const reqUrl =
-                                    await adminReceiverStatusPage.updateFilters(
-                                        {
-                                            dateRange: {
-                                                value: [targetFrom, targetTo],
-                                            },
-                                        },
-                                    );
-                                expect(reqUrl).toBeDefined();
-
-                                await expect(valueDisplay).toHaveText(
-                                    adminReceiverStatusPage.expectedDateRangeLabelText,
-                                );
-                                expect(
-                                    Object.fromEntries(
-                                        reqUrl!.searchParams.entries(),
-                                    ),
-                                ).toMatchObject({
-                                    start_date: targetFrom.toISOString(),
-                                    end_date: targetTo.toISOString(),
+                            const reqUrl =
+                                await adminReceiverStatusPage.updateFilters({
+                                    dateRange: {
+                                        value: [targetFrom, targetTo],
+                                    },
                                 });
+                            expect(reqUrl).toBeDefined();
+
+                            await expect(valueDisplay).toHaveText(
+                                adminReceiverStatusPage.expectedDateRangeLabelText,
+                            );
+                            expect(
+                                Object.fromEntries(
+                                    reqUrl!.searchParams.entries(),
+                                ),
+                            ).toMatchObject({
+                                start_date: targetFrom.toISOString(),
+                                end_date: targetTo.toISOString(),
                             });
+                        });
 
-                            test("works through textboxes", async ({
-                                adminReceiverStatusPage,
-                            }) => {
-                                const { valueDisplay } =
-                                    adminReceiverStatusPage.filterFormInputs
-                                        .dateRange;
-                                await expect(
-                                    adminReceiverStatusPage.receiverStatusRowsLocator,
-                                ).not.toHaveCount(0);
-                                const now = new Date();
-                                const targetFrom = startOfDay(subDays(now, 3));
-                                const targetTo = addDays(endOfDay(now), 1);
+                        test("works through textboxes", async ({
+                            adminReceiverStatusPage,
+                        }) => {
+                            const { valueDisplay } =
+                                adminReceiverStatusPage.filterFormInputs
+                                    .dateRange;
+                            await expect(
+                                adminReceiverStatusPage.receiverStatusRowsLocator,
+                            ).not.toHaveCount(0);
+                            const now = new Date();
+                            const targetFrom = startOfDay(subDays(now, 3));
+                            const targetTo = addDays(endOfDay(now), 1);
 
-                                const reqUrl =
-                                    await adminReceiverStatusPage.updateFilters(
-                                        {
-                                            dateRange: {
-                                                value: [targetFrom, targetTo],
-                                            },
-                                        },
-                                    );
-
-                                expect(reqUrl).toBeDefined();
-
-                                await expect(valueDisplay).toHaveText(
-                                    adminReceiverStatusPage.expectedDateRangeLabelText,
-                                );
-                                expect(
-                                    Object.fromEntries(
-                                        reqUrl!.searchParams.entries(),
-                                    ),
-                                ).toMatchObject({
-                                    start_date: targetFrom.toISOString(),
-                                    end_date: targetTo.toISOString(),
+                            const reqUrl =
+                                await adminReceiverStatusPage.updateFilters({
+                                    dateRange: {
+                                        value: [targetFrom, targetTo],
+                                    },
                                 });
+
+                            expect(reqUrl).toBeDefined();
+
+                            await expect(valueDisplay).toHaveText(
+                                adminReceiverStatusPage.expectedDateRangeLabelText,
+                            );
+                            expect(
+                                Object.fromEntries(
+                                    reqUrl!.searchParams.entries(),
+                                ),
+                            ).toMatchObject({
+                                start_date: targetFrom.toISOString(),
+                                end_date: targetTo.toISOString(),
                             });
-                        },
-                    );
+                        });
+                    });
 
                     test("receiver name", async ({
                         adminReceiverStatusPage,
@@ -466,9 +406,7 @@ test.describe("Admin Receiver Status Page", () => {
                             const targetFrom = startOfDay(subDays(now, 3));
                             const targetTo = endOfDay(now);
                             await adminReceiverStatusPage.updateFilters({
-                                dateRange: {
-                                    value: [targetFrom, targetTo],
-                                },
+                                dateRange: { value: [targetFrom, targetTo] },
                             });
                             await expect(days).toHaveCount(4);
                         });
@@ -484,9 +422,7 @@ test.describe("Admin Receiver Status Page", () => {
                             const targetFrom = startOfDay(subDays(now, 1));
                             const targetTo = endOfDay(now);
                             await adminReceiverStatusPage.updateFilters({
-                                dateRange: {
-                                    value: [targetFrom, targetTo],
-                                },
+                                dateRange: { value: [targetFrom, targetTo] },
                             });
                             await expect(days).toHaveCount(2);
                         });

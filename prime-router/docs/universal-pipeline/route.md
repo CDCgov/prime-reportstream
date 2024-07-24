@@ -1,4 +1,4 @@
-# Deprecated Universal Pipeline Route Step
+# Universal Pipeline Route Step
 
 ## Context
 

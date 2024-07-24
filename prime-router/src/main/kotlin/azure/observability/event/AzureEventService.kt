@@ -31,20 +31,3 @@ class AzureEventServiceImpl(
         telemetryClient.trackEvent(name, event.serialize(), emptyMap())
     }
 }
-
-/**
- * Local storage of azure events (only used for testing)
- */
-class LocalAzureEventServiceImpl(
-    val events: MutableList<AzureCustomEvent> = mutableListOf(),
-) : AzureEventService, Logging {
-
-    /**
-     * Send event to Azure AppInsights using the Azure TelemetryClient
-     */
-    override fun trackEvent(event: AzureCustomEvent) {
-        val name = event.javaClass.simpleName
-        logger.debug("Recording'$name' event in memory.")
-        events.add(event)
-    }
-}

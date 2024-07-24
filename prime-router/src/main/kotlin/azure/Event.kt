@@ -30,7 +30,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         RECEIVER_FILTER,
         RECEIVE,
         CONVERT, // for universal pipeline converting to FHIR
-        ROUTE, // Deprecated (has become DESTINATION_FILTER->RECEIVER_FILTER)
+        ROUTE, // calculate routing for a submission
         TRANSLATE,
         BATCH,
         SEND,

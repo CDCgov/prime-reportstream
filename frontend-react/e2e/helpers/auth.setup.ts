@@ -36,13 +36,6 @@ async function logIntoOkta(page: Page, login: TestLogin) {
         .or(page.getByRole("button", { name: "Verify" }));
     await btnSubmit.click();
 
-    await expect(btnSubmit).not.toBeAttached();
-
-    const totpSelect = page.getByLabel("Select Google Authenticator.");
-    if (await totpSelect.isVisible()) {
-        await totpSelect.click();
-    }
-
     if (login.totpCode !== "" && login.totpCode !== undefined) {
         await page.getByLabel("Enter Code ").fill(totp.generate());
         await page.getByRole("button", { name: "Verify" }).click();

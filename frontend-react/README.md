@@ -56,10 +56,8 @@ yarn run storybook # Runs a local instance of Storybook showcase of all of the c
 yarn run lint # Runs the front-end linter
 yarn run lint:fix # Runs the front-end linter and fixes style errors
 
-yarn run test:e2e-ui # Runs a local instance of Playwright UI where you can view and run the e2e tests. This will run using mock data.
+yarn run test:e2e-ui # Runs a local instance of Playwright UI where you can view and run the e2e tests
 CI=true yarn run test:e2e-ui # Runs a local instance of Playwright UI that mimics Github integration
-
-yarn run test:e2e-smoke # Runs the e2e tests that have the tag = @smoke and are meant to run against non mock data.
 ```
 
 ## Static build info
@@ -142,12 +140,9 @@ npx playwright install # Installs supported default browsers
 
 npx playwright install-deps # Installs system dependencies
 
-yarn run test:e2e-ui # Runs a local instance of Playwright UI where you can view and run the e2e tests. This will run using mock data.
+yarn run test:e2e-ui # Runs a local instance of Playwright UI where you can view and run the e2e tests
 
-CI=true yarn run test:e2e-ui # Runs a local instance of Playwright UI that mimics Github integration.
-
-yarn run test:e2e-smoke # Runs the e2e tests that have the tag = @smoke and are meant to run against non mock data.
-
+CI=true yarn run test:e2e-ui # Runs a local instance of Playwright UI that mimics Github integration
 ```
 
 Currently, the tests are running each time a pull request is made and must pass before the pull request can be merged into master.

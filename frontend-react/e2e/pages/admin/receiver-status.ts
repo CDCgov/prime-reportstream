@@ -1,4 +1,4 @@
-import { expect, Locator } from "@playwright/test";
+import { expect, Locator, Response } from "@playwright/test";
 import { endOfDay, format, startOfDay, subDays } from "date-fns";
 import { RSReceiverStatus } from "../../../src/hooks/api/UseReceiversConnectionStatus/UseReceiversConnectionStatus";
 import {
@@ -10,8 +10,8 @@ import { createMockGetReceiverStatus } from "../../mocks/receiverStatus";
 import {
     BasePage,
     BasePageTestArgs,
-    type ResponseHandlerEntry,
-    type RouteHandlerFulfillEntry,
+    GotoOptions,
+    RouteHandlerEntry,
 } from "../BasePage";
 
 export interface AdminReceiverStatusPageUpdateFiltersProps {
@@ -88,11 +88,6 @@ export class AdminReceiverStatusPage extends BasePage {
             },
             testArgs,
         );
-
-        this.addMockRouteHandlers([this.createMockReceiverStatusHandler()]);
-        this.addResponseHandlers([
-            this.createMockReceiverStatusResponseHandler(),
-        ]);
 
         const now = new Date();
 
@@ -191,10 +186,10 @@ export class AdminReceiverStatusPage extends BasePage {
     /**
      * Error expected additionally if user context isn't admin
      */
-    get isPageLoadExpected() {
+    get isErrorExpected() {
         return (
-            super.isPageLoadExpected &&
-            this.testArgs.storageState === this.testArgs.adminLogin.path
+            super.isErrorExpected ||
+            this.testArgs.storageState !== this.testArgs.adminLogin.path
         );
     }
 
@@ -206,7 +201,46 @@ export class AdminReceiverStatusPage extends BasePage {
         return this._timePeriodData;
     }
 
-    createMockReceiverStatusHandler(): RouteHandlerFulfillEntry {
+    async handlePageLoad(res: Response | null) {
+        if (this.isErrorExpected) return res;
+
+        const apiRes = await this.page.waitForResponse(
+            AdminReceiverStatusPage.API_RECEIVER_STATUS,
+        );
+
+        const data: RSReceiverStatus[] = await apiRes.json();
+        const url = new URL(apiRes.url());
+        const startDate = url.searchParams.get("start_date");
+        const endDate = url.searchParams.get("end_date");
+        const range =
+            startDate && endDate
+                ? ([new Date(startDate), new Date(endDate)] as DatePair)
+                : undefined;
+        this._receiverStatus = data;
+        this._timePeriodData = range
+            ? this.createTimePeriodData({ data, range })
+            : [];
+
+        return res;
+    }
+
+    async reload() {
+        if (this.isMocked) {
+            this.addMockRouteHandlers([this.createMockReceiverStatusHandler()]);
+        }
+
+        return await this.handlePageLoad(await super.reload());
+    }
+
+    async goto(opts?: GotoOptions) {
+        if (this.isMocked) {
+            this.addMockRouteHandlers([this.createMockReceiverStatusHandler()]);
+        }
+
+        return await this.handlePageLoad(await super.goto(opts));
+    }
+
+    createMockReceiverStatusHandler(): RouteHandlerEntry {
         return [
             AdminReceiverStatusPage.API_RECEIVER_STATUS,
             (request) => {
@@ -221,26 +255,6 @@ export class AdminReceiverStatusPage extends BasePage {
                 return {
                     json: this.createMockReceiverStatuses(range),
                 };
-            },
-        ];
-    }
-
-    createMockReceiverStatusResponseHandler(): ResponseHandlerEntry {
-        return [
-            AdminReceiverStatusPage.API_RECEIVER_STATUS,
-            async (apiRes) => {
-                const data: RSReceiverStatus[] = await apiRes.json();
-                const url = new URL(apiRes.url());
-                const startDate = url.searchParams.get("start_date");
-                const endDate = url.searchParams.get("end_date");
-                const range =
-                    startDate && endDate
-                        ? ([new Date(startDate), new Date(endDate)] as DatePair)
-                        : undefined;
-                this._receiverStatus = data;
-                this._timePeriodData = range
-                    ? this.createTimePeriodData({ data, range })
-                    : [];
             },
         ];
     }

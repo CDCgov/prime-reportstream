@@ -39,7 +39,6 @@ import java.io.ByteArrayInputStream
 import java.io.File
 import kotlin.test.Test
 
-// TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DefaultFilterTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }

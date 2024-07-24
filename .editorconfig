@@ -1,73 +1,10 @@
-# Dump from Jet Brain's defaults. Only really care about Kotlin Code Style standards
 [*]
 charset = utf-8
 end_of_line = lf
 indent_size = 4
 indent_style = space
 insert_final_newline = false
-max_line_length = 120
 tab_width = 4
 
-[*.conf]
-indent_size = 2
-tab_width = 2
-
-[*.java]
-indent_size = 2
-tab_width = 2
-
-[*.less]
-indent_size = 2
-
-[*.sass]
-indent_size = 2
-
-[*.scss]
-indent_size = 2
-
-[*.styl]
-indent_size = 2
-
-[{*.bash,*.sh,*.zsh}]
-indent_size = 2
-tab_width = 2
-
-
-# follow the official Kotlin Style Guide
-# ktlint is more strict, so we disable some of those rules
-[{*.gradle.kts,*.kt,*.kts,*.main.kts}]
-indent_size = 4
-indent_style = space
-ktlint_code_style = intellij_idea
-# the following rule prevented EOL comments in some places where it is useful
-ktlint_standard_discouraged-comment-location = disabled
-# version 1.1.1 allow same line comments
-ktlint_standard_value-argument-comment = disabled
-ktlint_standard_value-parameter-comment = disabled
-# the following rule was required to disable `discouraged-comment-location`
-ktlint_standard_if-else-wrapping = disabled
-# the following rule is unnecessarily strict about comment placement and type
-ktlint_standard_comment-wrapping = disabled
-# the following rule is disabled to leave trailing commas at call site optional
-ktlint_standard_trailing-comma-on-call-site = disabled
-# the following rule has too many edge cases that conflict with the built-in formatter
-ktlint_standard_indent = disabled
-# the following rule is unnecessarily strict and can eat up a lot of vertical space
-ktlint_standard_argument-list-wrapping = disabled
-# the following rule unnecessarily prevents certain forms of listing parameters
-ktlint_standard_function-signature = disabled
-# the following rules can be re-enabled in the future with manual changes and sufficient testing
-ktlint_standard_property-naming = disabled
-ktlint_standard_enum-entry-name-case = disabled
-ktlint_standard_function-naming = disabled
-ktlint_standard_filename = disabled
-
-[{*.har,*.jsb2,*.jsb3,*.json,*.fhir,.babelrc,.eslintrc,.stylelintrc,bowerrc,jest.config}]
-indent_size = 2
-
-
-[{*.yaml,*.yml}]
-indent_size = 2
-
-[{*.schema,*.valueset}]
+[{*.yaml,*.yml, *.tf}]
 indent_size = 2

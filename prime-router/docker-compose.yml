@@ -1,4 +1,5 @@
 # This docker compose file is intended to set up a developer environment
+version: "3.3"
 services:
   # This container runs our Azure function code.
   prime_dev:
@@ -55,7 +56,6 @@ services:
     ports:
       - "10000:10000"
       - "10001:10001"
-      - "10002:10002"
     networks:
       - prime-router_build
 

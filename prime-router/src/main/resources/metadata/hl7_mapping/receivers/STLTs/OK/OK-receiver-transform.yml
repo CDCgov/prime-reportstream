@@ -8,33 +8,3 @@ elements:
     condition: '%resource.code.exists()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
-
-  - name: OK-name-of-the-receiving-application
-    condition: 'true'
-    value: [ '"OSDHMessaging"' ]
-    hl7Spec: [ 'MSH-5-1' ]
-
-  - name: OK-OID-of-the-receiving-application
-    condition: 'true'
-    value: [ '"2.16.840.1.113883.3.1014.4"' ]
-    hl7Spec: [ 'MSH-5-2' ]
-
-  - name: OK-indicates-that-5.2-is-an-OID
-    condition: 'true'
-    value: [ '"ISO"' ]
-    hl7Spec: [ 'MSH-5-3' ]
-
-  - name: OK-receiving-facility-namespace-ID
-    condition: 'true'
-    value: [ '"OSDH"' ]
-    hl7Spec: [ 'MSH-6-1' ]
-
-  - name: OK-receiving-facility-universal-ID
-    condition: 'true'
-    value: [ '"2.16.840.1.113883.3.1014"' ]
-    hl7Spec: [ 'MSH-6-2' ]
-
-  - name: OK-receiving-facility-universal-ID-Type
-    condition: 'true'
-    value: [ '"ISO"' ]
-    hl7Spec: [ 'MSH-6-3' ]

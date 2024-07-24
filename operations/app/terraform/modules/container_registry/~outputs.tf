@@ -11,7 +11,3 @@ output "container_registry_admin_password" {
 output "container_registry_id" {
   value = azurerm_container_registry.container_registry.id
 }
-output "meta" {
-  sensitive = true
-  value     = azurerm_container_registry.container_registry
-}

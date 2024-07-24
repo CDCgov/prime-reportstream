@@ -8,7 +8,6 @@ export class SupportPage extends BasePage {
                 title: "ReportStream support",
                 heading: testArgs.page.getByRole("heading", {
                     name: "Support",
-                    exact: true,
                 }),
             },
             testArgs,

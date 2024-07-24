@@ -58,8 +58,7 @@ test.describe("About page", () => {
     });
 
     test("has correct title", async ({ aboutPage }) => {
-        await expect(aboutPage.page).toHaveTitle(aboutPage.title);
-        await expect(aboutPage.heading).toBeVisible();
+        await expect(aboutPage.page).toHaveTitle(/About/);
     });
 
     test.describe("In this section", () => {

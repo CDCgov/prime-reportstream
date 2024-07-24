@@ -97,7 +97,7 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
       externalName: "VT ELR Primary"
-      enrichmentSchemaNames: ["classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml", "classpath:/metadata/fhir_transforms/common/suppress-non-npi.yml"]
+      enrichmentSchemaNames: ["classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"]
       timeZone: null
       dateTimeFormat: "OFFSET"
     - name: "full-elr-secondary"
@@ -189,6 +189,6 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
       externalName: "VT ELR Primary"
-      enrichmentSchemaNames: ["classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml", "classpath:/metadata/fhir_transforms/common/suppress-non-npi.yml"]
+      enrichmentSchemaNames: ["classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"]
       timeZone: null
       dateTimeFormat: "OFFSET"

@@ -5,7 +5,7 @@ export class AboutPage extends BasePage {
         super(
             {
                 url: "/about",
-                title: "About ReportStream",
+                title: "About",
                 heading: testArgs.page.getByRole("heading", {
                     name: "About",
                 }),
