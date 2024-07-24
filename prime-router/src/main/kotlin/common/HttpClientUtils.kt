@@ -330,8 +330,6 @@ class HttpClientUtils {
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                // use{...} will automatically close the client
-                // https://ktor.io/docs/client-create-and-configure.html#close-client
                 (httpClient ?: getDefaultHttpClient()).use { client ->
                     client.submitForm(
                         url,
@@ -517,8 +515,6 @@ class HttpClientUtils {
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                // use{...} will automatically close the client
-                // https://ktor.io/docs/client-create-and-configure.html#close-client
                 (httpClient ?: getDefaultHttpClient()).use { client ->
                     client.request(url) {
                         this.method = method
@@ -558,6 +554,8 @@ class HttpClientUtils {
          *
          * @return a HttpClient with all sensible defaults
          */
-        fun getDefaultHttpClient(): HttpClient { return httpClient }
+        fun getDefaultHttpClient(): HttpClient {
+            return httpClient
+        }
     }
 }
