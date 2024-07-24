@@ -330,29 +330,32 @@ class HttpClientUtils {
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                (httpClient ?: getDefaultHttpClient()).use { client ->
-                    client.submitForm(
-                        url,
-                        formParameters = Parameters.build {
-                            formParams?.forEach { param ->
-                                append(param.key, param.value)
-                            }
+                (httpClient ?: getDefaultHttpClient()).submitForm(
+                    url,
+                    formParameters = Parameters.build {
+                        formParams?.forEach { param ->
+                            append(param.key, param.value)
                         }
-                    ) {
-                        timeout { requestTimeoutMillis = timeout }
-                        headers?.let {
-                            headers {
-                                headers.forEach { append(it.key, it.value) }
-                            }
-                        }
-                        accessToken?.let {
-                            headers {
-                                append("Authorization", "Bearer $accessToken")
-                            }
-                        }
-                        accept(acceptedContent)
                     }
-                }
+                ) {
+                    timeout {
+                        requestTimeoutMillis = timeout
+                    }
+
+                    headers?.let {
+                        headers {
+                            headers.forEach {
+                                append(it.key, it.value)
+                            }
+                        }
+                    }
+                    accessToken?.let {
+                        headers {
+                            append("Authorization", "Bearer $accessToken")
+                        }
+                    }
+                    accept(acceptedContent)
+                }.also { httpClient?.close() }
             }
         }
 
@@ -515,34 +518,37 @@ class HttpClientUtils {
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                (httpClient ?: getDefaultHttpClient()).use { client ->
-                    client.request(url) {
-                        this.method = method
-                        timeout { requestTimeoutMillis = timeout }
-                        url {
-                            queryParameters?.forEach {
-                                parameter(it.key, it.value)
-                            }
-                        }
-                        headers?.let {
-                            headers {
-                                headers.forEach { append(it.key, it.value) }
-                            }
-                        }
-                        accessToken?.let {
-                            headers {
-                                append("Authorization", "Bearer $accessToken")
-                            }
-                        }
-                        acceptedContent?.let {
-                            accept(acceptedContent)
-                            contentType(acceptedContent)
-                        }
-                        jsonPayload?.let {
-                            setBody(jsonPayload)
+                (httpClient ?: getDefaultHttpClient()).request(url) {
+                    this.method = method
+                    timeout {
+                        requestTimeoutMillis = timeout
+                    }
+                    url {
+                        queryParameters?.forEach {
+                            parameter(it.key, it.value)
                         }
                     }
-                }
+                    headers?.let {
+                        headers {
+                            headers.forEach {
+                                append(it.key, it.value)
+                            }
+                        }
+                    }
+                    accessToken?.let {
+                        headers {
+                            append("Authorization", "Bearer $accessToken")
+                        }
+                    }
+                    acceptedContent?.let {
+                        accept(acceptedContent)
+                        contentType(acceptedContent)
+                    }
+                    jsonPayload?.let {
+                        setBody(jsonPayload)
+                    }
+                }.also { httpClient?.close() }
+
             }
         }
 
