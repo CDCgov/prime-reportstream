@@ -89,10 +89,8 @@
               - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code != 'T' and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code != 'D'"
       reverseTheQualityFilter: false
       conditionFilter:
-        # "matches(abnormal_flag, A)"
-        - "Bundle.entry.resource.ofType(Observation).interpretation.coding.code = 'A'"
-        # Accept COVID only
-        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+        #Accept COVID only, "matches(abnormal_flag, A)"
+        - "Bundle.entry.resource.ofType(Observation).interpretation.coding.code = 'A' and (%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
