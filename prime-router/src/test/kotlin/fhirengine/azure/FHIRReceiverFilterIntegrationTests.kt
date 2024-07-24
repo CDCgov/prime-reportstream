@@ -70,8 +70,8 @@ private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/valid_d
 private const val MULTIPLE_OBSERVATIONS_FHIR_URL =
     "src/test/resources/fhirengine/engine/bundle_multiple_observations.fhir"
 
-private const val ONE_CONDITION_4_AOE_FHIR_URL =
-    "src/test/resources/fhirengine/engine/bundle_one_condition_four_aoe.fhir"
+private const val ONE_CONDITION_ONE_AOE_FHIR_URL =
+    "src/test/resources/fhirengine/engine/bundle_one_condition_one_aoe.fhir"
 
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
@@ -503,7 +503,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val receiver = receivers.single()
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
         val receiverFilter = createReceiverFilter(azureEventService, org)
-        val reportContents = File(ONE_CONDITION_4_AOE_FHIR_URL).readText()
+        val reportContents = File(ONE_CONDITION_ONE_AOE_FHIR_URL).readText()
         val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
