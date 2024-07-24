@@ -60,7 +60,3 @@ variable "sshinstances" {
 variable "sftp_dir" {
   description = "SFTP Script Directory"
 }
-
-variable "container_registry" {
-
-}
