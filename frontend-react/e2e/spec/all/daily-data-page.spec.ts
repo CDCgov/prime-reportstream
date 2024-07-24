@@ -18,8 +18,6 @@ import {
     endTimeClear,
     filterReset,
     filterStatus,
-    mockGetOrgAlaskaReceiversResponse,
-    mockGetOrgIgnoreReceiversResponse,
     receiverDropdown,
     searchButton,
     searchInput,
@@ -31,6 +29,10 @@ import {
     startTimeClear,
     tableHeaders,
 } from "../../pages/daily-data";
+import {
+    mockGetOrgAlaskaReceiversResponse,
+    mockGetOrgIgnoreReceiversResponse,
+} from "../../pages/organization";
 import {
     mockGetDeliveriesForOrgAlaskaResponse,
     mockGetDeliveriesForOrgIgnoreResponse,

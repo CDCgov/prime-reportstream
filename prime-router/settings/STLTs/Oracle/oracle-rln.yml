@@ -35,8 +35,7 @@
       jurisdictionalFilter:
         - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"  # ORU_R01
         - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"  # required to avoid looping issue with TI
-        # Pending: add correct filter(s) for routing
-        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = 'oracle-rln-simulated-lab-id').exists()"
+        # Pending: add filter(s) for routing
       qualityFilter:
         - "true"
       timing:

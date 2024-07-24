@@ -28,6 +28,7 @@ test("playwright/browser timezone parity", async ({ page }) => {
     const browserEnd = new Date(browserEndIso);
 
     expect(now.getTimezoneOffset()).toBe(browserNow.getTimezoneOffset());
+    expect(now.toLocaleString()).toBe(browserNow.toLocaleString());
     expect(timezoneId).toBe(browserTimezoneId);
     expect(nowStart.toLocaleString()).toBe(browserStart.toLocaleString());
     expect(nowEnd.toLocaleString()).toBe(browserEnd.toLocaleString());

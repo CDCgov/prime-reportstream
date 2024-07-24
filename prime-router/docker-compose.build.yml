@@ -1,4 +1,5 @@
 # Build environment
+version: "3.3"
 services:
   builder:
     depends_on:

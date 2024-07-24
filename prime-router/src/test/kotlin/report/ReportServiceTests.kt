@@ -36,14 +36,14 @@ class ReportServiceTests {
     }
 
     @Test
-    fun `getRootReport on root report returns root report`() {
+    fun `getRootReport failure`() {
         val f = Fixture()
-        val report = mockk<ReportFile>()
 
         every { f.reportGraphMock.getRootReport(f.childReportId) } returns null
-        every { f.reportGraphMock.db.fetchReportFile(f.childReportId) } returns report
 
-        assertThat(f.reportService.getRootReport(f.childReportId)).isEqualTo(report)
+        assertFailure {
+            f.reportService.getRootReport(f.childReportId)
+        }.isInstanceOf(IllegalStateException::class)
     }
 
     @Test
