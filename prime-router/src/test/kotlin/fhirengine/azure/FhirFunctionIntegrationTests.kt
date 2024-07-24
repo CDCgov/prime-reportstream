@@ -1,5 +1,6 @@
 package fhirengine.azure
 
+import QueueMessage
 import assertk.assertThat
 import assertk.assertions.containsOnly
 import assertk.assertions.each
@@ -45,7 +46,6 @@ import gov.cdc.prime.router.fhirengine.azure.FHIRFunctions
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
-import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import gov.cdc.prime.router.history.DetailedActionLog

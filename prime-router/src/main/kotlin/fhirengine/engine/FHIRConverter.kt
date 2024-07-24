@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import QueueMessage
 import ca.uhn.fhir.parser.DataFormatException
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message

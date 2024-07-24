@@ -1,12 +1,12 @@
 package gov.cdc.prime.reportstream.submissions.controllers
 
+import ConvertQueueMessage
 import com.azure.data.tables.TableClient
 import com.azure.data.tables.models.TableEntity
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.queue.QueueClient
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import gov.cdc.prime.reportstream.shared.SubmissionQueueMessage
 import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
 import gov.cdc.prime.reportstream.submissions.TelemetryService
 import org.slf4j.LoggerFactory
@@ -118,7 +118,7 @@ class SubmissionController(
 
         // Queue upload should occur as the last step ensuring the other steps successfully process
         // Create the message for the queue
-        val message = SubmissionQueueMessage(reportId, blobClient.blobUrl, filterHeaders(headers))
+        val message = ConvertQueueMessage(reportId, blobClient.blobUrl, filterHeaders(headers))
         val messageString = objectMapper.writeValueAsString(message)
         logger.debug("Created message for queue")
 

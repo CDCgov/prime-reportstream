@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata

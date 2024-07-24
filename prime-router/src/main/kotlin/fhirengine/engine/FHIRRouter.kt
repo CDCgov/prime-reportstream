@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import QueueMessage
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel

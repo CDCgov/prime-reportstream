@@ -1,12 +1,12 @@
 package gov.cdc.prime.router.azure
 
+import QueueMessage
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.engine.BatchEventQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ProcessEventQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportEventQueueMessage
 import gov.cdc.prime.router.transport.RetryToken
 import java.time.OffsetDateTime

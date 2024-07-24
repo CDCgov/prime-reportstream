@@ -1,19 +1,14 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import QueueMessage
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
-import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
-import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
-import java.util.Base64
 import java.util.UUID
 
 // This is a size limit dictated by our infrastructure in azure
@@ -34,31 +29,7 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
     JsonSubTypes.Type(ProcessEventQueueMessage::class, name = "process"),
     JsonSubTypes.Type(ReportEventQueueMessage::class, name = "report")
 )
-abstract class QueueMessage {
-    fun serialize(): String {
-        val bytes = mapper.writeValueAsBytes(this)
-        check(bytes.size < MESSAGE_SIZE_LIMIT) { "Message is too big for the queue." }
-        return String(Base64.getEncoder().encode(bytes))
-    }
-
-    companion object {
-        private val ptv = BasicPolymorphicTypeValidator.builder()
-            .build()
-        val mapper: JsonMapper = jacksonMapperBuilder()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .polymorphicTypeValidator(ptv)
-            .activateDefaultTyping(ptv)
-            .build()
-
-        fun deserialize(s: String): QueueMessage {
-            return mapper.readValue(s)
-        }
-    }
-
-    override fun toString(): String {
-        return mapper.writeValueAsString(this)
-    }
-}
+abstract class PrimeRouterQueueMessage : QueueMessage
 
 interface WithDownloadableReport {
     val blobURL: String
@@ -86,7 +57,7 @@ interface ReportIdentifyingInformation {
 abstract class ReportPipelineMessage :
     ReportIdentifyingInformation,
     WithDownloadableReport,
-    QueueMessage()
+    PrimeRouterQueueMessage()
 
 @JsonTypeName("convert")
 data class FhirConvertQueueMessage(
@@ -136,7 +107,7 @@ data class FhirTranslateQueueMessage(
     val receiverFullName: String,
 ) : ReportPipelineMessage()
 
-abstract class WithEventAction : QueueMessage() {
+abstract class WithEventAction : PrimeRouterQueueMessage() {
     abstract val eventAction: Event.EventAction
 }
 
