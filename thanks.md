@@ -4,4 +4,3 @@ Starting this file way too late, but wanted to recognize contributions made by p
 
 * Chris Sandlin [@cssandlin](https://github.com/cssandlin)
 * Drewry Morris [@drewry](https://github.com/drewry)
-* 
