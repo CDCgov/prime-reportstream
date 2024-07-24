@@ -1,12 +1,6 @@
-import FeatureFlagProvider, {
-    FeatureFlagActionType,
-    featureFlagReducer,
-} from "./FeatureFlagProvider";
+import FeatureFlagProvider, { FeatureFlagActionType, featureFlagReducer } from "./FeatureFlagProvider";
 import useFeatureFlags from "./useFeatureFlags";
-import {
-    mockGetSavedFeatureFlags,
-    mockStoreFeatureFlags,
-} from "../../utils/__mocks__/SessionStorageTools";
+import { mockGetSavedFeatureFlags, mockStoreFeatureFlags } from "../../utils/__mocks__/SessionStorageTools";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 vi.unmock("./useFeatureFlags");
@@ -90,12 +84,12 @@ describe("FeatureFlagProvider", () => {
         setup();
         expect(providerValueMonitor).toHaveBeenCalledTimes(1);
 
-        const { featureFlags } = providerValueMonitor.mock.lastCall[0];
+        const { featureFlags } = providerValueMonitor.mock.lastCall?.[0] ?? {};
         expect(featureFlags).toEqual(["flag-1", "flag-2", "flag-3"]);
     });
     test("provides flagCheck that correctly checks against all flags", () => {
         setup();
-        const { checkFlags } = providerValueMonitor.mock.lastCall[0];
+        const { checkFlags } = providerValueMonitor.mock.lastCall?.[0] ?? {};
         expect(checkFlags("flag-1")).toEqual(true);
         expect(checkFlags("flag-3")).toEqual(true);
         expect(checkFlags("flag-4")).toEqual(false);
