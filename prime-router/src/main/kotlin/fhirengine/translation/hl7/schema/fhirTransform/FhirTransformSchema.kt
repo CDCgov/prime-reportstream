@@ -25,6 +25,13 @@ class FhirTransformSchema(
     extends = extends
 )
 
+enum class FhirTransformSchemaElementAction {
+    SET,
+    APPEND,
+    APPLY_SCHEMA,
+    DELETE,
+}
+
 /**
  * A FHIR transform template (schema) element, the basic building block of a schema that describes a particular
  * transform for a particular resource or set of resources. [schema] and [value] are mutually exclusive, that is an
@@ -66,6 +73,7 @@ class FhirTransformSchemaElement(
     valueSet: ValueSetCollection? = null,
     debug: Boolean = false,
     var bundleProperty: String? = null,
+
 ) : ConfigSchemaElement<Bundle, Bundle, FhirTransformSchemaElement, FhirTransformSchema>(
     name = name,
     condition = condition,
@@ -79,6 +87,52 @@ class FhirTransformSchemaElement(
     valueSet = valueSet,
     debug = debug
 ) {
+
+    // Secondary constructor to Jackson can instantiate elements with an action
+    constructor(
+        name: String? = null,
+        condition: String? = null,
+        required: Boolean? = null,
+        schema: String? = null,
+        schemaRef: FhirTransformSchema? = null,
+        resource: String? = null,
+        value: List<String>? = null,
+        resourceIndex: String? = null,
+        constants: SortedMap<String, String> = sortedMapOf(),
+        valueSet: ValueSetCollection? = null,
+        debug: Boolean = false,
+        bundleProperty: String? = null,
+        action: FhirTransformSchemaElementAction,
+    ) : this(
+        name,
+        condition,
+        required,
+        schema,
+        schemaRef,
+        resource,
+        value,
+        resourceIndex,
+        constants,
+        valueSet,
+        debug,
+        bundleProperty
+    ) {
+      this.action = action
+    }
+
+    lateinit var action: FhirTransformSchemaElementAction
+    init {
+        // This init logic exists so clients (the schemas) don't have to be overly verbose
+        // and specify the action if it can be inferred from the other properties
+        if (!this::action.isInitialized) {
+            action = if (schemaRef != null || schema != null) {
+                FhirTransformSchemaElementAction.APPLY_SCHEMA
+            } else {
+                FhirTransformSchemaElementAction.SET
+            }
+        }
+    }
+
     override fun validate(): List<String> {
         when {
             !schema.isNullOrBlank() && bundleProperty != null ->

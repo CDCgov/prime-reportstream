@@ -5,10 +5,12 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElementAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.fhirengine.utils.deleteResource
 import org.apache.logging.log4j.Level
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -104,9 +106,25 @@ class FhirTransformer(
             // The element context must now get the focus resource
             elementContext.focusResource = singleFocusResource
             if (canEvaluate(element, bundle, singleFocusResource, focusResource, elementContext)) {
-                when {
-                    // If this is a schema then process it.
-                    element.schemaRef != null -> {
+                when (element.action) {
+                    FhirTransformSchemaElementAction.SET -> {
+                        val value = getValue(element, bundle, singleFocusResource, elementContext)
+                        if (value != null) {
+                            setBundleProperty(
+                                element.bundleProperty,
+                                value,
+                                context,
+                                bundle,
+                                singleFocusResource
+                            )
+                        }
+                        debugMsg += "condition: true, resourceType: ${singleFocusResource.fhirType()}, " +
+                            "value: $value"
+                    }
+                    FhirTransformSchemaElementAction.APPEND -> {
+                        throw NotImplementedError()
+                    }
+                    FhirTransformSchemaElementAction.APPLY_SCHEMA -> {
                         // Schema references can have new index references
                         val indexContext = if (element.resourceIndex.isNullOrBlank()) {
                             elementContext
@@ -126,25 +144,9 @@ class FhirTransformer(
                             element.debug || debug
                         )
                     }
-
-                    // A value
-                    !element.value.isNullOrEmpty() -> {
-                        val value = getValue(element, bundle, singleFocusResource, elementContext)
-                        if (value != null) {
-                            setBundleProperty(
-                                element.bundleProperty,
-                                value,
-                                context,
-                                bundle,
-                                singleFocusResource
-                            )
-                        }
-                        debugMsg += "condition: true, resourceType: ${singleFocusResource.fhirType()}, " +
-                            "value: $value"
+                    FhirTransformSchemaElementAction.DELETE -> {
+                        bundle.deleteResource(singleFocusResource, removeOrphanedDiagnosticReport = false)
                     }
-
-                    // This should never happen as the schema was validated prior to getting here
-                    else -> throw IllegalStateException()
                 }
             } else if (element.required == true) {
                 // The condition was not met, but the element was required
