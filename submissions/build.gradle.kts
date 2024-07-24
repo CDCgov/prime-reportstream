@@ -15,14 +15,24 @@ extra["springCloudAzureVersion"] = "5.13.0"
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.azure.spring:spring-cloud-azure-starter-storage")
+    implementation("com.microsoft.azure:applicationinsights-runtime-attach:3.5.3")
+    implementation("com.microsoft.azure:applicationinsights-web:2.6.4")
+    implementation("com.microsoft.azure:applicationinsights-logging-logback:2.6.4")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.8.1")
     implementation(project(":shared"))
+}
+
+// There is a conflict in logging implementations. Excluded these in favor of using log4j-slf4j2-impl
+configurations.all {
+    exclude(group = "org.apache.logging.log4j", module = "log4j-to-slf4j")
+    exclude(group = "ch.qos.logback")
 }
 
 dependencyManagement {
