@@ -5,7 +5,6 @@ extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
 constants:
   MSH: '/MSH'
   PID: '/PATIENT_RESULT/PATIENT/PID'
-  OBX: '/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX'
   ORC: '/PATIENT_RESULT/ORDER_OBSERVATION/ORC'
   OBR: '/PATIENT_RESULT/ORDER_OBSERVATION/OBR'
 
@@ -18,7 +17,7 @@ elements:
 
   - name: nh-unwanted-fields
     value: [ '""' ]
-    hl7Spec: [ '%{ORC}-23-1', '%{ORC}-14-1', '%{OBR}-17-1', '%{OBX}-18-1', '%{OBX}-18-2', '%{OBX}-18-3', '%{PID}-13-1']
+    hl7Spec: [ '%{ORC}-23-1', '%{ORC}-14-1', '%{OBR}-17-1', '%{PID}-13-1']
 
   - name: nh-sending-facility-namespace-id
     value: [ '"CDC PRIME"' ]
@@ -68,12 +67,13 @@ elements:
     value: [ '"ISO"' ]
     hl7Spec: [ '%{MSH}-21-4' ]
 
-  - name: nh-relpaceDiiWithOid-18-3
-    condition: 'Bundle.entry.resource.ofType(Observation).device.resolve().identifier.value.exists() and Bundle.entry.resource.ofType(Observation).device.resolve().identifier.value != ""'
-    value: [ '"2.16.840.1.113883.3.3719"' ]
-    hl7Spec: [ '%{OBX}-18-3' ]
+  - name: nh-observation
+    resource: Bundle.entry.resource.ofType(Observation)
+    condition: '%resource.count() > 0'
+    schema: classpath:/metadata/hl7_mapping/receivers/STLTs/NH/NH-observation-fields.yml
+    constants:
+      hl7SegmentGroup: 'PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(%{resultIndex})'
+      hl7OBXField: '%{hl7SegmentGroup}/OBX'
+    resourceIndex: resultIndex
 
-  - name: nh-relpaceDiiWithOid-18-4
-    condition: 'Bundle.entry.resource.ofType(Observation).device.resolve().identifier.value.exists() and Bundle.entry.resource.ofType(Observation).device.resolve().identifier.value != ""'
-    value: [ '"ISO"' ]
-    hl7Spec: [ '%{OBX}-18-4' ]
+
