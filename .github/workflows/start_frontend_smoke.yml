@@ -1,25 +1,13 @@
 name: "Start Frontend Smoke Tests"
 
-on:
-  workflow_dispatch:
-    inputs:
-      username:
-        description: 'Administrator username for the environment chosen:'
-        required: true
-        type: string
-      password:
-        description: 'Administrator password for the environment chosen:'
-        required: true
-        type: string
-
 defaults:
   run:
     working-directory: frontend-react
     shell: bash
 
 env:
-  TEST_ADMIN_USERNAME: ${{ github.event.inputs.username }}
-  TEST_ADMIN_PASSWORD: ${{ github.event.inputs.password }}
+  TEST_ADMIN_USERNAME: ${{ secrets.TEST_ADMIN_USERNAME }}
+  TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
   TEST_SENDER_USERNAME: ${{ secrets.TEST_SENDER_USERNAME }}
   TEST_SENDER_PASSWORD: ${{ secrets.TEST_SENDER_PASSWORD }}
   TEST_RECEIVER_USERNAME: ${{ secrets.TEST_RECEIVER_USERNAME }}
