@@ -1,5 +1,8 @@
 name: "Start Frontend Smoke Tests"
 
+on:
+  workflow_dispatch:
+
 defaults:
   run:
     working-directory: frontend-react
