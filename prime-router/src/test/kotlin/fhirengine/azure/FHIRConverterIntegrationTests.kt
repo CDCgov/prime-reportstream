@@ -378,7 +378,7 @@ class FHIRConverterIntegrationTests {
             val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk()).from(Tables.ACTION_LOG)
                 .where(Tables.ACTION_LOG.REPORT_ID.eq(receiveReport.id))
                 .and(Tables.ACTION_LOG.TYPE.`in`(ActionLogType.error, ActionLogType.warning))
-                .orderBy(Tables.ACTION_LOG.ACTION_LOG_ID.desc())
+                .orderBy(Tables.ACTION_LOG.ACTION_LOG_ID.asc())
                 .fetchInto(
                     DetailedActionLog::class.java
                 )
