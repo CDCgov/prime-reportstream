@@ -1052,6 +1052,9 @@
           "type": "string",
           "format": "uri"
         },
+        "jwtParams": {
+          "type": "object"
+        },
         "headers": {
           "type": "object"
         },
