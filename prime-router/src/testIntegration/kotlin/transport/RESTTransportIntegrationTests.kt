@@ -840,4 +840,39 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         restTransport = RESTTransportType("", "", headers = mapOf("BearerToken" to "Testing"))
         assertThat(RESTTransport.getAuthorizationHeader(restTransport)).isEqualTo("Testing")
     }
+
+    // Epic localhost end-to-end testing
+    private val epicRestTransportTypeLive = RESTTransportType(
+        "https://sendURL",
+        "https://oauth2/token",
+        headers = mapOf(
+            "Content-Length" to "<calculated when request is sent>",
+            "Content-Type" to "application/hl7-v2",
+            "Host" to "hd1314496.epic.com"
+        )
+    )
+
+    @Test
+    fun `test transport postReport with valid message to epic-etor-nbs-results`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
+
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserPassCredential("mock-user", "mock-pass")
+        )
+        every { runBlocking { mockRestTransport.getAuthTokenWithUserPass(any(), any(), any(), any()) } }.returns(
+            TokenInfo(accessToken = "MockToken", tokenType = "bearer")
+        )
+
+        // When:
+        //      RESTTransport is called WITH transport.parameters empty
+        val retryItems = mockRestTransport.send(
+            epicRestTransportTypeLive, header, reportId, "test", null,
+            context, actionHistory
+        )
+
+        // Then:
+        //      getAuthTokenWithUserApiKey should be called with transport.parameters empty
+        assertThat(retryItems).isNull()
+    }
 }
