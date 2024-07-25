@@ -298,6 +298,17 @@ updates:
     schedule:
       interval: "weekly"
 
+  # shared
+  - package-ecosystem: "gradle"
+    directory: "/shared
+    open-pull-requests-limit: 100
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "05:17"
+      timezone: "US/Eastern"
+    rebase-strategy: "disabled"
+
   # submissions
   - package-ecosystem: "gradle"
     directory: "/submissions"
