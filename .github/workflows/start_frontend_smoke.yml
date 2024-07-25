@@ -1,0 +1,47 @@
+name: "Start Frontend Smoke Tests"
+
+on:
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: frontend-react
+    shell: bash
+
+env:
+  TEST_ADMIN_USERNAME: ${{ secrets.TEST_ADMIN_USERNAME }}
+  TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
+  TEST_SENDER_USERNAME: ${{ secrets.TEST_SENDER_USERNAME }}
+  TEST_SENDER_PASSWORD: ${{ secrets.TEST_SENDER_PASSWORD }}
+  TEST_RECEIVER_USERNAME: ${{ secrets.TEST_RECEIVER_USERNAME }}
+  TEST_RECEIVER_PASSWORD: ${{ secrets.TEST_RECEIVER_PASSWORD }}
+
+jobs:
+  run_smoke:
+    name: Frontend Smoke Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - name: Use Node.js with yarn
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        with:
+          node-version-file: frontend-react/.nvmrc
+          cache: yarn
+          cache-dependency-path: frontend-react/yarn.lock
+      - name: "Yarn install"
+        run: yarn install --immutable
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+      - name: "Run frontend smoke tests"
+        run: |
+          echo "::group::E2E smoke tests"
+          yarn run test:e2e-smoke
+          echo "::endgroup::"
+      - name: "Store E2E Results"
+        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b
+        with:
+         name: smoke-data
+         path: frontend-react/e2e-data/
+         retention-days: 7
