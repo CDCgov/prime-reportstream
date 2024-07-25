@@ -248,7 +248,7 @@ class FHIRConverter(
                                         ReportStreamEventProperties.ITEM_FORMAT to format
                                     )
                                 )
-                            }.sendToAzure()
+                            }.sendToAzure().logEvent()
 
                             FHIREngineRunResult(
                                 routeEvent,

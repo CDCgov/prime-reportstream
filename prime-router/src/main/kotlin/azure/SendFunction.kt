@@ -219,7 +219,7 @@ class SendFunction(
                         if (parentReport != null) {
                             parentReportId(parentReport.reportId)
                         }
-                    }.sendToAzure()
+                    }.sendToAzure().logEvent()
 
                     ReportEvent(Event.EventAction.SEND_ERROR, report.reportId, isEmptyBatch)
                 } else {

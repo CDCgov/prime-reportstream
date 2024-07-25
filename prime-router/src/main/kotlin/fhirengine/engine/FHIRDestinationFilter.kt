@@ -178,7 +178,7 @@ class FHIRDestinationFilter(
                         pipelineStepName = TaskAction.destination_filter
                     ) {
                         parentReportId(queueMessage.reportId)
-                    }.sendToAzure()
+                    }.sendToAzure().logEvent()
 
                     listOf(
                         FHIREngineRunResult(

@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure.observability.event
 
 import java.util.Collections
 
+// TODO: https://github.com/CDCgov/prime-reportstream/issues/15337
 /**
  * Simple Event service that holds on to tracked events in-memory for test assertions
  */
