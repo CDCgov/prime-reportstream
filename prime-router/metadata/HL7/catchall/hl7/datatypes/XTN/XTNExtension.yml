@@ -79,6 +79,7 @@ extension:
           type: STRING
           value: XTN.11
         valueString:
+          type: STRING
           value: $xtn11
     - condition: $xtn12 NOT_NULL
       expressionType: nested
