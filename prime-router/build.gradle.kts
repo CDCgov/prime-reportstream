@@ -44,6 +44,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.22"
+    id("org.owasp.dependencycheck") version "10.0.3"
 }
 
 group = "gov.cdc.prime.reportstream"
@@ -779,12 +780,16 @@ buildscript {
             exclude("net.minidev", "json-smart")
         }
     }
+    repositories {
+        mavenCentral()
+    }
     dependencies {
         // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
         // will need to be removed once this issue is resolved in Maven.
         classpath("net.minidev:json-smart:2.5.1")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
         classpath("org.flywaydb:flyway-database-postgresql:10.15.0")
+        classpath("org.owasp:dependency-check-gradle:10.0.3")
     }
 }
 
