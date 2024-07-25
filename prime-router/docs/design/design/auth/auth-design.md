@@ -8,7 +8,7 @@ We use a mix/match of the following for different endpoints:
 - Okta
   - A cloud-hosted identity and access management service
 - Server2Server
-  - Homegrown implementation of client credentials OIDC flow
+  - ReportStream's implementation of client credentials OIDC flow
 - Azure Function Keys
   - Azure configured shared secrets for authorization
   - Does not handle authentication at all! (Any user can use any key and the system will work)
@@ -19,16 +19,24 @@ We use a mix/match of the following for different endpoints:
 - Reduce attack surface area since currently we have the weaknesses of each method
 - Minimize authn/authz issues being the cause for missing sent reports
 - Make life easier for Engagement team by having a single choice when onboarding a new sender/receiver
+- Share authn/authz multiple other microservices
 
 ## Requirements
 
 - Protect certain endpoints from only being accessed by identified trusted entities
+  - Reports/Waters report submission endpoint
+  - History endpoints
+  - Delivery endpoints
+  - Message endpoints
+  - Admin endpoints for CRUD operations on orgs, senders, and receivers
+  - Lookup table CRUD operation endpoints
 - Centralize user management
 - Revoke access if a secret is compromised
 - Audit which clients are accessing which resources
 - Fine-tune access control for specific clients
 - Unify authn/authz approach for all microservices
 - Allow clients the ability to self-service to ease client onboarding
+  - [Okta documentation for this workflow](https://help.okta.com/en-us/content/topics/apps/apps-selfservice-configureorg.htm)
 
 ## Options discussed in 14765
 
@@ -49,6 +57,7 @@ Pros
 
 Cons
 - Complex setup
+- Requires coordination with the CDC
  
 ### Okta
 
@@ -61,7 +70,7 @@ Pros
 Cons
 - Single point of failure if there is an outage
 
-### Homegrown
+### ReportStream implementation
 
 Pros
 - As flexible as we need it to be
@@ -81,6 +90,10 @@ mind. See the image below for how the flow works generally.
 
 ![Client Credentials Flow](clientCredentialsFlow.png)
 
+Users with emails and passwords will use the Interaction Code flow. Most of the interaction occurs by browser redirects between
+the frontend and authorization server. From the platform perspective it will be handled similarly once the access token
+is retrieved.
+
 ## Definitions
 
 - **authn**: Authenticate/authentication
@@ -88,9 +101,9 @@ mind. See the image below for how the flow works generally.
 - **IAM**: Identity and access management
 - **IdP**: Identity Provider
 - **Okta**: A cloud-hosted identity and access management service
-- **Server2Server**: Homegrown JWT authn/authz
+- **Server2Server**: ReportStream's implementation JWT authn/authz
 - **VPC**: Virtual Private Cloud
-- **Resource Server**: A server that will require authn/authz to access. In our case Report Stream
+- **Resource Server**: A server that will require authn/authz to access. In our case ResportStream
 - **Authorization Server**: A server that handles authn/authz and issuing/revoking credentials
 
 ## Architecture options
@@ -106,13 +119,13 @@ all requests to protected endpoints.
   - Protected endpoints should not be accessible to the public internet
 
 A typical report request would look like this
-- Client makes request to authorization server (or us in the homegrown solution) to retrieve token with their own credentials
-- Client uses retrieved token with request to Report Stream
-- Request comes in and hits our auth microservice instead of Report Stream directly
+- Client makes request to authorization server (or us in the ReportStream implementation solution) to retrieve token with their own credentials
+- Client uses retrieved token with request to ResportStream
+- Request comes in and hits our auth microservice instead of ResportStream directly
 - Depending on our implementation, we decide if that request is legitimate and allowed to access the designated endpoint
   - In cloud-based solutions, we would make calls out to an external authz server
     - We could also introspect the token locally if speed is a factor but its more code to write/maintain
-  - In a homegrown solution, we would introspect certain cookies and headers and compare them to what we have in a datastore
+  - In a ReportStream implementation solution, we would introspect certain cookies and headers and compare them to what we have in a datastore
 - If the request is unauthenticated or unauthorized, short-circuit the request to a 401
 - If the request is authenticated and authorized for the resource, pass it along to the internal protected endpoint
 
@@ -146,27 +159,59 @@ fun protectedReadEndpoint(
     val authRequired = condigService.isAuthRequired(request.path, method)
     
     return if (authRequired) {
-        // call out to auth service
-        val authResult = authService.checkToken(request)
+        // call out to authn/authz service
+        val authnResult = authService.checkToken(request)
+        val authzResult = authzService.checkAuthorization()
         
         // possible results
-        when (authResult) {
-            is Unauthorized, MissingToken -> UnauthorizedResponse
-            is Authorized -> httpClient.request(method, protectedEndpoint, body)
+        when {
+            authnResult == Authenticated && authzResult == Authorized -> httpClient.request(method, protectedEndpoint, body)
+            else -> UnauthorizedResponse
         }
     } else {
         // pass through if no auth needed
         httpClient.request(method, protectedEndpoint, body)
     }
 }
-
 ```
+
+Authz configuration file example:
+```json
+{
+    "endpoints": [
+        {
+            "endpoint": "/api/v1/resource",
+            "methods": {
+                "GET": {
+                    "scopes": ["read"]
+                },
+                "POST": {
+                    "scopes": ["write"]
+                },
+                "DELETE": {
+                    "scopes": ["delete"]
+                }
+            }
+        },
+        {
+            "endpoint": "/api/v1/history/{id}",
+            "methods": {
+                "GET": {
+                    "scopes": ["read"]
+                }
+            }
+        }
+    ]
+}
+```
+
+![Microservice](microservice.png)
 
 ### Use libraries with limited code in shared project
 
 This approach would attempt to use existing libraries to annotate request mappings in our Spring app.
 
-We would have to write custom code in the shared project to handle configuration and authn/authz for Report Stream
+We would have to write custom code in the shared project to handle configuration and authn/authz for ResportStream
 endpoints that still live in our Azure Functions app.
 
 Pros
@@ -182,19 +227,19 @@ Cons
   -  Easy for Spring but could require some custom work for Azure Functions
 
 A typical report request would look like this
-- Client makes request to authorization server (or us in the homegrown solution) to retrieve token with their own credentials
-- Client uses retrieved token with request to Report Stream
-- Request hits Report Stream code directly
+- Client makes request to authorization server (or us in the ReportStream implementation solution) to retrieve token with their own credentials
+- Client uses retrieved token with request to ResportStream
+- Request hits ReportStream resource directly
 - Depending on our implementation, we decide if that request is legitimate and allowed to access the designated endpoint
     - In cloud-based solutions, we would make calls out to an external authz server
       - We could also introspect the token locally if speed is a factor but its more code to write/maintain
-    - In a homegrown solution, we would introspect certain cookies and headers and compare them to what we have in a datastore
+    - In a ReportStream implementation solution, we would introspect certain cookies and headers and compare them to what we have in a datastore
 - If the request is unauthenticated or unauthorized, short-circuit the request to a 401
 - If the request is authenticated and authorized for the resource, continue to the business logic
 
 Code example:
 ```kotlin
-
+// Spring project
 // has read scope
 @GetMapping("/api/v1/protected/endpoint")
 @PreAuthorize("hasAuthority('SCOPE_read')") // scope 
@@ -202,10 +247,101 @@ fun protectedReadEndpoint() {
     // read that anyone with the read scope can see
 }
 
+// Spring project
 // has admin authority
 @PostMapping("/api/v1/protected/endpoint")
 @PreAuthorize("hasAuthority('Admin')") // role
 fun protectedWriteEndpoint() {
     // write that only admins can do
 }
+
+// Azure functions project
+// for an Azure HTTP endpoint we could write a function to handle the authn/authz check
+fun reportsEndpoint() {
+    checkAuthn(request) { accessToken: JWT ->
+        requiredAuthzScope(accessToken, listOf("requiredScope")) {
+            // business logic
+        }
+    }
+}
 ```
+
+![Shared Code Auth](sharedCodeAuth.png)
+
+### Hybrid solution
+
+This approach would create a microservice that focused only on authentication and validation of the access token.
+
+We would leave the authorization checks in the ReportStream code close to the code it's actually authorizing.
+
+Pros
+- Microservice able to handle parts of authentication that ReportStream will not have to worry about
+- Authz annotations would be directly adjacent to the endpoint mappings they protect
+- Can handle complex authorization requirements for specific endpoints with more ease
+
+Cons
+- requires devops support
+- Authorization code still present within ReportStream
+
+A typical report request would look like this
+- Client makes request to authorization server (or us in the ReportStream implementation solution) to retrieve token with their own credentials
+- Client uses retrieved token with request to ResportStream
+- Request hits authentication microservice
+  - Microservice calls out to Okta (or other provider) to check the validity of the access token and passes request along to ReportStream
+  - If the request is unauthenticated, short-circuit the request to a 401
+- Request hits ReportStream resource and we check the access token for authorization (now knowing that we can trust authentication)
+- If the request is unauthorized, short-circuit the request to a 401
+- If the request is authorized for the resource, continue to the business logic
+
+```kotlin
+// Microservice code
+
+// handles all incoming requests
+@RequestMapping("/**")
+fun protectedReadEndpoint(
+    @RequestBody(required = false) body: String,
+    method: HttpMethod, 
+    request: HttpServletRequest,
+    response: HttpServletResponse
+) {
+    // this is all psudeocode!
+    
+    // check if we need to auth at all
+    val authRequired = condigService.isAuthRequired(request.path, method)
+    
+    return if (authRequired) {
+        // call out to authn service
+        val authnResult = authService.checkToken(request)
+        
+        // possible results
+        when {
+            authnResult == Authenticated && authzResult == Authorized -> httpClient.request(method, protectedEndpoint, body)
+            else -> UnauthorizedResponse
+        }
+    } else {
+        // pass through if no auth needed
+        httpClient.request(method, protectedEndpoint, body)
+    }
+}
+
+// ReportStream code
+
+// Spring project
+// has read scope
+@GetMapping("/api/v1/protected/endpoint")
+@PreAuthorize("hasAuthority('SCOPE_read')") // scope 
+fun protectedReadEndpoint() {
+    // read that anyone with the read scope can see
+}
+
+// Azure functions project
+// for an Azure HTTP endpoint we could write a function to handle the authn/authz check
+fun reportsEndpoint() {
+    val accessToken = request.headers("Authorization")
+    requiredAuthzScope(accessToken, listOf("requiredScope")) {
+        // business logic
+    }
+}
+```
+
+![Combo](combo.png)
