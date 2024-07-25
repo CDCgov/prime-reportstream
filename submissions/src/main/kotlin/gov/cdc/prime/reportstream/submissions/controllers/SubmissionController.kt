@@ -2,11 +2,11 @@ package gov.cdc.prime.reportstream.submissions.controllers
 
 import ConvertQueueMessage
 import com.azure.data.tables.TableClient
-import com.azure.data.tables.models.TableEntity
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.queue.QueueClient
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import gov.cdc.prime.reportstream.shared.SubmissionsEntity
 import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
 import gov.cdc.prime.reportstream.submissions.TelemetryService
 import org.slf4j.LoggerFactory
@@ -84,14 +84,8 @@ class SubmissionController(
 
         // Insert into Table
         // TableEntity() sets PartitionKey and RowKey. Both are required by azure and combine to create the PK
-        val tableEntity = TableEntity(reportReceivedTime.toString(), reportId.toString())
-        val tableProperties = mapOf(
-            "report_received_time" to reportReceivedTime.toString(),
-            "report_accepted_time" to reportReceivedTime.toString(), // Will be updated when the report is accepted
-            "report_id" to reportId.toString(),
-            "status" to status
-        )
-        tableClient.createEntity(tableEntity.setProperties(tableProperties))
+        val tableEntity = SubmissionsEntity(reportReceivedTime.toString(), reportId.toString(), status).toTableEntity()
+        tableClient.createEntity(tableEntity)
         logger.info("Inserted report into table storage: reportId=$reportId")
 
         // Create and publish custom event

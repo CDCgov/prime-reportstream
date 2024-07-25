@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import ConvertQueueMessage
 import QueueMessage
 import ca.uhn.fhir.parser.DataFormatException
 import ca.uhn.hl7v2.HL7Exception
@@ -14,6 +15,7 @@ import fhirengine.engine.ProcessedHL7Item
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
@@ -26,6 +28,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
+import gov.cdc.prime.router.azure.TableAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
@@ -48,6 +51,7 @@ import io.github.oshai.kotlinlogging.withLoggingContext
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.hl7.fhir.r4.model.Bundle
 import org.jooq.Field
+import java.time.Instant
 import java.time.OffsetDateTime
 import java.util.stream.Collectors
 import java.util.stream.Stream
@@ -84,16 +88,106 @@ class FHIRConverter(
         message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
-    ): List<FHIREngineRunResult> {
-        return when (message) {
+    ): List<FHIREngineRunResult> = when (message) {
             is FhirConvertQueueMessage -> {
                 fhirEngineRunResults(message, message.schemaName, actionLogger, actionHistory)
+            }
+            is ConvertQueueMessage -> {
+                runReceiveResults(message, actionLogger, actionHistory)
             }
 
             else -> {
                 throw RuntimeException(
                     "Message was not a FhirConvert and cannot be processed: $message"
                 )
+            }
+        }
+
+    private fun runReceiveResults(
+        queueMessage: ConvertQueueMessage,
+        actionLogger: ActionLogger,
+        convertActionHistory: ActionHistory,
+    ): List<FHIREngineRunResult> {
+        val receiveActionHistory = ActionHistory(TaskAction.receive)
+        // Retrieve the sender settings
+        val sender = settings.findSender(queueMessage.headers["client_id"]!!)
+
+        val contextMap = mapOf(
+            MDCUtils.MDCProperty.ACTION_NAME to receiveActionHistory.action.actionName.name,
+            MDCUtils.MDCProperty.REPORT_ID to queueMessage.reportId,
+            MDCUtils.MDCProperty.TOPIC to sender?.topic,
+            MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobUrl,
+        )
+        withLoggingContext(contextMap) {
+            val tableAccess = TableAccess()
+
+            tableAccess.updateMultipleFields(
+                queueMessage.reportId.toString(),
+                queueMessage.reportId.toString(),
+                mapOf(
+                    "status" to "Accepted",
+                    "report_accepted_time" to Instant.now().toString()
+                )
+            )
+
+            receiveActionHistory.trackActionParams(queueMessage.headers.toString())
+            receiveActionHistory.trackActionSenderInfo(sender?.fullName ?: "", queueMessage.headers["payloadname"])
+
+            val report: Report
+            val sources = listOf(
+                sender?.organizationName?.let {
+                sender.name.let { it1 ->
+                    ClientSource(
+                        organization = it,
+                        client = it1
+                    )
+                }
+            }
+            )
+            val content = BlobAccess.downloadBlobAsByteArray(queueMessage.blobUrl).toString()
+
+            when (sender?.format) {
+                MimeFormat.HL7 -> {
+                    val messages = HL7Reader(actionLogger).getMessages(content)
+                    val isBatch = HL7Reader(actionLogger).isBatch(content, messages.size)
+                    // create a Report for this incoming HL7 message to use for tracking in the database
+
+                    report = Report(
+                        if (isBatch) MimeFormat.HL7_BATCH else MimeFormat.HL7,
+                        sources,
+                        messages.size,
+                        metadata = metadata,
+                        nextAction = TaskAction.convert,
+                        topic = sender.topic,
+                    )
+
+                    // check for valid message type
+                    messages.forEachIndexed {
+                        idx, element ->
+                        MessageType.validateMessageType(element, actionLogger, idx + 1)
+                    }
+                }
+
+                MimeFormat.FHIR -> {
+                    val bundles = FhirTranscoder.getBundles(content, actionLogger)
+                    report = Report(
+                        MimeFormat.FHIR,
+                        sources,
+                        bundles.size,
+                        metadata = metadata,
+                        nextAction = TaskAction.convert,
+                        topic = sender.topic,
+                    )
+                }
+
+                else -> {
+                    throw IllegalStateException("Unexpected sender format ${sender.format}")
+                }
+            }
+
+            // if there are any errors, kick this out.
+            if (actionLogger.hasErrors()) {
+                throw actionLogger.exception
             }
         }
     }
@@ -542,8 +636,7 @@ class FHIRConverter(
      * Using this function instead of calling the constructor directly simplifies the process of mocking the
      * transformer in tests.
      */
-    fun getTransformerFromSchema(schemaName: String): FhirTransformer? {
-        return if (schemaName.isNotBlank()) {
+    fun getTransformerFromSchema(schemaName: String): FhirTransformer? = if (schemaName.isNotBlank()) {
             withLoggingContext(mapOf("schemaName" to schemaName)) {
                 logger.info("Apply a sender transform to the items in the report")
             }
@@ -551,5 +644,4 @@ class FHIRConverter(
         } else {
             null
         }
-    }
 }
