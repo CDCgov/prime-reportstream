@@ -3,9 +3,9 @@
 resourceType: MessageHeader
 
 id:
-  type: NAMED_UUID
-  valueOf: MSH.10
-  expressionType: HL7Spec
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
 
 eventCoding:
   expressionType: resource
