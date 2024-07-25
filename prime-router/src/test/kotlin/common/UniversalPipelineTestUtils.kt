@@ -368,6 +368,7 @@ object UniversalPipelineTestUtils {
         val status: CustomerStatus = CustomerStatus.ACTIVE,
         val format: MimeFormat = MimeFormat.CSV,
         val schemaName: String = "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml",
+        val enrichmentSchemaNames: List<String> = emptyList(),
     )
 
     fun createReceivers(receiverSetupDataList: List<ReceiverSetupData>): List<Receiver> {
@@ -385,7 +386,8 @@ object UniversalPipelineTestUtils {
                 processingModeFilter = it.processingModeFilter,
                 conditionFilter = it.conditionFilter,
                 mappedConditionFilter = it.mappedConditionFilter,
-                format = it.format
+                format = it.format,
+                enrichmentSchemaNames = it.enrichmentSchemaNames
             )
         }
     }

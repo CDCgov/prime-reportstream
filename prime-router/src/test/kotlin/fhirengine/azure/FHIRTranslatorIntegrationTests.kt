@@ -153,6 +153,25 @@ class FHIRTranslatorIntegrationTests : Logging {
             )
         )
 
+        @Suppress("ktlint:standard:max-line-length")
+        val expectedOutput = "MSH|^~\\&|||||||ORU/ACK - Unsolicited transmission of an observation message|849547|P|2.5.1|||||USA\r" +
+            "SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210622\r" +
+            "PID|1||||Steuber||20150707|O||^^^^^^^^Native Hawaiian or Other Pacific Islander|^^^IG^^s4fgh||~|||||||||^^^^^^^^Non Hispanic or Latino|||||||20210614\r" +
+            "ORC|||||||||||||||||||||Any facility USA|^^^IG||^^^IG\r" +
+            "OBR|1|||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay|||||||||||||||||||||C\r" +
+            "OBX|1||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay|770814|^^^^^^^^Not detected||Abnormal|||||||||||LumiraDx Platform_LumiraDx\r" +
+            "NTE|1|L|ciu1se|^^^^^^^^Remark\r" +
+            "OBX|2||^^^^^^^^Whether patient is employed in a healthcare setting||^^^^^^^^Yes\r" +
+            "OBX|3||^^^^^^^^First test for condition of interest||^^^^^^^^Yes\r" +
+            "OBX|4||^^^^^^^^Patient was hospitalized because of this condition||^^^^^^^^Unknown\r" +
+            "OBX|5||^^^^^^^^Admitted to intensive care unit for condition of interest||^^^^^^^^Yes\r" +
+            "OBX|6||^^^^^^^^Date and time of symptom onset\r" +
+            "OBX|7||^^^^^^^^Age\r" +
+            "OBX|8||^^^^^^^^Pregnancy status||^^^^^^^^Unknown\r" +
+            "OBX|9||^^^^^^^^Resides in a congregate care setting||^^^^^^^^Yes\r" +
+            "OBX|10||^^^^^^^^Has symptoms related to condition of interest||^^^^^^^^No\r" +
+            "SPM|1|||^^^^^^^^Sputum specimen|||^^^^^^^^Pinworm Prep|^^^^^^^^Nasopharyngeal structure (body structure)|||||||||20210617070000-0400|20210613045200-0400\r"
+
         val queueMessage = generateQueueMessage(
             translateReport,
             reportContents,
@@ -187,12 +206,115 @@ class FHIRTranslatorIntegrationTests : Logging {
             // verify message format is HL7
             assertThat(batchTask.bodyFormat).isEqualTo("HL7")
 
-            // verify message does not match the original FHIR input
-            val translatedValue = BlobAccess.downloadBlobAsByteArray(
+            // verify message matches the expected HL7 output
+            val translatedValue = BlobAccess.downloadBlobAsBinaryData(
                 sendReportFile!!.bodyUrl,
                 UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
+            ).toString()
+            assertThat(translatedValue).isEqualTo(expectedOutput)
+        }
+    }
+
+    @Test
+    fun `successfully translate for HL7 receiver with enrichments when isSendOriginal is false`() {
+        // set up
+        val receiverSetupData = listOf(
+            UniversalPipelineTestUtils.ReceiverSetupData(
+                "x",
+                jurisdictionalFilter = listOf("true"),
+                qualityFilter = listOf("true"),
+                routingFilter = listOf("true"),
+                conditionFilter = listOf("true"),
+                format = MimeFormat.HL7,
+                enrichmentSchemaNames = listOf(
+                    "classpath:/enrichments/testing.yml",
+                    "classpath:/enrichments/testing2.yml"
+                )
             )
-            assertThat(translatedValue).isNotEqualTo(reportContents.toByteArray())
+        )
+        val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
+        val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
+        val translator = createFHIRTranslator(azureEventService, org)
+        val reportContents = File(MULTIPLE_TARGETS_FHIR_PATH).readText()
+        val receiveReport = UniversalPipelineTestUtils.createReport(
+            reportContents,
+            TaskAction.receive,
+            Event.EventAction.CONVERT,
+            azuriteContainer
+        )
+        val translateReport = UniversalPipelineTestUtils.createReport(
+            MimeFormat.FHIR,
+            TaskAction.receive,
+            TaskAction.translate,
+            Event.EventAction.SEND,
+            Topic.FULL_ELR,
+            receiveReport,
+            BlobAccess.uploadBlob(
+                "${TaskAction.translate.literal}/mr_fhir_face.fhir",
+                reportContents.toByteArray(),
+                getBlobContainerMetadata(azuriteContainer)
+            )
+        )
+
+        @Suppress("ktlint:standard:max-line-length")
+        val expectedOutput = "MSH|^~\\&|||||||ORU/ACK - Unsolicited transmission of an observation message|849547|P|2.5.1|||||USA\r" +
+            "SFT|Orange Software Vendor Name|0.2-YELLOW|Purple PRIME ReportStream|0.1-SNAPSHOT||20210622\r" +
+            "PID|1||||Steuber||20150707|O||^^^^^^^^Native Hawaiian or Other Pacific Islander|^^^IG^^s4fgh||~|||||||||^^^^^^^^Non Hispanic or Latino|||||||20210614\r" +
+            "ORC|||||||||||||||||||||Any facility USA|^^^IG||^^^IG\r" +
+            "OBR|1|||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay|||||||||||||||||||||C\r" +
+            "OBX|1||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay|770814|^^^^^^^^Not detected||Abnormal|||||||||||LumiraDx Platform_LumiraDx\r" +
+            "NTE|1|L|ciu1se|^^^^^^^^Remark\r" +
+            "OBX|2||^^^^^^^^Whether patient is employed in a healthcare setting||^^^^^^^^Yes\r" +
+            "OBX|3||^^^^^^^^First test for condition of interest||^^^^^^^^Yes\r" +
+            "OBX|4||^^^^^^^^Patient was hospitalized because of this condition||^^^^^^^^Unknown\r" +
+            "OBX|5||^^^^^^^^Admitted to intensive care unit for condition of interest||^^^^^^^^Yes\r" +
+            "OBX|6||^^^^^^^^Date and time of symptom onset\r" +
+            "OBX|7||^^^^^^^^Age\r" +
+            "OBX|8||^^^^^^^^Pregnancy status||^^^^^^^^Unknown\r" +
+            "OBX|9||^^^^^^^^Resides in a congregate care setting||^^^^^^^^Yes\r" +
+            "OBX|10||^^^^^^^^Has symptoms related to condition of interest||^^^^^^^^No\r" +
+            "SPM|1|||^^^^^^^^Sputum specimen|||^^^^^^^^Pinworm Prep|^^^^^^^^Nasopharyngeal structure (body structure)|||||||||20210617070000-0400|20210613045200-0400\r"
+
+        val queueMessage = generateQueueMessage(
+            translateReport,
+            reportContents,
+            UniversalPipelineTestUtils.fhirSenderWithNoTransform,
+            "phd.x"
+        )
+        val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
+
+        // execute
+        fhirFunctions.doTranslate(queueMessage, 1, translator)
+
+        // verify task and report_file tables were updated correctly in the Translate function (new task and new
+        // record file created)
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val batchTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
+                .where(Task.TASK.NEXT_ACTION.eq(TaskAction.batch))
+                .fetchOneInto(Task.TASK)
+
+            // verify batch queue task exists
+            assertThat(batchTask).isNotNull()
+
+            val sendReportFile =
+                DSL.using(txn).select(ReportFile.REPORT_FILE.asterisk())
+                    .from(ReportFile.REPORT_FILE)
+                    .where(
+                        ReportFile.REPORT_FILE.REPORT_ID
+                            .eq(batchTask!!.reportId)
+                    )
+                    .fetchOneInto(ReportFile.REPORT_FILE)
+            assertThat(sendReportFile).isNotNull()
+
+            // verify message format is HL7
+            assertThat(batchTask.bodyFormat).isEqualTo("HL7")
+
+            // verify message matches the expected HL7 output
+            val translatedValue = BlobAccess.downloadBlobAsBinaryData(
+                sendReportFile!!.bodyUrl,
+                UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
+            ).toString()
+            assertThat(translatedValue).isEqualTo(expectedOutput)
         }
     }
 
