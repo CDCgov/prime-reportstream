@@ -7,6 +7,7 @@ import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.InvalidParamMessage
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
@@ -22,8 +23,11 @@ import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkObject
+import io.mockk.unmockkAll
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -534,11 +538,19 @@ class SubmissionFunctionIntegrationTests {
     }
 
     @BeforeEach
-    fun setupAuth() {
+    fun setup() {
         val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
         val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
         mockkObject(AuthenticatedClaims)
         every { AuthenticatedClaims.authenticate(any()) } returns claims
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+    }
+
+    @AfterEach
+    fun tearDown() {
+        clearAllMocks()
+        unmockkAll()
     }
 
     private fun setupSubmissionFunction(): SubmissionFunction {
