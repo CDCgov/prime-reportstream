@@ -13,6 +13,7 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.common.ReportNodeBuilder.Companion.reportGraph
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
@@ -545,6 +546,10 @@ class SubmissionFunctionIntegrationTests {
         every { AuthenticatedClaims.authenticate(any()) } returns claims
         mockkObject(Metadata)
         every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+        mockkObject(BaseEngine.Companion)
+        every { BaseEngine.settingsProviderSingleton } returns FileSettings().loadOrganizations(
+            UniversalPipelineTestUtils.universalPipelineOrganization
+        )
     }
 
     @AfterEach

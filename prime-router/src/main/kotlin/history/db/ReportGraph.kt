@@ -45,7 +45,7 @@ private const val STARTING_REPORT_ID_FIELD = "starting_report_id"
 class ItemGraphTable : CustomTable<ItemGraphRecord>(DSL.name("item_graph")) {
 
     val PARENT_REPORT_ID = createField(DSL.name(PARENT_REPORT_ID_FIELD), SQLDataType.UUID)
-    val CHIld_REPORT_ID = createField(DSL.name(CHILD_REPORT_ID_FIELD), SQLDataType.UUID)
+    val CHILD_REPORT_ID = createField(DSL.name(CHILD_REPORT_ID_FIELD), SQLDataType.UUID)
     val PARENT_INDEX = createField(DSL.name(PARENT_INDEX_FIELD), SQLDataType.INTEGER)
     val CHILD_INDEX = createField(DSL.name(CHILD_INDEX_FIELD), SQLDataType.INTEGER)
     val STARTING_REPORT_ID = createField(DSL.name(STARTING_REPORT_ID_FIELD), SQLDataType.UUID)

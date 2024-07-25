@@ -196,11 +196,7 @@ class SendFunction(
                     } else {
                         logger.error("${actionHistory.action.actionResult}")
                     }
-                    val fileSize = if (content != null) {
-                        content.size
-                    } else {
-                        0
-                    }
+                    val fileSize = content?.size ?: 0
                     // The lat mile failure event has a slightly different pattern because we do not generate a child
                     // report as an output for this event so the childReport is the input to the send step and the
                     // parent report is the input to the batch step

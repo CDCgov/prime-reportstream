@@ -28,6 +28,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.observability.event.IReportEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
@@ -220,13 +221,7 @@ class ActionHistory(
             }
         }
         // capture the azure client IP but override with the first forwarded for if present
-        val senderIp =
-            (
-                (
-                    request.headers["x-forwarded-for"]?.split(",")
-                        ?.firstOrNull()
-                    )?.take(ACTION.SENDER_IP.dataType.length()) ?: request.headers["x-azure-clientip"]
-                )
+        val senderIp = getSenderIP(request)
         if (senderIp != null && InetAddressValidator.getInstance().isValid(senderIp)) {
             action.senderIp = senderIp
         }
@@ -607,14 +602,11 @@ class ActionHistory(
         ) {
             parentReportId(header.reportFile.reportId)
             params(
-                mapOf(
+                listOfNotNull(
                     ReportStreamEventProperties.TRANSPORT_TYPE to transportType,
-                    ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
-                ) + if (filename != null) {
-                    mapOf(ReportStreamEventProperties.FILENAME to filename)
-                } else {
-                    emptyMap()
-                }
+                    ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
+                    filename?.let { ReportStreamEventProperties.FILENAME to it }
+                ).toMap()
             )
         }
 

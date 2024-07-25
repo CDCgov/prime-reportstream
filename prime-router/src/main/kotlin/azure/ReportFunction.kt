@@ -24,6 +24,7 @@ import gov.cdc.prime.router.azure.observability.event.IReportEventService
 import gov.cdc.prime.router.azure.observability.event.ReportEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -200,16 +201,13 @@ class ReportFunction(
                         pipelineStepName = TaskAction.receive
                     ) {
                         params(
-                            mapOf(
+                            listOfNotNull(
                                 ReportStreamEventProperties.REQUEST_PARAMETERS
                                     to actionHistory.filterParameters(request),
                                 ReportStreamEventProperties.SENDER_NAME to sender.fullName,
-                                ReportStreamEventProperties.SENDER_IP to (
-                                    request.headers["x-forwarded-for"]?.split(",")
-                                        ?.first() ?: request.headers["x-azure-clientip"].toString()
-                                ),
-                                ReportStreamEventProperties.FILE_LENGTH to request.headers["content-length"].toString()
-                            )
+                                ReportStreamEventProperties.FILE_LENGTH to request.headers["content-length"].toString(),
+                                getSenderIP(request)?.let { ReportStreamEventProperties.SENDER_IP to it }
+                            ).toMap()
                         )
                     }.sendToAzure().logEvent()
 
