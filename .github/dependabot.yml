@@ -298,6 +298,17 @@ updates:
     schedule:
       interval: "weekly"
 
+  # submissions
+  - package-ecosystem: "gradle"
+    directory: "/submissions"
+    open-pull-requests-limit: 100
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "04:17"
+      timezone: "US/Eastern"
+    rebase-strategy: "disabled"
+
   # Backend
   - package-ecosystem: "gradle"
     directory: "/prime-router"
