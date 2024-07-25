@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-private const val radxmarxProfileLocation = "metadata/hl7_validation/v251/radxmars"
+private const val radxmarxProfileLocation = "metadata/hl7_validation/v251/radxmars/production"
 
 class MessageValidatorTests {
 
