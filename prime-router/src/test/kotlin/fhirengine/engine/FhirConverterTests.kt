@@ -612,8 +612,9 @@ class FhirConverterTests {
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every { mockMessage.downloadContent() } returns "{\"id\":}"
-            val bundles = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
-            assertThat(bundles).isEmpty()
+            val processedItems = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
+            assertThat(processedItems).hasSize(1)
+            assertThat(processedItems.first().bundle).isNull()
             assertThat(actionLogger.errors.map { it.detail.message }).contains(
                 @Suppress("ktlint:standard:max-line-length")
                 "Item 1 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected character ('}' (code 125)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n at [line: 1, column: 7]"
@@ -640,8 +641,9 @@ class FhirConverterTests {
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every { mockMessage.downloadContent() } returns "{\"id\":\"1\", \"resourceType\":\"Bundle\"}"
-            val bundles = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
-            assertThat(bundles).isEmpty()
+            val processedItems = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
+            assertThat(processedItems).hasSize(1)
+            assertThat(processedItems.first().bundle).isNull()
             assertThat(actionLogger.errors.map { it.detail.message }).contains(
                 "Item 1 in the report was not valid. Reason: Validation failed"
             )
@@ -657,8 +659,9 @@ class FhirConverterTests {
             every {
                 mockMessage.downloadContent()
             } returns unparseableHL7
-            val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
-            assertThat(bundles).isEmpty()
+            val processedItems = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
+            assertThat(processedItems).hasSize(1)
+            assertThat(processedItems.first().bundle).isNull()
             assertThat(
                 actionLogger.errors.map {
                     it.detail.message
@@ -690,8 +693,9 @@ class FhirConverterTests {
             every {
                 mockMessage.downloadContent()
             } returns simpleHL7
-            val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
-            assertThat(bundles).isEmpty()
+            val processedItems = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
+            assertThat(processedItems).hasSize(1)
+            assertThat(processedItems.first().bundle).isNull()
             @Suppress("ktlint:standard:max-line-length")
             assertThat(
                 actionLogger.errors.map {
@@ -717,8 +721,9 @@ class FhirConverterTests {
             every {
                 mockMessage.downloadContent()
             } returns simpleHL7
-            val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
-            assertThat(bundles).isEmpty()
+            val processedItems = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
+            assertThat(processedItems).hasSize(1)
+            assertThat(processedItems.first().bundle).isNull()
             assertThat(
                 actionLogger.errors.map {
                     it.detail.message
@@ -741,8 +746,8 @@ class FhirConverterTests {
             } returns """{\"id\":}
                 {"id":"1", "resourceType":"Bundle"}
             """.trimMargin()
-            val bundles = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
-            assertThat(bundles).hasSize(1)
+            val processedItems = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
+            assertThat(processedItems).hasSize(2)
             assertThat(actionLogger.errors.map { it.detail.message }).contains(
                 @Suppress("ktlint:standard:max-line-length")
                 "Item 1 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected character ('\\' (code 92)): was expecting double-quote to start field name\n at [line: 1, column: 2]"
