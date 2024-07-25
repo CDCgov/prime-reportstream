@@ -780,9 +780,6 @@ buildscript {
             exclude("net.minidev", "json-smart")
         }
     }
-    repositories {
-        mavenCentral()
-    }
     dependencies {
         // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
         // will need to be removed once this issue is resolved in Maven.
