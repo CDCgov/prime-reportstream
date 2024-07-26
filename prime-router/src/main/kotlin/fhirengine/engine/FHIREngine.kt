@@ -13,8 +13,8 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
-import gov.cdc.prime.router.azure.observability.event.IReportEventService
-import gov.cdc.prime.router.azure.observability.event.ReportEventService
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.report.ReportService
@@ -45,7 +45,7 @@ abstract class FHIREngine(
     val blob: BlobAccess = BlobAccess(),
     val azureEventService: AzureEventService = AzureEventServiceImpl(),
     val reportService: ReportService = ReportService(ReportGraph(db), db),
-    val reportEventService: IReportEventService = ReportEventService(
+    val reportEventService: IReportStreamEventService = ReportStreamEventService(
         db,
         azureEventService,
         reportService
@@ -70,7 +70,7 @@ abstract class FHIREngine(
         var csvSerializer: CsvSerializer? = null,
         var azureEventService: AzureEventService? = null,
         var reportService: ReportService? = null,
-        var reportEventService: IReportEventService? = null,
+        var reportEventService: IReportStreamEventService? = null,
     ) {
         /**
          * Set the metadata instance.
@@ -112,7 +112,7 @@ abstract class FHIREngine(
             this.reportService = reportService
         }
 
-        fun reportEventService(reportEventService: ReportEventService) = apply {
+        fun reportEventService(reportEventService: ReportStreamEventService) = apply {
             this.reportEventService = reportEventService
         }
 

@@ -13,7 +13,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
-import gov.cdc.prime.router.azure.observability.event.IReportEventService
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.StringTemplateResolver
@@ -32,7 +32,7 @@ class EmailTransport : ITransport {
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory, // not used by emailer
-        reportEventService: IReportEventService,
+        reportEventService: IReportStreamEventService,
     ): RetryItems? {
         val emailTransport = transportType as EmailTransportType
         val content = buildContent(header)

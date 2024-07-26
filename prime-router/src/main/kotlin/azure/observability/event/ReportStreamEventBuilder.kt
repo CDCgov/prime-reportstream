@@ -9,10 +9,28 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
 import java.util.UUID
 
+/**
+ * Abstract class for building ReportStream events
+ *
+ * @param reportEventService service used to fetch more details for the event
+ * @param azureEventService service used to dispatch the event to azure
+ * @param name the [ReportStreamEventName] of the event
+ * @param childReportId the report id of the outputted report/item
+ * @param childBodyUrl the blob url of the outputted report
+ * @param theTopic the topic that the report/item is part of
+ * @param pipelineStepName the pipeline step producing the event
+ *
+ * Additional properties can be set for the event via an initializer
+ * - [AbstractReportStreamEventBuilder.parentReportId] will configure the id of the inputted report
+ * - [AbstractReportStreamEventBuilder.params] will configure additional properties to include with the event
+ *
+ * Events can be built and then delivered by invoking [AbstractReportStreamEventBuilder.send]
+ *
+ */
 abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
-    protected val reportEventService: IReportEventService,
+    protected val reportEventService: IReportStreamEventService,
     val azureEventService: AzureEventService,
-    private val theName: ReportStreamEventName,
+    private val name: ReportStreamEventName,
     private val childReportId: UUID,
     private val childBodyUrl: String,
     private val theTopic: Topic,
@@ -20,7 +38,7 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
 ) : Logging {
 
     constructor(
-        reportEventService: IReportEventService,
+        reportEventService: IReportStreamEventService,
         azureEventService: AzureEventService,
         theName: ReportStreamEventName,
         report: ReportFile,
@@ -36,7 +54,7 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
     )
 
     constructor(
-        reportEventService: IReportEventService,
+        reportEventService: IReportStreamEventService,
         azureEventService: AzureEventService,
         theName: ReportStreamEventName,
         report: Report,
@@ -80,20 +98,23 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
     }
 
     private fun sendToAzure(event: T): AbstractReportStreamEventBuilder<T> {
-        azureEventService.trackEvent(theName, event)
+        azureEventService.trackEvent(name, event)
         return this
     }
 
     private fun logEvent(event: T): AbstractReportStreamEventBuilder<T> {
         withLoggingContext(event) {
-            logger.info("$theName event occurred")
+            logger.info("$name event occurred")
         }
         return this
     }
 }
 
+/**
+ * Concrete implementation for building ReportStream report event
+ */
 open class ReportStreamReportEventBuilder(
-    reportEventService: IReportEventService,
+    reportEventService: IReportStreamEventService,
     azureEventService: AzureEventService,
     theName: ReportStreamEventName,
     childReportId: UUID,
@@ -118,8 +139,16 @@ open class ReportStreamReportEventBuilder(
     }
 }
 
+/**
+ * Concrete implementation for creating a ReportStream item event
+ *
+ * Supports some additional configuration:
+ * - [ReportStreamItemEventBuilder.childItemIndex] will set the index for the item in outputted report, defaults to 1
+ * - [ReportStreamItemEventBuilder.parentItemIndex] will set the index for the item in the inputted report, defaults to 1
+ * - [ReportStreamItemEventBuilder.trackingId] sets a unique identifier for the item
+ */
 open class ReportStreamItemEventBuilder(
-    reportEventService: IReportEventService,
+    reportEventService: IReportStreamEventService,
     azureEventService: AzureEventService,
     theName: ReportStreamEventName,
     childReportId: UUID,
@@ -135,16 +164,20 @@ open class ReportStreamItemEventBuilder(
     theTopic,
     pipelineStepName
 ) {
-    var theParentITemIndex = 1
-    var theChildIndex = 1
-    var theTrackingId: String? = null
+    private var theParentItemIndex = 1
+    private var theChildIndex = 1
+    private var theTrackingId: String? = null
 
     fun trackingId(bundle: Bundle) {
         theTrackingId = AzureEventUtils.getIdentifier(bundle).value
     }
 
     fun parentItemIndex(parentItemIndex: Int) {
-        theParentITemIndex = parentItemIndex
+        theParentItemIndex = parentItemIndex
+    }
+
+    fun childItemIndex(childItemIndex: Int) {
+        theChildIndex = childItemIndex
     }
 
     protected fun getItemEventData(): ItemEventData {
@@ -154,7 +187,7 @@ open class ReportStreamItemEventBuilder(
         return reportEventService.getItemEventData(
             theChildIndex,
             theParentReportId!!,
-            theParentITemIndex,
+            theParentItemIndex,
             theTrackingId
         )
     }
@@ -168,8 +201,11 @@ open class ReportStreamItemEventBuilder(
     }
 }
 
+/**
+ * Subclass of [ReportStreamReportEventBuilder] that forces the caller to pass an error string
+ */
 class ReportStreamReportProcessingErrorEventBuilder(
-    reportEventService: IReportEventService,
+    reportEventService: IReportStreamEventService,
     azureEventService: AzureEventService,
     theName: ReportStreamEventName,
     childReportId: UUID,
@@ -194,8 +230,11 @@ class ReportStreamReportProcessingErrorEventBuilder(
     }
 }
 
+/**
+ * Subclass of [ReportStreamItemEventBuilder] that forces the caller to pass an error string
+ */
 class ReportStreamItemProcessingErrorEventBuilder(
-    reportEventService: IReportEventService,
+    reportEventService: IReportStreamEventService,
     azureEventService: AzureEventService,
     theName: ReportStreamEventName,
     childReportId: UUID,

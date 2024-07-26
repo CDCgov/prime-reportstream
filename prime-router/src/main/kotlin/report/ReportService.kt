@@ -26,6 +26,13 @@ class ReportService(
             ?: reportGraph.db.fetchReportFile(childReportId)
     }
 
+    /**
+     * Gets the index of the item in the submitted report by recursing the item lineage
+     *
+     * @param childReportId the child report id
+     * @param childIndex the index of the item in the child report
+     * @return the index of the item in the submitted report
+     */
     fun getRootItemIndex(childReportId: UUID, childIndex: Int): Int? {
         val rootItem = db.transactReturning { txn ->
             reportGraph.getRootItem(childReportId, childIndex, txn)

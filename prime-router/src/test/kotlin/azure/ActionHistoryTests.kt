@@ -25,7 +25,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
-import gov.cdc.prime.router.azure.observability.event.ReportEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
@@ -326,7 +326,7 @@ class ActionHistoryTests {
         )
         val mockAzureEventService = mockk<AzureEventService>()
         every { mockAzureEventService.trackEvent(any()) } returns Unit
-        val mockReportEventService = mockk<ReportEventService>()
+        val mockReportEventService = mockk<ReportStreamEventService>()
         every {
             mockReportEventService.getReportEventData(
                 any<UUID>(),
@@ -426,7 +426,7 @@ class ActionHistoryTests {
             )
         val mockAzureEventService = mockk<AzureEventService>()
         every { mockAzureEventService.trackEvent(any()) } returns Unit
-        val mockReportEventService = mockk<ReportEventService>()
+        val mockReportEventService = mockk<ReportStreamEventService>()
         every {
             mockReportEventService.getReportEventData(
                 any<UUID>(),
@@ -665,7 +665,7 @@ class ActionHistoryTests {
             )
         val mockAzureEventService = mockk<AzureEventService>()
         every { mockAzureEventService.trackEvent(any()) } returns Unit
-        val mockReportEventService = mockk<ReportEventService>()
+        val mockReportEventService = mockk<ReportStreamEventService>()
         every {
             mockReportEventService.getReportEventData(
                 any<UUID>(),

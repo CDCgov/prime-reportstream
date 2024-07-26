@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.azure.observability.event
 
 import assertk.assertThat
-import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isEqualToIgnoringGivenProperties
 import gov.cdc.prime.router.MimeFormat
@@ -69,7 +68,7 @@ class ReportEventServiceTest {
         val translateNode = submittedReport.children[0].children[0].children[0].children[0]
         val sentNode = translateNode.children[0]
 
-        val reportEventService = ReportEventService(
+        val reportEventService = ReportStreamEventService(
             ReportStreamTestDatabaseContainer.testDatabaseAccess,
             LocalAzureEventServiceImpl(),
             ReportService(
@@ -112,7 +111,7 @@ class ReportEventServiceTest {
             }
         }.generate(ReportStreamTestDatabaseContainer.testDatabaseAccess)
 
-        val reportEventService = ReportEventService(
+        val reportEventService = ReportStreamEventService(
             ReportStreamTestDatabaseContainer.testDatabaseAccess,
             LocalAzureEventServiceImpl(),
             ReportService(
@@ -189,7 +188,7 @@ class ReportEventServiceTest {
 
         val translateNode = submittedReport.children[0].children[0].children[0].children[0]
 
-        val reportEventService = ReportEventService(
+        val reportEventService = ReportStreamEventService(
             ReportStreamTestDatabaseContainer.testDatabaseAccess,
             LocalAzureEventServiceImpl(),
             ReportService(

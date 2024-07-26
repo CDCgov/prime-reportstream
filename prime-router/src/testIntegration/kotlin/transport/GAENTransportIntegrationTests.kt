@@ -14,7 +14,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
-import gov.cdc.prime.router.azure.observability.event.IReportEventService
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import io.ktor.http.HttpStatusCode
 import io.mockk.every
@@ -143,7 +143,7 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             retryItems = null,
             context,
             actionHistory,
-            mockk<IReportEventService>(relaxed = true)
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         assertThat(retryItems).isNull()
@@ -175,7 +175,7 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             retryItems = null,
             context,
             actionHistory,
-            mockk<IReportEventService>(relaxed = true)
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         assertThat(RetryToken.isAllItems(retryItems)).isTrue()
@@ -207,7 +207,7 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             retryItems = null,
             context,
             actionHistory,
-            mockk<IReportEventService>(relaxed = true)
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         assertThat(retryItems).isNull()
@@ -240,7 +240,7 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             retryItems = null,
             context,
             actionHistory,
-            mockk<IReportEventService>(relaxed = true)
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         assertThat(retryItems).isNull()

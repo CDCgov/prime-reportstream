@@ -20,10 +20,10 @@ import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.observability.event.IReportEventService
-import gov.cdc.prime.router.azure.observability.event.ReportEventService
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
@@ -41,7 +41,7 @@ private const val PROCESSING_TYPE_PARAMETER = "processing"
 class ReportFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive),
-    private val reportEventService: IReportEventService = ReportEventService(
+    private val reportEventService: IReportStreamEventService = ReportStreamEventService(
         workflowEngine.db,
         workflowEngine.azureEventService,
         workflowEngine.reportService
@@ -196,7 +196,7 @@ class ReportFunction(
                     )
 
                     reportEventService.sendReportEvent(
-                        eventName = ReportStreamEventName.REPORT_RECEIVED_EVENT,
+                        eventName = ReportStreamEventName.REPORT_RECEIVED,
                         childReport = report,
                         pipelineStepName = TaskAction.receive
                     ) {

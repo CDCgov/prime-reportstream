@@ -14,7 +14,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
-import gov.cdc.prime.router.azure.observability.event.IReportEventService
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.CredentialService
@@ -175,7 +175,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             null,
             context,
             f.actionHistory,
-            mockk<IReportEventService>(relaxed = true)
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // successful SFTP upload
@@ -216,7 +216,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             null,
             context,
             f.actionHistory,
-            mockk<IReportEventService>(relaxed = true)
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // successful SFTP upload
@@ -257,7 +257,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             null,
             context,
             f.actionHistory,
-            mockk<IReportEventService>(relaxed = true)
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // successful SFTP upload
@@ -281,7 +281,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             null,
             context,
             f.actionHistory,
-            mockk<IReportEventService>(relaxed = true)
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // asserts that the initial null check works
@@ -312,7 +312,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             null,
             context,
             f.actionHistory,
-            mockk<IReportEventService>(relaxed = true)
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // asserts that missing credentials will fail SFTP
@@ -351,7 +351,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             null,
             context,
             f.actionHistory,
-            mockk<IReportEventService>(relaxed = true)
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // asserts that authentication error will result in error
@@ -383,7 +383,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             null,
             context,
             f.actionHistory,
-            mockk<IReportEventService>(relaxed = true)
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // asserts that invalid credential types will result in error

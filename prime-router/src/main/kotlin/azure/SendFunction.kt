@@ -20,10 +20,10 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.context.SendFunctionLoggingContext
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
-import gov.cdc.prime.router.azure.observability.event.IReportEventService
-import gov.cdc.prime.router.azure.observability.event.ReportEventService
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.transport.ITransport
 import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RetryToken
@@ -63,7 +63,7 @@ val retryDurationInMin = mapOf(
 
 class SendFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
-    private val reportEventService: IReportEventService = ReportEventService(
+    private val reportEventService: IReportStreamEventService = ReportStreamEventService(
         workflowEngine.db,
         workflowEngine.azureEventService,
         workflowEngine.reportService
@@ -204,7 +204,7 @@ class SendFunction(
                     val parentReport = workflowEngine.db.fetchParentReport(report.reportId)
                     reportEventService.sendReportEvent(
                         eventName = ReportStreamEventName.REPORT_LAST_MILE_FAILURE,
-                        report = report,
+                        childReport = report,
                         pipelineStepName = TaskAction.send,
                     ) {
                         params(

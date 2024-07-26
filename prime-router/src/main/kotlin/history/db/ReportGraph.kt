@@ -136,6 +136,14 @@ class ReportGraph(
         }
     }
 
+    /**
+     * This data class captures the rough details that corresponds to an "item" which currently is not directly captured
+     * in the database.
+     *
+     * More concretely, an item refers to specific piece of health data in a submitted report i.e. a test result in a
+     * batch of several results.
+     *
+     */
     data class Item(
         val parentReportId: UUID,
         val parentIndex: Int,
@@ -143,6 +151,14 @@ class ReportGraph(
         val childIndex: Int,
     )
 
+    /**
+     * Retrieves the root "item" by recursing up the item lineage
+     *
+     * @param childReportId the id of the report
+     * @param childIndex the index of the item in the report
+     * @param txn an optional transaction to use
+     * @return [Item]
+     */
     fun getRootItem(childReportId: UUID, childIndex: Int, txn: DataAccessTransaction): Item? {
         val cte = itemAncestorGraphCommonTableExpression(
             childReportId,

@@ -6,6 +6,17 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
 import java.util.UUID
 
+/**
+ * Data class that is used in all ReportStream report events
+ *
+ * @param childReportId the report id of the outputted report
+ * @param parentReportId the optional report if of the inputted report
+ * @param submittedReportIds all the submitted reports that the outputted report ids has items from.
+ * @param topic the [Topic] that the report is part of
+ * @param blobUrl the blob url for the outputted report
+ * @param pipelineStepName the step that produced the outputted report
+ * @param timestamp when the event occurred
+ */
 data class ReportEventData(
     val childReportId: UUID,
     val parentReportId: UUID?,
@@ -16,6 +27,15 @@ data class ReportEventData(
     val timestamp: OffsetDateTime,
 )
 
+/**
+ * Data class is used in all ReportStream item events
+ *
+ * @param childItemIndex the index of the outputted item in the child report
+ * @param parentItemIndex the index the item in the input report
+ * @param submittedItemIndex the index of the item in the submitted report
+ * @param trackingId a unique identifier for the item as it goes through the pipeline
+ * @param sender the sender of the item
+ */
 data class ItemEventData(
     val childItemIndex: Int,
     val parentItemIndex: Int?,
@@ -24,6 +44,10 @@ data class ItemEventData(
     val sender: String,
 )
 
+/**
+ * This enum contains properties values that can be used in creating params for ReportStream events
+ * @see [AbstractReportStreamEventBuilder.params]
+ */
 enum class ReportStreamEventProperties {
     PROCESSING_ERROR,
     ITEM_FORMAT,
@@ -40,18 +64,28 @@ enum class ReportStreamEventProperties {
     BUNDLE_DIGEST,
 }
 
+/**
+ * The business event names
+ *
+ */
 enum class ReportStreamEventName {
     ITEM_NOT_ROUTED,
     ITEM_FAILED_VALIDATION,
     ITEM_ACCEPTED,
     ITEM_FILTER_FAILED,
     REPORT_SENT,
-    REPORT_RECEIVED_EVENT,
+    REPORT_RECEIVED,
     ITEM_ROUTED,
     REPORT_LAST_MILE_FAILURE,
     REPORT_NOT_PROCESSABLE,
 }
 
+/**
+ * A ReportStream report event that can be sent to azure
+ *
+ * @param reportEventData the [ReportEventData]
+ * @param params additional properties that should be included with the event
+ */
 data class ReportStreamReportEvent(
     @JsonUnwrapped
     val reportEventData: ReportEventData,
@@ -59,6 +93,13 @@ data class ReportStreamReportEvent(
     val params: Map<ReportStreamEventProperties, Any>,
 ) : AzureCustomEvent
 
+/**
+ * A ReportStream item event that can be sent to azure
+ *
+ * @param reportEventData the [ReportEventData]
+ * @param itemEventData the [ItemEventData]
+ * @param params additional properties that should be included with the event
+ */
 data class ReportStreamItemEvent(
     @JsonUnwrapped
     val reportEventData: ReportEventData,
