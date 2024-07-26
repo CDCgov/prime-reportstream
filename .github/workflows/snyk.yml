@@ -8,7 +8,7 @@ on:
     paths:
       -  "prime-router/**"
       -  "submissions/**"
-      -  "sshared/**"
+      -  "shared/**"
 
 jobs:
   pre_job:
