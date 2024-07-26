@@ -1,7 +1,7 @@
 @startuml
-Client -> Okta: Request Access token
-Okta --> Client: Access token
-Client -> ReportStream: Use access token
+Client -> Okta: Request access token
+Okta --> Client: Receive access token
+Client -> ReportStream: Make request with access token
 ReportStream -> Okta: Check validity of access token
 Okta --> ReportStream: Valid access token
 ReportStream -> ReportStream: Check authorization to access resource

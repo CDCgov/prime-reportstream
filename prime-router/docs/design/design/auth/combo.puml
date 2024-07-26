@@ -1,7 +1,7 @@
 @startuml
-Client -> Okta: Request Access token
-Okta --> Client: Access token
-Client -> "Auth Microservice": Use access token
+Client -> Okta: Request access token
+Okta --> Client: Receive access token
+Client -> "Auth Microservice": Make request with access token
 "Auth Microservice" -> Okta: Check validity of access token
 Okta --> "Auth Microservice": Valid access token
 "Auth Microservice" -> ReportStream: Request gets handed off to ReportStream
