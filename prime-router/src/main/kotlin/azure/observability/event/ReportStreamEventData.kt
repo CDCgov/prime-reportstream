@@ -1,6 +1,8 @@
 package gov.cdc.prime.router.azure.observability.event
 
+import com.fasterxml.jackson.annotation.JsonKey
 import com.fasterxml.jackson.annotation.JsonUnwrapped
+import com.google.common.base.CaseFormat
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
@@ -62,6 +64,12 @@ enum class ReportStreamEventProperties {
     FILE_LENGTH,
     SENDER_NAME,
     BUNDLE_DIGEST,
+    ;
+
+    @JsonKey
+    fun externalKey(): String {
+        return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name)
+    }
 }
 
 /**

@@ -345,7 +345,7 @@ class ActionHistoryTests {
             OffsetDateTime.now()
         )
         every {
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
         } returns Unit
         val header = mockk<WorkflowEngine.Header>()
         val inReportFile = mockk<ReportFile>()
@@ -382,7 +382,7 @@ class ActionHistoryTests {
         assertThat(reportFile.itemCount).isEqualTo(15)
         assertThat(actionHistory1.action.externalName).isEqualTo("filename1")
         verify(exactly = 1) {
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
         }
         // not allowed to track the same report twice.
         assertFailure {
@@ -451,7 +451,7 @@ class ActionHistoryTests {
         every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
         val header = mockk<WorkflowEngine.Header>()
         every {
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
         } returns Unit
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
@@ -490,7 +490,7 @@ class ActionHistoryTests {
         assertThat(actionHistory2.reportsOut[uuid]?.schemaName)
             .isEqualTo("STED/NESTED/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME")
         verify(exactly = 2) {
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
         }
     }
 
@@ -690,7 +690,7 @@ class ActionHistoryTests {
         every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
         val header = mockk<WorkflowEngine.Header>()
         every {
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
         } returns Unit
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
@@ -727,7 +727,7 @@ class ActionHistoryTests {
         assertContains(blobUrls[0], org.receivers[0].fullName)
         assertContains(blobUrls[1], org.receivers[1].fullName)
         verify(exactly = 2) {
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
         }
     }
 
