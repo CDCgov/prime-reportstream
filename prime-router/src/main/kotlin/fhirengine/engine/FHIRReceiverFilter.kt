@@ -198,7 +198,12 @@ class FHIRReceiverFilter(
                     )
                 }
             }
-            if (keptObservations.isEmpty()) {
+            val allRemainingObservationsAreAoe = keptObservations
+                .all {
+                    val conditions = it.getMappedConditionCodes()
+                    conditions.isNotEmpty() && conditions.all { code -> code == "AOE" }
+                }
+            if (keptObservations.isEmpty() || allRemainingObservationsAreAoe) {
                 actionLogger.getItemLogger(1, trackingId).warn(
                     ReceiverItemFilteredActionLogDetail(
                         conditionFilters.joinToString(","),

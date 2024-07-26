@@ -227,7 +227,9 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = fetchChildReports(receiveReport, txn, 2)
+            val (routedReports, _) = fetchChildReports(
+                receiveReport, txn, 4
+            ).partition { it.nextAction != TaskAction.none }
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -347,7 +349,9 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = fetchChildReports(receiveReport, txn, 2)
+            val (routedReports, _) = fetchChildReports(
+                receiveReport, txn, 4
+            ).partition { it.nextAction != TaskAction.none }
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -427,7 +431,9 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = fetchChildReports(receiveReport, txn, 1)
+            val (routedReports, _) = fetchChildReports(
+                receiveReport, txn, 2
+            ).partition { it.nextAction != TaskAction.none }
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
