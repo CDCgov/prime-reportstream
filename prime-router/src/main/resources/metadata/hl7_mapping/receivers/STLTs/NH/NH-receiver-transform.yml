@@ -71,9 +71,6 @@ elements:
     resource: Bundle.entry.resource.ofType(Observation)
     condition: '%resource.count() > 0'
     schema: classpath:/metadata/hl7_mapping/receivers/STLTs/NH/NH-observation-fields.yml
-    constants:
-      hl7SegmentGroup: 'PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(%{resultIndex})'
-      hl7OBXField: '%{hl7SegmentGroup}/OBX'
     resourceIndex: resultIndex
 
 

@@ -1,14 +1,7 @@
+constants:
+  OBX: '/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(%{resultIndex})/OBX'
+
 elements:
   - name: nh-unwanted-fields-obx
     value: [ '""' ]
-    hl7Spec: [ '%{hl7OBXField}-18-1', '%{hl7OBXField}-18-2', '%{hl7OBXField}-18-3']
-  
-  - name: nh-relpaceDiiWithOid-18-3
-    condition: 'Bundle.entry.resource.ofType(Observation).device.resolve().identifier.value.exists() and Bundle.entry.resource.ofType(Observation).device.resolve().identifier.value != ""'
-    value: [ '"2.16.840.1.113883.3.3719"' ]
-    hl7Spec: [ '%{hl7OBXField}-18-3' ]
-  
-  - name: nh-relpaceDiiWithOid-18-4
-    condition: 'Bundle.entry.resource.ofType(Observation).device.resolve().identifier.value.exists() and Bundle.entry.resource.ofType(Observation).device.resolve().identifier.value != ""'
-    value: [ '"ISO"' ]
-    hl7Spec: [ '%{hl7OBXField}-18-4' ]
+    hl7Spec: [ '%{OBX}-18-1', '%{OBX}-18-2', '%{OBX}-18-3']
