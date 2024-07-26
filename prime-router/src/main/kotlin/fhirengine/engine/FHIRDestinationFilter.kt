@@ -172,13 +172,13 @@ class FHIRDestinationFilter(
                     // ensure tracking is set
                     actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
-                    reportEventService.createItemEvent(
+                    reportEventService.sendItemEvent(
                         eventName = ReportStreamEventName.ITEM_ROUTED,
                         childReport = report,
                         pipelineStepName = TaskAction.destination_filter
                     ) {
                         parentReportId(queueMessage.reportId)
-                    }.sendToAzure().logEvent()
+                    }
 
                     listOf(
                         FHIREngineRunResult(
@@ -236,7 +236,7 @@ class FHIRDestinationFilter(
                 val bundleDigestExtractor = BundleDigestExtractor(
                     FhirPathBundleDigestLabResultExtractorStrategy()
                 )
-                reportEventService.createItemEvent(
+                reportEventService.sendItemEvent(
                     eventName = ReportStreamEventName.ITEM_NOT_ROUTED,
                     childReport = report,
                     pipelineStepName = TaskAction.destination_filter
@@ -248,7 +248,7 @@ class FHIRDestinationFilter(
                                 to bundleDigestExtractor.generateDigest(bundle)
                         )
                     )
-                }.sendToAzure().logEvent()
+                }
 
                 return emptyList()
             }

@@ -437,7 +437,7 @@ class FHIRReceiverFilter(
                     val bundleDigestExtractor = BundleDigestExtractor(
                         FhirPathBundleDigestLabResultExtractorStrategy()
                     )
-                    reportEventService.createItemEvent(
+                    reportEventService.sendItemEvent(
                         eventName = ReportStreamEventName.ITEM_FILTER_FAILED,
                         childReport = emptyReport,
                         pipelineStepName = TaskAction.receiver_filter
@@ -453,7 +453,7 @@ class FHIRReceiverFilter(
                                     to bundleDigestExtractor.generateDigest(bundle)
                             )
                         )
-                    }.sendToAzure().logEvent()
+                    }
 
                     return emptyList()
                 }

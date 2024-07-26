@@ -173,7 +173,7 @@ class FHIRConverter(
                             )
                             actionHistory.trackCreatedReport(noneEvent, report)
                             if (processedItem.validationError != null) {
-                                reportEventService.createItemProcessingError(
+                                reportEventService.sendItemProcessingError(
                                     ReportStreamEventName.ITEM_FAILED_VALIDATION,
                                     report,
                                     TaskAction.convert,
@@ -188,7 +188,7 @@ class FHIRConverter(
                                                 to queueMessage.topic.validator.validatorProfileName
                                         )
                                     )
-                                }.sendToAzure().logEvent()
+                                }
                             }
                             null
                         } else {
@@ -234,7 +234,7 @@ class FHIRConverter(
                             val bundleDigestExtractor = BundleDigestExtractor(
                                 FhirPathBundleDigestLabResultExtractorStrategy()
                             )
-                            reportEventService.createItemEvent(
+                            reportEventService.sendItemEvent(
                                 ReportStreamEventName.ITEM_ACCEPTED,
                                 report,
                                 TaskAction.convert
@@ -248,7 +248,7 @@ class FHIRConverter(
                                         ReportStreamEventProperties.ITEM_FORMAT to format
                                     )
                                 )
-                            }.sendToAzure().logEvent()
+                            }
 
                             FHIREngineRunResult(
                                 routeEvent,
@@ -301,18 +301,19 @@ class FHIRConverter(
 
                 // ensure tracking is set
                 actionHistory.trackCreatedReport(nextEvent, report)
-                // TODO: report processing error
-//                azureEventService.trackEvent(
-//                    ProcessingErrorEvent(
-//                        reportEventService.getReportEventData(
-//                            report,
-//                            queueMessage.reportId,
-//                            TaskAction.convert,
-//                            queueMessage.topic
-//                        ),
-//                        "Submitted report was either empty or could not be parsed into HL7"
-//                    )
-//                )
+                reportEventService.sendReportProcessingError(
+                    ReportStreamEventName.REPORT_NOT_PROCESSABLE,
+                    report,
+                    TaskAction.convert,
+                    "Submitted report was either empty or could not be parsed into HL7"
+                    ) {
+                    parentReportId(queueMessage.reportId)
+                    params(
+                        mapOf(
+                            ReportStreamEventProperties.ITEM_FORMAT to format
+                        )
+                    )
+                }
                 return emptyList()
             }
         }

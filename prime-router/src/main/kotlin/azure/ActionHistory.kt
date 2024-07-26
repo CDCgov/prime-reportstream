@@ -595,7 +595,7 @@ class ActionHistory(
         reportFile.blobDigest = blobInfo.digest
         reportFile.bodyUrl = blobInfo.blobUrl
 
-        reportEventService.createItemEvent(
+        reportEventService.sendItemEvent(
             childReport = reportFile,
             eventName = ReportStreamEventName.REPORT_SENT,
             pipelineStepName = TaskAction.send

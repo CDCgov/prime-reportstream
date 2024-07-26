@@ -195,7 +195,7 @@ class ReportFunction(
                         payloadName
                     )
 
-                    reportEventService.createReportEvent(
+                    reportEventService.sendReportEvent(
                         eventName = ReportStreamEventName.REPORT_RECEIVED_EVENT,
                         childReport = report,
                         pipelineStepName = TaskAction.receive
@@ -209,7 +209,7 @@ class ReportFunction(
                                 getSenderIP(request)?.let { ReportStreamEventProperties.SENDER_IP to it }
                             ).toMap()
                         )
-                    }.sendToAzure().logEvent()
+                    }
 
                     // return CREATED status, report submission was successful
                     HttpStatus.CREATED

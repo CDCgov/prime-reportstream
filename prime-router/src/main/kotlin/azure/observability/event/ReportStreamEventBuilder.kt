@@ -73,14 +73,18 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
         )
     }
 
-    fun sendToAzure(): AbstractReportStreamEventBuilder<T> {
+    fun send() {
         val event = buildEvent()
+        sendToAzure(event)
+        logEvent(event)
+    }
+
+    private fun sendToAzure(event: T): AbstractReportStreamEventBuilder<T> {
         azureEventService.trackEvent(theName, event)
         return this
     }
 
-    fun logEvent(): AbstractReportStreamEventBuilder<T> {
-        val event = buildEvent()
+    private fun logEvent(event: T): AbstractReportStreamEventBuilder<T> {
         withLoggingContext(event) {
             logger.info("$theName event occurred")
         }
@@ -88,7 +92,7 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
     }
 }
 
-class ReportStreamReportEventBuilder(
+open class ReportStreamReportEventBuilder(
     reportEventService: IReportEventService,
     azureEventService: AzureEventService,
     theName: ReportStreamEventName,
@@ -160,6 +164,32 @@ open class ReportStreamItemEventBuilder(
             getReportEventData(),
             getItemEventData(),
             theParams
+        )
+    }
+}
+
+class ReportStreamReportProcessingErrorEventBuilder(
+    reportEventService: IReportEventService,
+    azureEventService: AzureEventService,
+    theName: ReportStreamEventName,
+    childReportId: UUID,
+    childBodyUrl: String,
+    theTopic: Topic,
+    pipelineStepName: TaskAction,
+    private val error: String,
+) : ReportStreamReportEventBuilder(
+    reportEventService,
+    azureEventService,
+    theName,
+    childReportId,
+    childBodyUrl,
+    theTopic,
+    pipelineStepName
+) {
+    override fun buildEvent(): ReportStreamReportEvent {
+        return ReportStreamReportEvent(
+            getReportEventData(),
+            theParams + mapOf(ReportStreamEventProperties.PROCESSING_ERROR to error)
         )
     }
 }

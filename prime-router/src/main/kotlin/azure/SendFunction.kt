@@ -202,7 +202,7 @@ class SendFunction(
                     // parent report is the input to the batch step
                     // TODO: ticket to create a report for last mile failure
                     val parentReport = workflowEngine.db.fetchParentReport(report.reportId)
-                    reportEventService.createReportEvent(
+                    reportEventService.sendReportEvent(
                         eventName = ReportStreamEventName.REPORT_LAST_MILE_FAILURE,
                         report = report,
                         pipelineStepName = TaskAction.send,
@@ -219,7 +219,7 @@ class SendFunction(
                         if (parentReport != null) {
                             parentReportId(parentReport.reportId)
                         }
-                    }.sendToAzure().logEvent()
+                    }
 
                     ReportEvent(Event.EventAction.SEND_ERROR, report.reportId, isEmptyBatch)
                 } else {

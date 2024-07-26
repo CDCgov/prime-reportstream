@@ -49,6 +49,7 @@ enum class ReportStreamEventName {
     REPORT_RECEIVED_EVENT,
     ITEM_ROUTED,
     REPORT_LAST_MILE_FAILURE,
+    REPORT_NOT_PROCESSABLE,
 }
 
 data class ReportStreamReportEvent(

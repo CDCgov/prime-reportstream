@@ -23,11 +23,9 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
-import gov.cdc.prime.router.azure.observability.event.AbstractReportStreamEventBuilder
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportEventService
-import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
@@ -347,8 +345,8 @@ class ActionHistoryTests {
             OffsetDateTime.now()
         )
         every {
-            mockReportEventService.createItemEvent(any(), any<ReportFile>(), any(), any())
-        } returns mockk<AbstractReportStreamEventBuilder<ReportStreamItemEvent>>(relaxed = true)
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any())
+        } returns Unit
         val header = mockk<WorkflowEngine.Header>()
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
@@ -450,8 +448,8 @@ class ActionHistoryTests {
         every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
         val header = mockk<WorkflowEngine.Header>()
         every {
-            mockReportEventService.createItemEvent(any(), any<ReportFile>(), any(), any())
-        } returns mockk<AbstractReportStreamEventBuilder<ReportStreamItemEvent>>(relaxed = true)
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any())
+        } returns Unit
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
@@ -686,8 +684,8 @@ class ActionHistoryTests {
         every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
         val header = mockk<WorkflowEngine.Header>()
         every {
-            mockReportEventService.createItemEvent(any(), any<ReportFile>(), any(), any())
-        } returns mockk<AbstractReportStreamEventBuilder<ReportStreamItemEvent>>(relaxed = true)
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any())
+        } returns Unit
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()

@@ -10,49 +10,65 @@ import java.time.OffsetDateTime
 import java.util.UUID
 
 interface IReportEventService {
-    fun createReportEvent(
+    fun sendReportEvent(
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
         initializer: ReportStreamReportEventBuilder.() -> Unit,
-    ): ReportStreamReportEventBuilder
+    )
 
-    fun createReportEvent(
+    fun sendReportEvent(
         eventName: ReportStreamEventName,
         report: ReportFile,
         pipelineStepName: TaskAction,
         initializer: ReportStreamReportEventBuilder.() -> Unit,
-    ): ReportStreamReportEventBuilder
+    )
 
-    fun createItemEvent(
+    fun sendReportProcessingError(
+        eventName: ReportStreamEventName,
+        childReport: ReportFile,
+        pipelineStepName: TaskAction,
+        error: String,
+        initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
+    )
+
+    fun sendReportProcessingError(
+        eventName: ReportStreamEventName,
+        childReport: Report,
+        pipelineStepName: TaskAction,
+        error: String,
+        initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
+    )
+
+    fun sendItemEvent(
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
         initializer: ReportStreamItemEventBuilder.() -> Unit,
-    ): AbstractReportStreamEventBuilder<ReportStreamItemEvent>
+    )
 
-    fun createItemEvent(
+    fun sendItemEvent(
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
         initializer: ReportStreamItemEventBuilder.() -> Unit,
-    ): AbstractReportStreamEventBuilder<ReportStreamItemEvent>
+    )
 
-    fun createItemProcessingError(
+    fun sendItemProcessingError(
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
         error: String,
         initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
-    ): ReportStreamItemProcessingErrorEventBuilder
+    )
 
-    fun createItemProcessingError(
+    fun sendItemProcessingError(
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
         error: String,
         initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
-    ): ReportStreamItemProcessingErrorEventBuilder
+    )
 
     fun getReportEventData(
         childReportId: UUID,
@@ -76,13 +92,13 @@ class ReportEventService(
     private val reportService: ReportService,
 ) : IReportEventService {
 
-    override fun createReportEvent(
+    override fun sendReportEvent(
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
         initializer: ReportStreamReportEventBuilder.() -> Unit,
-    ): ReportStreamReportEventBuilder {
-        return ReportStreamReportEventBuilder(
+    ) {
+        ReportStreamReportEventBuilder(
             this,
             azureEventService,
             eventName,
@@ -92,16 +108,16 @@ class ReportEventService(
             pipelineStepName
         ).apply(
             initializer
-        )
+        ).send()
     }
 
-    override fun createReportEvent(
+    override fun sendReportEvent(
         eventName: ReportStreamEventName,
         report: ReportFile,
         pipelineStepName: TaskAction,
         initializer: ReportStreamReportEventBuilder.() -> Unit,
-    ): ReportStreamReportEventBuilder {
-        return ReportStreamReportEventBuilder(
+    ) {
+        ReportStreamReportEventBuilder(
             this,
             azureEventService,
             eventName,
@@ -111,51 +127,17 @@ class ReportEventService(
             pipelineStepName
         ).apply(
             initializer
-        )
+        ).send()
     }
 
-    override fun createItemEvent(
-        eventName: ReportStreamEventName,
-        childReport: Report,
-        pipelineStepName: TaskAction,
-        initializer: ReportStreamItemEventBuilder.() -> Unit,
-    ): AbstractReportStreamEventBuilder<ReportStreamItemEvent> {
-        return ReportStreamItemEventBuilder(
-            this,
-            azureEventService,
-            eventName,
-            childReport.id,
-            childReport.bodyURL,
-            childReport.schema.topic,
-            pipelineStepName
-        ).apply(initializer)
-    }
-
-    override fun createItemEvent(
-        eventName: ReportStreamEventName,
-        childReport: ReportFile,
-        pipelineStepName: TaskAction,
-        initializer: ReportStreamItemEventBuilder.() -> Unit,
-    ): AbstractReportStreamEventBuilder<ReportStreamItemEvent> {
-        return ReportStreamItemEventBuilder(
-            this,
-            azureEventService,
-            eventName,
-            childReport.reportId,
-            childReport.bodyUrl,
-            childReport.schemaTopic,
-            pipelineStepName
-        ).apply(initializer)
-    }
-
-    override fun createItemProcessingError(
+    override fun sendReportProcessingError(
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
         error: String,
-        initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
-    ): ReportStreamItemProcessingErrorEventBuilder {
-        return ReportStreamItemProcessingErrorEventBuilder(
+        initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
+    ) {
+        ReportStreamReportProcessingErrorEventBuilder(
             this,
             azureEventService,
             eventName,
@@ -164,17 +146,19 @@ class ReportEventService(
             childReport.schemaTopic,
             pipelineStepName,
             error
-        ).apply(initializer)
+        ).apply(
+            initializer
+        ).send()
     }
 
-    override fun createItemProcessingError(
+    override fun sendReportProcessingError(
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
         error: String,
-        initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
-    ): ReportStreamItemProcessingErrorEventBuilder {
-        return ReportStreamItemProcessingErrorEventBuilder(
+        initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
+    ) {
+        ReportStreamReportProcessingErrorEventBuilder(
             this,
             azureEventService,
             eventName,
@@ -183,7 +167,81 @@ class ReportEventService(
             childReport.schema.topic,
             pipelineStepName,
             error
-        ).apply(initializer)
+        ).apply(
+            initializer
+        ).send()
+    }
+
+    override fun sendItemEvent(
+        eventName: ReportStreamEventName,
+        childReport: Report,
+        pipelineStepName: TaskAction,
+        initializer: ReportStreamItemEventBuilder.() -> Unit,
+    ) {
+        ReportStreamItemEventBuilder(
+            this,
+            azureEventService,
+            eventName,
+            childReport.id,
+            childReport.bodyURL,
+            childReport.schema.topic,
+            pipelineStepName
+        ).apply(initializer).send()
+    }
+
+    override fun sendItemEvent(
+        eventName: ReportStreamEventName,
+        childReport: ReportFile,
+        pipelineStepName: TaskAction,
+        initializer: ReportStreamItemEventBuilder.() -> Unit,
+    ) {
+        ReportStreamItemEventBuilder(
+            this,
+            azureEventService,
+            eventName,
+            childReport.reportId,
+            childReport.bodyUrl,
+            childReport.schemaTopic,
+            pipelineStepName
+        ).apply(initializer).send()
+    }
+
+    override fun sendItemProcessingError(
+        eventName: ReportStreamEventName,
+        childReport: ReportFile,
+        pipelineStepName: TaskAction,
+        error: String,
+        initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
+    ) {
+        ReportStreamItemProcessingErrorEventBuilder(
+            this,
+            azureEventService,
+            eventName,
+            childReport.reportId,
+            childReport.bodyUrl,
+            childReport.schemaTopic,
+            pipelineStepName,
+            error
+        ).apply(initializer).send()
+    }
+
+    override fun sendItemProcessingError(
+        eventName: ReportStreamEventName,
+        childReport: Report,
+        pipelineStepName: TaskAction,
+        error: String,
+        initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
+    ) {
+        ReportStreamItemProcessingErrorEventBuilder(
+            this,
+            azureEventService,
+            eventName,
+            childReport.id,
+            childReport.bodyURL,
+            childReport.schema.topic,
+            pipelineStepName,
+            error
+        ).apply(initializer).send()
     }
 
     override fun getReportEventData(
