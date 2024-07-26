@@ -126,10 +126,11 @@ elements:
     value: [ '"HL7v2.5.1"' ]
     hl7Spec: [ '%{PID}-22-7' ]
 
-  - name: wa-suppress-qst-for-aoe
+  - name: wa-observation
+    resource: Bundle.entry.resource.ofType(Observation)
     condition: 'Bundle.entry.resource.ofType(Observation).code.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code").value.code = "AOE"'
-    value: [ '""' ]
-    hl7Spec: [ '%{hl7OBXField}-29' ]
+    schema: classpath:/metadata/hl7_mapping/receivers/STLTs/WA/WA-observation-fields.yml
+    resourceIndex: resultIndex
 
   - name: wa-unwanted-fields
     value: [ '""' ]
