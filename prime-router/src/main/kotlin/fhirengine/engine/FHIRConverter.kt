@@ -9,6 +9,7 @@ import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator.ParseFailureError
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.common.collect.Streams
+import com.microsoft.azure.functions.HttpStatus
 import fhirengine.engine.IProcessedItem
 import fhirengine.engine.ProcessedFHIRItem
 import fhirengine.engine.ProcessedHL7Item
@@ -16,6 +17,7 @@ import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
@@ -119,75 +121,101 @@ class FHIRConverter(
             MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobUrl,
         )
         withLoggingContext(contextMap) {
-            val tableAccess = TableAccess()
+            val payloadName = queueMessage.headers["payloadname"]
+            val mimeType = queueMessage.headers["Content-Type"]!!.substringBefore(';')
 
-            tableAccess.updateMultipleFields(
-                queueMessage.reportId.toString(),
-                queueMessage.reportId.toString(),
-                mapOf(
-                    "status" to "Accepted",
-                    "report_accepted_time" to Instant.now().toString()
-                )
-            )
-
+            receiveActionHistory.trackActionResult(HttpStatus.CREATED)
             receiveActionHistory.trackActionParams(queueMessage.headers.toString())
-            receiveActionHistory.trackActionSenderInfo(sender?.fullName ?: "", queueMessage.headers["payloadname"])
 
-            val report: Report
-            val sources = listOf(
-                sender?.organizationName?.let {
-                sender.name.let { it1 ->
+            if (sender == null) {
+                receiveActionHistory.trackReceivedNoReport(
+                    queueMessage.reportId,
+                    queueMessage.blobUrl,
+                    MimeFormat.valueOfFromMimeType(mimeType).toString()
+                )
+            } else {
+                // track the sending organization and client based on the header
+                receiveActionHistory.trackActionSenderInfo(sender.fullName, payloadName)
+
+                val tableAccess = TableAccess()
+
+                tableAccess.updateMultipleFields(
+                    queueMessage.reportId.toString(),
+                    queueMessage.reportId.toString(),
+                    mapOf(
+                        "status" to "Accepted",
+                        "report_accepted_time" to Instant.now().toString()
+                    )
+                )
+
+                val report: Report
+                val sources = listOf(
                     ClientSource(
-                        organization = it,
-                        client = it1
+                        organization = sender.organizationName,
+                        client = sender.name
                     )
-                }
-            }
-            )
-            val content = BlobAccess.downloadBlobAsByteArray(queueMessage.blobUrl).toString()
+                )
+                val content = BlobAccess.downloadBlobAsByteArray(queueMessage.blobUrl).toString()
 
-            when (sender?.format) {
-                MimeFormat.HL7 -> {
-                    val messages = HL7Reader(actionLogger).getMessages(content)
-                    val isBatch = HL7Reader(actionLogger).isBatch(content, messages.size)
-                    // create a Report for this incoming HL7 message to use for tracking in the database
+                when (sender.format) {
+                    MimeFormat.HL7 -> {
+                        val messages = HL7Reader(actionLogger).getMessages(content)
+                        val isBatch = HL7Reader(actionLogger).isBatch(content, messages.size)
+                        // create a Report for this incoming HL7 message to use for tracking in the database
 
-                    report = Report(
-                        if (isBatch) MimeFormat.HL7_BATCH else MimeFormat.HL7,
-                        sources,
-                        messages.size,
-                        metadata = metadata,
-                        nextAction = TaskAction.convert,
-                        topic = sender.topic,
-                    )
+                        report = Report(
+                            if (isBatch) MimeFormat.HL7_BATCH else MimeFormat.HL7,
+                            sources,
+                            messages.size,
+                            metadata = metadata,
+                            nextAction = TaskAction.convert,
+                            topic = sender.topic,
+                        )
 
-                    // check for valid message type
-                    messages.forEachIndexed {
-                        idx, element ->
-                        MessageType.validateMessageType(element, actionLogger, idx + 1)
+                        // check for valid message type
+                        messages.forEachIndexed { idx, element ->
+                            MessageType.validateMessageType(element, actionLogger, idx + 1)
+                        }
+                    }
+
+                    MimeFormat.FHIR -> {
+                        val bundles = FhirTranscoder.getBundles(content, actionLogger)
+                        report = Report(
+                            MimeFormat.FHIR,
+                            sources,
+                            bundles.size,
+                            metadata = metadata,
+                            nextAction = TaskAction.convert,
+                            topic = sender.topic,
+                        )
+                    }
+
+                    else -> {
+                        throw IllegalStateException("Unexpected sender format ${sender.format}")
                     }
                 }
 
-                MimeFormat.FHIR -> {
-                    val bundles = FhirTranscoder.getBundles(content, actionLogger)
-                    report = Report(
-                        MimeFormat.FHIR,
-                        sources,
-                        bundles.size,
-                        metadata = metadata,
-                        nextAction = TaskAction.convert,
-                        topic = sender.topic,
-                    )
+                // If the sender is disabled, there should be no next event
+                // THIS MUST HAPPEN BEFORE workflow.recordReceivedReport so that the next action
+                // is properly stored in the report in the DB
+                val eventAction = if (sender.customerStatus == CustomerStatus.INACTIVE) {
+                    report.nextAction = TaskAction.none
+                    Event.EventAction.NONE
+                } else {
+                    Event.EventAction.CONVERT
                 }
 
-                else -> {
-                    throw IllegalStateException("Unexpected sender format ${sender.format}")
-                }
-            }
+                receiveActionHistory.trackReceivedReport(
+                    report, queueMessage.blobUrl,
+                    MimeFormat.valueOfFromMimeType(mimeType).toString(), payloadName
+                )
 
-            // if there are any errors, kick this out.
-            if (actionLogger.hasErrors()) {
-                throw actionLogger.exception
+                workflowEngine.recordAction(receiveActionHistory)
+
+                // if there are any errors, kick this out.
+                if (actionLogger.hasErrors()) {
+                    throw actionLogger.exception
+                }
             }
         }
     }
