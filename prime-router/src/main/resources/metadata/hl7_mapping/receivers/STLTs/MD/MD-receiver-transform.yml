@@ -12,17 +12,17 @@ elements:
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
   - name: md-sending-application-namespace-id
-    condition: true
+    condition: 'true'
     value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
     hl7Spec: [ 'MSH-3-1' ]
 
   - name: md-OID-of-the-sending-application-universal-id
-    condition: true
+    condition: 'true'
     value: [ '"2.16.840.1.114222.4.1.237821"' ]
     hl7Spec: [ 'MSH-3-2' ]
 
   - name: md-sending-application-universal-id-type
-    condition: true
+    condition: 'true'
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-3-3' ]
 
