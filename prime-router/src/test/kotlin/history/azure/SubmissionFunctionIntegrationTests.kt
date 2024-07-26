@@ -307,7 +307,6 @@ class SubmissionFunctionIntegrationTests {
         assertThat(historyNode.get("warnings").size()).isEqualTo(1)
     }
 
-    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     @Test
     fun `it should return a history for partially delivered submission (for legacy route step)`() {
         val submittedReport = reportGraph {
@@ -428,7 +427,6 @@ class SubmissionFunctionIntegrationTests {
         assertThat(historyNode.get("warnings").size()).isEqualTo(1)
     }
 
-    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     @Test
     fun `it should return a history that indicates the report is not going to be delivered (legacy route step)`() {
         val submittedReport = reportGraph {
@@ -529,7 +527,6 @@ class SubmissionFunctionIntegrationTests {
         assertThat(historyNode.get("warnings").size()).isEqualTo(1)
     }
 
-    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     @Test
     fun `it should return a history that indicates waiting to deliver (legacy route step)`() {
         val submittedReport = reportGraph {
@@ -672,7 +669,6 @@ class SubmissionFunctionIntegrationTests {
         assertThat(historyNode.get("actualCompletionAt").asText()).isNotNull()
     }
 
-    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     @Test
     fun `it should return history of a submission that is delivered (legacy route step)`() {
         val submittedReport = reportGraph {

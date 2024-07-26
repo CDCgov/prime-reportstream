@@ -458,12 +458,14 @@ class ActionHistory(
         reportFile.itemCount = report.itemCount
         reportsReceived[reportFile.reportId] = reportFile
 
-        // batch queue messages are added by the batchDecider, not ActionHistory.
+        // some event actions are tracked in the functions themselves, not ActionHistory.
         // TODO: Need to update this process to have a better way to determine what messages should be sent
         //  automatically as part of queueMessages and what are being send manually as part of the parent function.
         //  The automatic queueing uses the action name as the queue name, and this is not the case for FHIR actions
         if (event.eventAction != Event.EventAction.BATCH &&
             event.eventAction != Event.EventAction.ROUTE &&
+            event.eventAction != Event.EventAction.DESTINATION_FILTER &&
+            event.eventAction != Event.EventAction.RECEIVER_FILTER &&
             event.eventAction != Event.EventAction.TRANSLATE
         ) {
             trackEvent(event)
@@ -541,12 +543,14 @@ class ActionHistory(
         trackFilteredItems(report)
         trackItemLineages(report)
 
-        // batch queue messages are added by the batchDecider, not ActionHistory
+        // some event actions are tracked in the functions themselves, not ActionHistory.
         // TODO: Need to update this process to have a better way to determine what messages should be sent
         //  automatically as part of queueMessages and what are being send manually as part of the parent function.
         //  The automatic queueing uses the action name as the queue name, and this is not the case for FHIR actions
         if (event.eventAction != Event.EventAction.BATCH &&
             event.eventAction != Event.EventAction.ROUTE &&
+            event.eventAction != Event.EventAction.DESTINATION_FILTER &&
+            event.eventAction != Event.EventAction.RECEIVER_FILTER &&
             event.eventAction != Event.EventAction.TRANSLATE
         ) {
             trackEvent(event) // to be sent to queue later.

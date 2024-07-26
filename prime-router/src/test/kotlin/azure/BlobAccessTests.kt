@@ -571,7 +571,8 @@ class BlobAccessTests {
             Event.EventAction.SEND,
             Event.EventAction.BATCH,
             Event.EventAction.PROCESS,
-            Event.EventAction.ROUTE,
+            Event.EventAction.DESTINATION_FILTER,
+            Event.EventAction.RECEIVER_FILTER,
             Event.EventAction.TRANSLATE,
             Event.EventAction.NONE,
             Event.EventAction.CONVERT,
@@ -600,7 +601,7 @@ class BlobAccessTests {
                         null -> "other"
                         "SEND" -> "ready"
                         "CONVERT" -> "other"
-                        else -> it.name.lowercase()
+                        else -> it.name.lowercase().replace("_", "-")
                     }
                 )
             ).isTrue()
