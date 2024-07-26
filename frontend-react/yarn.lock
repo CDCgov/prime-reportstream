@@ -8425,12 +8425,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"husky@npm:^9.1.1":
-  version: 9.1.1
-  resolution: "husky@npm:9.1.1"
+"husky@npm:^9.1.2":
+  version: 9.1.2
+  resolution: "husky@npm:9.1.2"
   bin:
     husky: bin.js
-  checksum: d907eee996353b0b6da8e40b6cf6c1274d57470cd984f028a8baf3e17b7bbab57d796345d552971c6629521685297a1ee093128e4bd45c8fc1867c0dbf38086b
+  checksum: 850662c21b425edf17f81175b109b946a065e2f5509462afce2be466d82a15f5694efcecd41ad2bdfcc304530b3e0e7504392c0e2173a6de72f01c250b4dca57
   languageName: node
   linkType: hard
 
@@ -11828,7 +11828,7 @@ __metadata:
     focus-trap-react: ^10.2.3
     history: ^5.3.0
     html-to-text: ^9.0.5
-    husky: ^9.1.1
+    husky: ^9.1.2
     jsdom: ^24.1.0
     lint-staged: ^15.2.7
     lodash: ^4.17.21
