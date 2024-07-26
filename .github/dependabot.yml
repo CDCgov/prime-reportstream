@@ -300,7 +300,7 @@ updates:
 
   # shared
   - package-ecosystem: "gradle"
-    directory: "/shared
+    directory: "/shared"
     open-pull-requests-limit: 100
     schedule:
       interval: "weekly"
