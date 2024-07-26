@@ -381,6 +381,9 @@ class ActionHistoryTests {
         assertThat(reportFile.blobDigest).isEqualTo("".toByteArray())
         assertThat(reportFile.itemCount).isEqualTo(15)
         assertThat(actionHistory1.action.externalName).isEqualTo("filename1")
+        verify(exactly = 1) {
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any())
+        }
         // not allowed to track the same report twice.
         assertFailure {
             actionHistory1.trackSentReport(
@@ -486,6 +489,9 @@ class ActionHistoryTests {
         assertThat(actionHistory2.reportsOut[uuid]).isNotNull()
         assertThat(actionHistory2.reportsOut[uuid]?.schemaName)
             .isEqualTo("STED/NESTED/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME")
+        verify(exactly = 2) {
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any())
+        }
     }
 
     @Test
@@ -720,6 +726,9 @@ class ActionHistoryTests {
         assertNotEquals(blobUrls[0], blobUrls[1])
         assertContains(blobUrls[0], org.receivers[0].fullName)
         assertContains(blobUrls[1], org.receivers[1].fullName)
+        verify(exactly = 2) {
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any())
+        }
     }
 
     @Test

@@ -197,10 +197,10 @@ class SendFunction(
                         logger.error("${actionHistory.action.actionResult}")
                     }
                     val fileSize = content?.size ?: 0
-                    // The lat mile failure event has a slightly different pattern because we do not generate a child
+                    // The last mile failure event has a slightly different pattern because we do not generate a child
                     // report as an output for this event so the childReport is the input to the send step and the
                     // parent report is the input to the batch step
-                    // TODO: ticket to create a report for last mile failure
+                    // TODO: https://github.com/CDCgov/prime-reportstream/issues/15369
                     val parentReport = workflowEngine.db.fetchParentReport(report.reportId)
                     reportEventService.sendReportEvent(
                         eventName = ReportStreamEventName.REPORT_LAST_MILE_FAILURE,
