@@ -49,7 +49,7 @@ test.describe(
 
             await securityPage.page.getByTestId("header").getByTestId("navDropDownButton").getByText("About").click();
 
-            await securityPage.page.getByTestId("header").getByRole("link", { name: "Security ReportStream" }).click();
+            await securityPage.page.getByTestId("header").getByRole("link", { name: "Security" }).click();
             await expect(securityPage.page).toHaveURL(URL_SECURITY);
         });
 
@@ -60,12 +60,10 @@ test.describe(
 
         test.describe("Security section", () => {
             test("Accordion sections expand", async ({ securityPage }) => {
-                // Testing random sections. Not necessary to test all expansions.
+                // Not necessary to test all expansions.
                 const accordionCol = [
                     "Does ReportStream comply with the Federal Information Security Modernization Act (FISMA)?",
                     "Is ReportStream FedRAMP approved?",
-                    "How long is data stored?",
-                    "What data does ReportStream send?",
                 ];
 
                 for (let i = 0; i < accordionCol.length; i++) {

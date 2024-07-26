@@ -9,6 +9,7 @@ export class SecurityPage extends BasePage {
                 title: "ReportStream security",
                 heading: testArgs.page.getByRole("heading", {
                     name: "Security",
+                    exact: true,
                 }),
             },
             testArgs,
