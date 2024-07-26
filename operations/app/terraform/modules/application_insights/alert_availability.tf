@@ -82,7 +82,7 @@ resource "azurerm_application_insights_web_test" "ping_test" {
   tags = {
     environment = var.environment
     # This prevents terraform from seeing a tag change for each plan/apply
-    "hidden-link:/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/${var.resource_group}/providers/Microsoft.Insights/components/${var.resource_prefix}-appinsights" = "Resource"
+    "hidden-link:/subscriptions/320d8d57-c87c-4434-827f-59ee7d86687a/resourceGroups/${var.resource_group}/providers/Microsoft.Insights/components/${var.resource_prefix}-appinsights" = "Resource"
   }
 }
 
@@ -107,7 +107,7 @@ resource "azurerm_application_insights_web_test" "metabase_test" {
   tags = {
     environment = var.environment
     # This prevents terraform from seeing a tag change for each plan/apply
-    "hidden-link:/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/${var.resource_group}/providers/Microsoft.Insights/components/${var.resource_prefix}-appinsights" = "Resource"
+    "hidden-link:/subscriptions/320d8d57-c87c-4434-827f-59ee7d86687a/resourceGroups/${var.resource_group}/providers/Microsoft.Insights/components/${var.resource_prefix}-appinsights" = "Resource"
   }
 }
 
@@ -161,6 +161,6 @@ resource "azurerm_application_insights_web_test" "livdapi_test" {
   tags = {
     environment = var.environment
     # This prevents terraform from seeing a tag change for each plan/apply
-    "hidden-link:/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/${var.resource_group}/providers/Microsoft.Insights/components/${var.resource_prefix}-appinsights" = "Resource"
+    "hidden-link:/subscriptions/320d8d57-c87c-4434-827f-59ee7d86687a/resourceGroups/${var.resource_group}/providers/Microsoft.Insights/components/${var.resource_prefix}-appinsights" = "Resource"
   }
 }
