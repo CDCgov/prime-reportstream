@@ -221,6 +221,7 @@ class SendFunction(
                         }
                     }
 
+                    // required for pipeline processing
                     ReportEvent(Event.EventAction.SEND_ERROR, report.reportId, isEmptyBatch)
                 } else {
                     // retry using a back-off strategy
