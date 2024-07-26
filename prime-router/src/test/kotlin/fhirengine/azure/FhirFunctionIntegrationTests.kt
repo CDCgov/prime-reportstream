@@ -1,14 +1,11 @@
 package fhirengine.azure
 
 import assertk.assertThat
-import assertk.assertions.containsOnly
-import assertk.assertions.each
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import assertk.assertions.matchesPredicate
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
@@ -30,7 +27,6 @@ import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION_LOG
-import gov.cdc.prime.router.azure.db.enums.ActionLogType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ActionLog
 import gov.cdc.prime.router.azure.db.tables.Task
@@ -46,9 +42,8 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.QueueMessage
-import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
-import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
@@ -69,9 +64,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.File
-import java.nio.charset.Charset
 import java.time.OffsetDateTime
 import java.util.UUID
+import gov.cdc.prime.router.azure.db.tables.ReportFile as RF
 
 private const val MULTIPLE_TARGETS_FHIR_PATH = "src/test/resources/fhirengine/engine/valid_data_multiple_targets.fhir"
 
@@ -227,9 +222,10 @@ NTE|1|L|Note
 OBX|2|NM|35659-2^Age at specimen collection^LN^^^^2.71||24|a^year^UCUM^^^^2.1|||||F||||00Z0000042||||||||SA.OTCSelfReport^^^^^&2.16.840.1.113883.3.8589.4.1.152&ISO^XX^^^00Z0000042||||||QST
 SPM|1|^dba7572cc6334f1ea0744c5f235c823e&MMTC.PROD&2.16.840.1.113883.3.8589.4.2.106.1&ISO||697989009^Anterior nares swab^SCT^^^^20200901|||||||||||||20240403120000-0400|20240403120000-0400"""
 
+// TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
-class FhirFunctionIntegrationTests() {
+class FhirFunctionIntegrationTests {
 
     @Container
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
@@ -408,15 +404,15 @@ class FhirFunctionIntegrationTests() {
         val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
         assertThat(processTask.processedAt).isNull()
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routeTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
-                .where(Task.TASK.NEXT_ACTION.eq(TaskAction.route))
+            val nextTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
+                .where(Task.TASK.NEXT_ACTION.eq(TaskAction.destination_filter))
                 .fetchOneInto(Task.TASK)
-            assertThat(routeTask).isNull()
+            assertThat(nextTask).isNull()
             val convertReportFile =
-                DSL.using(txn).select(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.asterisk())
-                    .from(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
-                    .where(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.NEXT_ACTION.eq(TaskAction.route))
-                    .fetchOneInto(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
+                DSL.using(txn).select(RF.REPORT_FILE.asterisk())
+                    .from(RF.REPORT_FILE)
+                    .where(RF.REPORT_FILE.NEXT_ACTION.eq(TaskAction.destination_filter))
+                    .fetchOneInto(RF.REPORT_FILE)
             assertThat(convertReportFile).isNull()
         }
         verify(exactly = 0) {
@@ -487,19 +483,19 @@ class FhirFunctionIntegrationTests() {
         val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
         assertThat(processTask.processedAt).isNotNull()
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routeTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
-                .where(Task.TASK.NEXT_ACTION.eq(TaskAction.route))
+            val nextTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
+                .where(Task.TASK.NEXT_ACTION.eq(TaskAction.destination_filter))
                 .fetchOneInto(Task.TASK)
-            assertThat(routeTask).isNotNull()
+            assertThat(nextTask).isNotNull()
             val convertReportFile =
-                DSL.using(txn).select(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.asterisk())
-                    .from(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
-                    .where(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.NEXT_ACTION.eq(TaskAction.route))
-                    .fetchOneInto(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
+                DSL.using(txn).select(RF.REPORT_FILE.asterisk())
+                    .from(RF.REPORT_FILE)
+                    .where(RF.REPORT_FILE.NEXT_ACTION.eq(TaskAction.destination_filter))
+                    .fetchOneInto(RF.REPORT_FILE)
             assertThat(convertReportFile).isNotNull()
         }
         verify(exactly = 1) {
-            QueueAccess.sendMessage(elrRoutingQueueName, any())
+            QueueAccess.sendMessage(elrDestinationFilterQueueName, any())
             BlobAccess.uploadBody(MimeFormat.FHIR, any(), any(), any(), any())
         }
     }
@@ -568,19 +564,19 @@ class FhirFunctionIntegrationTests() {
         val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
         assertThat(processTask.processedAt).isNotNull()
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routeTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
-                .where(Task.TASK.NEXT_ACTION.eq(TaskAction.route))
+            val nextTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
+                .where(Task.TASK.NEXT_ACTION.eq(TaskAction.destination_filter))
                 .fetchInto(Task.TASK)
-            assertThat(routeTask).hasSize(2)
+            assertThat(nextTask).hasSize(2)
             val convertReportFile =
-                DSL.using(txn).select(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.asterisk())
-                    .from(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
-                    .where(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.NEXT_ACTION.eq(TaskAction.route))
-                    .fetchInto(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
+                DSL.using(txn).select(RF.REPORT_FILE.asterisk())
+                    .from(RF.REPORT_FILE)
+                    .where(RF.REPORT_FILE.NEXT_ACTION.eq(TaskAction.destination_filter))
+                    .fetchInto(RF.REPORT_FILE)
             assertThat(convertReportFile).hasSize(2)
         }
         verify(exactly = 2) {
-            QueueAccess.sendMessage(elrRoutingQueueName, any())
+            QueueAccess.sendMessage(elrDestinationFilterQueueName, any())
         }
         verify(exactly = 1) {
             BlobAccess.uploadBody(
@@ -679,20 +675,20 @@ class FhirFunctionIntegrationTests() {
         val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
         assertThat(processTask.processedAt).isNotNull()
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routeTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
-                .where(Task.TASK.NEXT_ACTION.eq(TaskAction.route))
+            val nextTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
+                .where(Task.TASK.NEXT_ACTION.eq(TaskAction.destination_filter))
                 .fetchInto(Task.TASK)
-            assertThat(routeTask).hasSize(2)
+            assertThat(nextTask).hasSize(2)
             val convertReportFile =
-                DSL.using(txn).select(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.asterisk())
-                    .from(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
-                    .where(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.NEXT_ACTION.eq(TaskAction.route))
-                    .fetchInto(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
+                DSL.using(txn).select(RF.REPORT_FILE.asterisk())
+                    .from(RF.REPORT_FILE)
+                    .where(RF.REPORT_FILE.NEXT_ACTION.eq(TaskAction.destination_filter))
+                    .fetchInto(RF.REPORT_FILE)
             assertThat(convertReportFile).hasSize(2)
             assertThat(actionLogger.errors).hasSize(2)
         }
         verify(exactly = 2) {
-            QueueAccess.sendMessage(elrRoutingQueueName, any())
+            QueueAccess.sendMessage(elrDestinationFilterQueueName, any())
         }
 
         verify(exactly = 1) {
@@ -725,679 +721,7 @@ class FhirFunctionIntegrationTests() {
         }
     }
 
-    @Test
-    fun `test successfully processes a convert message for a bulk (ndjson) FHIR message`() {
-        val report = seedTask(
-            MimeFormat.FHIR,
-            TaskAction.receive,
-            TaskAction.convert,
-            Event.EventAction.CONVERT,
-            Topic.FULL_ELR,
-            0,
-            oneOrganization
-        )
-        val metadata = Metadata(UnitTestUtils.simpleSchema)
-
-        metadata.lookupTableStore += mapOf(
-            "observation-mapping" to LookupTable("observation-mapping", emptyList())
-        )
-
-        mockkObject(BlobAccess)
-        mockkObject(QueueMessage)
-        mockkObject(QueueAccess)
-        val bulkFHIRRecord =
-            listOf(
-                validFHIRRecord1,
-                invalidEmptyFHIRRecord,
-                validFHIRRecord2,
-                invalidMalformedFHIRRecord
-            ).joinToString(
-                "\n"
-            )
-        every { BlobAccess.downloadBlobAsByteArray(any()) } returns bulkFHIRRecord.toByteArray()
-        every {
-            BlobAccess.uploadBody(
-                any(),
-                any(),
-                any(),
-                any(),
-                any()
-            )
-        } answers {
-            BlobAccess.BlobInfo(MimeFormat.FHIR, UUID.randomUUID().toString(), "".toByteArray())
-        }
-        every { QueueAccess.sendMessage(any(), any()) } returns Unit
-
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val fhirEngine = FHIRConverter(
-            metadata,
-            settings,
-            ReportStreamTestDatabaseContainer.testDatabaseAccess,
-        )
-
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val actionLogger = ActionLogger()
-        val workflowEngine =
-            makeWorkflowEngine(
-                UnitTestUtils.simpleMetadata,
-                settings,
-                ReportStreamTestDatabaseContainer.testDatabaseAccess
-            )
-
-        val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
-            "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
-            "None-${report.id}.fhir\",\"digest\":" +
-            "\"${BlobAccess.digestToString(BlobAccess.sha256Digest(bulkFHIRRecord.toByteArray()))}\"," +
-            "\"blobSubFolderName\":" +
-            "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"}"
-
-        val fhirFunc = FHIRFunctions(
-            workflowEngine,
-            databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess,
-            actionLogger = actionLogger
-        )
-
-        fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
-
-        val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
-        assertThat(processTask.processedAt).isNotNull()
-        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routeTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
-                .where(Task.TASK.NEXT_ACTION.eq(TaskAction.route))
-                .fetchInto(Task.TASK)
-            assertThat(routeTask).hasSize(2)
-            val convertReportFile =
-                DSL.using(txn).select(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.asterisk())
-                    .from(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
-                    .where(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.NEXT_ACTION.eq(TaskAction.route))
-                    .fetchInto(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
-            assertThat(convertReportFile).hasSize(2)
-
-            // Expect two errors for the two badly formed bundles
-            assertThat(actionLogger.errors).hasSize(2)
-        }
-        verify(exactly = 2) {
-            QueueAccess.sendMessage(elrRoutingQueueName, any())
-            BlobAccess.uploadBody(MimeFormat.FHIR, any(), any(), any(), any())
-        }
-        verify(exactly = 1) {
-            BlobAccess.uploadBody(
-                MimeFormat.FHIR,
-                validFHIRRecord1.toByteArray(),
-                any(),
-                any(),
-                any()
-            )
-            BlobAccess.uploadBody(
-                MimeFormat.FHIR,
-                validFHIRRecord2.toByteArray(),
-                any(),
-                any(),
-                any()
-            )
-        }
-    }
-
-    @Test
-    fun `test successfully processes a convert message with invalid HL7 items`() {
-        val receiveReport = seedTask(
-            MimeFormat.HL7,
-            TaskAction.receive,
-            TaskAction.convert,
-            Event.EventAction.CONVERT,
-            Topic.FULL_ELR,
-            0,
-            oneOrganization
-        )
-        val metadata = Metadata(UnitTestUtils.simpleSchema)
-
-        metadata.lookupTableStore += mapOf(
-            "observation-mapping" to LookupTable("observation-mapping", emptyList())
-        )
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val workflowEngine =
-            makeWorkflowEngine(
-                UnitTestUtils.simpleMetadata,
-                settings,
-                ReportStreamTestDatabaseContainer.testDatabaseAccess
-            )
-
-        // set up and seed azure blobstore
-        val blobConnectionString =
-            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer.host}:${
-                azuriteContainer.getMappedPort(
-                    10000
-                )
-            }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer.host}:${
-                azuriteContainer.getMappedPort(
-                    10001
-                )
-            }/devstoreaccount1;"""
-        val blobContainerMetadata = BlobAccess.BlobContainerMetadata(
-            "container1",
-            blobConnectionString
-        )
-
-        mockkObject(BlobAccess)
-        every { BlobAccess getProperty "defaultBlobMetadata" } returns blobContainerMetadata
-        mockkObject(QueueMessage)
-        mockkObject(QueueAccess)
-        every { QueueAccess.sendMessage(any(), any()) } returns Unit
-        mockkObject(BlobAccess.BlobContainerMetadata)
-
-        val receiveReportBytes = (cleanHL7Record + "\n" + invalidHL7Record + "\n" + unparseableHL7Record).toByteArray()
-        val receiveBlobUrl = BlobAccess.uploadBlob(
-            "convertBlob.hl7",
-            receiveReportBytes,
-            blobContainerMetadata
-        )
-
-        val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${receiveReport.id}\"," +
-            "\"blobURL\":\"" + receiveBlobUrl +
-            "\",\"digest\":\"${
-                BlobAccess.digestToString(
-                    BlobAccess.sha256Digest(
-                        receiveReportBytes
-                    )
-                )
-            }\",\"blobSubFolderName\":" +
-            "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"," +
-            "\"receiverFullName\":\"phd.elr2\"}"
-
-        val fhirFunc = FHIRFunctions(
-            workflowEngine,
-            databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
-        )
-        val fhirEngine = spyk(
-            FHIRConverter(
-                metadata,
-                settings,
-                ReportStreamTestDatabaseContainer.testDatabaseAccess,
-            )
-        )
-
-        fhirFunc.doConvert(queueMessage, 1, fhirEngine)
-
-        verify(exactly = 2) {
-            QueueAccess.sendMessage(any(), any())
-        }
-
-        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            // Verify that there were two created reports from the 2 items that were parseable
-            val routedReports = DSL
-                .using(txn)
-                .select(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.asterisk())
-                .from(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
-                .where(
-                    gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.REPORT_ID
-                        .`in`(
-                            DSL
-                                .select(
-                                    gov.cdc.prime.router.azure.db.tables.ReportLineage.REPORT_LINEAGE.CHILD_REPORT_ID
-                                )
-                                .from(gov.cdc.prime.router.azure.db.tables.ReportLineage.REPORT_LINEAGE)
-                                .where(
-                                    gov.cdc.prime.router.azure.db.tables.ReportLineage.REPORT_LINEAGE.PARENT_REPORT_ID
-                                        .eq(
-                                            receiveReport.id
-                                        )
-                                )
-                        )
-                ).fetchInto(ReportFile::class.java)
-            assertThat(routedReports).hasSize(2)
-
-            // Verify that the expected FHIR bundles were uploaded
-            val fhirBundles =
-                routedReports.map { BlobAccess.downloadBlobAsByteArray(it.bodyUrl, blobContainerMetadata) }
-            assertThat(fhirBundles).each {
-                it.matchesPredicate { bytes ->
-                    val invalidHL7Result = CompareData().compare(
-                        invalidHL7RecordConverted.byteInputStream(),
-                        bytes.inputStream(),
-                        MimeFormat.FHIR,
-                        null
-                    )
-                    invalidHL7Result.passed
-
-                    val cleanHL7Result = CompareData().compare(
-                        cleanHL7RecordConverted.byteInputStream(),
-                        bytes.inputStream(),
-                        MimeFormat.FHIR,
-                        null
-                    )
-                    invalidHL7Result.passed || cleanHL7Result.passed
-                }
-            }
-
-            // Verify that there was an action log with an error created
-            val actionLogs = DSL.using(txn).select(ACTION_LOG.asterisk()).from(ACTION_LOG)
-                .where(ACTION_LOG.REPORT_ID.eq(receiveReport.id)).and(ACTION_LOG.TYPE.eq(ActionLogType.error))
-                .fetchInto(
-                    DetailedActionLog::class.java
-                )
-
-            assertThat(actionLogs).hasSize(1)
-            @Suppress("ktlint:standard:max-line-length")
-            assertThat(actionLogs.first()).transform { it.detail.message }
-                .isEqualTo("Item 3 in the report was not parseable. Reason: exception while parsing HL7: Determine encoding for message. The following is the first 50 chars of the message for reference, although this may not be where the issue is: MSH^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16")
-        }
-    }
-
-    @Test
-    fun `test successfully processes a convert message with invalid FHIR items`() {
-        val receiveReport = seedTask(
-            MimeFormat.FHIR,
-            TaskAction.receive,
-            TaskAction.convert,
-            Event.EventAction.CONVERT,
-            Topic.FULL_ELR,
-            0,
-            oneOrganization
-        )
-        val metadata = Metadata(UnitTestUtils.simpleSchema)
-
-        metadata.lookupTableStore += mapOf(
-            "observation-mapping" to LookupTable("observation-mapping", emptyList())
-        )
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val workflowEngine =
-            makeWorkflowEngine(
-                UnitTestUtils.simpleMetadata,
-                settings,
-                ReportStreamTestDatabaseContainer.testDatabaseAccess
-            )
-
-        // set up and seed azure blobstore
-        val blobConnectionString =
-            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer.host}:${
-                azuriteContainer.getMappedPort(
-                    10000
-                )
-            }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer.host}:${
-                azuriteContainer.getMappedPort(
-                    10001
-                )
-            }/devstoreaccount1;"""
-        val blobContainerMetadata = BlobAccess.BlobContainerMetadata(
-            "container1",
-            blobConnectionString
-        )
-
-        mockkObject(BlobAccess)
-        every { BlobAccess getProperty "defaultBlobMetadata" } returns blobContainerMetadata
-        mockkObject(QueueMessage)
-        mockkObject(QueueAccess)
-        every { QueueAccess.sendMessage(any(), any()) } returns Unit
-        mockkObject(BlobAccess.BlobContainerMetadata)
-        val bulkFHIRRecord =
-            listOf(
-                validFHIRRecord1,
-                invalidEmptyFHIRRecord,
-                validFHIRRecord2,
-                invalidMalformedFHIRRecord
-            ).joinToString(
-                "\n"
-            )
-        val receiveBlobUrl = BlobAccess.uploadBlob(
-            "convertBlob.fhir",
-            bulkFHIRRecord.toByteArray(),
-            blobContainerMetadata
-        )
-
-        val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${receiveReport.id}\"," +
-            "\"blobURL\":\"" + receiveBlobUrl +
-            "\",\"digest\":\"${
-                BlobAccess.digestToString(
-                    BlobAccess.sha256Digest(
-                        bulkFHIRRecord.toByteArray()
-                    )
-                )
-            }\",\"blobSubFolderName\":" +
-            "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"," +
-            "\"receiverFullName\":\"phd.elr2\"}"
-
-        val fhirFunc = FHIRFunctions(
-            workflowEngine,
-            databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
-        )
-        val fhirEngine = spyk(
-            FHIRConverter(
-                metadata,
-                settings,
-                ReportStreamTestDatabaseContainer.testDatabaseAccess,
-            )
-        )
-
-        fhirFunc.doConvert(queueMessage, 1, fhirEngine)
-
-        verify(exactly = 2) {
-            QueueAccess.sendMessage(any(), any())
-        }
-
-        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            // Verify that there were two created reports from the 2 items that were parseable
-            val routedReports = DSL
-                .using(txn)
-                .select(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.asterisk())
-                .from(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
-                .where(
-                    gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.REPORT_ID
-                        .`in`(
-                            DSL
-                                .select(
-                                    gov.cdc.prime.router.azure.db.tables.ReportLineage.REPORT_LINEAGE.CHILD_REPORT_ID
-                                )
-                                .from(gov.cdc.prime.router.azure.db.tables.ReportLineage.REPORT_LINEAGE)
-                                .where(
-                                    gov.cdc.prime.router.azure.db.tables.ReportLineage.REPORT_LINEAGE.PARENT_REPORT_ID
-                                        .eq(
-                                            receiveReport.id
-                                        )
-                                )
-                        )
-                ).fetchInto(ReportFile::class.java)
-            assertThat(routedReports).hasSize(2)
-
-            // Verify that the expected FHIR bundles were uploaded
-            val fhirBundles =
-                routedReports.map { BlobAccess.downloadBlobAsByteArray(it.bodyUrl, blobContainerMetadata) }
-                    .map { it.toString(Charset.defaultCharset()) }
-            assertThat(fhirBundles).containsOnly(validFHIRRecord1, validFHIRRecord2)
-
-            // Verify that there was an action log with an error created
-            val actionLogs = DSL.using(txn).select(ACTION_LOG.asterisk()).from(ACTION_LOG)
-                .where(ACTION_LOG.REPORT_ID.eq(receiveReport.id)).and(ACTION_LOG.TYPE.eq(ActionLogType.error))
-                .fetchInto(
-                    DetailedActionLog::class.java
-                )
-
-            assertThat(actionLogs).hasSize(2)
-            @Suppress("ktlint:standard:max-line-length")
-            assertThat(actionLogs).transform {
-                it.map { log ->
-                    log.detail.message
-                }
-            }
-                .containsOnly(
-                    "Item 2 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1838: Invalid JSON content detected, missing required element: 'resourceType'",
-                    "Item 4 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected end-of-input: was expecting closing quote for a string value\n" +
-                        " at [line: 1, column: 23]"
-                )
-        }
-    }
-
-    @Test
-    fun `test successfully converting a NIST ELR HL7 message`() {
-        val receiveReport = seedTask(
-            MimeFormat.HL7,
-            TaskAction.receive,
-            TaskAction.convert,
-            Event.EventAction.CONVERT,
-            Topic.FULL_ELR,
-            0,
-            oneOrganization
-        )
-        val metadata = Metadata(UnitTestUtils.simpleSchema)
-
-        metadata.lookupTableStore += mapOf(
-            "observation-mapping" to LookupTable("observation-mapping", emptyList())
-        )
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val workflowEngine =
-            makeWorkflowEngine(
-                UnitTestUtils.simpleMetadata,
-                settings,
-                ReportStreamTestDatabaseContainer.testDatabaseAccess
-            )
-
-        // set up and seed azure blobstore
-        val blobConnectionString =
-            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer.host}:${
-                azuriteContainer.getMappedPort(
-                    10000
-                )
-            }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer.host}:${
-                azuriteContainer.getMappedPort(
-                    10001
-                )
-            }/devstoreaccount1;"""
-        val blobContainerMetadata = BlobAccess.BlobContainerMetadata(
-            "container1",
-            blobConnectionString
-        )
-
-        mockkObject(BlobAccess)
-        every { BlobAccess getProperty "defaultBlobMetadata" } returns blobContainerMetadata
-        mockkObject(QueueMessage)
-        mockkObject(QueueAccess)
-        every { QueueAccess.sendMessage(any(), any()) } returns Unit
-        mockkObject(BlobAccess.BlobContainerMetadata)
-
-        val receiveReportBytes = nistELRHL7Record.toByteArray()
-        val receiveBlobUrl = BlobAccess.uploadBlob(
-            "convertBlob.hl7",
-            receiveReportBytes,
-            blobContainerMetadata
-        )
-
-        val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${receiveReport.id}\"," +
-            "\"blobURL\":\"" + receiveBlobUrl +
-            "\",\"digest\":\"${
-                BlobAccess.digestToString(
-                    BlobAccess.sha256Digest(
-                        receiveReportBytes
-                    )
-                )
-            }\",\"blobSubFolderName\":" +
-            "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"elr-elims\"," +
-            "\"receiverFullName\":\"phd.elr2\"}"
-
-        val fhirFunc = FHIRFunctions(
-            workflowEngine,
-            databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
-        )
-        val fhirEngine = spyk(
-            FHIRConverter(
-                metadata,
-                settings,
-                ReportStreamTestDatabaseContainer.testDatabaseAccess,
-            )
-        )
-
-        fhirFunc.doConvert(queueMessage, 1, fhirEngine)
-
-        verify(exactly = 1) {
-            QueueAccess.sendMessage(any(), any())
-        }
-
-        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            // Verify that there were two created reports from the 2 items that were parseable
-            val routedReports = DSL
-                .using(txn)
-                .select(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.asterisk())
-                .from(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
-                .where(
-                    gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.REPORT_ID
-                        .`in`(
-                            DSL
-                                .select(
-                                    gov.cdc.prime.router.azure.db.tables.ReportLineage.REPORT_LINEAGE.CHILD_REPORT_ID
-                                )
-                                .from(gov.cdc.prime.router.azure.db.tables.ReportLineage.REPORT_LINEAGE)
-                                .where(
-                                    gov.cdc.prime.router.azure.db.tables.ReportLineage.REPORT_LINEAGE.PARENT_REPORT_ID
-                                        .eq(
-                                            receiveReport.id
-                                        )
-                                )
-                        )
-                ).fetchInto(ReportFile::class.java)
-            assertThat(routedReports).hasSize(1)
-
-            // Verify that the expected FHIR bundles were uploaded
-            val fhirBundles =
-                routedReports.map { BlobAccess.downloadBlobAsByteArray(it.bodyUrl, blobContainerMetadata) }
-            assertThat(fhirBundles).each {
-                it.matchesPredicate { bytes ->
-                    val nistELRResult = CompareData().compare(
-                        nistELRHL7RecordConverted.byteInputStream(),
-                        bytes.inputStream(),
-                        MimeFormat.FHIR,
-                        null
-                    )
-                    nistELRResult.passed
-                }
-            }
-
-            // Verify that there was an action log with an error created
-            val actionLogs = DSL.using(txn).select(ACTION_LOG.asterisk()).from(ACTION_LOG)
-                .where(ACTION_LOG.REPORT_ID.eq(receiveReport.id)).and(ACTION_LOG.TYPE.eq(ActionLogType.error))
-                .fetchInto(
-                    DetailedActionLog::class.java
-                )
-
-            assertThat(actionLogs).hasSize(0)
-        }
-    }
-
-    @Test
-    fun `test successfully processes a valid RADxMARS HL7 message`() {
-        val receiveReport = seedTask(
-            MimeFormat.HL7,
-            TaskAction.receive,
-            TaskAction.convert,
-            Event.EventAction.CONVERT,
-            Topic.MARS_OTC_ELR,
-            0,
-            oneOrganization
-        )
-        val metadata = Metadata(UnitTestUtils.simpleSchema)
-
-        metadata.lookupTableStore += mapOf(
-            "observation-mapping" to LookupTable("observation-mapping", emptyList())
-        )
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val workflowEngine =
-            makeWorkflowEngine(
-                UnitTestUtils.simpleMetadata,
-                settings,
-                ReportStreamTestDatabaseContainer.testDatabaseAccess
-            )
-
-        // set up and seed azure blobstore
-        val blobConnectionString =
-            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer.host}:${
-                azuriteContainer.getMappedPort(
-                    10000
-                )
-            }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer.host}:${
-                azuriteContainer.getMappedPort(
-                    10001
-                )
-            }/devstoreaccount1;"""
-        val blobContainerMetadata = BlobAccess.BlobContainerMetadata(
-            "container1",
-            blobConnectionString
-        )
-
-        mockkObject(BlobAccess)
-        every { BlobAccess getProperty "defaultBlobMetadata" } returns blobContainerMetadata
-        mockkObject(QueueMessage)
-        mockkObject(QueueAccess)
-        every { QueueAccess.sendMessage(any(), any()) } returns Unit
-        mockkObject(BlobAccess.BlobContainerMetadata)
-
-        val receiveReportBytes = (invalidRadxMarsHL7Message + "\n" + validRadxMarsHL7Message).toByteArray()
-        val receiveBlobUrl = BlobAccess.uploadBlob(
-            "convertBlob.hl7",
-            receiveReportBytes,
-            blobContainerMetadata
-        )
-
-        val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${receiveReport.id}\"," +
-            "\"blobURL\":\"" + receiveBlobUrl +
-            "\",\"digest\":\"${
-                BlobAccess.digestToString(
-                    BlobAccess.sha256Digest(
-                        receiveReportBytes
-                    )
-                )
-            }\",\"blobSubFolderName\":" +
-            "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"mars-otc-elr\"," +
-            "\"receiverFullName\":\"phd.elr2\"}"
-
-        val fhirFunc = FHIRFunctions(
-            workflowEngine,
-            databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
-        )
-        val fhirEngine = spyk(
-            FHIRConverter(
-                metadata,
-                settings,
-                ReportStreamTestDatabaseContainer.testDatabaseAccess,
-            )
-        )
-
-        fhirFunc.doConvert(queueMessage, 1, fhirEngine)
-
-        verify(exactly = 1) {
-            QueueAccess.sendMessage(any(), any())
-        }
-
-        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            // Verify that there were two created reports from the 2 items that were parseable
-            val routedReports = DSL
-                .using(txn)
-                .select(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.asterisk())
-                .from(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
-                .where(
-                    gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.REPORT_ID
-                        .`in`(
-                            DSL
-                                .select(
-                                    gov.cdc.prime.router.azure.db.tables.ReportLineage.REPORT_LINEAGE.CHILD_REPORT_ID
-                                )
-                                .from(gov.cdc.prime.router.azure.db.tables.ReportLineage.REPORT_LINEAGE)
-                                .where(
-                                    gov.cdc.prime.router.azure.db.tables.ReportLineage.REPORT_LINEAGE.PARENT_REPORT_ID
-                                        .eq(
-                                            receiveReport.id
-                                        )
-                                )
-                        )
-                ).fetchInto(ReportFile::class.java)
-            assertThat(routedReports).hasSize(1)
-
-            // Verify that the expected FHIR bundles were uploaded
-            val fhirBundles =
-                routedReports.map { BlobAccess.downloadBlobAsByteArray(it.bodyUrl, blobContainerMetadata) }
-            assertThat(fhirBundles).each {
-                it.matchesPredicate { bytes ->
-                    val radxMarsResult = CompareData().compare(
-                        validRadxMarsHL7MessageConverted.byteInputStream(),
-                        bytes.inputStream(),
-                        MimeFormat.FHIR,
-                        null
-                    )
-                    radxMarsResult.passed
-                }
-            }
-
-            // Verify that there was an action log with an error created
-            val actionLogs = DSL.using(txn).select(ACTION_LOG.asterisk()).from(ACTION_LOG)
-                .where(ACTION_LOG.REPORT_ID.eq(receiveReport.id)).and(ACTION_LOG.TYPE.eq(ActionLogType.error))
-                .fetchInto(
-                    DetailedActionLog::class.java
-                )
-            assertThat(actionLogs).hasSize(1)
-            @Suppress("ktlint:standard:max-line-length")
-            assertThat(actionLogs.first()).transform { it.detail.message }
-                .isEqualTo(
-                    "Item 1 in the report was not valid. Reason: HL7 was not valid at MSH[1]-21[1].3 for validator: RADx MARS"
-                )
-        }
-    }
-
+    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     @Test
     fun `test successfully processes a route message`() {
         val report = seedTask(
@@ -1465,18 +789,18 @@ class FhirFunctionIntegrationTests() {
         val convertTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
         assertThat(convertTask.routedAt).isNotNull()
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routeTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
+            val nextTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
                 .where(Task.TASK.NEXT_ACTION.eq(TaskAction.translate))
                 .fetchOneInto(Task.TASK)
-            assertThat(routeTask).isNotNull()
+            assertThat(nextTask).isNotNull()
             val convertReportFile =
-                DSL.using(txn).select(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.asterisk())
-                    .from(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
+                DSL.using(txn).select(RF.REPORT_FILE.asterisk())
+                    .from(RF.REPORT_FILE)
                     .where(
-                        gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.NEXT_ACTION
+                        RF.REPORT_FILE.NEXT_ACTION
                             .eq(TaskAction.translate)
                     )
-                    .fetchOneInto(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
+                    .fetchOneInto(RF.REPORT_FILE)
             assertThat(convertReportFile).isNotNull()
         }
         verify(exactly = 1) {
@@ -1529,9 +853,9 @@ class FhirFunctionIntegrationTests() {
             100,
             oneOrganization
         )
-        val routeReport = seedTask(
+        val receiverFilteredReport = seedTask(
             MimeFormat.FHIR,
-            TaskAction.route,
+            TaskAction.receiver_filter,
             TaskAction.translate,
             Event.EventAction.TRANSLATE,
             Topic.ELR_ELIMS,
@@ -1539,15 +863,25 @@ class FhirFunctionIntegrationTests() {
             oneOrganization,
             translateReport
         )
-        val convertReport = seedTask(
+        val destinationFilteredReport = seedTask(
             MimeFormat.FHIR,
-            TaskAction.convert,
-            TaskAction.route,
-            Event.EventAction.ROUTE,
+            TaskAction.destination_filter,
+            TaskAction.receiver_filter,
+            Event.EventAction.RECEIVER_FILTER,
             Topic.ELR_ELIMS,
             98,
             oneOrganization,
-            routeReport
+            receiverFilteredReport
+        )
+        val convertReport = seedTask(
+            MimeFormat.FHIR,
+            TaskAction.convert,
+            TaskAction.destination_filter,
+            Event.EventAction.DESTINATION_FILTER,
+            Topic.ELR_ELIMS,
+            97,
+            oneOrganization,
+            destinationFilteredReport
         )
         val receiveReport = seedTask(
             MimeFormat.FHIR,
@@ -1555,7 +889,7 @@ class FhirFunctionIntegrationTests() {
             TaskAction.convert,
             Event.EventAction.CONVERT,
             Topic.ELR_ELIMS,
-            97,
+            96,
             oneOrganization,
             convertReport,
             receiveBlobUrl
@@ -1617,13 +951,13 @@ class FhirFunctionIntegrationTests() {
             assertThat(queueTask).isNotNull()
 
             val sendReportFile =
-                DSL.using(txn).select(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.asterisk())
-                    .from(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
+                DSL.using(txn).select(RF.REPORT_FILE.asterisk())
+                    .from(RF.REPORT_FILE)
                     .where(
-                        gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.REPORT_ID
+                        RF.REPORT_FILE.REPORT_ID
                             .eq(queueTask!!.reportId)
                     )
-                    .fetchOneInto(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
+                    .fetchOneInto(RF.REPORT_FILE)
             assertThat(sendReportFile).isNotNull()
 
             // verify sendReportFile message does not match the original message from receive step
@@ -1693,9 +1027,9 @@ class FhirFunctionIntegrationTests() {
             100,
             oneOrganization
         )
-        val routeReport = seedTask(
+        val receiverFilteredReport = seedTask(
             MimeFormat.FHIR,
-            TaskAction.route,
+            TaskAction.receiver_filter,
             TaskAction.translate,
             Event.EventAction.TRANSLATE,
             Topic.ELR_ELIMS,
@@ -1703,15 +1037,25 @@ class FhirFunctionIntegrationTests() {
             oneOrganization,
             translateReport
         )
+        val destinationFilteredReport = seedTask(
+            MimeFormat.FHIR,
+            TaskAction.destination_filter,
+            TaskAction.receiver_filter,
+            Event.EventAction.RECEIVER_FILTER,
+            Topic.ELR_ELIMS,
+            98,
+            oneOrganization,
+            receiverFilteredReport
+        )
         val convertReport = seedTask(
             MimeFormat.FHIR,
             TaskAction.convert,
             TaskAction.route,
             Event.EventAction.ROUTE,
             Topic.ELR_ELIMS,
-            98,
+            97,
             oneOrganization,
-            routeReport
+            destinationFilteredReport
         )
         val receiveReport = seedTask(
             MimeFormat.FHIR,
@@ -1719,7 +1063,7 @@ class FhirFunctionIntegrationTests() {
             TaskAction.convert,
             Event.EventAction.CONVERT,
             Topic.ELR_ELIMS,
-            97,
+            96,
             oneOrganization,
             convertReport,
             receiveBlobUrl
@@ -1776,13 +1120,13 @@ class FhirFunctionIntegrationTests() {
             assertThat(sendTask).isNotNull()
 
             val sendReportFile =
-                DSL.using(txn).select(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.asterisk())
-                    .from(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
+                DSL.using(txn).select(RF.REPORT_FILE.asterisk())
+                    .from(RF.REPORT_FILE)
                     .where(
-                        gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.REPORT_ID
+                        RF.REPORT_FILE.REPORT_ID
                             .eq(sendTask!!.reportId)
                     )
-                    .fetchOneInto(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
+                    .fetchOneInto(RF.REPORT_FILE)
             assertThat(sendReportFile).isNotNull()
 
             // verify sendReportFile message matches the original message from receive step
@@ -1819,7 +1163,7 @@ class FhirFunctionIntegrationTests() {
             oneOrganization
         )
         val metadata = Metadata(UnitTestUtils.simpleSchema)
-        val fhirRecordBytes = fhirengine.azure.fhirRecord.toByteArray()
+        val fhirRecordBytes = fhirRecord.toByteArray()
 
         metadata.lookupTableStore += mapOf(
             "observation-mapping" to LookupTable("observation-mapping", emptyList())
@@ -1899,7 +1243,7 @@ class FhirFunctionIntegrationTests() {
             oneOrganization
         )
         val metadata = Metadata(UnitTestUtils.simpleSchema)
-        val fhirRecordBytes = fhirengine.azure.codelessFhirRecord.toByteArray()
+        val fhirRecordBytes = codelessFhirRecord.toByteArray()
 
         metadata.lookupTableStore += mapOf(
             "observation-mapping" to LookupTable("observation-mapping", emptyList())
