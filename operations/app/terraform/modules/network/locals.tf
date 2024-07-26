@@ -20,7 +20,7 @@ locals {
 ##########
 locals {
   #public_subnet_ids = [for k, v in data.azurerm_subnet.public_subnet : v.id]
-  #container_subnet_ids = [for k, v in data.azurerm_subnet.container_subnet : v.id]
+  container_subnet_ids = [for k, v in data.azurerm_subnet.container_subnet : v.id]
   #private_subnet_ids   = [for k, v in data.azurerm_subnet.private_subnet : v.id]
   #endpoint_subnet_ids  = [for k, v in data.azurerm_subnet.endpoint_subnet : v.id]
   #gateway_subnet_ids   = [for k, v in data.azurerm_subnet.gateway_subnet : v.id]
@@ -34,7 +34,7 @@ locals {
 }
 
 locals {
-  all_subnets             = concat(local.app_subnets, local.postgres_subnet_ids)
+  all_subnets             = concat(local.app_subnets, local.postgres_subnet_ids, local.container_subnet_ids)
   #public_endpoint_subnets = concat(local.public_subnet_ids)
   postgres_subnet         = local.postgres_subnet_ids
 }

@@ -18,7 +18,7 @@ resource "azurerm_storage_account" "storage_account" {
     default_action             = var.is_temp_env == true ? "Allow" : "Deny"
     bypass                     = ["AzureServices"]
     ip_rules                   = var.terraform_caller_ip_address
-    virtual_network_subnet_ids = var.subnets.app_subnets
+    virtual_network_subnet_ids = var.subnets.all_subnets
   }
 
   # Required for customer-managed encryption

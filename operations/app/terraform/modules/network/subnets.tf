@@ -9,8 +9,14 @@ data "azurerm_subnet" "postgres_subnet" {
 
 /* App subnet */
 data "azurerm_subnet" "app_subnet" {
-  for_each = toset(data.azurerm_virtual_network.vnet["app-vnet"].subnets)
+    for_each             = toset([for s in data.azurerm_virtual_network.vnet["app-vnet"].subnets : s if strcontains(s, "rest-app")])
+    name                 = each.value
+    virtual_network_name = var.azure_vns["app-vnet"].name
+    resource_group_name  = var.resource_group
+}
 
+data "azurerm_subnet" "container_subnet" {
+  for_each             = toset([for s in data.azurerm_virtual_network.vnet["app-vnet"].subnets : s if strcontains(s, "container")])
   name                 = each.value
   virtual_network_name = var.azure_vns["app-vnet"].name
   resource_group_name  = var.resource_group

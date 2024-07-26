@@ -67,7 +67,7 @@ locals {
         "location"                = "East Us"
         "nsg_prefix"              = "ophdst-prim-"
         "network_security_groups" = ["ophdst-prim-tst-moderate-rest-default-sg"]
-        "subnets"                 = ["ophdst-prim-tst-moderate-rest-app-subnet"]
+        "subnets"                 = ["ophdst-prim-tst-moderate-rest-app-subnet", "ophdst-prim-tst-moderate-container-subnet"]
       },
       "db-vnet" = {
             "name" = "ophdst-prim-tst-moderate-rest-db-vnet"
