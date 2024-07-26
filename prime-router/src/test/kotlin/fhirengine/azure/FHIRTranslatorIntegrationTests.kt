@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.MimeFormat
@@ -19,6 +20,7 @@ import gov.cdc.prime.router.azure.db.tables.ReportFile
 import gov.cdc.prime.router.azure.db.tables.Task
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
+import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.getBlobContainerMetadata
@@ -319,7 +321,7 @@ class FHIRTranslatorIntegrationTests : Logging {
     }
 
     @Test
-    fun `successfully translate for FHIR receiver when isSendOriginal is false`() {
+    fun `successfully translate for FHIR receiver without transform when isSendOriginal is false`() {
         // set up
         val receiverSetupData = listOf(
             UniversalPipelineTestUtils.ReceiverSetupData(
@@ -390,17 +392,117 @@ class FHIRTranslatorIntegrationTests : Logging {
             // verify message format is FHIR
             assertThat(batchTask.bodyFormat).isEqualTo("FHIR")
 
-            // verify message does not match the original FHIR input
+            // verify message is not a byte for byte copy of the original FHIR input
             val translatedValue = BlobAccess.downloadBlobAsByteArray(
                 sendReportFile!!.bodyUrl,
                 UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
             )
             assertThat(translatedValue).isNotEqualTo(reportContents.toByteArray())
+
+            // verify message is equivalent to the original FHIR input
+            val compareFhir = CompareData().compare(
+                translatedValue.inputStream(),
+                reportContents.byteInputStream(),
+                MimeFormat.FHIR,
+                null
+            )
+            assertThat(compareFhir.passed).isTrue()
+        }
+    }
+
+    // TODO: need a fhir receiver transform that actually transforms test data
+    @Test
+    fun `successfully translate for FHIR receiver with transform when isSendOriginal is false`() {
+        // set up
+        val receiverSetupData = listOf(
+            UniversalPipelineTestUtils.ReceiverSetupData(
+                "x",
+                jurisdictionalFilter = listOf("true"),
+                qualityFilter = listOf("true"),
+                routingFilter = listOf("true"),
+                conditionFilter = listOf("true"),
+                format = MimeFormat.FHIR,
+                schemaName = "classpath:/metadata/fhir_transforms/receivers/fhir-transform-sample.yml"
+            )
+        )
+        val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
+        val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
+        val translator = createFHIRTranslator(azureEventService, org)
+        val reportContents = File(MULTIPLE_TARGETS_FHIR_PATH).readText()
+        val receiveReport = UniversalPipelineTestUtils.createReport(
+            reportContents,
+            TaskAction.receive,
+            Event.EventAction.CONVERT,
+            azuriteContainer
+        )
+        val translateReport = UniversalPipelineTestUtils.createReport(
+            MimeFormat.FHIR,
+            TaskAction.receive,
+            TaskAction.translate,
+            Event.EventAction.SEND,
+            Topic.FULL_ELR,
+            receiveReport,
+            BlobAccess.uploadBlob(
+                "${TaskAction.translate.literal}/mr_fhir_face.fhir",
+                reportContents.toByteArray(),
+                getBlobContainerMetadata(azuriteContainer)
+            )
+        )
+
+        val queueMessage = generateQueueMessage(
+            translateReport,
+            reportContents,
+            UniversalPipelineTestUtils.fhirSenderWithNoTransform,
+            "phd.x"
+        )
+        val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
+
+        // execute
+        fhirFunctions.doTranslate(queueMessage, 1, translator)
+
+        // verify task and report_file tables were updated correctly in the Translate function (new task and new
+        // record file created)
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val batchTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
+                .where(Task.TASK.NEXT_ACTION.eq(TaskAction.batch))
+                .fetchOneInto(Task.TASK)
+
+            // verify batch queue task exists
+            assertThat(batchTask).isNotNull()
+
+            val sendReportFile =
+                DSL.using(txn).select(ReportFile.REPORT_FILE.asterisk())
+                    .from(ReportFile.REPORT_FILE)
+                    .where(
+                        ReportFile.REPORT_FILE.REPORT_ID
+                            .eq(batchTask!!.reportId)
+                    )
+                    .fetchOneInto(ReportFile.REPORT_FILE)
+            assertThat(sendReportFile).isNotNull()
+
+            // verify message format is FHIR
+            assertThat(batchTask.bodyFormat).isEqualTo("FHIR")
+
+            // verify message is not a byte for byte copy of the original FHIR input
+            val translatedValue = BlobAccess.downloadBlobAsByteArray(
+                sendReportFile!!.bodyUrl,
+                UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
+            )
+            assertThat(translatedValue).isNotEqualTo(reportContents.toByteArray())
+
+            // verify message is equivalent to the original FHIR input
+            val compareFhir = CompareData().compare(
+                translatedValue.inputStream(),
+                reportContents.byteInputStream(),
+                MimeFormat.FHIR,
+                null
+            )
+            assertThat(compareFhir.passed).isTrue()
         }
     }
 
     @Test
-    fun `successfully translate when isSendOriginal is true`() {
+    fun `successfully translate for FHIR receiver when isSendOriginal is true`() {
         // set up
         val receiverSetupData = listOf(
             UniversalPipelineTestUtils.ReceiverSetupData(
