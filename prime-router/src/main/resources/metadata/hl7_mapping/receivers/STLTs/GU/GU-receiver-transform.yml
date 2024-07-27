@@ -36,7 +36,7 @@ elements:
 
   - name: gu-receiving-facility-namespace-ID
     condition: 'true'
-    value: [ '"FDOH"' ]
+    value: [ '"GUDOH"' ]
     hl7Spec: [ 'MSH-6-1' ]
 
   - name: gu-patient-race-coding-system

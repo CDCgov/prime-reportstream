@@ -14,7 +14,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation:
-        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/GU/GU-receiver-transform.yml"
+        schemaName: "azure:/hl7_mapping/receivers/STLTs/GU/GU-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: "GUDOH"
@@ -70,10 +70,10 @@
         - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
         - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
         - "Bundle.entry.resource.ofType(Specimen).type.exists()"
-      routingFilter:
+      routingFilter: []
+      processingModeFilter:
         # - "matches(test_result_status, F, C, P)"
         - "Bundle.entry.resource.ofType(DiagnosticReport).where(status in 'final'|'corrected'|'preliminary'|'amended').exists()"
-      processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
         # Accept COVID only
@@ -83,7 +83,7 @@
       deidentifiedValue: ""
       timing:
         operation: "MERGE"
-        numberPerDay: 1440
+        numberPerDay: 12
         initialTime: "01:25"
         timeZone: "EASTERN"
         maxReportCount: 100
