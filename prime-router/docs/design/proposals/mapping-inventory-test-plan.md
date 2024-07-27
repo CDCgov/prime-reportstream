@@ -50,9 +50,9 @@ lot of organization around the tests.
 
 ### Testing Strategies
 Updating mapping tests for a large amount of files manually is tedious and inefficient. There is a bash scrip which can
-be used to update all the `.fhir` files for an entire directory at once: `prime-reportstream/recreate-fhir-in-dir.sh`. 
-Once new mappings have been added, this file can be run on an existing `.h7` test input file and will generate the 
-resulting `.fhir` output. 
+be used to update all the `.fhir` files for an entire directory at once: 
+`prime-reportstream/prime-router/src/scripts/recreate-fhir-in-dir.sh`. Once new mappings have been added, 
+this file can be run on an existing `.hl7` test input file and will generate the resulting `.fhir` output. 
 
 ## Future Work
 The other important thing that can happen either before or after the creation of the tests is cleaning up the output.

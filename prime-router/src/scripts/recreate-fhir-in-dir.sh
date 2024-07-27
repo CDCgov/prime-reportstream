@@ -7,7 +7,7 @@
 #
 # Example usage:
 #   (To be run from within the project root directory)
-#   bash ./recreate-fhir-in-dir.sh prime-router/src/testIntegration/resources/datatests/HL7_to_FHIR/
+#   $ bash prime-router/src/scripts/recreate-fhir-in-dir.sh prime-router/src/testIntegration/resources/datatests/mappinginventory/catchall/ce
 #
 # Limitations: This script will update all differences including id fields, datetime fields, etc.
 # This can create a slightly noisy git diff. There may also be discrepancies with the json formatting between the
