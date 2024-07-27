@@ -883,13 +883,7 @@ dependencies {
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    // the apache4 client will NOT free resources automatically between requests
-    // we use apache4 in RESTTransport and SOAPTransport
-    // TODO - investigate using Apache5 for all REST comms in the app
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
-    // the apache5 client will automatically free resources upon completion of http communication.
-    // we use apache5 for HttpClientUtils to ensure resources are deallocated when no longer needed.
-    implementation("io.ktor:ktor-client-apache5:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("io.ktor:ktor-client-encoding:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")

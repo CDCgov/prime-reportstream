@@ -2,7 +2,7 @@ package gov.cdc.prime.router.common
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.apache5.Apache5
+import io.ktor.client.engine.apache.Apache
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.timeout
@@ -31,7 +31,7 @@ class HttpClientUtils {
         const val SETTINGS_REQUEST_TIMEOUT_MILLIS = 30000
 
         private var httpClient: HttpClient =
-            HttpClient(Apache5) {
+            HttpClient(Apache) {
                 install(ContentNegotiation) {
                     json(
                         Json {
@@ -45,8 +45,8 @@ class HttpClientUtils {
                 engine {
                     followRedirects = true
                     socketTimeout = TIMEOUT
-                    connectTimeout = TIMEOUT.toLong()
-                    connectionRequestTimeout = TIMEOUT.toLong()
+                    connectTimeout = TIMEOUT
+                    connectionRequestTimeout = TIMEOUT
                 }
             }
 
@@ -548,7 +548,6 @@ class HttpClientUtils {
                         setBody(jsonPayload)
                     }
                 }
-
             }
         }
 
