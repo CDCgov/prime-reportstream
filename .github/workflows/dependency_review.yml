@@ -8,7 +8,10 @@ name: 'Dependency Review'
 on: 
   pull_request:
     branches: 
-     - master
+      - master
+    paths:
+      - 'frontend-react/**'
+      - 'prime-router/**'
 
 permissions:
   actions: read
