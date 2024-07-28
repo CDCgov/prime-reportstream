@@ -4,7 +4,7 @@ plugins {
     id("org.springframework.boot") version "3.2.7-SNAPSHOT"
     id("io.spring.dependency-management") version "1.1.5"
     id("reportstream.project-conventions")
-    kotlin("plugin.spring") version "1.9.24"
+    kotlin("plugin.spring") version "2.0.0"
 }
 
 group = "gov.cdc.prime"
