@@ -34,7 +34,7 @@ resource "azurerm_storage_account" "storage_account_candidate" {
       # validated 5/29/2024
       customer_managed_key,
       network_rules[0].ip_rules,
-      network_rules[0].private_link_access
+      network_rules[0].private_link_access, tags
     ]
   }
 
@@ -60,7 +60,7 @@ resource "azurerm_storage_management_policy" "retention_policy_candidate" {
       dynamic "base_blob" {
         for_each = var.is_temp_env == false ? ["enabled"] : []
         content {
-          delete_after_days_since_modification_greater_than = var.delete_pii_storage_after_days
+          delete_after_days_since_modification_greater_than              = var.delete_pii_storage_after_days
           tier_to_archive_after_days_since_last_access_time_greater_than = null
         }
       }
@@ -128,7 +128,7 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
       # validated 5/29/2024
       customer_managed_key,
       network_rules[0].ip_rules,
-      network_rules[0].private_link_access
+      network_rules[0].private_link_access, tags
     ]
   }
 

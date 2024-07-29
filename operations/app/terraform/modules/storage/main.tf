@@ -32,7 +32,8 @@ resource "azurerm_storage_account" "storage_account" {
       # validated 5/29/2024
       network_rules[0].ip_rules,
       customer_managed_key,
-      network_rules[0].private_link_access
+      network_rules[0].private_link_access,
+      tags
     ]
   }
 
@@ -123,6 +124,9 @@ resource "azurerm_storage_account" "storage_public" {
 
   lifecycle {
     prevent_destroy = false
+    ignore_changes = [
+      tags, network_rules
+    ]
   }
 
   tags = {
@@ -177,6 +181,7 @@ resource "azurerm_storage_account" "storage_partner" {
     prevent_destroy = false
     ignore_changes = [
       # validated 5/29/2024
+      tags,
       customer_managed_key,
       network_rules[0].ip_rules,
       network_rules[0].private_link_access
