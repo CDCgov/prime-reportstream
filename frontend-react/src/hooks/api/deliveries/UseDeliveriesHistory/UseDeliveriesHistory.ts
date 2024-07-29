@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { validate as uuidValidate } from "uuid";
 import { deliveriesEndpoints, RSDeliveryHistoryResponse } from "../../../../config/endpoints/deliveries";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
@@ -55,7 +55,7 @@ const useDeliveriesHistory = (initialService?: string) => {
     const rangeTo = filterManager.rangeSettings.to;
     const rangeFrom = filterManager.rangeSettings.from;
 
-    const fetchDeliveriesHistory = async () => {
+    const memoizedDataFetch = useCallback(() => {
         // Search terms can either be fileName string or a UUID,
         // and we need to know since we have to query the API by
         // that specific query param. All reportId(s) are UUIDs, so
@@ -96,10 +96,21 @@ const useDeliveriesHistory = (initialService?: string) => {
                 getDeliveriesHistory,
             );
         }
-    };
+    }, [
+        activeMembership?.parsedName,
+        authorizedFetch,
+        currentCursor,
+        numResults,
+        orgAndService,
+        rangeFrom,
+        rangeTo,
+        searchTerm,
+        sortColumn,
+        sortDirection,
+    ]);
     const { data, dataUpdatedAt } = useSuspenseQuery({
         queryKey: [getDeliveriesHistory.queryKey, activeMembership, orgAndService, filterManager, searchTerm],
-        queryFn: fetchDeliveriesHistory,
+        queryFn: memoizedDataFetch,
     });
     return {
         data,
