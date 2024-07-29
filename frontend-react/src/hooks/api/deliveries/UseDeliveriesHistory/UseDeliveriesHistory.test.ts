@@ -23,7 +23,7 @@ describe("useDeliveriesHistory", () => {
 
                 user: {
                     isUserAdmin: false,
-                    isUserReceiver: true,
+                    isUserReceiver: false,
                     isUserSender: false,
                     isUserTransceiver: false,
                 } as any,
@@ -31,7 +31,7 @@ describe("useDeliveriesHistory", () => {
         });
         test("returns undefined", async () => {
             const { result } = renderHook(() => useDeliveriesHistory("testService"));
-            await waitFor(() => expect(result.current.data).toBeNull());
+            await waitFor(() => expect(result.current).toBeNull());
         });
     });
 
