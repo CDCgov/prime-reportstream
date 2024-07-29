@@ -122,6 +122,7 @@ class FhirTransformer(
                             "value: $value"
                     }
                     FhirTransformSchemaElementAction.APPEND -> {
+                        // https://github.com/CDCgov/prime-reportstream/issues/15169
                         throw NotImplementedError()
                     }
                     FhirTransformSchemaElementAction.APPLY_SCHEMA -> {
