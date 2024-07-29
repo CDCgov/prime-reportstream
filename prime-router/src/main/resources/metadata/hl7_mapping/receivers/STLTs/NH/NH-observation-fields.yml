@@ -2,6 +2,5 @@ constants:
   OBX: '/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(%{resultIndex})/OBX'
 
 elements:
-  - name: nh-unwanted-fields-obx
-    value: [ '""' ]
-    hl7Spec: [ '%{OBX}-18-1', '%{OBX}-18-2', '%{OBX}-18-3']
+    - name: obx-equipment-instance-identifier
+      condition: false
