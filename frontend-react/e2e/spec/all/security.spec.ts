@@ -1,0 +1,107 @@
+import { scrollToFooter, scrollToTop } from "../../helpers/utils";
+import { SecurityPage } from "../../pages/security";
+import { test as baseTest, expect } from "../../test";
+
+const URL_SECURITY = "/about/security";
+
+export interface SecurityPageFixtures {
+    securityPage: SecurityPage;
+}
+
+const test = baseTest.extend<SecurityPageFixtures>({
+    securityPage: async (
+        {
+            page: _page,
+            isMockDisabled,
+            adminLogin,
+            senderLogin,
+            receiverLogin,
+            storageState,
+            isFrontendWarningsLog,
+            frontendWarningsLogPath,
+        },
+        use,
+    ) => {
+        const page = new SecurityPage({
+            page: _page,
+            isMockDisabled,
+            adminLogin,
+            senderLogin,
+            receiverLogin,
+            storageState,
+            isFrontendWarningsLog,
+            frontendWarningsLogPath,
+        });
+        await page.goto();
+        await use(page);
+    },
+});
+
+test.describe(
+    "Security page",
+    {
+        tag: "@smoke",
+    },
+    () => {
+        test("nav contains the 'About' dropdown with 'Security Reportstream' option", async ({ securityPage }) => {
+            const navItems = securityPage.page.locator(".usa-nav  li");
+            await expect(navItems).toContainText(["About"]);
+
+            await securityPage.page.getByTestId("header").getByTestId("navDropDownButton").getByText("About").click();
+
+            await securityPage.page.getByTestId("header").getByRole("link", { name: "Security" }).click();
+            await expect(securityPage.page).toHaveURL(URL_SECURITY);
+        });
+
+        test("has correct title", async ({ securityPage }) => {
+            await expect(securityPage.page).toHaveTitle(securityPage.title);
+            await expect(securityPage.heading).toBeVisible();
+        });
+
+        test.describe("Security section", () => {
+            test("Accordion sections expand", async ({ securityPage }) => {
+                // Not necessary to test all expansions.
+                const accordionCol = [
+                    "Does ReportStream comply with the Federal Information Security Modernization Act (FISMA)?",
+                    "Is ReportStream FedRAMP approved?",
+                ];
+
+                for (let i = 0; i < accordionCol.length; i++) {
+                    const accordionItem = `accordionItem_${i + 1}--content`;
+                    await expect(securityPage.page.getByTestId(accordionItem)).toBeHidden();
+
+                    await securityPage.page
+                        .getByRole("button", {
+                            name: accordionCol[i],
+                        })
+                        .click();
+
+                    await expect(securityPage.page.getByTestId(accordionItem)).toBeVisible();
+
+                    await securityPage.page
+                        .getByRole("button", {
+                            name: accordionCol[i],
+                        })
+                        .click();
+
+                    await expect(securityPage.page.getByTestId(accordionItem)).toBeHidden();
+                }
+            });
+        });
+
+        test.describe("Footer", () => {
+            test("has footer", async ({ securityPage }) => {
+                await expect(securityPage.footer).toBeAttached();
+            });
+
+            test("explicit scroll to footer and then scroll to top", async ({ securityPage }) => {
+                await expect(securityPage.footer).not.toBeInViewport();
+                await scrollToFooter(securityPage.page);
+                await expect(securityPage.footer).toBeInViewport();
+                await expect(securityPage.page.getByTestId("govBanner")).not.toBeInViewport();
+                await scrollToTop(securityPage.page);
+                await expect(securityPage.page.getByTestId("govBanner")).toBeInViewport();
+            });
+        });
+    },
+);
