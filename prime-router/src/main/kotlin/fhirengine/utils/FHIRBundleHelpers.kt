@@ -276,6 +276,7 @@ fun Bundle.deleteResource(resource: Base, removeOrphanedDiagnosticReport: Boolea
 
     // The original use case of this function was just to remove Observations from a bundle
     // but has since expanded so this behavior is opt-in
+    // TODO: Remove as part of https://github.com/CDCgov/prime-reportstream/issues/14568
     if (removeOrphanedDiagnosticReport) {
         // clean up empty Diagnostic Reports and references to them
         cleanUpEmptyDiagnosticReports()

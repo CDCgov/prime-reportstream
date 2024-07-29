@@ -88,7 +88,7 @@ class FhirTransformSchemaElement(
     debug = debug
 ) {
 
-    // Secondary constructor to Jackson can instantiate elements with an action
+    // Secondary constructor so Jackson can instantiate elements with an action
     constructor(
         name: String? = null,
         condition: String? = null,
