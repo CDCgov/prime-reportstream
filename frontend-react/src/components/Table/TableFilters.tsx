@@ -144,6 +144,26 @@ function TableFilters({
 
         return { isFilterDisabled, rangeFromWithTime, rangeToWithTime };
     }, [currentServiceSelect, endTime, rangeFrom, rangeTo, startTime]);
+    const [domContentLoaded, setDomContentLoaded] = useState(false);
+
+    // Using the native JS API to determine when the DOM is fully loaded
+    useEffect(() => {
+        const handleDOMContentLoaded = () => {
+            setDomContentLoaded(true);
+        };
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", handleDOMContentLoaded);
+        } else {
+            // Document is already ready
+            handleDOMContentLoaded();
+        }
+
+        return () => {
+            document.removeEventListener("DOMContentLoaded", handleDOMContentLoaded);
+        };
+    }, []);
+
     // These variable and the logic below are for a specific use case:
     // We do NOT want to show the time range portion of the FilterStatus
     // when a user didn't manipulate both the Start time and End time.
@@ -164,36 +184,34 @@ function TableFilters({
         // undefined
         // Example Output: "elr, 03/04/24-03/07/24, 12:02am-04:25pm"
         // If user is using search, override filter display and just show searchTerm
+        if (domContentLoaded) {
+            setFilterStatus({
+                resultLength: resultLength,
+                activeFilters: [
+                    ...(searchTerm.length
+                        ? [searchTerm]
+                        : [
+                              currentServiceSelect,
+                              [
+                                  ...(rangeFrom && isValid(rangeFrom) ? [format(rangeFrom, "MM/dd/yyyy")] : []),
+                                  ...(rangeTo && isValid(rangeTo) ? [format(rangeTo, "MM/dd/yyyy")] : []),
+                              ].join("–"),
+                              [
+                                  ...(startTime ? [format(parse(startTime, "HH:mm", new Date()), "h:mm a")] : []),
+                                  ...(endTime ? [format(parse(endTime, "HH:mm", new Date()), "h:mm a")] : []),
+                              ]
+                                  .join("–")
+                                  .toLowerCase()
+                                  .split(" ")
+                                  .join(""),
+                          ]),
+                ],
+            });
+        }
 
-        setFilterStatus({
-            resultLength: resultLength,
-            activeFilters: [
-                ...(searchTerm.length
-                    ? [searchTerm]
-                    : [
-                          currentServiceSelect,
-                          [
-                              ...(rangeFrom && isValid(rangeFrom) ? [format(rangeFrom, "MM/dd/yyyy")] : []),
-                              ...(rangeTo && isValid(rangeTo) ? [format(rangeTo, "MM/dd/yyyy")] : []),
-                          ].join("–"),
-                          [
-                              ...(!!startTimeElm?.value || !!endTimeElm?.value
-                                  ? [
-                                        format(parse(startTime, "HH:mm", new Date()), "h:mm a"),
-                                        format(parse(endTime, "HH:mm", new Date()), "h:mm a"),
-                                    ]
-                                  : []),
-                          ]
-                              .join("–")
-                              .toLowerCase()
-                              .split(" ")
-                              .join(""),
-                      ]),
-            ],
-        });
         // We ONLY want to update the TableFilterStatus when loading is complete
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [deliveriesHistoryDataUpdatedAt, resultLength]);
+    }, [deliveriesHistoryDataUpdatedAt, resultLength, domContentLoaded]);
 
     /* Pushes local state to context and resets cursor to page 1 */
     const applyToFilterManager = useCallback(

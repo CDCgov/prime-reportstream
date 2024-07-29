@@ -147,7 +147,7 @@ const DeliveriesFilterAndTable = ({
             ) : (
                 <>
                     <Table apiSortable borderless striped rowData={data} />
-                    {data?.length && (
+                    {data?.length !== 0 && (
                         <Pagination
                             currentPage={currentPageNum}
                             pathname=""
