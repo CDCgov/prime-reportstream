@@ -1,30 +1,11 @@
-import {
-    Button,
-    DateRangePicker,
-    Icon,
-    Select,
-    TimePicker,
-    Tooltip,
-} from "@trussworks/react-uswds";
+import { Button, DateRangePicker, Icon, Select, TimePicker, Tooltip } from "@trussworks/react-uswds";
 import { format, isValid, parse } from "date-fns";
-import {
-    Dispatch,
-    FormEvent,
-    SetStateAction,
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-} from "react";
+import { Dispatch, FormEvent, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import styles from "./TableFilters.module.scss";
 import TableFilterSearch from "./TableFilterSearch";
 import TableFilterStatus, { TableFilterData } from "./TableFilterStatus";
-import {
-    CursorActionType,
-    CursorManager,
-} from "../../hooks/filters/UseCursorManager/UseCursorManager";
+import { CursorActionType, CursorManager } from "../../hooks/filters/UseCursorManager/UseCursorManager";
 import {
     DEFAULT_FROM_TIME_STRING,
     DEFAULT_TO_TIME_STRING,
@@ -58,7 +39,7 @@ interface TableFilterProps {
     showDateHints?: boolean;
     startDateLabel: string;
     resultLength?: number;
-    isPaginationLoading?: boolean;
+    deliveriesHistoryDataUpdatedAt?: number;
 }
 
 // using a regex to check for format because of different browsers' implementations of Date
@@ -69,9 +50,7 @@ const DATE_RE = /^[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{2,4}$/;
 
 export function isValidDateString(dateStr?: string) {
     // need to check for value format (mm/dd/yyyy) and date validity (no 99/99/9999)
-    return (
-        DATE_RE.test(dateStr ?? "") && !Number.isNaN(Date.parse(dateStr ?? ""))
-    );
+    return DATE_RE.test(dateStr ?? "") && !Number.isNaN(Date.parse(dateStr ?? ""));
 }
 
 /* This component contains the UI for selecting query parameters.
@@ -92,7 +71,7 @@ function TableFilters({
     showDateHints,
     startDateLabel,
     resultLength,
-    isPaginationLoading,
+    deliveriesHistoryDataUpdatedAt,
 }: TableFilterProps) {
     // Don't autofill the 2000-3000 date range.
     const fromStr =
@@ -100,9 +79,7 @@ function TableFilters({
             ? undefined
             : new Date(filterManager.rangeSettings.from);
     const toStr =
-        filterManager.rangeSettings.to === FALLBACK_TO_STRING
-            ? undefined
-            : new Date(filterManager.rangeSettings.to);
+        filterManager.rangeSettings.to === FALLBACK_TO_STRING ? undefined : new Date(filterManager.rangeSettings.to);
 
     // store ISO strings to pass to FilterManager when user clicks 'Filter'
     // TODO: Remove FilterManager and CursorManager
@@ -111,8 +88,7 @@ function TableFilters({
     const formRef = useRef<HTMLFormElement>(null);
     const [startTime, setStartTime] = useState(DEFAULT_FROM_TIME_STRING);
     const [endTime, setEndTime] = useState(DEFAULT_TO_TIME_STRING);
-    const [currentServiceSelect, setCurrentServiceSelect] =
-        useState<string>("");
+    const [currentServiceSelect, setCurrentServiceSelect] = useState<string>("");
     const [filterStatus, setFilterStatus] = useState<TableFilterData>({
         resultLength: resultLength,
         activeFilters: [currentServiceSelect],
@@ -127,8 +103,7 @@ function TableFilters({
             });
             cursorManager?.update({
                 type: CursorActionType.RESET,
-                payload:
-                    filterManager.sortSettings.order === "DESC" ? to : from,
+                payload: filterManager.sortSettings.order === "DESC" ? to : from,
             });
         },
         [cursorManager, filterManager],
@@ -162,16 +137,10 @@ function TableFilters({
         const [startHours, startMinutes] = startTime.split(":").map(Number);
         const [endHours, endMinutes] = endTime.split(":").map(Number);
 
-        const rangeFromWithTime = new Date(
-            rangeFrom.setHours(startHours, startMinutes, 0, 0),
-        ).toISOString();
-        const rangeToWithTime = new Date(
-            rangeTo.setHours(endHours, endMinutes, 0, 0),
-        ).toISOString();
+        const rangeFromWithTime = new Date(rangeFrom.setHours(startHours, startMinutes, 0, 0)).toISOString();
+        const rangeToWithTime = new Date(rangeTo.setHours(endHours, endMinutes, 0, 0)).toISOString();
 
-        const isFilterDisabled = Boolean(
-            new Date(rangeFromWithTime) > new Date(rangeToWithTime),
-        );
+        const isFilterDisabled = Boolean(new Date(rangeFromWithTime) > new Date(rangeToWithTime));
 
         return { isFilterDisabled, rangeFromWithTime, rangeToWithTime };
     }, [currentServiceSelect, endTime, rangeFrom, rangeTo, startTime]);
@@ -181,86 +150,50 @@ function TableFilters({
     // However, to our controlled components, our input is always applied,
     // so we have to access the inputs via an uncontrolled method to see if
     // a user manipulated them or now.
-    const startTimeElm = formRef?.current?.querySelector(
-        "#start-time",
-    ) as HTMLInputElement | null;
-    const endTimeElm = formRef?.current?.querySelector(
-        "#end-time",
-    ) as HTMLInputElement | null;
+    const startTimeElm = formRef?.current?.querySelector("#start-time") as HTMLInputElement | null;
+    const endTimeElm = formRef?.current?.querySelector("#end-time") as HTMLInputElement | null;
     const showDefaultStatus = useMemo(() => {
         return (
-            !currentServiceSelect &&
-            !rangeFrom &&
-            !rangeTo &&
-            !startTimeElm?.value &&
-            !endTimeElm?.value &&
-            !searchTerm
+            !currentServiceSelect && !rangeFrom && !rangeTo && !startTimeElm?.value && !endTimeElm?.value && !searchTerm
         );
-    }, [
-        currentServiceSelect,
-        endTimeElm?.value,
-        rangeFrom,
-        rangeTo,
-        searchTerm,
-        startTimeElm?.value,
-    ]);
+    }, [currentServiceSelect, endTimeElm?.value, rangeFrom, rangeTo, searchTerm, startTimeElm?.value]);
 
     useEffect(() => {
-        if (isPaginationLoading === false)
-            // This piece of code outputs into activeFilters a human readable
-            // filter array for us to display on the FE, with protections against
-            // undefined
-            // Example Output: "elr, 03/04/24-03/07/24, 12:02am-04:25pm"
-            // If user is using search, override filter display and just show searchTerm
+        // This piece of code outputs into activeFilters a human readable
+        // filter array for us to display on the FE, with protections against
+        // undefined
+        // Example Output: "elr, 03/04/24-03/07/24, 12:02am-04:25pm"
+        // If user is using search, override filter display and just show searchTerm
 
-            setFilterStatus({
-                resultLength: resultLength,
-                activeFilters: [
-                    ...(searchTerm.length
-                        ? [searchTerm]
-                        : [
-                              currentServiceSelect,
-                              [
-                                  ...(rangeFrom && isValid(rangeFrom)
-                                      ? [format(rangeFrom, "MM/dd/yyyy")]
-                                      : []),
-                                  ...(rangeTo && isValid(rangeTo)
-                                      ? [format(rangeTo, "MM/dd/yyyy")]
-                                      : []),
-                              ].join("–"),
-                              [
-                                  ...(!!startTimeElm?.value ||
-                                  !!endTimeElm?.value
-                                      ? [
-                                            format(
-                                                parse(
-                                                    startTime,
-                                                    "HH:mm",
-                                                    new Date(),
-                                                ),
-                                                "h:mm a",
-                                            ),
-                                            format(
-                                                parse(
-                                                    endTime,
-                                                    "HH:mm",
-                                                    new Date(),
-                                                ),
-                                                "h:mm a",
-                                            ),
-                                        ]
-                                      : []),
-                              ]
-                                  .join("–")
-                                  .toLowerCase()
-                                  .split(" ")
-                                  .join(""),
-                          ]),
-                ],
-            });
+        setFilterStatus({
+            resultLength: resultLength,
+            activeFilters: [
+                ...(searchTerm.length
+                    ? [searchTerm]
+                    : [
+                          currentServiceSelect,
+                          [
+                              ...(rangeFrom && isValid(rangeFrom) ? [format(rangeFrom, "MM/dd/yyyy")] : []),
+                              ...(rangeTo && isValid(rangeTo) ? [format(rangeTo, "MM/dd/yyyy")] : []),
+                          ].join("–"),
+                          [
+                              ...(!!startTimeElm?.value || !!endTimeElm?.value
+                                  ? [
+                                        format(parse(startTime, "HH:mm", new Date()), "h:mm a"),
+                                        format(parse(endTime, "HH:mm", new Date()), "h:mm a"),
+                                    ]
+                                  : []),
+                          ]
+                              .join("–")
+                              .toLowerCase()
+                              .split(" ")
+                              .join(""),
+                      ]),
+            ],
+        });
         // We ONLY want to update the TableFilterStatus when loading is complete
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [resultLength]);
+    }, [deliveriesHistoryDataUpdatedAt, resultLength]);
 
     /* Pushes local state to context and resets cursor to page 1 */
     const applyToFilterManager = useCallback(
@@ -310,14 +243,8 @@ function TableFilters({
             setSearchReset(searchReset + 1);
 
             setService?.(currentServiceSelect);
-            if (
-                filterDetails.rangeFromWithTime &&
-                filterDetails.rangeToWithTime
-            ) {
-                applyToFilterManager(
-                    filterDetails.rangeFromWithTime,
-                    filterDetails.rangeToWithTime,
-                );
+            if (filterDetails.rangeFromWithTime && filterDetails.rangeToWithTime) {
+                applyToFilterManager(filterDetails.rangeFromWithTime, filterDetails.rangeToWithTime);
             }
 
             appInsights?.trackEvent({
@@ -344,10 +271,7 @@ function TableFilters({
                 resetFilterFields={resetFilterFields}
             />
 
-            <section
-                data-testid="filter-container"
-                className="filter-container flex-column"
-            >
+            <section data-testid="filter-container" className="filter-container flex-column">
                 <p className="text-bold margin-top-0 grid-col-12">
                     View data from a specific receiver or date and time range
                 </p>
@@ -392,10 +316,7 @@ function TableFilters({
                                     {""}
                                 </option>
                                 {receivers?.map((receiver) => (
-                                    <option
-                                        key={receiver.value}
-                                        value={receiver.value}
-                                    >
+                                    <option key={receiver.value} value={receiver.value}>
                                         {receiver.value}
                                     </option>
                                 ))}
@@ -405,9 +326,7 @@ function TableFilters({
                             <DateRangePicker
                                 className={StyleClass.DATE_CONTAINER}
                                 startDateLabel={startDateLabel}
-                                startDateHint={
-                                    showDateHints ? "mm/dd/yyyy" : ""
-                                }
+                                startDateHint={showDateHints ? "mm/dd/yyyy" : ""}
                                 startDatePickerProps={{
                                     id: "start-date",
                                     name: "start-date-picker",
@@ -428,9 +347,7 @@ function TableFilters({
                                     defaultValue: rangeTo?.toISOString(),
                                     onChange: (val?: string) => {
                                         if (isValidDateString(val)) {
-                                            setRangeTo(
-                                                getEndOfDay(new Date(val!)),
-                                            );
+                                            setRangeTo(getEndOfDay(new Date(val!)));
                                         } else {
                                             setRangeTo(undefined);
                                         }
@@ -449,15 +366,11 @@ function TableFilters({
                                             if (input) {
                                                 setStartTime(input);
                                             } else {
-                                                setStartTime(
-                                                    DEFAULT_FROM_TIME_STRING,
-                                                );
+                                                setStartTime(DEFAULT_FROM_TIME_STRING);
                                             }
                                         }}
                                     />
-                                    <p className="usa-hint usa-hint__default">
-                                        Default: 12:00am
-                                    </p>
+                                    <p className="usa-hint usa-hint__default">Default: 12:00am</p>
                                 </div>
                                 <div className="grid-row flex-column">
                                     <TimePicker
@@ -470,15 +383,11 @@ function TableFilters({
                                             if (input) {
                                                 setEndTime(input);
                                             } else {
-                                                setEndTime(
-                                                    DEFAULT_TO_TIME_STRING,
-                                                );
+                                                setEndTime(DEFAULT_TO_TIME_STRING);
                                             }
                                         }}
                                     />
-                                    <p className="usa-hint usa-hint__default">
-                                        Default: 11:59pm
-                                    </p>
+                                    <p className="usa-hint usa-hint__default">Default: 11:59pm</p>
                                 </div>
                             </div>
                         </div>
@@ -487,18 +396,12 @@ function TableFilters({
                                 <div>
                                     <Button
                                         className="margin-right-205"
-                                        disabled={
-                                            filterDetails.isFilterDisabled
-                                        }
+                                        disabled={filterDetails.isFilterDisabled}
                                         type={"submit"}
                                     >
                                         Apply
                                     </Button>
-                                    <Button
-                                        type={"reset"}
-                                        name="clear-button"
-                                        unstyled
-                                    >
+                                    <Button type={"reset"} name="clear-button" unstyled>
                                         Reset
                                     </Button>
                                 </div>
@@ -507,12 +410,7 @@ function TableFilters({
                     </div>
                 </form>
             </section>
-            {isPaginationLoading === false && (
-                <TableFilterStatus
-                    filterStatus={filterStatus}
-                    showDefaultStatus={showDefaultStatus}
-                />
-            )}
+            <TableFilterStatus filterStatus={filterStatus} showDefaultStatus={showDefaultStatus} />
         </div>
     );
 }

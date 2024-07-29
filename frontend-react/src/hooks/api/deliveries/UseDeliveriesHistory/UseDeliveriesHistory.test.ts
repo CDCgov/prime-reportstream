@@ -60,7 +60,6 @@ describe("useDeliveriesHistory", () => {
             const { result } = renderHook(() => useDeliveriesHistory("testService"));
             await waitFor(() => expect(result.current.data!.data).toHaveLength(5));
             await waitFor(() => expect(Object.keys(result.current.data!.meta)).toHaveLength(5));
-            expect(result.current.isLoading).toEqual(false);
         });
     });
 });

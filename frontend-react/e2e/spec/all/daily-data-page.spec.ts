@@ -1342,7 +1342,7 @@ test.describe("Daily Data page", () => {
 
         test.beforeEach(async ({ page }) => {
             await dailyData.goto(page);
-            const response = await waitForAPIResponse(page, "/api/waters/org/");
+            const response = await waitForAPIResponse(page, "/api/v1/waters/org/");
             expect(response).toBe(200);
         });
 

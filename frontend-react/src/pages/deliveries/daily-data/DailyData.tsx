@@ -33,7 +33,7 @@ const DeliveriesFilterAndTable = ({
         searchTerm,
         setSearchTerm,
         setService,
-        isLoading: isDeliveriesHistoryLoading,
+        dataUpdatedAt: deliveriesHistoryDataUpdatedAt,
     } = useDeliveriesHistory();
     const { authState, activeMembership } = useSessionContext();
     const { appInsights } = useAppInsightsContext();
@@ -42,7 +42,8 @@ const DeliveriesFilterAndTable = ({
     const handleFetchAndDownload = (id: string) => {
         getReportAndDownload(id, authState.accessToken?.accessToken ?? "", activeMembership?.parsedName ?? "");
     };
-    if (isOrgReceiversLoading || isDeliveriesHistoryLoading || !results) return <Spinner />;
+
+    if (isOrgReceiversLoading || !results) return <Spinner />;
 
     const receiverDropdown = [
         ...new Set(
@@ -137,7 +138,7 @@ const DeliveriesFilterAndTable = ({
                     })
                 }
                 resultLength={results?.meta.totalFilteredCount}
-                isPaginationLoading={isDeliveriesHistoryLoading}
+                deliveriesHistoryDataUpdatedAt={deliveriesHistoryDataUpdatedAt}
             />
             {services.length === 0 ? (
                 <div className="usa-section margin-bottom-5">
@@ -180,7 +181,6 @@ const DeliveriesFilterAndTable = ({
 
 export function DailyData() {
     const { isLoading, isDisabled, activeReceivers } = useOrganizationReceivers();
-
     if (isDisabled) {
         return <AdminFetchAlert />;
     }
