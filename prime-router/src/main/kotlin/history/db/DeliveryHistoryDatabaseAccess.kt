@@ -2,7 +2,9 @@ package gov.cdc.prime.router.history.db
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ApiFilter
 import gov.cdc.prime.router.azure.ApiFilterNames
@@ -13,6 +15,7 @@ import gov.cdc.prime.router.azure.ApiSearchResult
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.RawApiSearch
 import gov.cdc.prime.router.azure.SortDirection
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.azure.DatabaseDeliveryAccess
@@ -28,7 +31,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 
 private const val EXPIRATION_DAYS_OFFSET = 30L
-class DeliveryHistory(
+data class DeliveryHistory(
     val deliveryId: String?,
     val createdAt: OffsetDateTime,
     val expiresAt: OffsetDateTime,
@@ -45,14 +48,8 @@ class DeliveryHistory(
     @JsonIgnore
     val schemaName: String,
     val fileType: String,
+    val fileName: String? = bodyUrl?.substringAfter("%2F").orEmpty(),
 ) {
-    /**
-     * The actual download path for the file.
-     */
-    val fileName: String
-        get() {
-            return this.bodyUrl?.substringAfter("%2F").orEmpty()
-        }
 
     /**
      * The fullName of the recipient of the input report, or less, if missing some fields.
@@ -61,7 +58,7 @@ class DeliveryHistory(
 
     init {
         receiver = when {
-            receivingOrg.isNullOrBlank() -> ""
+            receivingOrg.isBlank() -> ""
             receivingOrgSvc.isNullOrBlank() -> receivingOrg
             else -> Receiver.createFullName(receivingOrg, receivingOrgSvc)
         }
@@ -200,6 +197,7 @@ class DeliveryHistoryApiSearch(
 
 class DeliveryHistoryDatabaseAccess(
     internal val db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
+    internal val workflowEngine: WorkflowEngine,
 ) : Logging {
 
    private val databaseDeliveryAccess: DatabaseDeliveryAccess = DatabaseDeliveryAccess()
@@ -266,11 +264,37 @@ class DeliveryHistoryDatabaseAccess(
             .where(whereClause).asTable(DeliveryHistoryTable.DELIVERY_HISTORY)
 
         val results = db.transactReturning { txn ->
-            search.fetchResults(
+
+            val results = search.fetchResults(
                 DSL.using(txn),
                 deliveriesExpression.asterisk(),
                 deliveriesExpression.asTable(DeliveryHistoryTable.DELIVERY_HISTORY.name),
             )
+            val reportFiles = db
+                .fetchReportFileByIds(results.results.map { UUID.fromString(it.reportId) })
+            results.map { history ->
+                val receiver = if (history.receiver != null) {
+                    workflowEngine.settings.findReceiver(history.receiver!!)
+                } else {
+                    null
+                }
+                val report = reportFiles.find { it.reportId == UUID.fromString(history.reportId) }
+                if (report != null) {
+                    history.copy(
+                        fileName = Report.formExternalFilename(
+                            report.reportId,
+                            report.schemaName,
+                            MimeFormat.valueOf(report.bodyFormat),
+                            report.createdAt,
+                            workflowEngine.metadata,
+                            receiver?.translation?.nameFormat,
+                            receiver?.translation
+                        )
+                    )
+                } else {
+                    history
+                }
+            }
         }
 
         return results
@@ -296,7 +320,7 @@ class DeliveryHistoryDatabaseAccess(
         var filter = databaseDeliveryAccess.organizationFilter(organization, orgService)
 
         if (receivingOrgSvcStatus != null) {
-            var statusList = receivingOrgSvcStatus.map { it.name.lowercase() }
+            val statusList = receivingOrgSvcStatus.map { it.name.lowercase() }
             filter = filter.and(
                 DSL.jsonbGetAttributeAsText(Tables.SETTING.VALUES, "customerStatus")
                     .`in`(statusList)
