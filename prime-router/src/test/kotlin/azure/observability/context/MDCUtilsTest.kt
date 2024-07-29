@@ -107,7 +107,7 @@ class MDCUtilsTest {
             assertThat(context["topic"]).isEqualTo(Topic.FULL_ELR.jsonVal)
             assertThat(context["pipelineStepName"]).isEqualTo("send")
             assertThat(context["timestamp"]).isNotNull()
-            assertThat(context["params"]).isEqualTo("{\"FILENAME\":\"filename\"}")
+            assertThat(context["params"]).isEqualTo("{\"filename\":\"filename\"}")
         }
     }
 
@@ -141,7 +141,7 @@ class MDCUtilsTest {
             assertThat(context["topic"]).isEqualTo(Topic.FULL_ELR.jsonVal)
             assertThat(context["pipelineStepName"]).isEqualTo("send")
             assertThat(context["timestamp"]).isNotNull()
-            assertThat(context["params"]).isEqualTo("{\"FILENAME\":\"filename\"}")
+            assertThat(context["params"]).isEqualTo("{\"filename\":\"filename\"}")
             assertThat(context["childItemIndex"]).isEqualTo("1")
             assertThat(context["parentItemIndex"]).isEqualTo("1")
             assertThat(context["submittedItemIndex"]).isEqualTo("1")
