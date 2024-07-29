@@ -1,0 +1,192 @@
+- name: "wy-phd"
+  description: "Wyoming Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "WY"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+  - name: "full-elr"
+    organizationName: "wy-phd"
+    topic: "full-elr"
+    customerStatus: "testing"
+    translation:
+      schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/WY/WY-receiver-transform.yml"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: null
+      receivingApplicationOID: null
+      receivingFacilityName: null
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB: {}
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: true
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+      - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'WY') or (Bundle.entry.resource.ofType(Patient).address.state = 'WY')"
+    qualityFilter:
+      # Message id is not empty (MSH-10)
+      - "Bundle.identifier.value.exists()"
+      - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
+      - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
+      - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
+      #  Specimen type (SPM-4) is not empty
+      - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+      # Patient has at least a street address(PID-11-1), postal code (PID-11-5),phone(PID-13) or email(PID-13-4)
+      - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
+      - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists())
+        or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
+    routingFilter: []
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter:
+      # Accept COVID only
+      - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists())"
+    mappedConditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:15"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport:
+      host: "sftp"
+      port: "22"
+      filePath: "./upload"
+      credentialName: "DEFAULT-SFTP"
+      type: "SFTP"
+    externalName: "Primary Feed"
+    enrichmentSchemaNames:
+      - "azure:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
+    timeZone: null
+    dateTimeFormat: "OFFSET"
+  - name: "full-elr-secondary"
+    organizationName: "wy-phd"
+    topic: "full-elr"
+    customerStatus: "active"
+    translation:
+      schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/WY/WY-receiver-transform.yml"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: null
+      receivingApplicationOID: null
+      receivingFacilityName: null
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB: {}
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: true
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD_SECONDARY"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+      - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'WY') or (Bundle.entry.resource.ofType(Patient).address.state = 'WY')"
+    qualityFilter:
+      # Message id is not empty (MSH-10)
+      - "Bundle.identifier.value.exists()"
+      - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
+      - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
+      - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
+      #  Specimen type (SPM-4) is not empty
+      - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+      # Patient has at least a street address(PID-11-1), postal code (PID-11-5),phone(PID-13) or email(PID-13-4)
+      - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
+      - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists())
+        or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
+    routingFilter: []
+    processingModeFilter: []
+    reverseTheQualityFilter: true
+    conditionFilter: []
+    mappedConditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:15"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport:
+      host: "sftp"
+      port: "22"
+      filePath: "./upload"
+      credentialName: "DEFAULT-SFTP"
+      type: "SFTP"
+    externalName: "Secondary Feed"
+    enrichmentSchemaNames:
+      - "azure:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
+    timeZone: null
+    dateTimeFormat: "OFFSET"

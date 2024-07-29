@@ -33,7 +33,16 @@ object FhirPathUtils : Logging {
     private val fhirContext = FhirContext.forR4()
 
     /**
-     * The FHIR path engine.
+     * The FHIR path engine
+     *
+     * For each call to the functions in this object, the path engine evaluation context is being
+     * set to support additional constants outside the base specification.
+     *
+     * Be very careful that you set this to the appropriate value for your use case!
+     *
+     * ex: pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
+     *
+     * TODO: Think about changing this pattern to avoid future bugs if a new function was written incorrectly
      */
     val pathEngine = FHIRPathEngine(HapiWorkerContext(fhirContext, fhirContext.validationSupport))
 
@@ -50,13 +59,22 @@ object FhirPathUtils : Logging {
     /**
      * Parse a FHIR path from a [fhirPath] string.  This will also provide some format validation.
      * @return the validated FHIR path
-     * @throws Exception if the path is invalid
+     * @throws FHIRLexerException if the path is invalid
      */
     fun parsePath(fhirPath: String?): ExpressionNode? {
         return if (fhirPath.isNullOrBlank()) {
             null
         } else {
             pathEngine.parse(fhirPath)
+        }
+    }
+
+    /**
+     * Is the provided path a valid FHIR path given the evaluation context?
+     */
+    fun validatePath(path: String, evaluationContext: FHIRPathEngine.IEvaluationContext): Boolean {
+        return withEvaluationContext(evaluationContext) {
+            runCatching { parsePath(path) }.isSuccess
         }
     }
 
@@ -79,13 +97,12 @@ object FhirPathUtils : Logging {
             } else {
                 pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
             }
-        } catch (e: Exception) {
-            // This is due to a bug in at least the extension() function
-            logger.error(
-                "Unknown error while evaluating FHIR expression $expression. " +
-                    "Returning empty resource list.",
-                e
-            )
+        } catch (e: FHIRLexerException) {
+            logger.error("${e.javaClass.name}: Syntax error in FHIR Path $expression.")
+            emptyList()
+        } catch (e: IndexOutOfBoundsException) {
+            // This happens when a non-string value is given to an extension field.
+            logger.error("${e.javaClass.name}: FHIR path could not find a specified field in $expression.")
             emptyList()
         }
         logger.trace("Evaluated '$expression' to '$retVal'")
@@ -127,10 +144,9 @@ object FhirPathUtils : Logging {
                 throw SchemaException("FHIR Path expression did not evaluate to a boolean type: $expression")
             }
         } catch (e: Exception) {
-            // This is due to a bug in at least the extension() function
             val msg = when (e) {
                 is FHIRLexerException -> "Syntax error in FHIR Path expression $expression"
-                is SchemaException -> throw e
+                is SchemaException -> e.message.toString()
                 else ->
                     "Unknown error while evaluating FHIR Path expression $expression for condition. " +
                         "Setting value of condition to false."
@@ -244,5 +260,24 @@ object FhirPathUtils : Logging {
             else -> hl7Date.setYearMonthDayPrecision(date.year, date.month + 1, date.day)
         }
         return hl7Date.toString()
+    }
+
+    /**
+     * Stores the previous evaluation context in a temporary variable and then
+     * runs the lambda with the new evaluation context.
+     *
+     * After executing the lambda, it will set the evaluation context back to the initial value.
+     */
+    private fun <T> withEvaluationContext(
+        evaluationContext: FHIRPathEngine.IEvaluationContext,
+        block: () -> T,
+    ): T {
+        val previousEvaluationContext = pathEngine.hostServices
+        pathEngine.hostServices = evaluationContext
+        return try {
+            block()
+        } finally {
+            pathEngine.hostServices = previousEvaluationContext
+        }
     }
 }

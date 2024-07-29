@@ -1,3 +1,5 @@
+# $schema: ./../../../../json_schema/fhir/hl7-to-fhir-mapping-message-template.json
+
 resources:
 
   - resourceName: MessageHeader
@@ -5,8 +7,6 @@ resources:
     resourcePath: segments/MSH/MessageHeader
     repeats: false
     isReferenced: true
-    additionalSegments:
-      - SFT
 
   - resourceName: Provenance
     segment: MSH
@@ -79,8 +79,6 @@ resources:
     group: PATIENT_RESULT.ORDER_OBSERVATION
     resourcePath: segments/OBX/Observation
     repeats: true
-    additionalSegments:
-      - ORDER_OBSERVATION.SPECIMEN.OBX
 
   - resourceName: ServiceRequest
     segment: .OBR
@@ -99,10 +97,3 @@ resources:
     repeats: true
     additionalSegments:
       - .ORC
-
-  - resourceName: Device
-    segment: .PATIENT.PATIENT_OBSERVATION.PRT
-    group: PATIENT_RESULT
-    resourcePath: segments/PRT/Device
-
-# TODO Add more segments as we develop them

@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: Practitioner
 
 id:
@@ -127,9 +129,6 @@ name:
       expressions:
         - expressionType: HL7Spec
           valueOf: XCN.5
-          type: STRING
-        - expressionType: HL7Spec
-          valueOf: XCN.7
           type: STRING
         - expressionType: HL7Spec
           valueOf: XCN.21

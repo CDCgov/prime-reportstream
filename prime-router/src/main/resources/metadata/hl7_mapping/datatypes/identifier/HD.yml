@@ -1,5 +1,7 @@
 # possible '%resource's:
 # PID-3-4: Bundle.entry.resource.ofType(Patient).identifier.where(extension(%`rsext-hl7v2Field`).value = "PID.3").assigner.resolve()
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
 
   - name: hd-namespace-id

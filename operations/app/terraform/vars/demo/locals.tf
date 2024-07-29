@@ -16,6 +16,7 @@ locals {
     RS_okta_base_url      = "reportstream.oktapreview.com"
     RS_okta_redirect_url  = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
     RS_OKTA_scope         = "reportstream_dev"
+    etor_ti_base_url      = "https://cdcti-stg-api.azurewebsites.net"
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig${local.init.random_id}"
@@ -37,7 +38,7 @@ locals {
   database = {
     db_sku_name         = "GP_Gen5_4"
     db_version          = "11"
-    db_storage_mb       = 5120
+    db_storage_mb       = 3072000
     db_auto_grow        = true
     db_prevent_destroy  = false
     db_threat_detection = false

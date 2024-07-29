@@ -1,5 +1,6 @@
 resource "azurerm_container_registry" "container_registry" {
   #checkov:skip=CKV_AZURE_233: "Ensure Azure Container Registry (ACR) is zone redundant"
+  #checkov:skip=CKV_AZURE_237: "Ensure dedicated data endpoints are enabled."
   name                = "${var.resource_prefix}containerregistry"
   resource_group_name = var.resource_group
   location            = var.location

@@ -1,5 +1,6 @@
 locals {
   all_app_settings = {
+    "AzureFunctionsJobHost__functionTimeout"    = "01:00:00"
     "AzureWebJobs.emailScheduleEngine.Disabled" = 0
     "AzureWebJobs.send.Disabled"                = 0
 
@@ -16,13 +17,14 @@ locals {
     "RS_OKTA_redirect" = var.RS_okta_redirect_url
     "RS_OKTA_authkey"  = var.RS_OKTA_authKey
     "RS_OKTA_ClientId" = var.RS_OKTA_clientId
+    "ETOR_TI_baseurl"  = var.etor_ti_base_url
     # Manage client secrets via a Key Vault
     "CREDENTIAL_STORAGE_METHOD" = "AZURE"
-    "CREDENTIAL_KEY_VAULT_NAME" = "${var.resource_prefix}-clientconfig"
+    "CREDENTIAL_KEY_VAULT_NAME" = var.client_config_key_vault_name
 
     # Manage app secrets via a Key Vault
     "SECRET_STORAGE_METHOD" = "AZURE"
-    "SECRET_KEY_VAULT_NAME" = "${var.resource_prefix}-appconfig"
+    "SECRET_KEY_VAULT_NAME" = var.app_config_key_vault_name
 
     # Route outbound traffic through the VNET
     "WEBSITE_VNET_ROUTE_ALL" = 1

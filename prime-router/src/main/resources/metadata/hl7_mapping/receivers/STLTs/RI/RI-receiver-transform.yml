@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
 extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
@@ -29,7 +31,7 @@ elements:
 
   # PID 5-7
   - name: ri-patient-name_use
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-5-7' ]
@@ -47,28 +49,28 @@ elements:
 
   # PID 22-3
   - name: ri-patient-ethnicity_identifier-system
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '"CDCREC"' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-22-3' ]
 
   # PID 22-7
   - name: ri-patient-ethnicity_identifier-version
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '"3.1.0"' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-22-7' ]
 
   # ORC 12-1
   - name: ri-order-ordering-provider_xcn-id-number
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION*/ORC-12-1' ]
 
   # OBR 16-1
   - name: ri-ordering-provider_xcn-id-number
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION*/OBR-16-1' ]

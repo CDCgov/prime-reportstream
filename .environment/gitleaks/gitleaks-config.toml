@@ -14,6 +14,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     paths = [
         '.environment/sftp-conf',
         '.environment/soap_service/',
+        '.github/scripts/stale_items_report/',
         '.idea/',
         '.terraform/providers/',
         'frontend/dist',
@@ -36,6 +37,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'prime-router/src/main/kotlin/cli/tests/TestKeys.kt',
         'prime-router/src/test/csv_test_files/input/',
         'prime-router/src/test/kotlin/credentials/CredentialTests',
+        'prime-router/src/test/',
+        'prime-router/src/main/resources/metadata',
         '.environment/gitleaks/gitleaks-config.toml',
         'exp/as2/keystore_steps.md',
     ]
@@ -194,7 +197,12 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'var tokenSigningSecret = "UVD4QOJ3H295Zi9Ayl3ySuoXNKiE8WYuOsaXOZfug3dwTUVBC1ZIKRPpG5LEyZDZ"',         # Invalidated
             'xox[baprs]-([0-9a-zA-Z]{10,48})',
             'KeyVaults=\(',                                                                 # List of vaults
-            'useResource } from \"rest-hooks\"'                                             # not a useR
+            'useResource } from \"rest-hooks\"',                                            # not a user
+            'author\"}]}, \"who\": {\"reference\"',                                         # Comes out of normal FHIR test data
+            'authority\", \"extension\"',                                                  # FHIR extension URL also shows up in normal FHIR test data
+            'ApiKeyCredential\(\"flexion\"',
+            'authType: \"two-legged\"',
+            'Authorization-Type: \"username/password\"',
         ]
         paths = [
             '.terraform/modules/',
@@ -204,7 +212,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '6b04ad2134d44008a2f7bdb1fc10976830ed20ff', # Update AAD group IDs
             '2600066006d1c6d4a7fe353f08682321dada6838', # Vetted, AAD Object IDs, not credentials
             '680e5697e3dfb2c338346fe1d2a857d8dcbddcf0', # Vetted, AAD Object IDs, not credentials
-            '3d31923d9cb3ddd962b003ac8695afb6c411f64a', 
+            '3d31923d9cb3ddd962b003ac8695afb6c411f64a',
             '0fabda5e27eced37c3278e5356f60a9bedf30be4', # useResource, not creds
             'eab7bbc27767e327a9f33d086b7b4ef8fb6fdb42',
             '85d581010d8dac1c058e6c719ad7656d64e27d7a',
@@ -394,9 +402,9 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '9360bf82d85e45b53d5dcc9f7ebc17f3da52cd7d',                                     # Test Keys
             '6c3619d2333aac47dc82a90ccbc8e9be92e1200e',                                     # Test Keys
             'efb0f02fce90cd7117ff1b9e092afdd6c2a06de0',                                     # File rename
-            'f04ddcce15044536f8d772fbef6ccce16b7e252a',                                     
+            'f04ddcce15044536f8d772fbef6ccce16b7e252a',
             'b2c08884b1222b782b84d05432726ad11c6f66c5',
-            'f12de090f2cdf4ad4363bcf097216527a02af66c',                                     
+            'f12de090f2cdf4ad4363bcf097216527a02af66c',
         ]
 
 [[rules]]

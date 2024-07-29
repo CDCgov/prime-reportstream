@@ -5,6 +5,7 @@ import assertk.assertions.isTrue
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
+import gov.cdc.prime.reportstream.shared.StringUtilities.trimToNull
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.FileSettings
@@ -12,13 +13,13 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.cli.tests.CompareData
-import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
@@ -140,10 +141,10 @@ class TranslationTests {
      */
     data class TestConfig(
         val inputFile: String,
-        val inputFormat: Report.Format,
+        val inputFormat: MimeFormat,
         val inputSchema: String?,
         val expectedFile: String,
-        val expectedFormat: Report.Format,
+        val expectedFormat: MimeFormat,
         val outputSchema: String?,
         val shouldPass: Boolean = true,
         /** are there any fields we should ignore when doing the comparison */
@@ -154,7 +155,7 @@ class TranslationTests {
         val receiver: String? = null,
         val conditionFiler: String? = null,
         val enrichmentSchemas: String? = null,
-        val additionalProfiles: List<String> = emptyList(),
+        val profile: String? = null,
     )
 
     /**
@@ -187,7 +188,7 @@ class TranslationTests {
                     !it[ConfigColumns.EXPECTED_FILE.colName].isNullOrBlank() &&
                     !it[ConfigColumns.OUTPUT_FORMAT.colName].isNullOrBlank()
                 ) {
-                    val expectedFormat = Report.Format.safeValueOf(it[ConfigColumns.OUTPUT_FORMAT.colName])
+                    val expectedFormat = MimeFormat.safeValueOf(it[ConfigColumns.OUTPUT_FORMAT.colName])
                     val inputFormat = getFormat(it[ConfigColumns.INPUT_FILE.colName]!!)
                     val inputSchema = it[ConfigColumns.INPUT_SCHEMA.colName]
                     var outputSchema = it[ConfigColumns.OUTPUT_SCHEMA.colName]
@@ -254,22 +255,22 @@ class TranslationTests {
      * Get the report format from the extension of a [filename].
      * @return the report format
      */
-    private fun getFormat(filename: String): Report.Format {
+    private fun getFormat(filename: String): MimeFormat {
         return when {
             File(filename).extension.uppercase() == "INTERNAL" || filename.uppercase().endsWith("INTERNAL.CSV") -> {
-                Report.Format.INTERNAL
+                MimeFormat.INTERNAL
             }
 
             File(filename).extension.uppercase() == "HL7" -> {
-                Report.Format.HL7
+                MimeFormat.HL7
             }
 
             File(filename).extension.uppercase() == "FHIR" -> {
-                Report.Format.FHIR
+                MimeFormat.FHIR
             }
 
             else -> {
-                Report.Format.CSV
+                MimeFormat.CSV
             }
         }
     }
@@ -295,19 +296,16 @@ class TranslationTests {
                 if (result.passed) {
                     when {
                         // Compare the output of an HL7 to FHIR conversion
-                        config.expectedFormat == Report.Format.FHIR -> {
+                        config.expectedFormat == MimeFormat.FHIR -> {
                             val rawHL7 = inputStream.bufferedReader().readText()
                             val expectedRawFhir = expectedStream.bufferedReader().readText()
-                            verifyHL7toFhir(rawHL7, result, expectedRawFhir)
-                            config.additionalProfiles.forEach { profile ->
-                                verifyHL7toFhir(rawHL7, result, expectedRawFhir, profile)
-                            }
+                            verifyHL7toFhir(rawHL7, result, expectedRawFhir, config.profile)
                         }
 
                         // Compare the output of an HL7 to FHIR to HL7 conversion
-                        config.expectedFormat == Report.Format.HL7 && config.inputFormat == Report.Format.HL7 -> {
+                        config.expectedFormat == MimeFormat.HL7 && config.inputFormat == MimeFormat.HL7 -> {
                             check(!config.outputSchema.isNullOrBlank())
-                            val bundle = translateToFhir(inputStream.bufferedReader().readText())
+                            val bundle = translateToFhir(inputStream.bufferedReader().readText(), config.profile)
                             val afterEnrichment = if (config.enrichmentSchemas != null) {
                                 runSenderTransformOrEnrichment(bundle, config.enrichmentSchemas)
                             } else {
@@ -326,7 +324,7 @@ class TranslationTests {
                             )
                         }
                         // Compare the output of a FHIR to HL7 conversion
-                        config.expectedFormat == Report.Format.HL7 && config.inputFormat == Report.Format.FHIR -> {
+                        config.expectedFormat == MimeFormat.HL7 && config.inputFormat == MimeFormat.FHIR -> {
                             val afterEnrichment = if (config.enrichmentSchemas != null) {
                                 runSenderTransformOrEnrichment(inputStream, config.enrichmentSchemas)
                             } else {
@@ -431,10 +429,10 @@ class TranslationTests {
             rawHL7: String,
             result: CompareData.Result,
             expectedRawFhir: String,
-            profile: String? = null,
+            profile: String?,
         ) {
             // Currently only supporting one HL7 message
-            check(config.inputFormat == Report.Format.HL7)
+            check(config.inputFormat == MimeFormat.HL7)
             val actualStream = translateToFhir(rawHL7, profile)
             val enrichedStream = if (!config.enrichmentSchemas.isNullOrEmpty()) {
                 runSenderTransformOrEnrichment(actualStream, config.enrichmentSchemas)
@@ -455,16 +453,16 @@ class TranslationTests {
          * @return a FHIR bundle as a JSON input stream
          */
         private fun translateToFhir(hl7: String, profile: String? = null): InputStream {
-            val hl7messages = HL7Reader(ActionLogger()).getMessages(hl7)
-            val fhirBundles = hl7messages.map { message ->
-                if (profile == null) {
-                    HL7toFhirTranslator().translate(message)
-                } else {
-                    HL7toFhirTranslator(profile).translate(message)
-                }
+            val hl7message = HL7Reader.parseHL7Message(
+                hl7,
+                null
+            )
+            val fhirBundle = if (profile == null) {
+                HL7toFhirTranslator().translate(hl7message)
+            } else {
+                HL7toFhirTranslator(profile).translate(hl7message)
             }
-            check(fhirBundles.size == 1)
-            val fhirJson = FhirTranscoder.encode(fhirBundles[0])
+            val fhirJson = FhirTranscoder.encode(fhirBundle)
             return fhirJson.byteInputStream()
         }
 
@@ -539,7 +537,7 @@ class TranslationTests {
         private fun readReport(
             input: InputStream,
             schema: Schema,
-            format: Report.Format,
+            format: MimeFormat,
             result: CompareData.Result,
             senderName: String? = null,
         ): Report? {
@@ -556,7 +554,7 @@ class TranslationTests {
             return try {
                 when (format) {
                     // Get a random sender name that uses the provided schema, or null if no sender is found.
-                    Report.Format.HL7 -> {
+                    MimeFormat.HL7 -> {
                         val readResult = Hl7Serializer(metadata, settings).readExternal(
                             schema.name,
                             input,
@@ -569,7 +567,7 @@ class TranslationTests {
                         readResult.report
                     }
 
-                    Report.Format.INTERNAL -> {
+                    MimeFormat.INTERNAL -> {
                         CsvSerializer(metadata).readInternal(
                             schema.name,
                             input,
@@ -577,7 +575,7 @@ class TranslationTests {
                         )
                     }
 
-                    Report.Format.CSV -> {
+                    MimeFormat.CSV -> {
                         val readResult = CsvSerializer(metadata).readExternal(
                             schema.name,
                             input,
@@ -621,12 +619,12 @@ class TranslationTests {
          * Outputs a [report] to the specified [format].
          * @return the report output
          */
-        private fun outputReport(report: Report, format: Report.Format): InputStream {
+        private fun outputReport(report: Report, format: MimeFormat): InputStream {
             val outputStream = ByteArrayOutputStream()
             when (format) {
-                Report.Format.HL7_BATCH -> Hl7Serializer(metadata, settings).writeBatch(report, outputStream)
-                Report.Format.HL7 -> Hl7Serializer(metadata, settings).write(report, outputStream)
-                Report.Format.INTERNAL -> CsvSerializer(metadata).writeInternal(report, outputStream)
+                MimeFormat.HL7_BATCH -> Hl7Serializer(metadata, settings).writeBatch(report, outputStream)
+                MimeFormat.HL7 -> Hl7Serializer(metadata, settings).write(report, outputStream)
+                MimeFormat.INTERNAL -> CsvSerializer(metadata).writeInternal(report, outputStream)
                 else -> CsvSerializer(metadata).write(report, outputStream)
             }
             assertThat(outputStream.size() > 0).isTrue()

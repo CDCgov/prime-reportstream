@@ -1,6 +1,8 @@
 # possible '%resource's:
 # Bundle.entry.resource.ofType(Observation).where(focus.exists()).where(focus.resolve().id = Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id).specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "SPM") | Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id).specimen.resolve().where(extension(%`rsext-hl7v2Segment`).exists().not()).id)
 # This whole file is OBX-5 pretty much
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
 
   - name: obx-value-st
@@ -68,15 +70,8 @@ elements:
     constants:
       cneFieldPath: '%{hl7OBXField}-5'
 
-  - name: obx-value-ce
-    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "OBX.2").value = "CE"'
-    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CE.yml
-    resource: '%resource.value'
-    constants:
-      ceFieldPath: '%{hl7OBXField}-5'
-
   - name: obx-value-cwe
-    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "OBX.2").value = "CWE"'
+    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "OBX.2").value = "CWE" or "CE"'
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     resource: '%resource.value'
     constants:

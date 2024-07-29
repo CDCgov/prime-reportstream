@@ -11,8 +11,10 @@ import gov.cdc.prime.router.Topic
  */
 data class ReportAcceptedEvent(
     val reportId: ReportId,
+    val submittedReportId: ReportId,
     val topic: Topic,
     val sender: String,
     val observations: List<ObservationSummary>,
     val bundleSize: Int,
+    val messageId: AzureEventUtils.MessageID,
 ) : AzureCustomEvent

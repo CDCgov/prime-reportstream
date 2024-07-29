@@ -1,5 +1,7 @@
 # possible '%resource's:
 # OBX-5: Bundle.entry.resource.ofType(Observation).where(focus.exists()).where(focus.resolve().id = Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id).specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "SPM") | Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id).specimen.resolve().where(extension(%`rsext-hl7v2Segment`).exists().not()).id).extension("https://hl7.org/fhir/R5/StructureDefinition/observation-value-attachment").value
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
 
   - name: ed-data-subtype

@@ -5,12 +5,12 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
+import fhirengine.translation.hl7.structures.fhirinventory.message.ORU_R01
+import fhirengine.utils.ReportStreamCanonicalModelClassFactory
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import kotlin.test.Test
-import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01 as NIST_ELR_ORU_R01
 
 class NistElrTests {
     @Test
@@ -43,7 +43,7 @@ OBX|1|SN|21612-7^Reported Patient Age???^LN^^^^2.61||^28|a^Year^UCUM^^^^2.1|||||
     """.trimIndent()
         val messages: MutableList<Message> = mutableListOf()
         val validationContext = ValidationContextFactory.noValidation()
-        val context = DefaultHapiContext(CanonicalModelClassFactory(NIST_ELR_ORU_R01::class.java))
+        val context = DefaultHapiContext(ReportStreamCanonicalModelClassFactory(ORU_R01::class.java))
         context.validationContext = validationContext
 
         val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream(), context)

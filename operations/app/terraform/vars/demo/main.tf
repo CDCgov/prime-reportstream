@@ -172,6 +172,7 @@ module "function_app" {
   app_config_key_vault_name         = module.key_vault.app_config_key_vault_name
   sa_partner_connection_string      = module.storage.sa_partner_connection_string
   client_config_key_vault_id        = module.key_vault.client_config_key_vault_id
+  client_config_key_vault_name      = module.key_vault.client_config_key_vault_name
   app_config_key_vault_id           = module.key_vault.app_config_key_vault_id
   dns_ip                            = local.network.dns_ip
   is_temp_env                       = local.is_temp_env
@@ -181,6 +182,7 @@ module "function_app" {
   OKTA_authKey                      = data.azurerm_key_vault_secret.OKTA_authKey.value
   RS_OKTA_clientId                  = data.azurerm_key_vault_secret.RS_OKTA_clientId.value
   RS_OKTA_authKey                   = data.azurerm_key_vault_secret.RS_OKTA_authKey.value
+  etor_ti_base_url                  = local.init.etor_ti_base_url
 }
 
 module "front_door" {
@@ -195,7 +197,15 @@ module "front_door" {
   application_key_vault_id    = module.key_vault.application_key_vault_id
 }
 
-/* module "sftp" {
+module "ssh" {
+  source          = "../../modules/ssh"
+  environment     = local.init.environment
+  resource_group  = local.init.resource_group_name
+  resource_prefix = local.init.resource_prefix
+  location        = local.init.location
+}
+
+module "sftp" {
   source                      = "../../modules/sftp"
   environment                 = local.init.environment
   resource_group              = local.init.resource_group_name
@@ -204,7 +214,14 @@ module "front_door" {
   key_vault_id                = module.key_vault.application_key_vault_id
   terraform_caller_ip_address = local.network.terraform_caller_ip_address
   nat_gateway_id              = module.nat_gateway.nat_gateway_id
-} */
+  sshnames                    = module.ssh.sshnames
+  sshinstances                = module.ssh.sshinstances
+  sftp_dir                    = module.ssh.sftp_dir
+
+  depends_on = [
+    module.ssh
+  ]
+}
 
 module "sftp_container" {
   count = local.init.sftp_container_module == true ? 1 : 0
@@ -269,6 +286,7 @@ module "log_analytics_workspace" {
   law_retention_period     = local.log_analytics_workspace.law_retention_period
   //data_factory_id               = module.data_factory.data_factory_id
   //sftp_instance_01_id           = module.sftp.sftp_instance_ids[0]
+  action_group_id = module.application_insights.action_group_id
 }
 
 module "application_insights" {

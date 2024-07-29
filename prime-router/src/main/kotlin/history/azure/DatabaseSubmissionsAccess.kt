@@ -152,7 +152,6 @@ class DatabaseSubmissionsAccess(
                     .from(ACTION)
                     .join(cte)
                     .on(ACTION.ACTION_ID.eq(cte.field("action_id", SQLDataType.BIGINT)))
-                    .where(ACTION.ACTION_ID.ne(actionId))
                     .fetchInto(klass)
             } else {
                 emptyList()

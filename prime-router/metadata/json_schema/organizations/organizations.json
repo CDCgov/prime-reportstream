@@ -1,0 +1,1135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/Organization"
+  },
+  "definitions": {
+    "Organization": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "jurisdiction": {
+          "$ref": "#/definitions/Jurisdiction"
+        },
+        "stateCode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "countyName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "filters": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Filter"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "featureFlags": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "keys" : {
+          "anyOf": [
+            {
+              "type" : "array",
+              "items" : {
+                "type" : "object",
+                "properties" : {
+                  "keys" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "alg" : {
+                          "type" : "string"
+                        },
+                        "crv" : {
+                          "type" : "string"
+                        },
+                        "d" : {
+                          "type" : "string"
+                        },
+                        "dp" : {
+                          "type" : "string"
+                        },
+                        "dq" : {
+                          "type" : "string"
+                        },
+                        "e" : {
+                          "type" : "string"
+                        },
+                        "k" : {
+                          "type" : "string"
+                        },
+                        "keyOps" : {
+                          "type" : "string"
+                        },
+                        "kid" : {
+                          "type" : "string"
+                        },
+                        "kty" : {
+                          "type" : "string"
+                        },
+                        "n" : {
+                          "type" : "string"
+                        },
+                        "p" : {
+                          "type" : "string"
+                        },
+                        "q" : {
+                          "type" : "string"
+                        },
+                        "qi" : {
+                          "type" : "string"
+                        },
+                        "use" : {
+                          "type" : "string"
+                        },
+                        "x" : {
+                          "type" : "string"
+                        },
+                        "x5c" : {
+                          "type" : "array",
+                          "items" : {
+                            "type" : "string"
+                          }
+                        },
+                        "x5t" : {
+                          "type" : "string"
+                        },
+                        "x5u" : {
+                          "type" : "string"
+                        },
+                        "y" : {
+                          "type" : "string"
+                        }
+                      }
+                    }
+                  },
+                  "scope" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "senders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Sender"
+          }
+        },
+        "receivers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Receiver"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "jurisdiction"
+      ],
+      "title": "Organization"
+    },
+    "Sender": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "allowDuplicates" : {
+          "type" : "boolean"
+        },
+        "createdAt" : {
+          "anyOf": [
+            {
+              "type" : "string",
+              "format" : "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "createdBy" : {
+          "anyOf": [
+            {
+              "type" : "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "customerStatus" : {
+          "$ref" : "#/definitions/CustomerStatus"
+        },
+        "format" : {
+          "type" : "string",
+          "enum" : [ "CSV", "HL7", "FHIR", "HL7_BATCH" ]
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "organizationName" : {
+          "type" : "string"
+        },
+        "primarySubmissionMethod" : {
+          "anyOf": [
+            {
+              "type" : "string",
+              "enum" : [ "automated", "manual" ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "processingType" : {
+          "type" : "string",
+          "enum" : [ "sync", "async" ]
+        },
+        "schemaName" : {
+          "type" : "string"
+        },
+        "senderType" : {
+          "anyOf": [
+            {
+              "type" : "string",
+              "enum" : [ "testManufacturer", "dataAggregator", "facility", "hospitalSystem" ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "topic" : {
+          "$ref" : "#/definitions/Topic"
+        },
+        "version" : {
+          "anyOf": [
+            {
+              "type" : "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "topic",
+        "name",
+        "organizationName",
+        "format"
+      ],
+      "title": "Sender"
+    },
+    "Receiver": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "organizationName": {
+          "type": "string"
+        },
+        "topic": {
+          "$ref": "#/definitions/Topic"
+        },
+        "customerStatus": {
+          "$ref": "#/definitions/CustomerStatus"
+        },
+        "translation": {
+          "$ref": "#/definitions/Translation"
+        },
+        "jurisdictionalFilter": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "qualityFilter": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reverseTheQualityFilter": {
+          "type": "boolean"
+        },
+        "deidentify": {
+          "type": "boolean"
+        },
+        "timing": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Timing"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "transport": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Transport"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "externalName": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "processingModeFilter": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "routingFilter": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "timeZone" : {
+          "anyOf": [
+            {
+              "$ref" : "#/definitions/USTimeZone"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dateTimeFormat" : {
+          "type" : "string",
+          "enum" : [ "OFFSET", "LOCAL", "HIGH_PRECISION_OFFSET", "DATE_ONLY" ]
+        },
+        "conditionFilter": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mappedConditionFilter": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref" : "#/definitions/MappedConditionFilter"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "deidentifiedValue" : {
+          "type" : "string"
+        },
+        "enrichmentSchemaNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      },
+      "required": [
+        "customerStatus",
+        "jurisdictionalFilter",
+        "name",
+        "organizationName",
+        "topic",
+        "translation"
+      ],
+      "title": "Receiver"
+    },
+    "Topic": {
+      "type": "string",
+      "enum": [
+        "covid-19",
+        "full-elr",
+        "etor-ti",
+        "elr-elims",
+        "monkeypox",
+        "test",
+        "mars-otc-elr"
+      ],
+      "title": "Topic"
+    },
+    "Jurisdiction": {
+      "type": "string",
+      "enum": [
+        "FEDERAL",
+        "STATE",
+        "COUNTY"
+      ],
+      "title": "Jurisdiction"
+    },
+    "CustomerStatus": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "testing"
+      ],
+      "title": "CustomerStatus"
+    },
+    "Operation": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "MERGE"
+      ],
+      "title": "Operation"
+    },
+    "TranslationFormat": {
+      "type": "string",
+      "enum": [
+        "INTERNAL",
+        "CSV",
+        "CSV_SINGLE",
+        "HL7",
+        "HL7_BATCH",
+        "FHIR"
+      ],
+      "title": "TranslationFormat"
+    },
+    "TranslationType": {
+      "type": "string",
+      "enum": [
+        "CUSTOM",
+        "HL7",
+        "FHIR",
+        "GAEN"
+      ],
+      "title": "TranslationType"
+    },
+    "TransportType": {
+      "type": "string",
+      "enum": [
+        "SFTP",
+        "EMAIL",
+        "BLOBSTORE",
+        "NULL",
+        "AS2",
+        "SOAP",
+        "GAEN",
+        "REST"
+      ],
+      "title": "TransportType"
+    },
+    "SenderFormat": {
+      "type": "string",
+      "enum": [
+        "CSV",
+        "HL7",
+        "HL7_BATCH",
+        "FHIR"
+      ],
+      "title": "SenderFormat"
+    },
+    "USTimeZone" : {
+      "type" : "string",
+      "enum" : [
+        "PACIFIC",
+        "MOUNTAIN",
+        "ARIZONA",
+        "CENTRAL",
+        "EASTERN",
+        "SAMOA",
+        "HAWAII",
+        "EAST_INDIANA",
+        "INDIANA_STARKE",
+        "MICHIGAN",
+        "CHAMORRO",
+        "UTC",
+        "ALASKA"
+      ]
+    },
+    "Filter": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "conditionFilter" : {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "jurisdictionalFilter" : {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mappedConditionFilter" : {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref" : "#/definitions/MappedConditionFilter"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "processingModeFilter" : {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "qualityFilter" : {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "routingFilter" : {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "topic" : {
+          "$ref" : "#/definitions/Topic"
+        }
+      },
+      "required": [
+        "jurisdictionalFilter",
+        "topic"
+      ],
+      "title": "Filter"
+    },
+    "MappedConditionFilter": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "title": "MappedConditionFilter"
+    },
+    "Timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "initialTime" : {
+          "type" : "string",
+          "pattern" : "^\\d{2}:\\d{2}$"
+        },
+        "maxReportCount" : {
+          "type" : "integer"
+        },
+        "numberPerDay" : {
+          "type" : "integer"
+        },
+        "operation" : {
+          "type" : "string",
+          "enum" : [
+            "NONE",
+            "MERGE"
+          ]
+        },
+        "timeZone" : {
+          "$ref" : "#/definitions/USTimeZone"
+        },
+        "whenEmpty" : {
+          "type" : "object",
+          "properties" : {
+            "action" : {
+              "type" : "string",
+              "enum" : [
+                "NONE",
+                "SEND"
+              ]
+            },
+            "onlyOncePerDay" : {
+              "type" : "boolean"
+            }
+          }
+        }
+      },
+      "required": [
+        "initialTime",
+        "numberPerDay",
+        "operation"
+      ],
+      "title": "Timing"
+    },
+    "Translation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaName": {
+          "type": "string"
+        },
+        "format": {
+          "$ref": "#/definitions/TranslationFormat"
+        },
+        "defaults": {
+          "type": "object"
+        },
+        "nameFormat": {
+          "type": "string"
+        },
+        "receivingOrganization": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dummy": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "type": {
+          "$ref": "#/definitions/TranslationType"
+        },
+        "useTestProcessingMode": {
+          "type": "boolean"
+        },
+        "useBatchHeaders": {
+          "type": "boolean"
+        },
+        "receivingApplicationName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "receivingFacilityName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "convertDateTimesToReceiverLocalTime": {
+          "type": "boolean"
+        },
+        "suppressQstForAoe": {
+          "type": "boolean"
+        },
+        "receivingApplicationOID": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "receivingFacilityOID": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "messageProfileId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reportingFacilityName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reportingFacilityId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reportingFacilityIdType": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "suppressHl7Fields": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "suppressAoe": {
+          "type": "boolean"
+        },
+        "defaultAoeToUnknown": {
+          "type": "boolean"
+        },
+        "replaceUnicodeWithAscii": {
+          "type": "boolean"
+        },
+        "truncateHDNamespaceIds": {
+          "type": "boolean"
+        },
+        "useBlankInsteadOfUnknown": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "replaceValue": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "replaceValueAwithB": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "truncateHl7Fields": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "convertPositiveDateTimeOffsetToNegative": {
+          "type": "boolean"
+        },
+        "useHighPrecisionHeaderDateTimeFormat": {
+          "type": "boolean"
+        },
+        "useBatching": {
+          "type": "boolean"
+        },
+        "usePid14ForPatientEmail": {
+          "type": "boolean"
+        },
+        "convertTimestampToDateTime": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cliaForOutOfStateTesting": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cliaForSender": {
+          "type": "object"
+        },
+        "phoneNumberFormatting": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum" : [ "STANDARD", "ONLY_DIGITS_IN_COMPONENT_ONE", "AREA_LOCAL_IN_COMPONENT_ONE" ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "suppressNonNPI": {
+          "type": "boolean"
+        },
+        "processingModeCode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "replaceDiiWithOid": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "applyOTCDefault": {
+          "type": "boolean"
+        },
+        "useOrderingFacilityName": {
+          "type": "string",
+          "enum": [ "STANDARD", "NCES", "ORGANIZATION_NAME" ]
+        },
+        "valueSetOverrides": {
+          "type": "object"
+        },
+        "stripInvalidCharsRegex": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "truncationConfig": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "truncateHDNamespaceIds": {
+              "type": "boolean"
+            },
+            "truncateHl7Fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "customLengthHl7Fields": {
+              "type": "object"
+          }
+        }
+      }
+    },
+    "required": [
+        "type"
+      ],
+      "title": "Translation"
+    },
+    "Transport": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/TransportType"
+        },
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "filePath": {
+          "type": "string"
+        },
+        "credentialName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "storageName": {
+          "type": "string"
+        },
+        "containerName": {
+          "type": "string"
+        },
+        "authTokenUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "reportUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "encryptionKeyUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "jwtParams": {
+          "type": "object"
+        },
+        "headers": {
+          "type": "object"
+        },
+        "endpoint": {
+          "type": "string",
+          "format": "uri"
+        },
+        "soapAction": {
+          "type": "string"
+        },
+        "soapVersion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "uuidFormat": {
+          "type": "string"
+        },
+        "uuidIV": {
+          "type": "integer"
+        },
+        "apiUrl": {
+          "type": "string"
+        },
+        "namespaces": {
+          "type": "object"
+        },
+        "tlsKeystore": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "authType": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "authHeaders": {
+          "type": "object"
+        },
+        "dummy": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "Transport"
+    }
+  }
+}
+
+

@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: Provenance
 id:
   type: STRING
@@ -56,6 +58,6 @@ agent:
               type: SYSTEM_URL
               valueOf: "http://terminology.hl7.org/CodeSystem/provenance-participant-type"
     who:
-      valueOf: datatypes/HD/Organization
+      valueOf: ../../datatypes/v251/hl7/datatypes/HD/Organization
       expressionType: reference
       specs: PID.34

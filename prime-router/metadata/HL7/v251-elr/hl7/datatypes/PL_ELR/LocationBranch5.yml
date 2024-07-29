@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: Location
 
 id:
@@ -16,10 +18,10 @@ identifier:
       generateList: true
       expressions:
         - expressionType: resource
-          valueOf: datatypes/HD/Identifier/IdentifierNamespaceId
+          valueOf: ../../datatypes/v251/hl7/datatypes/HD/Identifier/IdentifierNamespaceId
           specs: PL.4
         - expressionType: resource
-          valueOf: datatypes/HD/Identifier/IdentifierUniversalId
+          valueOf: ../../datatypes/v251/hl7/datatypes/HD/Identifier/IdentifierUniversalId
           specs: PL.4
 
 

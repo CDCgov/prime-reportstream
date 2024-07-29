@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 _endpoint:
   expressionType: nested
   expressionsMap:
@@ -70,6 +72,6 @@ extension:
           type: SYSTEM_URL
           value: software-vendor-org
         valueReference:
-          valueOf: datatypes/XON/Organization
+          valueOf: ../../datatypes/v251/hl7/datatypes/XON/Organization
           expressionType: reference
           specs: SFT.1

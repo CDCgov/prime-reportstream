@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.history.db
 
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
@@ -16,6 +17,10 @@ import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.CommonTableExpression
 import org.jooq.DSLContext
+import org.jooq.Record
+import org.jooq.Record1
+import org.jooq.Record2
+import org.jooq.SelectOnConditionStep
 import org.jooq.impl.CustomRecord
 import org.jooq.impl.CustomTable
 import org.jooq.impl.DSL
@@ -25,7 +30,11 @@ import java.util.UUID
 
 private const val PARENT_REPORT_ID_FIELD = "parent_report_id"
 
+private const val CHILD_REPORT_ID_FIELD = "child_report_id"
+
 private const val PARENT_INDEX_FIELD = "parent_index"
+
+private const val CHILD_INDEX_FIELD = "child_index"
 
 private const val METADATA_CTE = "metadata"
 
@@ -36,8 +45,9 @@ private const val STARTING_REPORT_ID_FIELD = "starting_report_id"
 class ItemGraphTable : CustomTable<ItemGraphRecord>(DSL.name("item_graph")) {
 
     val PARENT_REPORT_ID = createField(DSL.name(PARENT_REPORT_ID_FIELD), SQLDataType.UUID)
+    val CHILD_REPORT_ID = createField(DSL.name(CHILD_REPORT_ID_FIELD), SQLDataType.UUID)
     val PARENT_INDEX = createField(DSL.name(PARENT_INDEX_FIELD), SQLDataType.INTEGER)
-    val PATH = createField(DSL.name(PATH_FIELD), SQLDataType.VARCHAR)
+    val CHILD_INDEX = createField(DSL.name(CHILD_INDEX_FIELD), SQLDataType.INTEGER)
     val STARTING_REPORT_ID = createField(DSL.name(STARTING_REPORT_ID_FIELD), SQLDataType.UUID)
 
     companion object {
@@ -122,17 +132,85 @@ class ReportGraph(
     fun getRootReport(childReportId: UUID): ReportFile? {
         return db.transactReturning { txn ->
             val cte = reportAncestorGraphCommonTableExpression(listOf(childReportId))
-            DSL.using(txn)
-                .withRecursive(cte)
-                .select(REPORT_FILE.asterisk())
-                .from(cte)
-                .join(REPORT_FILE)
-                .on(REPORT_FILE.REPORT_ID.eq(cte.field(0, UUID::class.java)))
-                .join(ACTION)
-                .on(ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
-                .where(ACTION.ACTION_NAME.eq(TaskAction.receive))
-                .fetchOneInto(ReportFile::class.java)
+            rootReportRecords(txn, cte).fetchOneInto(ReportFile::class.java)
         }
+    }
+
+    /**
+     * This data class captures the rough details that corresponds to an "item" which currently is not directly captured
+     * in the database.
+     *
+     * More concretely, an item refers to specific piece of health data in a submitted report i.e. a test result in a
+     * batch of several results.
+     *
+     */
+    data class Item(
+        val parentReportId: UUID,
+        val parentIndex: Int,
+        val childReportId: UUID,
+        val childIndex: Int,
+    )
+
+    /**
+     * Retrieves the root "item" by recursing up the item lineage
+     *
+     * @param childReportId the id of the report
+     * @param childIndex the index of the item in the report
+     * @param txn an optional transaction to use
+     * @return [Item]
+     */
+    fun getRootItem(childReportId: UUID, childIndex: Int, txn: DataAccessTransaction): Item? {
+        val cte = itemAncestorGraphCommonTableExpression(
+            childReportId,
+            childIndex
+        )
+        val rootItem = DSL.using(txn)
+            .withRecursive(cte)
+            .select(
+                ItemGraphTable.ITEM_GRAPH.asterisk()
+            )
+            .from(cte)
+            .join(REPORT_FILE)
+            .on(REPORT_FILE.REPORT_ID.eq(ItemGraphTable.ITEM_GRAPH.PARENT_REPORT_ID))
+            .join(ACTION)
+            .on(ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
+            .where(ACTION.ACTION_NAME.eq(TaskAction.receive))
+            .fetchOneInto(Item::class.java)
+        return rootItem
+    }
+
+    /**
+     * Recursively goes up the report_linage table from any report until it reaches
+     * all reports with an action type of "receive" (the root report)
+     *
+     * This will return null if no report with action type "receive" is present or if
+     * the root is passed in
+     *
+     * If the passed in report ID has multiple root reports, they will all be returned
+     */
+    fun getRootReports(childReportId: UUID): List<ReportFile> {
+        return db.transactReturning { txn ->
+            val cte = reportAncestorGraphCommonTableExpression(listOf(childReportId))
+            rootReportRecords(txn, cte).fetchInto(ReportFile::class.java)
+        }
+    }
+
+    /**
+     * Recursively goes down the report_lineage table from any report until it reaches
+     * all descendant reports with the specified action type(s)
+     *
+     * This will return an empty list if no report with the specified action type is present or if
+     * the ID of the final descendant is passed in
+     *
+     * If the passed in report ID has multiple descendant reports, they will all be returned
+     */
+    fun getDescendantReports(
+        txn: DataAccessTransaction,
+        parentReportId: UUID,
+        searchedForTaskActions: Set<TaskAction>? = null,
+    ): List<ReportFile> {
+        val cte = reportDescendantGraphCommonTableExpression(listOf(parentReportId))
+        return descendantReportRecords(txn, cte, searchedForTaskActions).fetchInto(ReportFile::class.java)
     }
 
     /**
@@ -223,6 +301,55 @@ class ReportGraph(
                     )
                     .coerce(ItemGraphTable.ITEM_GRAPH)
             )
+
+    fun itemAncestorGraphCommonTableExpression(childId: UUID, childIndex: Int): CommonTableExpression<ItemGraphRecord> {
+        val baseCase = DSL.select(
+            ITEM_LINEAGE.PARENT_REPORT_ID,
+            ITEM_LINEAGE.CHILD_REPORT_ID,
+            ITEM_LINEAGE.PARENT_INDEX,
+            ITEM_LINEAGE.CHILD_INDEX,
+            ITEM_LINEAGE.CHILD_REPORT_ID.`as`(STARTING_REPORT_ID_FIELD)
+        )
+            .from(ITEM_LINEAGE)
+            .where(
+                ITEM_LINEAGE.CHILD_REPORT_ID.`in`(
+                    DSL.select(REPORT_FILE.REPORT_ID)
+                        .from(REPORT_FILE)
+                        .where(ITEM_LINEAGE.CHILD_REPORT_ID.eq(childId))
+                        .and(ITEM_LINEAGE.CHILD_INDEX.eq(childIndex))
+                )
+            )
+        return DSL
+            .name(ItemGraphTable.ITEM_GRAPH.name)
+            .`as`(
+                baseCase
+                    .unionAll(
+                        DSL.select(
+                            ITEM_LINEAGE.PARENT_REPORT_ID,
+                            ITEM_LINEAGE.CHILD_REPORT_ID,
+                            ITEM_LINEAGE.PARENT_INDEX,
+                            ITEM_LINEAGE.CHILD_INDEX,
+                            DSL.field("${ItemGraphTable.ITEM_GRAPH.name}.$STARTING_REPORT_ID_FIELD", SQLDataType.UUID)
+                        )
+                            .from(ITEM_LINEAGE)
+                            .join(DSL.table(DSL.name(ItemGraphTable.ITEM_GRAPH.name)))
+                            .on(
+                                DSL.field(
+                                    DSL.name(ItemGraphTable.ITEM_GRAPH.name, PARENT_REPORT_ID_FIELD), SQLDataType.UUID
+                                )
+                                    .eq(
+                                        ITEM_LINEAGE.CHILD_REPORT_ID
+                                    ),
+                                DSL.field(
+                                    DSL.name(ItemGraphTable.ITEM_GRAPH.name, PARENT_INDEX_FIELD), SQLDataType.INTEGER
+                                ).eq(
+                                    ITEM_LINEAGE.CHILD_INDEX
+                                )
+                            )
+                    )
+                    .coerce(ItemGraphTable.ITEM_GRAPH)
+            )
+    }
 
     /**
      * Accepts a list of report ids and then finds all the items associated with that report
@@ -324,6 +451,26 @@ class ReportGraph(
         )
 
     /**
+     * Fetches all root report records in a recursive manner.
+     *
+     * @param txn the data access transaction
+     * @param cte the common table expression for report lineage
+     * @return the root report records
+     */
+    private fun rootReportRecords(
+        txn: DataAccessTransaction,
+        cte: CommonTableExpression<Record2<UUID, String>>,
+    ) = DSL.using(txn)
+        .withRecursive(cte)
+        .select(REPORT_FILE.asterisk())
+        .from(cte)
+        .join(REPORT_FILE)
+        .on(REPORT_FILE.REPORT_ID.eq(cte.field(0, UUID::class.java)))
+        .join(ACTION)
+        .on(ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
+        .where(ACTION.ACTION_NAME.eq(TaskAction.receive))
+
+    /**
      * Accepts a list of ids and walks down the report lineage graph
      *
      * @param sourceReportIds the initial set of report ids to walk down from
@@ -331,26 +478,51 @@ class ReportGraph(
     private fun reportDescendantGraphCommonTableExpression(sourceReportIds: List<UUID>) =
         DSL.name(lineageCteName).fields(
             PARENT_REPORT_ID_FIELD,
-            PATH_FIELD
         ).`as`(
             DSL.select(
-                REPORT_LINEAGE.CHILD_REPORT_ID,
-                REPORT_LINEAGE.PARENT_REPORT_ID.cast(SQLDataType.VARCHAR),
+                REPORT_LINEAGE.PARENT_REPORT_ID
             ).from(REPORT_LINEAGE)
                 .where(REPORT_LINEAGE.PARENT_REPORT_ID.`in`(sourceReportIds))
                 .unionAll(
                     DSL.select(
                         REPORT_LINEAGE.CHILD_REPORT_ID,
-                        DSL.field("$lineageCteName.$PATH_FIELD", SQLDataType.VARCHAR)
-                            .concat(REPORT_LINEAGE.CHILD_REPORT_ID)
                     )
                         .from(REPORT_LINEAGE)
                         .join(DSL.table(DSL.name(lineageCteName)))
                         .on(
                             DSL.field(DSL.name(lineageCteName, PARENT_REPORT_ID_FIELD), SQLDataType.UUID)
-                                .eq(REPORT_LINEAGE.CHILD_REPORT_ID)
+                                .eq(REPORT_LINEAGE.PARENT_REPORT_ID)
                         )
 
                 )
         )
+
+    /**
+     * Fetches all descendant report records in a recursive manner.
+     *
+     * @param txn the data access transaction
+     * @param cte the common table expression for report lineage
+     * @return the descendant report records
+     */
+    private fun descendantReportRecords(
+        txn: DataAccessTransaction,
+        cte: CommonTableExpression<Record1<UUID>>,
+        searchedForTaskActions: Set<TaskAction>?,
+    ): SelectOnConditionStep<Record> {
+        val select = DSL.using(txn)
+            .withRecursive(cte)
+            .select(REPORT_FILE.asterisk())
+            .distinctOn(REPORT_FILE.REPORT_ID)
+            .from(cte)
+            .join(REPORT_FILE)
+            .on(REPORT_FILE.REPORT_ID.eq(cte.field(0, UUID::class.java)))
+            .join(ACTION)
+            .on(ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
+
+        if (searchedForTaskActions != null) {
+            select.where(ACTION.ACTION_NAME.`in`(searchedForTaskActions))
+        }
+
+        return select
+    }
 }

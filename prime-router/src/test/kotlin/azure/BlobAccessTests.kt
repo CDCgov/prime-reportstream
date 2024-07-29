@@ -21,6 +21,7 @@ import com.azure.storage.blob.models.BlobDownloadResponse
 import com.azure.storage.blob.models.BlobItem
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
@@ -28,7 +29,6 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.TestcontainersUtils
 import io.mockk.CapturingSlot
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -49,6 +49,7 @@ import java.net.MalformedURLException
 import java.nio.file.Paths
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import kotlin.test.assertEquals
 
 class BlobAccessTests {
@@ -78,7 +79,7 @@ class BlobAccessTests {
 
         @AfterEach
         fun afterEach() {
-            clearAllMocks()
+            unmockkAll()
         }
 
         @Test
@@ -529,7 +530,7 @@ class BlobAccessTests {
     @Test
     fun `upload report`() {
         val testUrl = "http://uploadreport"
-        val testFormat = Report.Format.CSV
+        val testFormat = MimeFormat.CSV
         val testBytes = "testbytes".toByteArray()
 
         val one = Schema(name = "one", topic = Topic.TEST)
@@ -543,7 +544,7 @@ class BlobAccessTests {
         mockkObject(BlobAccess.Companion)
         every {
             BlobAccess.uploadBody(
-                report1.bodyFormat, testBytes, report1.name, null,
+                report1.bodyFormat, testBytes, report1.id.toString(), null,
                 Event.EventAction.NONE
             )
         } returns
@@ -560,8 +561,8 @@ class BlobAccessTests {
     @Test
     fun `upload body`() {
         val blobSlot = CapturingSlot<String>()
-        val testFormat = Report.Format.CSV
-        val testName = "testblob"
+        val testFormat = MimeFormat.CSV
+        val testid = UUID.randomUUID().toString()
         val testBytes = "testbytes".toByteArray()
         val testFolder = "testfolder"
         val testEnv = "testenvvar"
@@ -585,10 +586,10 @@ class BlobAccessTests {
 
         testEvents.forEach {
             val result = when (it) {
-                null -> BlobAccess.uploadBody(testFormat, testBytes, testName, "")
+                null -> BlobAccess.uploadBody(testFormat, testBytes, testid, "")
                 // testing with and without reportName passed in to improve code coverage
-                Event.EventAction.CONVERT -> BlobAccess.uploadBody(testFormat, testBytes, testName, action = it)
-                else -> BlobAccess.uploadBody(testFormat, testBytes, testName, testFolder, it)
+                Event.EventAction.CONVERT -> BlobAccess.uploadBody(testFormat, testBytes, testid, action = it)
+                else -> BlobAccess.uploadBody(testFormat, testBytes, testid, testFolder, it)
             }
 
             assertThat(result.format).isEqualTo(testFormat)

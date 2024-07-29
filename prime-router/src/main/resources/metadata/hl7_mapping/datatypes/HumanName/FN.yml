@@ -1,5 +1,7 @@
 # possible '%resource's:
 # PID-5-1: Bundle.entry.resource.ofType(Patient).name.family
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
 
   - name: fn-family-name

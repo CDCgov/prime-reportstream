@@ -15,12 +15,6 @@ object TestcontainersUtils {
         customImageName: String,
         customEnv: Map<String, String> = emptyMap(),
     ): GenericContainer<*> {
-        val containerKey = Pair(customImageName, customEnv)
-        val container = azuriteContainers[containerKey]
-        if (container != null) {
-            return container
-        }
-
         val version = getVersionFromDockerfile(AZURITE_DOCKERFILE)
         val imageName = "$customImageName:$version"
         val newContainer = GenericContainer(
@@ -33,8 +27,6 @@ object TestcontainersUtils {
         customEnv.forEach { (key, value) ->
             newContainer.withEnv(key, value)
         }
-
-        azuriteContainers[containerKey] = newContainer
         return newContainer
     }
 

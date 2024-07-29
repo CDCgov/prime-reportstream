@@ -1,14 +1,14 @@
 # Manage a separate storage account for the candidate slot to run smoke tests against
 
 resource "azurerm_storage_account" "storage_account_candidate" {
-  resource_group_name       = var.resource_group
-  name                      = "${var.resource_prefix}candidate"
-  location                  = var.location
-  account_tier              = "Standard"
-  account_replication_type  = "GRS"
-  min_tls_version           = "TLS1_2"
-  allow_blob_public_access  = false
-  enable_https_traffic_only = true
+  resource_group_name             = var.resource_group
+  name                            = "${var.resource_prefix}candidate"
+  location                        = var.location
+  account_tier                    = "Standard"
+  account_replication_type        = "GRS"
+  min_tls_version                 = "TLS1_2"
+  allow_nested_items_to_be_public = false
+  enable_https_traffic_only       = true
 
   network_rules {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
@@ -27,7 +27,8 @@ resource "azurerm_storage_account" "storage_account_candidate" {
   lifecycle {
     prevent_destroy = false
     ignore_changes = [
-      # Temp ignore ip_rules during tf development
+      # validated 5/29/2024
+      customer_managed_key,
       network_rules[0].ip_rules,
       network_rules[0].private_link_access
     ]
@@ -126,13 +127,6 @@ resource "azurerm_storage_management_policy" "retention_policy_candidate" {
       }
     }
   }
-
-  lifecycle {
-    ignore_changes = [
-      # -1 value is applied, but not accepted in tf
-      rule[0].actions[0].base_blob[0].tier_to_cool_after_days_since_last_access_time_greater_than
-    ]
-  }
 }
 
 # Grant the storage account Key Vault access, to access encryption keys
@@ -141,33 +135,26 @@ resource "azurerm_key_vault_access_policy" "storage_policy_candidate" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = azurerm_storage_account.storage_account_candidate.identity.0.principal_id
 
-  key_permissions = ["get", "unwrapkey", "wrapkey"]
+  key_permissions = [
+    "Get",
+    "UnwrapKey",
+    "WrapKey"
+  ]
 }
-
-resource "azurerm_storage_account_customer_managed_key" "storage_key_candidate" {
-  count              = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
-  key_name           = var.rsa_key_4096
-  key_vault_id       = var.application_key_vault_id
-  key_version        = null # Null allows automatic key rotation
-  storage_account_id = azurerm_storage_account.storage_account_candidate.id
-
-  depends_on = [azurerm_key_vault_access_policy.storage_policy_candidate]
-}
-
 
 # # Partner
 
 resource "azurerm_storage_account" "storage_partner_candidate" {
-  resource_group_name       = var.resource_group
-  name                      = "${var.resource_prefix}candpartner"
-  location                  = var.location
-  account_tier              = "Standard"
-  account_kind              = "StorageV2"
-  is_hns_enabled            = true # This enable Data Lake v2 for HHS Protect
-  account_replication_type  = "GRS"
-  min_tls_version           = "TLS1_2"
-  allow_blob_public_access  = false
-  enable_https_traffic_only = true
+  resource_group_name             = var.resource_group
+  name                            = "${var.resource_prefix}candpartner"
+  location                        = var.location
+  account_tier                    = "Standard"
+  account_kind                    = "StorageV2"
+  is_hns_enabled                  = true # This enable Data Lake v2 for HHS Protect
+  account_replication_type        = "GRS"
+  min_tls_version                 = "TLS1_2"
+  allow_nested_items_to_be_public = false
+  enable_https_traffic_only       = true
 
   network_rules {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
@@ -192,8 +179,8 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
   lifecycle {
     prevent_destroy = false
     ignore_changes = [
-      # Temp ignore ip_rules during tf development
-      secondary_blob_connection_string,
+      # validated 5/29/2024
+      customer_managed_key,
       network_rules[0].ip_rules,
       network_rules[0].private_link_access
     ]
@@ -210,17 +197,11 @@ resource "azurerm_key_vault_access_policy" "storage_candidate_partner_policy" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = azurerm_storage_account.storage_partner_candidate.identity.0.principal_id
 
-  key_permissions = ["get", "unwrapkey", "wrapkey"]
-}
-
-resource "azurerm_storage_account_customer_managed_key" "storage_candidate_partner_key" {
-  count              = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
-  key_name           = var.rsa_key_4096
-  key_vault_id       = var.application_key_vault_id
-  key_version        = null # Null allows automatic key rotation
-  storage_account_id = azurerm_storage_account.storage_partner_candidate.id
-
-  depends_on = [azurerm_key_vault_access_policy.storage_candidate_partner_policy]
+  key_permissions = [
+    "Get",
+    "UnwrapKey",
+    "WrapKey"
+  ]
 }
 
 resource "azurerm_storage_container" "storage_candidate_container_hhsprotect" {
@@ -251,12 +232,5 @@ resource "azurerm_storage_management_policy" "storage_candidate_partner_retentio
         delete_after_days_since_creation_greater_than = 30
       }
     }
-  }
-
-  lifecycle {
-    ignore_changes = [
-      # -1 value is applied, but not accepted in tf
-      rule[0].actions[0].base_blob[0].tier_to_cool_after_days_since_last_access_time_greater_than
-    ]
   }
 }

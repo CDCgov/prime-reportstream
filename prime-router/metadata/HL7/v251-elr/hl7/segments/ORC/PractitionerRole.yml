@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: PractitionerRole
 
 id:
@@ -14,7 +16,7 @@ practitioner:
   expressions:
     - expressionType: reference
       condition: $orc12 NOT_NULL
-      valueOf: datatypes/XCN/Practitioner
+      valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
       specs: ORC.12
       vars:
         XADAddress: ORC.24
@@ -22,7 +24,7 @@ practitioner:
         XCNHL7Field: ORC.12
     - expressionType: reference
       condition: $orc12 NULL && $obr16 NOT_NULL
-      valueOf: datatypes/XCN/Practitioner
+      valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
       specs: OBR.16
       vars:
         XADAddress: ORC.24
@@ -34,5 +36,5 @@ organization:
     XADAddress: ORC.22
     XTNTelecom: ORC.23 *
   expressionType: reference
-  valueOf: datatypes/XON/Organization
+  valueOf: ../../datatypes/v251/hl7/datatypes/XON/Organization
   specs: ORC.21

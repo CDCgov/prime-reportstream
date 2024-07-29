@@ -11,6 +11,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
@@ -42,9 +43,11 @@ class SftpTransport : ITransport, Logging {
         transportType: TransportType,
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
+        externalFileName: String,
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
+        reportEventService: IReportStreamEventService,
     ): RetryItems? {
         val sftpTransportType = transportType as SFTPTransportType
 
@@ -56,19 +59,20 @@ class SftpTransport : ITransport, Logging {
             val sshClient = connect(receiver)
 
             // Dev note:  db table requires body_url to be unique, but not external_name
-            val fileName = Report.formExternalFilename(header)
-            context.logger.info("Successfully connected to $sftpTransportType, ready to upload $fileName")
-            uploadFile(sshClient, sftpTransportType.filePath, fileName, header.content)
-            val msg = "Success: sftp upload of $fileName to $sftpTransportType"
+            context.logger.info("Successfully connected to $sftpTransportType, ready to upload $externalFileName")
+            uploadFile(sshClient, sftpTransportType.filePath, externalFileName, header.content)
+            val msg = "Success: sftp upload of $externalFileName to $sftpTransportType"
             context.logger.info(msg)
             actionHistory.trackActionResult(msg)
             actionHistory.trackSentReport(
                 receiver,
                 sentReportId,
-                fileName,
+                externalFileName,
                 sftpTransportType.toString(),
                 msg,
-                header
+                header,
+                reportEventService,
+                this::class.java.simpleName
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null
@@ -159,6 +163,7 @@ class SftpTransport : ITransport, Logging {
                         }
                         sshClient.auth(credential.user, authProviders)
                     }
+
                     is UserPpkCredential -> {
                         val key = PuTTYKeyFile()
                         val keyContents = StringReader(credential.key)
@@ -172,6 +177,7 @@ class SftpTransport : ITransport, Logging {
                         }
                         sshClient.auth(credential.user, authProviders)
                     }
+
                     else -> error("Unknown SftpCredential ${credential::class.simpleName}")
                 }
                 return sshClient

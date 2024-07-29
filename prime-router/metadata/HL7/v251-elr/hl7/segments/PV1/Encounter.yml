@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: Encounter
 
 # Not mapped because fields are deprecated in NIST and not in the mapping inventory
@@ -14,7 +16,6 @@ resourceType: Encounter
 # PV2.30 - 37
 # PV2.39
 # PV2.41-49
-# PV1.52 is in the inventory and NIST, but is NULLDT in the HAPI structure
 # PV1.20 is not mapped because there is no mapping for the FC datatype
 
 id:
@@ -54,10 +55,10 @@ _class:
         url:
           type: SYSTEM_URL
           value: pv1-2-patient-class
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
-          specs: PV1.2
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.2
 
 location:
   generateList: true
@@ -69,7 +70,7 @@ location:
       condition: $pv13 NOT_NULL
       expressionsMap:
         location:
-          valueOf: datatypes/PL/Location
+          valueOf: ../../datatypes/v251/hl7/datatypes/PL/Location
           expressionType: reference
           specs: PV1.3
         status:
@@ -100,7 +101,7 @@ location:
       expressionsMap:
         location:
           expressionType: reference
-          valueOf: datatypes/PL/Location
+          valueOf: ../../datatypes/v251/hl7/datatypes/PL/Location
           specs: PV1.6
         status:
           type: STRING
@@ -122,7 +123,7 @@ location:
       expressionsMap:
         location:
           expressionType: reference
-          valueOf: datatypes/PL/Location
+          valueOf: ../../datatypes/v251/hl7/datatypes/PL/Location
           specs: PV1.11
         status:
           type: STRING
@@ -154,7 +155,7 @@ location:
       expressionsMap:
         location:
           expressionType: reference
-          valueOf: datatypes/PL/Location
+          valueOf: ../../datatypes/v251/hl7/datatypes/PL/Location
           specs: PV1.42
         status:
           type: STRING
@@ -178,7 +179,7 @@ location:
       expressionsMap:
         location:
           expressionType: reference
-          valueOf: datatypes/PL/Location
+          valueOf: ../../datatypes/v251/hl7/datatypes/PL/Location
           specs: PV1.43
         status:
           type: STRING
@@ -203,38 +204,6 @@ location:
                 valueBoolean:
                   type: STRING
                   value: "true"
-    - expressionType: nested
-      vars:
-        pv21: STRING_ALL, PV2.1
-      condition: $pv21 NOT_NULL
-      expressionsMap:
-        location:
-          expressionType: reference
-          valueOf: datatypes/PL/Location
-          specs: PV2.1
-        status:
-          type: STRING
-          value: "planned"
-        extension:
-          expressionType: nested
-          generateList: true
-          expressions:
-            - expressionType: nested
-              expressionsMap:
-                url:
-                  type: SYSTEM_URL
-                  value: hl7v2Field
-                valueString:
-                  type: STRING
-                  value: PV2.1
-            - expressionType: nested
-              expressionsMap:
-                url:
-                  type: SYSTEM_URL
-                  value: temporary-location
-                valueBoolean:
-                  type: STRING
-                  value: "false"
 
 participant:
   generateList: true
@@ -251,7 +220,7 @@ participant:
       expressionsMap:
         individual:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
         type:
           expressionType: nested
           generateList: true
@@ -280,7 +249,7 @@ participant:
       expressionsMap:
         individual:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
         type:
           expressionType: nested
           generateList: true
@@ -309,7 +278,7 @@ participant:
       expressionsMap:
         individual:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
         type:
           expressionType: nested
           generateList: true
@@ -338,7 +307,7 @@ participant:
       expressionsMap:
         individual:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
         type:
           expressionType: nested
           generateList: true
@@ -357,17 +326,17 @@ participant:
               type: STRING
               value: "admitter"
     - vars:
-        pv213: STRING_ALL, PV2.13
-      condition: $pv213 NOT_NULL
+        pv152: STRING_ALL, PV1.52
+      condition: $pv152 NOT_NULL
       expressionType: nested
       constants:
-        XCNHL7Field: PV2.13
-      specs: PV2.13 *
+        XCNHL7Field: PV1.52
+      specs: PV1.52 *
       generateList: true
       expressionsMap:
         individual:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
         type:
           expressionType: nested
           generateList: true
@@ -378,29 +347,26 @@ participant:
               expressionsMap:
                 code:
                   type: STRING
-                  value: "REF"
+                  value: "PART"
                 system:
                   type: STRING
                   value: "http://terminology.hl7.org/CodeSystem/v3-ParticipationType"
             text:
               type: STRING
-              value: "referrer"
+              value: "Participation"
 
 type:
   vars:
-    pv14: STRING_ALL, PV1.4
+    pv14: PV1.4
   condition: $pv14 NOT_NULL
-  valueOf: datatypes/CWE/CodeableConcept
-  generateList: true
-  expressionType: resource
-  specs: PV1.4
+  type: STRING
+  valueOf: PV1.4
+  expressionType: HL7Spec
 
 hospitalization:
   vars:
     pv15: STRING_ALL, PV1.5
-    pv113: STRING_ALL, PV1.13
     pv114: STRING_ALL, PV1.14
-    pv116: STRING_ALL, PV1.16
     pv136: STRING_ALL, PV1.36
     pv137: STRING_ALL, PV1.37
     pv138: STRING_ALL, PV1.38
@@ -410,47 +376,36 @@ hospitalization:
     preAdmissionIdentifier:
       condition: $pv15 NOT_NULL
       expressionType: resource
-      valueOf: datatypes/CX/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/CX/Identifier
       specs: PV1.5
-    reAdmission:
-      condition: $pv113 NOT_NULL
-      expressionType: resource
-      valueOf: datatypes/CWE/CodeableConcept
-      specs: PV1.13
     admitSource:
       condition: $pv114 NOT_NULL
-      expressionType: resource
-      valueOf: datatypes/CWE/CodeableConcept
-      specs: PV1.14
-    specialCourtesy:
-      condition: $pv116 NOT_NULL
-      generateList: true
-      expressionType: resource
-      valueOf: datatypes/CWE/CodeableConcept
-      specs: PV1.16 *
+      type: STRING
+      valueOf: PV1.14
+      expressionType: HL7Spec
     dischargeDisposition:
       condition: $pv136 NOT_NULL
-      expressionType: resource
-      valueOf: datatypes/CWE/CodeableConcept
-      specs: PV1.36
+      type: STRING
+      valueOf: PV1.36
+      expressionType: HL7Spec
     destination:
       condition: $pv137 NOT_NULL
       expressionType: reference
-      valueOf: datatypes/DLD/Location
+      valueOf: ../../datatypes/v251/hl7/datatypes/DLD/Location
       specs: PV1.37
     dietPreference:
       condition: $pv138 NOT_NULL
       expressionType: resource
-      valueOf: datatypes/CWE/CodeableConcept
+      valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
       specs: PV1.38
 
 serviceType:
   condition: $pv110 NOT_NULL
-  valueOf: datatypes/CWE/CodeableConcept
-  expressionType: resource
-  specs: PV1.10
   vars:
-    pv110: STRING_ALL, PV1.10
+    pv110: PV1.10
+  type: STRING
+  valueOf: PV1.10
+  expressionType: HL7Spec
 
 identifier:
   expressionType: nested
@@ -460,7 +415,7 @@ identifier:
         pv119: STRING_ALL, PV1.19
       condition: $pv119 NOT_NULL
       expressionType: resource
-      valueOf: datatypes/CX/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/CX/Identifier
       specs: PV1.19 *
       generateList: true
       constants:
@@ -474,7 +429,7 @@ identifier:
       expressionType: resource
       specs: PV1.50 *
       generateList: true
-      valueOf: datatypes/CX/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/CX/Identifier
       constants:
         CXIdentifierField: PV1.50
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
@@ -522,187 +477,10 @@ period:
               valueOf: PV1.45
               expressionType: HL7Spec
 
-episodeOfCare:
-  expressionType: reference
-  valueOf: segments/PV1/EpisodeOfCare
-  specs: $BASE_VALUE
-
-reasonCode:
-  expressionType: nested
-  expressions:
-    - vars:
-        pv23: STRING_ALL, PV2.3
-      condition: $pv23 NOT_NULL
-      expressionType: resource
-      valueOf: datatypes/CWE/CodeableConcept
-      specs: PV2.3
-      constants:
-        hl7v2Field: PV2.3
-
-length:
-  vars:
-    pv211: STRING, PV2.11
-  condition: $pv211 NOT_NULL
-  expressionType: resource
-  valueOf: datatypes/NM/Quantity-LengthOfStay
-  specs: PV2.11
-
-text:
-  vars:
-    pv212: STRING_ALL, PV2.12
-  condition: $pv212 NOT_NULL
-  expressionType: nested
-  expressionsMap:
-    div:
-      type: STRING
-      expressionType: HL7Spec
-      valueOf: PV2.12
-    extension: # This extension is needed because the FHIR encoder will wrap the contents in a <div>
-      generateList: true
-      expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: pv2-visit-description
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: PV2.12
-
-
-meta:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    security:
-      vars:
-        pv222: STRING, PV2.22
-      expressionType: nested
-      expressionsMap:
-        code:
-          expressionType: nested
-          expressions:
-            - condition: $pv222 EQUALS Y
-              type: STRING
-              value: true
-            - condition: $pv222 EQUALS N
-              type: STRING
-              value: false
-            - condition: $pv222 NOT_EQUALS Y && $pv222 NOT_EQUALS N
-              type: STRING
-              valueOf: $pv222
-priority:
-  vars:
-    pv225: STRING_ALL, PV2.25
-  condition: $pv225 NOT_NULL
-  expressionType: resource
-  valueOf: datatypes/CWE/CodeableConcept
-  specs: PV2.25
-
-
 extension:
   generateList: true
   expressionType: nested
   expressions:
-    - vars:
-        pv27: STRING_ALL, PV2.7
-      condition: $pv27 NOT_NULL
-      expressionType: nested
-      specs: PV2.7 *
-      generateList: true
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: visit-user-code
-        valueCodeableConcept:
-          expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
-    - vars:
-        pv28: STRING, PV2.8
-      condition: $pv28 NOT_NULL
-      expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: planned-start-date
-        valueDateTime:
-          valueOf: "GeneralUtils.dateTimeWithZoneId(pv28,ZONEID)"
-          expressionType: JEXL
-        _valueDateTime:
-          expressionType: nested
-          expressionsMap:
-            extension:
-              generateList: true
-              expressionType: nested
-              expressionsMap:
-                url:
-                  type: SYSTEM_URL
-                  value: hl7v2-date-time
-                valueString:
-                  type: STRING
-                  valueOf: PV2.8
-                  expressionType: HL7Spec
-    - vars:
-        pv29: STRING, PV2.9
-      condition: $pv29 NOT_NULL
-      expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: planned-discharge-date
-        valueDateTime:
-          valueOf: "GeneralUtils.dateTimeWithZoneId(pv29,ZONEID)"
-          expressionType: JEXL
-        _valueDateTime:
-          expressionType: nested
-          expressionsMap:
-            extension:
-              generateList: true
-              expressionType: nested
-              expressionsMap:
-                url:
-                  type: SYSTEM_URL
-                  value: hl7v2-date-time
-                valueString:
-                  type: STRING
-                  valueOf: PV2.9
-                  expressionType: HL7Spec
-    - vars:
-        pv210: STRING, PV2.10
-      condition: $pv210 NOT_NULL
-      expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: estimated-length
-        valueQuantity:
-          expressionType: resource
-          valueOf: datatypes/NM/Quantity-LengthOfStay
-          specs: PV2.10
-    - vars:
-        pv221: STRING, PV2.21
-      condition: $pv221 NOT_NULL
-      expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: publicity-code
-        valueCodeableConcept:
-          expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
-          specs: PV2.21
-    - vars:
-        pv238: STRING_ALL, PV2.38
-      condition: $pv238 NOT_NULL
-      expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: "http://hl7.org/fhir/StructureDefinition/encounter-modeOfArrival"
-        valueCoding:
-          expressionType: resource
-          valueOf: datatypes/CWE/Coding
-          specs: PV2.38
     - vars:
         pv240: STRING_ALL, PV2.40
       condition: $pv240 NOT_NULL
@@ -713,7 +491,7 @@ extension:
           value: admission-level-of-care
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           specs: PV2.40
     #    # PV1 Data
     - expressionType: resource

@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure.observability.context
 
+import gov.cdc.prime.router.azure.observability.event.AzureCustomEvent
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.slf4j.MDC
 
@@ -21,6 +22,7 @@ object MDCUtils {
         REPORT_ID,
         TOPIC,
         BLOB_URL,
+        OBSERVATION_ID,
     }
 
     /**
@@ -95,6 +97,14 @@ inline fun <T> withLoggingContext(context: AzureLoggingContext, body: () -> T): 
 inline fun <T> withLoggingContext(contextMap: Map<MDCUtils.MDCProperty, Any>, body: () -> T): T {
     val mapper = JacksonMapperUtilities.jacksonObjectMapper
     val serializedMap = contextMap.entries.associate { it.key.toString() to mapper.writeValueAsString(it.value) }
+    return io.github.oshai.kotlinlogging.withLoggingContext(
+        map = serializedMap,
+        body = body
+    )
+}
+
+inline fun <T> withLoggingContext(event: AzureCustomEvent, body: () -> T): T {
+    val serializedMap = event.serialize()
     return io.github.oshai.kotlinlogging.withLoggingContext(
         map = serializedMap,
         body = body

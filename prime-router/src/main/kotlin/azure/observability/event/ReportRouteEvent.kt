@@ -7,11 +7,14 @@ import gov.cdc.prime.router.Topic
  * Event definition for when a report gets routed to a receiver
  */
 data class ReportRouteEvent(
-    val parentReportId: ReportId,
     val reportId: ReportId,
+    val parentReportId: ReportId,
+    val submittedReportId: ReportId,
     val topic: Topic,
     val sender: String,
-    val receiver: String?,
+    val receiver: String?, // TODO: this should not be nullable anymore after #14450
     val observations: List<ObservationSummary>,
+    val filteredObservations: List<ObservationSummary>,
     val bundleSize: Int,
+    val messageId: AzureEventUtils.MessageID,
 ) : AzureCustomEvent

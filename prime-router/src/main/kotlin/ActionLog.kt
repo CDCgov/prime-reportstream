@@ -41,7 +41,7 @@ enum class ActionLogLevel {
  * @property reportId The ID of the report to which this event happened
  * @property action A reference to the action this event occured durring
  * @property type The type of even that happened, defaults to info
- * @property created_at The time the event happened durring execution
+ * @property createdAt The time the event happened durring execution
  */
 data class ActionLog(
     val detail: ActionLogDetail,
@@ -50,7 +50,7 @@ data class ActionLog(
     var reportId: UUID? = null,
     var action: Action? = null,
     val type: ActionLogLevel = ActionLogLevel.info,
-    val created_at: Instant = Instant.now(),
+    val createdAt: Instant = Instant.now(),
 ) {
     val scope = detail.scope
 
@@ -113,9 +113,15 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
     /**
      * Create an item logger to add logs to [logs] for the given [itemIndex] and [trackingId].
      */
-    private constructor(logs: MutableList<ActionLog>, itemIndex: Int, trackingId: String? = null) : this(logs) {
+    private constructor(
+        logs: MutableList<ActionLog>,
+        itemIndex: Int,
+        trackingId: String? = null,
+        reportId: UUID? = null,
+    ) : this(logs) {
         this.itemIndex = itemIndex
         this.trackingId = trackingId
+        this.reportId = reportId
     }
 
     /**
@@ -139,7 +145,7 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
      */
     fun getItemLogger(itemIndex: Int, trackingId: String? = null): ActionLogger {
         check(itemIndex > 0) { "Item index must be a positive number" }
-        return ActionLogger(this.logs, itemIndex, trackingId)
+        return ActionLogger(this.logs, itemIndex, trackingId, this.reportId)
     }
 
     /**

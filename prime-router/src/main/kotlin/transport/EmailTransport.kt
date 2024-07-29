@@ -13,6 +13,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.StringTemplateResolver
@@ -27,9 +28,11 @@ class EmailTransport : ITransport {
         transportType: TransportType,
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
+        externalFileName: String,
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory, // not used by emailer
+        reportEventService: IReportStreamEventService,
     ): RetryItems? {
         val emailTransport = transportType as EmailTransportType
         val content = buildContent(header)
@@ -38,9 +41,9 @@ class EmailTransport : ITransport {
         try {
             val sg = SendGrid(System.getenv("SENDGRID_API_KEY"))
             val request = Request()
-            request.setMethod(Method.POST)
-            request.setEndpoint("mail/send")
-            request.setBody(mail.build())
+            request.method = Method.POST
+            request.endpoint = "mail/send"
+            request.body = mail.build()
             sg.api(request)
         } catch (ex: Exception) {
             context.logger.log(Level.SEVERE, "Email/SendGrid exception", ex)

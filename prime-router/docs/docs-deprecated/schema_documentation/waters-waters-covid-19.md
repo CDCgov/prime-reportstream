@@ -1028,6 +1028,7 @@ Code | Display | System
 119336008|Specimen from trachea obtained by aspiration|SNOMED_CT
 258610001|Oral fluid specimen|SNOMED_CT
 119335007|Specimen obtained by bronchial aspiration|SNOMED_CT
+1293160008|Swab from middle region of inferior nasal meatus|SNOMED_CT
 445447003|Exhaled air specimen|SNOMED_CT
 
 **Documentation**:

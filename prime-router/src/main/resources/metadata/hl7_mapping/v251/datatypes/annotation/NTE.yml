@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
   - name: note-id
     value: [ '%noteIndex + 1' ]
@@ -13,7 +15,7 @@ elements:
     resourceIndex: stIndex
     constants:
       stField: '%{hl7NotePath}/NTE(%{noteIndex})-3(%{stIndex})'
-    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/ST.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/annotation/ST.yml
 
   # This doesn't handle the extension since it should only happen with FHIR senders, and those should only have one
   # comment per note
@@ -26,12 +28,4 @@ elements:
     resource: '%resource.extension(%`rsext-note-type`).value'
     constants:
       cweField: '%{hl7NotePath}/NTE(%{noteIndex})-4'
-    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
-
-  - name: note-author
-    condition: '%context.author.exists() and %context.author.is(Reference)'
-    resource: '%resource.author.resolve()'
-    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
-    constants:
-      hl7XCNField: '%{hl7NotePath}/NTE(%{noteIndex})-5'
-      contactIndex: '0'
+    schema: classpath:/metadata/hl7_mapping/v251-elr/datatypes/codeableConcept/CWE_ELR.yml

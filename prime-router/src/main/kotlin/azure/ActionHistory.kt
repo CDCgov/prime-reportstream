@@ -1,17 +1,21 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatusType
+import com.networknt.org.apache.commons.validator.routines.InetAddressValidator
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.ActionHistory.ReceivedReportSenderParameters.Companion.removeExcludedParameters
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -21,14 +25,17 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.SQLDataType
-import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.net.URISyntaxException
 import java.time.LocalDateTime
-import java.util.UUID
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -152,34 +159,60 @@ class ActionHistory(
     }
 
     /**
-     * Track the parmeters of a [request].
+     * Class captures data about the HTTP request from a sender to the report endpoint
+     *
+     */
+    data class ReceivedReportSenderParameters(
+        val method: HttpMethod,
+        val url: String,
+        @JsonProperty("Headers")
+        val headers: Map<String, String>,
+        @JsonProperty("QueryParameters")
+        val queryParameters: Map<String, String>,
+    ) {
+        companion object {
+            // These header/query params can potentially contain auth information, and we do not want to log them
+            // gitleaks:allow
+            private val parameterNamesToExclude = setOf(
+                "key",
+                "cookie",
+                "auth", // gitleaks:allow
+                "code" // gitleaks:allow
+            )
+
+            fun removeExcludedParameters(it: Map.Entry<String, String>) =
+                !parameterNamesToExclude.any { excluded ->
+                    it.key.contains(
+                        excluded,
+                        ignoreCase = true
+                    )
+                }
+        }
+    }
+
+    fun filterParameters(request: HttpRequestMessage<String?>): ReceivedReportSenderParameters {
+        val filteredHeaders = request.headers
+            .filter {
+                removeExcludedParameters(it)
+            }
+
+        val filteredQueryParams = request.queryParameters.filter {
+            removeExcludedParameters(it)
+        }
+        return ReceivedReportSenderParameters(
+            request.httpMethod,
+            request.uri.toString(),
+            filteredHeaders,
+            filteredQueryParams
+        )
+    }
+
+    /**
+     * Track the parameters of a [request].
      */
     fun trackActionParams(request: HttpRequestMessage<String?>) {
-        // TODO Convert to use jackson mapper
-        val factory = JsonFactory()
-        val outStream = ByteArrayOutputStream()
-        factory.createGenerator(outStream).use { jsonGenerator ->
-            jsonGenerator.useDefaultPrettyPrinter()
-            jsonGenerator.writeStartObject()
-            jsonGenerator.writeStringField("method", request.httpMethod.toString())
-            jsonGenerator.writeObjectFieldStart("Headers")
-            // remove secrets
-            request.headers
-                .filter { !it.key.contains("key") }
-                .filter { !it.key.contains("cookie") }
-                .filter { !it.key.contains("auth") }
-                .forEach { (key, value) ->
-                    jsonGenerator.writeStringField(key, value)
-                }
-            jsonGenerator.writeEndObject()
-            jsonGenerator.writeObjectFieldStart("QueryParameters")
-            // remove secrets
-            request.queryParameters.filter { !it.key.contains("code") }.forEach { (key, value) ->
-                jsonGenerator.writeStringField(key, value)
-            }
-            jsonGenerator.writeEndObject()
-            jsonGenerator.writeEndObject()
-        }
+        val params = filterParameters(request)
+
         action.contentLength = request.headers["content-length"]?.let {
             try {
                 it.toInt()
@@ -188,11 +221,11 @@ class ActionHistory(
             }
         }
         // capture the azure client IP but override with the first forwarded for if present
-        action.senderIp = request.headers["x-azure-clientip"]?.take(ACTION.SENDER_IP.dataType.length())
-        request.headers["x-forwarded-for"]?.let {
-            action.senderIp = it.split(",").firstOrNull()?.trim()?.take(ACTION.SENDER_IP.dataType.length())
+        val senderIp = getSenderIP(request)
+        if (senderIp != null && InetAddressValidator.getInstance().isValid(senderIp)) {
+            action.senderIp = senderIp
         }
-        trackActionParams(outStream.toString())
+        trackActionParams(JacksonMapperUtilities.objectMapper.writeValueAsString(params))
     }
 
     /**
@@ -341,11 +374,9 @@ class ActionHistory(
      * Sanity check: No report can be tracked twice, either as an input or output.
      * Prevents at least tight loops, and other shenanigans.
      */
-    private fun isReportAlreadyTracked(id: ReportId): Boolean {
-        return reportsReceived.containsKey(id) ||
-            reportsIn.containsKey(id) ||
-            reportsOut.containsKey(id)
-    }
+    private fun isReportAlreadyTracked(id: ReportId): Boolean = reportsReceived.containsKey(id) ||
+        reportsIn.containsKey(id) ||
+        reportsOut.containsKey(id)
 
     /**
      * track that this report is used in this Action.
@@ -468,6 +499,7 @@ class ActionHistory(
         report: Report,
         receiver: Receiver? = null,
         blobInfo: BlobAccess.BlobInfo? = null,
+        externalName: String? = null,
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -482,6 +514,7 @@ class ActionHistory(
 
         reportFile.nextAction = event.eventAction.toTaskAction()
         reportFile.nextActionAt = event.at
+        reportFile.externalName = externalName
 
         if (receiver != null) {
             reportFile.receivingOrg = receiver.organizationName
@@ -498,7 +531,7 @@ class ActionHistory(
             reportFile.blobDigest = blobInfo.digest
             reportFile.itemCount = report.itemCount
         } else {
-            reportFile.bodyFormat = Report.Format.FHIR.toString() // currently only the UP sends null blobs
+            reportFile.bodyFormat = MimeFormat.FHIR.toString() // currently only the UP sends null blobs
             reportFile.itemCount = 0
         }
 
@@ -525,6 +558,8 @@ class ActionHistory(
         params: String,
         result: String,
         header: WorkflowEngine.Header,
+        reportEventService: IReportStreamEventService,
+        transportType: String,
     ) {
         if (isReportAlreadyTracked(sentReportId)) {
             error(
@@ -540,7 +575,7 @@ class ActionHistory(
         val blobInfo = BlobAccess.uploadBody(
             receiver.format,
             header.content,
-            filename ?: UUID.randomUUID().toString(),
+            sentReportId.toString(),
             receiver.fullName,
             Event.EventAction.NONE
         )
@@ -560,6 +595,21 @@ class ActionHistory(
         reportFile.blobDigest = blobInfo.digest
         reportFile.bodyUrl = blobInfo.blobUrl
 
+        reportEventService.sendReportEvent(
+            childReport = reportFile,
+            eventName = ReportStreamEventName.REPORT_SENT,
+            pipelineStepName = TaskAction.send
+        ) {
+            parentReportId(header.reportFile.reportId)
+            params(
+                listOfNotNull(
+                    ReportStreamEventProperties.TRANSPORT_TYPE to transportType,
+                    ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
+                    filename?.let { ReportStreamEventProperties.FILENAME to it }
+                ).toMap()
+            )
+        }
+
         reportsOut[reportFile.reportId] = reportFile
     }
 
@@ -570,7 +620,6 @@ class ActionHistory(
      */
     fun trackDownloadedReport(
         parentReportFile: ReportFile,
-        filename: String,
         externalReportId: ReportId,
         downloadedBy: String,
     ) {
@@ -587,8 +636,8 @@ class ActionHistory(
         reportFile.receivingOrgSvc = parentReportFile.receivingOrgSvc
         reportFile.schemaName = trimSchemaNameToMaxLength(parentReportFile.schemaName)
         reportFile.schemaTopic = parentReportFile.schemaTopic
-        reportFile.externalName = filename
-        action.externalName = filename
+        reportFile.externalName = parentReportFile.externalName
+        action.externalName = parentReportFile.externalName
         reportFile.transportParams = "{ \"reportRequested\": \"${parentReportFile.reportId}\"}"
         reportFile.transportResult = "{ \"downloadedBy\": \"$downloadedBy\"}"
         reportFile.bodyUrl = null // this entry represents an external file, not a blob.

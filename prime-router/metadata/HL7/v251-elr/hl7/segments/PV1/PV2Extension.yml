@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 url:
   type: SYSTEM_URL
   value: pv2-patient-visit-additional-information
@@ -30,7 +32,7 @@ extension:
           value: PV2.23
         valueReference:
           expressionType: reference
-          valueOf: datatypes/XON/Organization
+          valueOf: ../../datatypes/v251/hl7/datatypes/XON/Organization
     - vars:
         pv226: STRING_ALL, PV2.26
       condition: $pv226 NOT_NULL

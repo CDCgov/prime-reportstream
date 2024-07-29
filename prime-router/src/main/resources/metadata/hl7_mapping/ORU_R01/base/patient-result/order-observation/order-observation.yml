@@ -1,5 +1,7 @@
 # possible '%resource's:
 # Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id)
+# $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
 
   - name: common-order-service-request
