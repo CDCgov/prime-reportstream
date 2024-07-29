@@ -67,10 +67,7 @@ elements:
     value: [ '"ISO"' ]
     hl7Spec: [ '%{MSH}-21-4' ]
 
-  - name: nh-observation
-    resource: Bundle.entry.resource.ofType(Observation)
-    condition: '%resource.count() > 0'
-    schema: classpath:/metadata/hl7_mapping/receivers/STLTs/NH/NH-observation-fields.yml
-    resourceIndex: resultIndex
+  - name: obx-equipment-instance-identifier
+    condition: false
 
 

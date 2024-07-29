@@ -1,6 +1,0 @@
-constants:
-  OBX: '/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(%{resultIndex})/OBX'
-
-elements:
-    - name: obx-equipment-instance-identifier
-      condition: false
