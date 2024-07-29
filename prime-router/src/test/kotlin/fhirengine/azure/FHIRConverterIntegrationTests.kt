@@ -1,10 +1,12 @@
 package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.containsOnly
 import assertk.assertions.each
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.matchesPredicate
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
@@ -12,6 +14,7 @@ import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
@@ -23,6 +26,14 @@ import gov.cdc.prime.router.azure.db.enums.ActionLogType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestLabResult
+import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
+import gov.cdc.prime.router.azure.observability.event.ItemEventData
+import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.ReportEventData
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
@@ -53,6 +64,7 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FhirDestinationFilterQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -71,6 +83,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import java.nio.charset.Charset
+import java.time.OffsetDateTime
 
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
@@ -83,6 +96,8 @@ class FHIRConverterIntegrationTests {
             "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
         )
     )
+
+    val azureEventService = LocalAzureEventServiceImpl()
 
     private fun createFHIRFunctionsInstance(): FHIRFunctions {
         val settings = FileSettings().loadOrganizations(universalPipelineOrganization)
@@ -109,6 +124,7 @@ class FHIRConverterIntegrationTests {
             metadata,
             settings,
             ReportStreamTestDatabaseContainer.testDatabaseAccess,
+            azureEventService = azureEventService,
         )
     }
 
@@ -187,6 +203,8 @@ class FHIRConverterIntegrationTests {
                 .setItemCount(itemCount)
                 .setExternalName("test-external-name")
                 .setBodyUrl(receiveReportBlobUrl)
+                .setSendingOrg(sender.organizationName)
+                .setSendingOrgClient(sender.name)
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
                 reportFile, txn, receiveAction
             )
@@ -226,7 +244,9 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = fetchChildReports(receiveReport, txn, 2)
+            val (routedReports, _) = fetchChildReports(
+                receiveReport, txn, 4
+            ).partition { it.nextAction != TaskAction.none }
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -295,6 +315,49 @@ class FHIRConverterIntegrationTests {
                 "",
                 ""
             )
+
+            assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.ITEM_ACCEPTED]!!).hasSize(2)
+            val event =
+                azureEventService
+                    .reportStreamEvents[ReportStreamEventName.ITEM_ACCEPTED]!!.last() as ReportStreamItemEvent
+            assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+                ReportEventData(
+                    routedReports[1].reportId,
+                    receiveReport.id,
+                    listOf(receiveReport.id),
+                    Topic.FULL_ELR,
+                    routedReports[1].bodyUrl,
+                    TaskAction.convert,
+                    OffsetDateTime.now()
+                ),
+                    ReportEventData::timestamp
+            )
+            assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
+                ItemEventData(
+                    1,
+                    2,
+                    2,
+                    null,
+                    "phd.hl7-elr-no-transform"
+                )
+            )
+            assertThat(event.params).isEqualTo(
+                mapOf(
+                    ReportStreamEventProperties.ITEM_FORMAT to MimeFormat.HL7,
+                    ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                        observationSummaries = AzureEventUtils
+                            .getObservationSummaries(
+                                FhirTranscoder.decode(
+                                    reportAndBundles[1].second.toString(Charset.defaultCharset())
+                                )
+                            ),
+                        patientState = listOf("TX"),
+                        orderingFacilityState = emptyList(),
+                        performerState = emptyList(),
+                        eventType = "ORU^R01^ORU_R01"
+                    )
+                )
+            )
         }
     }
 
@@ -346,7 +409,9 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = fetchChildReports(receiveReport, txn, 2)
+            val (routedReports, _) = fetchChildReports(
+                receiveReport, txn, 4
+            ).partition { it.nextAction != TaskAction.none }
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -377,6 +442,7 @@ class FHIRConverterIntegrationTests {
             val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk()).from(Tables.ACTION_LOG)
                 .where(Tables.ACTION_LOG.REPORT_ID.eq(receiveReport.id))
                 .and(Tables.ACTION_LOG.TYPE.`in`(ActionLogType.error, ActionLogType.warning))
+                .orderBy(Tables.ACTION_LOG.ACTION_LOG_ID.asc())
                 .fetchInto(
                     DetailedActionLog::class.java
                 )
@@ -404,6 +470,48 @@ class FHIRConverterIntegrationTests {
                 "Observation/d683b42a-bf50-45e8-9fce-6c0531994f09",
                 ""
             )
+
+            assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.ITEM_ACCEPTED]!!).hasSize(2)
+            val event = azureEventService
+                .reportStreamEvents[ReportStreamEventName.ITEM_ACCEPTED]!!.last() as ReportStreamItemEvent
+            assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+                ReportEventData(
+                    routedReports[1].reportId,
+                    receiveReport.id,
+                    listOf(receiveReport.id),
+                    Topic.FULL_ELR,
+                    routedReports[1].bodyUrl,
+                    TaskAction.convert,
+                    OffsetDateTime.now()
+                ),
+                    ReportEventData::timestamp
+            )
+            assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
+                ItemEventData(
+                    1,
+                    3,
+                    3,
+                    null,
+                    "phd.fhir-elr-no-transform"
+                )
+            )
+            assertThat(event.params).isEqualTo(
+                mapOf(
+                    ReportStreamEventProperties.ITEM_FORMAT to MimeFormat.FHIR,
+                    ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                        observationSummaries = AzureEventUtils
+                            .getObservationSummaries(
+                                FhirTranscoder.decode(
+                                    reportAndBundles[1].second
+                                )
+                            ),
+                        patientState = emptyList(),
+                        orderingFacilityState = emptyList(),
+                        performerState = emptyList(),
+                        eventType = ""
+                    )
+                )
+            )
         }
     }
 
@@ -425,7 +533,9 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = fetchChildReports(receiveReport, txn, 1)
+            val (routedReports, notRouted) = fetchChildReports(
+                receiveReport, txn, 2
+            ).partition { it.nextAction != TaskAction.none }
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -477,6 +587,40 @@ class FHIRConverterIntegrationTests {
                 )
             assertThat(actionLogs.first()).transform { it.trackingId }
                 .isEqualTo("20240403205305_dba7572cc6334f1ea0744c5f235c823e")
+
+            assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.ITEM_FAILED_VALIDATION]!!).hasSize(1)
+            val event = azureEventService
+                .reportStreamEvents[ReportStreamEventName.ITEM_FAILED_VALIDATION]!!.last() as ReportStreamItemEvent
+            assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+                ReportEventData(
+                    notRouted[0].reportId,
+                    receiveReport.id,
+                    listOf(receiveReport.id),
+                    Topic.MARS_OTC_ELR,
+                    "",
+                    TaskAction.convert,
+                    OffsetDateTime.now()
+                ),
+                    ReportEventData::timestamp
+            )
+            assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
+                ItemEventData(
+                    1,
+                    2,
+                    2,
+                    null,
+                    "phd.marsotc-hl7-sender"
+                )
+            )
+            assertThat(event.params).isEqualTo(
+                mapOf(
+                    ReportStreamEventProperties.ITEM_FORMAT to MimeFormat.HL7,
+                    ReportStreamEventProperties.VALIDATION_PROFILE to Topic.MARS_OTC_ELR.validator.validatorProfileName,
+                    @Suppress("ktlint:standard:max-line-length")
+                    ReportStreamEventProperties.PROCESSING_ERROR
+                    to "Item 2 in the report was not valid. Reason: HL7 was not valid at MSH[1]-21[1].3 for validator: RADx MARS"
+                )
+            )
         }
     }
 
