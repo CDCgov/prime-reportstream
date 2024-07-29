@@ -145,7 +145,11 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
       service_uri = var.pagerduty_url
     }
   }
-
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
   depends_on = [
     var.app_service_plan
   ]

@@ -24,4 +24,6 @@ module "instance" {
     azurerm_storage_share_file.sftp,
     azurerm_storage_share.sftp_scripts
   ]
+
+
 }

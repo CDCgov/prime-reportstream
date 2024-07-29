@@ -121,7 +121,7 @@ resource "azurerm_linux_web_app" "metabase" {
       # You cannot use both methods simultaneously.
       # If the virtual network is set via the resource app_service_virtual_network_swift_connection
       # then ignore_changes should be used in the web app configuration.
-      virtual_network_subnet_id,
+      virtual_network_subnet_id, tags
     ]
   }
 }

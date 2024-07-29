@@ -12,7 +12,11 @@ resource "azurerm_application_insights" "metabase_insights" {
   internet_ingestion_enabled = true
   # needs to be true to allow engineer debugging through Azure UI
   internet_query_enabled = true
-
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
   tags = {
     environment = var.environment
   }

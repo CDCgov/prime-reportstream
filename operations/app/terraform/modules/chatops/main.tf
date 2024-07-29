@@ -43,19 +43,23 @@ resource "azurerm_container_group" "chatops" {
     username = var.container_registry_admin_username
     password = var.container_registry_admin_password
   }
-
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
   depends_on = [
     var.storage_account, null_resource.chatops_image
   ]
 }
 
 resource "null_resource" "chatops_image" {
-    provisioner "local-exec" {
-        command = <<-EOT
+  provisioner "local-exec" {
+    command = <<-EOT
         cp ../../../../../.environment/chatops/help.txt ../../../../../operations/slack-boltjs-app/.help
         docker build -t slack_boltjs_app -f ../../../../../operations/slack-boltjs-app/Dockerfile.example ../../../../../operations/slack-boltjs-app --tag ${var.container_registry_login_server}/chatops:latest
         az acr login --name ${var.container_registry_login_server}
         docker push ${var.container_registry_login_server}/chatops:latest
       EOT
-    }
+  }
 }

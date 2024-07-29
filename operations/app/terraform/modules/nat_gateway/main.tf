@@ -8,6 +8,9 @@ resource "azurerm_public_ip" "nat_gateway_ip" {
 
   lifecycle {
     prevent_destroy = false
+    ignore_changes = [
+      tags
+    ]
   }
 
   tags = {
@@ -21,6 +24,12 @@ resource "azurerm_nat_gateway" "nat_gateway" {
   resource_group_name     = var.resource_group
   sku_name                = "Standard"
   idle_timeout_in_minutes = 10
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 
   tags = {
     environment = var.environment

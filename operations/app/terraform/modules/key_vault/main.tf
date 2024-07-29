@@ -152,7 +152,7 @@ resource "azurerm_key_vault" "client_config" {
     prevent_destroy = true
     ignore_changes = [
       # validated 5/24/2024
-      network_acls[0].ip_rules
+      network_acls[0].ip_rules, tags
     ]
   }
 

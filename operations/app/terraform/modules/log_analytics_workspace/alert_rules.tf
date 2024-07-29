@@ -26,6 +26,12 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_fatal" {
     operator  = "GreaterThanOrEqual"
     threshold = 1
   }
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
 
 resource "azurerm_monitor_scheduled_query_rules_alert" "metabase_webapp_alertrule" {
@@ -52,6 +58,11 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "metabase_webapp_alertrul
   trigger {
     operator  = "GreaterThanOrEqual"
     threshold = 1
+  }
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
   }
 }
 
@@ -83,6 +94,11 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_401errors" {
     operator  = "GreaterThanOrEqual"
     threshold = 10
   }
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
 
 resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_504errors" {
@@ -106,6 +122,11 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_504errors" {
   trigger {
     operator  = "GreaterThanOrEqual"
     threshold = 1
+  }
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
   }
 }
 
@@ -136,6 +157,11 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "poison-queue-msg" {
   trigger {
     operator  = "GreaterThanOrEqual"
     threshold = 1
+  }
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
   }
 }
 

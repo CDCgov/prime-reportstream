@@ -45,6 +45,12 @@ resource "azurerm_container_group" "sftp_container" {
     environment = var.environment
   }
 
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
+
   depends_on = [
     azurerm_storage_share.sftp_share
   ]

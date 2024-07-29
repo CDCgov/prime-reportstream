@@ -7,6 +7,11 @@ resource "azurerm_service_plan" "service_plan" {
   os_type                = "Linux"
   zone_balancing_enabled = false
   worker_count           = 6
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
   tags = {
     environment = var.environment
   }

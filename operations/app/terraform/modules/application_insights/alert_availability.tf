@@ -25,7 +25,11 @@ resource "azurerm_monitor_metric_alert" "availability_alert" {
   action {
     action_group_id = azurerm_monitor_action_group.action_group[0].id
   }
-
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
   tags = {
     environment = var.environment
   }
@@ -52,7 +56,11 @@ resource "azurerm_monitor_metric_alert" "availability_alert_warning" {
   action {
     action_group_id = azurerm_monitor_action_group.action_group[0].id
   }
-
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
   tags = {
     environment = var.environment
   }
@@ -78,7 +86,11 @@ resource "azurerm_application_insights_web_test" "ping_test" {
       </Items>
     </WebTest>
     XML
-
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
   tags = {
     environment = var.environment
     # This prevents terraform from seeing a tag change for each plan/apply
@@ -104,6 +116,12 @@ resource "azurerm_application_insights_web_test" "metabase_test" {
       </Items>
     </WebTest>
     XML
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
   tags = {
     environment = var.environment
     # This prevents terraform from seeing a tag change for each plan/apply
@@ -158,6 +176,12 @@ resource "azurerm_application_insights_web_test" "livdapi_test" {
       </Items>
     </WebTest>
     XML
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
   tags = {
     environment = var.environment
     # This prevents terraform from seeing a tag change for each plan/apply

@@ -12,6 +12,12 @@ resource "azurerm_data_factory" "primary" {
 
   timeouts {}
 
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
+
   depends_on = [
     var.sftp_shares
   ]

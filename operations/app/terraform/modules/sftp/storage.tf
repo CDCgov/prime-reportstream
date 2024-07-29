@@ -19,6 +19,12 @@ resource "azurerm_storage_account" "sftp" {
   tags = {
     environment = var.environment
   }
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
 
 # SSH host keys share

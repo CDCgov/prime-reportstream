@@ -29,7 +29,7 @@ resource "azurerm_postgresql_flexible_server" "postgres_server" {
     prevent_destroy = false
     # validated 5/21/2024
     ignore_changes = [
-      storage_mb,            # Auto-grow will change the size
+      tags, storage_mb,      # Auto-grow will change the size
       administrator_login,   # This can't change without a redeploy
       administrator_password # This can't change without a redeploy
     ]
@@ -69,7 +69,7 @@ resource "azurerm_postgresql_flexible_server" "postgres_server_replica" {
     prevent_destroy = false
     # validated 5/21/2024
     ignore_changes = [
-      storage_mb,            # Auto-grow will change the size
+      tags, storage_mb,      # Auto-grow will change the size
       administrator_login,   # This can't change without a redeploy
       administrator_password # This can't change without a redeploy
     ]
