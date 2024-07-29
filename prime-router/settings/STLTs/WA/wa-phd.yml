@@ -90,7 +90,7 @@
       reverseTheQualityFilter: false
       conditionFilter:
         #Accept COVID only, "matches(abnormal_flag, A)"
-        - "Bundle.entry.resource.ofType(Observation).interpretation.coding.code = 'A' and (%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+        - "%resource.interpretation.coding.code = 'A' and (%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
