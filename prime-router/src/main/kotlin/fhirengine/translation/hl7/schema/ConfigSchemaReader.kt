@@ -1,10 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.fhirengine.engine.LookupTableValueSet
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.apache.commons.io.FilenameUtils
@@ -140,12 +137,20 @@ object ConfigSchemaReader : Logging {
             "file" -> {
                 val file = File(schemaUri)
                 if (!file.canRead()) throw SchemaException("Cannot read ${file.absolutePath}")
-                readOneYamlSchema(file.inputStream(), schemaClass)
+                file.inputStream().use { fis ->
+                    readOneYamlSchema(fis, schemaClass)
+                }
             }
             "classpath" -> {
-                val input = javaClass.classLoader.getResourceAsStream(schemaUri.path.substring(1))
+                (
+                    javaClass.classLoader.getResourceAsStream(schemaUri.path.substring(1))
                     ?: throw SchemaException("Cannot read $schemaUri")
-                readOneYamlSchema(input, schemaClass)
+                ).use { ips ->
+                    readOneYamlSchema(
+                        ips,
+                        schemaClass
+                    )
+                }
             }
             "azure" -> {
                 // Note: the schema URIs will not include the container name i.e.
@@ -154,7 +159,9 @@ object ConfigSchemaReader : Logging {
                     "${blobConnectionInfo.getBlobEndpoint()}${schemaUri.path}",
                     blobConnectionInfo
                 )
-                readOneYamlSchema(blob.inputStream(), schemaClass)
+                blob.inputStream().use { bis ->
+                    readOneYamlSchema(bis, schemaClass)
+                }
             }
             else -> throw SchemaException("Unexpected scheme: ${schemaUri.scheme}")
         }
@@ -236,9 +243,7 @@ object ConfigSchemaReader : Logging {
         inputStream: InputStream,
         schemaClass: Class<out Schema>,
     ): Schema {
-        val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
-        mapper.registerSubtypes(LookupTableValueSet::class.java)
-        val rawSchema = mapper.readValue(inputStream, schemaClass)
+        val rawSchema = JacksonMapperUtilities.yamlMapper.readValue(inputStream, schemaClass)
         // Are there any null elements?  This may mean some unknown array value in the YAML
         if (rawSchema.elements.any { false }) {
             throw SchemaException("Invalid empty element found in schema. Check that all array items are elements.")

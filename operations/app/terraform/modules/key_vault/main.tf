@@ -50,17 +50,13 @@ resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = var.terraform_object_id
 
-  certificate_permissions = [
-    "Get",
-    "List"
-  ]
-
   key_permissions = [
     "Create",
     "Get",
     "List",
     "Delete",
-    "Purge"
+    "Purge",
+    "GetRotationPolicy"
   ]
 
   secret_permissions = [
@@ -70,6 +66,11 @@ resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
     "Delete",
     "Purge",
     "Recover"
+  ]
+
+  certificate_permissions = [
+    "Get",
+    "List"
   ]
 }
 
@@ -120,7 +121,8 @@ resource "azurerm_key_vault_access_policy" "terraform_app_config_access_policy" 
     "Get",
     "List",
     "Delete",
-    "Purge"
+    "Purge",
+    "GetRotationPolicy"
   ]
 
   secret_permissions = [
@@ -130,6 +132,11 @@ resource "azurerm_key_vault_access_policy" "terraform_app_config_access_policy" 
     "Delete",
     "Purge",
     "Recover"
+  ]
+
+  certificate_permissions = [
+    "Get",
+    "List"
   ]
 }
 
@@ -174,7 +181,7 @@ resource "azurerm_key_vault" "client_config" {
   lifecycle {
     prevent_destroy = false
     ignore_changes = [
-      # Temp ignore ip_rules during tf development
+      # validated 5/24/2024
       network_acls[0].ip_rules
     ]
   }

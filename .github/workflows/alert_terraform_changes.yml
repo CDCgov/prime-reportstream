@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
@@ -28,11 +28,11 @@ jobs:
           tf-auth: true
           
       - name: Collect Terraform stats
-        uses: josiahsiegel/terraform-stats@270787b061ce4b2ba67c837e89177f7224b26f3d
+        uses: josiahsiegel/terraform-stats@68b8cbe42c494333fbf6f8d90ac86da1fb69dcc2
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ matrix.env }}
-          terraform-version: 1.2.0
+          terraform-version: 1.7.4
           add-args: "-refresh=false"
 
       - name: Format outputs for slack

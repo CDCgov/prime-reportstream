@@ -4,11 +4,16 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.datatype.jsr310.ser.OffsetDateTimeSerializer
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.fasterxml.jackson.module.kotlin.kotlinModule
+import gov.cdc.prime.router.fhirengine.engine.LookupTableValueSet
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.TimeZone
@@ -30,10 +35,11 @@ object JacksonMapperUtilities {
         /**
          * OffsetDateTime serializer that does not include fractions of seconds.
          */
-        class NoOptionalFieldsOffsetDateTimeSerializer : OffsetDateTimeSerializer(
-            INSTANCE, false, false,
-            timestampFormatter
-        )
+        class NoOptionalFieldsOffsetDateTimeSerializer :
+            OffsetDateTimeSerializer(
+                INSTANCE, false, false,
+                timestampFormatter
+            )
 
         // Serialize (object->JSON) date/times with no second fraction.
         addSerializer(OffsetDateTime::class.java, NoOptionalFieldsOffsetDateTimeSerializer())
@@ -59,7 +65,7 @@ object JacksonMapperUtilities {
     /**
      * jacksonObjectMapper using library defaults.
      */
-    val jacksonObjectMapper: ObjectMapper = jacksonObjectMapper()
+    val jacksonObjectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
 
     /**
      * Mapper using library defaults.
@@ -71,4 +77,30 @@ object JacksonMapperUtilities {
         disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         enable(SerializationFeature.INDENT_OUTPUT) // Pretty print JSON output
     }.run { setTimeZone(TimeZone.getTimeZone(Environment.rsTimeZone)) }
+
+    /**
+     * Default YAML mapper
+     */
+    val yamlMapper: ObjectMapper by lazy {
+        val yamlFactory = YAMLFactory()
+            .disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID) // omits type tags from output
+        val mapper = ObjectMapper(yamlFactory)
+            .registerModule(
+                KotlinModule.Builder()
+                    .withReflectionCacheSize(512)
+                    .configure(KotlinFeature.NullToEmptyCollection, false)
+                    .configure(KotlinFeature.NullToEmptyMap, false)
+                    .configure(KotlinFeature.NullIsSameAsDefault, false)
+                    .configure(KotlinFeature.StrictNullChecks, false)
+                    .build()
+            )
+            .registerModule(JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+
+        // This line is required to keep the separation of ValueSetCollection subtypes if we ever
+        // want to open-source that portion of the codebase
+        mapper.registerSubtypes(LookupTableValueSet::class.java)
+        mapper
+    }
 }

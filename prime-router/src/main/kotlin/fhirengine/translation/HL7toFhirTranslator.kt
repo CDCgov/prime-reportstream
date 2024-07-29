@@ -13,6 +13,7 @@ import io.github.linuxforhealth.hl7.message.HL7MessageModel
 import io.github.linuxforhealth.hl7.resource.ResourceReader
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
+import java.util.Collections
 
 /**
  * Creates a HL7toFhirTranslator object to perform HL7v2 to FHIR translations.
@@ -23,12 +24,20 @@ class HL7toFhirTranslator(
     private val configFolderPath: String = "./metadata/HL7/catchall",
     private val messageEngine: HL7MessageEngine = FhirTranscoder.getMessageEngine(),
 ) : Logging {
+
+    private val templates: Map<String, HL7MessageModel> =
+        ResourceReader(ConverterConfiguration(configFolderPath)).messageTemplates
+
     companion object {
-        /**
-         * Stored message templates for HL7 -> FHIR translation. Loaded on demand, then stored for performance reasons
-         */
-        internal val messageTemplates: MutableMap<String, MutableMap<String, HL7MessageModel>> =
-            emptyMap<String, MutableMap<String, HL7MessageModel>>().toMutableMap()
+
+        private val hl7ToFhirTranslatorInstances =
+            Collections.synchronizedMap(mutableMapOf<String, HL7toFhirTranslator>())
+
+        fun getHL7ToFhirTranslatorInstance(configFolderPath: String = "./metadata/HL7/catchall"): HL7toFhirTranslator {
+            return hl7ToFhirTranslatorInstances.getOrPut(configFolderPath) {
+                HL7toFhirTranslator(configFolderPath)
+            }
+        }
     }
 
     /**
@@ -40,16 +49,8 @@ class HL7toFhirTranslator(
     ): HL7MessageModel {
         val messageTemplateType = getMessageTemplateType(hl7Message)
 
-        // if the requested message templates have been previously loaded, return the stored templates.
-        // otherwise, load the templates
-        val messageTemplate = messageTemplates.getOrElse(configFolderPath) {
-            val newMessageTemplate = ResourceReader(ConverterConfiguration(configFolderPath)).messageTemplates
-            messageTemplates[configFolderPath] = newMessageTemplate
-            newMessageTemplate
-        }
-
-        return messageTemplate[messageTemplateType]
-            ?: throw UnsupportedOperationException("Message type not yet supported $messageTemplateType")
+        return templates[messageTemplateType]
+            ?: throw UnsupportedOperationException("Message type not yet supported: $messageTemplateType")
     }
 
     /**
@@ -58,7 +59,7 @@ class HL7toFhirTranslator(
      *
      * Custom translations can be handled by adding a customized message type
      * such as test_ORU_R01 to the list in config.properties. Then creating the accompanying files, such as
-     * hl7/message/test_ORU_R01. Any files in fhir_mapping/hl7/resource will override the defaults allowing customization
+     * hl7/message/test_ORU_R01. Any files in metadata/HL7/catchall/hl7/ will override the defaults allowing customization
      * of resources like Address or Organization.
      */
     fun translate(
@@ -70,6 +71,8 @@ class HL7toFhirTranslator(
         // If timezone specification is needed it can be provided via a custom HL7MessageEngine with a custom FHIRContext that has the time zone ID set
         val messageModel = getHL7MessageModel(hl7Message)
         val bundle = messageModel.convert(hl7Message, messageEngine)
+            ?: throw RuntimeException("Exception occurred while converting HL7 to FHIR ")
+        // TODO https://github.com/CDCgov/prime-reportstream/issues/14117
         bundle.enhanceBundleMetadata(hl7Message)
         bundle.addProvenanceReference()
         bundle.handleBirthTime(hl7Message)

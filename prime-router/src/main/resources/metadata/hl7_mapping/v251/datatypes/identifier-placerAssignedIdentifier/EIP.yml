@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
 
   - name: eip-placer-entity-identifier
@@ -18,6 +20,6 @@ elements:
 
   - name: eip-filler-identifier-backup
     resource: '%resource.extension(%`rsext-filler-assigned-identifier`)'
-    schema: classpath:/metadata/hl7_mapping/datatypes/extensionEI/EI.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/extensionEI/EI.yml
     constants:
       hl7EIField: '%{eipFieldPath}-2'

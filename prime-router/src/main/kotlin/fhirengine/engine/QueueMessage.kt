@@ -27,6 +27,8 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
 @JsonSubTypes(
     JsonSubTypes.Type(FhirConvertQueueMessage::class, name = "convert"),
     JsonSubTypes.Type(FhirRouteQueueMessage::class, name = "route"),
+    JsonSubTypes.Type(FhirDestinationFilterQueueMessage::class, name = "destination-filter"),
+    JsonSubTypes.Type(FhirReceiverFilterQueueMessage::class, name = "receiver-filter"),
     JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "translate"),
     JsonSubTypes.Type(BatchEventQueueMessage::class, name = "batch"),
     JsonSubTypes.Type(ProcessEventQueueMessage::class, name = "process"),
@@ -103,6 +105,25 @@ data class FhirRouteQueueMessage(
     override val digest: String,
     override val blobSubFolderName: String,
     override val topic: Topic,
+) : ReportPipelineMessage()
+
+@JsonTypeName("destination-filter")
+data class FhirDestinationFilterQueueMessage(
+    override val reportId: ReportId,
+    override val blobURL: String,
+    override val digest: String,
+    override val blobSubFolderName: String,
+    override val topic: Topic,
+) : ReportPipelineMessage()
+
+@JsonTypeName("receiver-filter")
+data class FhirReceiverFilterQueueMessage(
+    override val reportId: ReportId,
+    override val blobURL: String,
+    override val digest: String,
+    override val blobSubFolderName: String,
+    override val topic: Topic,
+    val receiverFullName: String,
 ) : ReportPipelineMessage()
 
 @JsonTypeName("translate")

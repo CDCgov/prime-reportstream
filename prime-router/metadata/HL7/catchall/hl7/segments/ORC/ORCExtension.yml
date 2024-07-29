@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 url:
   type: SYSTEM_URL
   value: orc-common-order
@@ -231,3 +233,28 @@ extension:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: ORC.31
+    - expressionType: nested
+      vars:
+        orc32: STRING, ORC.32
+      condition: $orc32 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.32
+        valueString:
+          type: STRING
+          valueOf: ORC.32
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        orc34: STRING_ALL, ORC.34
+      condition: $orc34 NOT_NULL
+      specs: ORC.34 *
+      generateList: True
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.34
+        valueIdentifier:
+          valueOf: datatypes/EI/Identifier
+          expressionType: resource

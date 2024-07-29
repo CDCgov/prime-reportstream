@@ -10,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Run log management steps
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Workflow Housekeeper - workflows NOT in default branch
-        uses: JosiahSiegel/workflow-housekeeper@f73f78d6cd72f7e6552ddc40838d12922d5dded2
+        uses: JosiahSiegel/workflow-housekeeper@731cc20bb613208b34efb6ac74aab4ba147abb50
         env:
           GITHUB_TOKEN: ${{ secrets.LOG_MANAGEMENT_TOKEN }}
         with:
@@ -21,7 +21,7 @@ jobs:
           retain-run-count: 0
           dry-run: false
       - name: Workflow Housekeeper - workflows in default branch
-        uses: JosiahSiegel/workflow-housekeeper@f73f78d6cd72f7e6552ddc40838d12922d5dded2
+        uses: JosiahSiegel/workflow-housekeeper@731cc20bb613208b34efb6ac74aab4ba147abb50
         env:
           GITHUB_TOKEN: ${{ secrets.LOG_MANAGEMENT_TOKEN }}
         with:

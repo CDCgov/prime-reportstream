@@ -6,6 +6,7 @@ import assertk.assertions.isNull
 import assertk.assertions.startsWith
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.azure.ActionHistory
@@ -13,6 +14,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.CredentialService
@@ -20,6 +22,7 @@ import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.credentials.UserPemCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
+import gov.cdc.prime.router.report.ReportService
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -55,6 +58,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         val transport = spyk(SftpTransport())
         val settings = FileSettings(FileSettings.defaultSettingsDirectory)
         val metadata = Metadata.getInstance()
+        val reportService = ReportService()
         val reportId = UUID.randomUUID()
 
         val credentialName = "DEFAULT-SFTP"
@@ -81,6 +85,8 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             null,
             null,
             null,
+            null,
+            null,
             null
         )
         val contents = "HL7|Stuff"
@@ -94,7 +100,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             content = contents.toByteArray(),
             true
         )
-        val fileName = Report.formExternalFilename(header)
+        val fileName = Report.formExternalFilename(header, reportService)
         val actionHistory = ActionHistory(TaskAction.send)
 
         val lsPath = "./path"
@@ -128,7 +134,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
                 any(),
                 any()
             )
-        } returns BlobAccess.BlobInfo(Report.Format.HL7, "", "".toByteArray())
+        } returns BlobAccess.BlobInfo(MimeFormat.HL7, "", "".toByteArray())
     }
 
     @AfterEach
@@ -165,9 +171,11 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.transportType,
             f.header,
             f.reportId,
+            f.fileName,
             null,
             context,
-            f.actionHistory
+            f.actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // successful SFTP upload
@@ -204,9 +212,11 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.transportType,
             f.header,
             f.reportId,
+            f.fileName,
             null,
             context,
-            f.actionHistory
+            f.actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // successful SFTP upload
@@ -243,9 +253,11 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.transportType,
             f.header,
             f.reportId,
+            f.fileName,
             null,
             context,
-            f.actionHistory
+            f.actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // successful SFTP upload
@@ -265,9 +277,11 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.transportType,
             headerWithNullContent,
             f.reportId,
+            f.fileName,
             null,
             context,
-            f.actionHistory
+            f.actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // asserts that the initial null check works
@@ -294,9 +308,11 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.transportType,
             f.header,
             f.reportId,
+            f.fileName,
             null,
             context,
-            f.actionHistory
+            f.actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // asserts that missing credentials will fail SFTP
@@ -331,9 +347,11 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.transportType,
             f.header,
             f.reportId,
+            f.fileName,
             null,
             context,
-            f.actionHistory
+            f.actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // asserts that authentication error will result in error
@@ -361,9 +379,11 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.transportType,
             f.header,
             f.reportId,
+            f.fileName,
             null,
             context,
-            f.actionHistory
+            f.actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // asserts that invalid credential types will result in error

@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: Organization
 
 id:
@@ -34,7 +36,7 @@ extension:
           value: cwe-organization
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           specs: $BASE_VALUE
     - generateList: true
       expressionType: nested

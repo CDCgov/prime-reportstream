@@ -1,6 +1,8 @@
 # possible '%resource's:
 # Bundle.entry.resource.ofType(Observation).where(focus.exists()).where(focus.resolve().id = Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id).specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "SPM") | Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id).specimen.resolve().where(extension(%`rsext-hl7v2Segment`).exists().not()).id).performer.resolve().ofType(Organization).where(extension(%`rsext-hl7v2Field`).value.join(",").contains("OBX.25"))
 # Bundle.entry.resource.ofType(Observation).where(focus.exists()).where(focus.resolve().id = Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id).specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "SPM") | Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id).specimen.resolve().where(extension(%`rsext-hl7v2Segment`).exists().not()).id).performer.resolve().ofType(PractitionerRole).where(code.coding.code = "MDIR").organization.resolve()
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
   - name: organization-xon-name
     value: [ '%resource.name' ]

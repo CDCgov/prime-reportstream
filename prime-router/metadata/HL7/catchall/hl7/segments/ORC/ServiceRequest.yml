@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: ServiceRequest
 
 # Not Implementing
@@ -347,7 +349,7 @@ subject:
   specs: $Patient
 
 note:
-  valueOf: datatype/Annotation
+  valueOf: segments/NTE/Annotation
   expressionType: resource
   generateList: true
   specs: NTE

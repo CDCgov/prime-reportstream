@@ -21,6 +21,10 @@ inputs:
     description: URL for webhook delivery
   color:
     description: Notification highlighting if applicable
+  slackify-markdown:
+    default: false
+  message-min:
+    default: true
 
 runs:
   using: "composite"
@@ -48,4 +52,5 @@ runs:
         SLACK_MSG_AUTHOR: 'CDCgov/prime-reportstream'
         SLACK_WEBHOOK: ${{ inputs.webhook-url }}
         SLACK_ICON_EMOJI: ${{ inputs.icon-emoji }}
-        MSG_MINIMAL: actions url
+        MSG_MINIMAL: $${{ inputs.message-min }}
+        SLACKIFY_MARKDOWN: ${{ inputs.slackify-markdown }}

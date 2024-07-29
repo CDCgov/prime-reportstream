@@ -63,9 +63,9 @@ resource "azurerm_function_app_slot" "candidate" {
 
   lifecycle {
     ignore_changes = [
+      # validated 5/29/2024
       # Allows Docker versioning via GitHub Actions
       site_config[0].linux_fx_version,
-      storage_account_access_key,
       tags
     ]
   }

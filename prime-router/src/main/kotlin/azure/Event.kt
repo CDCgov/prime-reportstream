@@ -26,9 +26,11 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         PROCESS, // for when a message goes into a queue to be processed
         PROCESS_WARNING, // when an attempt at a process action fails, but will be retried
         PROCESS_ERROR, // when an attempt at a process action fails permanently
+        DESTINATION_FILTER,
+        RECEIVER_FILTER,
         RECEIVE,
         CONVERT, // for universal pipeline converting to FHIR
-        ROUTE, // calculate routing for a submission
+        ROUTE, // Deprecated (has become DESTINATION_FILTER->RECEIVER_FILTER)
         TRANSLATE,
         BATCH,
         SEND,
@@ -47,6 +49,8 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 PROCESS -> TaskAction.process
                 PROCESS_WARNING -> TaskAction.process_warning
                 PROCESS_ERROR -> TaskAction.process_error
+                DESTINATION_FILTER -> TaskAction.destination_filter
+                RECEIVER_FILTER -> TaskAction.receiver_filter
                 RECEIVE -> TaskAction.receive
                 CONVERT -> TaskAction.convert
                 ROUTE -> TaskAction.route

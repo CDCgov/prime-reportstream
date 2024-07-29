@@ -1,5 +1,7 @@
 # possible '%resource's:
 # Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id).specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "SPM") | Bundle.entry.resource.ofType(DiagnosticReport).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id).specimen.resolve().where(extension(%`rsext-hl7v2Segment`).exists().not())
+# $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 constants:
   hl7SpecimenFieldPath: /PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
 

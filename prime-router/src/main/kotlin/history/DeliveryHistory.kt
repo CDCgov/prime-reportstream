@@ -6,8 +6,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 import java.time.OffsetDateTime
 
@@ -26,12 +24,13 @@ import java.time.OffsetDateTime
  * @property schemaName schema used for generating the filename
  * @property bodyFormat filetype, used for generating the filename
  * @property receivingOrgSvcStatus the customer status of the organization's service that's receiving this submission
+ * @property originalIngestion the report ID and ingestion/creation time of all root reports for this record
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder(
     value = [
         "deliveryId", "batchReadyAt", "expires", "receiver", "receivingOrgSvcStatus",
-        "reportId", "topic", "reportItemCount", "fileName", "fileType"
+        "reportId", "topic", "reportItemCount", "fileName", "fileType", "originalIngestion"
     ]
 )
 class DeliveryHistory(
@@ -57,6 +56,7 @@ class DeliveryHistory(
     @JsonProperty("fileType")
     val bodyFormat: String,
     val receivingOrgSvcStatus: String? = null,
+    var originalIngestion: List<Map<String, Any>>? = null,
 ) : ReportHistory(
     actionId,
     createdAt,
@@ -81,13 +81,7 @@ class DeliveryHistory(
      */
     val fileName: String
         get() {
-            return Report.formExternalFilename(
-                this.bodyUrl,
-                ReportId.fromString(this.reportId),
-                this.schemaName,
-                Report.Format.safeValueOf(this.bodyFormat),
-                this.createdAt
-            )
+            return this.bodyUrl?.substringAfter("%2F").orEmpty()
         }
 
     /**

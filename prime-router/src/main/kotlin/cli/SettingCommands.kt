@@ -1,11 +1,6 @@
 package gov.cdc.prime.router.cli
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.KotlinFeature
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
@@ -19,6 +14,8 @@ import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.clikt.parameters.types.outputStream
+import com.github.ajalt.mordant.rendering.TextColors.red
+import com.github.ajalt.mordant.rendering.TextColors.yellow
 import com.github.ajalt.mordant.terminal.YesNoPrompt
 import de.m3y.kformat.Table
 import de.m3y.kformat.table
@@ -33,6 +30,8 @@ import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.config.validation.ConfigurationType
+import gov.cdc.prime.router.config.validation.ConfigurationValidationServiceImpl
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.lastModified
 import org.json.JSONArray
@@ -61,7 +60,7 @@ abstract class SettingCommand(
         envvar = "PRIME_ENVIRONMENT",
         help = "Connect to <name> environment.\nChoose between [local|test|staging|prod]"
     )
-        .choice("local", "test", "staging", "prod")
+        .choice("local", "test", "staging", "prod", "demo1")
         .default("local", "local environment")
 
     protected val outStream by option(
@@ -97,24 +96,16 @@ abstract class SettingCommand(
         help = "Use the JSON format instead of YAML"
     ).flag(default = false)
 
+    protected val skipValidationOption = option(
+        "--no-validation",
+        help = "Don't perform validation on the settings file."
+    ).flag(default = false)
+
     enum class Operation { LIST, GET, PUT, DELETE }
     enum class SettingType { ORGANIZATION, SENDER, RECEIVER }
 
     val jsonMapper = JacksonMapperUtilities.allowUnknownsMapper
-    val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
-        KotlinModule.Builder()
-            .withReflectionCacheSize(512)
-            .configure(KotlinFeature.NullToEmptyCollection, false)
-            .configure(KotlinFeature.NullToEmptyMap, false)
-            .configure(KotlinFeature.NullIsSameAsDefault, false)
-            .configure(KotlinFeature.StrictNullChecks, false)
-            .build()
-    )
-
-    init {
-        yamlMapper.registerModule(JavaTimeModule())
-        yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-    }
+    val yamlMapper = JacksonMapperUtilities.yamlMapper
 
     /**
      * The environment specified by the command line parameters
@@ -216,7 +207,7 @@ abstract class SettingCommand(
             if (abortOnError) {
                 abort(
                     "Error getting $settingName in the $env environment:" +
-                            " HTTP status code: ${response.status.value} response body: $respStr"
+                        " HTTP status code: ${response.status.value} response body: $respStr"
                 )
             } else {
                 respStr
@@ -416,7 +407,11 @@ abstract class SettingCommand(
     }
 
     fun writeOutput(output: String) {
-        outStream.write(output.toByteArray())
+        if (outStream == System.out) {
+            echo(output)
+        } else {
+            outStream.write(output.toByteArray())
+        }
     }
 
     private fun handleHttpFailure(
@@ -426,9 +421,9 @@ abstract class SettingCommand(
     ): Nothing {
         abort(
             "Error: \n" +
-                    "  Setting Name: $settingName\n" +
-                    "  HTTP Status Code: ${httpStatusCode}\n" +
-                    "  HTTP Response Data: $respStr"
+                "  Setting Name: $settingName\n" +
+                "  HTTP Status Code: ${httpStatusCode}\n" +
+                "  HTTP Response Data: $respStr"
         )
     }
 
@@ -482,11 +477,11 @@ abstract class SettingCommand(
     /**
      * Echo information to the console respecting the --silent flag
      */
-    fun echo(message: String) {
+    fun echo(message: String, trailingNewline: Boolean = true, err: Boolean = false) {
         // clickt moved the echo command into the CliktCommand class, which means this needs to call
         // into the parent class, but Kotlin doesn't allow calls to super with default parameters
         if (!silent) {
-            super.echo(message, trailingNewline = true, err = false)
+            super.echo(message, trailingNewline, err)
         }
     }
 
@@ -637,10 +632,41 @@ abstract class PutSettingCommand(
     help: String,
     val settingType: SettingType,
 ) : SettingCommand(name, help) {
+
     private val inputFile by inputOption
     private val useJson: Boolean by jsonOption
+    private val skipValidation: Boolean by skipValidationOption
 
     override fun run() {
+        if (skipValidation) {
+            echo(yellow("${inputFile.name} will not be validated."))
+        } else if (useJson) {
+            echo(
+                red(
+                    "JSON files cannot be validated at this time! " +
+                        "You can use the --no-validation flag to avoid this prompt."
+                )
+            )
+            confirm("Proceed anyway?")
+            echo(yellow("${inputFile.name} will not be validated."))
+        } else {
+            if (settingType != SettingType.ORGANIZATION) {
+                echo(
+                    red(
+                        "${settingType}S cannot be validated at this time! " +
+                            "You can use the --no-validation flag to avoid this prompt."
+                    )
+                )
+                confirm("Proceed anyway?")
+                echo(yellow("${inputFile.name} will not be validated."))
+            } else {
+                ValidateUtilities(ConfigurationValidationServiceImpl()).validateFiles(
+                    listOf(inputFile),
+                    ConfigurationType.Organizations,
+                    ::echo
+                )
+            }
+        }
         checkApi(environment)
         val (name, payload) = if (useJson) {
             fromJson(readInput(inputFile), settingType)
@@ -870,6 +896,7 @@ class PutMultipleSettings : SettingCommand(
     help = "Set all settings from a 'organizations.yml' file"
 ) {
     private val inputFile by inputOption
+    private val skipValidation: Boolean by skipValidationOption
 
     /**
      * Number of connection retries.
@@ -887,6 +914,16 @@ class PutMultipleSettings : SettingCommand(
         .flag(default = false)
 
     override fun run() {
+        if (!skipValidation) {
+            ValidateUtilities(ConfigurationValidationServiceImpl()).validateFiles(
+                listOf(inputFile),
+                ConfigurationType.Organizations,
+                ::echo
+            )
+        } else {
+            echo(yellow("${inputFile.name} will not be validated."))
+        }
+
         // First wait for the API to come online
         echo("Waiting for the API at ${environment.url} to be available...")
         CommandUtilities.waitForApi(environment, connRetries)
@@ -970,11 +1007,16 @@ class GetMultipleSettings : SettingCommand(
     private val loadToLocal by option(
         "-l", "--load-to-local",
         help = "Load settings to local database with transport modified to use SFTP. " +
-                "You will have the chance to approve or decline a diff. " +
-                "If the -a (--append-to-orgs) option is used in conjunction with the " +
-                "load option, the modified results " +
-                "are used when appending to the organizations.yml file. If the -o (--output) option is used, the " +
-                "original, unmodified settings will be output to that file."
+            "You will have the chance to approve or decline a diff. " +
+            "If the -a (--append-to-orgs) option is used in conjunction with the " +
+            "load option, the modified results " +
+            "are used when appending to the organizations.yml file. If the -o (--output) option is used, the " +
+            "original, unmodified settings will be output to that file."
+    ).flag(default = false)
+
+    private val json by option(
+        "--json",
+        help = "Returns settings as json"
     ).flag(default = false)
 
     private val appendToOrgs by option(
@@ -994,7 +1036,8 @@ class GetMultipleSettings : SettingCommand(
         val output = getAll(environment, oktaAccessToken)
         // Write out the settings exactly as retrieved
         echo("Outputting original settings...")
-        val settings = yamlMapper.writeValueAsString(output)
+        val mapper = if (json) jsonMapper else yamlMapper
+        val settings = mapper.writeValueAsString(output)
         writeOutput(settings)
         // Handle load option.
         if (loadToLocal) {

@@ -1,0 +1,12 @@
+# $schema: ./../../../../../metadata/json_schema/organizations/organizations.json
+
+---
+- name: "org4"
+  description: "description"
+  jurisdiction: "FEDERAL"
+- name: "org5"
+  description: "description"
+  jurisdiction: "FEDERAL"
+- name: "org6"
+  description: "description"
+  jurisdiction: "FEDERAL"

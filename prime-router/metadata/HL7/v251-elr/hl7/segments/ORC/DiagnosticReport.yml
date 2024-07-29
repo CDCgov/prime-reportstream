@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 resourceType: DiagnosticReport
 
 id:
@@ -14,10 +16,9 @@ identifier:
     obr3: STRING_ALL, OBR.3
     orc3: STRING_ALL, ORC.3
     orc4: STRING_ALL, ORC.4
-    obr53: STRING_ALL, OBR.53
   expressions:
     - condition: $orc2 NOT_NULL
-      valueOf: datatypes/EI/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
       expressionType: resource
       specs: ORC.2
       constants:
@@ -25,7 +26,7 @@ identifier:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         hl7v2Field: ORC.2
     - condition: $orc2 NULL && $obr2 NOT_NULL
-      valueOf: datatypes/EI/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
       expressionType: resource
       specs: OBR.2
       constants:
@@ -33,7 +34,7 @@ identifier:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         hl7v2Field: OBR.2
     - condition: $orc3 NOT_NULL
-      valueOf: datatypes/EI/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
       expressionType: resource
       specs: ORC.3
       constants:
@@ -41,7 +42,7 @@ identifier:
         code: "FILL"
         display: "Filler Identifier"
     - condition: $orc3 NULL && $obr3 NOT_NULL
-      valueOf: datatypes/EI/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
       expressionType: resource
       specs: OBR.3
       constants:
@@ -49,14 +50,14 @@ identifier:
         code: "FILL"
         display: "Filler Identifier"
     - condition: $orc4 NOT_NULL
-      valueOf: datatypes/EI/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
       expressionType: resource
       specs: ORC.4
       constants:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         code: "PGN"
     - condition: $orc4 NOT_NULL
-      valueOf: datatypes/EI/Identifier
+      valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
       expressionType: resource
       specs: ORC.4
       constants:
@@ -64,7 +65,7 @@ identifier:
         code: "FGN"
 
 code:
-  valueOf: datatypes/CWE/CodeableConcept
+  valueOf: datatypes/CWE_ELR/CodeableConcept
   expressionType: resource
   specs: OBR.4
 
@@ -167,7 +168,7 @@ _issued:
 
 category:
   expressionType: resource
-  valueOf: datatypes/ID/CodeableConcept
+  valueOf: ../../datatypes/v251/hl7/datatypes/ID/CodeableConcept
   specs: OBR.24
 
 status:
@@ -180,13 +181,13 @@ resultsInterpreter:
   vars:
     obr32: STRING_ALL, OBR.32
   condition: $obr32 NOT_NULL
-  valueOf: datatypes/NDL/PractitionerRole
+  valueOf: ../../datatypes/v251/hl7/datatypes/NDL/PractitionerRole
   generateList: true
   expressionType: reference
   specs: OBR.32
 
 performer_1-technician:
-  valueOf: datatypes/NDL/PractitionerRole
+  valueOf: ../../datatypes/v251/hl7/datatypes/NDL/PractitionerRole
   condition: $obr34 NOT_NULL
   generateList: true
   expressionType: reference
@@ -197,7 +198,7 @@ performer_1-technician:
     performerParticipationType: "SPRF"
 
 performer_2-transcriptionist:
-  valueOf: datatypes/NDL/PractitionerRole
+  valueOf: ../../datatypes/v251/hl7/datatypes/NDL/PractitionerRole
   condition: $obr35 NOT_NULL
   generateList: true
   expressionType: reference
@@ -221,7 +222,7 @@ extension:
           value: "http://hl7.org/fhir/StructureDefinition/event-statusReason"
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           specs: ORC.16
 
 encounter:

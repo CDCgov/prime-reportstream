@@ -1,10 +1,12 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
 
   - name: parent-observation-identifier
     constants:
       cweField: '%{hl7PRLField}-1'
     resource: '%resource.extension.where(url = "prl-1-parent-observation-identifier").value'
-    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    schema: classpath:/metadata/hl7_mapping/v251-elr/datatypes/codeableConcept/CWE_ELR.yml
 
   - name: parent-observation-sub-identifier
     hl7Spec: [ '%{hl7PRLField}-2' ]

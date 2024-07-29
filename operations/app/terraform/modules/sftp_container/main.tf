@@ -1,37 +1,9 @@
-resource "azurerm_network_profile" "sftp_network_profile" {
-  name                = "sftp_network_profile"
-  location            = var.location
-  resource_group_name = var.resource_group
-
-  container_network_interface {
-    name = "sftp_container_network_interface"
-    ip_configuration {
-      name      = "sftp_container_ip_configuration"
-      subnet_id = data.azurerm_subnet.container.id
-    }
-  }
-}
-
-resource "azurerm_network_profile" "sftp_vnet_network_profile" {
-  name                = "sftp_vnet_network_profile"
-  location            = var.location
-  resource_group_name = var.resource_group
-
-  container_network_interface {
-    name = "sftp_container_vnet_network_interface"
-    ip_configuration {
-      name      = "sftp_container_vnet_ip_configuration"
-      subnet_id = data.azurerm_subnet.container_subnet.id
-    }
-  }
-}
-
 resource "azurerm_container_group" "sftp_container" {
   name                = "${var.resource_prefix}-sftpserver"
   location            = var.location
   resource_group_name = var.resource_group
   ip_address_type     = "Private"
-  network_profile_id  = azurerm_network_profile.sftp_vnet_network_profile.id
+  subnet_ids          = [data.azurerm_subnet.container_subnet.id]
   os_type             = "Linux"
   restart_policy      = "Always"
 
@@ -43,7 +15,7 @@ resource "azurerm_container_group" "sftp_container" {
 
   container {
     name   = "${var.resource_prefix}-sftpserver"
-    image  = "atmoz/sftp:alpine"
+    image  = "ghcr.io/cdcgov/prime-reportstream_sftp:alpine"
     cpu    = 1.0
     memory = 1.5
 
@@ -73,23 +45,15 @@ resource "azurerm_container_group" "sftp_container" {
     environment = var.environment
   }
 
-  lifecycle {
-    # Workaround. TF thinks this is a new resource after import
-    ignore_changes = [
-      container[0].volume[0],
-    ]
-  }
-
   depends_on = [
-    azurerm_storage_share.sftp_share,
-    azurerm_network_profile.sftp_vnet_network_profile
+    azurerm_storage_share.sftp_share
   ]
 }
 
 resource "azurerm_storage_share" "sftp_share" {
   name                 = "${var.resource_prefix}-sftpserver"
   storage_account_name = var.storage_account.name
-
+  quota                = 5120
   depends_on = [
     var.storage_account
   ]

@@ -18,6 +18,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserJksCredential
@@ -44,9 +45,11 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
         transportType: TransportType,
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
+        externalFileName: String,
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
+        reportEventService: IReportStreamEventService,
     ): RetryItems? {
         // DevNote: This code is similar to the SFTP code in structure
         //
@@ -56,7 +59,6 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
             if (header.content == null) error("No content to send for report $reportId")
             val receiver = header.receiver ?: error("No receiver defined for report $reportId")
             val credential = lookupCredentials(receiver.fullName)
-            val externalFileName = Report.formExternalFilename(header, metadata)
 
             // Log the useful correlations of ids
             context.logger.info("${receiver.fullName}: Ready to send $reportId($sentReportId) to $externalFileName")
@@ -74,7 +76,9 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
                 null,
                 as2Info.toString(),
                 msg,
-                header
+                header,
+                reportEventService,
+                this::class.java.simpleName
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null

@@ -22,6 +22,8 @@ data class ExpectedSubmissionList(
     val topic: String?,
     val reportItemCount: Int?,
     val externalName: String? = "",
+    val fileName: String? = "",
+    val fileType: String? = "",
 )
 
 /**

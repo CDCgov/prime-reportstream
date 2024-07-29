@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.history.azure
 
+import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -8,10 +9,15 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
+import gov.cdc.prime.router.history.db.ReportGraph
+import java.util.UUID
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * Submissions API
@@ -86,10 +92,20 @@ class SubmissionFunction(
      * @return
      */
     override fun singleDetailedHistory(
-        queryParams: MutableMap<String, String>,
+        id: String,
+        txn: DataAccessTransaction,
         action: Action,
     ): DetailedSubmissionHistory? {
-        return submissionsFacade.findDetailedSubmissionHistory(action)
+        val report = try {
+            val reportId = UUID.fromString(id)
+            submissionsFacade.findDetailedSubmissionHistory(txn, reportId, action)
+        } catch (ex: IllegalArgumentException) {
+            // We cannot consistently use this logic because the covid pipeline can process reports
+            // synchronously such that the intial action has multiple reports associated (i.e. receive and send)
+            val report = submissionsFacade.fetchReportForActionId(action.actionId, txn)
+            submissionsFacade.findDetailedSubmissionHistory(txn, report?.reportId, action)
+        }
+        return report
     }
 
     /**
@@ -125,5 +141,43 @@ class SubmissionFunction(
         @BindingName("id") id: String,
     ): HttpResponseMessage {
         return this.getDetailedView(request, id)
+    }
+
+    /**
+     * Endpoint for intermediary senders to verify status of messages. It passes
+     * a null engine to the retrieveMetadata function because Azure gets upset if there
+     * are any non-annotated parameters in the method signature other than ExecutionContext
+     * and we needed the engine to be a parameter so it can be mocked for tests
+     *
+     */
+    @FunctionName("getEtorMetadataForHistory")
+    fun getEtorMetadata(
+        @HttpTrigger(
+            name = "getEtorMetadataForHistory",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "waters/report/{reportId}/history/etorMetadata"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("reportId") reportId: UUID,
+        context: ExecutionContext,
+    ): HttpResponseMessage {
+        return this.retrieveETORIntermediaryMetadata(request, reportId, context, null)
+    }
+
+    /**
+     * Function for finding the associated report ID that the intermediary knows about given the report ID that the sender is
+     * given from report stream
+     */
+    override fun getLookupId(reportId: UUID): UUID? {
+        val reportGraph = ReportGraph(workflowEngine.db)
+        var descendants: List<ReportFile> = emptyList()
+        workflowEngine.db.transactReturning { txn ->
+            // looking for the descendant batch report because RS sends the batch report ID, not the send report ID, to ReST receivers
+            descendants = reportGraph.getDescendantReports(txn, reportId, setOf(TaskAction.batch))
+        }
+
+        return descendants.stream().filter {
+            it.receivingOrg == "flexion"
+        }.findFirst().getOrNull()?.reportId
     }
 }

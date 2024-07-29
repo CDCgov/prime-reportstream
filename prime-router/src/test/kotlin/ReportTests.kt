@@ -20,11 +20,12 @@ import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
+import io.mockk.unmockkAll
 import io.mockk.unmockkObject
 import org.junit.jupiter.api.AfterEach
 import java.io.ByteArrayInputStream
@@ -39,12 +40,13 @@ import kotlin.test.fail
 class ReportTests {
     private val metadata = UnitTestUtils.simpleMetadata
 
-    val rcvr = Receiver("name", "org", Topic.TEST, CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
+    val reportService = ReportService()
+    val rcvr = Receiver("name", "org", Topic.TEST, CustomerStatus.INACTIVE, "schema", MimeFormat.CSV)
 
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
         customImageName = "azurite_report",
         customEnv = mapOf(
-        "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
+            "AZURITE_ACCOUNTS" to "devstoreaccount1:keydevstoreaccount1"
         )
     )
 
@@ -94,7 +96,7 @@ class ReportTests {
 
     @AfterEach
     fun afterEach() {
-        clearAllMocks()
+        unmockkAll()
     }
 
     @Test
@@ -871,17 +873,36 @@ class ReportTests {
 
     @Test
     fun `test format from extension`() {
-        var format = Report.Format.valueOfFromExt("csv")
-        assertThat(format).isEqualTo(Report.Format.CSV)
+        var format = MimeFormat.valueOfFromExt("csv")
+        assertThat(format).isEqualTo(MimeFormat.CSV)
 
-        format = Report.Format.valueOfFromExt("fhir")
-        assertThat(format).isEqualTo(Report.Format.FHIR)
+        format = MimeFormat.valueOfFromExt("fhir")
+        assertThat(format).isEqualTo(MimeFormat.FHIR)
 
-        format = Report.Format.valueOfFromExt("hl7")
-        assertThat(format).isEqualTo(Report.Format.HL7)
+        format = MimeFormat.valueOfFromExt("hl7")
+        assertThat(format).isEqualTo(MimeFormat.HL7)
 
         try {
-            format = Report.Format.valueOfFromExt("txt")
+            format = MimeFormat.valueOfFromExt("txt")
+            fail("Expected IllegalArgumentException, instead got $format.")
+        } catch (e: IllegalArgumentException) {
+            assertThat(e).isNotNull()
+        }
+    }
+
+    @Test
+    fun `test format from bodyFormat`() {
+        var format = MimeFormat.valueOfIgnoreCase("csv")
+        assertThat(format).isEqualTo(MimeFormat.CSV)
+
+        format = MimeFormat.valueOfIgnoreCase("fhir")
+        assertThat(format).isEqualTo(MimeFormat.FHIR)
+
+        format = MimeFormat.valueOfIgnoreCase("hl7")
+        assertThat(format).isEqualTo(MimeFormat.HL7)
+
+        try {
+            format = MimeFormat.valueOfIgnoreCase("txt")
             fail("Expected IllegalArgumentException, instead got $format.")
         } catch (e: IllegalArgumentException) {
             assertThat(e).isNotNull()
@@ -972,16 +993,16 @@ class ReportTests {
             Event.EventAction.PROCESS, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory,
             topic = Topic.FULL_ELR,
         )
+        val blobUrl = "/devstoreaccount1/container1/process%2Forg.name%2F${report.id}.${report.bodyFormat.ext}"
 
-        assertThat(report.bodyFormat).isEqualTo(Report.Format.FHIR)
+        assertThat(report.bodyFormat).isEqualTo(MimeFormat.FHIR)
         assertThat(report.itemCount).isEqualTo(1)
         assertThat(report.destination).isNotNull()
         assertThat(report.destination!!.name).isEqualTo(receiver.name)
         assertThat(report.itemLineages).isNotNull()
         assertThat(report.itemLineages!!.size).isEqualTo(1)
-        assertThat(Regex("None-${report.id}-\\d*.fhir").matches(report.name)).isTrue()
         assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
-        assertThat(blobInfo.blobUrl).endsWith("/devstoreaccount1/container1/process%2Forg.name%2F${report.name}")
+        assertThat(blobInfo.blobUrl).endsWith(blobUrl)
         assertThat(BlobAccess.downloadBlobAsByteArray(blobInfo.blobUrl, blobContainerMetadata))
             .isEqualTo(fhirMockData)
 
@@ -991,7 +1012,7 @@ class ReportTests {
             Event.EventAction.SEND, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory,
             topic = Topic.FULL_ELR,
         )
-        assertThat(report2.bodyFormat).isEqualTo(Report.Format.FHIR)
+        assertThat(report2.bodyFormat).isEqualTo(MimeFormat.FHIR)
         assertThat(report2.itemCount).isEqualTo(3)
         assertThat(report2.itemLineages).isNotNull()
         assertThat(report2.itemLineages!!.size).isEqualTo(3)
@@ -1040,16 +1061,16 @@ class ReportTests {
             Event.EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
             topic = Topic.FULL_ELR
         )
+        val blobUrl = "/devstoreaccount1/container1/process%2Forg.name%2F${report.id}.${report.bodyFormat.ext}"
 
-        assertThat(report.bodyFormat).isEqualTo(Report.Format.HL7)
+        assertThat(report.bodyFormat).isEqualTo(MimeFormat.HL7)
         assertThat(report.itemCount).isEqualTo(1)
         assertThat(report.destination).isNotNull()
         assertThat(report.destination!!.name).isEqualTo(receiver.name)
         assertThat(report.itemLineages).isNotNull()
         assertThat(report.itemLineages!!.size).isEqualTo(1)
-        assertThat(Regex("None-${report.id}-\\d*.hl7").matches(report.name)).isTrue()
         assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
-        assertThat(blobInfo.blobUrl).endsWith("/devstoreaccount1/container1/process%2Forg.name%2F${report.name}")
+        assertThat(blobInfo.blobUrl).endsWith(blobUrl)
         assertThat(BlobAccess.downloadBlobAsByteArray(blobInfo.blobUrl, blobContainerMetadata))
             .isEqualTo(hl7MockData)
 
@@ -1060,7 +1081,7 @@ class ReportTests {
             topic = Topic.FULL_ELR,
         )
         unmockkObject(BlobAccess)
-        assertThat(report2.bodyFormat).isEqualTo(Report.Format.HL7_BATCH)
+        assertThat(report2.bodyFormat).isEqualTo(MimeFormat.HL7_BATCH)
         assertThat(report2.itemCount).isEqualTo(3)
         assertThat(report2.itemLineages).isNotNull()
         assertThat(report2.itemLineages!!.size).isEqualTo(3)
@@ -1092,7 +1113,7 @@ class ReportTests {
             every { fileNameTemplates } returns emptyMap()
         }
         val mockActionHistory = mockk<ActionHistory> {
-            every { trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
+            every { trackCreatedReport(any(), any(), blobInfo = any(), externalName = any()) } returns Unit
         }
         val hl7MockData = UUID.randomUUID().toString().toByteArray() // Just some data
         val receiver = Receiver(
@@ -1105,16 +1126,15 @@ class ReportTests {
         )
 
         val reportIds = listOf(ReportId.randomUUID())
-        val externalReportName = "TestExternalName"
+        val externalReportName = "TestExternalName.hl7"
         val (report, _, blobInfo) = Report.generateReportAndUploadBlob(
             Event.EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
-            topic = Topic.FULL_ELR, externalReportName
+            topic = Topic.FULL_ELR, externalName = externalReportName
         )
 
-        assertThat(report.bodyFormat).isEqualTo(Report.Format.HL7)
-        assertThat(Regex("None-${report.id}-\\d*.hl7").matches(report.name)).isTrue()
+        assertThat(report.bodyFormat).isEqualTo(MimeFormat.HL7)
         assertThat(blobInfo.blobUrl).endsWith(
-            "/devstoreaccount1/container1/process%2Forg.name%2F$externalReportName-${report.name}"
+            "/devstoreaccount1/container1/process%2Forg.name%2F${report.id}.${report.bodyFormat.ext}"
         )
     }
 
@@ -1122,11 +1142,12 @@ class ReportTests {
     fun `test formExternalFilename from header when body url is not null`() {
         val expectedReportId = UUID.randomUUID()
         val expectedFileName = "sampleFileName-someReportId.fhir"
-        val expectedBodyUrl = "https://this/is/an/example/blob/url/$expectedFileName"
+        val expectedBodyUrl = "https://this/is/an/example/blob/url/$expectedReportId"
 
         val reportUnderTest = ReportFile()
         reportUnderTest.reportId = expectedReportId
         reportUnderTest.bodyUrl = expectedBodyUrl
+        reportUnderTest.externalName = expectedFileName
 
         val header = WorkflowEngine.Header(
             Task(),
@@ -1139,7 +1160,7 @@ class ReportTests {
             true
         )
 
-        assertThat(Report.formExternalFilename(header, metadata)).isEqualTo(expectedFileName)
+        assertThat(Report.formExternalFilename(header, reportService, metadata)).isEqualTo(expectedFileName)
     }
 
     @Test
@@ -1170,7 +1191,60 @@ class ReportTests {
             true
         )
 
-        assertThat(Report.formExternalFilename(header, metadata)).isEqualTo(expectedFileName)
+        assertThat(Report.formExternalFilename(header, reportService, metadata)).isEqualTo(expectedFileName)
+    }
+
+    @Test
+    fun `test formExternalFilename from header when receiver has a format specified`() {
+        val mockMetadata = mockk<Metadata>()
+        every { mockMetadata.fileNameTemplates } returns mapOf(
+            "aphl_light" to FileNameTemplate(
+            lowerCase = true,
+            elements = listOf(
+                "cdcprime_",
+                "receivingOrganization()",
+                "_",
+                "processingModeCode()",
+                "_",
+                "createdDate()"
+            )
+        )
+        )
+        val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+        val expectedReportId = UUID.randomUUID()
+        val expectedCreatedAtTime = OffsetDateTime.now()
+        val expectedSchemaName = "test-schema-name"
+        val expectedBodyFormat = "hl7"
+        val expectedFileName = "cdcprime_elr_production_${dateFormatter.format(expectedCreatedAtTime)}.hl7"
+        val reportUnderTest = ReportFile()
+        reportUnderTest.reportId = expectedReportId
+        reportUnderTest.schemaName = expectedSchemaName
+        reportUnderTest.bodyFormat = expectedBodyFormat
+        reportUnderTest.createdAt = expectedCreatedAtTime
+
+        val receiver = Receiver(
+            "test",
+            "ignore",
+            Topic.COVID_19,
+            translation = Hl7Configuration(
+                nameFormat = "APHL_LIGHT", receivingOrganization = "elr",
+                processingModeCode = "P", receivingApplicationName = null, receivingApplicationOID = null,
+                receivingFacilityName = null, receivingFacilityOID = null,
+                messageProfileId = null
+            )
+        )
+        val header = WorkflowEngine.Header(
+            Task(),
+            reportUnderTest,
+            null,
+            null,
+            receiver,
+            null,
+            null,
+            true
+        )
+
+        assertThat(Report.formExternalFilename(header, reportService, mockMetadata)).isEqualTo(expectedFileName)
     }
 }
 

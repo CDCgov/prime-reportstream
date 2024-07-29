@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
 
   - name: city
@@ -12,10 +14,6 @@ elements:
     value: [ '%deidentifiedValue', '%resource.postalCode' ]
     hl7Spec: [ '%{xadField}-5' ]
 
-  - name: country
-    value: [ '%resource.country' ]
-    hl7Spec: [ '%{xadField}-6' ]
-
   - name: district
     value: [ '%resource.district' ]
     hl7Spec: [ '%{xadField}-9' ]
@@ -26,4 +24,4 @@ elements:
 
   - name: xad-extension-value
     resource: '%resource.extension(%`rsext-xad-address`)'
-    schema: classpath:/metadata/hl7_mapping/datatypes/Address/XADExtension.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/Address/XADExtension.yml

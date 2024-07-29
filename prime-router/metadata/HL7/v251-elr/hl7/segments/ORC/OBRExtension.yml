@@ -1,3 +1,5 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 url:
   type: SYSTEM_URL
   value: obr-observation-request
@@ -16,7 +18,7 @@ extension:
           type: STRING
           value: OBR.2
         valueIdentifier:
-          valueOf: datatypes/EI/Identifier
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
           expressionType: resource
           specs: OBR.2
     - expressionType: nested
@@ -29,7 +31,7 @@ extension:
           type: STRING
           value: OBR.3
         valueIdentifier:
-          valueOf: datatypes/EI/Identifier
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
           expressionType: resource
           specs: OBR.3
     - expressionType: nested
@@ -44,7 +46,7 @@ extension:
           value: OBR.10
         valueReference:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
     - expressionType: nested
       vars:
         obr11: STRING, OBR.11
@@ -67,7 +69,7 @@ extension:
           value: OBR.12
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           specs: OBR.12
     - expressionType: nested
       vars:
@@ -93,7 +95,7 @@ extension:
           value: OBR.16
         valueReference:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
     - condition: $orc14 NOT_NULL && $obr17 NOT_NULL
       vars:
         orc14: STRING_ALL, ORC.14
@@ -106,7 +108,7 @@ extension:
           type: SYSTEM_URL
           value: callback-number
         valueContactPoint:
-          valueOf: datatypes/XTN/ContactPoint
+          valueOf: ../../datatypes/v251/hl7/datatypes/XTN/ContactPoint
           expressionType: resource
           constants:
             hl7v2Field: "OBR.17"
@@ -171,7 +173,7 @@ extension:
           expressionType: HL7Spec
           valueOf: OBR.22
     - expressionType: resource
-      valueOf: datatypes/MOC/Extension
+      valueOf: ../../datatypes/v251/hl7/datatypes/MOC/Extension
       vars:
         obr23: STRING_ALL, OBR.23
       condition: $obr23 NOT_NULL
@@ -190,11 +192,23 @@ extension:
           type: STRING
           expressionType: HL7Spec
           valueOf: OBR.24
+    - expressionType: nested
+      vars:
+        obr25: OBR.25
+      condition: $obr25 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.25
+        valueId:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBR.25
     - expressionType: resource
       vars:
         obr26: STRING_ALL, OBR.26
       condition: $obr26 NOT_NULL
-      valueOf: datatypes/PRL/Extension
+      valueOf: datatypes/PRL_ELR/Extension
       specs: OBR.26
       constants:
         prlExtensionName: OBR.26
@@ -210,7 +224,7 @@ extension:
           value: OBR.28
         valueReference:
           expressionType: reference
-          valueOf: datatypes/XCN/Practitioner
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
     - expressionType: nested
       vars:
         obr29: STRING_ALL, OBR.29
@@ -220,7 +234,7 @@ extension:
           type: STRING
           value: OBR.29
         valueIdentifier:
-          valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
+          valueOf: ../../datatypes/v251/hl7/datatypes/EIP/Identifier-PlacerAssignedIdentifier
           expressionType: resource
           specs: OBR.29
           constants:
@@ -236,7 +250,7 @@ extension:
           type: STRING
           value: OBR.33
         valueReference:
-          valueOf: datatypes/NDL/PractitionerRole
+          valueOf: ../../datatypes/v251/hl7/datatypes/NDL/PractitionerRole
           expressionType: reference
     - expressionType: nested
       vars:
@@ -261,7 +275,7 @@ extension:
           type: STRING
           value: OBR.39
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           expressionType: resource
     - expressionType: nested
       vars:
@@ -272,7 +286,7 @@ extension:
           type: STRING
           value: OBR.44
         valueCodeableConcept:
-          valueOf: datatypes/CNE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CNE/CodeableConcept
           expressionType: resource
           specs: OBR.44
     - expressionType: nested
@@ -286,7 +300,7 @@ extension:
           type: STRING
           value: obr-45-procedure-code-modifier
         valueCodeableConcept:
-          valueOf: datatypes/CNE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CNE/CodeableConcept
           expressionType: resource
     - expressionType: nested
       vars:
@@ -297,7 +311,7 @@ extension:
           type: STRING
           value: OBR.48
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: OBR.48
     - expressionType: nested
@@ -322,21 +336,5 @@ extension:
           value: OBR.50
         valueCodeableConcept:
           expressionType: resource
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
           specs: OBR.50
-    - condition: $orc33 NOT_NULL && $obr53 NOT_NULL
-      vars:
-        orc33: STRING_ALL, ORC.33
-        obr53: STRING_ALL, OBR.53
-      expressionType: nested
-      specs: OBR.53 *
-      generateList: true
-      expressionsMap:
-        url:
-          type: STRING
-          value: OBR.53
-        valueIdentifier:
-          valueOf: datatypes/CX/Identifier
-          expressionType: resource
-          constants:
-            CXIdentifierField: OBR.53

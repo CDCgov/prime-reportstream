@@ -1,20 +1,24 @@
 package gov.cdc.prime.router.history.azure
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
+import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.azure.ApiSearchResult
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
@@ -26,21 +30,33 @@ import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.credentials.RestCredential
+import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.history.db.Delivery
 import gov.cdc.prime.router.history.db.DeliveryDatabaseAccess
+import gov.cdc.prime.router.history.db.DeliveryHistoryDatabaseAccess
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.history.db.Submitter
 import gov.cdc.prime.router.history.db.SubmitterDatabaseAccess
 import gov.cdc.prime.router.history.db.SubmitterType
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TestDefaultJwt
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
+import gov.cdc.prime.router.transport.RESTTransport
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -60,6 +76,7 @@ import org.junit.jupiter.api.TestInstance
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.util.UUID
+import java.util.logging.Logger
 import kotlin.test.Test
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -171,7 +188,7 @@ class DeliveryFunctionTests : Logging {
                             reportId = "b9f63105-bbed-4b41-b1ad-002a90f07e62",
                             topic = "covid-19",
                             reportItemCount = 14,
-                            fileName = "covid-19-b9f63105-bbed-4b41-b1ad-002a90f07e62-20220419180426.hl7",
+                            fileName = "",
                             receivingOrgSvcStatus = "active"
                         ),
                         ExpectedDelivery(
@@ -182,7 +199,7 @@ class DeliveryFunctionTests : Logging {
                             reportId = "c3c8e304-8eff-4882-9000-3645054a30b7",
                             topic = "covid-19",
                             reportItemCount = 1,
-                            fileName = "pdi-covid-19-c3c8e304-8eff-4882-9000-3645054a30b7-20220412170610.csv",
+                            fileName = "",
                             receivingOrgSvcStatus = "active"
                         )
                     )
@@ -245,7 +262,7 @@ class DeliveryFunctionTests : Logging {
         val sender = CovidSender(
             name = "default",
             organizationName = "simple_report",
-            format = Sender.Format.CSV,
+            format = MimeFormat.CSV,
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "one"
         )
@@ -322,6 +339,7 @@ class DeliveryFunctionTests : Logging {
     private fun setupDeliveryFunctionForTesting(
         oktaClaimsOrganizationName: String,
         facade: DeliveryFacade,
+        reportService: ReportService = ReportService(),
     ): DeliveryFunction {
         val claimsMap = buildClaimsMap(oktaClaimsOrganizationName)
         val metadata = Metadata(schema = Schema(name = "one", topic = Topic.TEST))
@@ -329,7 +347,7 @@ class DeliveryFunctionTests : Logging {
         val sender = CovidSender(
             name = "default",
             organizationName = organizationName,
-            format = Sender.Format.CSV,
+            format = MimeFormat.CSV,
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "one"
         )
@@ -337,7 +355,7 @@ class DeliveryFunctionTests : Logging {
         val sender2 = CovidSender(
             name = "default",
             organizationName = otherOrganizationName,
-            format = Sender.Format.CSV,
+            format = MimeFormat.CSV,
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "one"
         )
@@ -361,6 +379,24 @@ class DeliveryFunctionTests : Logging {
         )
         settings.receiverStore[receiver2.fullName] = receiver2
 
+        val receiver3 = Receiver(
+            "flexion.etor-service-receiver-orders",
+            "flexion.etor-service-receiver-orders",
+            Topic.ETOR_TI,
+            CustomerStatus.ACTIVE,
+            mockk<TranslatorConfiguration>(),
+            emptyList(),
+            emptyList(),
+            emptyList(),
+            emptyList(),
+            false,
+            emptyList(),
+            emptyList(),
+            false,
+            "test", null, "", mockk<RESTTransportType>(), "", emptyList()
+        )
+        settings.receiverStore["flexion.etor-service-receiver-orders"] = receiver3
+
         val engine = makeEngine(metadata, settings)
         mockkObject(OktaAuthentication.Companion)
         every { OktaAuthentication.Companion.decodeJwt(any()) } returns
@@ -373,7 +409,8 @@ class DeliveryFunctionTests : Logging {
 
         return DeliveryFunction(
             deliveryFacade = facade,
-            workflowEngine = engine
+            workflowEngine = engine,
+            reportService = reportService,
         )
     }
 
@@ -636,8 +673,181 @@ class DeliveryFunctionTests : Logging {
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
     }
 
+    @Test
+    fun `test getEtorMetadata`() {
+        val goodUuid = UUID.fromString("662202ba-e3e5-4810-8cb8-161b75c63bc1")
+        val mockRequest = MockHttpRequestMessage()
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+        val mockDeliveryFacade = mockk<DeliveryFacade>()
+        val mockReportService = mockk<ReportService>()
+        val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade, mockReportService)
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
+            AuthenticatedClaims.generateTestClaims()
+
+        // Good return
+        val returnBody = DeliveryHistory(
+            550, OffsetDateTime.now(), "test", goodUuid.toString(), Topic.ETOR_TI,
+            1, "flexion", "flexion", "", "test-schema",
+            "body", "test"
+        )
+
+        returnBody.originalIngestion = listOf(
+            mapOf(
+                "ingestionTime" to OffsetDateTime.now(), "reportId" to goodUuid
+            )
+        ).toMutableList()
+
+        mockkConstructor(RESTTransport::class)
+        mockkConstructor(HttpClient::class)
+        val action = Action()
+        action.actionId = 550
+        action.sendingOrg = organizationName
+        action.actionName = TaskAction.send
+
+        val firstReport = ReportFile()
+        firstReport.reportId = UUID.randomUUID()
+        firstReport.createdAt = OffsetDateTime.parse("2023-04-18T23:36:00Z")
+
+        every { mockReportService.getRootReport(any()) } returns firstReport
+
+        every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
+        every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
+        every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns returnBody
+        every { mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
+
+        val restCreds = mockk<RestCredential>()
+        val userCreds = mockk<UserJksCredential>()
+
+        val creds = Pair(restCreds, userCreds)
+
+        every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
+
+        every { anyConstructed<RESTTransport>().getHeaders(any(), any()) } returns mutableMapOf("a" to "b")
+
+        coEvery {
+            anyConstructed<RESTTransport>().getOAuthToken(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns "TEST"
+
+        val mock = MockEngine {
+            respond(
+                "{}",
+                HttpStatusCode.OK,
+                headersOf("Content-Type", ContentType.Application.Json.toString())
+            )
+        }
+
+        val customContext = mockk<ExecutionContext>()
+        every { customContext.logger } returns mockk<Logger>()
+
+        val response = function.retrieveETORIntermediaryMetadata(
+            mockRequest, goodUuid, customContext, mock, "etor_base_url"
+        )
+
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+    }
+
+    @Test
+    fun `test getEtorMetadata returns 401 when not authorized`() {
+        val badUuid = "762202ba-e3e5-4810-8cb8-161b75c63bc1"
+        val mockRequest = MockHttpRequestMessage()
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+        val mockDeliveryFacade = mockk<DeliveryFacade>()
+        val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade)
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
+            null
+
+        val customContext = mockk<ExecutionContext>()
+        every { customContext.logger } returns mockk<Logger>()
+
+        val response = function.retrieveETORIntermediaryMetadata(
+            mockRequest, UUID.fromString(badUuid), customContext, null, "etor_base_url"
+        )
+
+        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+        assertThat(response.body.toString()).isEqualTo("{\"error\": \"Authentication Failed\"}")
+    }
+
+    @Test
+    fun `test getEtorMetadata returns 500 when the ETOR TI base URL is not set`() {
+        val mockRequest = MockHttpRequestMessage()
+        val mockDeliveryFacade = mockk<DeliveryFacade>()
+        val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade)
+
+        val customContext = mockk<ExecutionContext>()
+        every { customContext.logger } returns mockk<Logger>()
+
+        val response = function.retrieveETORIntermediaryMetadata(
+            mockRequest, UUID.randomUUID(), customContext, null, null
+        )
+
+        assertThat(response.status).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+        assertThat(response.body.toString()).contains("ETOR_TI_baseurl")
+    }
+
+    @Test
+    fun `test getEtorMetadata returns 404 when ID is invalid`() {
+        val badUuid = "762202ba-e3e5-4810-8cb8-161b75c63bc1"
+        val mockRequest = MockHttpRequestMessage()
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+        val mockDeliveryFacade = mockk<DeliveryFacade>()
+        val mockReportService = mockk<ReportService>()
+        val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade, mockReportService)
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
+            AuthenticatedClaims.generateTestClaims()
+
+        mockkConstructor(RESTTransport::class)
+        mockkConstructor(HttpClient::class)
+        val action = Action()
+        action.actionId = 550
+        action.sendingOrg = organizationName
+        action.actionName = TaskAction.send
+
+        every { mockReportService.getRootReport(any()) } throws IllegalStateException("can't find the root report")
+
+        every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
+        every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
+        every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns null
+        every { mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
+
+        val restCreds = mockk<RestCredential>()
+        val userCreds = mockk<UserJksCredential>()
+
+        val creds = Pair(restCreds, userCreds)
+
+        every { anyConstructed<RESTTransport>().getCredential(any(), any()) } returns creds
+
+        every { anyConstructed<RESTTransport>().getHeaders(any(), any()) } returns mutableMapOf("a" to "b")
+
+        coEvery {
+            anyConstructed<RESTTransport>().getOAuthToken(
+                any(),
+                any(),
+                any(),
+                any(),
+            )
+        } returns "TEST"
+
+        val customContext = mockk<ExecutionContext>()
+        every { customContext.logger } returns mockk<Logger>()
+
+        val response = function.retrieveETORIntermediaryMetadata(
+            mockRequest, UUID.fromString(badUuid), customContext, null, "etor_base_url"
+        )
+
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+        assertThat(response.body.toString()).isEqualTo("{\"error\": \"lookup Id not found\"}")
+    }
+
     @Nested
-    inner class TestGetSubmitters() {
+    inner class TestGetSubmitters {
         var settings = MockSettings()
         private val organization1 = Organization(
             "simple_report",
@@ -1349,7 +1559,438 @@ class DeliveryFunctionTests : Logging {
     }
 
     @Nested
-    inner class TestGetReportItems() {
+    inner class GetDeliveriesHistory {
+        var settings = MockSettings()
+        private val organization1 = Organization(
+            "ignore",
+            "simple_report_org",
+            Organization.Jurisdiction.FEDERAL,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+        private val receiver1 = Receiver(
+            "default",
+            organization1.name,
+            Topic.COVID_19,
+            schemaName = ""
+        )
+
+        private val organization2 = Organization(
+            "simple_report",
+            "simple_report_org",
+            Organization.Jurisdiction.FEDERAL,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+
+        @BeforeEach
+        fun setUp() {
+            mockkObject(BaseEngine)
+            every { BaseEngine.settingsProviderSingleton } returns settings
+            settings.organizationStore[organization1.name] = organization1
+            settings.receiverStore[receiver1.fullName] = receiver1
+            mockkObject(Metadata.Companion)
+            every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+        }
+
+        @AfterEach
+        fun tearDown() {
+            unmockkObject(AuthenticatedClaims)
+        }
+
+        @Test
+        fun `test organization members can fetch their data`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 100
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+
+            val jwt = mapOf("organization" to listOf("DHSender_simple_reportAdmins"), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            mockkObject(BaseEngine)
+            every { BaseEngine.settingsProviderSingleton.findOrganization(any()) } returns organization2
+
+            mockkConstructor(DeliveryHistoryDatabaseAccess::class)
+            every {
+                anyConstructed<DeliveryHistoryDatabaseAccess>().getDeliveries(
+                    any(), "simple_report", "default", null, null, null
+                )
+            } returns ApiSearchResult(10, 0, emptyList())
+
+            val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, "simple_report")
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+        }
+
+        @Test
+        fun `test successfully returns data for a prime admin`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 100
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+            mockkConstructor(DeliveryHistoryDatabaseAccess::class)
+            every {
+                anyConstructed<DeliveryHistoryDatabaseAccess>().getDeliveries(
+                    any(), organization1.name, null, null, null, null
+                )
+            } returns ApiSearchResult(10, 0, emptyList())
+
+            val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, organization1.name)
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+        }
+
+        @Test
+        fun `test successfully returns an API response`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 2,
+                        "limit": 1
+                    },
+                    "filters": [
+                        {
+                            "value": "2023-05-21T00:00:00+00:00",
+                            "filterName": "UNTIL"
+                        }
+                    ]
+                }
+                """.trimIndent()
+            )
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+            mockkConstructor(DeliveryHistoryDatabaseAccess::class)
+            every {
+                anyConstructed<DeliveryHistoryDatabaseAccess>().getDeliveries(
+                    any(),
+                    organization1.name, null, null, null, null
+                )
+            } returns ApiSearchResult(
+                10, 3,
+                listOf(
+                    gov.cdc.prime.router.history.db.DeliveryHistory(
+                        "provider1",
+                        OffsetDateTime.now(),
+                        OffsetDateTime.now().plusDays(60),
+                        "ignore",
+                        "hl7",
+                        "active",
+                        UUID.randomUUID().toString(),
+                        Topic.FULL_ELR,
+                        3,
+                        "http://azurite:10000/ready-401c-a449-814024613abd-20240416214600.csv",
+                        "None",
+                        "HL7"
+                    ),
+                    gov.cdc.prime.router.history.db.DeliveryHistory(
+                        "provider2",
+                        OffsetDateTime.now(),
+                        OffsetDateTime.now().plusDays(60),
+                        "ignore",
+                        "hl7",
+                        "active",
+                        UUID.randomUUID().toString(),
+                        Topic.FULL_ELR,
+                        3,
+                        "http://azurite:10000/2ec9-401c-a449-814024613abd-20240416214600.csv",
+                        "None",
+                        "HL7"
+                    ),
+                    gov.cdc.prime.router.history.db.DeliveryHistory(
+                        "provider3",
+                        OffsetDateTime.now(),
+                        OffsetDateTime.now().plusDays(60),
+                        "ignore",
+                        "hl7",
+                        "active",
+                        UUID.randomUUID().toString(),
+                        Topic.FULL_ELR,
+                        3,
+                        "http://azurite:10000/2ec9-401c-a449-814024613abd-20240416214600.csv",
+                        "None",
+                        "HL7"
+                    )
+                )
+            )
+
+            val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, organization1.name)
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+            val responseBody =
+                JacksonMapperUtilities.defaultMapper.readTree(response.body.toString())
+            assertThat(responseBody.at("/meta/totalCount").intValue()).isEqualTo(10)
+            assertThat(responseBody.at("/meta/totalFilteredCount").intValue()).isEqualTo(3)
+            assertThat(responseBody.at("/meta/type").textValue()).isEqualTo("delivery_history")
+            assertThat(responseBody.at("/meta/totalPages").intValue()).isEqualTo(3)
+            assertThat(responseBody.at("/meta/previousPage").intValue()).isEqualTo(1)
+            assertThat(responseBody.at("/meta/nextPage").intValue()).isEqualTo(3)
+            assertThat(responseBody.get("data")).isNotNull()
+            assertThat(responseBody.get("data").size()).isEqualTo(3)
+        }
+
+        @Test
+        fun `test successfully returns when sending a reportId`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 100
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+            httpRequestMessage.parameters["reportId"] = "b9f63105-bbed-4b41-b1ad-002a90f07e62"
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, receiver1.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+        }
+
+        @Test
+        fun `test successfully returns when sending a fileName`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 10
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+            httpRequestMessage.parameters["fileName"] = "a76cdb1b-f0ef-4d7d-b050-e5b171690ee9-20231201171501.hl7"
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, receiver1.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+        }
+
+        @Test
+        fun `test returns an error when sending a reportId and a filename`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 10
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+            httpRequestMessage.parameters["reportId"] = "b9f63105-bbed-4b41-b1ad-002a90f07e62"
+            httpRequestMessage.parameters["fileName"] = "a76cdb1b-f0ef-4d7d-b050-e5b171690ee9-20231201171501.hl7"
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, receiver1.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
+            assertThat(response.body).isEqualTo("Either reportId or fileName can be provided")
+        }
+
+        @Test
+        fun `test returns an error when sending an invalid reportId`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 10
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+            httpRequestMessage.parameters["reportId"] = "b9f63105-"
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, receiver1.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
+            assertThat(response.body).isEqualTo("{\"error\": \"Invalid format for report ID: b9f63105-\"}")
+        }
+
+        @Test
+        fun `test successfully returns when sending a single receivingOrgSvcStatus`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 10
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+            httpRequestMessage.parameters["receivingOrgSvcStatus"] = "ACTIVE"
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, receiver1.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+        }
+
+        @Test
+        fun `test successfully returns when sending multiple receivingOrgSvcStatus`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 10
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+            httpRequestMessage.parameters["receivingOrgSvcStatus"] = "ACTIVE"
+            httpRequestMessage.parameters["receivingOrgSvcStatus"] = "INACTIVE"
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, receiver1.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+        }
+
+        @Test
+        fun `test returns an error when sending an invalid receivingOrgSvcStatus`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 10
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+            httpRequestMessage.parameters["receivingOrgSvcStatus"] = "active"
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = DeliveryFunction().getDeliveriesHistory(httpRequestMessage, receiver1.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
+        }
+    }
+
+    @Nested
+    inner class TestGetReportItems {
 
         @BeforeEach
         fun setUp() {

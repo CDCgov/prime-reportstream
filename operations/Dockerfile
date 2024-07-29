@@ -5,9 +5,8 @@ ARG AZURE_CLI_VERSION
 RUN \
   apk update && \
   apk add bash py-pip git && \
-  pip install --upgrade pip --use-pep517 && \
   apk add --virtual=build gcc libffi-dev musl-dev openssl-dev python3-dev make && \
-  pip install azure-cli==${AZURE_CLI_VERSION} && \
+  pip install --break-system-packages azure-cli==${AZURE_CLI_VERSION} && \
   apk del --purge build 
 
 # The following files need a Maj.min.rev specification that matches the values from $TERRAFORM_VERSION:

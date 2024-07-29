@@ -97,8 +97,9 @@ resource "azurerm_function_app" "admin" {
   }
   lifecycle {
     ignore_changes = [
-      tags,
-      site_config[0].ip_restriction
+      # validated 5/29/2024
+      site_config[0].ip_restriction,
+      app_settings["SCM_DO_BUILD_DURING_DEPLOYMENT"]
     ]
   }
   depends_on = [

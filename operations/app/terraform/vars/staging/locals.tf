@@ -15,6 +15,7 @@ locals {
     RS_OKTA_scope         = "reportstream_dev"
     storage_queue_name    = ["process", "batch", "batch-poison", "elr-fhir-convert", "process-poison", "send", "send-poison", "elr-fhir-convert", "elr-fhir-convert-poison", "elr-fhir-route", "elr-fhir-translate", "elr-fhir-translate-poison", "process-elr"]
     sftp_container_module = true
+    etor_ti_base_url      = "https://cdcti-stg-api.azurewebsites.net"
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig"
@@ -29,7 +30,7 @@ locals {
   }
   security = {
     rsa_key_2048                  = null
-    rsa_key_4096                  = null
+    rsa_key_4096                  = "pdh${local.init.environment}-4096-key"
     https_cert_names              = ["${local.init.environment}-prime-cdc-gov", "${local.init.environment}-reportstream-cdc-gov"]
     delete_pii_storage_after_days = 60
   }

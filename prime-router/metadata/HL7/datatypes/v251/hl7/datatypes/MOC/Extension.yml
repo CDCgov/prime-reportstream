@@ -1,3 +1,5 @@
+# $schema: ./../../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
 url:
   type: STRING
   valueOf: $mocExtensionName
@@ -39,6 +41,6 @@ extension:
           type: STRING
           value: moc-2-charge-code
         valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
+          valueOf: datatypes/CE/CodeableConcept
           expressionType: resource
           specs: MOC.2

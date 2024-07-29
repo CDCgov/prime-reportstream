@@ -23,6 +23,7 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.PrunedObservationsLogMessage
 import gov.cdc.prime.router.Receiver
@@ -39,11 +40,14 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.observability.event.ConditionSummary
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
+import gov.cdc.prime.router.azure.observability.event.CodeSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
 import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
 import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
+import gov.cdc.prime.router.azure.observability.event.TestSummary
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -90,11 +94,16 @@ private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/routing
 private const val BLOB_URL = "https://blob.url"
 private const val BLOB_SUB_FOLDER_NAME = "test-sender"
 private const val BODY_URL = "https://anyblob.com"
-private const val PERFORMER_OR_PATIENT_CA = "(%performerState.exists() and %performerState = 'CA') " +
-    "or (%patientState.exists() and %patientState = 'CA')"
+private const val PERFORMER_OR_PATIENT_CA =
+    "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state" +
+        ".exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve()" +
+        ".address.state = 'CA') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and " +
+        "Bundle.entry.resource.ofType(Patient).address.state = 'CA')"
 private const val PROVENANCE_COUNT_GREATER_THAN_10 = "Bundle.entry.resource.ofType(Provenance).count() > 10"
 private const val EXCEPTION_FOUND = "exception found"
 private const val CONDITION_FILTER = "%resource.code.coding.code = '95418-0'"
+private const val SNOMED_SYSTEM = "SNOMEDCT"
+private const val LOINC_SYSTEM = "http://loinc.org"
 
 data object SampleFilters {
     /**
@@ -117,20 +126,20 @@ data object SampleFilters {
      *   At least one of order test date, specimen collection date/time, test result date
      */
     val fullElrQualityFilterSample: ReportStreamFilter = listOf(
-        "%messageId.exists()",
-        "%patient.name.family.exists()",
-        "%patient.name.given.count() > 0",
-        "%patient.birthDate.exists()",
-        "%specimen.type.exists()",
-        "(%patient.address.line.exists() or " +
-            "%patient.address.postalCode.exists() or " +
-            "%patient.telecom.exists())",
+        "Bundle.entry.resource.ofType(MessageHeader).id.exists()",
+        "Bundle.entry.resource.ofType(Patient).name.family.exists()",
+        "Bundle.entry.resource.ofType(Patient).name.given.count() > 0",
+        "Bundle.entry.resource.ofType(Patient).birthDate.exists()",
+        "Bundle.entry.resource.ofType(Specimen).type.exists()",
+        "(Bundle.entry.resource.ofType(Patient).address.line.exists() or " +
+            "Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or " +
+            "Bundle.entry.resource.ofType(Patient).telecom.exists())",
         "(" +
-            "(%specimen.collection.collectedPeriod.exists() or " +
-            "%specimen.collection.collected.exists()" +
+            "(Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or " +
+            "Bundle.entry.resource.ofType(Specimen).collection.collected.exists()" +
             ") or " +
-            "%serviceRequest.occurrence.exists() or " +
-            "%observation.effective.exists())",
+            "Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or " +
+            "Bundle.entry.resource.ofType(Observation).effective.exists())",
     )
 
     /**
@@ -138,7 +147,7 @@ data object SampleFilters {
      *   Must have message ID
      */
     val etorTiQualityFilterSample: ReportStreamFilter = listOf(
-        "%messageId.exists()",
+        "Bundle.entry.resource.ofType(MessageHeader).id.exists()",
     )
 
     /**
@@ -153,8 +162,9 @@ data object SampleFilters {
      *  Processing mode filter sample for receivers on ETOR_TI or FULL_ELR:
      *  Must have a processing mode id of 'P'
      */
+    @Suppress("ktlint:standard:max-line-length")
     val processingModeFilterSample: ReportStreamFilter = listOf(
-        "%processingId.exists() and %processingId = 'P'"
+        "Bundle.entry.resource.ofType(MessageHeader).meta.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id').value.coding.code = 'P'"
     )
 }
 
@@ -167,6 +177,7 @@ class FhirRouterTests {
     private val actionHistory = ActionHistory(TaskAction.route)
     private val azureEventService = InMemoryAzureEventService()
     private val reportServiceMock = mockk<ReportService>()
+    private val submittedId = UUID.randomUUID()
 
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
@@ -348,8 +359,8 @@ class FhirRouterTests {
         )
     )
 
-    val csv = """
-            variable,fhirPath
+    val csv =
+        """variable,fhirPath
             processingId,Bundle.entry.resource.ofType(MessageHeader).meta.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id').value.coding.code
             messageId,Bundle.entry.resource.ofType(MessageHeader).id
             patient,Bundle.entry.resource.ofType(Patient)
@@ -376,6 +387,11 @@ class FhirRouterTests {
     )
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
+        val rootReport = mockk<ReportFile>()
+        every { rootReport.reportId } returns submittedId
+        every { rootReport.sendingOrg } returns "sendingOrg"
+        every { rootReport.sendingOrgClient } returns "sendingOrgClient"
+        every { reportServiceMock.getRootReport(any()) } returns rootReport
         every { reportServiceMock.getSenderName(any()) } returns "sendingOrg.sendingOrgClient"
 
         return FHIREngine.Builder()
@@ -526,7 +542,7 @@ class FhirRouterTests {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "6142004", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "6142004", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -584,14 +600,15 @@ class FhirRouterTests {
     @Test
     fun `test applyFilters receiver setting - (mappedConditionFilter multiple filters, one true) `() {
         @Suppress("ktlint:standard:max-line-length")
-        val fhirRecord = """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
+        val fhirRecord =
+            """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
         val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
         val bundle = FhirContext.forR4().newJsonParser().parseResource(Bundle::class.java, fhirRecord)
         bundle.entry.filter { it.resource is Observation }.forEach {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "6142004", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "6142004", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -648,14 +665,15 @@ class FhirRouterTests {
     @Test
     fun `test applyFilters receiver setting - (mappedConditionFilter multiple filters, none true) `() {
         @Suppress("ktlint:standard:max-line-length")
-        val fhirRecord = """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
+        val fhirRecord =
+            """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
         val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
         val bundle = FhirContext.forR4().newJsonParser().parseResource(Bundle::class.java, fhirRecord)
         bundle.entry.filter { it.resource is Observation }.forEach {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "foo", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "foo", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -731,7 +749,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -775,7 +793,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -821,7 +839,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -867,7 +885,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -913,7 +931,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -964,7 +982,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1015,7 +1033,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1053,7 +1071,7 @@ class FhirRouterTests {
             if (coding.extension.isEmpty()) {
                 coding.addExtension(
                     conditionCodeExtensionURL,
-                        Coding(
+                    Coding(
                         "system", "AOE", "name"
                     )
                 )
@@ -1077,7 +1095,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1108,14 +1126,15 @@ class FhirRouterTests {
     @Test
     fun `fail - all pass other than the mapped condition filter fails`() {
         @Suppress("ktlint:standard:max-line-length")
-        val fhirRecord = """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
+        val fhirRecord =
+            """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
         val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
         val bundle = FhirContext.forR4().newJsonParser().parseResource(Bundle::class.java, fhirRecord)
         bundle.entry.filter { it.resource is Observation }.forEach {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "foo", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "foo", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -1140,7 +1159,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1164,8 +1183,8 @@ class FhirRouterTests {
             val messages = engine.run(message, actionLogger, actionHistory, txn)
             assertThat(messages).isEmpty()
             assertThat(actionHistory.actionLogs).hasSize(1) // bundle did not pass filter
-             val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
-             assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.MAPPED_CONDITION_FILTER)
+            val reportStreamFilterResult = actionHistory.actionLogs[0].detail as ReportStreamFilterResult
+            assertThat(reportStreamFilterResult.filterType).isEqualTo(ReportStreamFilterType.MAPPED_CONDITION_FILTER)
         }
     }
 
@@ -1177,7 +1196,7 @@ class FhirRouterTests {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "6142004", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "6142004", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -1202,7 +1221,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1262,7 +1281,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1326,7 +1345,7 @@ class FhirRouterTests {
         val expectedBundle = originalBundle
             .filterObservations(listOf(CONDITION_FILTER), engine.loadFhirPathShorthandLookupTable())
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1366,13 +1385,14 @@ class FhirRouterTests {
     @Test
     fun `test the bundle queued for the translate function is filtered to mapped conditions the receiver wants`() {
         @Suppress("ktlint:standard:max-line-length")
-        val fhirRecord = """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
+        val fhirRecord =
+            """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c", "system": "https://reportstream.cdc.gov/prime-router"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
 
         val bundle = FhirContext.forR4().newJsonParser().parseResource(Bundle::class.java, fhirRecord)
         bundle.getObservations().forEach { observation ->
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "6142004", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "6142004", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -1400,7 +1420,7 @@ class FhirRouterTests {
         val expectedBundle = bundle
             .filterMappedObservations(listOf(CodeStringConditionFilter("6142004"))).second
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1430,36 +1450,66 @@ class FhirRouterTests {
             assertThat(actionHistory.reportsOut).hasSize(1)
 
             val reportId = (messages.first() as ReportPipelineMessage).reportId
+            val expectedObservationSummary = listOf(
+                ObservationSummary(
+                    listOf(
+                        TestSummary(
+                            listOf(
+                                CodeSummary(
+                                    SNOMED_SYSTEM,
+                                    "6142004",
+                                    "Influenza (disorder)"
+                                ),
+                            ),
+                            testPerformedCode = "80382-5",
+                            testPerformedSystem = LOINC_SYSTEM,
+                        )
+                    )
+                ),
+            )
             val expectedAzureEvents = listOf(
                 ReportAcceptedEvent(
                     message.reportId,
+                    submittedId,
                     message.topic,
                     "sendingOrg.sendingOrgClient",
                     listOf(
                         ObservationSummary(
                             listOf(
-                                ConditionSummary("6142004", "Influenza (disorder)"),
-                                ConditionSummary("Some Condition Code", "Condition Name")
+                                TestSummary(
+                                    listOf(
+                                        CodeSummary(
+                                            SNOMED_SYSTEM,
+                                            "6142004",
+                                            "Influenza (disorder)"
+                                        ),
+                                    ),
+                                    testPerformedCode = "80382-5",
+                                    testPerformedSystem = LOINC_SYSTEM,
+                                )
                             )
-                        )
+                        ),
                     ),
-                    1945
+                    1998,
+                    AzureEventUtils.MessageID(
+                        "1234d1d1-95fe-462c-8ac6-46728dba581c",
+                        "https://reportstream.cdc.gov/prime-router"
+                    )
                 ),
                 ReportRouteEvent(
-                    message.reportId,
                     reportId,
+                    message.reportId,
+                    submittedId,
                     message.topic,
                     "sendingOrg.sendingOrgClient",
                     orgWithMappedConditionFilter.receivers.first().fullName,
-                    listOf(
-                        ObservationSummary(
-                            listOf(
-                                ConditionSummary("6142004", "Influenza (disorder)"),
-                                ConditionSummary("Some Condition Code", "Condition Name")
-                            )
-                        )
-                    ),
-                    1945
+                    expectedObservationSummary,
+                    expectedObservationSummary,
+                    1998,
+                    AzureEventUtils.MessageID(
+                        "1234d1d1-95fe-462c-8ac6-46728dba581c",
+                        "https://reportstream.cdc.gov/prime-router"
+                    )
                 )
             )
 
@@ -1498,7 +1548,7 @@ class FhirRouterTests {
 
         val originalBundle = FhirTranscoder.decode(fhirData)
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -1557,7 +1607,7 @@ class FhirRouterTests {
                 )
             )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         every { engine.findReceiversForBundle(any(), any(), any(), any()) } returns emptyList()
@@ -1580,41 +1630,127 @@ class FhirRouterTests {
             val azureEvents = azureEventService.getEvents()
             val expectedAcceptedEvent = ReportAcceptedEvent(
                 message.reportId,
+                submittedId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
                 listOf(
                     ObservationSummary(
-                        ConditionSummary(
-                            "840539006",
-                            "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                        listOf(
+                            TestSummary(
+                                listOf(
+                                    CodeSummary(
+                                        SNOMED_SYSTEM,
+                                        "840539006",
+                                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                    )
+                                ),
+                                testPerformedSystem = LOINC_SYSTEM,
+                                testPerformedCode = "94558-4",
+                            )
                         )
                     ),
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95418-0",
+                                testPerformedSystem = LOINC_SYSTEM
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95417-2",
+                                testPerformedSystem = LOINC_SYSTEM
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95421-4",
+                                testPerformedSystem = LOINC_SYSTEM
+                            )
+                        )
+                    ),
+                    ObservationSummary(
+                        listOf(
+                            TestSummary(
+                                testPerformedCode = "95419-8",
+                                testPerformedSystem = LOINC_SYSTEM
+                            )
+                        )
+                    )
                 ),
-                36942
+                36995,
+                AzureEventUtils.MessageID(
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
+                    "https://reportstream.cdc.gov/prime-router"
+                )
+            )
+            val observationSummaries = listOf(
+                ObservationSummary(
+                    listOf(
+                        TestSummary(
+                            listOf(
+                                CodeSummary(
+                                    SNOMED_SYSTEM,
+                                    "840539006",
+                                    "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                ),
+                            ),
+                            testPerformedSystem = LOINC_SYSTEM,
+                            testPerformedCode = "94558-4",
+                        )
+                    )
+                ),
+                ObservationSummary(
+                    listOf(
+                        TestSummary(
+                            testPerformedCode = "95418-0",
+                            testPerformedSystem = LOINC_SYSTEM
+                        )
+                    )
+                ),
+                ObservationSummary(
+                    listOf(
+                        TestSummary(
+                            testPerformedCode = "95417-2",
+                            testPerformedSystem = LOINC_SYSTEM
+                        )
+                    )
+                ),
+                ObservationSummary(
+                    listOf(
+                        TestSummary(
+                            testPerformedCode = "95421-4",
+                            testPerformedSystem = LOINC_SYSTEM
+                        )
+                    )
+                ),
+                ObservationSummary(
+                    listOf(
+                        TestSummary(
+                            testPerformedCode = "95419-8",
+                            testPerformedSystem = LOINC_SYSTEM
+                        )
+                    )
+                )
             )
             val expectedRoutedEvent = ReportRouteEvent(
-                message.reportId,
                 UUID.randomUUID(),
+                message.reportId,
+                submittedId,
                 message.topic,
                 "sendingOrg.sendingOrgClient",
                 null,
-                listOf(
-                    ObservationSummary(
-                        ConditionSummary(
-                            "840539006",
-                            "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
-                        )
-                    ),
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY,
-                    ObservationSummary.EMPTY
-                ),
-                36942
+                observationSummaries,
+                observationSummaries,
+                36995,
+                AzureEventUtils.MessageID(
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
+                    "https://reportstream.cdc.gov/prime-router"
+                )
             )
             assertThat(azureEvents).hasSize(2)
             assertThat(azureEvents.first())
@@ -1753,7 +1889,7 @@ class FhirRouterTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         // filters
@@ -2022,14 +2158,15 @@ class FhirRouterTests {
     @Test
     fun `test applyFilters logs results for mapped condition filters`() {
         @Suppress("ktlint:standard:max-line-length")
-        val fhirRecord = """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
+        val fhirRecord =
+            """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
         val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
         val bundle = FhirContext.forR4().newJsonParser().parseResource(Bundle::class.java, fhirRecord)
         bundle.entry.filter { it.resource is Observation }.forEach {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
                 conditionCodeExtensionURL,
-                Coding("SNOMEDCT", "foo", "Influenza (disorder)")
+                Coding(SNOMED_SYSTEM, "foo", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
                 conditionCodeExtensionURL,
@@ -2107,7 +2244,11 @@ class FhirRouterTests {
         val bundle = Bundle()
         val settings = FileSettings().loadOrganizations(oneOrganization)
         // This processing mode filter evaluates to false, is equivalent to the default processingModeFilter
-        val processingModeFilter = listOf("%processingId = 'P'")
+        val processingModeFilter =
+            listOf(
+                "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = " +
+                "'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P'"
+            )
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         every { engine.evaluateFilterConditionAsAnd(any(), any(), any(), any(), any()) } returns Pair<Boolean, String?>(
             false,

@@ -1,10 +1,12 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
 elements:
 
   - name: xpn-family-name
     resource: '%resource.family'
     constants:
       hl7fnField: '%{xpnField}-1'
-    schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/FN.yml
+    schema: classpath:/metadata/hl7_mapping/v251/datatypes/HumanName/FN.yml
 
   - name: xpn-prefix
     value: [ '%resource.prefix' ]
@@ -32,4 +34,4 @@ elements:
 
   - name: xpn-extension-value
     resource: '%resource.extension(%`rsext-xpn-human-name`)'
-    schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/XPNExtension.yml
+    schema: classpath:/metadata/hl7_mapping/v251-elr/datatypes/HumanName/XPN_ELRExtension.yml
