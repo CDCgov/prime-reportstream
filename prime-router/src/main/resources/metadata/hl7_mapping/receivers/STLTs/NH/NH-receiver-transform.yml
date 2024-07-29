@@ -68,6 +68,6 @@ elements:
     hl7Spec: [ '%{MSH}-21-4' ]
 
   - name: obx-equipment-instance-identifier
-    condition: false
+    condition: "false"
 
 
