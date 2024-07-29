@@ -30,6 +30,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
@@ -37,6 +38,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.validation.AbstractItemValidator
 import gov.cdc.prime.router.validation.FHIRValidationResult
 import gov.cdc.prime.router.validation.HL7ValidationResult
@@ -82,6 +84,7 @@ class FhirConverterTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
+    val reportService: ReportService = mockk<ReportService>()
     val oneOrganization = DeepOrganization(
         "co-phd",
         "test",
@@ -134,12 +137,14 @@ class FhirConverterTests {
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).build(taskAction)
+            .reportService(reportService).blobAccess(blobMock).build(taskAction)
     }
 
     @BeforeEach
     fun reset() {
         clearAllMocks()
+        every { reportService.getRootReports(any()) } returns listOf(mockk<ReportFile>(relaxed = true))
+        every { reportService.getRootItemIndex(any(), any()) } returns 1
     }
 
     @AfterEach
@@ -325,8 +330,6 @@ class FhirConverterTests {
 
         // assert
         verify(exactly = 1) {
-            // TODO clean up assertions
-//            engine.getContentFromFHIR(any(), any())
             actionHistory.trackExistingInputReport(any())
         }
         verify(exactly = 2) {
@@ -612,8 +615,9 @@ class FhirConverterTests {
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every { mockMessage.downloadContent() } returns "{\"id\":}"
-            val bundles = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
-            assertThat(bundles).isEmpty()
+            val processedItems = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
+            assertThat(processedItems).hasSize(1)
+            assertThat(processedItems.first().bundle).isNull()
             assertThat(actionLogger.errors.map { it.detail.message }).contains(
                 @Suppress("ktlint:standard:max-line-length")
                 "Item 1 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected character ('}' (code 125)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n at [line: 1, column: 7]"
@@ -640,8 +644,9 @@ class FhirConverterTests {
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every { mockMessage.downloadContent() } returns "{\"id\":\"1\", \"resourceType\":\"Bundle\"}"
-            val bundles = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
-            assertThat(bundles).isEmpty()
+            val processedItems = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
+            assertThat(processedItems).hasSize(1)
+            assertThat(processedItems.first().bundle).isNull()
             assertThat(actionLogger.errors.map { it.detail.message }).contains(
                 "Item 1 in the report was not valid. Reason: Validation failed"
             )
@@ -657,8 +662,9 @@ class FhirConverterTests {
             every {
                 mockMessage.downloadContent()
             } returns unparseableHL7
-            val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
-            assertThat(bundles).isEmpty()
+            val processedItems = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
+            assertThat(processedItems).hasSize(1)
+            assertThat(processedItems.first().bundle).isNull()
             assertThat(
                 actionLogger.errors.map {
                     it.detail.message
@@ -690,8 +696,9 @@ class FhirConverterTests {
             every {
                 mockMessage.downloadContent()
             } returns simpleHL7
-            val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
-            assertThat(bundles).isEmpty()
+            val processedItems = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
+            assertThat(processedItems).hasSize(1)
+            assertThat(processedItems.first().bundle).isNull()
             @Suppress("ktlint:standard:max-line-length")
             assertThat(
                 actionLogger.errors.map {
@@ -717,8 +724,9 @@ class FhirConverterTests {
             every {
                 mockMessage.downloadContent()
             } returns simpleHL7
-            val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
-            assertThat(bundles).isEmpty()
+            val processedItems = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
+            assertThat(processedItems).hasSize(1)
+            assertThat(processedItems.first().bundle).isNull()
             assertThat(
                 actionLogger.errors.map {
                     it.detail.message
@@ -741,8 +749,8 @@ class FhirConverterTests {
             } returns """{\"id\":}
                 {"id":"1", "resourceType":"Bundle"}
             """.trimMargin()
-            val bundles = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
-            assertThat(bundles).hasSize(1)
+            val processedItems = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
+            assertThat(processedItems).hasSize(2)
             assertThat(actionLogger.errors.map { it.detail.message }).contains(
                 @Suppress("ktlint:standard:max-line-length")
                 "Item 1 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected character ('\\' (code 92)): was expecting double-quote to start field name\n at [line: 1, column: 2]"
