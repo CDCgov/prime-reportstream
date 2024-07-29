@@ -51,57 +51,53 @@ const test = baseTest.extend<SupportPageFixtures>({
     },
 });
 
-test.describe("Support page", () => {
-    test("has correct title", async ({ supportPage }) => {
-        await expect(supportPage.page).toHaveTitle(supportPage.title);
-        await expect(supportPage.heading).toBeVisible();
-    });
+test.describe(
+    "Support page",
+    {
+        tag: "@smoke",
+    },
+    () => {
+        test("has correct title", async ({ supportPage }) => {
+            await expect(supportPage.page).toHaveTitle(supportPage.title);
+            await expect(supportPage.heading).toBeVisible();
+        });
 
-    test("Should have a way of contacting support", async ({ supportPage }) => {
-        const contactLink = supportPage.page
-            .locator(`a[href="${site.forms.contactUs.url}"]`)
-            .first();
+        test("Should have a way of contacting support", async ({ supportPage }) => {
+            const contactLink = supportPage.page.locator(`a[href="${site.forms.contactUs.url}"]`).first();
 
-        await contactLink.scrollIntoViewIfNeeded();
-        await expect(contactLink).toBeVisible();
-    });
+            await contactLink.scrollIntoViewIfNeeded();
+            await expect(contactLink).toBeVisible();
+        });
 
-    for (const card of cards) {
-        test(`should have ${card.name} link`, async ({ supportPage }) => {
-            const cardHeader = supportPage.page.locator(".usa-card__header", {
-                hasText: card.name,
+        for (const card of cards) {
+            test(`should have ${card.name} link`, async ({ supportPage }) => {
+                const cardHeader = supportPage.page.locator(".usa-card__header", {
+                    hasText: card.name,
+                });
+
+                await expect(cardHeader).toBeVisible();
+
+                const cardContainer = cardHeader.locator("..");
+                const viewAllLink = cardContainer.locator("a").last();
+
+                await viewAllLink.click();
+                await expect(supportPage.page.locator(`#${card.anchorID}`)).toBeVisible();
+            });
+        }
+
+        test.describe("Footer", () => {
+            test("has footer", async ({ supportPage }) => {
+                await expect(supportPage.footer).toBeAttached();
             });
 
-            await expect(cardHeader).toBeVisible();
-
-            const cardContainer = cardHeader.locator("..");
-            const viewAllLink = cardContainer.locator("a").last();
-
-            await viewAllLink.click();
-            await expect(
-                supportPage.page.locator(`#${card.anchorID}`),
-            ).toBeVisible();
+            test("explicit scroll to footer and then scroll to top", async ({ supportPage }) => {
+                await expect(supportPage.footer).not.toBeInViewport();
+                await scrollToFooter(supportPage.page);
+                await expect(supportPage.footer).toBeInViewport();
+                await expect(supportPage.page.getByTestId("govBanner")).not.toBeInViewport();
+                await scrollToTop(supportPage.page);
+                await expect(supportPage.page.getByTestId("govBanner")).toBeInViewport();
+            });
         });
-    }
-
-    test.describe("Footer", () => {
-        test("has footer", async ({ supportPage }) => {
-            await expect(supportPage.footer).toBeAttached();
-        });
-
-        test("explicit scroll to footer and then scroll to top", async ({
-            supportPage,
-        }) => {
-            await expect(supportPage.footer).not.toBeInViewport();
-            await scrollToFooter(supportPage.page);
-            await expect(supportPage.footer).toBeInViewport();
-            await expect(
-                supportPage.page.getByTestId("govBanner"),
-            ).not.toBeInViewport();
-            await scrollToTop(supportPage.page);
-            await expect(
-                supportPage.page.getByTestId("govBanner"),
-            ).toBeInViewport();
-        });
-    });
-});
+    },
+);

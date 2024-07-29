@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
 
 import { format } from "date-fns";
 import {
@@ -7,12 +7,13 @@ import {
     tableDataCellValue,
     tableRows,
     TEST_ORG_AK_RECEIVER,
-    TEST_ORG_IGNORE_RECEIVER,
+    TEST_ORG_UP_RECEIVER_FULL_ELR,
     waitForAPIResponse,
 } from "../../helpers/utils";
 import * as dailyData from "../../pages/daily-data";
 import {
     applyButton,
+    DailyDataPage,
     endDate,
     endTime,
     endTimeClear,
@@ -35,15 +36,49 @@ import {
     mockGetDeliveriesForOrgAlaskaResponse,
     mockGetDeliveriesForOrgIgnoreResponse,
 } from "../../pages/report-details";
+import { test as baseTest } from "../../test";
 
 const defaultStartTime = "9:00am";
 const defaultEndTime = "11:30pm";
 
+export interface DailyDataPageFixtures {
+    dailyDataPage: DailyDataPage;
+}
+
+const test = baseTest.extend<DailyDataPageFixtures>({
+    dailyDataPage: async (
+        {
+            page: _page,
+            isMockDisabled,
+            adminLogin,
+            senderLogin,
+            receiverLogin,
+            storageState,
+            frontendWarningsLogPath,
+            isFrontendWarningsLog,
+        },
+        use,
+    ) => {
+        const page = new DailyDataPage({
+            page: _page,
+            isMockDisabled,
+            adminLogin,
+            senderLogin,
+            receiverLogin,
+            storageState,
+            frontendWarningsLogPath,
+            isFrontendWarningsLog,
+            isTestOrg: true,
+        });
+        await page.goto();
+        await use(page);
+    },
+});
+
 test.describe("Daily Data page", () => {
     test.describe("not authenticated", () => {
-        test("redirects to login", async ({ page }) => {
-            await dailyData.goto(page);
-            await expect(page).toHaveURL("/login");
+        test("redirects to login", async ({ dailyDataPage }) => {
+            await expect(dailyDataPage.page).toHaveURL("/login");
         });
     });
 
@@ -51,18 +86,12 @@ test.describe("Daily Data page", () => {
         test.use({ storageState: "e2e/.auth/admin.json" });
 
         test.describe("without org selected", () => {
-            test.beforeEach(async ({ page }) => {
-                await dailyData.goto(page);
+            test("will not load page", async ({ dailyDataPage }) => {
+                await expect(dailyDataPage.page.getByText("Cannot fetch Organization data as admin")).toBeVisible();
             });
 
-            test("will not load page", async ({ page }) => {
-                await expect(
-                    page.getByText("Cannot fetch Organization data as admin"),
-                ).toBeVisible();
-            });
-
-            test("has footer", async ({ page }) => {
-                await expect(page.locator("footer")).toBeAttached();
+            test("has footer", async ({ dailyDataPage }) => {
+                await expect(dailyDataPage.page.locator("footer")).toBeAttached();
             });
         });
 
@@ -73,12 +102,7 @@ test.describe("Daily Data page", () => {
                 await mockGetDeliveriesForOrgIgnoreResponse(page);
                 await mockGetDeliveriesForOrgIgnoreResponse(page, true);
                 await mockGetDeliveriesForOrgIgnoreResponse(page, false, true);
-                await mockGetDeliveriesForOrgIgnoreResponse(
-                    page,
-                    false,
-                    false,
-                    TEST_ORG_IGNORE_RECEIVER,
-                );
+                await mockGetDeliveriesForOrgIgnoreResponse(page, false, false, TEST_ORG_UP_RECEIVER_FULL_ELR);
                 await dailyData.goto(page);
             });
 
@@ -87,8 +111,8 @@ test.describe("Daily Data page", () => {
                 await expect(navItems).toContainText(["Daily Data"]);
             });
 
-            test("has correct title", async ({ page }) => {
-                await expect(page).toHaveTitle(/Daily Data - ReportStream/);
+            test("has correct title", async ({ dailyDataPage }) => {
+                await expect(dailyDataPage.page).toHaveTitle(dailyDataPage.title);
             });
 
             test("has receiver services dropdown", async ({ page }) => {
@@ -100,24 +124,12 @@ test.describe("Daily Data page", () => {
             });
 
             test("table has correct headers", async ({ page }) => {
-                await expect(page.locator(".usa-table th").nth(0)).toHaveText(
-                    /Report ID/,
-                );
-                await expect(page.locator(".usa-table th").nth(1)).toHaveText(
-                    /Time received/,
-                );
-                await expect(page.locator(".usa-table th").nth(2)).toHaveText(
-                    /File available until/,
-                );
-                await expect(page.locator(".usa-table th").nth(3)).toHaveText(
-                    /Items/,
-                );
-                await expect(page.locator(".usa-table th").nth(4)).toHaveText(
-                    /Filename/,
-                );
-                await expect(page.locator(".usa-table th").nth(5)).toHaveText(
-                    /Receiver/,
-                );
+                await expect(page.locator(".usa-table th").nth(0)).toHaveText(/Report ID/);
+                await expect(page.locator(".usa-table th").nth(1)).toHaveText(/Time received/);
+                await expect(page.locator(".usa-table th").nth(2)).toHaveText(/File available until/);
+                await expect(page.locator(".usa-table th").nth(3)).toHaveText(/Items/);
+                await expect(page.locator(".usa-table th").nth(4)).toHaveText(/Filename/);
+                await expect(page.locator(".usa-table th").nth(5)).toHaveText(/Receiver/);
             });
 
             test("table has pagination", async ({ page }) => {
@@ -130,37 +142,27 @@ test.describe("Daily Data page", () => {
 
             test.describe("filter", () => {
                 test.describe("onLoad", () => {
-                    test("does not have a receiver selected", async ({
-                        page,
-                    }) => {
+                    test("does not have a receiver selected", async ({ page }) => {
                         await expect(receiverDropdown(page)).toBeAttached();
                         await expect(receiverDropdown(page)).toHaveValue("");
                     });
 
-                    test("'From' date does not have a value", async ({
-                        page,
-                    }) => {
+                    test("'From' date does not have a value", async ({ page }) => {
                         await expect(startDate(page)).toBeAttached();
                         await expect(startDate(page)).toHaveValue("");
                     });
 
-                    test("'To' date does not have a value", async ({
-                        page,
-                    }) => {
+                    test("'To' date does not have a value", async ({ page }) => {
                         await expect(endDate(page)).toBeAttached();
                         await expect(endDate(page)).toHaveValue("");
                     });
 
-                    test("'Start time' does not have a value", async ({
-                        page,
-                    }) => {
+                    test("'Start time' does not have a value", async ({ page }) => {
                         await expect(startTime(page)).toBeAttached();
                         await expect(startTime(page)).toHaveText("");
                     });
 
-                    test("'End time'' does not have a value", async ({
-                        page,
-                    }) => {
+                    test("'End time'' does not have a value", async ({ page }) => {
                         await expect(endTime(page)).toBeAttached();
                         await expect(endTime(page)).toHaveText("");
                     });
@@ -168,18 +170,14 @@ test.describe("Daily Data page", () => {
 
                 test.describe("with receiver selected", () => {
                     test.beforeEach(async ({ page }) => {
-                        await page
-                            .locator("#receiver-dropdown")
-                            .selectOption(TEST_ORG_IGNORE_RECEIVER);
+                        await page.locator("#receiver-dropdown").selectOption(TEST_ORG_UP_RECEIVER_FULL_ELR);
                     });
 
                     test.afterEach(async ({ page }) => {
                         await filterReset(page).click();
                     });
 
-                    test.skip("table loads with selected receiver data", async ({
-                        page,
-                    }) => {
+                    test.skip("table loads with selected receiver data", async ({ page }) => {
                         await page
                             .getByRole("button", {
                                 name: "Apply",
@@ -187,24 +185,14 @@ test.describe("Daily Data page", () => {
                             .click();
 
                         // Check that table data contains the receiver selected
-                        await expectTableColumnValues(
-                            page,
-                            5,
-                            `${TEST_ORG_IGNORE_RECEIVER}`,
-                        );
+                        await expectTableColumnValues(page, 5, `${TEST_ORG_UP_RECEIVER_FULL_ELR}`);
 
                         // Check filter status lists receiver value
-                        const filterStatusText = filterStatus(page, [
-                            TEST_ORG_IGNORE_RECEIVER,
-                        ]);
-                        await expect(
-                            page.getByTestId("filter-status"),
-                        ).toContainText(filterStatusText);
+                        const filterStatusText = filterStatus(page, [TEST_ORG_UP_RECEIVER_FULL_ELR]);
+                        await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
 
                         // Receiver dropdown persists
-                        await expect(receiverDropdown(page)).toHaveValue(
-                            TEST_ORG_IGNORE_RECEIVER,
-                        );
+                        await expect(receiverDropdown(page)).toHaveValue(TEST_ORG_UP_RECEIVER_FULL_ELR);
                     });
 
                     test("with 'From' date", async ({ page }) => {
@@ -213,9 +201,7 @@ test.describe("Daily Data page", () => {
                         await setDate(page, "#start-date", 7);
 
                         // Apply button is disabled
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                     });
 
                     test("with 'To' date", async ({ page }) => {
@@ -224,45 +210,31 @@ test.describe("Daily Data page", () => {
                         await setDate(page, "#end-date", 7);
 
                         // Apply button is disabled
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                     });
 
-                    test("with 'From' date and 'Start time'", async ({
-                        page,
-                    }) => {
+                    test("with 'From' date and 'Start time'", async ({ page }) => {
                         await setDate(page, "#start-date", 7);
                         await setTime(page, "#start-time", defaultStartTime);
 
                         // Apply button is disabled
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                     });
 
-                    test("with 'From' date and 'End time'", async ({
-                        page,
-                    }) => {
+                    test("with 'From' date and 'End time'", async ({ page }) => {
                         await setDate(page, "#start-date", 7);
                         await setTime(page, "#end-time", "8:00pm");
 
                         // Apply button is disabled
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                     });
 
-                    test("with 'To' date and 'Start time'", async ({
-                        page,
-                    }) => {
+                    test("with 'To' date and 'Start time'", async ({ page }) => {
                         await setDate(page, "#end-date", 7);
                         await setTime(page, "#start-time", defaultStartTime);
 
                         // Apply button is disabled
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                     });
 
                     test("with 'To' date and 'End time'", async ({ page }) => {
@@ -270,30 +242,20 @@ test.describe("Daily Data page", () => {
                         await setTime(page, "#end-time", "8:00pm");
 
                         // Apply button is disabled
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                     });
 
-                    test("with 'Start time' and 'End time'", async ({
-                        page,
-                    }) => {
+                    test("with 'Start time' and 'End time'", async ({ page }) => {
                         // Start time
                         await setTime(page, "#start-time", defaultStartTime);
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                         await startTimeClear(page).click();
-                        await expect(page.locator("#start-time")).toHaveValue(
-                            "",
-                        );
+                        await expect(page.locator("#start-time")).toHaveValue("");
                         await expect(applyButton(page)).toBeEnabled();
 
                         // End time
                         await setTime(page, "#end-time", defaultEndTime);
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                         await endTimeClear(page).click();
                         await expect(page.locator("#end-time")).toHaveValue("");
                         await expect(applyButton(page)).toBeEnabled();
@@ -301,59 +263,43 @@ test.describe("Daily Data page", () => {
                         // Start time and End time
                         await setTime(page, "#start-time", defaultStartTime);
                         await setTime(page, "#end-time", defaultEndTime);
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                         await startTimeClear(page).click();
-                        await expect(page.locator("#start-time")).toHaveValue(
-                            "",
-                        );
+                        await expect(page.locator("#start-time")).toHaveValue("");
                         await endTimeClear(page).click();
                         await expect(page.locator("#end-time")).toHaveValue("");
                         await expect(applyButton(page)).toBeEnabled();
                     });
 
-                    test.skip("with 'From' date and 'To' date", async ({
-                        page,
-                    }) => {
+                    test.skip("with 'From' date and 'To' date", async ({ page }) => {
                         const fromDate = await setDate(page, "#start-date", 14);
                         const toDate = await setDate(page, "#end-date", 0);
 
                         // Apply button is enabled
                         await applyButton(page).click();
-                        await page
-                            .locator(".usa-table tbody")
-                            .waitFor({ state: "visible" });
+                        await page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                         // Check filter status lists receiver value
                         const filterStatusText = filterStatus(page, [
-                            TEST_ORG_IGNORE_RECEIVER,
+                            TEST_ORG_UP_RECEIVER_FULL_ELR,
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         ]);
-                        await expect(
-                            page.getByTestId("filter-status"),
-                        ).toContainText(filterStatusText);
+                        await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
                     });
 
-                    test("with 'From' date, 'To' date, 'Start time'", async ({
-                        page,
-                    }) => {
+                    test("with 'From' date, 'To' date, 'Start time'", async ({ page }) => {
                         const fromDate = await setDate(page, "#start-date", 14);
                         const toDate = await setDate(page, "#end-date", 0);
                         await setTime(page, "#start-time", defaultStartTime);
 
                         // Apply button is enabled
                         await applyButton(page).click();
-                        await page
-                            .locator(".usa-table tbody")
-                            .waitFor({ state: "visible" });
+                        await page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                         // Form values persist
                         await expect(startDate(page)).toHaveValue(fromDate);
                         await expect(endDate(page)).toHaveValue(toDate);
-                        await expect(page.locator("#start-time")).toHaveValue(
-                            defaultStartTime,
-                        );
+                        await expect(page.locator("#start-time")).toHaveValue(defaultStartTime);
 
                         // TODO: uncomment code to use with live data
                         // Check filter status lists receiver value
@@ -367,25 +313,19 @@ test.describe("Daily Data page", () => {
                         // ).toContainText(filterStatusText);
                     });
 
-                    test("with 'From' date, 'To' date, 'End time'", async ({
-                        page,
-                    }) => {
+                    test("with 'From' date, 'To' date, 'End time'", async ({ page }) => {
                         const fromDate = await setDate(page, "#start-date", 14);
                         const toDate = await setDate(page, "#end-date", 0);
                         await setTime(page, "#end-time", defaultEndTime);
 
                         // Apply button is enabled
                         await applyButton(page).click();
-                        await page
-                            .locator(".usa-table tbody")
-                            .waitFor({ state: "visible" });
+                        await page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                         // Form values persist
                         await expect(startDate(page)).toHaveValue(fromDate);
                         await expect(endDate(page)).toHaveValue(toDate);
-                        await expect(page.locator("#end-time")).toHaveValue(
-                            defaultEndTime,
-                        );
+                        await expect(page.locator("#end-time")).toHaveValue(defaultEndTime);
 
                         // TODO: uncomment code to use with live data
                         // Check filter status lists receiver value
@@ -399,9 +339,7 @@ test.describe("Daily Data page", () => {
                         // ).toContainText(filterStatusText);
                     });
 
-                    test.skip("with 'From' date, 'To' date, 'Start time', 'End time'", async ({
-                        page,
-                    }) => {
+                    test.skip("with 'From' date, 'To' date, 'Start time', 'End time'", async ({ page }) => {
                         const fromDate = await setDate(page, "#start-date", 14);
                         const toDate = await setDate(page, "#end-date", 0);
                         await setTime(page, "#start-time", defaultStartTime);
@@ -409,9 +347,7 @@ test.describe("Daily Data page", () => {
 
                         // Apply button is enabled
                         await applyButton(page).click();
-                        await page
-                            .locator(".usa-table tbody")
-                            .waitFor({ state: "visible" });
+                        await page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                         // TODO: uncomment code to use with live data
                         // Check that table data contains the dates/times that were selected
@@ -428,35 +364,27 @@ test.describe("Daily Data page", () => {
 
                         // Check filter status lists receiver value
                         const filterStatusText = filterStatus(page, [
-                            TEST_ORG_IGNORE_RECEIVER,
+                            TEST_ORG_UP_RECEIVER_FULL_ELR,
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                             `${defaultStartTime}–${defaultEndTime}`,
                         ]);
-                        await expect(
-                            page.getByTestId("filter-status"),
-                        ).toContainText(filterStatusText);
+                        await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
                     });
 
-                    test("with 'From' date, 'To' date, 'Start time' before 'End time'", async ({
-                        page,
-                    }) => {
+                    test("with 'From' date, 'To' date, 'Start time' before 'End time'", async ({ page }) => {
                         await setDate(page, "#start-date", 0);
                         await setDate(page, "#end-date", 0);
                         await setTime(page, "#start-time", defaultEndTime);
                         await setTime(page, "#end-time", defaultStartTime);
 
                         // Apply button is disabled
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                     });
                 });
 
                 test.describe("no receiver selected", () => {
                     test.beforeEach(async ({ page }) => {
-                        await page
-                            .locator("#receiver-dropdown")
-                            .selectOption("");
+                        await page.locator("#receiver-dropdown").selectOption("");
                     });
 
                     test.afterEach(async ({ page }) => {
@@ -469,9 +397,7 @@ test.describe("Daily Data page", () => {
                         await setDate(page, "#start-date", 7);
 
                         // Apply button is disabled
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                     });
 
                     test("with 'To' date", async ({ page }) => {
@@ -480,45 +406,31 @@ test.describe("Daily Data page", () => {
                         await setDate(page, "#end-date", 7);
 
                         // Apply button is disabled
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                     });
 
-                    test("with 'From' date and 'Start time'", async ({
-                        page,
-                    }) => {
+                    test("with 'From' date and 'Start time'", async ({ page }) => {
                         await setDate(page, "#start-date", 7);
                         await setTime(page, "#start-time", defaultStartTime);
 
                         // Apply button is disabled
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                     });
 
-                    test("with 'From' date and 'End time'", async ({
-                        page,
-                    }) => {
+                    test("with 'From' date and 'End time'", async ({ page }) => {
                         await setDate(page, "#start-date", 7);
                         await setTime(page, "#end-time", "8:00pm");
 
                         // Apply button is disabled
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                     });
 
-                    test("with 'To' date and 'Start time'", async ({
-                        page,
-                    }) => {
+                    test("with 'To' date and 'Start time'", async ({ page }) => {
                         await setDate(page, "#end-date", 7);
                         await setTime(page, "#start-time", defaultStartTime);
 
                         // Apply button is disabled
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                     });
 
                     test("with 'To' date and 'End time'", async ({ page }) => {
@@ -526,30 +438,20 @@ test.describe("Daily Data page", () => {
                         await setTime(page, "#end-time", "8:00pm");
 
                         // Apply button is disabled
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                     });
 
-                    test("with 'Start time' and 'End time'", async ({
-                        page,
-                    }) => {
+                    test("with 'Start time' and 'End time'", async ({ page }) => {
                         // Start time
                         await setTime(page, "#start-time", defaultStartTime);
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                         await startTimeClear(page).click();
-                        await expect(page.locator("#start-time")).toHaveValue(
-                            "",
-                        );
+                        await expect(page.locator("#start-time")).toHaveValue("");
                         await expect(applyButton(page)).toBeDisabled();
 
                         // End time
                         await setTime(page, "#end-time", defaultEndTime);
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                         await endTimeClear(page).click();
                         await expect(page.locator("#end-time")).toHaveValue("");
                         await expect(applyButton(page)).toBeDisabled();
@@ -557,58 +459,42 @@ test.describe("Daily Data page", () => {
                         // Start time and End time
                         await setTime(page, "#start-time", defaultStartTime);
                         await setTime(page, "#end-time", defaultEndTime);
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                         await startTimeClear(page).click();
-                        await expect(page.locator("#start-time")).toHaveValue(
-                            "",
-                        );
+                        await expect(page.locator("#start-time")).toHaveValue("");
                         await endTimeClear(page).click();
                         await expect(page.locator("#end-time")).toHaveValue("");
                         await expect(applyButton(page)).toBeDisabled();
                     });
 
-                    test.skip("with 'From' date and 'To' date", async ({
-                        page,
-                    }) => {
+                    test.skip("with 'From' date and 'To' date", async ({ page }) => {
                         const fromDate = await setDate(page, "#start-date", 14);
                         const toDate = await setDate(page, "#end-date", 0);
 
                         // Apply button is enabled
                         await applyButton(page).click();
-                        await page
-                            .locator(".usa-table tbody")
-                            .waitFor({ state: "visible" });
+                        await page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                         // Check filter status lists receiver value
                         const filterStatusText = filterStatus(page, [
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         ]);
-                        await expect(
-                            page.getByTestId("filter-status"),
-                        ).toContainText(filterStatusText);
+                        await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
                     });
 
-                    test("with 'From' date, 'To' date, 'Start time'", async ({
-                        page,
-                    }) => {
+                    test("with 'From' date, 'To' date, 'Start time'", async ({ page }) => {
                         const fromDate = await setDate(page, "#start-date", 14);
                         const toDate = await setDate(page, "#end-date", 0);
                         await setTime(page, "#start-time", defaultStartTime);
 
                         // Apply button is enabled
                         await applyButton(page).click();
-                        await page
-                            .locator(".usa-table tbody")
-                            .waitFor({ state: "visible" });
+                        await page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                         // Form values persist
                         await expect(startDate(page)).toHaveValue(fromDate);
                         await expect(endDate(page)).toHaveValue(toDate);
-                        await expect(page.locator("#start-time")).toHaveValue(
-                            defaultStartTime,
-                        );
+                        await expect(page.locator("#start-time")).toHaveValue(defaultStartTime);
 
                         // TODO: uncomment code to use with live data
                         // Check filter status lists receiver value
@@ -621,25 +507,19 @@ test.describe("Daily Data page", () => {
                         // ).toContainText(filterStatusText);
                     });
 
-                    test("with 'From' date, 'To' date, 'End time'", async ({
-                        page,
-                    }) => {
+                    test("with 'From' date, 'To' date, 'End time'", async ({ page }) => {
                         const fromDate = await setDate(page, "#start-date", 14);
                         const toDate = await setDate(page, "#end-date", 0);
                         await setTime(page, "#end-time", defaultEndTime);
 
                         // Apply button is enabled
                         await applyButton(page).click();
-                        await page
-                            .locator(".usa-table tbody")
-                            .waitFor({ state: "visible" });
+                        await page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                         // Form values persist
                         await expect(startDate(page)).toHaveValue(fromDate);
                         await expect(endDate(page)).toHaveValue(toDate);
-                        await expect(page.locator("#end-time")).toHaveValue(
-                            defaultEndTime,
-                        );
+                        await expect(page.locator("#end-time")).toHaveValue(defaultEndTime);
 
                         // TODO: uncomment code to use with live data
                         // Check filter status lists receiver value
@@ -652,9 +532,7 @@ test.describe("Daily Data page", () => {
                         // ).toContainText(filterStatusText);
                     });
 
-                    test.skip("with 'From' date, 'To' date, 'Start time', 'End time'", async ({
-                        page,
-                    }) => {
+                    test.skip("with 'From' date, 'To' date, 'Start time', 'End time'", async ({ page }) => {
                         const fromDate = await setDate(page, "#start-date", 14);
                         const toDate = await setDate(page, "#end-date", 0);
                         await setTime(page, "#start-time", defaultStartTime);
@@ -662,9 +540,7 @@ test.describe("Daily Data page", () => {
 
                         // Apply button is enabled
                         await applyButton(page).click();
-                        await page
-                            .locator(".usa-table tbody")
-                            .waitFor({ state: "visible" });
+                        await page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                         // TODO: uncomment code to use with live data
                         // Check that table data contains the dates/times that were selected
@@ -684,23 +560,17 @@ test.describe("Daily Data page", () => {
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                             `${defaultStartTime}–${defaultEndTime}`,
                         ]);
-                        await expect(
-                            page.getByTestId("filter-status"),
-                        ).toContainText(filterStatusText);
+                        await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
                     });
 
-                    test("with 'From' date, 'To' date, 'Start time' before 'End time'", async ({
-                        page,
-                    }) => {
+                    test("with 'From' date, 'To' date, 'Start time' before 'End time'", async ({ page }) => {
                         await setDate(page, "#start-date", 0);
                         await setDate(page, "#end-date", 0);
                         await setTime(page, "#start-time", defaultEndTime);
                         await setTime(page, "#end-time", defaultStartTime);
 
                         // Apply button is disabled
-                        await expect(applyButton(page)).toHaveAttribute(
-                            "disabled",
-                        );
+                        await expect(applyButton(page)).toHaveAttribute("disabled");
                     });
                 });
 
@@ -732,18 +602,14 @@ test.describe("Daily Data page", () => {
                     // ).toContainText(filterStatusText);
 
                     // Perform search with filters selected
-                    await page
-                        .locator("#receiver-dropdown")
-                        .selectOption(TEST_ORG_IGNORE_RECEIVER);
+                    await page.locator("#receiver-dropdown").selectOption(TEST_ORG_UP_RECEIVER_FULL_ELR);
                     // const fromDate = await setDate(page, "#start-date", 14);
                     // const toDate = await setDate(page, "#end-date", 0);
                     await setDate(page, "#start-date", 14);
                     await setDate(page, "#end-date", 0);
 
                     await applyButton(page).click();
-                    await page
-                        .locator(".usa-table tbody")
-                        .waitFor({ state: "visible" });
+                    await page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                     // Check filter status lists receiver value
                     // filterStatusText = filterStatus(page, [
@@ -770,14 +636,10 @@ test.describe("Daily Data page", () => {
 
                     // Check filter status lists receiver value
                     const filterStatusText = filterStatus(page, [reportId]);
-                    await expect(
-                        page.getByTestId("filter-status"),
-                    ).toContainText(filterStatusText);
+                    await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
 
                     //Check table data matches search
-                    expect(await tableDataCellValue(page, 0, 0)).toEqual(
-                        reportId,
-                    );
+                    expect(await tableDataCellValue(page, 0, 0)).toEqual(reportId);
                 });
 
                 test.skip("returns match for Filename", async ({ page }) => {
@@ -790,14 +652,10 @@ test.describe("Daily Data page", () => {
 
                     // Check filter status lists receiver value
                     const filterStatusText = filterStatus(page, [fileName]);
-                    await expect(
-                        page.getByTestId("filter-status"),
-                    ).toContainText(filterStatusText);
+                    await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
 
                     //Check table data matches search
-                    expect(await tableDataCellValue(page, 0, 4)).toEqual(
-                        fileName,
-                    );
+                    expect(await tableDataCellValue(page, 0, 4)).toEqual(fileName);
                 });
 
                 test("on reset clears search results", async ({ page }) => {
@@ -812,9 +670,7 @@ test.describe("Daily Data page", () => {
                 test("clears filters on search", async ({ page }) => {
                     // TODO: uncomment code to use with live data
                     // Perform search with all filters selected
-                    await page
-                        .locator("#receiver-dropdown")
-                        .selectOption(TEST_ORG_IGNORE_RECEIVER);
+                    await page.locator("#receiver-dropdown").selectOption(TEST_ORG_UP_RECEIVER_FULL_ELR);
                     // const fromDate = await setDate(page, "#start-date", 14);
                     // const toDate = await setDate(page, "#end-date", 0);
                     await setDate(page, "#start-date", 14);
@@ -823,9 +679,7 @@ test.describe("Daily Data page", () => {
                     await setTime(page, "#end-time", defaultEndTime);
 
                     await applyButton(page).click();
-                    await page
-                        .locator(".usa-table tbody")
-                        .waitFor({ state: "visible" });
+                    await page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                     // Check filter status lists receiver value
                     // let filterStatusText = filterStatus(page, [
@@ -881,12 +735,7 @@ test.describe("Daily Data page", () => {
             await mockGetDeliveriesForOrgAlaskaResponse(page);
             await mockGetDeliveriesForOrgAlaskaResponse(page, true);
             await mockGetDeliveriesForOrgAlaskaResponse(page, false, true);
-            await mockGetDeliveriesForOrgAlaskaResponse(
-                page,
-                false,
-                false,
-                TEST_ORG_AK_RECEIVER,
-            );
+            await mockGetDeliveriesForOrgAlaskaResponse(page, false, false, TEST_ORG_AK_RECEIVER);
             await dailyData.goto(page);
             await page.getByTestId("filter-form").waitFor({ state: "visible" });
         });
@@ -896,8 +745,8 @@ test.describe("Daily Data page", () => {
             await expect(navItems).toContainText(["Daily Data"]);
         });
 
-        test("has correct title", async ({ page }) => {
-            await expect(page).toHaveTitle(/Daily Data - ReportStream/);
+        test("has correct title", async ({ dailyDataPage }) => {
+            await expect(dailyDataPage.page).toHaveTitle(dailyDataPage.title);
         });
 
         test("has filter", async ({ page }) => {
@@ -905,24 +754,12 @@ test.describe("Daily Data page", () => {
         });
 
         test("table has correct headers", async ({ page }) => {
-            await expect(page.locator(".usa-table th").nth(0)).toHaveText(
-                /Report ID/,
-            );
-            await expect(page.locator(".usa-table th").nth(1)).toHaveText(
-                /Time received/,
-            );
-            await expect(page.locator(".usa-table th").nth(2)).toHaveText(
-                /File available until/,
-            );
-            await expect(page.locator(".usa-table th").nth(3)).toHaveText(
-                /Items/,
-            );
-            await expect(page.locator(".usa-table th").nth(4)).toHaveText(
-                /Filename/,
-            );
-            await expect(page.locator(".usa-table th").nth(5)).toHaveText(
-                /Receiver/,
-            );
+            await expect(page.locator(".usa-table th").nth(0)).toHaveText(/Report ID/);
+            await expect(page.locator(".usa-table th").nth(1)).toHaveText(/Time received/);
+            await expect(page.locator(".usa-table th").nth(2)).toHaveText(/File available until/);
+            await expect(page.locator(".usa-table th").nth(3)).toHaveText(/Items/);
+            await expect(page.locator(".usa-table th").nth(4)).toHaveText(/Filename/);
+            await expect(page.locator(".usa-table th").nth(5)).toHaveText(/Receiver/);
         });
 
         test("table has pagination", async ({ page }) => {
@@ -963,18 +800,14 @@ test.describe("Daily Data page", () => {
 
             test.describe("with receiver selected", () => {
                 test.beforeEach(async ({ page }) => {
-                    await page
-                        .locator("#receiver-dropdown")
-                        .selectOption(TEST_ORG_AK_RECEIVER);
+                    await page.locator("#receiver-dropdown").selectOption(TEST_ORG_AK_RECEIVER);
                 });
 
                 test.afterEach(async ({ page }) => {
                     await filterReset(page).click();
                 });
 
-                test("table loads with selected receiver data", async ({
-                    page,
-                }) => {
+                test("table loads with selected receiver data", async ({ page }) => {
                     await page
                         .getByRole("button", {
                             name: "Apply",
@@ -982,24 +815,14 @@ test.describe("Daily Data page", () => {
                         .click();
 
                     // Check that table data contains the receiver selected
-                    await expectTableColumnValues(
-                        page,
-                        5,
-                        `${TEST_ORG_AK_RECEIVER}`,
-                    );
+                    await expectTableColumnValues(page, 5, `${TEST_ORG_AK_RECEIVER}`);
 
                     // Check filter status lists receiver value
-                    const filterStatusText = filterStatus(page, [
-                        TEST_ORG_AK_RECEIVER,
-                    ]);
-                    await expect(
-                        page.getByTestId("filter-status"),
-                    ).toContainText(filterStatusText);
+                    const filterStatusText = filterStatus(page, [TEST_ORG_AK_RECEIVER]);
+                    await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
 
                     // Receiver dropdown persists
-                    await expect(receiverDropdown(page)).toHaveValue(
-                        TEST_ORG_AK_RECEIVER,
-                    );
+                    await expect(receiverDropdown(page)).toHaveValue(TEST_ORG_AK_RECEIVER);
                 });
 
                 test("with 'From' date", async ({ page }) => {
@@ -1078,47 +901,35 @@ test.describe("Daily Data page", () => {
                     await expect(applyButton(page)).toBeEnabled();
                 });
 
-                test.skip("with 'From' date and 'To' date", async ({
-                    page,
-                }) => {
+                test.skip("with 'From' date and 'To' date", async ({ page }) => {
                     const fromDate = await setDate(page, "#start-date", 14);
                     const toDate = await setDate(page, "#end-date", 0);
 
                     // Apply button is enabled
                     await applyButton(page).click();
-                    await page
-                        .locator(".usa-table tbody")
-                        .waitFor({ state: "visible" });
+                    await page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                     // Check filter status lists receiver value
                     const filterStatusText = filterStatus(page, [
                         TEST_ORG_AK_RECEIVER,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                     ]);
-                    await expect(
-                        page.getByTestId("filter-status"),
-                    ).toContainText(filterStatusText);
+                    await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
                 });
 
-                test("with 'From' date, 'To' date, 'Start time'", async ({
-                    page,
-                }) => {
+                test("with 'From' date, 'To' date, 'Start time'", async ({ page }) => {
                     const fromDate = await setDate(page, "#start-date", 14);
                     const toDate = await setDate(page, "#end-date", 0);
                     await setTime(page, "#start-time", defaultStartTime);
 
                     // Apply button is enabled
                     await applyButton(page).click();
-                    await page
-                        .locator(".usa-table tbody")
-                        .waitFor({ state: "visible" });
+                    await page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                     // Form values persist
                     await expect(startDate(page)).toHaveValue(fromDate);
                     await expect(endDate(page)).toHaveValue(toDate);
-                    await expect(page.locator("#start-time")).toHaveValue(
-                        defaultStartTime,
-                    );
+                    await expect(page.locator("#start-time")).toHaveValue(defaultStartTime);
 
                     // Check filter status lists receiver value
                     // const filterStatusText = filterStatus(page, [
@@ -1131,25 +942,19 @@ test.describe("Daily Data page", () => {
                     // ).toContainText(filterStatusText);
                 });
 
-                test("with 'From' date, 'To' date, 'End time'", async ({
-                    page,
-                }) => {
+                test("with 'From' date, 'To' date, 'End time'", async ({ page }) => {
                     const fromDate = await setDate(page, "#start-date", 14);
                     const toDate = await setDate(page, "#end-date", 0);
                     await setTime(page, "#end-time", defaultEndTime);
 
                     // Apply button is enabled
                     await applyButton(page).click();
-                    await page
-                        .locator(".usa-table tbody")
-                        .waitFor({ state: "visible" });
+                    await page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                     // Form values persist
                     await expect(startDate(page)).toHaveValue(fromDate);
                     await expect(endDate(page)).toHaveValue(toDate);
-                    await expect(page.locator("#end-time")).toHaveValue(
-                        defaultEndTime,
-                    );
+                    await expect(page.locator("#end-time")).toHaveValue(defaultEndTime);
 
                     // Check filter status lists receiver value
                     // const filterStatusText = filterStatus(page, [
@@ -1162,9 +967,7 @@ test.describe("Daily Data page", () => {
                     // ).toContainText(filterStatusText);
                 });
 
-                test.skip("with 'From' date, 'To' date, 'Start time', 'End time'", async ({
-                    page,
-                }) => {
+                test.skip("with 'From' date, 'To' date, 'Start time', 'End time'", async ({ page }) => {
                     const fromDate = await setDate(page, "#start-date", 14);
                     const toDate = await setDate(page, "#end-date", 0);
                     await setTime(page, "#start-time", defaultStartTime);
@@ -1172,9 +975,7 @@ test.describe("Daily Data page", () => {
 
                     // Apply button is enabled
                     await applyButton(page).click();
-                    await page
-                        .locator(".usa-table tbody")
-                        .waitFor({ state: "visible" });
+                    await page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                     // Only needed when using live data
                     // Check that table data contains the dates/times that were selected
@@ -1194,14 +995,10 @@ test.describe("Daily Data page", () => {
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         `${defaultStartTime}–${defaultEndTime}`,
                     ]);
-                    await expect(
-                        page.getByTestId("filter-status"),
-                    ).toContainText(filterStatusText);
+                    await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
                 });
 
-                test("with 'From' date, 'To' date, 'Start time' before 'End time'", async ({
-                    page,
-                }) => {
+                test("with 'From' date, 'To' date, 'Start time' before 'End time'", async ({ page }) => {
                     await setDate(page, "#start-date", 0);
                     await setDate(page, "#end-date", 0);
                     await setTime(page, "#start-time", defaultEndTime);
@@ -1303,9 +1100,7 @@ test.describe("Daily Data page", () => {
 
                     // Apply button is enabled
                     await applyButton(page).click();
-                    await page
-                        .getByTestId("filter-status")
-                        .waitFor({ timeout: 3000 });
+                    await page.getByTestId("filter-status").waitFor({ timeout: 3000 });
 
                     // Form values persist
                     await expect(startDate(page)).toHaveValue(fromDate);
@@ -1320,25 +1115,19 @@ test.describe("Daily Data page", () => {
                     // ).toContainText(filterStatusText);
                 });
 
-                test("with 'From' date, 'To' date, 'Start time'", async ({
-                    page,
-                }) => {
+                test("with 'From' date, 'To' date, 'Start time'", async ({ page }) => {
                     const fromDate = await setDate(page, "#start-date", 14);
                     const toDate = await setDate(page, "#end-date", 0);
                     await setTime(page, "#start-time", defaultStartTime);
 
                     // Apply button is enabled
                     await applyButton(page).click();
-                    await page
-                        .getByTestId("filter-status")
-                        .waitFor({ timeout: 3000 });
+                    await page.getByTestId("filter-status").waitFor({ timeout: 3000 });
 
                     // Form values persist
                     await expect(startDate(page)).toHaveValue(fromDate);
                     await expect(endDate(page)).toHaveValue(toDate);
-                    await expect(page.locator("#start-time")).toHaveValue(
-                        defaultStartTime,
-                    );
+                    await expect(page.locator("#start-time")).toHaveValue(defaultStartTime);
 
                     // Check filter status lists receiver value
                     // const filterStatusText = filterStatus(page, [
@@ -1350,25 +1139,19 @@ test.describe("Daily Data page", () => {
                     // ).toContainText(filterStatusText);
                 });
 
-                test("with 'From' date, 'To' date, 'End time'", async ({
-                    page,
-                }) => {
+                test("with 'From' date, 'To' date, 'End time'", async ({ page }) => {
                     const fromDate = await setDate(page, "#start-date", 14);
                     const toDate = await setDate(page, "#end-date", 0);
                     await setTime(page, "#end-time", defaultEndTime);
 
                     // Apply button is enabled
                     await applyButton(page).click();
-                    await page
-                        .getByTestId("filter-status")
-                        .waitFor({ timeout: 3000 });
+                    await page.getByTestId("filter-status").waitFor({ timeout: 3000 });
 
                     // Form values persist
                     await expect(startDate(page)).toHaveValue(fromDate);
                     await expect(endDate(page)).toHaveValue(toDate);
-                    await expect(page.locator("#end-time")).toHaveValue(
-                        defaultEndTime,
-                    );
+                    await expect(page.locator("#end-time")).toHaveValue(defaultEndTime);
 
                     // Check filter status lists receiver value
                     // const filterStatusText = filterStatus(page, [
@@ -1380,9 +1163,7 @@ test.describe("Daily Data page", () => {
                     // ).toContainText(filterStatusText);
                 });
 
-                test.skip("with 'From' date, 'To' date, 'Start time', 'End time'", async ({
-                    page,
-                }) => {
+                test.skip("with 'From' date, 'To' date, 'Start time', 'End time'", async ({ page }) => {
                     const fromDate = await setDate(page, "#start-date", 14);
                     const toDate = await setDate(page, "#end-date", 0);
                     await setTime(page, "#start-time", defaultStartTime);
@@ -1390,12 +1171,8 @@ test.describe("Daily Data page", () => {
 
                     // Apply button is enabled
                     await applyButton(page).click();
-                    await page
-                        .locator(".usa-table tbody")
-                        .waitFor({ state: "visible" });
-                    await page
-                        .getByTestId("filter-status")
-                        .waitFor({ timeout: 3000 });
+                    await page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                    await page.getByTestId("filter-status").waitFor({ timeout: 3000 });
 
                     // Only needed when using live data
                     // Check that table data contains the dates/times that were selected
@@ -1414,14 +1191,10 @@ test.describe("Daily Data page", () => {
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         `${defaultStartTime}–${defaultEndTime}`,
                     ]);
-                    await expect(
-                        page.getByTestId("filter-status"),
-                    ).toContainText(filterStatusText);
+                    await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
                 });
 
-                test("with 'From' date, 'To' date, 'Start time' before 'End time'", async ({
-                    page,
-                }) => {
+                test("with 'From' date, 'To' date, 'Start time' before 'End time'", async ({ page }) => {
                     await setDate(page, "#start-date", 0);
                     await setDate(page, "#end-date", 0);
                     await setTime(page, "#start-time", defaultEndTime);
@@ -1449,18 +1222,14 @@ test.describe("Daily Data page", () => {
                 // );
 
                 // Perform search with filters selected
-                await page
-                    .locator("#receiver-dropdown")
-                    .selectOption(TEST_ORG_AK_RECEIVER);
+                await page.locator("#receiver-dropdown").selectOption(TEST_ORG_AK_RECEIVER);
                 // const fromDate = await setDate(page, "#start-date", 14);
                 // const toDate = await setDate(page, "#end-date", 0);
                 await setDate(page, "#start-date", 14);
                 await setDate(page, "#end-date", 0);
 
                 await applyButton(page).click();
-                await page
-                    .locator(".usa-table tbody")
-                    .waitFor({ state: "visible" });
+                await page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                 // Check filter status lists receiver value
                 // filterStatusText = filterStatus(page, [
@@ -1498,9 +1267,7 @@ test.describe("Daily Data page", () => {
 
                 // Check filter status lists receiver value
                 const filterStatusText = filterStatus(page, [reportId]);
-                await expect(page.getByTestId("filter-status")).toContainText(
-                    filterStatusText,
-                );
+                await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
 
                 //Check table data matches search
                 expect(await tableDataCellValue(page, 0, 0)).toEqual(reportId);
@@ -1516,9 +1283,7 @@ test.describe("Daily Data page", () => {
 
                 // Check filter status lists receiver value
                 const filterStatusText = filterStatus(page, [fileName]);
-                await expect(page.getByTestId("filter-status")).toContainText(
-                    filterStatusText,
-                );
+                await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
 
                 //Check table data matches search
                 expect(await tableDataCellValue(page, 0, 4)).toEqual(fileName);
@@ -1535,18 +1300,14 @@ test.describe("Daily Data page", () => {
 
             test("clears filters on search", async ({ page }) => {
                 // Perform search with all filters selected
-                await page
-                    .locator("#receiver-dropdown")
-                    .selectOption(TEST_ORG_AK_RECEIVER);
+                await page.locator("#receiver-dropdown").selectOption(TEST_ORG_AK_RECEIVER);
                 const fromDate = await setDate(page, "#start-date", 14);
                 const toDate = await setDate(page, "#end-date", 0);
                 await setTime(page, "#start-time", defaultStartTime);
                 await setTime(page, "#end-time", defaultEndTime);
 
                 await applyButton(page).click();
-                await page
-                    .locator(".usa-table tbody")
-                    .waitFor({ state: "visible" });
+                await page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                 // Check filter status lists receiver value
                 let filterStatusText = filterStatus(page, [
@@ -1554,9 +1315,7 @@ test.describe("Daily Data page", () => {
                     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                     `${defaultStartTime}–${defaultEndTime}`,
                 ]);
-                await expect(page.getByTestId("filter-status")).toContainText(
-                    filterStatusText,
-                );
+                await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
 
                 // Search by Report ID
                 const reportId = await tableDataCellValue(page, 0, 0);
@@ -1565,9 +1324,7 @@ test.describe("Daily Data page", () => {
 
                 // Check filter status lists receiver value
                 filterStatusText = filterStatus(page, [reportId]);
-                await expect(page.getByTestId("filter-status")).toContainText(
-                    filterStatusText,
-                );
+                await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
 
                 // Check filters are cleared
                 await expect(receiverDropdown(page)).toHaveValue("");
@@ -1598,12 +1355,643 @@ test.describe("Daily Data page", () => {
             expect(response).toBe(200);
         });
 
-        test("has correct title", async ({ page }) => {
-            await expect(page).toHaveTitle(/Daily Data - ReportStream/);
+        test("has correct title", async ({ dailyDataPage }) => {
+            await expect(dailyDataPage.page).toHaveTitle(dailyDataPage.title);
         });
 
         test("has footer", async ({ page }) => {
             await expect(page.locator("footer")).toBeAttached();
         });
     });
+
+    test.describe(
+        "user flow smoke tests",
+        {
+            tag: "@smoke",
+        },
+        () => {
+            test.describe("admin user", () => {
+                test.use({ storageState: "e2e/.auth/admin.json" });
+
+                test.describe("Test org - UP receiver", () => {
+                    test("has correct title", async ({ dailyDataPage }) => {
+                        await expect(dailyDataPage.page).toHaveTitle(dailyDataPage.title);
+                        await expect(dailyDataPage.heading).toBeVisible();
+                    });
+
+                    test("has receiver services dropdown", async ({ dailyDataPage }) => {
+                        await expect(dailyDataPage.page.locator("#receiver-dropdown")).toBeAttached();
+                    });
+
+                    test("has filter", async ({ dailyDataPage }) => {
+                        await expect(dailyDataPage.page.getByTestId("filter-form")).toBeAttached();
+                    });
+
+                    test("table has correct headers", async ({ dailyDataPage }) => {
+                        await expect(dailyDataPage.page.locator(".usa-table th").nth(0)).toHaveText(/Report ID/);
+                        await expect(dailyDataPage.page.locator(".usa-table th").nth(1)).toHaveText(/Time received/);
+                        await expect(dailyDataPage.page.locator(".usa-table th").nth(2)).toHaveText(
+                            /File available until/,
+                        );
+                        await expect(dailyDataPage.page.locator(".usa-table th").nth(3)).toHaveText(/Items/);
+                        await expect(dailyDataPage.page.locator(".usa-table th").nth(4)).toHaveText(/Filename/);
+                        await expect(dailyDataPage.page.locator(".usa-table th").nth(5)).toHaveText(/Receiver/);
+                    });
+
+                    test("table has pagination", async ({ dailyDataPage }) => {
+                        await expect(dailyDataPage.page.getByTestId("Pagination")).toBeAttached();
+                    });
+
+                    test("has footer", async ({ dailyDataPage }) => {
+                        await expect(dailyDataPage.page.locator("footer")).toBeAttached();
+                    });
+
+                    test.describe("filter", () => {
+                        test.describe("onLoad", () => {
+                            test("does not have a receiver selected", async ({ dailyDataPage }) => {
+                                await expect(receiverDropdown(dailyDataPage.page)).toBeAttached();
+                                await expect(receiverDropdown(dailyDataPage.page)).toHaveValue("");
+                            });
+
+                            test("'From' date does not have a value", async ({ dailyDataPage }) => {
+                                await expect(startDate(dailyDataPage.page)).toBeAttached();
+                                await expect(startDate(dailyDataPage.page)).toHaveValue("");
+                            });
+
+                            test("'To' date does not have a value", async ({ dailyDataPage }) => {
+                                await expect(endDate(dailyDataPage.page)).toBeAttached();
+                                await expect(endDate(dailyDataPage.page)).toHaveValue("");
+                            });
+
+                            test("'Start time' does not have a value", async ({ dailyDataPage }) => {
+                                await expect(startTime(dailyDataPage.page)).toBeAttached();
+                                await expect(startTime(dailyDataPage.page)).toHaveText("");
+                            });
+
+                            test("'End time'' does not have a value", async ({ dailyDataPage }) => {
+                                await expect(endTime(dailyDataPage.page)).toBeAttached();
+                                await expect(endTime(dailyDataPage.page)).toHaveText("");
+                            });
+                        });
+
+                        // test.describe("with receiver selected", () => {
+                        //     test.beforeEach(async ({ page }) => {
+                        //         await page.locator("#receiver-dropdown").selectOption(TEST_ORG_UP_RECEIVER_FULL_ELR);
+                        //     });
+                        //
+                        //     test.afterEach(async ({ page }) => {
+                        //         await filterReset(page).click();
+                        //     });
+                        //
+                        //     test.skip("table loads with selected receiver data", async ({ page }) => {
+                        //         await page
+                        //             .getByRole("button", {
+                        //                 name: "Apply",
+                        //             })
+                        //             .click();
+                        //
+                        //         // Check that table data contains the receiver selected
+                        //         await expectTableColumnValues(page, 5, `${TEST_ORG_UP_RECEIVER_FULL_ELR}`);
+                        //
+                        //         // Check filter status lists receiver value
+                        //         const filterStatusText = filterStatus(page, [TEST_ORG_UP_RECEIVER_FULL_ELR]);
+                        //         await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
+                        //
+                        //         // Receiver dropdown persists
+                        //         await expect(receiverDropdown(page)).toHaveValue(TEST_ORG_UP_RECEIVER_FULL_ELR);
+                        //     });
+                        //
+                        //     test("with 'From' date", async ({ page }) => {
+                        //         await expect(startDate(page)).toHaveValue("");
+                        //
+                        //         await setDate(page, "#start-date", 7);
+                        //
+                        //         // Apply button is disabled
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //     });
+                        //
+                        //     test("with 'To' date", async ({ page }) => {
+                        //         await expect(endDate(page)).toHaveValue("");
+                        //
+                        //         await setDate(page, "#end-date", 7);
+                        //
+                        //         // Apply button is disabled
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //     });
+                        //
+                        //     test("with 'From' date and 'Start time'", async ({ page }) => {
+                        //         await setDate(page, "#start-date", 7);
+                        //         await setTime(page, "#start-time", defaultStartTime);
+                        //
+                        //         // Apply button is disabled
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //     });
+                        //
+                        //     test("with 'From' date and 'End time'", async ({ page }) => {
+                        //         await setDate(page, "#start-date", 7);
+                        //         await setTime(page, "#end-time", "8:00pm");
+                        //
+                        //         // Apply button is disabled
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //     });
+                        //
+                        //     test("with 'To' date and 'Start time'", async ({ page }) => {
+                        //         await setDate(page, "#end-date", 7);
+                        //         await setTime(page, "#start-time", defaultStartTime);
+                        //
+                        //         // Apply button is disabled
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //     });
+                        //
+                        //     test("with 'To' date and 'End time'", async ({ page }) => {
+                        //         await setDate(page, "#end-date", 7);
+                        //         await setTime(page, "#end-time", "8:00pm");
+                        //
+                        //         // Apply button is disabled
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //     });
+                        //
+                        //     test("with 'Start time' and 'End time'", async ({ page }) => {
+                        //         // Start time
+                        //         await setTime(page, "#start-time", defaultStartTime);
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //         await startTimeClear(page).click();
+                        //         await expect(page.locator("#start-time")).toHaveValue("");
+                        //         await expect(applyButton(page)).toBeEnabled();
+                        //
+                        //         // End time
+                        //         await setTime(page, "#end-time", defaultEndTime);
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //         await endTimeClear(page).click();
+                        //         await expect(page.locator("#end-time")).toHaveValue("");
+                        //         await expect(applyButton(page)).toBeEnabled();
+                        //
+                        //         // Start time and End time
+                        //         await setTime(page, "#start-time", defaultStartTime);
+                        //         await setTime(page, "#end-time", defaultEndTime);
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //         await startTimeClear(page).click();
+                        //         await expect(page.locator("#start-time")).toHaveValue("");
+                        //         await endTimeClear(page).click();
+                        //         await expect(page.locator("#end-time")).toHaveValue("");
+                        //         await expect(applyButton(page)).toBeEnabled();
+                        //     });
+                        //
+                        //     test.skip("with 'From' date and 'To' date", async ({ page }) => {
+                        //         const fromDate = await setDate(page, "#start-date", 14);
+                        //         const toDate = await setDate(page, "#end-date", 0);
+                        //
+                        //         // Apply button is enabled
+                        //         await applyButton(page).click();
+                        //         await page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                        //
+                        //         // Check filter status lists receiver value
+                        //         const filterStatusText = filterStatus(page, [
+                        //             TEST_ORG_UP_RECEIVER_FULL_ELR,
+                        //             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                        //         ]);
+                        //         await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
+                        //     });
+                        //
+                        //     test("with 'From' date, 'To' date, 'Start time'", async ({ page }) => {
+                        //         const fromDate = await setDate(page, "#start-date", 14);
+                        //         const toDate = await setDate(page, "#end-date", 0);
+                        //         await setTime(page, "#start-time", defaultStartTime);
+                        //
+                        //         // Apply button is enabled
+                        //         await applyButton(page).click();
+                        //         await page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                        //
+                        //         // Form values persist
+                        //         await expect(startDate(page)).toHaveValue(fromDate);
+                        //         await expect(endDate(page)).toHaveValue(toDate);
+                        //         await expect(page.locator("#start-time")).toHaveValue(defaultStartTime);
+                        //
+                        //         // TODO: uncomment code to use with live data
+                        //         // Check filter status lists receiver value
+                        //         // const filterStatusText = filterStatus(page, [
+                        //         //     TEST_ORG_IGNORE_RECEIVER,
+                        //         //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                        //         //     `${defaultStartTime}–${"11:59pm"}`,
+                        //         // ]);
+                        //         // await expect(
+                        //         //     page.getByTestId("filter-status"),
+                        //         // ).toContainText(filterStatusText);
+                        //     });
+                        //
+                        //     test("with 'From' date, 'To' date, 'End time'", async ({ page }) => {
+                        //         const fromDate = await setDate(page, "#start-date", 14);
+                        //         const toDate = await setDate(page, "#end-date", 0);
+                        //         await setTime(page, "#end-time", defaultEndTime);
+                        //
+                        //         // Apply button is enabled
+                        //         await applyButton(page).click();
+                        //         await page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                        //
+                        //         // Form values persist
+                        //         await expect(startDate(page)).toHaveValue(fromDate);
+                        //         await expect(endDate(page)).toHaveValue(toDate);
+                        //         await expect(page.locator("#end-time")).toHaveValue(defaultEndTime);
+                        //
+                        //         // TODO: uncomment code to use with live data
+                        //         // Check filter status lists receiver value
+                        //         // const filterStatusText = filterStatus(page, [
+                        //         //     TEST_ORG_IGNORE_RECEIVER,
+                        //         //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                        //         //     `${"12:00am"}–${defaultEndTime}`,
+                        //         // ]);
+                        //         // await expect(
+                        //         //     page.getByTestId("filter-status"),
+                        //         // ).toContainText(filterStatusText);
+                        //     });
+                        //
+                        //     test.skip("with 'From' date, 'To' date, 'Start time', 'End time'", async ({ page }) => {
+                        //         const fromDate = await setDate(page, "#start-date", 14);
+                        //         const toDate = await setDate(page, "#end-date", 0);
+                        //         await setTime(page, "#start-time", defaultStartTime);
+                        //         await setTime(page, "#end-time", defaultEndTime);
+                        //
+                        //         // Apply button is enabled
+                        //         await applyButton(page).click();
+                        //         await page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                        //
+                        //         // TODO: uncomment code to use with live data
+                        //         // Check that table data contains the dates/times that were selected
+                        //         // const areDatesInRange =
+                        //         //     await tableColumnDateTimeInRange(
+                        //         //         page,
+                        //         //         1,
+                        //         //         fromDate,
+                        //         //         toDate,
+                        //         //         defaultStartTime,
+                        //         //         defaultEndTime,
+                        //         //     );
+                        //         // expect(areDatesInRange).toBe(true);
+                        //
+                        //         // Check filter status lists receiver value
+                        //         const filterStatusText = filterStatus(page, [
+                        //             TEST_ORG_UP_RECEIVER_FULL_ELR,
+                        //             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                        //             `${defaultStartTime}–${defaultEndTime}`,
+                        //         ]);
+                        //         await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
+                        //     });
+                        //
+                        //     test("with 'From' date, 'To' date, 'Start time' before 'End time'", async ({ page }) => {
+                        //         await setDate(page, "#start-date", 0);
+                        //         await setDate(page, "#end-date", 0);
+                        //         await setTime(page, "#start-time", defaultEndTime);
+                        //         await setTime(page, "#end-time", defaultStartTime);
+                        //
+                        //         // Apply button is disabled
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //     });
+                        // });
+                        //
+                        // test.describe("no receiver selected", () => {
+                        //     test.beforeEach(async ({ page }) => {
+                        //         await page.locator("#receiver-dropdown").selectOption("");
+                        //     });
+                        //
+                        //     test.afterEach(async ({ page }) => {
+                        //         await filterReset(page).click();
+                        //     });
+                        //
+                        //     test("with 'From' date", async ({ page }) => {
+                        //         await expect(startDate(page)).toHaveValue("");
+                        //
+                        //         await setDate(page, "#start-date", 7);
+                        //
+                        //         // Apply button is disabled
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //     });
+                        //
+                        //     test("with 'To' date", async ({ page }) => {
+                        //         await expect(endDate(page)).toHaveValue("");
+                        //
+                        //         await setDate(page, "#end-date", 7);
+                        //
+                        //         // Apply button is disabled
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //     });
+                        //
+                        //     test("with 'From' date and 'Start time'", async ({ page }) => {
+                        //         await setDate(page, "#start-date", 7);
+                        //         await setTime(page, "#start-time", defaultStartTime);
+                        //
+                        //         // Apply button is disabled
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //     });
+                        //
+                        //     test("with 'From' date and 'End time'", async ({ page }) => {
+                        //         await setDate(page, "#start-date", 7);
+                        //         await setTime(page, "#end-time", "8:00pm");
+                        //
+                        //         // Apply button is disabled
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //     });
+                        //
+                        //     test("with 'To' date and 'Start time'", async ({ page }) => {
+                        //         await setDate(page, "#end-date", 7);
+                        //         await setTime(page, "#start-time", defaultStartTime);
+                        //
+                        //         // Apply button is disabled
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //     });
+                        //
+                        //     test("with 'To' date and 'End time'", async ({ page }) => {
+                        //         await setDate(page, "#end-date", 7);
+                        //         await setTime(page, "#end-time", "8:00pm");
+                        //
+                        //         // Apply button is disabled
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //     });
+                        //
+                        //     test("with 'Start time' and 'End time'", async ({ page }) => {
+                        //         // Start time
+                        //         await setTime(page, "#start-time", defaultStartTime);
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //         await startTimeClear(page).click();
+                        //         await expect(page.locator("#start-time")).toHaveValue("");
+                        //         await expect(applyButton(page)).toBeDisabled();
+                        //
+                        //         // End time
+                        //         await setTime(page, "#end-time", defaultEndTime);
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //         await endTimeClear(page).click();
+                        //         await expect(page.locator("#end-time")).toHaveValue("");
+                        //         await expect(applyButton(page)).toBeDisabled();
+                        //
+                        //         // Start time and End time
+                        //         await setTime(page, "#start-time", defaultStartTime);
+                        //         await setTime(page, "#end-time", defaultEndTime);
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //         await startTimeClear(page).click();
+                        //         await expect(page.locator("#start-time")).toHaveValue("");
+                        //         await endTimeClear(page).click();
+                        //         await expect(page.locator("#end-time")).toHaveValue("");
+                        //         await expect(applyButton(page)).toBeDisabled();
+                        //     });
+                        //
+                        //     test.skip("with 'From' date and 'To' date", async ({ page }) => {
+                        //         const fromDate = await setDate(page, "#start-date", 14);
+                        //         const toDate = await setDate(page, "#end-date", 0);
+                        //
+                        //         // Apply button is enabled
+                        //         await applyButton(page).click();
+                        //         await page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                        //
+                        //         // Check filter status lists receiver value
+                        //         const filterStatusText = filterStatus(page, [
+                        //             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                        //         ]);
+                        //         await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
+                        //     });
+                        //
+                        //     test("with 'From' date, 'To' date, 'Start time'", async ({ page }) => {
+                        //         const fromDate = await setDate(page, "#start-date", 14);
+                        //         const toDate = await setDate(page, "#end-date", 0);
+                        //         await setTime(page, "#start-time", defaultStartTime);
+                        //
+                        //         // Apply button is enabled
+                        //         await applyButton(page).click();
+                        //         await page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                        //
+                        //         // Form values persist
+                        //         await expect(startDate(page)).toHaveValue(fromDate);
+                        //         await expect(endDate(page)).toHaveValue(toDate);
+                        //         await expect(page.locator("#start-time")).toHaveValue(defaultStartTime);
+                        //
+                        //         // TODO: uncomment code to use with live data
+                        //         // Check filter status lists receiver value
+                        //         // const filterStatusText = filterStatus(page, [
+                        //         //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                        //         //     `${defaultStartTime}–${"11:59pm"}`,
+                        //         // ]);
+                        //         // await expect(
+                        //         //     page.getByTestId("filter-status"),
+                        //         // ).toContainText(filterStatusText);
+                        //     });
+                        //
+                        //     test("with 'From' date, 'To' date, 'End time'", async ({ page }) => {
+                        //         const fromDate = await setDate(page, "#start-date", 14);
+                        //         const toDate = await setDate(page, "#end-date", 0);
+                        //         await setTime(page, "#end-time", defaultEndTime);
+                        //
+                        //         // Apply button is enabled
+                        //         await applyButton(page).click();
+                        //         await page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                        //
+                        //         // Form values persist
+                        //         await expect(startDate(page)).toHaveValue(fromDate);
+                        //         await expect(endDate(page)).toHaveValue(toDate);
+                        //         await expect(page.locator("#end-time")).toHaveValue(defaultEndTime);
+                        //
+                        //         // TODO: uncomment code to use with live data
+                        //         // Check filter status lists receiver value
+                        //         // const filterStatusText = filterStatus(page, [
+                        //         //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                        //         //     `${"12:00am"}–${defaultEndTime}`,
+                        //         // ]);
+                        //         // await expect(
+                        //         //     page.getByTestId("filter-status"),
+                        //         // ).toContainText(filterStatusText);
+                        //     });
+                        //
+                        //     test.skip("with 'From' date, 'To' date, 'Start time', 'End time'", async ({ page }) => {
+                        //         const fromDate = await setDate(page, "#start-date", 14);
+                        //         const toDate = await setDate(page, "#end-date", 0);
+                        //         await setTime(page, "#start-time", defaultStartTime);
+                        //         await setTime(page, "#end-time", defaultEndTime);
+                        //
+                        //         // Apply button is enabled
+                        //         await applyButton(page).click();
+                        //         await page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                        //
+                        //         // TODO: uncomment code to use with live data
+                        //         // Check that table data contains the dates/times that were selected
+                        //         // const areDatesInRange =
+                        //         //     await tableColumnDateTimeInRange(
+                        //         //         page,
+                        //         //         1,
+                        //         //         fromDate,
+                        //         //         toDate,
+                        //         //         defaultStartTime,
+                        //         //         defaultEndTime,
+                        //         //     );
+                        //         // expect(areDatesInRange).toBe(true);
+                        //
+                        //         // Check filter status lists receiver value
+                        //         const filterStatusText = filterStatus(page, [
+                        //             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                        //             `${defaultStartTime}–${defaultEndTime}`,
+                        //         ]);
+                        //         await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
+                        //     });
+                        //
+                        //     test("with 'From' date, 'To' date, 'Start time' before 'End time'", async ({ page }) => {
+                        //         await setDate(page, "#start-date", 0);
+                        //         await setDate(page, "#end-date", 0);
+                        //         await setTime(page, "#start-time", defaultEndTime);
+                        //         await setTime(page, "#end-time", defaultStartTime);
+                        //
+                        //         // Apply button is disabled
+                        //         await expect(applyButton(page)).toHaveAttribute("disabled");
+                        //     });
+                        // });
+                        //
+                        // test.describe("on reset", () => {
+                        //     test("form elements clear", async ({ page }) => {
+                        //         await filterReset(page).click();
+                        //         await expect(receiverDropdown(page)).toHaveValue("");
+                        //         await expect(startDate(page)).toHaveValue("");
+                        //         await expect(endDate(page)).toHaveValue("");
+                        //         await expect(startTime(page)).toHaveValue("");
+                        //         await expect(endTime(page)).toHaveValue("");
+                        //     });
+                        // });
+                        //
+                        // test("clears search on 'Apply'", async ({ page }) => {
+                        //     // Search by Report ID
+                        //     const reportId = await tableDataCellValue(page, 0, 0);
+                        //     await searchInput(page).fill(reportId);
+                        //     await searchButton(page).click();
+                        //
+                        //     // TODO: uncomment code to use with live data
+                        //     // const rowCount = await tableRows(page).count();
+                        //     // expect(rowCount).toEqual(1);
+                        //
+                        //     // Check filter status lists receiver value
+                        //     // let filterStatusText = filterStatus(page, [reportId]);
+                        //     // await expect(
+                        //     //     page.getByTestId("filter-status"),
+                        //     // ).toContainText(filterStatusText);
+                        //
+                        //     // Perform search with filters selected
+                        //     await page.locator("#receiver-dropdown").selectOption(TEST_ORG_UP_RECEIVER_FULL_ELR);
+                        //     // const fromDate = await setDate(page, "#start-date", 14);
+                        //     // const toDate = await setDate(page, "#end-date", 0);
+                        //     await setDate(page, "#start-date", 14);
+                        //     await setDate(page, "#end-date", 0);
+                        //
+                        //     await applyButton(page).click();
+                        //     await page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                        //
+                        //     // Check filter status lists receiver value
+                        //     // filterStatusText = filterStatus(page, [
+                        //     //     TEST_ORG_IGNORE_RECEIVER,
+                        //     //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                        //     // ]);
+                        //     // await expect(
+                        //     //     page.getByTestId("filter-status"),
+                        //     // ).toContainText(filterStatusText);
+                        //
+                        //     // Check search is cleared
+                        //     await expect(searchInput(page)).toHaveValue("");
+                        // });
+                    });
+
+                    // test.describe("search", () => {
+                    //     test.skip("returns match for Report ID", async ({ page }) => {
+                    //         const reportId = await tableDataCellValue(page, 0, 0);
+                    //         await searchInput(page).fill(reportId);
+                    //         await searchButton(page).click();
+                    //
+                    //         const rowCount = await tableRows(page).count();
+                    //         expect(rowCount).toEqual(1);
+                    //
+                    //         // Check filter status lists receiver value
+                    //         const filterStatusText = filterStatus(page, [reportId]);
+                    //         await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
+                    //
+                    //         //Check table data matches search
+                    //         expect(await tableDataCellValue(page, 0, 0)).toEqual(reportId);
+                    //     });
+                    //
+                    //     test.skip("returns match for Filename", async ({ page }) => {
+                    //         const fileName = await tableDataCellValue(page, 2, 4);
+                    //         await searchInput(page).fill(fileName);
+                    //         await searchButton(page).click();
+                    //
+                    //         const rowCount = await tableRows(page).count();
+                    //         expect(rowCount).toEqual(1);
+                    //
+                    //         // Check filter status lists receiver value
+                    //         const filterStatusText = filterStatus(page, [fileName]);
+                    //         await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
+                    //
+                    //         //Check table data matches search
+                    //         expect(await tableDataCellValue(page, 0, 4)).toEqual(fileName);
+                    //     });
+                    //
+                    //     test("on reset clears search results", async ({ page }) => {
+                    //         const fileName = await tableDataCellValue(page, 1, 4);
+                    //         await searchInput(page).fill(fileName);
+                    //         await searchButton(page).click();
+                    //
+                    //         await searchReset(page).click();
+                    //         await expect(searchInput(page)).toHaveValue("");
+                    //     });
+                    //
+                    //     test("clears filters on search", async ({ page }) => {
+                    //         // TODO: uncomment code to use with live data
+                    //         // Perform search with all filters selected
+                    //         await page.locator("#receiver-dropdown").selectOption(TEST_ORG_UP_RECEIVER_FULL_ELR);
+                    //         // const fromDate = await setDate(page, "#start-date", 14);
+                    //         // const toDate = await setDate(page, "#end-date", 0);
+                    //         await setDate(page, "#start-date", 14);
+                    //         await setDate(page, "#end-date", 0);
+                    //         await setTime(page, "#start-time", defaultStartTime);
+                    //         await setTime(page, "#end-time", defaultEndTime);
+                    //
+                    //         await applyButton(page).click();
+                    //         await page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                    //
+                    //         // Check filter status lists receiver value
+                    //         // let filterStatusText = filterStatus(page, [
+                    //         //     TEST_ORG_IGNORE_RECEIVER,
+                    //         //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                    //         //     `${defaultStartTime}–${defaultEndTime}`,
+                    //         // ]);
+                    //         // await expect(
+                    //         //     page.getByTestId("filter-status"),
+                    //         // ).toContainText(filterStatusText);
+                    //
+                    //         const reportId = "729158ce-4125-46fa-bea0-3c0f910f472c";
+                    //         await searchInput(page).fill(reportId);
+                    //         await searchButton(page).click();
+                    //
+                    //         // Check filter status lists receiver value
+                    //         // filterStatusText = filterStatus(page, [reportId]);
+                    //         // await expect(
+                    //         //     page.getByTestId("filter-status"),
+                    //         // ).toContainText(filterStatusText);
+                    //
+                    //         //Check table data matches search
+                    //         // expect(await tableDataCellValue(page, 0, 0)).toEqual(
+                    //         //     reportId,
+                    //         // );
+                    //
+                    //         // Check filters are cleared
+                    //         await expect(receiverDropdown(page)).toHaveValue("");
+                    //         await expect(startDate(page)).toHaveValue("");
+                    //         await expect(endDate(page)).toHaveValue("");
+                    //         await expect(startTime(page)).toHaveValue("");
+                    //         await expect(endTime(page)).toHaveValue("");
+                    //     });
+                    // });
+                    //
+                    // test.describe("table", () => {
+                    //     test("has correct headers", async ({ page }) => {
+                    //         await tableHeaders(page);
+                    //     });
+                    //
+                    //     test("has pagination", async ({ page }) => {
+                    //         await expect(page.getByTestId("Pagination")).toBeAttached();
+                    //     });
+                    // });
+                });
+            });
+        },
+    );
 });
