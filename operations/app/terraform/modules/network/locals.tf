@@ -54,6 +54,7 @@ locals {
     #vnet_subnets                           = local.vnet_subnets
     public_subnets                         = local.app_subnets
     app_subnets                            = local.app_subnets
+    container_subnets                      = local.container_subnet_ids
     #replica_subnets                        = local.replica_subnets
     primary_subnets                        = local.primary_subnets
     #primary_endpoint_subnets               = local.primary_endpoint_subnets
