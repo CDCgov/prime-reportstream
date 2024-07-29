@@ -77,13 +77,12 @@
         - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
         - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists())
                    or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
-      routingFilter:
-        - "Bundle.entry.resource.ofType(Observation).interpretation.coding.code = 'A'"
+      routingFilter: []
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
         - # Accept COVID only
-          "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+          "(%resource.where(interpretation.coding.code = 'A)'.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists())"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
