@@ -34,6 +34,7 @@ import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import org.jooq.impl.DSL
 import org.testcontainers.containers.GenericContainer
+import java.io.File
 import java.time.OffsetDateTime
 
 @Suppress("ktlint:standard:max-line-length")
@@ -180,6 +181,13 @@ object UniversalPipelineTestUtils {
         MimeFormat.HL7,
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
+    )
+    val hl7SenderWithSendOriginal = UniversalPipelineSender(
+        "hl7-elr-send_original",
+        "phd",
+        MimeFormat.HL7,
+        CustomerStatus.ACTIVE,
+        topic = Topic.ELR_ELIMS,
     )
     val fhirSenderWithNoTransform = UniversalPipelineSender(
         "fhir-elr-no-transform",
@@ -448,15 +456,16 @@ object UniversalPipelineTestUtils {
         azuriteContainer: GenericContainer<*>,
         previousAction: TaskAction = TaskAction.receive,
         parentReport: Report? = null,
+        fileName: String = "mr_fhir_face.fhir",
     ): Report {
         val blobUrl = BlobAccess.uploadBlob(
-            "${TaskAction.receive.literal}/mr_fhir_face.fhir",
+            "${TaskAction.receive.literal}/$fileName",
             reportContents.toByteArray(),
             getBlobContainerMetadata(azuriteContainer)
         )
 
         return createReport(
-            MimeFormat.FHIR,
+            MimeFormat.valueOfFromExt(File(fileName).extension),
             previousAction,
             action,
             event,

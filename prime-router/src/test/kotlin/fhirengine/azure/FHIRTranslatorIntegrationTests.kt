@@ -46,6 +46,8 @@ import java.io.File
 
 private const val MULTIPLE_TARGETS_FHIR_PATH =
     "src/test/resources/fhirengine/engine/valid_data_multiple_targets.fhir"
+private const val HL7_WITH_BIRTH_TIME =
+    "src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7"
 
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
@@ -498,6 +500,92 @@ class FHIRTranslatorIntegrationTests : Logging {
                 null
             )
             assertThat(compareFhir.passed).isTrue()
+        }
+    }
+
+    @Test
+    fun `successfully translate for HL7 receiver when isSendOriginal is true`() {
+        // set up
+        val receiverSetupData = listOf(
+            UniversalPipelineTestUtils.ReceiverSetupData(
+                "x",
+                jurisdictionalFilter = listOf("true"),
+                qualityFilter = listOf("true"),
+                routingFilter = listOf("true"),
+                conditionFilter = listOf("true"),
+                format = MimeFormat.HL7
+            )
+        )
+        val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
+        val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
+        val translator = createFHIRTranslator(azureEventService, org)
+        val reportContents = File(HL7_WITH_BIRTH_TIME).readText()
+        val receiveReport = UniversalPipelineTestUtils.createReport(
+            reportContents,
+            TaskAction.receive,
+            Event.EventAction.CONVERT,
+            azuriteContainer,
+            fileName = "originalhl7.hl7"
+        )
+        val translateReport = UniversalPipelineTestUtils.createReport(
+            MimeFormat.FHIR,
+            TaskAction.receive,
+            TaskAction.translate,
+            Event.EventAction.SEND,
+            Topic.ELR_ELIMS,
+            receiveReport,
+            BlobAccess.uploadBlob(
+                "${TaskAction.translate.literal}/mr_fhir_face.fhir",
+                reportContents.toByteArray(),
+                getBlobContainerMetadata(azuriteContainer)
+            )
+        )
+
+        val queueMessage = generateQueueMessage(
+            translateReport,
+            reportContents,
+            UniversalPipelineTestUtils.hl7SenderWithSendOriginal,
+            "phd.x"
+        )
+        val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
+
+        // execute
+        fhirFunctions.doTranslate(queueMessage, 1, translator)
+
+        // verify task and report_file tables were updated correctly in the Translate function (new task and new
+        // record file created)
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val batchTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
+                .where(Task.TASK.NEXT_ACTION.eq(TaskAction.batch))
+                .fetchOneInto(Task.TASK)
+            // verify batch queue task does not exist
+            assertThat(batchTask).isNull()
+
+            val sendTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
+                .where(Task.TASK.NEXT_ACTION.eq(TaskAction.send))
+                .fetchOneInto(Task.TASK)
+            // verify send queue task exists
+            assertThat(sendTask).isNotNull()
+
+            val sendReportFile =
+                DSL.using(txn).select(ReportFile.REPORT_FILE.asterisk())
+                    .from(ReportFile.REPORT_FILE)
+                    .where(
+                        ReportFile.REPORT_FILE.REPORT_ID
+                            .eq(sendTask!!.reportId)
+                    )
+                    .fetchOneInto(ReportFile.REPORT_FILE)
+            assertThat(sendReportFile).isNotNull()
+
+            // verify message format is HL7
+            assertThat(sendTask.bodyFormat).isEqualTo("HL7")
+
+            // verify message matches the original HL7 input
+            val translatedValue = BlobAccess.downloadBlobAsByteArray(
+                sendReportFile!!.bodyUrl,
+                UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
+            )
+            assertThat(translatedValue).isEqualTo(reportContents.toByteArray())
         }
     }
 
