@@ -117,6 +117,10 @@ class FhirTransformer(
                                 bundle,
                                 singleFocusResource
                             )
+                        } else {
+                            logger.warn(
+                                "Element ${element.name} is updating a bundle property, but did not specify a value"
+                            )
                         }
                         debugMsg += "condition: true, resourceType: ${singleFocusResource.fhirType()}, " +
                             "value: $value"
