@@ -13,6 +13,8 @@ interface AzureEventService {
      * @param event the event to be tracked
      */
     fun trackEvent(event: AzureCustomEvent)
+
+    fun trackEvent(eventName: ReportStreamEventName, event: AzureCustomEvent)
 }
 
 /**
@@ -30,13 +32,20 @@ class AzureEventServiceImpl(
         logger.debug("Sending event of type $name to Azure AppInsights")
         telemetryClient.trackEvent(name, event.serialize(), emptyMap())
     }
+
+    override fun trackEvent(eventName: ReportStreamEventName, event: AzureCustomEvent) {
+        logger.debug("Sending event of type $eventName to Azure AppInsights")
+        telemetryClient.trackEvent(eventName.name, event.serialize(), emptyMap())
+    }
 }
 
+// TODO: https://github.com/CDCgov/prime-reportstream/issues/15337
 /**
  * Local storage of azure events (only used for testing)
  */
 class LocalAzureEventServiceImpl(
     val events: MutableList<AzureCustomEvent> = mutableListOf(),
+    val reportStreamEvents: MutableMap<ReportStreamEventName, MutableList<AzureCustomEvent>> = mutableMapOf(),
 ) : AzureEventService, Logging {
 
     /**
@@ -46,5 +55,11 @@ class LocalAzureEventServiceImpl(
         val name = event.javaClass.simpleName
         logger.debug("Recording'$name' event in memory.")
         events.add(event)
+    }
+
+    override fun trackEvent(eventName: ReportStreamEventName, event: AzureCustomEvent) {
+        reportStreamEvents.getOrPut(eventName) {
+         mutableListOf()
+        }.add(event)
     }
 }
