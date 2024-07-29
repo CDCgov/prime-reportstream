@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.containsOnly
 import assertk.assertions.each
 import assertk.assertions.hasSize
@@ -441,6 +442,7 @@ class FHIRConverterIntegrationTests {
             val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk()).from(Tables.ACTION_LOG)
                 .where(Tables.ACTION_LOG.REPORT_ID.eq(receiveReport.id))
                 .and(Tables.ACTION_LOG.TYPE.`in`(ActionLogType.error, ActionLogType.warning))
+                .orderBy(Tables.ACTION_LOG.ACTION_LOG_ID.asc())
                 .fetchInto(
                     DetailedActionLog::class.java
                 )
