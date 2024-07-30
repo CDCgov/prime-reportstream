@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
+import ca.uhn.hl7v2.model.Composite
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.util.Terser
@@ -129,7 +130,7 @@ sealed interface HL7Truncator {
         parts: HL7FieldComponents,
     ): Int? {
         return if (parts.third != null) {
-            null // Add cases for sub-components here
+            getMaxLengthForCompositeType(field, parts.third)
         } else if (parts.second != null) {
             getMaxLengthForCompositeType(field, parts.second)
         } else {
@@ -200,6 +201,10 @@ class UniversalPipelineHL7Truncator : HL7Truncator {
         val segment = terser.getSegment(segmentName)
         val parts = HL7Truncator.HL7FieldComponents.parse(hl7Field)
         val field = segment.getField(parts.first, 0)
+        if (parts.third != null && parts.second != null && field is Composite) {
+            val subComponent = field.components[parts.second - 1]
+            return getHl7MaxLength(segment, subComponent, parts)
+        }
         return getHl7MaxLength(segment, field, parts)
     }
 }
