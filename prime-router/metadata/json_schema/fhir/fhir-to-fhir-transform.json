@@ -48,6 +48,10 @@
           "schemaRef": {
             "type": "object"
           },
+          "action": {
+            "type": "string",
+            "enum": ["SET", "APPEND", "DELETE", "APPLY_SCHEMA"]
+          },
           "validationErrors": {
             "type": "array",
             "items": {
