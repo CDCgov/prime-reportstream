@@ -22,18 +22,6 @@ extension:
           valueOf: MSH.7
     - expressionType: nested
       vars:
-        msh10: MSH.10
-      condition: $msh10 NOT_NULL
-      expressionsMap:
-        url:
-          type: STRING
-          value: MSH.10
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: MSH.10
-    - expressionType: nested
-      vars:
         msh13: MSH.13
       condition: $msh13 NOT_NULL
       expressionsMap:
