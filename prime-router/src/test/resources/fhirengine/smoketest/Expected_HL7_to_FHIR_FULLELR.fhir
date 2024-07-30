@@ -37,10 +37,6 @@
                 "valueString" : "20280808092805-0600"
               },
               {
-                "url" : "MSH.10",
-                "valueString" : "MT_COCAA_ORU_AAPHELR.1.6214638"
-              },
-              {
                 "url" : "MSH.21",
                 "valueIdentifier" : {
                   "extension" : [
