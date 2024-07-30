@@ -265,14 +265,14 @@ class DeliveryHistoryDatabaseAccess(
 
         val results = db.transactReturning { txn ->
 
-            val results = search.fetchResults(
+            val historyResults = search.fetchResults(
                 DSL.using(txn),
                 deliveriesExpression.asterisk(),
                 deliveriesExpression.asTable(DeliveryHistoryTable.DELIVERY_HISTORY.name),
             )
             val reportFiles = db
-                .fetchReportFileByIds(results.results.map { UUID.fromString(it.reportId) })
-            results.map { history ->
+                .fetchReportFileByIds(historyResults.results.map { UUID.fromString(it.reportId) })
+            historyResults.map { history ->
                 val receiver = if (history.receiver != null) {
                     workflowEngine.settings.findReceiver(history.receiver!!)
                 } else {
