@@ -184,6 +184,10 @@ class CovidPipelineHL7Truncator : HL7Truncator {
         val segment = terser.getSegment(segmentSpec)
         val parts = HL7Truncator.HL7FieldComponents.parse(hl7FieldOrPath)
         val field = segment.getField(parts.first, 0)
+        if (parts.third != null && parts.second != null && field is Composite) {
+            val subComponent = field.components[parts.second - 1]
+            return getHl7MaxLength(segment, subComponent, parts)
+        }
         return getHl7MaxLength(segment, field, parts)
     }
 }
