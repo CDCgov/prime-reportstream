@@ -1,17 +1,6 @@
-param (
-    [string]$pass,
-    [string]$user
-)
-function Get-BasicAuthCreds {
-    param([string]$Username, [string]$Password)
-    $AuthString = "{0}:{1}" -f $Username, $Password
-    $AuthBytes = [System.Text.Encoding]::Ascii.GetBytes($AuthString)
-    return [Convert]::ToBase64String($AuthBytes)
-}
 $data = [pscustomobject]@{
     InactiveMBUsers = @()
 }
-$BasicCreds = Get-BasicAuthCreds -Username $user -Password $pass
 $headers = @{"x-api-key" = "mb_5ovOOr1U+zZ1a/MmRIB5ITEJyPTiGKh4FfV+8Bthf2w=" }
 $SixMonthsOld = (Get-Date).AddMonths(-6)
 $stgendpoint = "https://staging.prime.cdc.gov//metabase/api/user"
