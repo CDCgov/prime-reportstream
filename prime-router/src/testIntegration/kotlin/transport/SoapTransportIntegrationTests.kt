@@ -12,6 +12,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.credentials.UserPassCredential
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -20,6 +21,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.spyk
 import org.junit.jupiter.api.BeforeEach
@@ -117,7 +119,10 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
         every { mockSoapTransport.lookupCredentials(any()) }.returns(
             UserPassCredential(UUID.randomUUID().toString(), UUID.randomUUID().toString())
         )
-        val retryItems = mockSoapTransport.send(transportType, header, reportId, "test", null, context, actionHistory)
+        val retryItems = mockSoapTransport.send(
+            transportType, header, reportId, "test", null, context, actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
+        )
         assertThat(retryItems).isNull()
     }
 
@@ -128,7 +133,16 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
         every { mockSoapTransport.lookupCredentials(any()) }.returns(
             UserPassCredential(UUID.randomUUID().toString(), UUID.randomUUID().toString())
         )
-        val retryItems = mockSoapTransport.send(transportType, header, reportId, "test", null, context, actionHistory)
+        val retryItems = mockSoapTransport.send(
+            transportType,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
+        )
         assertThat(retryItems).isNotNull()
     }
 }
