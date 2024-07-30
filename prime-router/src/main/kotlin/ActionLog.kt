@@ -41,7 +41,7 @@ enum class ActionLogLevel {
  * @property reportId The ID of the report to which this event happened
  * @property action A reference to the action this event occured durring
  * @property type The type of even that happened, defaults to info
- * @property created_at The time the event happened durring execution
+ * @property createdAt The time the event happened durring execution
  */
 data class ActionLog(
     val detail: ActionLogDetail,
@@ -50,7 +50,7 @@ data class ActionLog(
     var reportId: UUID? = null,
     var action: Action? = null,
     val type: ActionLogLevel = ActionLogLevel.info,
-    val created_at: Instant = Instant.now(),
+    val createdAt: Instant = Instant.now(),
 ) {
     val scope = detail.scope
 

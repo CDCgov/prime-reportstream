@@ -33,6 +33,7 @@ import gov.cdc.prime.router.azure.db.tables.Task
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
+import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
@@ -756,13 +757,14 @@ class FhirFunctionIntegrationTests {
         every { mockReport.reportId } returns UUID.randomUUID()
         mockkConstructor(ReportService::class)
         every { anyConstructed<ReportService>().getSenderName(any()) } returns "senderOrg.senderOrgClient"
-        every { anyConstructed<ReportService>().getRootReport(any()) } returns mockReport
+        every { anyConstructed<ReportService>().getRootReport(any()) } returns mockk<ReportFile>(relaxed = true)
 
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val fhirEngine = FHIRRouter(
             UnitTestUtils.simpleMetadata,
             settings,
-            ReportStreamTestDatabaseContainer.testDatabaseAccess
+            ReportStreamTestDatabaseContainer.testDatabaseAccess,
+            azureEventService = LocalAzureEventServiceImpl(),
         )
 
         val actionHistory = spyk(ActionHistory(TaskAction.receive))

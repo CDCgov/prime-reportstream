@@ -20,7 +20,11 @@ import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.observability.event.ReportReceivedEvent
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
+import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -37,6 +41,11 @@ private const val PROCESSING_TYPE_PARAMETER = "processing"
 class ReportFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive),
+    private val reportEventService: IReportStreamEventService = ReportStreamEventService(
+        workflowEngine.db,
+        workflowEngine.azureEventService,
+        workflowEngine.reportService
+    ),
 ) : RequestFunction(workflowEngine),
     Logging {
 
@@ -186,16 +195,22 @@ class ReportFunction(
                         payloadName
                     )
 
-                    workflowEngine.azureEventService.trackEvent(
-                        ReportReceivedEvent(
-                            report.id,
-                            sender,
-                            actionHistory.filterParameters(request),
-                            request.headers["x-forwarded-for"]?.split(",")?.first()
-                                ?: request.headers["x-azure-clientip"].toString(),
-                            request.headers["content-length"].toString()
+                    reportEventService.sendReportEvent(
+                        eventName = ReportStreamEventName.REPORT_RECEIVED,
+                        childReport = report,
+                        pipelineStepName = TaskAction.receive
+                    ) {
+                        params(
+                            listOfNotNull(
+                                ReportStreamEventProperties.REQUEST_PARAMETERS
+                                    to actionHistory.filterParameters(request),
+                                ReportStreamEventProperties.SENDER_NAME to sender.fullName,
+                                ReportStreamEventProperties.FILE_LENGTH to request.headers["content-length"].toString(),
+                                getSenderIP(request)?.let { ReportStreamEventProperties.SENDER_IP to it }
+                            ).toMap()
                         )
-                    )
+                    }
+
                     // return CREATED status, report submission was successful
                     HttpStatus.CREATED
                 } else {

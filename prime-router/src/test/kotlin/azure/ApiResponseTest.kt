@@ -59,4 +59,11 @@ class ApiResponseTest {
         pagination = PaginationApiResponse.buildPaginationFromApiSearch(search, results)
         assertThat(pagination).isEqualTo(PaginationApiResponse(6, previousPage = 2, nextPage = 4))
     }
+
+    @Test
+    fun `test mapping an ApiSearchResult`() {
+        val result = ApiSearchResult<ApiSearchTest.TestPojo>(10, 6, createResults(2))
+        val mappedResult = result.map { it.foo }
+        assertThat(mappedResult.results).isEqualTo(listOf("foo", "foo"))
+    }
 }

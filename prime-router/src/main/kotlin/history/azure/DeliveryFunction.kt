@@ -57,7 +57,7 @@ class DeliveryFunction(
 
     private val submitterDatabaseAccess = SubmitterDatabaseAccess()
     private val deliveryDatabaseAccess = DeliveryDatabaseAccess()
-    private val deliveryHistoryDatabaseAccess = DeliveryHistoryDatabaseAccess()
+    private val deliveryHistoryDatabaseAccess = DeliveryHistoryDatabaseAccess(workflowEngine = workflowEngine)
 
     /**
      * Authorization and shared logic uses the organization name without the service

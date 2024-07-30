@@ -1,0 +1,73 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+
+constants:
+  MSH: '/MSH'
+  PID: '/PATIENT_RESULT/PATIENT/PID'
+  ORC: '/PATIENT_RESULT/ORDER_OBSERVATION/ORC'
+  OBR: '/PATIENT_RESULT/ORDER_OBSERVATION/OBR'
+
+elements:
+  - name: nh-patient-race-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+    condition: '%resource.code.exists()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
+
+  - name: nh-unwanted-fields
+    value: [ '""' ]
+    hl7Spec: [ '%{ORC}-23-1', '%{ORC}-14-1', '%{OBR}-17-1', '%{PID}-13-1']
+
+  - name: nh-sending-facility-namespace-id
+    value: [ '"CDC PRIME"' ]
+    hl7Spec: [ '%{MSH}-4-1' ]
+
+  - name: nh-sending-facility-universal-id
+    value: [ '"11D2030855"' ]
+    hl7Spec: [ '%{MSH}-4-2' ]
+
+  - name: nh-sending-facility-universal-id-type
+    value: [ '"CLIA"' ]
+    hl7Spec: [ '%{MSH}-4-3' ]
+
+  - name: nh-receiving-application-namespace-id
+    value: [ '"NH_ELR"' ]
+    hl7Spec: [ '%{MSH}-5-1' ]
+
+  - name: nh-receiving-application-universal-id
+    value: [ '"2.16.840.1.114222.4.3.2.2.3.600.4"' ]
+    hl7Spec: [ '%{MSH}-5-2' ]
+
+  - name: nh-receiving-application-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{MSH}-5-3' ]
+
+  - name: nh-receiving-facility-namespace-id
+    value: [ '"NH_DHHS"' ]
+    hl7Spec: [ '%{MSH}-6-1' ]
+
+  - name: nh-receiving-facility-universal-id
+    value: [ '"2.16.840.1.114222.4.1.3669"' ]
+    hl7Spec: [ '%{MSH}-6-2' ]
+
+  - name: nh-receiving-facility-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{MSH}-6-3' ]
+
+  - name: nh-message-profile-identifier-entity-identifier
+    value: [ '"PHLabReport-Batch"' ]
+    hl7Spec: [ '%{MSH}-21-1' ]
+
+  - name: nh-message-profile-identifier-universal-id
+    value: [ '"2.16.840.1.113883.9.11"' ]
+    hl7Spec: [ '%{MSH}-21-3' ]
+
+  - name: nh-message-profile-identifier-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{MSH}-21-4' ]
+
+  - name: obx-equipment-instance-identifier
+    condition: "false"
+
+

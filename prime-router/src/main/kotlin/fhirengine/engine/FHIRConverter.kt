@@ -28,11 +28,14 @@ import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestExtractor
+import gov.cdc.prime.router.azure.observability.bundleDigest.FhirPathBundleDigestLabResultExtractorStrategy
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
-import gov.cdc.prime.router.azure.observability.event.ReportCreatedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -42,6 +45,7 @@ import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
 import gov.cdc.prime.router.fhirengine.utils.addMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.logging.LogMeasuredTime
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.validation.IItemValidator
 import io.github.oshai.kotlinlogging.withLoggingContext
 import org.apache.commons.lang3.exception.ExceptionUtils
@@ -65,7 +69,8 @@ class FHIRConverter(
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
-) : FHIREngine(metadata, settings, db, blob, azureEventService) {
+    reportService: ReportService = ReportService(),
+) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
 
@@ -167,6 +172,24 @@ class FHIRConverter(
                                 emptyList()
                             )
                             actionHistory.trackCreatedReport(noneEvent, report)
+                            if (processedItem.validationError != null) {
+                                reportEventService.sendItemProcessingError(
+                                    ReportStreamEventName.ITEM_FAILED_VALIDATION,
+                                    report,
+                                    TaskAction.convert,
+                                    processedItem.validationError!!.message,
+                                ) {
+                                    parentReportId(queueMessage.reportId)
+                                    parentItemIndex(itemIndex.toInt() + 1)
+                                    params(
+                                        mapOf(
+                                            ReportStreamEventProperties.ITEM_FORMAT to format,
+                                            ReportStreamEventProperties.VALIDATION_PROFILE
+                                                to queueMessage.topic.validator.validatorProfileName
+                                        )
+                                    )
+                                }
+                            }
                             null
                         } else {
                             // We know from the null check above that this cannot be null
@@ -203,15 +226,29 @@ class FHIRConverter(
                                 queueMessage.blobSubFolderName,
                                 routeEvent.eventAction
                             )
+                            report.bodyURL = blobInfo.blobUrl
 
                             // track created report
                             actionHistory.trackCreatedReport(routeEvent, report, blobInfo = blobInfo)
-                            azureEventService.trackEvent(
-                                ReportCreatedEvent(
-                                    report.id,
-                                    queueMessage.topic
-                                )
+
+                            val bundleDigestExtractor = BundleDigestExtractor(
+                                FhirPathBundleDigestLabResultExtractorStrategy()
                             )
+                            reportEventService.sendItemEvent(
+                                ReportStreamEventName.ITEM_ACCEPTED,
+                                report,
+                                TaskAction.convert
+                            ) {
+                                parentReportId(queueMessage.reportId)
+                                parentItemIndex(itemIndex.toInt() + 1)
+                                params(
+                                    mapOf(
+                                        ReportStreamEventProperties.BUNDLE_DIGEST
+                                            to bundleDigestExtractor.generateDigest(processedItem.bundle!!),
+                                        ReportStreamEventProperties.ITEM_FORMAT to format
+                                    )
+                                )
+                            }
 
                             FHIREngineRunResult(
                                 routeEvent,
@@ -237,7 +274,7 @@ class FHIRConverter(
                     emptyList()
                 )
 
-                // TODO: https://github.com/CDCgov/prime-reportstream/issues/14349
+                // TODO: https://github.com/CDCgov/prime-reportstream/issues/15223
                 val report = Report(
                     MimeFormat.FHIR,
                     emptyList(),
@@ -264,6 +301,19 @@ class FHIRConverter(
 
                 // ensure tracking is set
                 actionHistory.trackCreatedReport(nextEvent, report)
+                reportEventService.sendReportProcessingError(
+                    ReportStreamEventName.REPORT_NOT_PROCESSABLE,
+                    report,
+                    TaskAction.convert,
+                    "Submitted report was either empty or could not be parsed into HL7"
+                    ) {
+                    parentReportId(queueMessage.reportId)
+                    params(
+                        mapOf(
+                            ReportStreamEventProperties.ITEM_FORMAT to format
+                        )
+                    )
+                }
                 return emptyList()
             }
         }

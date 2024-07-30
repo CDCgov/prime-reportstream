@@ -8,6 +8,7 @@ import assertk.assertions.isTrue
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
@@ -68,7 +69,7 @@ class SendFunctionTests {
         "test-sender",
         "test",
         "test-receiver",
-        null, null, "one", null, null, "test.csv", "CSV", null, 0, null, OffsetDateTime.now(), null, null
+        null, null, "one", Topic.TEST, "", "test.csv", "CSV", null, 0, null, OffsetDateTime.now(), null, null
     )
 
     fun setupLogger() {
@@ -84,7 +85,7 @@ class SendFunctionTests {
         every { workflowEngine.readBody(any()) }.returns("body".toByteArray())
         every { workflowEngine.sftpTransport }.returns(sftpTransport)
         every { workflowEngine.azureEventService }.returns(InMemoryAzureEventService())
-        every { workflowEngine.reportService }.returns(mockk<ReportService>())
+        every { workflowEngine.reportService }.returns(mockk<ReportService>(relaxed = true))
     }
 
     fun makeHeader(): WorkflowEngine.Header {
@@ -115,10 +116,11 @@ class SendFunctionTests {
             val header = makeHeader()
             nextEvent = block(header, null, null)
         }
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any()) }.returns(null)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }.returns(null)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         every { workflowEngine.azureEventService.trackEvent(any()) }.returns(Unit)
         every { workflowEngine.reportService.getRootReports(any()) } returns reportList
+        every { workflowEngine.db } returns mockk<DatabaseAccess>()
         mockkObject(Report.Companion)
         every { Report.formExternalFilename(any(), any(), any(), any(), any(), any(), any()) } returns ""
 
@@ -146,8 +148,10 @@ class SendFunctionTests {
             nextEvent = block(header, null, null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }
+            .returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
+        every { workflowEngine.db } returns mockk<DatabaseAccess>()
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId, false)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
@@ -177,8 +181,10 @@ class SendFunctionTests {
             )
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }
+            .returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
+        every { workflowEngine.db } returns mockk<DatabaseAccess>()
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId, false)
@@ -212,8 +218,10 @@ class SendFunctionTests {
             )
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }
+            .returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
+        every { workflowEngine.db } returns mockk<DatabaseAccess>(relaxed = true)
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId, false)

@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7
 
 import assertk.assertFailure
 import assertk.assertThat
+import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
@@ -15,6 +16,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElemen
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElementAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -899,5 +901,31 @@ class FhirTransformerTests {
         assertThat(transformedPatient.id).isEqualTo("123456")
         assertThat(transformedObservation.status).isEqualTo(Observation.ObservationStatus.FINAL)
         assertThat(transformedPatient.name[0].text).isEqualTo("placeholder value")
+    }
+
+    @Test
+    fun `test action DELETE`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val patient = Patient()
+        patient.id = "def456"
+        patient.name = listOf(HumanName())
+        val entry = bundle.addEntry()
+        entry.fullUrl = patient.id
+        entry.resource = patient
+
+        val elementA = FhirTransformSchemaElement(
+            "elementA",
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            action = FhirTransformSchemaElementAction.DELETE
+        )
+        val schema =
+            FhirTransformSchema(
+                elements = mutableListOf(elementA)
+            )
+
+        val transformer = FhirTransformer(schema)
+        transformer.process(bundle)
+        assertThat(bundle.entry).hasSize(0)
     }
 }
