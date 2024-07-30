@@ -30,6 +30,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
@@ -37,6 +38,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.validation.AbstractItemValidator
 import gov.cdc.prime.router.validation.FHIRValidationResult
 import gov.cdc.prime.router.validation.HL7ValidationResult
@@ -82,6 +84,7 @@ class FhirConverterTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
+    val reportService: ReportService = mockk<ReportService>()
     val oneOrganization = DeepOrganization(
         "co-phd",
         "test",
@@ -134,12 +137,14 @@ class FhirConverterTests {
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).build(taskAction)
+            .reportService(reportService).blobAccess(blobMock).build(taskAction)
     }
 
     @BeforeEach
     fun reset() {
         clearAllMocks()
+        every { reportService.getRootReports(any()) } returns listOf(mockk<ReportFile>(relaxed = true))
+        every { reportService.getRootItemIndex(any(), any()) } returns 1
     }
 
     @AfterEach
@@ -325,8 +330,6 @@ class FhirConverterTests {
 
         // assert
         verify(exactly = 1) {
-            // TODO clean up assertions
-//            engine.getContentFromFHIR(any(), any())
             actionHistory.trackExistingInputReport(any())
         }
         verify(exactly = 2) {
