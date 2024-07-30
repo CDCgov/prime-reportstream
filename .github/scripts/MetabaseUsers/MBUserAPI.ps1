@@ -22,7 +22,7 @@ $commonName = ""
 
 foreach ($User in $val.data) {
     $LastLogin = $User.last_login
-    if ($LastLogin -eq $null || $LastLogin -le $SixMonthsOld) {
+    if ($LastLogin -eq $null  -Or $LastLogin -le $SixMonthsOld) {
             $commonName = $User.common_name
             Write-Host "Name - " $commonName
             Write-Host "Login - " $User.date_joined
