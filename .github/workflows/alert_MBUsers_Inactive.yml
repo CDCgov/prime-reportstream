@@ -1,4 +1,4 @@
-name: Alert about Metabase Inactive users
+name: Metabase Inactive users
 
 on:
     workflow_dispatch:
