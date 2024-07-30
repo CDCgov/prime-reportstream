@@ -81,8 +81,8 @@
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
-        - # Accept COVID only
-          "(%resource.where(interpretation.coding.code = 'A)'.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists())"
+        # Accept COVID only
+        - "%resource.interpretation.coding.code = 'A' and (%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
