@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
 import assertk.assertions.containsOnly
+import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogLevel
@@ -230,7 +231,7 @@ class FHIRRouterIntegrationTests : Logging {
                 "type": "route",
                 "reportId": "${report.id}",
                 "blobURL": "${report.bodyURL}",
-                "digest": "${BlobAccess.digestToString(BlobAccess.sha256Digest(blobContents.toByteArray()))}",
+                "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
                 "blobSubFolderName": "${sender.fullName}",
                 "topic": "${sender.topic.jsonVal}",
                 "schemaName": "${sender.schemaName}" 
@@ -516,7 +517,7 @@ class FHIRRouterIntegrationTests : Logging {
                     FhirTranslateQueueMessage(
                         report.reportId,
                         report.bodyUrl,
-                        BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                        BlobUtils.digestToString(BlobUtils.sha256Digest(fhirBundle)),
                         "phd.fhir-elr-no-transform",
                         fhirSenderWithNoTransform.topic,
                         "phd.x"
@@ -524,7 +525,7 @@ class FHIRRouterIntegrationTests : Logging {
                     FhirTranslateQueueMessage(
                         report.reportId,
                         report.bodyUrl,
-                        BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                        BlobUtils.digestToString(BlobUtils.sha256Digest(fhirBundle)),
                         "phd.fhir-elr-no-transform",
                         fhirSenderWithNoTransform.topic,
                         "phd.y"
@@ -631,7 +632,7 @@ class FHIRRouterIntegrationTests : Logging {
                     FhirTranslateQueueMessage(
                         report.reportId,
                         report.bodyUrl,
-                        BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                        BlobUtils.digestToString(BlobUtils.sha256Digest(fhirBundle)),
                         "phd.fhir-elr-no-transform",
                         fhirSenderWithNoTransform.topic,
                         "phd.x"
@@ -639,7 +640,7 @@ class FHIRRouterIntegrationTests : Logging {
                     FhirTranslateQueueMessage(
                         report.reportId,
                         report.bodyUrl,
-                        BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                        BlobUtils.digestToString(BlobUtils.sha256Digest(fhirBundle)),
                         "phd.fhir-elr-no-transform",
                         fhirSenderWithNoTransform.topic,
                         "phd.y"
@@ -703,7 +704,7 @@ class FHIRRouterIntegrationTests : Logging {
                 FhirTranslateQueueMessage(
                     report.reportId,
                     report.bodyUrl,
-                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                    BlobUtils.digestToString(BlobUtils.sha256Digest(fhirBundle)),
                     "phd.fhir-elr-no-transform",
                     fhirSenderWithNoTransform.topic,
                     "phd.x"
@@ -889,7 +890,7 @@ class FHIRRouterIntegrationTests : Logging {
                 FhirTranslateQueueMessage(
                     report.reportId,
                     report.bodyUrl,
-                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                    BlobUtils.digestToString(BlobUtils.sha256Digest(fhirBundle)),
                     "phd.fhir-elr-no-transform",
                     fhirSenderWithNoTransform.topic,
                     "phd.x"
@@ -1026,7 +1027,7 @@ class FHIRRouterIntegrationTests : Logging {
                 FhirTranslateQueueMessage(
                     report.reportId,
                     report.bodyUrl,
-                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                    BlobUtils.digestToString(BlobUtils.sha256Digest(fhirBundle)),
                     "phd.fhir-elr-no-transform",
                     fhirSenderWithNoTransform.topic,
                     "phd.x"

@@ -51,4 +51,5 @@ data class ConvertQueueMessage(
     val reportId: UUID,
     val blobUrl: String,
     val headers: Map<String, String>,
+    val digest: String,
 ) : QueueMessage

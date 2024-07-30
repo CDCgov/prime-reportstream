@@ -10,6 +10,7 @@ import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.matchesPredicate
+import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
@@ -395,7 +396,7 @@ class FhirFunctionIntegrationTests() {
         val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-${report.id}.hl7\",\"digest\"" +
-            ":\"${BlobAccess.digestToString(BlobAccess.sha256Digest(cleanHL7Record.toByteArray()))}\"," +
+            ":\"${BlobUtils.digestToString(BlobUtils.sha256Digest(cleanHL7Record.toByteArray()))}\"," +
             "\"blobSubFolderName\":" +
             "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"}"
 
@@ -476,7 +477,7 @@ class FhirFunctionIntegrationTests() {
         val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-${report.id}.hl7\",\"digest\":" +
-            "\"${BlobAccess.digestToString(BlobAccess.sha256Digest(cleanHL7Record.toByteArray()))}\"," +
+            "\"${BlobUtils.digestToString(BlobUtils.sha256Digest(cleanHL7Record.toByteArray()))}\"," +
             "\"blobSubFolderName\":" +
             "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"}"
 
@@ -557,7 +558,7 @@ class FhirFunctionIntegrationTests() {
         val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-${report.id}.hl7\",\"digest\":" +
-            "\"${BlobAccess.digestToString(BlobAccess.sha256Digest(validBatch.toByteArray()))}\"," +
+            "\"${BlobUtils.digestToString(BlobUtils.sha256Digest(validBatch.toByteArray()))}\"," +
             "\"blobSubFolderName\":" +
             "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"}"
 
@@ -666,7 +667,7 @@ class FhirFunctionIntegrationTests() {
         val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-${report.id}.hl7\",\"digest\":" +
-            "\"${BlobAccess.digestToString(BlobAccess.sha256Digest(validBatch.toByteArray()))}\"," +
+            "\"${BlobUtils.digestToString(BlobUtils.sha256Digest(validBatch.toByteArray()))}\"," +
             "\"blobSubFolderName\":" +
             "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"}"
 
@@ -789,7 +790,7 @@ class FhirFunctionIntegrationTests() {
         val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-${report.id}.fhir\",\"digest\":" +
-            "\"${BlobAccess.digestToString(BlobAccess.sha256Digest(bulkFHIRRecord.toByteArray()))}\"," +
+            "\"${BlobUtils.digestToString(BlobUtils.sha256Digest(bulkFHIRRecord.toByteArray()))}\"," +
             "\"blobSubFolderName\":" +
             "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"}"
 
@@ -897,8 +898,8 @@ class FhirFunctionIntegrationTests() {
         val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${receiveReport.id}\"," +
             "\"blobURL\":\"" + receiveBlobUrl +
             "\",\"digest\":\"${
-                BlobAccess.digestToString(
-                    BlobAccess.sha256Digest(
+                BlobUtils.digestToString(
+                    BlobUtils.sha256Digest(
                         receiveReportBytes
                     )
                 )
@@ -1049,8 +1050,8 @@ class FhirFunctionIntegrationTests() {
         val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${receiveReport.id}\"," +
             "\"blobURL\":\"" + receiveBlobUrl +
             "\",\"digest\":\"${
-                BlobAccess.digestToString(
-                    BlobAccess.sha256Digest(
+                BlobUtils.digestToString(
+                    BlobUtils.sha256Digest(
                         bulkFHIRRecord.toByteArray()
                     )
                 )
@@ -1185,8 +1186,8 @@ class FhirFunctionIntegrationTests() {
         val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${receiveReport.id}\"," +
             "\"blobURL\":\"" + receiveBlobUrl +
             "\",\"digest\":\"${
-                BlobAccess.digestToString(
-                    BlobAccess.sha256Digest(
+                BlobUtils.digestToString(
+                    BlobUtils.sha256Digest(
                         receiveReportBytes
                     )
                 )
@@ -1319,8 +1320,8 @@ class FhirFunctionIntegrationTests() {
         val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${receiveReport.id}\"," +
             "\"blobURL\":\"" + receiveBlobUrl +
             "\",\"digest\":\"${
-                BlobAccess.digestToString(
-                    BlobAccess.sha256Digest(
+                BlobUtils.digestToString(
+                    BlobUtils.sha256Digest(
                         receiveReportBytes
                     )
                 )
@@ -1455,7 +1456,7 @@ class FhirFunctionIntegrationTests() {
         val queueMessage = "{\"type\":\"route\",\"reportId\":\"${report.id}\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-${report.id}.hl7\",\"digest\":" +
-            "\"${BlobAccess.digestToString(BlobAccess.sha256Digest(routeFhirBytes))}\",\"blobSubFolderName\":" +
+            "\"${BlobUtils.digestToString(BlobUtils.sha256Digest(routeFhirBytes))}\",\"blobSubFolderName\":" +
             "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"}"
 
         val fhirFunc = FHIRFunctions(
@@ -1605,8 +1606,8 @@ class FhirFunctionIntegrationTests() {
         val queueMessage = "{\"type\":\"translate\",\"reportId\":\"${translateReport.id}\"," +
             "\"blobURL\":\"" + receiveBlobUrl +
             "\",\"digest\":\"${
-                BlobAccess.digestToString(
-                    BlobAccess.sha256Digest(
+                BlobUtils.digestToString(
+                    BlobUtils.sha256Digest(
                         translateFhirBytes
                     )
                 )
@@ -1774,8 +1775,8 @@ class FhirFunctionIntegrationTests() {
         val queueMessage = "{\"type\":\"translate\",\"reportId\":\"${translateReport.id}\"," +
             "\"blobURL\":\"" + receiveBlobUrl +
             "\",\"digest\":\"${
-                BlobAccess.digestToString(
-                    BlobAccess.sha256Digest(
+                BlobUtils.digestToString(
+                    BlobUtils.sha256Digest(
                         translateFhirBytes
                     )
                 )
@@ -1881,7 +1882,7 @@ class FhirFunctionIntegrationTests() {
         val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-${report.id}.fhir\",\"digest\":" +
-            "\"${BlobAccess.digestToString(BlobAccess.sha256Digest(fhirRecordBytes))}\"," +
+            "\"${BlobUtils.digestToString(BlobUtils.sha256Digest(fhirRecordBytes))}\"," +
             "\"blobSubFolderName\":" +
             "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"}"
 
@@ -1962,7 +1963,7 @@ class FhirFunctionIntegrationTests() {
         val queueMessage = "{\"type\":\"convert\",\"reportId\":\"${report.id}\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-${report.id}.fhir\",\"digest\":" +
-            "\"${BlobAccess.digestToString(BlobAccess.sha256Digest(fhirRecordBytes))}\"," +
+            "\"${BlobUtils.digestToString(BlobUtils.sha256Digest(fhirRecordBytes))}\"," +
             "\"blobSubFolderName\":" +
             "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"}"
 

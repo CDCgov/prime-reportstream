@@ -160,7 +160,7 @@ class FhirFunctionTests {
         val message = FhirDestinationFilterQueueMessage(
             report.id,
             "",
-            "BlobAccess.digestToString(blobInfo.digest)",
+            "BlobUtils.digestToString(blobInfo.digest)",
             "ignore.ignore-full-elr",
             Topic.FULL_ELR
         )

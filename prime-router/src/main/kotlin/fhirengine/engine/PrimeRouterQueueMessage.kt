@@ -4,6 +4,7 @@ import QueueMessage
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
@@ -40,7 +41,7 @@ interface WithDownloadableReport {
      */
     fun downloadContent(): String {
         val blobContent = BlobAccess.downloadBlobAsByteArray(this.blobURL)
-        val localDigest = BlobAccess.digestToString(BlobAccess.sha256Digest(blobContent))
+        val localDigest = BlobUtils.digestToString(BlobUtils.sha256Digest(blobContent))
         check(this.digest == localDigest) {
             "FHIR - Downloaded file does not match expected file\n${this.digest} | $localDigest"
         }

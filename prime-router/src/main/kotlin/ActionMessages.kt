@@ -46,6 +46,7 @@ enum class ErrorCode {
     INVALID_MSG_VALIDATION,
     INVALID_MSG_CONVERSION,
     UNKNOWN,
+    SETTINGS_NOT_FOUND,
 }
 
 /**
@@ -297,4 +298,10 @@ class PrunedObservationsLogMessage(override val message: String) : GenericAction
         "Observations were pruned from receivers for reportID $reportId\n" +
             filteredIdMap.map { "${it.key}: ${it.value.joinToString(", ")}" }.joinToString("\n")
     )
+}
+
+class SenderNotFound(clientId: String) : ActionLogDetail {
+    override val scope = ActionLogScope.internal
+    override val message = "Inactive sender: $clientId"
+    override val errorCode = ErrorCode.SETTINGS_NOT_FOUND
 }

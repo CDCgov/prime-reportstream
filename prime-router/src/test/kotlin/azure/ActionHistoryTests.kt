@@ -9,6 +9,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.HttpMethod
+import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
@@ -382,7 +383,7 @@ class ActionHistoryTests {
         mockkObject(BlobAccess.Companion)
         val blobUrls = mutableListOf<String>()
         every { BlobAccess.uploadBlob(capture(blobUrls), any()) } returns "http://blobUrl"
-        every { BlobAccess.sha256Digest(any()) } returns byteArrayOf()
+        every { BlobUtils.sha256Digest(any()) } returns byteArrayOf()
         every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
         val header = mockk<WorkflowEngine.Header>()
         val inReportFile = mockk<ReportFile>()
@@ -577,7 +578,7 @@ class ActionHistoryTests {
         mockkObject(BlobAccess.Companion)
         val blobUrls = mutableListOf<String>()
         every { BlobAccess.uploadBlob(capture(blobUrls), any()) } returns "http://blobUrl"
-        every { BlobAccess.sha256Digest(any()) } returns byteArrayOf()
+        every { BlobUtils.sha256Digest(any()) } returns byteArrayOf()
         every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
         val header = mockk<WorkflowEngine.Header>()
         val inReportFile = mockk<ReportFile>()

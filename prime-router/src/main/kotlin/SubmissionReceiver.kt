@@ -1,7 +1,7 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.azure.ActionHistory
-import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.ReportWriter
@@ -354,7 +354,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
                 FhirConvertQueueMessage(
                     report.id,
                     blobInfo.blobUrl,
-                    BlobAccess.digestToString(blobInfo.digest),
+                    BlobUtils.digestToString(blobInfo.digest),
                     sender.fullName,
                     sender.topic,
                     sender.schemaName

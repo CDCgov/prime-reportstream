@@ -6,6 +6,7 @@ import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.queue.QueueClient
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.SubmissionsEntity
 import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
 import gov.cdc.prime.reportstream.submissions.TelemetryService
@@ -75,6 +76,7 @@ class SubmissionController(
 
         // Convert data to ByteArray
         val dataByteArray = data.toByteArray()
+        val digest = BlobUtils.sha256Digest(dataByteArray)
         logger.debug("Converted report data to ByteArray")
 
         // Upload to blob storage
@@ -84,7 +86,7 @@ class SubmissionController(
 
         // Insert into Table
         // TableEntity() sets PartitionKey and RowKey. Both are required by azure and combine to create the PK
-        val tableEntity = SubmissionsEntity(reportReceivedTime.toString(), reportId.toString(), status).toTableEntity()
+        val tableEntity = SubmissionsEntity(reportId.toString(), status).toTableEntity()
         tableClient.createEntity(tableEntity)
         logger.info("Inserted report into table storage: reportId=$reportId")
 
@@ -112,7 +114,12 @@ class SubmissionController(
 
         // Queue upload should occur as the last step ensuring the other steps successfully process
         // Create the message for the queue
-        val message = ConvertQueueMessage(reportId, blobClient.blobUrl, filterHeaders(headers))
+        val message = ConvertQueueMessage(
+            reportId,
+            blobClient.blobUrl,
+            filterHeaders(headers),
+            BlobUtils.digestToString(digest)
+        )
         val messageString = objectMapper.writeValueAsString(message)
         logger.debug("Created message for queue")
 

@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import QueueMessage
 import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger
@@ -208,7 +209,7 @@ class FHIRRouter(
                         FhirTranslateQueueMessage(
                             report.id,
                             blobInfo.blobUrl,
-                            BlobAccess.digestToString(blobInfo.digest),
+                            BlobUtils.digestToString(blobInfo.digest),
                             message.blobSubFolderName,
                             message.topic,
                             receiver.fullName

@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure
 
 import com.azure.data.tables.TableClient
 import com.azure.data.tables.TableClientBuilder
+import com.azure.data.tables.models.TableEntity
 import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -41,6 +42,24 @@ class TableAccess : Logging {
             logger.info("Fields updated successfully for entity: $rowKey")
         } catch (e: Exception) {
             logger.error("Failed to update fields for entity: $rowKey", e)
+        }
+    }
+
+    /**
+     * Inserts a new entity into the Azure Table.
+     *
+     * This method creates a new entity in the specified table. The entity must have a unique
+     * PartitionKey and RowKey.
+     *
+     * @param entity The TableEntity to insert. It must include the PartitionKey and RowKey
+     * identifying the entity to insert.
+     */
+    fun insertEntity(entity: TableEntity) {
+        try {
+            tableClient.createEntity(entity)
+            logger.info("Entity inserted successfully: ${entity.rowKey}")
+        } catch (e: Exception) {
+            logger.error("Failed to insert entity: ${entity.rowKey}", e)
         }
     }
 }

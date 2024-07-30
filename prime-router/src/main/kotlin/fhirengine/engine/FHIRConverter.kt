@@ -13,17 +13,20 @@ import com.microsoft.azure.functions.HttpStatus
 import fhirengine.engine.IProcessedItem
 import fhirengine.engine.ProcessedFHIRItem
 import fhirengine.engine.ProcessedHL7Item
+import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.SubmissionsEntity
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.ErrorCode
+import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.SenderNotFound
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
@@ -53,7 +56,6 @@ import io.github.oshai.kotlinlogging.withLoggingContext
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.hl7.fhir.r4.model.Bundle
 import org.jooq.Field
-import java.time.Instant
 import java.time.OffsetDateTime
 import java.util.stream.Collectors
 import java.util.stream.Stream
@@ -91,133 +93,133 @@ class FHIRConverter(
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> = when (message) {
-            is FhirConvertQueueMessage -> {
-                fhirEngineRunResults(message, message.schemaName, actionLogger, actionHistory)
-            }
-            is ConvertQueueMessage -> {
-                runReceiveResults(message, actionLogger, actionHistory)
-            }
-
-            else -> {
-                throw RuntimeException(
-                    "Message was not a FhirConvert and cannot be processed: $message"
-                )
-            }
+        is FhirConvertQueueMessage -> {
+            fhirEngineRunResults(message, message.schemaName, actionLogger, actionHistory)
+        }
+        is ConvertQueueMessage -> {
+            runReceiveResults(message, actionLogger, actionHistory)
         }
 
+        else -> {
+            throw RuntimeException(
+                "Message was not a FhirConvert and cannot be processed: $message"
+            )
+        }
+    }
+
+    /**
+     * Processes the received results by handling the sender information and logging the action history.
+     *
+     * @param queueMessage The queue message containing details about the report.
+     * @param actionLogger The logger used to track actions and errors.
+     * @param convertActionHistory The action history related to the conversion process.
+     * @return A list of FHIR engine run results.
+     */
     private fun runReceiveResults(
         queueMessage: ConvertQueueMessage,
         actionLogger: ActionLogger,
         convertActionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
         val receiveActionHistory = ActionHistory(TaskAction.receive)
+
         // Retrieve the sender settings
-        val sender = settings.findSender(queueMessage.headers["client_id"]!!)
+        val sender = queueMessage.headers["client_id"]?.let { clientId ->
+            settings.findSender(clientId)
+        } ?: return handleSenderNotFound(queueMessage, actionLogger, receiveActionHistory)
+
+        if (sender.customerStatus == CustomerStatus.INACTIVE) {
+            return handleInactiveSender(queueMessage, actionLogger, receiveActionHistory)
+        }
 
         val contextMap = mapOf(
             MDCUtils.MDCProperty.ACTION_NAME to receiveActionHistory.action.actionName.name,
             MDCUtils.MDCProperty.REPORT_ID to queueMessage.reportId,
-            MDCUtils.MDCProperty.TOPIC to sender?.topic,
             MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobUrl,
         )
-        withLoggingContext(contextMap) {
+
+        return withLoggingContext(contextMap) {
             val payloadName = queueMessage.headers["payloadname"]
-            val mimeType = queueMessage.headers["Content-Type"]!!.substringBefore(';')
+            val mimeType = queueMessage.headers["Content-Type"]?.substringBefore(';') ?: ""
 
             receiveActionHistory.trackActionResult(HttpStatus.CREATED)
             receiveActionHistory.trackActionParams(queueMessage.headers.toString())
 
-            if (sender == null) {
-                receiveActionHistory.trackReceivedNoReport(
-                    queueMessage.reportId,
-                    queueMessage.blobUrl,
-                    MimeFormat.valueOfFromMimeType(mimeType).toString()
-                )
-            } else {
-                // track the sending organization and client based on the header
-                receiveActionHistory.trackActionSenderInfo(sender.fullName, payloadName)
+            receiveActionHistory.trackActionSenderInfo(sender.fullName, payloadName)
+            val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Accepted").toTableEntity()
 
-                val tableAccess = TableAccess()
+            receiveActionHistory.trackReceivedNoReport(
+                queueMessage.reportId,
+                queueMessage.blobUrl,
+                MimeFormat.valueOfFromMimeType(mimeType).toString(),
+                TaskAction.convert,
+                payloadName
+            )
 
-                tableAccess.updateMultipleFields(
-                    queueMessage.reportId.toString(),
-                    queueMessage.reportId.toString(),
-                    mapOf(
-                        "status" to "Accepted",
-                        "report_accepted_time" to Instant.now().toString()
-                    )
-                )
+            val convertQueueMessage = FhirConvertQueueMessage(
+                queueMessage.reportId,
+                queueMessage.blobUrl,
+                queueMessage.digest,
+                sender.fullName,
+                sender.topic,
+                sender.schemaName
+            )
 
-                val report: Report
-                val sources = listOf(
-                    ClientSource(
-                        organization = sender.organizationName,
-                        client = sender.name
-                    )
-                )
-                val content = BlobAccess.downloadBlobAsByteArray(queueMessage.blobUrl).toString()
+            val results = fhirEngineRunResults(
+                convertQueueMessage,
+                sender.schemaName,
+                actionLogger,
+                convertActionHistory
+            )
 
-                when (sender.format) {
-                    MimeFormat.HL7 -> {
-                        val messages = HL7Reader(actionLogger).getMessages(content)
-                        val isBatch = HL7Reader(actionLogger).isBatch(content, messages.size)
-                        // create a Report for this incoming HL7 message to use for tracking in the database
+            val tableAccess = TableAccess()
+            tableAccess.insertEntity(tableEntity)
 
-                        report = Report(
-                            if (isBatch) MimeFormat.HL7_BATCH else MimeFormat.HL7,
-                            sources,
-                            messages.size,
-                            metadata = metadata,
-                            nextAction = TaskAction.convert,
-                            topic = sender.topic,
-                        )
-
-                        // check for valid message type
-                        messages.forEachIndexed { idx, element ->
-                            MessageType.validateMessageType(element, actionLogger, idx + 1)
-                        }
-                    }
-
-                    MimeFormat.FHIR -> {
-                        val bundles = FhirTranscoder.getBundles(content, actionLogger)
-                        report = Report(
-                            MimeFormat.FHIR,
-                            sources,
-                            bundles.size,
-                            metadata = metadata,
-                            nextAction = TaskAction.convert,
-                            topic = sender.topic,
-                        )
-                    }
-
-                    else -> {
-                        throw IllegalStateException("Unexpected sender format ${sender.format}")
-                    }
-                }
-
-                // If the sender is disabled, there should be no next event
-                // THIS MUST HAPPEN BEFORE workflow.recordReceivedReport so that the next action
-                // is properly stored in the report in the DB
-                val eventAction = if (sender.customerStatus == CustomerStatus.INACTIVE) {
-                    report.nextAction = TaskAction.none
-                    Event.EventAction.NONE
-                } else {
-                    Event.EventAction.CONVERT
-                }
-
-                receiveActionHistory.trackReceivedReport(
-                    report, queueMessage.blobUrl,
-                    MimeFormat.valueOfFromMimeType(mimeType).toString(), payloadName
-                )
-
-                workflowEngine.recordAction(receiveActionHistory)
-
-                // if there are any errors, kick this out.
-                if (actionLogger.hasErrors()) {
-                    throw actionLogger.exception
-                }
+            if (actionLogger.hasErrors()) {
+                throw actionLogger.exception
             }
+
+            results
         }
+    }
+
+    /**
+     * Handles cases where the sender is not found.
+     *
+     * @param queueMessage The queue message containing details about the report.
+     * @param actionLogger The logger used to track actions and errors.
+     * @param receiveActionHistory The action history related to receiving the report.
+     * @return An empty list of FHIR engine run results.
+     */
+    private fun handleSenderNotFound(
+        queueMessage: ConvertQueueMessage,
+        actionLogger: ActionLogger,
+        receiveActionHistory: ActionHistory,
+    ): List<FHIREngineRunResult> {
+        receiveActionHistory.trackActionResult(HttpStatus.NOT_FOUND)
+        val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Rejected").toTableEntity()
+        TableAccess().insertEntity(tableEntity)
+        actionLogger.error(InvalidParamMessage("client_id is a required parameter"))
+        return emptyList()
+    }
+
+    /**
+     * Handles cases where the sender is inactive.
+     *
+     * @param queueMessage The queue message containing details about the report.
+     * @param actionLogger The logger used to track actions and errors.
+     * @param receiveActionHistory The action history related to receiving the report.
+     * @return An empty list of FHIR engine run results.
+     */
+    private fun handleInactiveSender(
+        queueMessage: ConvertQueueMessage,
+        actionLogger: ActionLogger,
+        receiveActionHistory: ActionHistory,
+    ): List<FHIREngineRunResult> {
+        receiveActionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
+        val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Rejected").toTableEntity()
+        TableAccess().insertEntity(tableEntity)
+        actionLogger.error(SenderNotFound(queueMessage.headers["client_id"].toString()))
+        return emptyList()
     }
 
     private fun fhirEngineRunResults(
@@ -316,7 +318,7 @@ class FHIRConverter(
                             FhirDestinationFilterQueueMessage(
                                 report.id,
                                 blobInfo.blobUrl,
-                                BlobAccess.digestToString(blobInfo.digest),
+                                BlobUtils.digestToString(blobInfo.digest),
                                 queueMessage.blobSubFolderName,
                                 queueMessage.topic
                             )

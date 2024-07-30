@@ -394,14 +394,20 @@ class ActionHistory(
         reportsIn[reportId] = reportFile
     }
 
-    fun trackReceivedNoReport(reportId: UUID, blobUrl: String, blobFormat: String, payloadName: String? = null) {
+    fun trackReceivedNoReport(
+        reportId: UUID,
+        blobUrl: String,
+        blobFormat: String,
+        nextAction: TaskAction,
+        payloadName: String? = null,
+    ) {
         if (isReportAlreadyTracked(reportId)) {
             error("Bug:  attempt to track history of a report ($reportId) we've already associated with this action")
         }
 
         val reportFile = ReportFile()
         reportFile.reportId = reportId
-        reportFile.nextAction = TaskAction.convert
+        reportFile.nextAction = nextAction
         reportFile.bodyUrl = blobUrl
         reportFile.bodyFormat = blobFormat
         reportFile.externalName = payloadName
