@@ -11,7 +11,6 @@ import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.QueueAccess
@@ -23,7 +22,6 @@ import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
-import gov.cdc.prime.router.common.UniversalPipelineTestUtils.getBlobContainerMetadata
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
@@ -46,6 +44,8 @@ import java.io.File
 
 private const val MULTIPLE_TARGETS_FHIR_PATH =
     "src/test/resources/fhirengine/engine/valid_data_multiple_targets.fhir"
+private const val MULTIPLE_TARGETS_FHIR_PATH_PURPLE =
+    "src/test/resources/fhirengine/engine/valid_data_multiple_targets_purple.fhir"
 private const val HL7_WITH_BIRTH_TIME =
     "src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7"
 
@@ -143,19 +143,6 @@ class FHIRTranslatorIntegrationTests : Logging {
             Event.EventAction.CONVERT,
             azuriteContainer
         )
-        val translateReport = UniversalPipelineTestUtils.createReport(
-            MimeFormat.FHIR,
-            TaskAction.receive,
-            TaskAction.translate,
-            Event.EventAction.SEND,
-            Topic.FULL_ELR,
-            receiveReport,
-            BlobAccess.uploadBlob(
-                "${TaskAction.translate.literal}/mr_fhir_face.fhir",
-                reportContents.toByteArray(),
-                getBlobContainerMetadata(azuriteContainer)
-            )
-        )
 
         @Suppress("ktlint:standard:max-line-length")
         val expectedOutput = "MSH|^~\\&|||||||ORU/ACK - Unsolicited transmission of an observation message|849547|P|2.5.1|||||USA\r" +
@@ -177,7 +164,7 @@ class FHIRTranslatorIntegrationTests : Logging {
             "SPM|1|||^^^^^^^^Sputum specimen|||^^^^^^^^Pinworm Prep|^^^^^^^^Nasopharyngeal structure (body structure)|||||||||20210617070000-0400|20210613045200-0400\r"
 
         val queueMessage = generateQueueMessage(
-            translateReport,
+            receiveReport,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform,
             "phd.x"
@@ -246,19 +233,6 @@ class FHIRTranslatorIntegrationTests : Logging {
             Event.EventAction.CONVERT,
             azuriteContainer
         )
-        val translateReport = UniversalPipelineTestUtils.createReport(
-            MimeFormat.FHIR,
-            TaskAction.receive,
-            TaskAction.translate,
-            Event.EventAction.SEND,
-            Topic.FULL_ELR,
-            receiveReport,
-            BlobAccess.uploadBlob(
-                "${TaskAction.translate.literal}/mr_fhir_face.fhir",
-                reportContents.toByteArray(),
-                getBlobContainerMetadata(azuriteContainer)
-            )
-        )
 
         @Suppress("ktlint:standard:max-line-length")
         val expectedOutput = "MSH|^~\\&|||||||ORU/ACK - Unsolicited transmission of an observation message|849547|P|2.5.1|||||USA\r" +
@@ -280,7 +254,7 @@ class FHIRTranslatorIntegrationTests : Logging {
             "SPM|1|||^^^^^^^^Sputum specimen|||^^^^^^^^Pinworm Prep|^^^^^^^^Nasopharyngeal structure (body structure)|||||||||20210617070000-0400|20210613045200-0400\r"
 
         val queueMessage = generateQueueMessage(
-            translateReport,
+            receiveReport,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform,
             "phd.x"
@@ -289,6 +263,9 @@ class FHIRTranslatorIntegrationTests : Logging {
 
         // execute
         fhirFunctions.doTranslate(queueMessage, 1, translator)
+
+        // check action table
+        UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
 
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
         // record file created)
@@ -346,22 +323,9 @@ class FHIRTranslatorIntegrationTests : Logging {
             Event.EventAction.CONVERT,
             azuriteContainer
         )
-        val translateReport = UniversalPipelineTestUtils.createReport(
-            MimeFormat.FHIR,
-            TaskAction.receive,
-            TaskAction.translate,
-            Event.EventAction.SEND,
-            Topic.FULL_ELR,
-            receiveReport,
-            BlobAccess.uploadBlob(
-                "${TaskAction.translate.literal}/mr_fhir_face.fhir",
-                reportContents.toByteArray(),
-                getBlobContainerMetadata(azuriteContainer)
-            )
-        )
 
         val queueMessage = generateQueueMessage(
-            translateReport,
+            receiveReport,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform,
             "phd.x"
@@ -370,6 +334,9 @@ class FHIRTranslatorIntegrationTests : Logging {
 
         // execute
         fhirFunctions.doTranslate(queueMessage, 1, translator)
+
+        // check action table
+        UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
 
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
         // record file created)
@@ -412,7 +379,6 @@ class FHIRTranslatorIntegrationTests : Logging {
         }
     }
 
-    // TODO: need a fhir receiver transform that actually transforms test data
     @Test
     fun `successfully translate for FHIR receiver with transform when isSendOriginal is false`() {
         // set up
@@ -424,7 +390,7 @@ class FHIRTranslatorIntegrationTests : Logging {
                 routingFilter = listOf("true"),
                 conditionFilter = listOf("true"),
                 format = MimeFormat.FHIR,
-                schemaName = "classpath:/metadata/fhir_transforms/receivers/fhir-transform-sample.yml"
+                schemaName = "classpath:/fhirengine/translation/FHIR_to_FHIR/simple-transform.yml"
             )
         )
         val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
@@ -437,22 +403,9 @@ class FHIRTranslatorIntegrationTests : Logging {
             Event.EventAction.CONVERT,
             azuriteContainer
         )
-        val translateReport = UniversalPipelineTestUtils.createReport(
-            MimeFormat.FHIR,
-            TaskAction.receive,
-            TaskAction.translate,
-            Event.EventAction.SEND,
-            Topic.FULL_ELR,
-            receiveReport,
-            BlobAccess.uploadBlob(
-                "${TaskAction.translate.literal}/mr_fhir_face.fhir",
-                reportContents.toByteArray(),
-                getBlobContainerMetadata(azuriteContainer)
-            )
-        )
 
         val queueMessage = generateQueueMessage(
-            translateReport,
+            receiveReport,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform,
             "phd.x"
@@ -461,6 +414,9 @@ class FHIRTranslatorIntegrationTests : Logging {
 
         // execute
         fhirFunctions.doTranslate(queueMessage, 1, translator)
+
+        // check action table
+        UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
 
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
         // record file created)
@@ -492,10 +448,11 @@ class FHIRTranslatorIntegrationTests : Logging {
             )
             assertThat(translatedValue).isNotEqualTo(reportContents.toByteArray())
 
-            // verify message is equivalent to the original FHIR input
+            // verify message is transformed as expected
+            val expectedContents = File(MULTIPLE_TARGETS_FHIR_PATH_PURPLE).readText()
             val compareFhir = CompareData().compare(
+                expectedContents.byteInputStream(),
                 translatedValue.inputStream(),
-                reportContents.byteInputStream(),
                 MimeFormat.FHIR,
                 null
             )
@@ -527,22 +484,9 @@ class FHIRTranslatorIntegrationTests : Logging {
             azuriteContainer,
             fileName = "originalhl7.hl7"
         )
-        val translateReport = UniversalPipelineTestUtils.createReport(
-            MimeFormat.FHIR,
-            TaskAction.receive,
-            TaskAction.translate,
-            Event.EventAction.SEND,
-            Topic.ELR_ELIMS,
-            receiveReport,
-            BlobAccess.uploadBlob(
-                "${TaskAction.translate.literal}/mr_fhir_face.fhir",
-                reportContents.toByteArray(),
-                getBlobContainerMetadata(azuriteContainer)
-            )
-        )
 
         val queueMessage = generateQueueMessage(
-            translateReport,
+            receiveReport,
             reportContents,
             UniversalPipelineTestUtils.hl7SenderWithSendOriginal,
             "phd.x"
@@ -551,6 +495,9 @@ class FHIRTranslatorIntegrationTests : Logging {
 
         // execute
         fhirFunctions.doTranslate(queueMessage, 1, translator)
+
+        // check action table
+        UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
 
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
         // record file created)
@@ -612,22 +559,9 @@ class FHIRTranslatorIntegrationTests : Logging {
             Event.EventAction.CONVERT,
             azuriteContainer
         )
-        val translateReport = UniversalPipelineTestUtils.createReport(
-            MimeFormat.FHIR,
-            TaskAction.receive,
-            TaskAction.translate,
-            Event.EventAction.SEND,
-            Topic.ELR_ELIMS,
-            receiveReport,
-            BlobAccess.uploadBlob(
-                "${TaskAction.translate.literal}/mr_fhir_face.fhir",
-                reportContents.toByteArray(),
-                getBlobContainerMetadata(azuriteContainer)
-            )
-        )
 
         val queueMessage = generateQueueMessage(
-            translateReport,
+            receiveReport,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithSendOriginal,
             "phd.x"
@@ -636,6 +570,9 @@ class FHIRTranslatorIntegrationTests : Logging {
 
         // execute
         fhirFunctions.doTranslate(queueMessage, 1, translator)
+
+        // check action table
+        UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
 
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
         // record file created)
