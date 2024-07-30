@@ -162,7 +162,6 @@ class FHIRTranslatorIntegrationTests : Logging {
             "OBX|9||^^^^^^^^Resides in a congregate care setting||^^^^^^^^Yes\r" +
             "OBX|10||^^^^^^^^Has symptoms related to condition of interest||^^^^^^^^No\r" +
             "SPM|1|||^^^^^^^^Sputum specimen|||^^^^^^^^Pinworm Prep|^^^^^^^^Nasopharyngeal structure (body structure)|||||||||20210617070000-0400|20210613045200-0400\r"
-
         val queueMessage = generateQueueMessage(
             receiveReport,
             reportContents,
@@ -173,6 +172,9 @@ class FHIRTranslatorIntegrationTests : Logging {
 
         // execute
         fhirFunctions.doTranslate(queueMessage, 1, translator)
+
+        // check action table
+        UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
 
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
         // record file created)
@@ -252,7 +254,6 @@ class FHIRTranslatorIntegrationTests : Logging {
             "OBX|9||^^^^^^^^Resides in a congregate care setting||^^^^^^^^Yes\r" +
             "OBX|10||^^^^^^^^Has symptoms related to condition of interest||^^^^^^^^No\r" +
             "SPM|1|||^^^^^^^^Sputum specimen|||^^^^^^^^Pinworm Prep|^^^^^^^^Nasopharyngeal structure (body structure)|||||||||20210617070000-0400|20210613045200-0400\r"
-
         val queueMessage = generateQueueMessage(
             receiveReport,
             reportContents,
@@ -323,7 +324,6 @@ class FHIRTranslatorIntegrationTests : Logging {
             Event.EventAction.CONVERT,
             azuriteContainer
         )
-
         val queueMessage = generateQueueMessage(
             receiveReport,
             reportContents,
@@ -403,7 +403,6 @@ class FHIRTranslatorIntegrationTests : Logging {
             Event.EventAction.CONVERT,
             azuriteContainer
         )
-
         val queueMessage = generateQueueMessage(
             receiveReport,
             reportContents,
@@ -484,7 +483,6 @@ class FHIRTranslatorIntegrationTests : Logging {
             azuriteContainer,
             fileName = "originalhl7.hl7"
         )
-
         val queueMessage = generateQueueMessage(
             receiveReport,
             reportContents,
