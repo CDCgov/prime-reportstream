@@ -1,5 +1,6 @@
 # $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
 
+# MSH.10 is captured through Bundle.Identifier
 resourceType: MessageHeader
 
 id:
@@ -38,7 +39,6 @@ source:
       valueOf: segments/MSH/datatypes/HD/Source
       expressionType: resource
       specs: MSH.24
-
 
 sender:
   condition: $msh4 NOT_NULL || $organizationCountry NOT_NULL
@@ -110,8 +110,6 @@ language:
       type: STRING
       expressionType: HL7Spec
 
-
-# MSH.10 is captured in Bundle.Identifier
 # MSH.12 is hardcoded to 2.5.1
 extension_messageHeader:
   generateList: true
