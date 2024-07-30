@@ -69,7 +69,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         @BindingName("NextVisibleTime") nextVisibleTime: Date? = null,
         @BindingName("InsertionTime") insertionTime: Date? = null,
     ) {
-        val event = Event.parseQueueMessage(message) as ReportEvent
+        val event = Event.parsePrimeRouterQueueMessage(message) as ReportEvent
         val actionHistory = ActionHistory(TaskAction.send, event.isEmptyBatch)
         var receiverStatus: CustomerStatus = CustomerStatus.INACTIVE
         actionHistory.trackActionParams(message)

@@ -1,11 +1,11 @@
 package gov.cdc.prime.router.azure
 
-import QueueMessage
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.engine.BatchEventQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.PrimeRouterQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ProcessEventQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportEventQueueMessage
 import gov.cdc.prime.router.transport.RetryToken
@@ -101,8 +101,8 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
     }
 
     companion object {
-        fun parseQueueMessage(event: String): Event {
-            val message = JacksonMapperUtilities.defaultMapper.readValue<QueueMessage>(event)
+        fun parsePrimeRouterQueueMessage(event: String): Event {
+            val message = JacksonMapperUtilities.defaultMapper.readValue<PrimeRouterQueueMessage>(event)
 
             return when (message) {
                 is ReportEventQueueMessage -> {
@@ -268,7 +268,7 @@ class BatchEvent(
 
     // this should say 'batch' but will break production on deploy if there is anything in the batch queue
     //  when it goes to prod. This value is used only to queue and dequeue message types
-    //  (toQueueMessage, parseQueueMessage)
+    //  (toQueueMessage, parsePrimeRouterQueueMessage)
     companion object {
         const val eventType = "receiver"
     }

@@ -128,6 +128,6 @@ class SubmissionControllerIntegrationTest {
         tableClient.listEntities().iterator().forEachRemaining { entities.add(it) }
         assertEquals(1, entities.size)
         val tableEntity = entities[0]
-        assertEquals("Received", tableEntity.getProperty("status"))
+        assertEquals("Received", tableEntity.getProperty("RowKey"))
     }
 }
