@@ -33,6 +33,7 @@ import {
     tableHeaders,
 } from "../../pages/daily-data";
 import {
+    API_WATERS_ORG,
     mockGetDeliveriesForOrgAlaskaResponse,
     mockGetDeliveriesForOrgIgnoreResponse,
 } from "../../pages/report-details";
@@ -1373,12 +1374,12 @@ test.describe("Daily Data page", () => {
         });
     });
 
-    test.describe.skip("sender user", () => {
+    test.describe("sender user", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
 
         test.beforeEach(async ({ page }) => {
             await dailyData.goto(page);
-            const response = await waitForAPIResponse(page, "/api/waters/org/");
+            const response = await waitForAPIResponse(page, API_WATERS_ORG);
             expect(response).toBe(200);
         });
 
