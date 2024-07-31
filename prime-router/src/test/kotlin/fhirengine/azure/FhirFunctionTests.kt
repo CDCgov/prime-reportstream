@@ -182,7 +182,6 @@ class FhirFunctionTests {
             "\"ignore.ignore-full-elr\",\"schemaName\":\"someSchema\",\"topic\":\"full-elr\"}"
 
         // act
-        //fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
         fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         // assert
@@ -270,7 +269,6 @@ class FhirFunctionTests {
             "\"blobSubFolderName\":\"ignore.ignore-full-elr\",\"topic\":\"full-elr\"}"
 
         // act
-        //fhirFunc.doRoute(queueMessage, 1, fhirEngine, actionHistory)
         fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         // assert
@@ -349,7 +347,6 @@ class FhirFunctionTests {
             "\"blobSubFolderName\":\"ignore.ignore-full-elr\",\"topic\":\"full-elr\",\"receiverFullName\":\"elr.phd\"}"
 
         // act
-        //fhirFunc.doTranslate(queueMessage, 1, fhirEngine, actionHistory)
         fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         // assert

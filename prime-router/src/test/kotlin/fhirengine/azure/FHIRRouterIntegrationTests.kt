@@ -491,7 +491,6 @@ class FHIRRouterIntegrationTests : Logging {
         val org = createOrganizationWithReceivers(receiverList)
 
         val fhirRouter = createFHIRRouter(org)
-        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
         fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // check results
@@ -591,7 +590,6 @@ class FHIRRouterIntegrationTests : Logging {
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
-        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
         fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // check results
@@ -687,7 +685,6 @@ class FHIRRouterIntegrationTests : Logging {
         val receivers = createReceivers(listOf(ReceiverSetupData("x", jurisdictionalFilter = jurisdictionalFilterCo)))
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
-        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
         fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // check results
@@ -755,7 +752,6 @@ class FHIRRouterIntegrationTests : Logging {
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
-        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
         fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // no messages should have been routed due to filter
@@ -808,7 +804,6 @@ class FHIRRouterIntegrationTests : Logging {
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
-        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
         fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // no messages should have been routed due to filter
@@ -876,7 +871,6 @@ class FHIRRouterIntegrationTests : Logging {
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
-        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
         fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // check results
@@ -952,7 +946,6 @@ class FHIRRouterIntegrationTests : Logging {
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
-        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
         fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // no messages should have been routed due to filter
@@ -1015,7 +1008,6 @@ class FHIRRouterIntegrationTests : Logging {
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
-        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
         fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // check results
@@ -1092,7 +1084,6 @@ class FHIRRouterIntegrationTests : Logging {
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
-        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
         fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // check results

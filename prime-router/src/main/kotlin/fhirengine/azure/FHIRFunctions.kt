@@ -34,8 +34,7 @@ class FHIRFunctions(
     private val databaseAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
     private val queueAccess: QueueAccess = QueueAccess,
 ) : Logging {
-
-
+    
     /**
      * An azure function for ingesting full-ELR HL7 data and converting it to FHIR
      */
@@ -48,26 +47,7 @@ class FHIRFunctions(
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
         process(message, dequeueCount, FHIRConverter(), ActionHistory(TaskAction.convert))
-        //doConvert(message, dequeueCount, FHIRConverter())
     }
-
-//    /**
-//     * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
-//     * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
-//     * the [dequeueCount] is tracked as part of the log.
-//     * [actionHistory] is an optional parameter for use in testing
-//     */
-//    internal fun doConvert(
-//        message: String,
-//        dequeueCount: Int,
-//        fhirEngine: FHIREngine,
-//        actionHistory: ActionHistory = ActionHistory(TaskAction.convert),
-//    ) {
-//        val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
-//        messagesToDispatch.forEach {
-//            it.send(queueAccess)
-//        }
-//    }
 
     // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     /**
@@ -81,28 +61,8 @@ class FHIRFunctions(
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
-        //doRoute(message, dequeueCount, FHIRRouter())
         process(message, dequeueCount, FHIRRouter(), ActionHistory(TaskAction.route))
     }
-
-//    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
-//    /**
-//     * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
-//     * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
-//     * the [dequeueCount] is tracked as part of the log.
-//     * [actionHistory] is an optional parameter for use in testing
-//     */
-//    internal fun doRoute(
-//        message: String,
-//        dequeueCount: Int,
-//        fhirEngine: FHIRRouter,
-//        actionHistory: ActionHistory = ActionHistory(TaskAction.route),
-//    ) {
-//        val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
-//        messagesToDispatch.forEach {
-//            it.send(queueAccess)
-//        }
-//    }
 
     /**
      * An azure function for selecting valid destinations for inbound full-ELR FHIR data.
@@ -115,28 +75,8 @@ class FHIRFunctions(
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
-        //doDestinationFilter(message, dequeueCount, FHIRDestinationFilter())
         process(message, dequeueCount, FHIRDestinationFilter(), ActionHistory(TaskAction.destination_filter))
     }
-
-//    /**
-//     * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
-//     * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
-//     * the [dequeueCount] is tracked as part of the log.
-//     * [actionHistory] is an optional parameter for use in testing
-//     */
-//    internal fun doDestinationFilter(
-//        message: String,
-//        dequeueCount: Int,
-//        fhirEngine: FHIRDestinationFilter,
-//        actionHistory: ActionHistory = ActionHistory(TaskAction.destination_filter),
-//    ) {
-//        val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
-//
-//        messagesToDispatch.forEach {
-//            it.send(queueAccess)
-//        }
-//    }
 
     /**
      * An azure function for running receiver filters on full-ELR FHIR data
@@ -149,27 +89,8 @@ class FHIRFunctions(
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
-        //doReceiverFilter(message, dequeueCount, FHIRReceiverFilter())
         process(message, dequeueCount, FHIRReceiverFilter(), ActionHistory(TaskAction.receiver_filter))
     }
-
-//    /**
-//     * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
-//     * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
-//     * the [dequeueCount] is tracked as part of the log.
-//     * [actionHistory] is an optional parameter for use in testing
-//     */
-//    internal fun doReceiverFilter(
-//        message: String,
-//        dequeueCount: Int,
-//        fhirEngine: FHIRReceiverFilter,
-//        actionHistory: ActionHistory = ActionHistory(TaskAction.receiver_filter),
-//    ) {
-//        val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
-//        messagesToDispatch.forEach {
-//            it.send(queueAccess)
-//        }
-//    }
 
     /**
      * An azure function for translating full-ELR FHIR data.
@@ -182,28 +103,8 @@ class FHIRFunctions(
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
-        //doTranslate(message, dequeueCount, FHIRTranslator())
         process(message, dequeueCount, FHIRTranslator(), ActionHistory(TaskAction.translate))
     }
-
-//    /**
-//     * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
-//     * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
-//     * the [dequeueCount] is tracked as part of the log.
-//     * [actionHistory] is an optional parameter for use in testing
-//     */
-//    fun doTranslate(
-//        message: String,
-//        dequeueCount: Int,
-//        fhirEngine: FHIRTranslator,
-//        actionHistory: ActionHistory = ActionHistory(TaskAction.translate),
-//    ) {
-//        val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
-//        // Only dispatches event if Topic.isSendOriginal was true
-//        messagesToDispatch.forEach {
-//            it.send(queueAccess)
-//        }
-//    }
 
     /**
      * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.

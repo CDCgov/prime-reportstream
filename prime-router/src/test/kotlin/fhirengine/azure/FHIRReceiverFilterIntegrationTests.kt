@@ -264,7 +264,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        //fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
         fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check results
@@ -346,7 +345,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        //fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
         fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check results
@@ -444,7 +442,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        //fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
         fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check results
@@ -516,7 +513,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        //fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
         fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check results
@@ -619,7 +615,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        //fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
         fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check results
@@ -700,7 +695,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        //fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
         fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check results
@@ -796,7 +790,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        //fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
         fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check queue message
@@ -913,7 +906,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        //fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
         fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check results
@@ -984,7 +976,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        //fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
         fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check results
@@ -1051,7 +1042,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        //fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
         fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check queue

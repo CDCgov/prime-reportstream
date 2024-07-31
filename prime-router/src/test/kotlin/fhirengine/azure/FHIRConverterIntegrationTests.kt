@@ -242,7 +242,6 @@ class FHIRConverterIntegrationTests {
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7SenderWithNoTransform)
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        //fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
         fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -408,7 +407,6 @@ class FHIRConverterIntegrationTests {
         )
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        //fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
         fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -533,7 +531,6 @@ class FHIRConverterIntegrationTests {
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, senderWithValidation)
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        //fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
         fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -642,7 +639,6 @@ class FHIRConverterIntegrationTests {
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7Sender)
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        //fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
         fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -715,7 +711,6 @@ class FHIRConverterIntegrationTests {
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7Sender)
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        //fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
         fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         verify(exactly = 0) {

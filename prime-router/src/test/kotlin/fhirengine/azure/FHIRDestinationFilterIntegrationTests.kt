@@ -186,7 +186,6 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         val destinationFilter = createDestinationFilter(azureEventsService, org)
 
         // execute
-        // fhirFunctions.doDestinationFilter(queueMessage, 1, destinationFilter)
         fhirFunctions.process(queueMessage, 1, destinationFilter, ActionHistory(TaskAction.destination_filter))
 
         // check results
@@ -276,7 +275,6 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         val destinationFilter = createDestinationFilter(azureEventsService, org)
 
         // execute
-        //fhirFunctions.doDestinationFilter(queueMessage, 1, destinationFilter)
         fhirFunctions.process(queueMessage, 1, destinationFilter, ActionHistory(TaskAction.destination_filter))
 
         // check results
@@ -370,7 +368,6 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         val destinationFilter = createDestinationFilter(azureEventsService, org)
 
         // execute
-        // fhirFunctions.doDestinationFilter(queueMessage, 1, destinationFilter)
         fhirFunctions.process(queueMessage, 1, destinationFilter, ActionHistory(TaskAction.destination_filter))
 
         // no messages should have been routed due to filter
