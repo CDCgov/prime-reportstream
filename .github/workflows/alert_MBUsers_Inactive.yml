@@ -41,20 +41,10 @@ jobs:
           echo -e "$messageInactiveUsers">> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
 
-         
-    
-      # - name: Get Inactive users
-      #   id: users_out
-      #   shell: bash
-      #   run: |
-      #     messageInactiveUsers=$(cat SLACK_MESSAGE_Users.md)
-      #     EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-      #     echo -e "$messageInactiveUsers" >> $GITHUB_OUTPUT
-      #     echo "$EOF" >> $GITHUB_OUTPUT
-
-      #     EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-      #     echo -e "$messageInactiveUsers" >> $GITHUB_OUTPUT
-      #     echo "$EOF" >> $GITHUB_OUTPUT
+      - name: Inactive users
+        shell: pwsh
+        run: |
+          echo ${{ steps.users_out.outputs.messageInactiveUsers }}
 
       # - name: Slack Notification
       #   uses: ./.github/actions/notifications
