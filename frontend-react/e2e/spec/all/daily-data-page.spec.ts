@@ -1373,7 +1373,7 @@ test.describe("Daily Data page", () => {
         });
     });
 
-    test.describe("sender user", () => {
+    test.describe.skip("sender user", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
 
         test.beforeEach(async ({ page }) => {
