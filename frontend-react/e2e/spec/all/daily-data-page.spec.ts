@@ -86,7 +86,11 @@ test.describe("Daily Data page", () => {
         test.use({ storageState: "e2e/.auth/admin.json" });
 
         // TODO: cannot use dailyDataPage since we dont want the test org to be selected. Need a way to set the test org per test.
-        test.describe.skip("without org selected", () => {
+        test.describe("without org selected", () => {
+            test.beforeEach(async ({ page }) => {
+                await dailyData.goto(page);
+            });
+
             test("will not load page", async ({ page }) => {
                 await expect(page.getByText("Cannot fetch Organization data as admin")).toBeVisible();
             });
@@ -739,7 +743,7 @@ test.describe("Daily Data page", () => {
         });
     });
 
-    test.describe.skip("receiver user", () => {
+    test.describe("receiver user", () => {
         test.use({ storageState: "e2e/.auth/receiver.json" });
 
         test.beforeEach(async ({ page }) => {
@@ -786,7 +790,7 @@ test.describe("Daily Data page", () => {
         });
 
         test("table has pagination", async ({ page }) => {
-            await expect(page.getByTestId("Pagination")).toBeAttached();
+            await expect(page.locator('[aria-label="Pagination"]')).toBeAttached();
         });
 
         test("has footer", async ({ page }) => {
@@ -1364,12 +1368,12 @@ test.describe("Daily Data page", () => {
             });
 
             test("has pagination", async ({ page }) => {
-                await expect(page.getByTestId("Pagination")).toBeAttached();
+                await expect(page.locator('[aria-label="Pagination"]')).toBeAttached();
             });
         });
     });
 
-    test.describe.skip("sender user", () => {
+    test.describe("sender user", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
 
         test.beforeEach(async ({ page }) => {
@@ -1422,7 +1426,7 @@ test.describe("Daily Data page", () => {
                     });
 
                     test("table has pagination", async ({ dailyDataPage }) => {
-                        await expect(dailyDataPage.page.getByTestId("Pagination")).toBeAttached();
+                        await expect(dailyDataPage.page.locator('[aria-label="Pagination"]')).toBeAttached();
                     });
 
                     test("has footer", async ({ dailyDataPage }) => {
@@ -2010,7 +2014,7 @@ test.describe("Daily Data page", () => {
                     //     });
                     //
                     //     test("has pagination", async ({ page }) => {
-                    //         await expect(page.getByTestId("Pagination")).toBeAttached();
+                    //         await expect(page.locator('[aria-label="Pagination"]')).toBeAttached();
                     //     });
                     // });
                 });
