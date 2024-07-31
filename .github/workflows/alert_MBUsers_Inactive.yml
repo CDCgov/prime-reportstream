@@ -36,7 +36,8 @@ jobs:
         shell: bash
         run: |
           messageInactiveUsers=$(cat SLACK_MESSAGE_Users.md)
-          echo "text<<$EOF" >> $GITHUB_OUTPUT
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "MESSAGE_RESPONSE<<$EOF" >> $GITHUB_OUTPUT
           echo -e "$messageInactiveUsers">> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
 
