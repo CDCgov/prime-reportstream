@@ -34,7 +34,7 @@ class FHIRFunctions(
     private val databaseAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
     private val queueAccess: QueueAccess = QueueAccess,
 ) : Logging {
-    
+
     /**
      * An azure function for ingesting full-ELR HL7 data and converting it to FHIR
      */

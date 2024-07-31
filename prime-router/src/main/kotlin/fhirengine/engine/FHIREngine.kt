@@ -23,7 +23,6 @@ import gov.cdc.prime.router.serializers.Hl7Serializer
 import org.jooq.Field
 import java.time.OffsetDateTime
 
-
 /**
  * All logical processing for full ELR / FHIR processing should be within this class.
  * [metadata] mockable metadata

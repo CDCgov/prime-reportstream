@@ -786,7 +786,7 @@ class FhirFunctionIntegrationTests {
 
             databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
         )
-        //fhirFunc.doRoute(queueMessage, 1, fhirEngine, actionHistory)
+        // fhirFunc.doRoute(queueMessage, 1, fhirEngine, actionHistory)
         fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         val convertTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
@@ -943,7 +943,7 @@ class FhirFunctionIntegrationTests {
             databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
         )
 
-        //fhirFunc.doTranslate(queueMessage, 1, fhirEngine, actionHistory)
+        // fhirFunc.doTranslate(queueMessage, 1, fhirEngine, actionHistory)
         fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
@@ -1114,7 +1114,7 @@ class FhirFunctionIntegrationTests {
             databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
         )
 
-        //fhirFunc.doTranslate(queueMessage, 1, fhirEngine, actionHistory)
+        // fhirFunc.doTranslate(queueMessage, 1, fhirEngine, actionHistory)
         fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         // verify task and report_file tables were updated correctly in the Translate function
