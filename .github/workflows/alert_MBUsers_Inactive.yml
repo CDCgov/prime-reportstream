@@ -36,9 +36,8 @@ jobs:
         shell: bash
         run: |
           messageInactiveUsers=$(cat SLACK_MESSAGE_Users.md)
-          echo -e $messageInactiveUsers>> $GITHUB_OUTPUT
-          echo "$EOF" >> $GITHUB_OUTPUT
-
+          echo -e "$messageInactiveUsers">> $GITHUB_OUTPUT
+         
     
       # - name: Get Inactive users
       #   id: users_out
