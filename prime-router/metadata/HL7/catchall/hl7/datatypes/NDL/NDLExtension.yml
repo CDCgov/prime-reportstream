@@ -5,13 +5,13 @@ url:
   valueOf: ndl-practitioner-role
 
 extension:
-  vars:
-    ndl9: NDL.9
   expressionType: nested
   generateList: true
   expressions:
     - expressionType: nested
       condition: $ndl9 NOT_NULL
+      vars:
+        ndl9: NDL.9
       expressionsMap:
         url:
           type: STRING
