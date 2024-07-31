@@ -27,9 +27,10 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.UnmappableConditionMessage
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.ConditionMapper
+import gov.cdc.prime.router.azure.ConditionMapper.Companion.conditionCodeExtensionURL
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
-import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.metadata.LookupTable
@@ -648,7 +649,7 @@ class FHIRBundleHelpersTests {
 
         bundle.enhanceBundleMetadata(hl7Messages[0])
 
-        var expectedDate = Date(1612994857000) // Wednesday, February 10, 2021 10:07:37 PM GMT
+        val expectedDate = Date(1612994857000) // Wednesday, February 10, 2021 10:07:37 PM GMT
         assertThat(bundle.timestamp).isEqualTo(expectedDate)
         assertThat(bundle.identifier.value).isEqualTo("371784")
         assertThat(bundle.identifier.system).isEqualTo("https://reportstream.cdc.gov/prime-router")
@@ -673,7 +674,7 @@ class FHIRBundleHelpersTests {
 
         bundle.enhanceBundleMetadata(hl7Messages[0])
 
-        var expectedDate = Date(1612994857000) // Wednesday, February 10, 2021 10:07:37 PM GMT
+        val expectedDate = Date(1612994857000) // Wednesday, February 10, 2021 10:07:37 PM GMT
         assertThat(bundle.timestamp).isEqualTo(expectedDate)
         assertThat(bundle.identifier.value).isEqualTo("371785")
         assertThat(bundle.identifier.system).isEqualTo("https://reportstream.cdc.gov/prime-router")
@@ -713,10 +714,10 @@ class FHIRBundleHelpersTests {
                 "observation-mapping",
                 listOf(
                     listOf(
-                        ObservationMappingConstants.TEST_CODE_KEY,
-                        ObservationMappingConstants.CONDITION_CODE_KEY,
-                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
-                        ObservationMappingConstants.CONDITION_NAME_KEY
+                        ConditionMapper.TEST_CODE_KEY,
+                        ConditionMapper.CONDITION_CODE_KEY,
+                        ConditionMapper.CONDITION_CODE_SYSTEM_KEY,
+                        ConditionMapper.CONDITION_NAME_KEY
                     ),
                     listOf(
                         "80382-5",
@@ -733,13 +734,14 @@ class FHIRBundleHelpersTests {
                 )
             )
         )
+        val mapper = ConditionMapper(metadata)
 
         val entry = Observation()
         val code = CodeableConcept()
         code.addCoding(Coding("system", "some-unmapped-code", "display"))
         entry.setCode(code)
 
-        val logs = entry.addMappedConditions(metadata)
+        val logs = mapper.stampObservation(entry)
         assertThat(logs.size).isEqualTo(1)
         assertThat(logs[0].message).isEqualTo("Missing mapping for code(s): some-unmapped-code")
         assertThat((logs[0] as UnmappableConditionMessage).fieldMapping).isEqualTo("observation.code.coding.code")
@@ -754,10 +756,10 @@ class FHIRBundleHelpersTests {
                 "observation-mapping",
                 listOf(
                     listOf(
-                        ObservationMappingConstants.TEST_CODE_KEY,
-                        ObservationMappingConstants.CONDITION_CODE_KEY,
-                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
-                        ObservationMappingConstants.CONDITION_NAME_KEY
+                        ConditionMapper.TEST_CODE_KEY,
+                        ConditionMapper.CONDITION_CODE_KEY,
+                        ConditionMapper.CONDITION_CODE_SYSTEM_KEY,
+                        ConditionMapper.CONDITION_NAME_KEY
                     ),
                     listOf(
                         "80382-5",
@@ -774,6 +776,7 @@ class FHIRBundleHelpersTests {
                 )
             )
         )
+        val mapper = ConditionMapper(metadata)
 
         val entry = Observation()
         val code = CodeableConcept()
@@ -781,7 +784,7 @@ class FHIRBundleHelpersTests {
         code.addCoding(Coding("system", "some-unmapped-code", "display"))
         entry.setCode(code)
 
-        val logs = entry.addMappedConditions(metadata)
+        val logs = mapper.stampObservation(entry)
         assertThat(logs.size).isEqualTo(0)
 
         val extension = code.coding.first().extension.first()
@@ -798,10 +801,10 @@ class FHIRBundleHelpersTests {
                 "observation-mapping",
                 listOf(
                     listOf(
-                        ObservationMappingConstants.TEST_CODE_KEY,
-                        ObservationMappingConstants.CONDITION_CODE_KEY,
-                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
-                        ObservationMappingConstants.CONDITION_NAME_KEY
+                        ConditionMapper.TEST_CODE_KEY,
+                        ConditionMapper.CONDITION_CODE_KEY,
+                        ConditionMapper.CONDITION_CODE_SYSTEM_KEY,
+                        ConditionMapper.CONDITION_NAME_KEY
                     ),
                     listOf(
                         "80382-5",
@@ -818,13 +821,14 @@ class FHIRBundleHelpersTests {
                 )
             )
         )
+        val mapper = ConditionMapper(metadata)
 
         val entry = Observation()
         val code = CodeableConcept()
         code.addCoding(Coding("system", "80382-5", "display"))
         entry.setCode(code)
 
-        val logs = entry.addMappedConditions(metadata)
+        val logs = mapper.stampObservation(entry)
         assertThat(logs.size).isEqualTo(0)
 
         val conditions = entry.getMappedConditions()
@@ -848,10 +852,10 @@ class FHIRBundleHelpersTests {
                 "observation-mapping",
                 listOf(
                     listOf(
-                        ObservationMappingConstants.TEST_CODE_KEY,
-                        ObservationMappingConstants.CONDITION_CODE_KEY,
-                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
-                        ObservationMappingConstants.CONDITION_NAME_KEY
+                        ConditionMapper.TEST_CODE_KEY,
+                        ConditionMapper.CONDITION_CODE_KEY,
+                        ConditionMapper.CONDITION_CODE_SYSTEM_KEY,
+                        ConditionMapper.CONDITION_NAME_KEY
                     ),
                     listOf(
                         "80382-5",
@@ -868,6 +872,7 @@ class FHIRBundleHelpersTests {
                 )
             )
         )
+        val mapper = ConditionMapper(metadata)
 
         val entry = Observation()
         val code = CodeableConcept()
@@ -876,7 +881,7 @@ class FHIRBundleHelpersTests {
 
         entry.setValue(StringType("A string value"))
 
-        entry.addMappedConditions(metadata)
+        mapper.stampObservation(entry)
 
         val extension = code.coding.first().extension.first()
         assertThat(extension.url).isEqualTo(conditionCodeExtensionURL)
@@ -895,10 +900,10 @@ class FHIRBundleHelpersTests {
                 "observation-mapping",
                 listOf(
                     listOf(
-                        ObservationMappingConstants.TEST_CODE_KEY,
-                        ObservationMappingConstants.CONDITION_CODE_KEY,
-                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
-                        ObservationMappingConstants.CONDITION_NAME_KEY
+                        ConditionMapper.TEST_CODE_KEY,
+                        ConditionMapper.CONDITION_CODE_KEY,
+                        ConditionMapper.CONDITION_CODE_SYSTEM_KEY,
+                        ConditionMapper.CONDITION_NAME_KEY
                     ),
                     listOf(
                         "80382-5",
@@ -915,13 +920,14 @@ class FHIRBundleHelpersTests {
                 )
             )
         )
+        val mapper = ConditionMapper(metadata)
 
         val entry = Observation()
         val code = CodeableConcept()
         code.addCoding(Coding("system", "80382-5", "display"))
         entry.setValue(code)
 
-        entry.addMappedConditions(metadata)
+        mapper.stampObservation(entry)
 
         val extension = code.coding.first().extension.first()
         assertThat(extension.url).isEqualTo(conditionCodeExtensionURL)

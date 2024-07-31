@@ -21,6 +21,7 @@ import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.ConditionMapper
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.QueueAccess
@@ -35,7 +36,6 @@ import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
-import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
 import gov.cdc.prime.router.common.validFHIRRecord1
@@ -46,7 +46,6 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.addMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.history.db.ReportGraph
@@ -144,10 +143,10 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 "observation-mapping",
                 listOf(
                     listOf(
-                        ObservationMappingConstants.TEST_CODE_KEY,
-                        ObservationMappingConstants.CONDITION_CODE_KEY,
-                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
-                        ObservationMappingConstants.CONDITION_NAME_KEY
+                        ConditionMapper.TEST_CODE_KEY,
+                        ConditionMapper.CONDITION_CODE_KEY,
+                        ConditionMapper.CONDITION_CODE_SYSTEM_KEY,
+                        ConditionMapper.CONDITION_NAME_KEY
                     ),
                     listOf(
                         "94558-5",
@@ -159,6 +158,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             )
         )
     }
+
+    val conditionMapper = ConditionMapper(observationMappingMetadata)
 
     @Container
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
@@ -595,9 +596,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val receiverFilter = createReceiverFilter(azureEventService, org)
         val reportContents = File(MULTIPLE_OBSERVATIONS_FHIR_URL).readText()
         val bundle = FhirTranscoder.decode(reportContents)
-        bundle.getObservations().forEach {
-            it.addMappedConditions(observationMappingMetadata)
-        }
+        conditionMapper.stampBundle(bundle)
         val stampedReportContents = FhirTranscoder.encode(bundle)
         val report = UniversalPipelineTestUtils.createReport(
             stampedReportContents,

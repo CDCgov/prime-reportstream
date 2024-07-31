@@ -22,6 +22,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.ConditionMapper
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
@@ -42,8 +43,6 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
-import gov.cdc.prime.router.fhirengine.utils.addMappedConditions
-import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.validation.IItemValidator
@@ -387,16 +386,16 @@ class FHIRConverter(
             }
 
             val areAllItemsParsedAndValid = processedItems.all { it.getError() == null }
+            val mapper = ConditionMapper(metadata)
             val bundles = processedItems.map { item ->
                 val error = item.getError()
                 if (error != null) {
                     actionLogger.getItemLogger(error.index + 1, item.getTrackingId()).error(error)
                 }
                 // 'stamp' observations with their condition code
-                item.bundle?.getObservations()?.forEach {
-                    it.addMappedConditions(metadata).run {
-                        actionLogger.getItemLogger(item.index + 1, it.id)
-                            .warn(this)
+                if (item.bundle != null) {
+                    mapper.stampBundle(item.bundle!!).forEach {
+                        actionLogger.getItemLogger(item.index + 1, it.observationId).warn(it.failures)
                     }
                 }
                 item

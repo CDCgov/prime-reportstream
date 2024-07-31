@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
-import assertk.assertions.contains
 import assertk.assertions.containsOnly
 import assertk.assertions.each
 import assertk.assertions.hasSize
@@ -16,6 +15,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.ConditionMapper
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
@@ -34,7 +34,6 @@ import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
-import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fetchChildReports
@@ -365,10 +364,10 @@ class FHIRConverterIntegrationTests {
     fun `should successfully convert FHIR messages`() {
         val observationMappingTable = Table.create(
             "observation-mapping",
-            StringColumn.create(ObservationMappingConstants.TEST_CODE_KEY, "80382-5"),
-            StringColumn.create(ObservationMappingConstants.CONDITION_CODE_KEY, "6142004"),
-            StringColumn.create(ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY, "SNOMEDCT"),
-            StringColumn.create(ObservationMappingConstants.CONDITION_NAME_KEY, "Influenza (disorder)")
+            StringColumn.create(ConditionMapper.TEST_CODE_KEY, "80382-5"),
+            StringColumn.create(ConditionMapper.CONDITION_CODE_KEY, "6142004"),
+            StringColumn.create(ConditionMapper.CONDITION_CODE_SYSTEM_KEY, "SNOMEDCT"),
+            StringColumn.create(ConditionMapper.CONDITION_NAME_KEY, "Influenza (disorder)")
         )
         val observationMappingLookupTable = LookupTable(
             name = "observation-mapping",
