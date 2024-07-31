@@ -75,23 +75,24 @@ const test = baseTest.extend<DailyDataPageFixtures>({
     },
 });
 
-test.describe.skip("Daily Data page", () => {
+test.describe("Daily Data page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ dailyDataPage }) => {
             await expect(dailyDataPage.page).toHaveURL("/login");
         });
     });
 
-    test.describe("admin user", () => {
+    test.describe.skip("admin user", () => {
         test.use({ storageState: "e2e/.auth/admin.json" });
 
-        test.describe.skip("without org selected", () => {
-            test("will not load page", async ({ dailyDataPage }) => {
-                await expect(dailyDataPage.page.getByText("Cannot fetch Organization data as admin")).toBeVisible();
+        // TODO: cannot use dailyDataPage since we dont want the test org to be selected. Need a way to set the test org per test.
+        test.describe("without org selected", () => {
+            test("will not load page", async ({ page }) => {
+                await expect(page.getByText("Cannot fetch Organization data as admin")).toBeVisible();
             });
 
-            test("has footer", async ({ dailyDataPage }) => {
-                await expect(dailyDataPage.page.locator("footer")).toBeAttached();
+            test("has footer", async ({ page }) => {
+                await expect(page.locator("footer")).toBeAttached();
             });
         });
 
@@ -727,7 +728,7 @@ test.describe.skip("Daily Data page", () => {
         });
     });
 
-    test.describe("receiver user", () => {
+    test.describe.skip("receiver user", () => {
         test.use({ storageState: "e2e/.auth/receiver.json" });
 
         test.beforeEach(async ({ page }) => {
@@ -1346,7 +1347,7 @@ test.describe.skip("Daily Data page", () => {
         });
     });
 
-    test.describe("sender user", () => {
+    test.describe.skip("sender user", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
 
         test.beforeEach(async ({ page }) => {
@@ -1364,7 +1365,7 @@ test.describe.skip("Daily Data page", () => {
         });
     });
 
-    test.describe(
+    test.describe.skip(
         "user flow smoke tests",
         {
             tag: "@smoke",
