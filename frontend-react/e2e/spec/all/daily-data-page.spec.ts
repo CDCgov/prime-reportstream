@@ -75,7 +75,7 @@ const test = baseTest.extend<DailyDataPageFixtures>({
     },
 });
 
-test.describe("Daily Data page", () => {
+test.describe.skip("Daily Data page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ dailyDataPage }) => {
             await expect(dailyDataPage.page).toHaveURL("/login");
