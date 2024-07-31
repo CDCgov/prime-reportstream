@@ -15,6 +15,7 @@ import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
@@ -241,7 +242,8 @@ class FHIRConverterIntegrationTests {
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7SenderWithNoTransform)
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        //fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val (routedReports, _) = fetchChildReports(
@@ -406,7 +408,8 @@ class FHIRConverterIntegrationTests {
         )
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        //fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val (routedReports, _) = fetchChildReports(
@@ -530,7 +533,8 @@ class FHIRConverterIntegrationTests {
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, senderWithValidation)
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        //fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val (routedReports, notRouted) = fetchChildReports(
@@ -638,7 +642,8 @@ class FHIRConverterIntegrationTests {
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7Sender)
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        //fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReports = fetchChildReports(receiveReport, txn, 2)
@@ -710,7 +715,8 @@ class FHIRConverterIntegrationTests {
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7Sender)
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        //fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         verify(exactly = 0) {
             QueueAccess.sendMessage(any(), any())

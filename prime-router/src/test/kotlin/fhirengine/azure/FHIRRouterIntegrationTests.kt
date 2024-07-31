@@ -20,6 +20,7 @@ import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
@@ -490,7 +491,8 @@ class FHIRRouterIntegrationTests : Logging {
         val org = createOrganizationWithReceivers(receiverList)
 
         val fhirRouter = createFHIRRouter(org)
-        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -589,7 +591,8 @@ class FHIRRouterIntegrationTests : Logging {
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
-        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -684,7 +687,8 @@ class FHIRRouterIntegrationTests : Logging {
         val receivers = createReceivers(listOf(ReceiverSetupData("x", jurisdictionalFilter = jurisdictionalFilterCo)))
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
-        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -751,7 +755,8 @@ class FHIRRouterIntegrationTests : Logging {
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
-        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // no messages should have been routed due to filter
         verify(exactly = 0) {
@@ -803,7 +808,8 @@ class FHIRRouterIntegrationTests : Logging {
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
-        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // no messages should have been routed due to filter
         verify(exactly = 0) {
@@ -870,7 +876,8 @@ class FHIRRouterIntegrationTests : Logging {
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
-        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -945,7 +952,8 @@ class FHIRRouterIntegrationTests : Logging {
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
-        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // no messages should have been routed due to filter
         verify(exactly = 0) {
@@ -1007,7 +1015,8 @@ class FHIRRouterIntegrationTests : Logging {
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
-        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -1083,7 +1092,8 @@ class FHIRRouterIntegrationTests : Logging {
         val receivers = createReceivers(receiverSetupData)
         val org = createOrganizationWithReceivers(receivers)
         val fhirRouter = createFHIRRouter(org)
-        fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        //fhirFunctions.doRoute(queueMessage, 1, fhirRouter)
+        fhirFunctions.process(queueMessage, 1, fhirRouter, ActionHistory(TaskAction.route))
 
         // check results
         verify(exactly = 0) {

@@ -399,7 +399,8 @@ class FhirFunctionIntegrationTests {
             databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
         )
         assertThrows<RuntimeException> {
-            fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
+            //fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
+            fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
         }
 
         val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
@@ -479,7 +480,8 @@ class FhirFunctionIntegrationTests {
             workflowEngine,
             databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
         )
-        fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
+        //fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
+        fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
         assertThat(processTask.processedAt).isNotNull()
@@ -560,7 +562,8 @@ class FhirFunctionIntegrationTests {
             workflowEngine,
             databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
         )
-        fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
+        //fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
+        fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
         assertThat(processTask.processedAt).isNotNull()
@@ -671,7 +674,8 @@ class FhirFunctionIntegrationTests {
             actionLogger = actionLogger,
             databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
         )
-        fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
+        //fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
+        fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
         assertThat(processTask.processedAt).isNotNull()
@@ -786,7 +790,8 @@ class FhirFunctionIntegrationTests {
 
             databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
         )
-        fhirFunc.doRoute(queueMessage, 1, fhirEngine, actionHistory)
+        //fhirFunc.doRoute(queueMessage, 1, fhirEngine, actionHistory)
+        fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         val convertTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
         assertThat(convertTask.routedAt).isNotNull()
@@ -942,7 +947,8 @@ class FhirFunctionIntegrationTests {
             databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
         )
 
-        fhirFunc.doTranslate(queueMessage, 1, fhirEngine, actionHistory)
+        //fhirFunc.doTranslate(queueMessage, 1, fhirEngine, actionHistory)
+        fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
         // record file created)
@@ -1112,7 +1118,8 @@ class FhirFunctionIntegrationTests {
             databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
         )
 
-        fhirFunc.doTranslate(queueMessage, 1, fhirEngine, actionHistory)
+        //fhirFunc.doTranslate(queueMessage, 1, fhirEngine, actionHistory)
+        fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         // verify task and report_file tables were updated correctly in the Translate function
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -1212,7 +1219,8 @@ class FhirFunctionIntegrationTests {
             workflowEngine,
             databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
         )
-        fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
+        //fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
+        fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
         assertThat(processTask.processedAt).isNotNull()
@@ -1294,7 +1302,8 @@ class FhirFunctionIntegrationTests {
 
             databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
         )
-        fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
+        //fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
+        fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         val processTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
         assertThat(processTask.processedAt).isNotNull()

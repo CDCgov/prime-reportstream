@@ -15,6 +15,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
@@ -185,7 +186,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         val destinationFilter = createDestinationFilter(azureEventsService, org)
 
         // execute
-        fhirFunctions.doDestinationFilter(queueMessage, 1, destinationFilter)
+        // fhirFunctions.doDestinationFilter(queueMessage, 1, destinationFilter)
+        fhirFunctions.process(queueMessage, 1, destinationFilter, ActionHistory(TaskAction.destination_filter))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -274,7 +276,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         val destinationFilter = createDestinationFilter(azureEventsService, org)
 
         // execute
-        fhirFunctions.doDestinationFilter(queueMessage, 1, destinationFilter)
+        //fhirFunctions.doDestinationFilter(queueMessage, 1, destinationFilter)
+        fhirFunctions.process(queueMessage, 1, destinationFilter, ActionHistory(TaskAction.destination_filter))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -367,7 +370,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         val destinationFilter = createDestinationFilter(azureEventsService, org)
 
         // execute
-        fhirFunctions.doDestinationFilter(queueMessage, 1, destinationFilter)
+        // fhirFunctions.doDestinationFilter(queueMessage, 1, destinationFilter)
+        fhirFunctions.process(queueMessage, 1, destinationFilter, ActionHistory(TaskAction.destination_filter))
 
         // no messages should have been routed due to filter
         verify(exactly = 0) {
