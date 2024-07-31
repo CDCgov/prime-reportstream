@@ -30,30 +30,37 @@ jobs:
           $SLACK_MESSAGE_Users = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:SLACK_MESSAGE_Users))
           echo $SLACK_MESSAGE_Users > SLACK_MESSAGE_Users.md
           echo "## Inactive users`n$SLACK_MESSAGE_Users" >> $env:GITHUB_STEP_SUMMARY
-    
+      
       - name: Get Inactive users
         id: users_out
         shell: bash
         run: |
-          messageInactiveUsers=$(cat SLACK_MESSAGE_Users.md)
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo -e "$messageInactiveUsers" >> $GITHUB_OUTPUT
-          echo "$EOF" >> $GITHUB_OUTPUT
+          echo -e SLACK_MESSAGE_Users.md
 
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo -e "$messageInactiveUsers" >> $GITHUB_OUTPUT
-          echo "$EOF" >> $GITHUB_OUTPUT
+    
+      # - name: Get Inactive users
+      #   id: users_out
+      #   shell: bash
+      #   run: |
+      #     messageInactiveUsers=$(cat SLACK_MESSAGE_Users.md)
+      #     EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+      #     echo -e "$messageInactiveUsers" >> $GITHUB_OUTPUT
+      #     echo "$EOF" >> $GITHUB_OUTPUT
 
-      - name: Slack Notification
-        uses: ./.github/actions/notifications
-        with:
-          method: slack
-          title: Inactive users
-          message: |
-            ${{ steps.users_out.outputs.messageInactiveUsers }}
-          icon-emoji: ':hourglass_flowing_sand:'
-          channel: prime-reportstream-engineering
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          color: warning
-          slackify-markdown: true
+      #     EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+      #     echo -e "$messageInactiveUsers" >> $GITHUB_OUTPUT
+      #     echo "$EOF" >> $GITHUB_OUTPUT
+
+      # - name: Slack Notification
+      #   uses: ./.github/actions/notifications
+      #   with:
+      #     method: slack
+      #     title: Inactive users
+      #     message: |
+      #       ${{ steps.users_out.outputs.messageInactiveUsers }}
+      #     icon-emoji: ':hourglass_flowing_sand:'
+      #     channel: prime-reportstream-engineering
+      #     webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+      #     color: warning
+      #     slackify-markdown: true
   
