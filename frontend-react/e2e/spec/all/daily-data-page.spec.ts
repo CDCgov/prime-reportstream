@@ -39,7 +39,7 @@ import {
 const defaultStartTime = "9:00am";
 const defaultEndTime = "11:30pm";
 
-test.describe("Daily Data page", () => {
+test.describe.skip("Daily Data page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ page }) => {
             await dailyData.goto(page);

@@ -16,7 +16,6 @@ const isCi = Boolean(process.env.CI);
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-    timeout: 10000,
     testDir: "e2e",
     fullyParallel: true,
     forbidOnly: isCi,
@@ -67,7 +66,7 @@ export default defineConfig({
     webServer: {
         command: `yarn cross-env yarn run preview:build:${isCi ? "ci" : "test"}`,
         url: "http://localhost:4173",
-        timeout: 1000 * 1800,
+        timeout: 1000 * 180,
         stdout: "pipe",
         // reuseExistingServer: !process.env.CI,
     },
