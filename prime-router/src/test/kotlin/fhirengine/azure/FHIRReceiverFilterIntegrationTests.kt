@@ -399,7 +399,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                     patientState = listOf("CA"),
                     performerState = emptyList(),
-                    orderingFacilityState = emptyList()
+                    orderingFacilityState = listOf("CA")
                 ),
                 ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
             )
@@ -567,7 +567,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                         eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                         patientState = listOf("CA"),
                         performerState = emptyList(),
-                        orderingFacilityState = emptyList()
+                        orderingFacilityState = listOf("CA")
                     ),
                     ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
                 )
@@ -748,7 +748,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                     patientState = listOf("CA"),
                     performerState = emptyList(),
-                    orderingFacilityState = emptyList()
+                    orderingFacilityState = listOf("CA")
                 ),
                 ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
             )
@@ -1122,7 +1122,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                     patientState = listOf("CO"),
                     performerState = emptyList(),
-                    orderingFacilityState = emptyList()
+                    orderingFacilityState = listOf("CO")
                 ),
                 ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
             )
