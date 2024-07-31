@@ -82,7 +82,7 @@ test.describe("Daily Data page", () => {
         });
     });
 
-    test.describe.skip("admin user", () => {
+    test.describe("admin user", () => {
         test.use({ storageState: "e2e/.auth/admin.json" });
 
         // TODO: cannot use dailyDataPage since we dont want the test org to be selected. Need a way to set the test org per test.
