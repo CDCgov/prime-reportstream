@@ -450,7 +450,7 @@ class FhirDestinationFilterTests {
                             1,
                             1,
                             1,
-                            null,
+                            "1234d1d1-95fe-462c-8ac6-46728dba581c",
                             "sendingOrg.sendingOrgClient"
                         )
                     )
@@ -509,7 +509,7 @@ class FhirDestinationFilterTests {
                             ),
                             patientState = listOf("CA"),
                             performerState = emptyList(),
-                            orderingFacilityState = emptyList(),
+                            orderingFacilityState = listOf("CA"),
                             eventType = "ORU/ACK - Unsolicited transmission of an observation message"
                         )
                     )

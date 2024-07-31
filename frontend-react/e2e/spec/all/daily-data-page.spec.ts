@@ -100,10 +100,21 @@ test.describe("Daily Data page", () => {
             test.beforeEach(async ({ page }) => {
                 await selectTestOrg(page);
                 await mockGetOrgIgnoreReceiversResponse(page);
-                await mockGetDeliveriesForOrgIgnoreResponse(page);
-                await mockGetDeliveriesForOrgIgnoreResponse(page, true);
-                await mockGetDeliveriesForOrgIgnoreResponse(page, false, true);
-                await mockGetDeliveriesForOrgIgnoreResponse(page, false, false, TEST_ORG_UP_RECEIVER_FULL_ELR);
+                await mockGetDeliveriesForOrgIgnoreResponse({
+                    page: page,
+                });
+                await mockGetDeliveriesForOrgIgnoreResponse({
+                    page: page,
+                    byReportId: true,
+                });
+                await mockGetDeliveriesForOrgIgnoreResponse({
+                    page: page,
+                    byFileName: true,
+                });
+                await mockGetDeliveriesForOrgIgnoreResponse({
+                    page: page,
+                    receiver: TEST_ORG_UP_RECEIVER_FULL_ELR,
+                });
                 await dailyData.goto(page);
             });
 
@@ -733,10 +744,21 @@ test.describe("Daily Data page", () => {
 
         test.beforeEach(async ({ page }) => {
             await mockGetOrgAlaskaReceiversResponse(page);
-            await mockGetDeliveriesForOrgAlaskaResponse(page);
-            await mockGetDeliveriesForOrgAlaskaResponse(page, true);
-            await mockGetDeliveriesForOrgAlaskaResponse(page, false, true);
-            await mockGetDeliveriesForOrgAlaskaResponse(page, false, false, TEST_ORG_AK_RECEIVER);
+            await mockGetDeliveriesForOrgAlaskaResponse({
+                page: page,
+            });
+            await mockGetDeliveriesForOrgAlaskaResponse({
+                page: page,
+                byReportId: true,
+            });
+            await mockGetDeliveriesForOrgAlaskaResponse({
+                page: page,
+                byFileName: true,
+            });
+            await mockGetDeliveriesForOrgAlaskaResponse({
+                page: page,
+                receiver: TEST_ORG_AK_RECEIVER,
+            });
             await dailyData.goto(page);
             await page.getByTestId("filter-form").waitFor({ state: "visible" });
         });

@@ -301,6 +301,7 @@ const TestTable = ({
                 setSearchTerm={
                     handleSearchTerm as Dispatch<SetStateAction<string>>
                 }
+                setService={() => undefined}
                 searchTerm={""}
             />
             <Table

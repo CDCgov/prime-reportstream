@@ -7,6 +7,7 @@ import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator.ParseFailureError
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.common.collect.Streams
+import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.IProcessedItem
 import fhirengine.engine.ProcessedFHIRItem
 import fhirengine.engine.ProcessedHL7Item
@@ -38,6 +39,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
@@ -232,7 +234,14 @@ class FHIRConverter(
                             actionHistory.trackCreatedReport(routeEvent, report, blobInfo = blobInfo)
 
                             val bundleDigestExtractor = BundleDigestExtractor(
-                                FhirPathBundleDigestLabResultExtractorStrategy()
+                                FhirPathBundleDigestLabResultExtractorStrategy(
+                                    CustomContext(
+                                        bundle,
+                                        bundle,
+                                        mutableMapOf(),
+                                        CustomFhirPathFunctions()
+                                    )
+                                )
                             )
                             reportEventService.sendItemEvent(
                                 ReportStreamEventName.ITEM_ACCEPTED,
@@ -241,6 +250,7 @@ class FHIRConverter(
                             ) {
                                 parentReportId(queueMessage.reportId)
                                 parentItemIndex(itemIndex.toInt() + 1)
+                                trackingId(bundle)
                                 params(
                                     mapOf(
                                         ReportStreamEventProperties.BUNDLE_DIGEST

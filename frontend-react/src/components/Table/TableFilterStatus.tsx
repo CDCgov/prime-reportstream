@@ -8,10 +8,7 @@ interface TableFilterStatusProps {
     showDefaultStatus: boolean;
 }
 
-function TableFilterStatus({
-    filterStatus,
-    showDefaultStatus,
-}: TableFilterStatusProps) {
+function TableFilterStatus({ filterStatus, showDefaultStatus }: TableFilterStatusProps) {
     return (
         <div data-testid="filter-status" className="margin-left-2">
             {showDefaultStatus ? (
@@ -32,9 +29,7 @@ function TableFilterStatus({
                             .map((filter, index, array) => (
                                 <span key={index}>
                                     <span className="text-bold">{filter}</span>
-                                    {index < array.length - 1 && (
-                                        <span>, </span>
-                                    )}
+                                    {index < array.length - 1 && <span>, </span>}
                                 </span>
                             ))}
                     </p>

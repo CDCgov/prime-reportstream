@@ -51,8 +51,9 @@ class HL7TrucatorTests {
         assertThat(covidHL7Truncator.getHl7MaxLength("OBX-18-1", emptyTerser)).isEqualTo(199)
         assertThat(covidHL7Truncator.getHl7MaxLength("OBX-19", emptyTerser)).isEqualTo(26)
         assertThat(covidHL7Truncator.getHl7MaxLength("OBX-23-1", emptyTerser)).isEqualTo(50)
-        // Test that a subcomponent returns null
+        // Test subcomponent length
         assertThat(covidHL7Truncator.getHl7MaxLength("OBR-16-1-2", emptyTerser)).isNull()
+        assertThat(covidHL7Truncator.getHl7MaxLength("SPM-2-2-2", emptyTerser)).isEqualTo(20)
     }
 
     @Test
@@ -61,6 +62,25 @@ class HL7TrucatorTests {
         assertThat(
             upHL7Truncator.getHl7MaxLength("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-1", emptyTerser)
         ).isEqualTo(15)
+        assertThat(
+            upHL7Truncator.getHl7MaxLength("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-3", emptyTerser)
+        ).isEqualTo(30)
+        assertThat(
+            upHL7Truncator.getHl7MaxLength("/PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/ORC-21-1", emptyTerser)
+        ).isEqualTo(50)
+        // Test OBX and OBR
+        assertThat(
+            upHL7Truncator.getHl7MaxLength(
+                "/PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/OBSERVATION(0)/OBX-15-1",
+                emptyTerser
+            )
+        ).isEqualTo(20)
+        assertThat(
+            upHL7Truncator.getHl7MaxLength(
+                "/PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/OBSERVATION(0)/OBX-23-1",
+                emptyTerser
+            )
+        ).isEqualTo(50)
         assertThat(
             upHL7Truncator.getHl7MaxLength("/PATIENT_RESULT/ORDER_OBSERVATION/OBR-16-1", emptyTerser)
         ).isEqualTo(15)
@@ -103,10 +123,20 @@ class HL7TrucatorTests {
         assertThat(
             upHL7Truncator.getHl7MaxLength("/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/OBX-23-1", emptyTerser)
         ).isEqualTo(50)
-        // Test that a subcomponent returns null
+        // Test that a subcomponent that doesn't exist returns null
         assertThat(
             upHL7Truncator.getHl7MaxLength("/PATIENT_RESULT/ORDER_OBSERVATION/OBR-16-1-2", emptyTerser)
         ).isNull()
+        // Test sub-component length
+        assertThat(
+            upHL7Truncator.getHl7MaxLength("/PATIENT_RESULT(0)/PATIENT/PID-3-6-1", emptyTerser)
+        ).isEqualTo(20)
+        assertThat(
+            upHL7Truncator.getHl7MaxLength(
+                "/PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/SPECIMEN/SPM-2-2-2",
+                emptyTerser
+            )
+        ).isEqualTo(20)
     }
 
     @Test

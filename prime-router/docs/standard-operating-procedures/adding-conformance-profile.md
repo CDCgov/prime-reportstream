@@ -158,7 +158,8 @@ underlying format/library.
 
 ## HL7v2 Validation Files
 
-ReportStream uses https://hl7v2-gvt.nist.gov/gvt/#/cf and its underlying scala library to validate HL7v2 messages against
+ReportStream uses https://hl7v2-gvt.nist.gov/gvt/#/cf and its underlying scala library to validate HL7v2 messages
+against
 a particular conformance profile. nist.gov has a built-in conformance profile building tool and published profiles can
 be located in the top-right drop down.
 
@@ -166,7 +167,8 @@ be located in the top-right drop down.
 
 Go to https://hl7v2-gvt.nist.gov/gvt/#/cf and:
 
-1. Select the profile the needs to be added or updated in the top right
+1. Select the Tool Scope for the profile the needs to be added or updated in the top right
+    - If the "Tool Scopes" dropdown doesn't appear, try refreshing
 2. Go to the documentation tab
 3. Select the profile specific sub-tab next to the "General Documents" sub-tab, like "RADx MARS HL7v2's Documents"
 4. Go to "Test Case Documentation" and download the files under the following columns:
