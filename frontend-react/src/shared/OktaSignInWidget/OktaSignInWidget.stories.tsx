@@ -1,6 +1,6 @@
 // AutoUpdateFileChromatic
 import OktaSignInWidget from "./OktaSignInWidget";
-import config from "../../config";
+import { oktaSignInConfig } from "../../oktaConfig";
 
 export default {
     title: "components/OktaSignInWidget",
@@ -9,7 +9,7 @@ export default {
 
 export const Default = {
     args: {
-        config: { ...config.OKTA_WIDGET },
+        config: { ...oktaSignInConfig },
         onSuccess: () => void 1,
         onError: () => void 1,
     },

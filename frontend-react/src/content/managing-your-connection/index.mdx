@@ -14,7 +14,7 @@ monitoringTools:
     summary: When you log into the ReportStream website, these dashboards show what data you sent or received.
 submissionHistory:
     title: The submission history API
-    summary: This API endpoint shows healthcare organizations the status of data they’ve sent.
+    summary: This API endpoint shows health care organizations the status of data they’ve sent.
 ongoingSupport:
     title: Ongoing support
     summary: Our expert team troubleshoots issues throughout your use of ReportStream.
@@ -29,9 +29,10 @@ import site from "../../content/site.json";
             <CardGroup>
             <Card gridLayout={{col: "fill"}}>
                 <CardHeader typeof="div">
-                    <p className="font-sans-lg">For healthcare organizations</p>
+                    <p className="font-sans-lg">For health care organizations</p>
                 </CardHeader>
                 <CardBody>
+                    * [File validator](/file-handler/validate)
                     * [Manage your public key](/manage-public-key) <Icon name='Lock' className="text-ttop text-primary" />
                     * [View your submission history](/submissions) <Icon name='Lock' className="text-ttop text-primary" />
 
@@ -44,7 +45,7 @@ import site from "../../content/site.json";
                 </CardHeader>
                 <CardBody>
                     * [Refer healthcare organizations](/managing-your-connection/refer-healthcare-organizations)
-                    * [View your dashboard](/daily-data) <Icon name='Lock' className="text-ttop text-primary" />
+                    * [View your dashboard](/data-dashboard) <Icon name='Lock' className="text-ttop text-primary" />
 
                     [Login](/login) or [contact us](https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599) to create an account.
                 </CardBody>
@@ -64,7 +65,7 @@ import site from "../../content/site.json";
                             <img src="/assets/img/SubmissionHistory.png" alt="Submission History" />
                         </CardMedia>
                         <CardBody>
-                            **For healthcare organizations**
+                            **For health care organizations**
 
                             The Submission History dashboard provides the status of data you sent through ReportStream.
 
@@ -73,14 +74,14 @@ import site from "../../content/site.json";
                     </Card>
                     <Card gridLayout={{col: "fill"}} isAlternate>
                         <CardMedia>
-                            <img src="/assets/img/DailyData.png" alt="Daily Data" />
+                            <img src="/assets/img/DataDashboard.png" alt="Data Dashboard" />
                         </CardMedia>
                         <CardBody>
                             **For public health agencies**
 
-                            On Daily Data, you can see what data you’ve received and find information on specific files and reports.
+                            The data dashboard shows what you’ve received and allows you to dive into detail for each facility or report.
 
-                            [View your dashboard](/daily-data) <Icon name='Lock' className="text-ttop text-primary" />
+                            [View data dashboard](/data-dashboard) <Icon name='Lock' className="text-ttop text-primary" />
                         </CardBody>
                     </Card>
             </CardGroup>

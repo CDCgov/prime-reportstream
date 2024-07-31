@@ -6,11 +6,7 @@ export async function clickOnHome(page: Page) {
 }
 
 export async function clickOnAbout(page: Page) {
-    await page
-        .getByTestId("header")
-        .getByTestId("navDropDownButton")
-        .getByText("About")
-        .click();
+    await page.getByTestId("header").getByTestId("navDropDownButton").click();
 
     expect(page.getByText("About ReportStream")).toBeTruthy();
     expect(page.getByText("Our network")).toBeTruthy();
@@ -23,7 +19,7 @@ export async function clickOnAbout(page: Page) {
 export async function clickOnGettingStarted(page: Page) {
     await page
         .getByTestId("header")
-        .getByRole("link", { name: "Getting started" })
+        .getByRole("link", { name: "Getting Started" })
         .click();
 
     await expect(page).toHaveURL(/getting-started/);

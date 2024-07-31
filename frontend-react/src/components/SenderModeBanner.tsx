@@ -1,10 +1,10 @@
 import { Icon } from "@trussworks/react-uswds";
 import { ReactElement } from "react";
 
-import { withCatchAndSuspense } from "./RSErrorBoundary/RSErrorBoundary";
+import { withCatchAndSuspense } from "./RSErrorBoundary";
 import { USLink } from "./USLink";
-import useSessionContext from "../contexts/Session/useSessionContext";
-import useOrganizationSender from "../hooks/api/organizations/UseOrganizationSender/UseOrganizationSender";
+import { useSessionContext } from "../contexts/Session";
+import useSenderResource from "../hooks/UseSenderResource";
 import { MemberType } from "../utils/OrganizationUtils";
 
 const isNotActive = (val: string | undefined): boolean => {
@@ -12,7 +12,7 @@ const isNotActive = (val: string | undefined): boolean => {
 };
 
 const BannerContent = () => {
-    const { data: sender, isLoading } = useOrganizationSender();
+    const { data: sender, isLoading } = useSenderResource();
     if (!isLoading && isNotActive(sender?.customerStatus)) {
         return (
             <section>

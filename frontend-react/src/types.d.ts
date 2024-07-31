@@ -1,5 +1,4 @@
-import { type RouteObject } from "react-router";
-import { createBrowserRouter } from "react-router-dom";
+import type { RouteObject } from "react-router";
 
 declare global {
     type RsRouteObject = Omit<RouteObject, "children" | "handle"> & {
@@ -16,6 +15,4 @@ declare global {
             isLoginPage?: boolean;
         };
     };
-
-    type RemixRouter = ReturnType<typeof createBrowserRouter>;
 }

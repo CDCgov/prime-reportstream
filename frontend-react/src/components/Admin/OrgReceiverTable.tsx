@@ -12,10 +12,11 @@ import { useCallback, useRef, useState } from "react";
 import { useResource } from "rest-hooks";
 
 import { DisplayMeta } from "./DisplayMeta";
-import useCheckOrganizationReceiver, {
+import {
     CheckSettingParams,
     CheckSettingResult,
-} from "../../hooks/api/organizations/UseCheckOrganizationReceiver/UseCheckOrganizationReceiver";
+    useCheckSettingsCmd,
+} from "../../network/api/CheckSettingCmd";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import Spinner from "../Spinner";
 import { USLink, USNavLink } from "../USLink";
@@ -36,7 +37,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
         props,
     );
 
-    const { mutateAsync: doCheck, isPending } = useCheckOrganizationReceiver();
+    const { mutateAsync: doCheck, isPending } = useCheckSettingsCmd();
     const [checkResultData, setCheckResultData] =
         useState<CheckSettingResult>(DEFAULT_DATA);
     const modalRef = useRef<ModalRef>(null);

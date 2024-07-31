@@ -1,3 +1,5 @@
+# possible '%resource's:
+# Bundle.entry.resource.ofType(Patient)
 elements:
 
   - name: patient-base

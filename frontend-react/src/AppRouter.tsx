@@ -1,7 +1,7 @@
-import { lazy } from "react";
+import { ComponentType, lazy, LazyExoticComponent } from "react";
 import { Outlet, redirect, RouteObject } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 
-import RSErrorBoundary from "./components/RSErrorBoundary/RSErrorBoundary";
 import { RequireGate } from "./shared/RequireGate/RequireGate";
 import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
@@ -36,7 +36,9 @@ const ReferHealthcareOrganizations = lazy(
             ),
     ),
 );
-
+const GettingStartedIndex = lazy(
+    lazyRouteMarkdown(() => import("./content/getting-started/index.mdx")),
+);
 const GettingStartedSendingData = lazy(
     lazyRouteMarkdown(
         () => import("./content/getting-started/sending-data.mdx"),
@@ -76,6 +78,14 @@ const ReportStreamApiDocumentation = lazy(
             ),
     ),
 );
+const ReportStreamApiDocumentationDataModel = lazy(
+    lazyRouteMarkdown(
+        () =>
+            import(
+                "./content/developer-resources/reportstream-api/documentation/data-model/DataModel.mdx"
+            ),
+    ),
+);
 const ReportStreamApiDocumentationResponses = lazy(
     lazyRouteMarkdown(
         () =>
@@ -103,7 +113,6 @@ const ReportStreamApiDocumentationPayloads = lazy(
 
 /* Public Pages */
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
-
 const LoginCallback = lazy(
     () => import("./shared/LoginCallback/LoginCallback"),
 );
@@ -111,7 +120,7 @@ const LogoutCallback = lazy(
     () => import("./shared/LogoutCallback/LogoutCallback"),
 );
 const Login = lazy(() => import("./pages/Login"));
-
+const FileHandler = lazy(() => import("./components/FileHandlers/FileHandler"));
 const ErrorNoPage = lazy(
     () => import("./pages/error/legacy-content/ErrorNoPage"),
 );
@@ -133,10 +142,7 @@ const AdminMessageTrackerPage = lazy(
     () => import("./pages/admin/AdminMessageTracker"),
 );
 const AdminReceiverDashPage = lazy(
-    () =>
-        import(
-            "./pages/admin/receiver-dashboard/AdminReceiverDashboardPage/AdminReceiverDashboardPage"
-        ),
+    () => import("./pages/admin/AdminReceiverDashPage"),
 );
 const DeliveryDetailPage = lazy(
     () => import("./pages/deliveries/details/DeliveryDetail"),
@@ -178,14 +184,10 @@ const FacilityProviderSubmitterDetailsPage = lazy(
 );
 const NewSettingPage = lazy(() => import("./components/Admin/NewSetting"));
 
-const MainLayout = lazy(() => import("./layouts/Main/MainLayout"));
-
 export const appRoutes: RouteObject[] = [
     /* Public Site */
     {
         path: "/",
-        Component: MainLayout,
-        ErrorBoundary: RSErrorBoundary,
         children: [
             {
                 path: "",
@@ -294,6 +296,14 @@ export const appRoutes: RouteObject[] = [
                 path: "getting-started",
                 children: [
                     {
+                        index: true,
+                        element: <GettingStartedIndex />,
+                        handle: {
+                            isContentPage: true,
+                            isFullWidth: true,
+                        },
+                    },
+                    {
                         path: "sending-data",
                         element: <GettingStartedSendingData />,
                         handle: {
@@ -347,6 +357,15 @@ export const appRoutes: RouteObject[] = [
                                             <ReportStreamApiDocumentation />
                                         ),
                                         index: true,
+                                        handle: {
+                                            isContentPage: true,
+                                        },
+                                    },
+                                    {
+                                        path: "data-model",
+                                        element: (
+                                            <ReportStreamApiDocumentationDataModel />
+                                        ),
                                         handle: {
                                             isContentPage: true,
                                         },
@@ -406,9 +425,7 @@ export const appRoutes: RouteObject[] = [
             },
             {
                 path: "/file-handler/validate",
-                loader: () => {
-                    return redirect("/developer-resources/api/getting-started");
-                },
+                element: <FileHandler />,
             },
             {
                 path: "daily-data",
@@ -603,3 +620,9 @@ export const appRoutes: RouteObject[] = [
         ],
     },
 ] satisfies RsRouteObject[];
+
+export function createRouter(Component: LazyExoticComponent<ComponentType>) {
+    appRoutes[0].element = <Component />;
+    const router = createBrowserRouter(appRoutes);
+    return router;
+}

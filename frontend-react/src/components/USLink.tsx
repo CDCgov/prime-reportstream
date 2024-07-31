@@ -9,7 +9,8 @@ import {
     useMemo,
 } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import useAppInsightsContext from "../hooks/UseAppInsightsContext/UseAppInsightsContext";
+
+import { useAppInsightsContext } from "../contexts/AppInsights";
 
 /** PropsWithChildren has known issues with generic extension in React 18,
  * so rather than using it here, we are using our own definition of child types.
@@ -252,7 +253,7 @@ export function USSmartLink({
     trackClick,
     ...props
 }: USSmartLinkProps) {
-    const appInsights = useAppInsightsContext();
+    const { appInsights } = useAppInsightsContext();
     let isExternal = props.href !== undefined;
     const finalOnClick = useMemo(
         () =>

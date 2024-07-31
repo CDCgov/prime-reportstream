@@ -1,3 +1,4 @@
+//import "jest-canvas-mock";
 import "@testing-library/jest-dom";
 import { cleanup } from "@testing-library/react";
 import { createMocks } from "react-idle-timer";
@@ -12,22 +13,17 @@ import {
 import { Blob, File } from "node:buffer";
 import { MessageChannel } from "worker_threads";
 
+vi.stubGlobal("scrollTo", vi.fn());
+vi.mock("./oktaConfig");
+vi.mock("focus-trap-react");
+
 beforeAll(() => {
     createMocks();
     // @ts-expect-error ignore global
     global.MessageChannel = MessageChannel;
-
-    vi.mock("@microsoft/applicationinsights-react-js");
-    vi.mock("@okta/okta-react");
-    vi.mock("./contexts/Session/useSessionContext");
-    vi.mock("./hooks/UseAppInsightsContext/UseAppInsightsContext");
-    vi.stubGlobal("scrollTo", vi.fn());
-    vi.mock("./oktaConfig");
-    vi.mock("focus-trap-react");
-    vi.mock("./contexts/FeatureFlag/useFeatureFlags");
 });
 
-afterAll(() => cleanup());
+afterAll(cleanup);
 
 /** JSDOM Polyfills */
 Object.defineProperties(globalThis, {

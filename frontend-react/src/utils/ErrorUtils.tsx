@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 
-import { RSConsole } from "./rsConsole/rsConsole";
+import { RSConsole } from "./console";
 
 export interface ReportStreamAlert {
     type: string;

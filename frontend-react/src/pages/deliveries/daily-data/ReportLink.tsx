@@ -3,7 +3,7 @@ import download from "downloadjs";
 import { PropsWithChildren } from "react";
 
 import config from "../../../config";
-import useSessionContext from "../../../contexts/Session/useSessionContext";
+import { useSessionContext } from "../../../contexts/Session";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
 
 const { RS_API_URL } = config;

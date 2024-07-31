@@ -14,17 +14,18 @@ import TableFilters, {
 } from "../../../components/Table/TableFilters";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import { RSReceiver } from "../../../config/endpoints/settings";
-import useSessionContext from "../../../contexts/Session/useSessionContext";
-import useOrgDeliveries, {
+import {
+    EventName,
+    useAppInsightsContext,
+} from "../../../contexts/AppInsights";
+import { useSessionContext } from "../../../contexts/Session";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager";
+import {
     DeliveriesDataAttr,
-} from "../../../hooks/api/deliveries/UseOrgDeliveries/UseOrgDeliveries";
-import useOrganizationReceivers from "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers";
-import { FilterManager } from "../../../hooks/filters/UseFilterManager/UseFilterManager";
-import useAppInsightsContext from "../../../hooks/UseAppInsightsContext/UseAppInsightsContext";
-import usePagination, {
-    ResultsFetcher,
-} from "../../../hooks/UsePagination/UsePagination";
-import { EventName } from "../../../utils/AppInsights";
+    useOrgDeliveries,
+} from "../../../hooks/network/History/DeliveryHooks";
+import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceivers";
+import usePagination, { ResultsFetcher } from "../../../hooks/UsePagination";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
 
@@ -120,11 +121,13 @@ const DeliveriesFilterAndTable = ({
     filterManager,
     services,
     setService,
+    initialService,
 }: {
     fetchResults: ResultsFetcher<any>;
     filterManager: FilterManager;
     services: RSReceiver[];
-    setService?: Dispatch<SetStateAction<string>>;
+    setService?: Dispatch<SetStateAction<string | undefined>>;
+    initialService: RSReceiver;
 }) => {
     const { appInsights } = useAppInsightsContext();
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
@@ -155,7 +158,7 @@ const DeliveriesFilterAndTable = ({
     });
 
     if (paginationProps) {
-        paginationProps.label = "Pagination";
+        paginationProps.label = "Deliveries pagination";
     }
 
     const receiverDropdown = [
@@ -190,6 +193,7 @@ const DeliveriesFilterAndTable = ({
                         },
                     })
                 }
+                initialService={initialService}
                 resultLength={paginationProps?.resultLength}
                 isPaginationLoading={paginationProps?.isPaginationLoading}
             />
@@ -209,10 +213,13 @@ const DeliveriesFilterAndTable = ({
     );
 };
 
-export function DailyData() {
+export const DailyData = () => {
     const { isLoading, isDisabled, activeReceivers } =
         useOrganizationReceivers();
-    const { fetchResults, filterManager, setService } = useOrgDeliveries();
+    const initialService = activeReceivers?.[0];
+    const { fetchResults, filterManager, setService } = useOrgDeliveries(
+        initialService?.name,
+    );
 
     if (isLoading) return <Spinner />;
 
@@ -225,8 +232,9 @@ export function DailyData() {
             filterManager={filterManager}
             setService={setService}
             services={activeReceivers}
+            initialService={initialService}
         />
     );
-}
+};
 
 export default DailyData;

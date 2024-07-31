@@ -1,5 +1,5 @@
 import Table, { TableConfig } from "../../../components/Table/Table";
-import useReportsFacilities from "../../../hooks/api/deliveries/UseReportFacilities/UseReportFacilities";
+import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
 
 interface FacilitiesTableProps {
     /* REQUIRED

@@ -1,21 +1,20 @@
 import { Button, ButtonGroup, Label, TextInput } from "@trussworks/react-uswds";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
+import { useResource } from "rest-hooks";
 
-import useSessionContext from "../../contexts/Session/useSessionContext";
-import useOrganizationSettingsList from "../../hooks/api/organizations/UseOrganizationSettingsList/UseOrganizationSettingsList";
+import { useSessionContext } from "../../contexts/Session";
+import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import Table from "../../shared/Table/Table";
-import { searchOrganizationSettingsList } from "../../utils/filters/organizationSettingsListFilters";
 import { MembershipSettings, MemberType } from "../../utils/OrganizationUtils";
 import { USNavLink } from "../USLink";
 
 export function OrgsTable() {
-    const { data } = useOrganizationSettingsList();
-    const orgs = useMemo(
-        () => data.toSorted((a, b) => a.name.localeCompare(b.name)),
-        [data],
-    );
+    const orgs: OrgSettingsResource[] = useResource(
+        OrgSettingsResource.list(),
+        {},
+    ).sort((a, b) => a.name.localeCompare(b.name));
     const [filter, setFilter] = useState("");
     const navigate = useNavigate();
     const { activeMembership, setActiveMembership } = useSessionContext();
@@ -44,9 +43,7 @@ export function OrgsTable() {
 
     const saveListToCSVFile = () => {
         const csvbody = orgs
-            .filter((eachOrg) =>
-                searchOrganizationSettingsList(eachOrg, filter),
-            )
+            .filter((eachOrg) => eachOrg.filterMatch(filter))
             .map((eachOrg) =>
                 [
                     `"`,
@@ -67,28 +64,16 @@ export function OrgsTable() {
         // should be added back whenever this API handler is adjusted to send back metadata - DWS
         const csvheader = `Name,Description,Jurisdiction,State,County\n`;
         const filecontent = [
-            // this makes it a csv file
+            "data:text/csv;charset=utf-8,", // this makes it a csv file
             csvheader,
             csvbody,
         ].join("");
-
-        // Create a temp link to initiate a download of our in-memory file
-        const blob = new Blob([filecontent], { type: "text/csv" });
-        const ele = document.createElement("a");
-        const dataUrl = URL.createObjectURL(blob);
-        ele.setAttribute("href", dataUrl);
-        ele.setAttribute("download", "prime-orgs.csv");
-        document.body.appendChild(ele);
-        ele.click();
-        document.body.removeChild(ele);
-        URL.revokeObjectURL(dataUrl);
+        window.open(encodeURI(filecontent), "prime-orgs.csv", "noopener");
     };
 
     const formattedTableData = () => {
         return orgs
-            .filter((eachOrg) =>
-                searchOrganizationSettingsList(eachOrg, filter),
-            )
+            .filter((eachOrg) => eachOrg.filterMatch(filter))
             .map((eachOrg) => [
                 {
                     columnKey: "Name",

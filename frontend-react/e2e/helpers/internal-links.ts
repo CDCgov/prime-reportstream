@@ -1,7 +1,6 @@
 import { Page } from "@playwright/test";
 
-export const ELC =
-    "https://www.cdc.gov/epidemiology-laboratory-capacity/php/about/";
+export const ELC = "https://www.cdc.gov/elc/elc-overview.html";
 
 export async function clickOnInternalLink(
     locator: string,

@@ -2,7 +2,7 @@ import axios from "axios";
 import download from "downloadjs";
 
 import config from "../../../config";
-import { RSReportInterface } from "../../../utils/ReportUtils";
+import { RSReportInterface } from "../../../network/api/History/Reports";
 
 const { RS_API_URL } = config;
 export const reportDetailURL = (id: string, base?: string) =>

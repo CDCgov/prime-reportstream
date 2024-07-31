@@ -1,3 +1,4 @@
+#!/usr/bin/env sh
 
 FILE="$(dirname -- "$0")/_/husky.sh"
 

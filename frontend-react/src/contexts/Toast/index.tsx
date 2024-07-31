@@ -8,7 +8,7 @@ import {
 } from "react";
 import { toast } from "react-toastify";
 
-import useSessionContext from "../Session/useSessionContext";
+import { useSessionContext } from "../Session";
 
 export interface ToastCtx {
     toast: (

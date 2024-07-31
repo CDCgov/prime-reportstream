@@ -23,9 +23,6 @@ export default class SubmissionsResource extends AuthResource {
     readonly sender: string = "";
     readonly httpStatus: number = 0;
     readonly externalName: string = "";
-    fileDisplayName = "";
-    readonly fileName: string = "";
-    readonly fileType: string = "";
     readonly id: string | undefined;
     readonly topic: string = "";
     readonly reportItemCount: number = 0;

@@ -5,18 +5,22 @@ import { Suspense } from "react";
 import FileHandlerFileUploadStep, {
     getClientHeader,
 } from "./FileHandlerFileUploadStep";
+import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
 import {
     fakeFile,
     mockSendFileWithErrors,
     mockSendValidFile,
 } from "../../__mocks__/validation";
-import { sendersGenerator } from "../../__mockServers__/OrganizationMockServer";
 import { RSSender } from "../../config/endpoints/settings";
-import { UseSenderResourceHookResult } from "../../hooks/api/organizations/UseOrganizationSender/UseOrganizationSender";
-import * as useSenderResourceExports from "../../hooks/api/organizations/UseOrganizationSender/UseOrganizationSender";
-import * as useWatersUploaderExports from "../../hooks/api/UseWatersUploader/UseWatersUploader";
-import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
-import { INITIAL_STATE } from "../../hooks/UseFileHandler/UseFileHandler";
+import {
+    mockAppInsights,
+    mockAppInsightsContextReturnValue,
+} from "../../contexts/__mocks__/AppInsightsContext";
+import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
+import { INITIAL_STATE } from "../../hooks/UseFileHandler";
+import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
+import * as useSenderResourceExports from "../../hooks/UseSenderResource";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { MembershipSettings, MemberType } from "../../utils/OrganizationUtils";
 import {
@@ -24,12 +28,6 @@ import {
     FileType,
     Format,
 } from "../../utils/TemporarySettingsAPITypes";
-
-const { mockSessionContentReturnValue } = await vi.importMock<
-    typeof import("../../contexts/Session/__mocks__/useSessionContext")
->("../../contexts/Session/useSessionContext");
-const mockUseAppInsightsContext = vi.mocked(useAppInsightsContext);
-const mockAppInsights = mockUseAppInsightsContext();
 
 describe("FileHandlerFileUploadStep", () => {
     const DEFAULT_PROPS = {
@@ -60,6 +58,7 @@ describe("FileHandlerFileUploadStep", () => {
                 isLoading: false,
             });
             mockSessionContentReturnValue();
+            mockAppInsightsContextReturnValue();
         });
 
         describe("when a CSV schema is chosen", () => {
@@ -159,7 +158,10 @@ describe("FileHandlerFileUploadStep", () => {
 
         describe("when a file is being submitted", () => {
             function setup() {
-                vi.spyOn(useWatersUploaderExports, "default").mockReturnValue({
+                vi.spyOn(
+                    useWatersUploaderExports,
+                    "useWatersUploader",
+                ).mockReturnValue({
                     isPending: true,
                     error: null,
                     mutateAsync: () => Promise.resolve({}),
@@ -195,7 +197,10 @@ describe("FileHandlerFileUploadStep", () => {
             const onFileSubmitSuccessSpy = vi.fn();
             const onNextStepClickSpy = vi.fn();
             async function setup() {
-                vi.spyOn(useWatersUploaderExports, "default").mockReturnValue({
+                vi.spyOn(
+                    useWatersUploaderExports,
+                    "useWatersUploader",
+                ).mockReturnValue({
                     isPending: false,
                     error: null,
                     mutateAsync: async () =>
@@ -276,7 +281,10 @@ describe("FileHandlerFileUploadStep", () => {
         describe("when an invalid file is submitted", () => {
             const onFileSubmitErrorSpy = vi.fn();
             async function setup() {
-                vi.spyOn(useWatersUploaderExports, "default").mockReturnValue({
+                vi.spyOn(
+                    useWatersUploaderExports,
+                    "useWatersUploader",
+                ).mockReturnValue({
                     isPending: false,
                     error: null,
                     mutateAsync: async () =>
@@ -366,9 +374,6 @@ describe("getClientHeader", () => {
         processingType: "sync",
         schemaName: DEFAULT_SCHEMA_NAME,
         topic: "covid-19",
-        version: 0,
-        createdAt: "",
-        createdBy: "",
     };
 
     describe("when selectedSchemaName is falsy", () => {

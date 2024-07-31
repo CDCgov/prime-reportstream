@@ -15,7 +15,10 @@ export async function clickRoadmap(page: Page) {
 }
 
 export async function clickNews(page: Page) {
-    await page.getByTestId("sidenav").getByRole("link", { name: /News/ }).click();
+    await page
+        .getByTestId("sidenav")
+        .getByRole("link", { name: /News/ })
+        .click();
 }
 
 export async function clickCaseStudies(page: Page) {

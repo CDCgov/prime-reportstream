@@ -2,24 +2,21 @@ import { screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
 import ReportDetailsTable from "./ReportDetailsTable";
-import { makeFacilityFixtureArray } from "../../../__mockServers__/DeliveriesMockServer";
-import useReportsFacilities from "../../../hooks/api/deliveries/UseReportFacilities/UseReportFacilities";
-import useAppInsightsContext from "../../../hooks/UseAppInsightsContext/UseAppInsightsContext";
+import { makeFacilityFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
+import {
+    mockAppInsights,
+    mockAppInsightsContextReturnValue,
+} from "../../../contexts/__mocks__/AppInsightsContext";
+
+import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { selectDatesFromRange } from "../../../utils/TestUtils";
-
-vi.mock(
-    "../../../hooks/api/deliveries/UseReportFacilities/UseReportFacilities",
-);
-
-const mockUseAppInsightsContext = vi.mocked(useAppInsightsContext);
-const mockAppInsights = mockUseAppInsightsContext();
-const mockUseReportFacilities = vi.mocked(useReportsFacilities);
 
 const TEST_ID = "123";
 
 describe("ReportDetailsTable", () => {
     test("url param (reportId) feeds into network hook", () => {
+        mockAppInsightsContextReturnValue();
         mockUseReportFacilities.mockReturnValue({
             data: [],
         } as any);
@@ -29,6 +26,7 @@ describe("ReportDetailsTable", () => {
 
     describe("with data", () => {
         function setup() {
+            mockAppInsightsContextReturnValue();
             const mockUseReportFacilitiesCallback = {
                 data: makeFacilityFixtureArray(10),
             };
@@ -79,6 +77,7 @@ describe("ReportDetailsTable", () => {
 
     describe("without data", () => {
         function setup() {
+            mockAppInsightsContextReturnValue();
             const mockUseReportFacilitiesCallback = {
                 data: [],
             };

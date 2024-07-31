@@ -3,8 +3,8 @@ import axios, { AxiosRequestConfig } from "axios";
 import { Fetcher, Middleware, SuspenseQueryHook } from "react-query-kit";
 
 import { RSEndpoint } from "../config/endpoints";
-import useSessionContext from "../contexts/Session/useSessionContext";
-import useAppInsightsContext from "../hooks/UseAppInsightsContext/UseAppInsightsContext";
+import { useAppInsightsContext } from "../contexts/AppInsights";
+import { useSessionContext } from "../contexts/Session";
 
 export type AuthMiddleware<TData> = Middleware<
     SuspenseQueryHook<TData, FetchVariables>
@@ -20,10 +20,10 @@ export const authMiddleware: Middleware<
 > = (useQueryNext) => {
     return (options, qc) => {
         if (!options.variables?.endpoint) throw new Error("Endpoint not found");
-        const { properties } = useAppInsightsContext();
+        const { fetchHeaders } = useAppInsightsContext();
         const { authState, activeMembership } = useSessionContext();
         const authHeaders = {
-            "x-ms-session-id": properties.context.getSessionId(),
+            ...fetchHeaders(),
             "authentication-type": "okta",
             authorization: `Bearer ${
                 authState?.accessToken?.accessToken ?? ""

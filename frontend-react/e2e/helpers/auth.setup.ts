@@ -1,47 +1,31 @@
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import { TOTP } from "otpauth";
 
-import { fulfillGoogleAnalytics } from "./utils";
-import { expect, test as setup, type TestLogin } from "../test";
+import { test as setup } from "./rs-test";
+import type { TestLogin } from "./rs-test";
 
 async function logIntoOkta(page: Page, login: TestLogin) {
     const totp = new TOTP({ secret: login.totpCode });
 
     // fulfill GA request so that we don't log to it and alter the metrics
-    await fulfillGoogleAnalytics(page);
+    await page.route("https://www.google-analytics.com/**", (route) =>
+        route.fulfill({ status: 204, body: "" }),
+    );
 
-    // block AI
-    await page.route("**/v2/track", (route) => route.abort("blockedbyclient"));
+    // abort all app insight calls
+    await page.route("**/v2/track", (route) => route.abort());
 
     await page.goto("/login", {
         waitUntil: "domcontentloaded",
     });
-    await page
-        .getByLabel("Username")
-        .or(page.getByLabel("Username or email"))
-        .fill(login.username);
-
-    const btnNext = page.getByRole("button", { name: "Next" });
-    if (btnNext) {
-        await btnNext.click();
-    }
+    await page.getByLabel("Username").fill(login.username);
 
     const pwd = page.getByLabel("Password");
     // Okta scripting will cause password input to fail if we don't
     // manually focus the field at this point
     await pwd.focus();
     await pwd.fill(login.password);
-    const btnSubmit = page
-        .getByRole("button", { name: "Sign in" })
-        .or(page.getByRole("button", { name: "Verify" }));
-    await btnSubmit.click();
-
-    await expect(btnSubmit).not.toBeAttached();
-
-    const totpSelect = page.getByLabel("Select Google Authenticator.");
-    if (await totpSelect.isVisible()) {
-        await totpSelect.click();
-    }
+    await page.getByRole("button", { name: "Sign in" }).click();
 
     if (login.totpCode !== "" && login.totpCode !== undefined) {
         await page.getByLabel("Enter Code ").fill(totp.generate());
@@ -51,7 +35,7 @@ async function logIntoOkta(page: Page, login: TestLogin) {
     await page.waitForLoadState("domcontentloaded");
 
     // Verify we are authenticated
-    await expect(page.getByTestId("logout")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
 }
 
 /**
@@ -64,9 +48,10 @@ setup(
         for (const login of [adminLogin, senderLogin, receiverLogin]) {
             await logIntoOkta(page, login);
 
+            const logoutBtn = page.getByRole("button", { name: "Logout" });
             await page.context().storageState({ path: login.path });
-            await page.getByTestId("logout").click();
 
+            await logoutBtn.click();
             await expect(
                 page.getByRole("link", { name: "Login" }),
             ).toBeAttached();

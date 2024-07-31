@@ -8,14 +8,15 @@ import Table, { ColumnConfig, TableConfig } from "./Table";
 import TableFilters, { TableFilterDateLabel } from "./TableFilters";
 import { DatasetAction } from "./TableInfo";
 import { TableRowData, TableRows } from "./TableRows";
+import { receiverServicesGenerator } from "../../__mocks__/DataDashboardMockServer";
 import { filterManagerFixture } from "../../hooks/filters/filters.fixtures";
 import useCursorManager, {
     CursorActionType,
-} from "../../hooks/filters/UseCursorManager/UseCursorManager";
+} from "../../hooks/filters/UseCursorManager";
 import useFilterManager, {
     FilterManager,
-} from "../../hooks/filters/UseFilterManager/UseFilterManager";
-import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder/UseSortOrder";
+} from "../../hooks/filters/UseFilterManager";
+import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { selectDatesFromRange } from "../../utils/TestUtils";
 
@@ -145,6 +146,9 @@ const FilteredTable = () => {
         <Table config={getTestConfig(10)} filterManager={mockFilterManager} />
     );
 };
+
+const mockReceiverServices = receiverServicesGenerator(5);
+const mockActiveReceiver = mockReceiverServices[0];
 
 const testDataRowOne = {
     one: "value one",
@@ -298,6 +302,7 @@ const TestTable = ({
                     hasPrev,
                     update: updateCursors,
                 }}
+                initialService={mockActiveReceiver}
                 setSearchTerm={
                     handleSearchTerm as Dispatch<SetStateAction<string>>
                 }
@@ -433,60 +438,52 @@ describe("Sorting integration", () => {
 /* TODO:
  *   Refactor these tests to use new functions instead of TestTable
  * */
-describe(
-    "Table, filter integration tests",
-    () => {
-        function setup() {
-            renderApp(<TestTable />);
-        }
-        test("date range selection and clearing", async () => {
-            setup();
-            /* Workaround to assert changing state */
-            const defaultState =
-                "range: from 2000-01-01T00:00:00.000Z to 3000-01-01T00:00:00.000Z";
-            expect(screen.getByText(/range:/)).toHaveTextContent(defaultState);
+describe("Table, filter integration tests", () => {
+    function setup() {
+        renderApp(<TestTable />);
+    }
+    test("date range selection and clearing", async () => {
+        setup();
+        /* Workaround to assert changing state */
+        const defaultState =
+            "range: from 2000-01-01T00:00:00.000Z to 3000-01-01T00:00:00.000Z";
+        expect(screen.getByText(/range:/)).toHaveTextContent(defaultState);
 
-            await selectDatesFromRange("20", "23");
-            await clickFilterButton();
+        await selectDatesFromRange("20", "23");
+        await clickFilterButton();
 
-            /* Assert the value of state in string has changed */
-            expect(screen.getByText(/range:/)).not.toHaveTextContent(
-                defaultState,
-            );
+        /* Assert the value of state in string has changed */
+        expect(screen.getByText(/range:/)).not.toHaveTextContent(defaultState);
 
-            const clearButton = screen.getAllByText("Reset");
-            await userEvent.click(clearButton[0]);
-        });
+        const clearButton = screen.getAllByText("Reset");
+        await userEvent.click(clearButton[0]);
+    });
 
-        test("cursor sets properly according to sort order", async () => {
-            setup();
-            const defaultCursor = "cursor: 3000-01-01T00:00:00.000Z";
-            expect(screen.getByText(/cursor:/)).toHaveTextContent(
-                defaultCursor,
-            );
+    test("cursor sets properly according to sort order", async () => {
+        setup();
+        const defaultCursor = "cursor: 3000-01-01T00:00:00.000Z";
+        expect(screen.getByText(/cursor:/)).toHaveTextContent(defaultCursor);
 
-            await selectDatesFromRange("10", "20");
-            await clickFilterButton();
+        await selectDatesFromRange("10", "20");
+        await clickFilterButton();
 
-            expect(screen.getByText(/cursor:/)).not.toHaveTextContent(
-                defaultCursor,
-            );
-            // Checking for inclusive date
-            expect(screen.getByText(/cursor:/)).toHaveTextContent(
-                /2024-03-20T23:59:00.000Z/,
-            );
+        expect(screen.getByText(/cursor:/)).not.toHaveTextContent(
+            defaultCursor,
+        );
+        // Checking for inclusive date
+        expect(screen.getByText(/cursor:/)).toHaveTextContent(
+            /2024-03-20T23:59:00.000Z/,
+        );
 
-            // Change sort order and repeat
-            await userEvent.click(screen.getByText("Column Two"));
-            await selectDatesFromRange("13", "23");
-            await clickFilterButton();
+        // Change sort order and repeat
+        await userEvent.click(screen.getByText("Column Two"));
+        await selectDatesFromRange("13", "23");
+        await clickFilterButton();
 
-            // Checking for exclusive date
-            expect(screen.getByText(/cursor:/)).toHaveTextContent(/00:00.000Z/);
-        });
-    },
-    { timeout: 10000 },
-);
+        // Checking for exclusive date
+        expect(screen.getByText(/cursor:/)).toHaveTextContent(/00:00.000Z/);
+    });
+});
 
 // TODO: expand these tests. For now mainly concerned with edit / save functionality - DWS 6/13/22
 describe("TableRows", () => {

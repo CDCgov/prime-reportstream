@@ -1,7 +1,5 @@
 import { Button, Search } from "@trussworks/react-uswds";
 import { FormEvent } from "react";
-import { FeatureName } from "../../utils/FeatureName";
-import { appInsights } from "../../utils/TelemetryService/TelemetryService";
 
 export interface TableFilterSearch {
     resultLength?: number;
@@ -9,29 +7,30 @@ export interface TableFilterSearch {
 }
 
 interface TableFilterSearchProps {
+    filterReset: number;
     resetHandler: (e: FormEvent<Element>) => void;
     searchReset: number;
+    setCurrentServiceSelect: React.Dispatch<React.SetStateAction<string>>;
+    setFilterReset: React.Dispatch<React.SetStateAction<number>>;
     setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
-    resetFilterFields: React.Dispatch<React.FormEvent<HTMLFormElement>>;
 }
 
 function TableFilterSearch({
+    filterReset,
     resetHandler,
     searchReset,
+    setCurrentServiceSelect,
+    setFilterReset,
     setSearchTerm,
-    resetFilterFields,
 }: TableFilterSearchProps) {
     const submitHandler = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        resetFilterFields(e);
+        setCurrentServiceSelect("");
+        setFilterReset(filterReset + 1);
         const searchField = e.currentTarget.elements.namedItem(
             "search",
         ) as HTMLInputElement;
         setSearchTerm(searchField?.value);
-
-        appInsights?.trackEvent({
-            name: `${FeatureName.DAILY_DATA} | Search`,
-        });
     };
     return (
         <div className="margin-bottom-4 padding-left-4">

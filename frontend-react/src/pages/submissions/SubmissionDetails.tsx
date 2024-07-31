@@ -7,7 +7,7 @@ import Crumbs, { CrumbConfig } from "../../components/Crumbs";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
 import Spinner from "../../components/Spinner";
 import Title from "../../components/Title";
-import useSessionContext from "../../contexts/Session/useSessionContext";
+import { useSessionContext } from "../../contexts/Session";
 import ActionDetailsResource, {
     Destination,
 } from "../../resources/ActionDetailsResource";

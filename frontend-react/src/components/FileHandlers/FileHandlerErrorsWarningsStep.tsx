@@ -16,7 +16,7 @@ import {
     RequestLevel,
 } from "./FileHandlerMessaging";
 import { OverallStatus } from "../../config/endpoints/waters";
-import { ErrorType } from "../../hooks/UseFileHandler/UseFileHandler";
+import { ErrorType } from "../../hooks/UseFileHandler";
 
 const SERVER_ERROR_MESSAGING = {
     heading: OverallStatus.ERROR,

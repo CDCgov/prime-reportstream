@@ -19,6 +19,11 @@ import {
 import { CacheProvider } from "rest-hooks";
 
 import { appRoutes } from "../AppRouter";
+import config from "../config";
+import AppInsightsContextProvider from "../contexts/AppInsights";
+import AuthorizedFetchProvider from "../contexts/AuthorizedFetch";
+import FeatureFlagProvider from "../contexts/FeatureFlag";
+import { SessionProviderBase } from "../contexts/Session";
 import { getTestQueryClient } from "../network/QueryClients";
 
 interface AppWrapperProps {
@@ -41,7 +46,6 @@ function createTestRoutes(
     return routes.map((r) => ({
         ...r,
         lazy: undefined,
-        Component: undefined,
         element: r.path !== "/" ? element : <TestLayout />,
         children: r.children
             ? createTestRoutes(r.children, element)
@@ -73,15 +77,37 @@ export const AppWrapper = ({
             <Suspense>
                 <CacheProvider>
                     <HelmetProvider>
-                        <QueryClientProvider client={getTestQueryClient()}>
-                            {restHookFixtures ? (
-                                <MockResolver fixtures={restHookFixtures}>
-                                    <RouterProvider router={router} />
-                                </MockResolver>
-                            ) : (
-                                <RouterProvider router={router} />
-                            )}
-                        </QueryClientProvider>
+                        <AppInsightsContextProvider>
+                            <SessionProviderBase
+                                oktaAuth={{} as any}
+                                authState={{}}
+                                config={config}
+                            >
+                                <QueryClientProvider
+                                    client={getTestQueryClient()}
+                                >
+                                    <AuthorizedFetchProvider
+                                        initializedOverride={true}
+                                    >
+                                        <FeatureFlagProvider>
+                                            {restHookFixtures ? (
+                                                <MockResolver
+                                                    fixtures={restHookFixtures}
+                                                >
+                                                    <RouterProvider
+                                                        router={router}
+                                                    />
+                                                </MockResolver>
+                                            ) : (
+                                                <RouterProvider
+                                                    router={router}
+                                                />
+                                            )}
+                                        </FeatureFlagProvider>
+                                    </AuthorizedFetchProvider>
+                                </QueryClientProvider>
+                            </SessionProviderBase>
+                        </AppInsightsContextProvider>
                     </HelmetProvider>
                 </CacheProvider>
             </Suspense>

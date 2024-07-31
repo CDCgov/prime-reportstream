@@ -1,6 +1,7 @@
 import { screen } from "@testing-library/react";
 
 import { ReportDetailsSummary } from "./ReportDetailsSummary";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import {
@@ -9,9 +10,6 @@ import {
 } from "../../../utils/OrganizationUtils";
 import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 
-const { mockSessionContentReturnValue } = await vi.importMock<
-    typeof import("../../../contexts/Session/__mocks__/useSessionContext")
->("../../../contexts/Session/useSessionContext");
 const mockGetUser = vi.fn();
 
 const currentDate = new Date();

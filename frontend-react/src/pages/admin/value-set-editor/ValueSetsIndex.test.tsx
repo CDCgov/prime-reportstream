@@ -3,12 +3,10 @@ import { AxiosError, AxiosResponse } from "axios";
 
 import ValueSetsIndexPage from "./ValueSetsIndex";
 import { ValueSet } from "../../../config/endpoints/lookupTables";
-import useValueSetsMeta, {
+import {
     UseValueSetsMetaResult,
-} from "../../../hooks/api/lookuptables/UseValueSetsMeta/UseValueSetsMeta";
-import useValueSetsTable, {
     UseValueSetsTableResult,
-} from "../../../hooks/api/lookuptables/UseValueSetsTable/UseValueSetsTable";
+} from "../../../hooks/UseValueSets";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
 
@@ -28,22 +26,26 @@ const fakeMeta = {
     createdBy: "you",
 };
 
-vi.mock("../../../hooks/api/lookuptables/UseValueSetsMeta/UseValueSetsMeta");
-vi.mock("../../../hooks/api/lookuptables/UseValueSetsTable/UseValueSetsTable");
+let mockUseValueSetsTable = vi.fn();
+let mockUseValueSetsMeta = vi.fn();
 
-const mockUseValueSetsTable = vi.mocked(useValueSetsTable);
-const mockUseValueSetsMeta = vi.mocked(useValueSetsMeta);
+vi.mock("../../../hooks/UseValueSets", () => {
+    return {
+        useValueSetsTable: () => mockUseValueSetsTable(),
+        useValueSetsMeta: () => mockUseValueSetsMeta(),
+    };
+});
 
 describe("ValueSetsIndex tests", () => {
     test("Renders with no errors", () => {
-        mockUseValueSetsTable.mockImplementation(
+        mockUseValueSetsTable = vi.fn(
             () =>
                 ({
                     data: [] as ValueSet[],
                 }) as UseValueSetsTableResult,
         );
 
-        mockUseValueSetsMeta.mockImplementation(
+        mockUseValueSetsMeta = vi.fn(
             () =>
                 ({
                     data: {},
@@ -60,14 +62,14 @@ describe("ValueSetsIndex tests", () => {
     });
 
     test("Renders rows with data returned from hook", () => {
-        mockUseValueSetsTable.mockImplementation(
+        mockUseValueSetsTable = vi.fn(
             () =>
                 ({
                     data: fakeRows,
                 }) as UseValueSetsTableResult,
         );
 
-        mockUseValueSetsMeta.mockImplementation(
+        mockUseValueSetsMeta = vi.fn(
             () =>
                 ({
                     data: fakeMeta,
@@ -91,13 +93,13 @@ describe("ValueSetsIndex tests", () => {
         expect(within(firstContentRow).getByText("you")).toBeInTheDocument();
     });
     test("Error in query will render error UI instead of table", () => {
-        mockUseValueSetsMeta.mockImplementation(
+        mockUseValueSetsMeta = vi.fn(
             () =>
                 ({
                     data: fakeMeta,
                 }) as UseValueSetsMetaResult,
         );
-        mockUseValueSetsTable.mockImplementation(() => {
+        mockUseValueSetsTable = vi.fn<any, any>(() => {
             throw new RSNetworkError(
                 new AxiosError("Test", "404", undefined, {}, {
                     status: 404,

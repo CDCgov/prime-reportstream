@@ -16,9 +16,9 @@ import {
 } from "./CompareJsonModal";
 import Title from "../../components/Title";
 import config from "../../config";
-import useSessionContext from "../../contexts/Session/useSessionContext";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
+import { useSessionContext } from "../../contexts/Session";
 import { showToast } from "../../contexts/Toast";
-import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
@@ -48,7 +48,7 @@ const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
     receivername,
     action,
 }) => {
-    const { properties } = useAppInsightsContext();
+    const { fetchHeaders } = useAppInsightsContext();
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { activeMembership, authState } = useSessionContext();
@@ -105,7 +105,7 @@ const EditReceiverSettingsForm: FC<EditReceiverSettingsFormProps> = ({
             `${RS_API_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
             {
                 headers: {
-                    "x-ms-session-id": properties.context.getSessionId(),
+                    ...fetchHeaders(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },

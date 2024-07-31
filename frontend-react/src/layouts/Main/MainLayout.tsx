@@ -1,12 +1,11 @@
 import classNames from "classnames";
 import { PropsWithChildren, Suspense, useMemo } from "react";
-import { Outlet, ScrollRestoration, useMatches } from "react-router-dom";
+import { Outlet, useMatches } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
 import ReportStreamHeader from "../../components/header/ReportStreamHeader";
-import RSErrorBoundary from "../../components/RSErrorBoundary/RSErrorBoundary";
+import RSErrorBoundary from "../../components/RSErrorBoundary";
 import Spinner from "../../components/Spinner";
-import useScrollToTop from "../../hooks/UseScrollToTop/UseScrollToTop";
 import { ReportStreamFooter } from "../../shared/ReportStreamFooter/ReportStreamFooter";
 
 const ArticleWrapper = (props: PropsWithChildren) => {
@@ -27,7 +26,6 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
         !isContentPage && "tablet:grid-col-12",
     );
     const suspenseFallback = useMemo(() => <Spinner size={"fullpage"} />, []);
-    useScrollToTop();
 
     return (
         <div
@@ -39,7 +37,6 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
                 isFullWidth && "rs-style--alternate",
             )}
         >
-            <ScrollRestoration />
             <ReportStreamHeader blueVariant={isFullWidth} />
             <main className="padding-top-5" id="main-content">
                 <InnerWrapper className={innerWrapperClassnames}>
