@@ -26,7 +26,7 @@ import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.FhirDestinationFilterQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.FhirRouteQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
@@ -182,7 +182,7 @@ class FhirFunctionTests {
             "\"ignore.ignore-full-elr\",\"schemaName\":\"someSchema\",\"topic\":\"full-elr\"}"
 
         // act
-        fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
+        fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         // assert
         verify(exactly = 1) {
@@ -244,12 +244,13 @@ class FhirFunctionTests {
             emptyMap(),
             emptyList()
         )
-        val message = FhirRouteQueueMessage(
+        val message = FhirTranslateQueueMessage(
             report.id,
             "",
             "",
             "ignore.ignore-full-elr",
-            Topic.FULL_ELR
+            Topic.FULL_ELR,
+            ""
         )
         every { fhirEngine.doWork(any(), any(), any()) } returns listOf(
             FHIREngine.FHIREngineRunResult(
@@ -268,7 +269,7 @@ class FhirFunctionTests {
             "\"blobSubFolderName\":\"ignore.ignore-full-elr\",\"topic\":\"full-elr\"}"
 
         // act
-        fhirFunc.doRoute(queueMessage, 1, fhirEngine, actionHistory)
+        fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         // assert
         verify(exactly = 1) {
@@ -346,7 +347,7 @@ class FhirFunctionTests {
             "\"blobSubFolderName\":\"ignore.ignore-full-elr\",\"topic\":\"full-elr\",\"receiverFullName\":\"elr.phd\"}"
 
         // act
-        fhirFunc.doTranslate(queueMessage, 1, fhirEngine, actionHistory)
+        fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         // assert
         verify(exactly = 1) {
