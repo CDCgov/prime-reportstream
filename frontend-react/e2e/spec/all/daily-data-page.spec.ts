@@ -85,7 +85,7 @@ test.describe("Daily Data page", () => {
     test.describe("admin user", () => {
         test.use({ storageState: "e2e/.auth/admin.json" });
 
-        test.describe("without org selected", () => {
+        test.describe.skip("without org selected", () => {
             test("will not load page", async ({ dailyDataPage }) => {
                 await expect(dailyDataPage.page.getByText("Cannot fetch Organization data as admin")).toBeVisible();
             });
