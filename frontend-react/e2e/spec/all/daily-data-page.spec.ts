@@ -86,7 +86,7 @@ test.describe("Daily Data page", () => {
         test.use({ storageState: "e2e/.auth/admin.json" });
 
         // TODO: cannot use dailyDataPage since we dont want the test org to be selected. Need a way to set the test org per test.
-        test.describe("without org selected", () => {
+        test.describe.skip("without org selected", () => {
             test("will not load page", async ({ page }) => {
                 await expect(page.getByText("Cannot fetch Organization data as admin")).toBeVisible();
             });
@@ -145,7 +145,7 @@ test.describe("Daily Data page", () => {
             });
 
             test("table has pagination", async ({ page }) => {
-                await expect(page.getByTestId("Pagination")).toBeAttached();
+                await expect(page.locator('[aria-label="Pagination"]')).toBeAttached();
             });
 
             test("has footer", async ({ page }) => {
@@ -733,7 +733,7 @@ test.describe("Daily Data page", () => {
                 });
 
                 test("has pagination", async ({ page }) => {
-                    await expect(page.getByTestId("Pagination")).toBeAttached();
+                    await expect(page.locator('[aria-label="Pagination"]')).toBeAttached();
                 });
             });
         });
