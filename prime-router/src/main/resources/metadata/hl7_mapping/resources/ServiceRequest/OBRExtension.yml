@@ -16,7 +16,6 @@ elements:
     constants:
       eiFieldPath: '%{obrFieldPath}-3'
 
-
   - name: collector-identifier
     resource: '%resource.extension.where(url = "OBR.10").value.resolve()'
     schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
@@ -73,6 +72,10 @@ elements:
   - name: diagnostic-serv-sect-id
     value: [ '%resource.extension.where(url = "OBR.24").value' ]
     hl7Spec: [ '%{obrFieldPath}-24' ]
+
+  - name: result-status
+    value: [ '%resource.extension.where(url = "OBR.25").value' ]
+    hl7Spec: [ '%{obrFieldPath}-25' ]
 
   - name: parent-result
     resource: '%resource.extension.where(url = "OBR.26")'
