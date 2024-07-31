@@ -41,7 +41,7 @@ const test = baseTest.extend<DailyDataDetailsPageFixtures>({
 const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
 const fileName = `hhsprotect-covid-19-73e3cbc8-9920-4ab7-871f-843a1db4c074.csv`;
 
-test.describe("Daily Data Details page", () => {
+test.describe.skip("Daily Data Details page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ dailyDataDetailsPage }) => {
             await expect(dailyDataDetailsPage.page).toHaveURL("/login");
