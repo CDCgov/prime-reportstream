@@ -44,7 +44,7 @@ jobs:
       - name: Inactive users
         shell: pwsh
         run: |
-          echo ${{ steps.users_out.outputs.messageInactiveUsers }}
+          Write-Host ${{ steps.users_out.outputs.messageInactiveUsers }}
 
       # - name: Slack Notification
       #   uses: ./.github/actions/notifications
