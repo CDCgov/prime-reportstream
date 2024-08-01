@@ -1378,9 +1378,10 @@ test.describe("Daily Data page", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
 
         test.beforeEach(async ({ page }) => {
+            await mockGetDeliveriesForOrgIgnoreResponse({
+                page: page,
+            });
             await dailyData.goto(page);
-            const response = await waitForAPIResponse(page, API_WATERS_ORG);
-            expect(response).toBe(200);
         });
 
         test("has correct title", async ({ dailyDataPage }) => {
