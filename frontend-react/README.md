@@ -114,7 +114,8 @@ index.js:2 Refused to apply inline style because it violates the
 
 [Playwright](https://playwright.dev/) is the framework used to create and run our e2e tests.
 
-To get started you will need to create three separate OKTA users. An admin, sender, and receiver. 
+To get started you will need to create three separate OKTA users. An admin, sender, and receiver.
+
 ```
 Example:
 <yourname>+admin@googlegroups.com
@@ -158,7 +159,6 @@ yarn run test:e2e-smoke # Runs the e2e tests that have the tag = @smoke and are 
 ```
 
 Currently, the tests are running each time a pull request is made and must pass before the pull request can be merged into master. (These tests are using the reportstreamtesting OKTA accounts.)
-
 
 ## CSS Norms
 
