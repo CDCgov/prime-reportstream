@@ -351,7 +351,8 @@ class FhirDestinationFilterTests {
                     "sendingOrg.sendingOrgClient"
                 )
             )
-            assertThat(event.params).isEqualTo(emptyMap())
+            assertThat(event.params)
+                .isEqualTo(mapOf(ReportStreamEventProperties.RECEIVER_NAME to "co-phd.full-elr-hl7"))
         }
 
         // assert

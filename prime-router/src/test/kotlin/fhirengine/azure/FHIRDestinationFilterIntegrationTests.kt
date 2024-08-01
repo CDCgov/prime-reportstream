@@ -332,7 +332,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                     "phd.Test Sender"
                 )
             )
-            assertThat(event.params).isEqualTo(emptyMap())
+            assertThat(event.params).isEqualTo(mapOf(ReportStreamEventProperties.RECEIVER_NAME to "phd.x"))
 
             // check action table
             UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.destination_filter))

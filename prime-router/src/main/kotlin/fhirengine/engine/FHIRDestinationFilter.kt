@@ -179,6 +179,7 @@ class FHIRDestinationFilter(
                         pipelineStepName = TaskAction.destination_filter
                     ) {
                         parentReportId(queueMessage.reportId)
+                        params(mapOf(ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName))
                         trackingId(bundle)
                     }
 
