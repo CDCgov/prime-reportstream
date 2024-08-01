@@ -32,6 +32,7 @@ import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import org.jooq.impl.DSL
 import org.testcontainers.containers.GenericContainer
+import java.io.File
 import java.time.OffsetDateTime
 
 @Suppress("ktlint:standard:max-line-length")
@@ -179,12 +180,26 @@ object UniversalPipelineTestUtils {
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
     )
-    val fhirSenderWithNoTransform = UniversalPipelineSender(
-        "fhir-elr-no-transform",
+    val hl7SenderWithSendOriginal = UniversalPipelineSender(
+        "hl7-elr-send_original",
         "phd",
         MimeFormat.HL7,
         CustomerStatus.ACTIVE,
+        topic = Topic.ELR_ELIMS,
+    )
+    val fhirSenderWithNoTransform = UniversalPipelineSender(
+        "fhir-elr-no-transform",
+        "phd",
+        MimeFormat.FHIR,
+        CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
+    )
+    val fhirSenderWithSendOriginal = UniversalPipelineSender(
+        "fhir-elr-send_original",
+        "phd",
+        MimeFormat.FHIR,
+        CustomerStatus.ACTIVE,
+        topic = Topic.ELR_ELIMS,
     )
     val senderWithValidation = UniversalPipelineSender(
         "marsotc-hl7-sender",
@@ -296,6 +311,9 @@ object UniversalPipelineTestUtils {
         val conditionFilter: List<String> = emptyList(),
         val mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
         val status: CustomerStatus = CustomerStatus.ACTIVE,
+        val format: MimeFormat = MimeFormat.CSV,
+        val schemaName: String = "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml",
+        val enrichmentSchemaNames: List<String> = emptyList(),
     )
 
     fun createReceivers(receiverSetupDataList: List<ReceiverSetupData>): List<Receiver> {
@@ -305,14 +323,16 @@ object UniversalPipelineTestUtils {
                 it.orgName,
                 it.topic,
                 it.status,
-                "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml",
+                it.schemaName,
                 timing = Receiver.Timing(numberPerDay = 1, maxReportCount = 1, whenEmpty = Receiver.WhenEmpty()),
                 jurisdictionalFilter = it.jurisdictionalFilter,
                 qualityFilter = it.qualityFilter,
                 routingFilter = it.routingFilter,
                 processingModeFilter = it.processingModeFilter,
                 conditionFilter = it.conditionFilter,
-                mappedConditionFilter = it.mappedConditionFilter
+                mappedConditionFilter = it.mappedConditionFilter,
+                format = it.format,
+                enrichmentSchemaNames = it.enrichmentSchemaNames
             )
         }
     }
@@ -373,15 +393,16 @@ object UniversalPipelineTestUtils {
         azuriteContainer: GenericContainer<*>,
         previousAction: TaskAction = TaskAction.receive,
         parentReport: Report? = null,
+        fileName: String = "mr_fhir_face.fhir",
     ): Report {
         val blobUrl = BlobAccess.uploadBlob(
-            "${TaskAction.receive.literal}/mr_fhir_face.fhir",
+            "${TaskAction.receive.literal}/$fileName",
             reportContents.toByteArray(),
             getBlobContainerMetadata(azuriteContainer)
         )
 
         return createReport(
-            MimeFormat.FHIR,
+            MimeFormat.valueOfFromExt(File(fileName).extension),
             previousAction,
             action,
             event,

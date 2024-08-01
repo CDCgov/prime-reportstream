@@ -338,6 +338,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
             actionHistory,
             payloadName
         )
+        report.bodyURL = blobInfo.blobUrl
 
         // track logs
         actionHistory.trackLogs(actionLogs.logs)

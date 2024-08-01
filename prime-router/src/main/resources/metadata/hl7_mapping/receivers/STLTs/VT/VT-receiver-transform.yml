@@ -3,7 +3,7 @@ hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
 
 constants:
-  MSH: '/MESSAGE_HEADER'
+  MSH: '/MSH'
   PID: '/PATIENT_RESULT/PATIENT/PID'
   OBX: '/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX'
   ORC: '/PATIENT_RESULT/ORDER_OBSERVATION/ORC'
