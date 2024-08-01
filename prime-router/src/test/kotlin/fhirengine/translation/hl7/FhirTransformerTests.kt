@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7
 
 import assertk.assertFailure
 import assertk.assertThat
+import assertk.assertions.containsOnly
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
@@ -28,13 +29,17 @@ import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
 import org.apache.logging.log4j.kotlin.KotlinLogger
+import org.hl7.fhir.r4.model.Annotation
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.CodeType
 import org.hl7.fhir.r4.model.CodeableConcept
+import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.HumanName
 import org.hl7.fhir.r4.model.IdType
+import org.hl7.fhir.r4.model.Identifier
+import org.hl7.fhir.r4.model.MarkdownType
 import org.hl7.fhir.r4.model.Meta
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Patient
@@ -514,7 +519,7 @@ class FhirTransformerTests {
         val serviceRequest = ServiceRequest()
         bundle.addEntry().resource = serviceRequest
         val transformer = FhirTransformer(FhirTransformSchema())
-        transformer.setBundleProperty(
+        transformer.updateBundle(
             "Bundle.entry.resource.ofType(ServiceRequest).requester.extension('callback-number')" +
                 ".valueString.extension('hl7v2Name').value[x]",
             StringType("hl7v2 use"),
@@ -539,25 +544,25 @@ class FhirTransformerTests {
         bundle.addEntry().resource = patient
         val transformer = FhirTransformer(FhirTransformSchema())
 
-        transformer.setBundleProperty(
+        transformer.updateBundle(
             "Bundle.entry.resource.ofType(Patient).name.text", StringType("name"),
             CustomContext(bundle, bundle), bundle, bundle
         )
         assertThat(patient.name[0].text).isEqualTo("name")
 
-        transformer.setBundleProperty(
+        transformer.updateBundle(
             "Bundle.entry.resource.ofType(Patient).active", BooleanType("true"),
             CustomContext(bundle, bundle), bundle, bundle
         )
         assertThat(patient.active).isTrue()
 
-        transformer.setBundleProperty(
+        transformer.updateBundle(
             "Bundle.entry.resource.ofType(Patient).id", IdType("newId"),
             CustomContext(bundle, bundle), bundle, bundle
         )
         assertThat(patient.id).isEqualTo("newId")
 
-        transformer.setBundleProperty(
+        transformer.updateBundle(
             "Bundle.entry.resource.ofType(Patient).extension('someExtension').value[x]", IdType("newId"),
             CustomContext(bundle, bundle), bundle, bundle
         )
@@ -573,7 +578,7 @@ class FhirTransformerTests {
 
         // Can't currently create entry on the fly
         assertFailure {
-            transformer.setBundleProperty(
+            transformer.updateBundle(
                 "Bundle.entry.resource.ofType(DiagnosticReport).status", CodeType("final"),
                 CustomContext(bundle, bundle), bundle, bundle
             )
@@ -585,66 +590,68 @@ class FhirTransformerTests {
 
         // Can't currently create new resources on the fly
         assertFailure {
-            transformer.setBundleProperty(
+            transformer.updateBundle(
                 "Bundle.entry.resource.ofType(DiagnosticReport).status", CodeType("final"),
                 CustomContext(bundle, bundle), bundle, bundle
             )
         }
 
         // Extension matcher is provided with a non-string value
-        transformer.setBundleProperty(
-            "Bundle.entry.resource.ofType(Patient).extension(regexNonMatch).value[x]", IdType("newId"),
-            CustomContext(bundle, bundle), bundle, bundle
-        )
-        verifyErrorAndResetLogger(logger)
+        assertFailure {
+            transformer.updateBundle(
+                "Bundle.entry.resource.ofType(Patient).extension(regexNonMatch).value[x]", IdType("newId"),
+                CustomContext(bundle, bundle), bundle, bundle
+            )
+        }
 
         // Invalid bundleProperties
-        transformer.setBundleProperty(
-            "", IdType("newId"),
-            CustomContext(bundle, bundle), bundle, bundle
-        )
+        assertFailure {
+            transformer.updateBundle(
+                "", IdType("newId"),
+                CustomContext(bundle, bundle), bundle, bundle
+            )
+        }
+
         verifyErrorAndResetLogger(logger)
 
-        transformer.setBundleProperty(
-            "%key.text", StringType("SomeName"),
-            CustomContext(
-                bundle,
-                bundle,
-                constants = mutableMapOf(Pair("key", "Bundle.entry.resource.ofType(Patient).name"))
-            ),
-            bundle, bundle
-        )
-        verifyErrorAndResetLogger(logger)
+            transformer.updateBundle(
+                "%key.text", StringType("SomeName"),
+                CustomContext(
+                    bundle,
+                    bundle,
+                    constants = mutableMapOf(Pair("key", "Bundle.entry.resource.ofType(Patient).name"))
+                ),
+                bundle, bundle
+            )
 
         // Incompatible value types
         assertFailure {
-            transformer.setBundleProperty(
+            transformer.updateBundle(
                 "Bundle.entry.resource.ofType(Patient).name.text", CodeableConcept(),
                 CustomContext(bundle, bundle), bundle, bundle
             )
         }
-        verifyDebugAndResetLogger(logger)
 
         assertFailure {
-            transformer.setBundleProperty(
+            transformer.updateBundle(
                 "Bundle.entry.resource.ofType(Patient).active", StringType("nonBoolean"),
                 CustomContext(bundle, bundle), bundle, bundle
             )
         }
-        verifyDebugAndResetLogger(logger)
     }
 
     @Test
     fun `test validate and split bundleProperty`() {
         val (transformer, logger) = setupFhirTransformer(FhirTransformSchema())
 
-        transformer.validateAndSplitBundleProperty("")
+        assertFailure {
+            transformer.validateAndSplitBundleProperty("")
+        }
         verifyErrorAndResetLogger(logger)
 
-        transformer.validateAndSplitBundleProperty("id")
-        verifyErrorAndResetLogger(logger)
-
-        transformer.validateAndSplitBundleProperty("Bundle.entry.resource.ofType(Patient).name.%key")
+        assertFailure {
+            transformer.validateAndSplitBundleProperty("Bundle.entry.resource.ofType(Patient).name.%key")
+        }
         verifyErrorAndResetLogger(logger)
     }
 
@@ -927,5 +934,362 @@ class FhirTransformerTests {
         val transformer = FhirTransformer(schema)
         transformer.process(bundle)
         assertThat(bundle.entry).hasSize(0)
+    }
+
+    @Test
+    fun `test action APPEND`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val serviceRequest = ServiceRequest()
+        serviceRequest.note = listOf(Annotation(MarkdownType("Starr")), Annotation(MarkdownType("Lennon")))
+        serviceRequest.id = "sr123"
+        val patient = Patient()
+        patient.id = "def456"
+        val patientEntry = bundle.addEntry()
+        patientEntry.fullUrl = patient.id
+        patientEntry.resource = patient
+        val serviceRequestEntry = bundle.addEntry()
+        serviceRequestEntry.fullUrl = serviceRequest.id
+        serviceRequestEntry.resource = serviceRequest
+
+        val elementA = FhirTransformSchemaElement(
+            "elementA",
+            resource = "Bundle.entry.resource.ofType(ServiceRequest).note",
+            bundleProperty = "family",
+            value = listOf("%resource.text"),
+            action = FhirTransformSchemaElementAction.APPEND,
+            appendToProperty = "Bundle.entry.resource.ofType(Patient).name"
+        )
+        val schema =
+            FhirTransformSchema(
+                elements = mutableListOf(elementA)
+            )
+
+        val transformer = FhirTransformer(schema)
+        transformer.process(bundle)
+        assertThat(patient.name).hasSize(2)
+        assertThat(patient.name).transform { it.map { name -> name.family } }.containsOnly("Starr", "Lennon")
+    }
+
+    @Test
+    fun `test convert observations to notes`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val serviceRequest = ServiceRequest()
+        serviceRequest.note = mutableListOf(Annotation(MarkdownType("existing")))
+        val serviceRequestEntry = bundle.addEntry()
+        serviceRequestEntry.fullUrl = serviceRequest.id
+        serviceRequestEntry.resource = serviceRequest
+        val observation1 = Observation()
+        observation1.id = "obs123"
+        observation1.code.coding.add(Coding("system", "123", "display"))
+        val observationEntry1 = bundle.addEntry()
+        observationEntry1.fullUrl = observation1.id
+        observationEntry1.resource = observation1
+        val observation2 = Observation()
+        observation2.id = "obs123"
+        observation2.code.coding.add(Coding("system", "456", "display"))
+        val observationEntry2 = bundle.addEntry()
+        observationEntry2.fullUrl = observation2.id
+        observationEntry2.resource = observation2
+
+        @Suppress("ktlint:standard:max-line-length")
+        val noteSource = FhirTransformSchemaElement(
+            "note-source",
+            bundleProperty =
+                "extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/nte-annotation\").extension(\"NTE.2\").value[x]",
+            value = listOf("\"O\""),
+            action = FhirTransformSchemaElementAction.APPEND,
+            appendToProperty = "Bundle.entry.resource.ofType(ServiceRequest).note"
+        )
+        // Existing elements = 2
+        // AppendIndex = 0
+        val noteText = FhirTransformSchemaElement(
+            "note-text",
+            bundleProperty = "text",
+            value = listOf("%resource.code.coding.code"),
+            action = FhirTransformSchemaElementAction.APPEND,
+            appendToProperty = "Bundle.entry.resource.ofType(ServiceRequest).note"
+        )
+        val noteToObservationSchema = FhirTransformSchema(
+            elements = mutableListOf(noteSource, noteText)
+        )
+
+        val schema =
+            FhirTransformSchema(
+                elements = mutableListOf(
+                    FhirTransformSchemaElement(
+                        schemaRef = noteToObservationSchema,
+                        resource = "Bundle.entry.resource.ofType(Observation)",
+                        action = FhirTransformSchemaElementAction.APPEND,
+                        appendToProperty = "Bundle.entry.resource.ofType(ServiceRequest).note"
+                    )
+                )
+            )
+
+        val transformer = FhirTransformer(schema)
+        transformer.process(bundle)
+        assertThat(serviceRequest.note).hasSize(3)
+        assertThat(serviceRequest.note)
+            .transform { it.map { note -> note.text } }.containsOnly("existing", "123", "456")
+        assertThat(serviceRequest.note[1].extension)
+            .transform {
+                it.find { ext -> ext.url == "https://reportstream.cdc.gov/fhir/StructureDefinition/nte-annotation" }
+            }.isNotNull()
+    }
+
+    @Test
+    fun `test creating at a specific index for SET action`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val observation1 = Observation()
+        observation1.id = "obs123"
+        observation1.identifier = mutableListOf(Identifier())
+        val observationEntry1 = bundle.addEntry()
+        observationEntry1.fullUrl = observation1.id
+        observationEntry1.resource = observation1
+
+        val addIdentifierName = FhirTransformSchemaElement(
+            "note-source",
+            resource = "Bundle.entry.resource.ofType(Observation)",
+            bundleProperty =
+            "%resource.identifier[1].value",
+            value = listOf("\"Text\""),
+            action = FhirTransformSchemaElementAction.SET,
+        )
+
+        val schema =
+            FhirTransformSchema(
+                elements = mutableListOf(addIdentifierName)
+            )
+
+        val transformer = FhirTransformer(schema)
+        transformer.process(bundle)
+        assertThat(observation1.identifier).hasSize(2)
+        assertThat(observation1.identifier[0].value).isNull()
+        assertThat(observation1.identifier[1].value).isEqualTo("Text")
+    }
+
+    @Test
+    fun `test creating a valuex`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val observation1 = Observation()
+        observation1.id = "obs123"
+        val observationEntry1 = bundle.addEntry()
+        observationEntry1.fullUrl = observation1.id
+        observationEntry1.resource = observation1
+
+        val observationValue = FhirTransformSchemaElement(
+            "note-source",
+            bundleProperty =
+            "Bundle.entry.resource.ofType(Observation).value[x]",
+            value = listOf("\"Text\""),
+            action = FhirTransformSchemaElementAction.SET,
+        )
+
+        val schema =
+            FhirTransformSchema(
+                elements = mutableListOf(observationValue)
+            )
+
+        val transformer = FhirTransformer(schema)
+        transformer.process(bundle)
+
+        assertThat(observation1.value.fhirType()).isEqualTo("string")
+        assertThat(observation1.valueStringType.value).isEqualTo("Text")
+    }
+
+    @Test
+    fun `test targeting a bundle property that targets multiple elements`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val observation1 = Observation()
+        observation1.id = "obs123"
+        val observationEntry1 = bundle.addEntry()
+        observationEntry1.fullUrl = observation1.id
+        observationEntry1.resource = observation1
+        val observation2 = Observation()
+        observation2.id = "obs123"
+        val observationEntry2 = bundle.addEntry()
+        observationEntry2.fullUrl = observation2.id
+        observationEntry2.resource = observation2
+        val noteText = FhirTransformSchemaElement(
+            "note-source",
+            bundleProperty =
+            "Bundle.entry.resource.ofType(Observation).note.text",
+            value = listOf("\"Text\""),
+            action = FhirTransformSchemaElementAction.SET,
+        )
+        val schema =
+            FhirTransformSchema(
+                elements = mutableListOf(noteText)
+            )
+
+        val transformer = FhirTransformer(schema)
+        transformer.process(bundle)
+
+        assertThat(observation1.note).hasSize(1)
+        assertThat(observation1.note[0].text).isEqualTo("Text")
+        assertThat(observation2.note).hasSize(1)
+        assertThat(observation2.note[0].text).isEqualTo("Text")
+    }
+
+    @Test
+    fun `test it should handle multiple append elements`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val serviceRequest = ServiceRequest()
+        serviceRequest.note = mutableListOf(Annotation(MarkdownType("existing")))
+        serviceRequest.orderDetail = mutableListOf(CodeableConcept(), CodeableConcept())
+        val serviceRequestEntry = bundle.addEntry()
+        serviceRequestEntry.fullUrl = serviceRequest.id
+        serviceRequestEntry.resource = serviceRequest
+        val observation1 = Observation()
+        observation1.id = "obs123"
+        observation1.code.coding.add(Coding("system", "123", "display"))
+        val observationEntry1 = bundle.addEntry()
+        observationEntry1.fullUrl = observation1.id
+        observationEntry1.resource = observation1
+        val observation2 = Observation()
+        observation2.id = "obs123"
+        observation2.code.coding.add(Coding("system", "456", "display"))
+        val observationEntry2 = bundle.addEntry()
+        observationEntry2.fullUrl = observation2.id
+        observationEntry2.resource = observation2
+        val patient = Patient()
+        patient.id = "def456"
+        val patientEntry = bundle.addEntry()
+        patientEntry.fullUrl = patient.id
+        patientEntry.resource = patient
+
+        @Suppress("ktlint:standard:max-line-length")
+        val noteSource = FhirTransformSchemaElement(
+            "note-source",
+            bundleProperty =
+            "extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/nte-annotation\").extension(\"NTE.2\").value[x]",
+            value = listOf("\"O\""),
+            action = FhirTransformSchemaElementAction.APPEND,
+            appendToProperty = "Bundle.entry.resource.ofType(ServiceRequest).note"
+        )
+        // Existing elements = 2
+        // AppendIndex = 0
+        val noteText = FhirTransformSchemaElement(
+            "note-text",
+            bundleProperty = "text",
+            value = listOf("%resource.code.coding.code"),
+            action = FhirTransformSchemaElementAction.APPEND,
+            appendToProperty = "Bundle.entry.resource.ofType(ServiceRequest).note"
+        )
+        val noteToObservationSchema = FhirTransformSchema(
+            elements = mutableListOf(noteSource, noteText)
+        )
+
+        val orderDetailCode = FhirTransformSchemaElement(
+            "order-detail-code",
+            bundleProperty = "coding.code",
+            value = listOf("%resource.code.coding.code"),
+            action = FhirTransformSchemaElementAction.APPEND,
+            appendToProperty = "Bundle.entry.resource.ofType(ServiceRequest).orderDetail"
+        )
+
+        val orderDetailDisplay = FhirTransformSchemaElement(
+            "order-detail-code",
+            bundleProperty = "coding.display",
+            value = listOf("'Display'"),
+            action = FhirTransformSchemaElementAction.APPEND,
+            appendToProperty = "Bundle.entry.resource.ofType(ServiceRequest).orderDetail"
+        )
+
+        val observationToOrderDetailSchema = FhirTransformSchema(
+            elements = mutableListOf(orderDetailCode, orderDetailDisplay)
+        )
+
+        val schema =
+            FhirTransformSchema(
+                elements = mutableListOf(
+                    FhirTransformSchemaElement(
+                        "convert-observation-to-note",
+                        schemaRef = noteToObservationSchema,
+                        resource = "Bundle.entry.resource.ofType(Observation)",
+                        action = FhirTransformSchemaElementAction.APPEND,
+                        appendToProperty = "Bundle.entry.resource.ofType(ServiceRequest).note"
+                    ),
+                    FhirTransformSchemaElement(
+                        "convert-observation-to-order-detail",
+                        schemaRef = observationToOrderDetailSchema,
+                        resource = "Bundle.entry.resource.ofType(Observation)",
+                        action = FhirTransformSchemaElementAction.APPEND,
+                        appendToProperty = "Bundle.entry.resource.ofType(ServiceRequest).orderDetail"
+                    ),
+                    FhirTransformSchemaElement(
+                        "convert-observation-to-patient-name",
+                        resource = "Bundle.entry.resource.ofType(Observation)",
+                        bundleProperty = "family",
+                        value = listOf("%resource.code.coding.code"),
+                        action = FhirTransformSchemaElementAction.APPEND,
+                        appendToProperty = "Bundle.entry.resource.ofType(Patient).name"
+                    )
+                )
+            )
+
+        val transformer = FhirTransformer(schema)
+        transformer.process(bundle)
+        assertThat(serviceRequest.note).hasSize(3)
+        assertThat(serviceRequest.orderDetail).hasSize(4)
+        assertThat(patient.name).hasSize(2)
+    }
+
+    @Test
+    fun `test move Observation to ServiceRequest note`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val serviceRequest = ServiceRequest()
+        val serviceRequestEntry = bundle.addEntry()
+        serviceRequestEntry.fullUrl = serviceRequest.id
+        serviceRequestEntry.resource = serviceRequest
+        val observation1 = Observation()
+        observation1.id = "obs123"
+        observation1.code.coding.add(
+            Coding(
+                "SNOMED",
+                "92142-9",
+                "Influenza virus A RNA [Presence] in Respiratory specimen by NAA with probe detection"
+            )
+        )
+        observation1.interpretation = mutableListOf(CodeableConcept(Coding("loinc", "260385009", "Negative")))
+        val observationEntry1 = bundle.addEntry()
+        observationEntry1.fullUrl = observation1.id
+        observationEntry1.resource = observation1
+        val observation2 = Observation()
+        observation2.id = "obs123"
+        observation2.code.coding.add(
+            Coding(
+                "SNOMED",
+                "92141-1",
+                " Influenza virus B RNA [Presence] in Respiratory specimen by NAA with probe detection"
+            )
+        )
+        observation2.interpretation = mutableListOf(CodeableConcept(Coding("loinc", "260385009", "Negative")))
+        val observationEntry2 = bundle.addEntry()
+        observationEntry2.fullUrl = observation2.id
+        observationEntry2.resource = observation2
+
+        val schema = ConfigSchemaReader.fromFile(
+            "classpath:/fhir_sender_transforms/convert-all-obs-to-note.yml",
+            schemaClass = FhirTransformSchema::class.java,
+            blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        )
+
+        val transformer = FhirTransformer(schema)
+        transformer.process(bundle)
+        assertThat(serviceRequest.note).hasSize(2)
+        @Suppress("ktlint:standard:max-line-length")
+        assertThat(serviceRequest.note)
+            .transform { it.map { note -> note.text } }
+            .containsOnly(
+                "OBX filtered for identifier=92142-9 - Influenza virus A RNA [Presence] in Respiratory specimen by NAA with probe detection;value = 260385009 - Negative OBX was removed due to your jurisdictional reporting rules indicating this result is not reportable.",
+                "OBX filtered for identifier=92141-1 -  Influenza virus B RNA [Presence] in Respiratory specimen by NAA with probe detection;value = 260385009 - Negative OBX was removed due to your jurisdictional reporting rules indicating this result is not reportable."
+            )
     }
 }
