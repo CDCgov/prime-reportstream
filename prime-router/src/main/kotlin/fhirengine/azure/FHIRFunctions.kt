@@ -179,7 +179,7 @@ class FHIRFunctions(
     /**
      * Deserializes the message, create the DB transaction and then runs the FHIR engine
      *
-     * @param message the fhir convert/route/translate message to process
+     * @param message the queue message to process
      * @param dequeueCount the number of times the messages has been processed
      * @param fhirEngine the engine that will do the work
      * @param actionHistory the history to record results to

@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
@@ -595,16 +596,7 @@ class BlobAccessTests {
 
             assertThat(result.format).isEqualTo(testFormat)
             // test blobUrl is as expected for the EventAction
-            assertThat(
-                result.blobUrl.contains(
-                    when (it?.name) {
-                        null -> "other"
-                        "SEND" -> "ready"
-                        "CONVERT" -> "other"
-                        else -> it.name.lowercase().replace("_", "-")
-                    }
-                )
-            ).isTrue()
+            assertThat(result.blobUrl).contains(BlobAccess.directoryForAction(it))
             assertThat(result.digest).isEqualTo(BlobAccess.sha256Digest(testBytes))
         }
     }

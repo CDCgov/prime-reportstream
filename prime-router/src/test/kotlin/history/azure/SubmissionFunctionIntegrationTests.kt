@@ -273,18 +273,24 @@ class SubmissionFunctionIntegrationTests {
                     reportGraphNode {
                         action(TaskAction.destination_filter)
                         reportGraphNode {
-                            action(TaskAction.translate)
-                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                            action(TaskAction.receiver_filter)
                             reportGraphNode {
-                                action(TaskAction.send)
-                                transportResult("Success")
+                                action(TaskAction.translate)
                                 receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                                reportGraphNode {
+                                    action(TaskAction.send)
+                                    transportResult("Success")
+                                    receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                                }
                             }
                         }
                         reportGraphNode {
-                            action(TaskAction.translate)
-                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
-                            itemCount(0)
+                            action(TaskAction.receiver_filter)
+                            reportGraphNode {
+                                action(TaskAction.translate)
+                                receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                                itemCount(0)
+                            }
                         }
                     }
                 }
@@ -307,6 +313,7 @@ class SubmissionFunctionIntegrationTests {
         assertThat(historyNode.get("warnings").size()).isEqualTo(1)
     }
 
+    // this test remains to prevent breaking queries against old submissions that used the legacy route step
     @Test
     fun `it should return a history for partially delivered submission (for legacy route step)`() {
         val submittedReport = reportGraph {
@@ -427,6 +434,7 @@ class SubmissionFunctionIntegrationTests {
         assertThat(historyNode.get("warnings").size()).isEqualTo(1)
     }
 
+    // this test remains to prevent breaking queries against old submissions that used the legacy route step
     @Test
     fun `it should return a history that indicates the report is not going to be delivered (legacy route step)`() {
         val submittedReport = reportGraph {
@@ -478,33 +486,45 @@ class SubmissionFunctionIntegrationTests {
                         action(TaskAction.destination_filter)
                         log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.error))
                         reportGraphNode {
-                            action(TaskAction.translate)
-                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                            action(TaskAction.receiver_filter)
                             reportGraphNode {
-                                action(TaskAction.send)
-                                transportResult("Success")
+                                action(TaskAction.translate)
                                 receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                                reportGraphNode {
+                                    action(TaskAction.send)
+                                    transportResult("Success")
+                                    receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                                }
                             }
                         }
                         reportGraphNode {
-                            action(TaskAction.translate)
-                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                            action(TaskAction.receiver_filter)
+                            reportGraphNode {
+                                action(TaskAction.translate)
+                                receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                            }
                         }
                     }
                     reportGraphNode {
                         action(TaskAction.destination_filter)
                         reportGraphNode {
-                            action(TaskAction.translate)
-                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                            action(TaskAction.receiver_filter)
                             reportGraphNode {
-                                action(TaskAction.send)
-                                transportResult("Success")
+                                action(TaskAction.translate)
                                 receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                                reportGraphNode {
+                                    action(TaskAction.send)
+                                    transportResult("Success")
+                                    receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                                }
                             }
                         }
                         reportGraphNode {
-                            action(TaskAction.translate)
-                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                            action(TaskAction.receiver_filter)
+                            reportGraphNode {
+                                action(TaskAction.translate)
+                                receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                            }
                         }
                     }
                 }
@@ -527,6 +547,7 @@ class SubmissionFunctionIntegrationTests {
         assertThat(historyNode.get("warnings").size()).isEqualTo(1)
     }
 
+    // this test remains to prevent breaking queries against old submissions that used the legacy route step
     @Test
     fun `it should return a history that indicates waiting to deliver (legacy route step)`() {
         val submittedReport = reportGraph {
@@ -608,42 +629,54 @@ class SubmissionFunctionIntegrationTests {
                         action(TaskAction.destination_filter)
                         log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.error))
                         reportGraphNode {
-                            action(TaskAction.translate)
-                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                            action(TaskAction.receiver_filter)
                             reportGraphNode {
-                                action(TaskAction.send)
-                                transportResult("Success")
+                                action(TaskAction.translate)
                                 receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                                reportGraphNode {
+                                    action(TaskAction.send)
+                                    transportResult("Success")
+                                    receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                                }
                             }
                         }
                         reportGraphNode {
-                            action(TaskAction.translate)
-                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                            action(TaskAction.receiver_filter)
                             reportGraphNode {
-                                action(TaskAction.send)
-                                transportResult("Success")
+                                action(TaskAction.translate)
                                 receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                                reportGraphNode {
+                                    action(TaskAction.send)
+                                    transportResult("Success")
+                                    receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                                }
                             }
                         }
                     }
                     reportGraphNode {
                         action(TaskAction.destination_filter)
                         reportGraphNode {
-                            action(TaskAction.translate)
-                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                            action(TaskAction.receiver_filter)
                             reportGraphNode {
-                                action(TaskAction.send)
-                                transportResult("Success")
+                                action(TaskAction.translate)
                                 receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                                reportGraphNode {
+                                    action(TaskAction.send)
+                                    transportResult("Success")
+                                    receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                                }
                             }
                         }
                         reportGraphNode {
-                            action(TaskAction.translate)
-                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                            action(TaskAction.receiver_filter)
                             reportGraphNode {
-                                action(TaskAction.send)
-                                transportResult("Success")
+                                action(TaskAction.translate)
                                 receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                                reportGraphNode {
+                                    action(TaskAction.send)
+                                    transportResult("Success")
+                                    receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                                }
                             }
                         }
                     }
@@ -669,6 +702,7 @@ class SubmissionFunctionIntegrationTests {
         assertThat(historyNode.get("actualCompletionAt").asText()).isNotNull()
     }
 
+    // this test remains to prevent breaking queries against old submissions that used the legacy route step
     @Test
     fun `it should return history of a submission that is delivered (legacy route step)`() {
         val submittedReport = reportGraph {

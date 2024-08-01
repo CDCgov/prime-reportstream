@@ -463,7 +463,6 @@ class ActionHistory(
         //  automatically as part of queueMessages and what are being send manually as part of the parent function.
         //  The automatic queueing uses the action name as the queue name, and this is not the case for FHIR actions
         if (event.eventAction != Event.EventAction.BATCH &&
-            event.eventAction != Event.EventAction.ROUTE &&
             event.eventAction != Event.EventAction.DESTINATION_FILTER &&
             event.eventAction != Event.EventAction.RECEIVER_FILTER &&
             event.eventAction != Event.EventAction.TRANSLATE
@@ -548,7 +547,6 @@ class ActionHistory(
         //  automatically as part of queueMessages and what are being send manually as part of the parent function.
         //  The automatic queueing uses the action name as the queue name, and this is not the case for FHIR actions
         if (event.eventAction != Event.EventAction.BATCH &&
-            event.eventAction != Event.EventAction.ROUTE &&
             event.eventAction != Event.EventAction.DESTINATION_FILTER &&
             event.eventAction != Event.EventAction.RECEIVER_FILTER &&
             event.eventAction != Event.EventAction.TRANSLATE
