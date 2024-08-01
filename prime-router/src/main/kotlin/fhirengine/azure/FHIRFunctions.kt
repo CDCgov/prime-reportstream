@@ -26,6 +26,7 @@ import gov.cdc.prime.router.fhirengine.engine.elrReceiverFilterQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrSendQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
+import gov.cdc.prime.router.fhirengine.engine.initializeQueueMessages
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -230,6 +231,7 @@ class FHIRFunctions(
         fhirEngine: FHIREngine,
         actionHistory: ActionHistory,
     ): List<QueueMessage> {
+        initializeQueueMessages()
         val messageContent = readMessage(fhirEngine.engineType, message, dequeueCount)
 
         val newMessages = databaseAccess.transactReturning { txn ->

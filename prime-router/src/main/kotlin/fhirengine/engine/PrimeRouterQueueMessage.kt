@@ -4,11 +4,9 @@ import QueueMessage
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
-import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
 import java.util.UUID
 
@@ -32,32 +30,16 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
 )
 abstract class PrimeRouterQueueMessage : QueueMessage
 
-interface WithDownloadableReport {
-    val blobURL: String
-    val digest: String
-
-    /**
-     * Download the file associated with a RawSubmission message
-     */
-    fun downloadContent(): String {
-        val blobContent = BlobAccess.downloadBlobAsByteArray(this.blobURL)
-        val localDigest = BlobUtils.digestToString(BlobUtils.sha256Digest(blobContent))
-        check(this.digest == localDigest) {
-            "FHIR - Downloaded file does not match expected file\n${this.digest} | $localDigest"
-        }
-        return String(blobContent)
-    }
-}
-
-interface ReportIdentifyingInformation {
-    val blobSubFolderName: String
-    val reportId: ReportId
-    val topic: Topic
-}
+// interface ReportInformation {
+//    val blobURL: String
+//    val digest: String
+//    val blobSubFolderName: String
+//    val reportId: ReportId
+//    val topic: Topic
+// }
 
 abstract class ReportPipelineMessage :
-    ReportIdentifyingInformation,
-    WithDownloadableReport,
+    QueueMessage.ReportInformation,
     PrimeRouterQueueMessage()
 
 @JsonTypeName("convert")
@@ -66,9 +48,10 @@ data class FhirConvertQueueMessage(
     override val blobURL: String,
     override val digest: String,
     override val blobSubFolderName: String,
-    override val topic: Topic,
+    override val headers: Map<String, String> = emptyMap(),
+    val topic: Topic? = null,
     val schemaName: String = "",
-) : ReportPipelineMessage()
+) : ReportPipelineMessage(), QueueMessage.ConvertInformation
 
 @JsonTypeName("route")
 data class FhirRouteQueueMessage(
@@ -76,7 +59,7 @@ data class FhirRouteQueueMessage(
     override val blobURL: String,
     override val digest: String,
     override val blobSubFolderName: String,
-    override val topic: Topic,
+    val topic: Topic,
 ) : ReportPipelineMessage()
 
 @JsonTypeName("destination-filter")
@@ -85,7 +68,7 @@ data class FhirDestinationFilterQueueMessage(
     override val blobURL: String,
     override val digest: String,
     override val blobSubFolderName: String,
-    override val topic: Topic,
+    val topic: Topic,
 ) : ReportPipelineMessage()
 
 @JsonTypeName("receiver-filter")
@@ -94,7 +77,7 @@ data class FhirReceiverFilterQueueMessage(
     override val blobURL: String,
     override val digest: String,
     override val blobSubFolderName: String,
-    override val topic: Topic,
+    val topic: Topic,
     val receiverFullName: String,
 ) : ReportPipelineMessage()
 
@@ -104,7 +87,7 @@ data class FhirTranslateQueueMessage(
     override val blobURL: String,
     override val digest: String,
     override val blobSubFolderName: String,
-    override val topic: Topic,
+    val topic: Topic,
     val receiverFullName: String,
 ) : ReportPipelineMessage()
 
@@ -137,3 +120,22 @@ data class ProcessEventQueueMessage(
     val routeTo: List<String>,
     val at: String,
 ) : WithEventAction()
+
+// Register submodule subtypes
+fun registerPrimeRouterQueueMessageSubtypes() {
+    QueueMessage.ObjectMapperProvider.registerSubtypes(
+        FhirConvertQueueMessage::class.java,
+        FhirRouteQueueMessage::class.java,
+        FhirDestinationFilterQueueMessage::class.java,
+        FhirReceiverFilterQueueMessage::class.java,
+        FhirTranslateQueueMessage::class.java,
+        BatchEventQueueMessage::class.java,
+        ProcessEventQueueMessage::class.java,
+        ReportEventQueueMessage::class.java
+    )
+}
+
+// Call this function at the appropriate initialization point
+fun initializeQueueMessages() {
+    registerPrimeRouterQueueMessageSubtypes()
+}

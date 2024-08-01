@@ -85,48 +85,165 @@ class FHIRRouter(
         logger.trace("Processing HL7 data for FHIR conversion.")
         this.actionLogger = actionLogger
 
-        message as ReportPipelineMessage
+        val castedMessage = message as? FhirRouteQueueMessage
 
-        // track input report
-        actionHistory.trackExistingInputReport(message.reportId)
-        val rootReportId = reportService.getRootReport(message.reportId).reportId
-
-        // pull fhir document and parse FHIR document
-        val fhirJson = message.downloadContent()
-        val bundle = FhirTranscoder.decode(fhirJson)
-
-        // get the receivers that this bundle should go to
-        val listOfReceivers = findReceiversForBundle(bundle, message.reportId, actionHistory, message.topic)
-
-        // go up the report lineage to get the sender of the root report
-        val sender = reportService.getSenderName(message.reportId)
-
-        // send event to Azure AppInsights
-        val observationSummary = AzureEventUtils.getObservationSummaries(bundle)
-        azureEventService.trackEvent(
-            ReportAcceptedEvent(
-                message.reportId,
-                rootReportId,
-                message.topic,
-                sender,
-                observationSummary,
-                fhirJson.length,
-                AzureEventUtils.getIdentifier(bundle)
+        if (castedMessage == null) {
+            // Handle the case where casting failed
+            throw RuntimeException(
+                "Message was not a FhirTranslateQueueMessage and cannot be " +
+                    "processed by FHIRTranslator: $message"
             )
-        )
+        } else {
+            // track input report
+            actionHistory.trackExistingInputReport(message.reportId)
+            val rootReportId = reportService.getRootReport(message.reportId).reportId
 
-        // check if there are any receivers
-        if (listOfReceivers.isNotEmpty()) {
-            val filteredIdMap: MutableMap<String, MutableList<String>> = mutableMapOf()
-            return listOfReceivers.flatMap { receiver ->
-                val sources = emptyList<Source>()
+            // pull fhir document and parse FHIR document
+            val fhirJson = BlobAccess.downloadContent(message.blobURL, message.digest)
+            val bundle = FhirTranscoder.decode(fhirJson)
+
+            // get the receivers that this bundle should go to
+            val listOfReceivers = findReceiversForBundle(bundle, message.reportId, actionHistory, message.topic)
+
+            // go up the report lineage to get the sender of the root report
+            val sender = reportService.getSenderName(message.reportId)
+
+            // send event to Azure AppInsights
+            val observationSummary = AzureEventUtils.getObservationSummaries(bundle)
+            azureEventService.trackEvent(
+                ReportAcceptedEvent(
+                    message.reportId,
+                    rootReportId,
+                    message.topic,
+                    sender,
+                    observationSummary,
+                    fhirJson.length,
+                    AzureEventUtils.getIdentifier(bundle)
+                )
+            )
+
+            // check if there are any receivers
+            if (listOfReceivers.isNotEmpty()) {
+                val filteredIdMap: MutableMap<String, MutableList<String>> = mutableMapOf()
+                return listOfReceivers.flatMap { receiver ->
+                    val sources = emptyList<Source>()
+                    val report = Report(
+                        MimeFormat.FHIR,
+                        sources,
+                        1,
+                        metadata = this.metadata,
+                        topic = message.topic,
+                        destination = receiver
+                    )
+
+                    // create item lineage
+                    report.itemLineages = listOf(
+                        ItemLineage(
+                            null,
+                            message.reportId,
+                            1,
+                            report.id,
+                            1,
+                            null,
+                            null,
+                            null,
+                            report.getItemHashForRow(1)
+                        )
+                    )
+
+                    // If the receiver does not have a condition filter set send the entire bundle to the translate step
+                    var receiverBundle = if (receiver.conditionFilter.isEmpty()) {
+                        bundle
+                    } else {
+                        bundle.filterObservations(
+                            receiver.conditionFilter,
+                            shorthandLookupTable
+                        )
+                    }
+
+                    // If the receiver does not have a mapped condition filter send the entire bundle to the translate step
+                    if (receiver.mappedConditionFilter.isNotEmpty()) {
+                        val (filteredIds, filteredBundle) = receiverBundle.filterMappedObservations(
+                            receiver.mappedConditionFilter
+                        )
+                        filteredIds.forEach { id ->
+                            filteredIdMap.getOrPut(id) { mutableListOf() }.add(receiver.fullName)
+                        }
+                        receiverBundle = filteredBundle
+                    }
+
+                    val nextEvent = ProcessEvent(
+                        Event.EventAction.TRANSLATE,
+                        report.id,
+                        Options.None,
+                        emptyMap(),
+                        emptyList()
+                    )
+
+                    // upload new copy to blobstore
+                    val bodyString = FhirTranscoder.encode(receiverBundle)
+                    val blobInfo = BlobAccess.uploadBody(
+                        MimeFormat.FHIR,
+                        bodyString.toByteArray(),
+                        report.id.toString(),
+                        message.blobSubFolderName,
+                        nextEvent.eventAction
+                    )
+                    // ensure tracking is set
+                    actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
+
+                    // send event to Azure AppInsights
+                    val bundleObservationSummary = AzureEventUtils.getObservationSummaries(bundle)
+                    val receiverObservationSummary = AzureEventUtils.getObservationSummaries(receiverBundle)
+                    azureEventService.trackEvent(
+                        ReportRouteEvent(
+                            report.id,
+                            message.reportId,
+                            rootReportId,
+                            message.topic,
+                            sender,
+                            receiver.fullName,
+                            receiverObservationSummary,
+                            bundleObservationSummary,
+                            bodyString.length,
+                            AzureEventUtils.getIdentifier(bundle)
+                        )
+                    )
+
+                    listOf(
+                        FHIREngineRunResult(
+                            nextEvent,
+                            report,
+                            blobInfo.blobUrl,
+                            FhirTranslateQueueMessage(
+                                report.id,
+                                blobInfo.blobUrl,
+                                BlobUtils.digestToString(blobInfo.digest),
+                                message.blobSubFolderName,
+                                message.topic,
+                                receiver.fullName
+                            )
+                        )
+                    )
+                }.also {
+                    actionLogger.info(PrunedObservationsLogMessage(message.reportId, filteredIdMap))
+                }
+            } else {
+                // this bundle does not have receivers; only perform the work necessary to track the routing action
+                // create none event
+                val nextEvent = ProcessEvent(
+                    Event.EventAction.NONE,
+                    message.reportId,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                )
                 val report = Report(
                     MimeFormat.FHIR,
-                    sources,
+                    emptyList(),
                     1,
                     metadata = this.metadata,
-                    topic = message.topic,
-                    destination = receiver
+                    topic = message.topic
                 )
 
                 // create item lineage
@@ -144,48 +261,11 @@ class FHIRRouter(
                     )
                 )
 
-                // If the receiver does not have a condition filter set send the entire bundle to the translate step
-                var receiverBundle = if (receiver.conditionFilter.isEmpty()) {
-                    bundle
-                } else {
-                    bundle.filterObservations(
-                        receiver.conditionFilter,
-                        shorthandLookupTable
-                    )
-                }
-
-                // If the receiver does not have a mapped condition filter send the entire bundle to the translate step
-                if (receiver.mappedConditionFilter.isNotEmpty()) {
-                    val (filteredIds, filteredBundle) = receiverBundle.filterMappedObservations(
-                        receiver.mappedConditionFilter
-                    )
-                    filteredIds.forEach { id -> filteredIdMap.getOrPut(id) { mutableListOf() }.add(receiver.fullName) }
-                    receiverBundle = filteredBundle
-                }
-
-                val nextEvent = ProcessEvent(
-                    Event.EventAction.TRANSLATE,
-                    report.id,
-                    Options.None,
-                    emptyMap(),
-                    emptyList()
-                )
-
-                // upload new copy to blobstore
-                val bodyString = FhirTranscoder.encode(receiverBundle)
-                val blobInfo = BlobAccess.uploadBody(
-                    MimeFormat.FHIR,
-                    bodyString.toByteArray(),
-                    report.id.toString(),
-                    message.blobSubFolderName,
-                    nextEvent.eventAction
-                )
                 // ensure tracking is set
-                actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
+                actionHistory.trackCreatedReport(nextEvent, report)
 
                 // send event to Azure AppInsights
-                val bundleObservationSummary = AzureEventUtils.getObservationSummaries(bundle)
-                val receiverObservationSummary = AzureEventUtils.getObservationSummaries(receiverBundle)
+                val receiverObservationSummary = AzureEventUtils.getObservationSummaries(bundle)
                 azureEventService.trackEvent(
                     ReportRouteEvent(
                         report.id,
@@ -193,86 +273,16 @@ class FHIRRouter(
                         rootReportId,
                         message.topic,
                         sender,
-                        receiver.fullName,
+                        null,
                         receiverObservationSummary,
-                        bundleObservationSummary,
-                        bodyString.length,
+                        receiverObservationSummary,
+                        fhirJson.length,
                         AzureEventUtils.getIdentifier(bundle)
                     )
                 )
 
-                listOf(
-                    FHIREngineRunResult(
-                        nextEvent,
-                        report,
-                        blobInfo.blobUrl,
-                        FhirTranslateQueueMessage(
-                            report.id,
-                            blobInfo.blobUrl,
-                            BlobUtils.digestToString(blobInfo.digest),
-                            message.blobSubFolderName,
-                            message.topic,
-                            receiver.fullName
-                        )
-                    )
-                )
-            }.also {
-                actionLogger.info(PrunedObservationsLogMessage(message.reportId, filteredIdMap))
+                return emptyList()
             }
-        } else {
-            // this bundle does not have receivers; only perform the work necessary to track the routing action
-            // create none event
-            val nextEvent = ProcessEvent(
-                Event.EventAction.NONE,
-                message.reportId,
-                Options.None,
-                emptyMap(),
-                emptyList()
-            )
-            val report = Report(
-                MimeFormat.FHIR,
-                emptyList(),
-                1,
-                metadata = this.metadata,
-                topic = message.topic
-            )
-
-            // create item lineage
-            report.itemLineages = listOf(
-                ItemLineage(
-                    null,
-                    message.reportId,
-                    1,
-                    report.id,
-                    1,
-                    null,
-                    null,
-                    null,
-                    report.getItemHashForRow(1)
-                )
-            )
-
-            // ensure tracking is set
-            actionHistory.trackCreatedReport(nextEvent, report)
-
-            // send event to Azure AppInsights
-            val receiverObservationSummary = AzureEventUtils.getObservationSummaries(bundle)
-            azureEventService.trackEvent(
-                ReportRouteEvent(
-                    report.id,
-                    message.reportId,
-                    rootReportId,
-                    message.topic,
-                    sender,
-                    null,
-                    receiverObservationSummary,
-                    receiverObservationSummary,
-                    fhirJson.length,
-                    AzureEventUtils.getIdentifier(bundle)
-                )
-            )
-
-            return emptyList()
         }
     }
 

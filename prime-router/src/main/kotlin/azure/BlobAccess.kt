@@ -11,6 +11,7 @@ import com.azure.storage.blob.models.BlobListDetails
 import com.azure.storage.blob.models.BlobStorageException
 import com.azure.storage.blob.models.DownloadRetryOptions
 import com.azure.storage.blob.models.ListBlobsOptions
+import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.BlobUtils.sha256Digest
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.MimeFormat
@@ -310,6 +311,21 @@ class BlobAccess() : Logging {
                     BlobItemAndPreviousVersions(current, previousVersions)
                 }
             }
+        }
+
+        /**
+         * Download the file associated with a RawSubmission message
+         */
+        fun downloadContent(
+            blobUrl: String,
+            digest: String,
+        ): String {
+            val blobContent = downloadBlobAsByteArray(blobUrl)
+            val localDigest = BlobUtils.digestToString(sha256Digest(blobContent))
+            check(digest == localDigest) {
+                "FHIR - Downloaded file does not match expected file\n$digest | $localDigest"
+            }
+            return String(blobContent)
         }
 
         /**

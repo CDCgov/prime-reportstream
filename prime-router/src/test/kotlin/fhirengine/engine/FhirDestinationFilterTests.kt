@@ -277,7 +277,7 @@ class FhirDestinationFilterTests {
 
         // mock setup
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(File(VALID_FHIR_URL).readText())
+        every { BlobAccess.downloadContent(any(), any()) }.returns(File(VALID_FHIR_URL).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
@@ -307,7 +307,7 @@ class FhirDestinationFilterTests {
 
         // mock setup
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(File(VALID_FHIR_URL).readText())
+        every { BlobAccess.downloadContent(any(), any()) }.returns(File(VALID_FHIR_URL).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
@@ -413,7 +413,7 @@ class FhirDestinationFilterTests {
         // data + mock setup
         val fhirData = File(VALID_FHIR_URL).readText()
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadContent(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
@@ -450,7 +450,7 @@ class FhirDestinationFilterTests {
 
         // mock setup
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(File(VALID_FHIR_URL).readText())
+        every { BlobAccess.downloadContent(any(), any()) }.returns(File(VALID_FHIR_URL).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
         every { engine.findTopicReceivers(any()) } returns emptyList()

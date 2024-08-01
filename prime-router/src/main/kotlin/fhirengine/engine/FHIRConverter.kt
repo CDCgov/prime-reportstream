@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.fhirengine.engine
 
-import ConvertQueueMessage
 import QueueMessage
 import ca.uhn.fhir.parser.DataFormatException
 import ca.uhn.hl7v2.HL7Exception
@@ -96,9 +95,6 @@ class FHIRConverter(
         is FhirConvertQueueMessage -> {
             fhirEngineRunResults(message, message.schemaName, actionLogger, actionHistory)
         }
-        is ConvertQueueMessage -> {
-            runReceiveResults(message, actionLogger, actionHistory)
-        }
 
         else -> {
             throw RuntimeException(
@@ -116,10 +112,9 @@ class FHIRConverter(
      * @return A list of FHIR engine run results.
      */
     private fun runReceiveResults(
-        queueMessage: ConvertQueueMessage,
+        queueMessage: FhirConvertQueueMessage,
         actionLogger: ActionLogger,
-        convertActionHistory: ActionHistory,
-    ): List<FHIREngineRunResult> {
+    ) {
         val receiveActionHistory = ActionHistory(TaskAction.receive)
 
         // Retrieve the sender settings
@@ -134,7 +129,7 @@ class FHIRConverter(
         val contextMap = mapOf(
             MDCUtils.MDCProperty.ACTION_NAME to receiveActionHistory.action.actionName.name,
             MDCUtils.MDCProperty.REPORT_ID to queueMessage.reportId,
-            MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobUrl,
+            MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobURL,
         )
 
         return withLoggingContext(contextMap) {
@@ -149,26 +144,10 @@ class FHIRConverter(
 
             receiveActionHistory.trackReceivedNoReport(
                 queueMessage.reportId,
-                queueMessage.blobUrl,
+                queueMessage.blobURL,
                 MimeFormat.valueOfFromMimeType(mimeType).toString(),
                 TaskAction.convert,
                 payloadName
-            )
-
-            val convertQueueMessage = FhirConvertQueueMessage(
-                queueMessage.reportId,
-                queueMessage.blobUrl,
-                queueMessage.digest,
-                sender.fullName,
-                sender.topic,
-                sender.schemaName
-            )
-
-            val results = fhirEngineRunResults(
-                convertQueueMessage,
-                sender.schemaName,
-                actionLogger,
-                convertActionHistory
             )
 
             val tableAccess = TableAccess()
@@ -177,8 +156,6 @@ class FHIRConverter(
             if (actionLogger.hasErrors()) {
                 throw actionLogger.exception
             }
-
-            results
         }
     }
 
@@ -191,15 +168,14 @@ class FHIRConverter(
      * @return An empty list of FHIR engine run results.
      */
     private fun handleSenderNotFound(
-        queueMessage: ConvertQueueMessage,
+        queueMessage: FhirConvertQueueMessage,
         actionLogger: ActionLogger,
         receiveActionHistory: ActionHistory,
-    ): List<FHIREngineRunResult> {
+    ) {
         receiveActionHistory.trackActionResult(HttpStatus.NOT_FOUND)
         val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Rejected").toTableEntity()
         TableAccess().insertEntity(tableEntity)
         actionLogger.error(InvalidParamMessage("client_id is a required parameter"))
-        return emptyList()
     }
 
     /**
@@ -211,19 +187,18 @@ class FHIRConverter(
      * @return An empty list of FHIR engine run results.
      */
     private fun handleInactiveSender(
-        queueMessage: ConvertQueueMessage,
+        queueMessage: FhirConvertQueueMessage,
         actionLogger: ActionLogger,
         receiveActionHistory: ActionHistory,
-    ): List<FHIREngineRunResult> {
+    ) {
         receiveActionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
         val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Rejected").toTableEntity()
         TableAccess().insertEntity(tableEntity)
         actionLogger.error(SenderNotFound(queueMessage.headers["client_id"].toString()))
-        return emptyList()
     }
 
     private fun fhirEngineRunResults(
-        queueMessage: ReportPipelineMessage,
+        queueMessage: FhirConvertQueueMessage,
         schemaName: String,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
@@ -231,10 +206,14 @@ class FHIRConverter(
         val contextMap = mapOf(
             MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
             MDCUtils.MDCProperty.REPORT_ID to queueMessage.reportId,
-            MDCUtils.MDCProperty.TOPIC to queueMessage.topic,
+            MDCUtils.MDCProperty.TOPIC to queueMessage.topic!!,
             MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobURL
         )
         withLoggingContext(contextMap) {
+            if (queueMessage.headers.isNotEmpty()) {
+                runReceiveResults(queueMessage, actionLogger)
+            }
+
             actionLogger.setReportId(queueMessage.reportId)
             actionHistory.trackExistingInputReport(queueMessage.reportId)
             val format = Report.getFormatFromBlobURL(queueMessage.blobURL)
@@ -386,12 +365,12 @@ class FHIRConverter(
      */
     internal fun process(
         format: MimeFormat,
-        queueMessage: ReportPipelineMessage,
+        queueMessage: FhirConvertQueueMessage,
         actionLogger: ActionLogger,
         routeReportWithInvalidItems: Boolean = true,
     ): List<Bundle> {
-        val validator = queueMessage.topic.validator
-        val rawReport = queueMessage.downloadContent()
+        val validator = queueMessage.topic!!.validator
+        val rawReport = BlobAccess.downloadContent(queueMessage.blobURL, queueMessage.digest)
         return if (rawReport.isBlank()) {
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
             emptyList()

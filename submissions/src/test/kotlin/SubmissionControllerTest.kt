@@ -138,7 +138,7 @@ class SubmissionControllerTest {
         assert(blobSizeCaptor.firstValue == requestBody.length.toLong())
         val capturedMessage = objectMapper.readValue(messageCaptor.firstValue, Map::class.java)
         assert(capturedMessage["reportId"] == reportId.toString())
-        assert(capturedMessage["blobUrl"] == expectedBlobUrl)
+        assert(capturedMessage["blobURL"] == expectedBlobUrl)
         assert(capturedMessage["headers"] != null)
         val headers = capturedMessage["headers"] as Map<*, *>
         assert(headers["client_id"] == "testClient")
@@ -185,7 +185,7 @@ class SubmissionControllerTest {
         assert(blobSizeCaptor.firstValue == requestBody.length.toLong())
         val capturedMessage = objectMapper.readValue(messageCaptor.firstValue, Map::class.java)
         assert(capturedMessage["reportId"] == reportId.toString())
-        assert(capturedMessage["blobUrl"] == expectedBlobUrl)
+        assert(capturedMessage["blobURL"] == expectedBlobUrl)
         assert(capturedMessage["headers"] != null)
         val headers = capturedMessage["headers"] as Map<*, *>
         assert(headers["client_id"] == "testClient")

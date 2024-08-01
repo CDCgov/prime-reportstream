@@ -740,7 +740,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            FhirConvertQueueMessage(
+            FhirRouteQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -759,7 +759,7 @@ class FhirRouterTests {
         val processingModeFilter = emptyList<String>()
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadContent(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
@@ -784,7 +784,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            FhirConvertQueueMessage(
+            FhirRouteQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -803,7 +803,7 @@ class FhirRouterTests {
         val processingModeFilter = emptyList<String>()
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadContent(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
@@ -830,7 +830,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            FhirConvertQueueMessage(
+            FhirRouteQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -849,7 +849,7 @@ class FhirRouterTests {
         val processingModeFilter = emptyList<String>()
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadContent(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter)
@@ -876,7 +876,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            FhirConvertQueueMessage(
+            FhirRouteQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -895,7 +895,7 @@ class FhirRouterTests {
         val processingModeFilter = listOf(PROVENANCE_COUNT_EQUAL_TO_TEN)
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadContent(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, processingModeFilter)
@@ -922,7 +922,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            FhirConvertQueueMessage(
+            FhirRouteQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -943,7 +943,7 @@ class FhirRouterTests {
         val mappedConditionFilter = emptyList<ConditionFilter>()
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadContent(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         engine.setFiltersOnEngine(
@@ -973,7 +973,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            FhirConvertQueueMessage(
+            FhirRouteQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -994,7 +994,7 @@ class FhirRouterTests {
         val mappedConditionFilter = emptyList<ConditionFilter>()
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadContent(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         engine.setFiltersOnEngine(
@@ -1024,7 +1024,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            FhirConvertQueueMessage(
+            FhirRouteQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -1045,7 +1045,7 @@ class FhirRouterTests {
         val mappedConditionFilter = listOf(CodeStringConditionFilter("foo,bar"))
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadContent(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         engine.setFiltersOnEngine(
@@ -1086,7 +1086,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            FhirConvertQueueMessage(
+            FhirRouteQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -1108,7 +1108,7 @@ class FhirRouterTests {
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.info(any<PrunedObservationsLogMessage>()) } just runs
-        every { message.downloadContent() }.returns(FhirTranscoder.encode(bundle))
+        every { BlobAccess.downloadContent(any(), any()) }.returns(FhirTranscoder.encode(bundle))
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
@@ -1150,7 +1150,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            FhirConvertQueueMessage(
+            FhirRouteQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -1171,7 +1171,7 @@ class FhirRouterTests {
         val mappedConditionFilter = emptyList<ConditionFilter>()
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(FhirTranscoder.encode(bundle))
+        every { BlobAccess.downloadContent(any(), any()) }.returns(FhirTranscoder.encode(bundle))
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         engine.setFiltersOnEngine(
@@ -1212,7 +1212,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            FhirConvertQueueMessage(
+            FhirRouteQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -1234,7 +1234,7 @@ class FhirRouterTests {
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.info(any<PrunedObservationsLogMessage>()) } just runs
-        every { message.downloadContent() }.returns(FhirTranscoder.encode(bundle))
+        every { BlobAccess.downloadContent(any(), any()) }.returns(FhirTranscoder.encode(bundle))
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
@@ -1272,7 +1272,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            FhirConvertQueueMessage(
+            FhirRouteQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -1294,7 +1294,7 @@ class FhirRouterTests {
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.info(any<PrunedObservationsLogMessage>()) } just runs
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadContent(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
@@ -1332,7 +1332,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            FhirConvertQueueMessage(
+            FhirRouteQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -1358,7 +1358,7 @@ class FhirRouterTests {
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.info(any<PrunedObservationsLogMessage>()) } just runs
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadContent(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
@@ -1408,7 +1408,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            FhirConvertQueueMessage(
+            FhirRouteQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -1433,7 +1433,7 @@ class FhirRouterTests {
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.info(any<PrunedObservationsLogMessage>()) } just runs
-        every { message.downloadContent() }.returns(FhirTranscoder.encode(bundle))
+        every { BlobAccess.downloadContent(any(), any()) }.returns(FhirTranscoder.encode(bundle))
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
@@ -1537,7 +1537,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            FhirConvertQueueMessage(
+            FhirRouteQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -1561,7 +1561,7 @@ class FhirRouterTests {
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.info(any<PrunedObservationsLogMessage>()) } just runs
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadContent(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
@@ -1598,7 +1598,7 @@ class FhirRouterTests {
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message =
             spyk(
-                FhirConvertQueueMessage(
+                FhirRouteQueueMessage(
                     UUID.randomUUID(),
                     BLOB_URL,
                     "test",
@@ -1613,7 +1613,7 @@ class FhirRouterTests {
         every { engine.findReceiversForBundle(any(), any(), any(), any()) } returns emptyList()
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadContent(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 
@@ -1880,7 +1880,7 @@ class FhirRouterTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val message = spyk(
-            FhirConvertQueueMessage(
+            FhirRouteQueueMessage(
                 UUID.randomUUID(),
                 BLOB_URL,
                 "test",
@@ -1895,7 +1895,7 @@ class FhirRouterTests {
         // filters
         val jurisFilter = listOf(PROVENANCE_COUNT_EQUAL_TO_TEN)
 
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadContent(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
 

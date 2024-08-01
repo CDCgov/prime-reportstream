@@ -183,12 +183,14 @@ class FhirFunctionTests {
         // act
         fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
 
+        val serializedMessage = message.serialize()
+
         // assert
         verify(exactly = 1) {
             fhirEngine.doWork(any(), any(), any())
             actionHistory.trackActionParams(queueMessage) // string
             actionHistory.trackLogs(emptyList()) // list actionLog
-            queueMock.sendMessage(elrDestinationFilterQueueName, message.serialize())
+            queueMock.sendMessage(elrDestinationFilterQueueName, serializedMessage)
             workflowEngine.recordAction(any(), any())
         }
     }
@@ -269,13 +271,15 @@ class FhirFunctionTests {
         // act
         fhirFunc.doRoute(queueMessage, 1, fhirEngine, actionHistory)
 
+        val serializedMessage = message.serialize()
+
         // assert
         verify(exactly = 1) {
             fhirEngine.doWork(any(), any(), any())
             actionHistory.trackActionParams(queueMessage) // string
             actionHistory.trackLogs(emptyList()) // list actionLog
             workflowEngine.recordAction(any(), any())
-            queueMock.sendMessage(elrTranslationQueueName, message.serialize())
+            queueMock.sendMessage(elrTranslationQueueName, serializedMessage)
         }
     }
 

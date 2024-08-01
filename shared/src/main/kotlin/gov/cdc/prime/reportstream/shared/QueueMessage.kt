@@ -18,7 +18,7 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(ConvertQueueMessage::class, name = "convert-fhir"),
+    JsonSubTypes.Type(QueueMessage.ConvertQueueMessage::class, name = "convert"),
 )
 interface QueueMessage {
     fun serialize(): String {
@@ -28,13 +28,7 @@ interface QueueMessage {
     }
 
     companion object {
-        private val ptv = BasicPolymorphicTypeValidator.builder()
-            .build()
-        val mapper: JsonMapper = jacksonMapperBuilder()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .polymorphicTypeValidator(ptv)
-            .activateDefaultTyping(ptv)
-            .build()
+        val mapper: JsonMapper = ObjectMapperProvider.mapper
 
         fun deserialize(s: String): QueueMessage {
             return mapper.readValue(s)
@@ -44,12 +38,44 @@ interface QueueMessage {
             return mapper.writeValueAsString(this)
         }
     }
-}
 
-@JsonTypeName("convert-fhir")
-data class ConvertQueueMessage(
-    val reportId: UUID,
-    val blobUrl: String,
-    val headers: Map<String, String>,
-    val digest: String,
-) : QueueMessage
+    interface ReportInformation {
+        val blobURL: String
+        val digest: String
+        val blobSubFolderName: String
+        val reportId: UUID
+    }
+
+    interface ConvertInformation {
+        val headers: Map<String, String>
+    }
+
+    @JsonTypeName("convert")
+    data class ConvertQueueMessage(
+        override val blobURL: String,
+        override val digest: String,
+        override val blobSubFolderName: String,
+        override val reportId: UUID,
+        override val headers: Map<String, String>,
+    ) : QueueMessage, ReportInformation, ConvertInformation
+
+    object ObjectMapperProvider {
+
+        private val ptv = BasicPolymorphicTypeValidator.builder()
+            .build()
+        val mapper: JsonMapper = jacksonMapperBuilder()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .polymorphicTypeValidator(ptv)
+            .activateDefaultTyping(ptv)
+            .build()
+
+        fun registerSubtypes(vararg subtypes: Class<out QueueMessage>) {
+            mapper.registerSubtypes(*subtypes)
+        }
+
+        init {
+            // Register common subtypes here if necessary
+            mapper.registerSubtypes(ConvertQueueMessage::class.java)
+        }
+    }
+}

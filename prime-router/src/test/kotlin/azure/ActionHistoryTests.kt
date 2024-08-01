@@ -381,9 +381,10 @@ class ActionHistoryTests {
                 )
             )
         mockkObject(BlobAccess.Companion)
+        mockkObject(BlobUtils)
         val blobUrls = mutableListOf<String>()
         every { BlobAccess.uploadBlob(capture(blobUrls), any()) } returns "http://blobUrl"
-        every { BlobUtils.sha256Digest(any()) } returns byteArrayOf()
+        every { BlobUtils.sha256Digest(any<ByteArray>()) } returns byteArrayOf()
         every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
         val header = mockk<WorkflowEngine.Header>()
         val inReportFile = mockk<ReportFile>()
@@ -576,6 +577,7 @@ class ActionHistoryTests {
                 )
             )
         mockkObject(BlobAccess.Companion)
+        mockkObject(BlobUtils)
         val blobUrls = mutableListOf<String>()
         every { BlobAccess.uploadBlob(capture(blobUrls), any()) } returns "http://blobUrl"
         every { BlobUtils.sha256Digest(any()) } returns byteArrayOf()

@@ -89,7 +89,7 @@ class FHIRDestinationFilter(
      * [actionHistory] ensures all activities are logged.
      */
     private fun fhirEngineRunResults(
-        queueMessage: ReportPipelineMessage,
+        queueMessage: FhirDestinationFilterQueueMessage,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
         val contextMap = mapOf(
@@ -107,7 +107,7 @@ class FHIRDestinationFilter(
             val fhirJson = LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                 "Downloaded content from queue message"
             ) {
-                queueMessage.downloadContent()
+                BlobAccess.downloadContent(queueMessage.blobURL, queueMessage.digest)
             }
             val bundle = FhirTranscoder.decode(fhirJson)
             val bodyString = FhirTranscoder.encode(bundle)
