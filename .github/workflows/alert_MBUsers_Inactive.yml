@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 0
           
-      - name: Get Metabase inactive users
+      - name: Get Metabase Inactive users
         shell: pwsh
         env:
             pass: ${{ secrets.MBPwd }}
@@ -41,17 +41,21 @@ jobs:
           echo -e "$messageInactiveUsers">> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
 
+      - name: Decode Slack Message
+        shell: pwsh
+        run: |
+          echo  -e ${{ steps.users_out.outputs.messageInactiveUsers }}
       
-      - name: Slack Notification
-        uses: ./.github/actions/notifications
-        with:
-          method: slack
-          title: Inactive users
-          message: |
-            ${{ steps.users_out.outputs.messageInactiveUsers }}
-          icon-emoji: ':hourglass_flowing_sand:'
-          channel: pagerduty-alert-dump
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          color: warning
-          slackify-markdown: true
+      # - name: Slack Notification
+      #   uses: ./.github/actions/notifications
+      #   with:
+      #     method: slack
+      #     title: Inactive users
+      #     message: |
+      #       ${{ steps.users_out.outputs.messageInactiveUsers }}
+      #     icon-emoji: ':hourglass_flowing_sand:'
+      #     channel: pagerduty-alert-dump
+      #     webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+      #     color: warning
+      #     slackify-markdown: true
   
