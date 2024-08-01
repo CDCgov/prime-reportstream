@@ -9,68 +9,32 @@ import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Observation
 
-class ConditionMapper(val metadata: Metadata) {
-
-    data class ObservationMappingFailure(val observationId: String, val failures: List<ActionLogDetail>)
-
-    fun lookupConditions(codes: List<String>): MutableMap<String, List<Coding>> {
-        val mappingTable = metadata.findLookupTable("observation-mapping")
-            ?: throw IllegalStateException("Unable to load lookup table 'observation-mapping' for condition stamping")
-        return mappingTable.FilterBuilder().isIn(TEST_CODE_KEY, codes)
-            .filter().caseSensitiveDataRowsMap.fold(mutableMapOf<String, List<Coding>>()) { acc, condition ->
-                val code = condition[TEST_CODE_KEY]!!
-                val conditions = acc[code] ?: mutableListOf()
-                acc[code] = conditions.plus(
-                    Coding(
-                        condition[CONDITION_CODE_SYSTEM_KEY],
-                        condition[CONDITION_CODE_KEY],
-                        condition[CONDITION_NAME_KEY]
-                    )
-                )
-                acc
-            }
-    }
+interface ConditionMapper {
+    /**
+     * Attempt to find diagnostic conditions for a given test [code]
+     * @return a list of diagnostic conditions identified (could be empty)
+     */
+    fun lookupCondition(code: String): List<Coding>
 
     /**
-     * For every snomed/loinc code in code or valueCodeableConcept, lookup condition codes and add them as extensions
-     * @param metadata metadata containing an observation-mapping lookup table
-     * @return a list of ActionLogDetail objects with information on any mapping failures
+     * Attempt to find diagnostic conditions for a series of test [codes]
+     * @return a map associating test [codes] to their diagnostic conditions as Coding's
      */
-    fun stampBundle(bundle: Bundle): List<ObservationMappingFailure> =
-        bundle.getObservations().mapNotNull { observation ->
-            val logs = stampObservation(observation)
-            if (logs.isEmpty()) null else ObservationMappingFailure(observation.id, logs)
-        }
+    fun lookupConditions(codes: List<String>): MutableMap<String, List<Coding>>
 
     /**
-     * For every snomed/loinc code in code or valueCodeableConcept, lookup condition codes and add them as extensions
-     * @param metadata metadata containing an observation-mapping lookup table
+     * Lookup condition codes on every observation in a [bundle] and add them as custom extensions
+     * @param bundle the bundle that will be stamped
+     * @return a list of ObservationMappingFailure objects with information on any mapping failures and their source
+     */
+    fun stampBundle(bundle: Bundle): List<LookupTableConditionMapper.ObservationMappingFailure>
+
+    /**
+     * Lookup condition codes for an [observation] and add them as custom extensions
+     * @param observation the observation that will be stamped
      * @return a list of ActionLogDetail objects with information on any mapping failures
      */
-    fun stampObservation(observation: Observation): List<ActionLogDetail> {
-        val codeSourcesMap = observation.getCodeSourcesMap().filterValues { it.isNotEmpty() }
-        var mappedSomething = false
-        if (codeSourcesMap.values.flatten().isEmpty()) return listOf(UnmappableConditionMessage()) // no codes found
-        val codes = codeSourcesMap.values.flatten().mapNotNull { it.code }
-
-        val conditionsToCode = lookupConditions(codes)
-
-        return codeSourcesMap.mapNotNull { codeSourceEntry ->
-            codeSourceEntry.value.mapNotNull { code ->
-                val conditions = conditionsToCode.getOrDefault(code.code ?: "", emptyList())
-                if (conditions.isEmpty()) { // no codes found, track this unmapped code
-                    code.code
-                } else { // codes found; add extensions and return null to avoid mapping this as an error
-                    conditions.forEach { code.addExtension(conditionCodeExtensionURL, it) }
-                    mappedSomething = true
-                    null
-                }
-            }.let {
-                // create log message for any unmapped codes
-                if (it.isEmpty() || mappedSomething) null else UnmappableConditionMessage(it, codeSourceEntry.key)
-            }
-        }
-    }
+    fun stampObservation(observation: Observation): List<ActionLogDetail>
 
     companion object {
         const val TEST_CODE_KEY = "Code"
@@ -114,5 +78,61 @@ class ConditionMapper(val metadata: Metadata) {
         )
 
         val ALL_KEYS = TEST_KEYS + CONDITION_KEYS
+    }
+}
+
+class LookupTableConditionMapper(metadata: Metadata) : ConditionMapper {
+    val mappingTable = metadata.findLookupTable("observation-mapping")
+        ?: throw IllegalStateException("Unable to load lookup table 'observation-mapping' for condition stamping")
+
+    data class ObservationMappingFailure(val observationId: String, val failures: List<ActionLogDetail>)
+
+    override fun lookupCondition(code: String): List<Coding> = lookupConditions(listOf(code)).values.single()
+
+    override fun lookupConditions(codes: List<String>): MutableMap<String, List<Coding>> {
+        return mappingTable.FilterBuilder().isIn(ConditionMapper.TEST_CODE_KEY, codes)
+            .filter().caseSensitiveDataRowsMap.fold(mutableMapOf<String, List<Coding>>()) { acc, condition ->
+                val code = condition[ConditionMapper.TEST_CODE_KEY]!!
+                val conditions = acc[code] ?: mutableListOf()
+                acc[code] = conditions.plus(
+                    Coding(
+                        condition[ConditionMapper.CONDITION_CODE_SYSTEM_KEY],
+                        condition[ConditionMapper.CONDITION_CODE_KEY],
+                        condition[ConditionMapper.CONDITION_NAME_KEY]
+                    )
+                )
+                acc
+            }
+    }
+
+    override fun stampBundle(bundle: Bundle): List<ObservationMappingFailure> =
+        bundle.getObservations().mapNotNull { observation ->
+            val logs = stampObservation(observation)
+            if (logs.isEmpty()) null else ObservationMappingFailure(observation.id, logs)
+        }
+
+    override fun stampObservation(observation: Observation): List<ActionLogDetail> {
+        val codeSourcesMap = observation.getCodeSourcesMap().filterValues { it.isNotEmpty() }
+        var mappedSomething = false
+        if (codeSourcesMap.values.flatten().isEmpty()) return listOf(UnmappableConditionMessage()) // no codes found
+        val codes = codeSourcesMap.values.flatten().mapNotNull { it.code }
+
+        val conditionsToCode = lookupConditions(codes)
+
+        return codeSourcesMap.mapNotNull { codeSourceEntry ->
+            codeSourceEntry.value.mapNotNull { code ->
+                val conditions = conditionsToCode.getOrDefault(code.code ?: "", emptyList())
+                if (conditions.isEmpty()) { // no codes found, track this unmapped code
+                    code.code
+                } else { // codes found; add extensions and return null to avoid mapping this as an error
+                    conditions.forEach { code.addExtension(ConditionMapper.conditionCodeExtensionURL, it) }
+                    mappedSomething = true
+                    null
+                }
+            }.let {
+                // create log message for any unmapped codes
+                if (it.isEmpty() || mappedSomething) null else UnmappableConditionMessage(it, codeSourceEntry.key)
+            }
+        }
     }
 }

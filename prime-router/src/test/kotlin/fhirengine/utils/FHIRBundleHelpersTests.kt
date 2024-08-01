@@ -30,6 +30,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.ConditionMapper
 import gov.cdc.prime.router.azure.ConditionMapper.Companion.conditionCodeExtensionURL
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.LookupTableConditionMapper
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -734,7 +735,7 @@ class FHIRBundleHelpersTests {
                 )
             )
         )
-        val mapper = ConditionMapper(metadata)
+        val mapper = LookupTableConditionMapper(metadata)
 
         val entry = Observation()
         val code = CodeableConcept()
@@ -776,7 +777,7 @@ class FHIRBundleHelpersTests {
                 )
             )
         )
-        val mapper = ConditionMapper(metadata)
+        val mapper = LookupTableConditionMapper(metadata)
 
         val entry = Observation()
         val code = CodeableConcept()
@@ -821,7 +822,7 @@ class FHIRBundleHelpersTests {
                 )
             )
         )
-        val mapper = ConditionMapper(metadata)
+        val mapper = LookupTableConditionMapper(metadata)
 
         val entry = Observation()
         val code = CodeableConcept()
@@ -872,7 +873,7 @@ class FHIRBundleHelpersTests {
                 )
             )
         )
-        val mapper = ConditionMapper(metadata)
+        val mapper = LookupTableConditionMapper(metadata)
 
         val entry = Observation()
         val code = CodeableConcept()
@@ -920,7 +921,7 @@ class FHIRBundleHelpersTests {
                 )
             )
         )
-        val mapper = ConditionMapper(metadata)
+        val mapper = LookupTableConditionMapper(metadata)
 
         val entry = Observation()
         val code = CodeableConcept()

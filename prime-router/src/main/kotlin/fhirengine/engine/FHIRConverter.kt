@@ -25,6 +25,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.ConditionMapper
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.LookupTableConditionMapper
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -386,7 +387,7 @@ class FHIRConverter(
             }
 
             val areAllItemsParsedAndValid = processedItems.all { it.getError() == null }
-            val mapper = ConditionMapper(metadata)
+            val conditionMapper: ConditionMapper = LookupTableConditionMapper(metadata)
             val bundles = processedItems.map { item ->
                 val error = item.getError()
                 if (error != null) {
@@ -394,7 +395,7 @@ class FHIRConverter(
                 }
                 // 'stamp' observations with their condition code
                 if (item.bundle != null) {
-                    mapper.stampBundle(item.bundle!!).forEach {
+                    conditionMapper.stampBundle(item.bundle!!).forEach {
                         actionLogger.getItemLogger(item.index + 1, it.observationId).warn(it.failures)
                     }
                 }

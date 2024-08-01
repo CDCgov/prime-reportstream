@@ -24,6 +24,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.ConditionMapper
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.LookupTableConditionMapper
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -159,7 +160,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         )
     }
 
-    val conditionMapper = ConditionMapper(observationMappingMetadata)
+    val conditionMapper = LookupTableConditionMapper(observationMappingMetadata)
 
     @Container
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
