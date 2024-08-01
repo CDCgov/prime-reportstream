@@ -36,7 +36,7 @@ If your e2e tests fail during the GitHub build. The following steps will help in
 
 1. Change the password in OKTA for the `TEST_*_USERNAME` user account(s).
 2. Have DevOps update the GitHub Action `TEST_*_PASSWORD` secret(s) for the `TEST_*_USERNAME` user account(s).
-3. Have DevOps update the Dependabot `TEST_*_PASSWORD` secret(s) in the Security tab for the `TEST_*_USERNAME` user account(s).
+3. Have DevOps update the Dependabot `TEST_*_PASSWORD` secret(s) for the `TEST_*_USERNAME` user account(s).
 
 ---
 
