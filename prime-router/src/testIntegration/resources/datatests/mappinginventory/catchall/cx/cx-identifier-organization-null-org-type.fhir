@@ -125,7 +125,7 @@
     "fullUrl" : "ServiceRequest/1710884671575259000.64c9304c-25d8-4304-8d7a-5d67012adc34",
     "resource" : {
       "resourceType" : "ServiceRequest",
-      "id" : "1721668757326913000.d74351a8-d16e-40b3-a443-677a989b220a",
+      "id" : "1710884671575259000.64c9304c-25d8-4304-8d7a-5d67012adc34",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
         "extension" : [ {
