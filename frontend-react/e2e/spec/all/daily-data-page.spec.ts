@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
 
 import { format } from "date-fns";
 import {
@@ -7,12 +7,12 @@ import {
     tableDataCellValue,
     tableRows,
     TEST_ORG_AK_RECEIVER,
-    TEST_ORG_IGNORE_RECEIVER,
-    waitForAPIResponse,
+    TEST_ORG_UP_RECEIVER_FULL_ELR,
 } from "../../helpers/utils";
 import * as dailyData from "../../pages/daily-data";
 import {
     applyButton,
+    DailyDataPage,
     endDate,
     endTime,
     endTimeClear,
@@ -35,21 +35,56 @@ import {
     mockGetDeliveriesForOrgAlaskaResponse,
     mockGetDeliveriesForOrgIgnoreResponse,
 } from "../../pages/report-details";
+import { test as baseTest } from "../../test";
 
 const defaultStartTime = "9:00am";
 const defaultEndTime = "11:30pm";
 
-test.describe.skip("Daily Data page", () => {
+export interface DailyDataPageFixtures {
+    dailyDataPage: DailyDataPage;
+}
+
+const test = baseTest.extend<DailyDataPageFixtures>({
+    dailyDataPage: async (
+        {
+            page: _page,
+            isMockDisabled,
+            adminLogin,
+            senderLogin,
+            receiverLogin,
+            storageState,
+            frontendWarningsLogPath,
+            isFrontendWarningsLog,
+        },
+        use,
+    ) => {
+        const page = new DailyDataPage({
+            page: _page,
+            isMockDisabled,
+            adminLogin,
+            senderLogin,
+            receiverLogin,
+            storageState,
+            frontendWarningsLogPath,
+            isFrontendWarningsLog,
+            isTestOrg: true,
+        });
+        await page.goto();
+        await use(page);
+    },
+});
+
+test.describe("Daily Data page", () => {
     test.describe("not authenticated", () => {
-        test("redirects to login", async ({ page }) => {
-            await dailyData.goto(page);
-            await expect(page).toHaveURL("/login");
+        test("redirects to login", async ({ dailyDataPage }) => {
+            await expect(dailyDataPage.page).toHaveURL("/login");
         });
     });
 
     test.describe("admin user", () => {
         test.use({ storageState: "e2e/.auth/admin.json" });
 
+        // TODO: cannot use dailyDataPage since we dont want the test org to be selected. Need a way to set the test org per test.
         test.describe("without org selected", () => {
             test.beforeEach(async ({ page }) => {
                 await dailyData.goto(page);
@@ -81,7 +116,7 @@ test.describe.skip("Daily Data page", () => {
                 });
                 await mockGetDeliveriesForOrgIgnoreResponse({
                     page: page,
-                    receiver: TEST_ORG_IGNORE_RECEIVER,
+                    receiver: TEST_ORG_UP_RECEIVER_FULL_ELR,
                 });
                 await dailyData.goto(page);
             });
@@ -91,8 +126,8 @@ test.describe.skip("Daily Data page", () => {
                 await expect(navItems).toContainText(["Daily Data"]);
             });
 
-            test("has correct title", async ({ page }) => {
-                await expect(page).toHaveTitle(/Daily Data - ReportStream/);
+            test("has correct title", async ({ dailyDataPage }) => {
+                await expect(dailyDataPage.page).toHaveTitle(dailyDataPage.title);
             });
 
             test("has receiver services dropdown", async ({ page }) => {
@@ -150,7 +185,7 @@ test.describe.skip("Daily Data page", () => {
 
                 test.describe("with receiver selected", () => {
                     test.beforeEach(async ({ page }) => {
-                        await page.locator("#receiver-dropdown").selectOption(TEST_ORG_IGNORE_RECEIVER);
+                        await page.locator("#receiver-dropdown").selectOption(TEST_ORG_UP_RECEIVER_FULL_ELR);
                     });
 
                     test.afterEach(async ({ page }) => {
@@ -165,14 +200,14 @@ test.describe.skip("Daily Data page", () => {
                             .click();
 
                         // Check that table data contains the receiver selected
-                        await expectTableColumnValues(page, 5, `${TEST_ORG_IGNORE_RECEIVER}`);
+                        await expectTableColumnValues(page, 5, `${TEST_ORG_UP_RECEIVER_FULL_ELR}`);
 
                         // Check filter status lists receiver value
-                        const filterStatusText = filterStatus(page, [TEST_ORG_IGNORE_RECEIVER]);
+                        const filterStatusText = filterStatus(page, [TEST_ORG_UP_RECEIVER_FULL_ELR]);
                         await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
 
                         // Receiver dropdown persists
-                        await expect(receiverDropdown(page)).toHaveValue(TEST_ORG_IGNORE_RECEIVER);
+                        await expect(receiverDropdown(page)).toHaveValue(TEST_ORG_UP_RECEIVER_FULL_ELR);
                     });
 
                     test("with 'From' date", async ({ page }) => {
@@ -261,7 +296,7 @@ test.describe.skip("Daily Data page", () => {
 
                         // Check filter status lists receiver value
                         const filterStatusText = filterStatus(page, [
-                            TEST_ORG_IGNORE_RECEIVER,
+                            TEST_ORG_UP_RECEIVER_FULL_ELR,
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         ]);
                         await expect(page.getByTestId("filter-status")).toContainText(filterStatusText);
@@ -344,7 +379,7 @@ test.describe.skip("Daily Data page", () => {
 
                         // Check filter status lists receiver value
                         const filterStatusText = filterStatus(page, [
-                            TEST_ORG_IGNORE_RECEIVER,
+                            TEST_ORG_UP_RECEIVER_FULL_ELR,
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                             `${defaultStartTime}–${defaultEndTime}`,
                         ]);
@@ -582,7 +617,7 @@ test.describe.skip("Daily Data page", () => {
                     // ).toContainText(filterStatusText);
 
                     // Perform search with filters selected
-                    await page.locator("#receiver-dropdown").selectOption(TEST_ORG_IGNORE_RECEIVER);
+                    await page.locator("#receiver-dropdown").selectOption(TEST_ORG_UP_RECEIVER_FULL_ELR);
                     // const fromDate = await setDate(page, "#start-date", 14);
                     // const toDate = await setDate(page, "#end-date", 0);
                     await setDate(page, "#start-date", 14);
@@ -650,7 +685,7 @@ test.describe.skip("Daily Data page", () => {
                 test("clears filters on search", async ({ page }) => {
                     // TODO: uncomment code to use with live data
                     // Perform search with all filters selected
-                    await page.locator("#receiver-dropdown").selectOption(TEST_ORG_IGNORE_RECEIVER);
+                    await page.locator("#receiver-dropdown").selectOption(TEST_ORG_UP_RECEIVER_FULL_ELR);
                     // const fromDate = await setDate(page, "#start-date", 14);
                     // const toDate = await setDate(page, "#end-date", 0);
                     await setDate(page, "#start-date", 14);
@@ -736,8 +771,8 @@ test.describe.skip("Daily Data page", () => {
             await expect(navItems).toContainText(["Daily Data"]);
         });
 
-        test("has correct title", async ({ page }) => {
-            await expect(page).toHaveTitle(/Daily Data - ReportStream/);
+        test("has correct title", async ({ dailyDataPage }) => {
+            await expect(dailyDataPage.page).toHaveTitle(dailyDataPage.title);
         });
 
         test("has filter", async ({ page }) => {
@@ -1341,13 +1376,14 @@ test.describe.skip("Daily Data page", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
 
         test.beforeEach(async ({ page }) => {
+            await mockGetDeliveriesForOrgIgnoreResponse({
+                page: page,
+            });
             await dailyData.goto(page);
-            const response = await waitForAPIResponse(page, "/api/v1/waters/org/");
-            expect(response).toBe(200);
         });
 
-        test("has correct title", async ({ page }) => {
-            await expect(page).toHaveTitle(/Daily Data - ReportStream/);
+        test("has correct title", async ({ dailyDataPage }) => {
+            await expect(dailyDataPage.page).toHaveTitle(dailyDataPage.title);
         });
 
         test("has footer", async ({ page }) => {
