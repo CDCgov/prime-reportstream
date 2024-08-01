@@ -247,7 +247,7 @@ jobs:
 
       - name: Run Chromatic
         id: chromatic
-        uses: chromaui/action@13180b77f984a874c7a7eca8b35027d6e613e8c2
+        uses: chromaui/action@fdbe7756d4dbf493e2fbb822df73be7accd07e1c
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}

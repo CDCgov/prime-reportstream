@@ -317,7 +317,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                     report.id,
                     listOf(report.id),
                     Topic.FULL_ELR,
-                    "",
+                    routedReport.bodyUrl,
                     TaskAction.destination_filter,
                     OffsetDateTime.now()
                 ),
@@ -328,7 +328,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                     1,
                     1,
                     1,
-                    null,
+                    "MT_COCNB_ORU_NBPHELR.1.5348467",
                     "phd.Test Sender"
                 )
             )
@@ -411,7 +411,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 1,
                 1,
                 1,
-                null,
+                "MT_COCNB_ORU_NBPHELR.1.5348467",
                 "phd.Test Sender"
             )
         )
@@ -422,7 +422,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                 patientState = listOf("CO"),
                 performerState = emptyList(),
-                orderingFacilityState = emptyList()
+                orderingFacilityState = listOf("CO")
             )
         )
         )

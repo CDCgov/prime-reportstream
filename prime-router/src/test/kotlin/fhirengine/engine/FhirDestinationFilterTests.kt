@@ -336,18 +336,18 @@ class FhirDestinationFilterTests {
                     message.reportId,
                     listOf(submittedId),
                     Topic.FULL_ELR,
-                    "",
+                    "test",
                     TaskAction.destination_filter,
                     OffsetDateTime.now()
                 ),
-                ReportEventData::timestamp
+                ReportEventData::timestamp,
             )
             assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     1,
                     1,
-                    null,
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
                     "sendingOrg.sendingOrgClient"
                 )
             )
@@ -450,7 +450,7 @@ class FhirDestinationFilterTests {
                             1,
                             1,
                             1,
-                            null,
+                            "1234d1d1-95fe-462c-8ac6-46728dba581c",
                             "sendingOrg.sendingOrgClient"
                         )
                     )
@@ -509,7 +509,7 @@ class FhirDestinationFilterTests {
                             ),
                             patientState = listOf("CA"),
                             performerState = emptyList(),
-                            orderingFacilityState = emptyList(),
+                            orderingFacilityState = listOf("CA"),
                             eventType = "ORU/ACK - Unsolicited transmission of an observation message"
                         )
                     )
