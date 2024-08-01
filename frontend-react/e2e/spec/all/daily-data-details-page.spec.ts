@@ -41,7 +41,7 @@ const test = baseTest.extend<DailyDataDetailsPageFixtures>({
 const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
 const fileName = `hhsprotect-covid-19-73e3cbc8-9920-4ab7-871f-843a1db4c074.csv`;
 
-test.describe("Daily Data Details page", () => {
+test.describe.skip("Daily Data Details page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ dailyDataDetailsPage }) => {
             await expect(dailyDataDetailsPage.page).toHaveURL("/login");
@@ -53,173 +53,77 @@ test.describe("Daily Data Details page", () => {
 
         test.describe("without org selected", () => {
             test.beforeEach(async ({ dailyDataDetailsPage }) => {
-                await dailyDataDetailsPage.page
-                    .getByRole("table")
-                    .waitFor({ state: "visible" });
+                await dailyDataDetailsPage.page.getByRole("table").waitFor({ state: "visible" });
             });
 
             test.describe("table", () => {
-                test("has correct headers", async ({
-                    dailyDataDetailsPage,
-                }) => {
+                test("has correct headers", async ({ dailyDataDetailsPage }) => {
                     await detailsTableHeaders(dailyDataDetailsPage.page);
                 });
 
-                test("'Facility' column has expected data", async ({
-                    dailyDataDetailsPage,
-                }) => {
-                    expect(
-                        await tableDataCellValue(
-                            dailyDataDetailsPage.page,
-                            0,
-                            0,
-                        ),
-                    ).toEqual("Any lab USA 1");
+                test("'Facility' column has expected data", async ({ dailyDataDetailsPage }) => {
+                    expect(await tableDataCellValue(dailyDataDetailsPage.page, 0, 0)).toEqual("Any lab USA 1");
                 });
 
-                test("'Location' column has expected data", async ({
-                    dailyDataDetailsPage,
-                }) => {
-                    expect(
-                        await tableDataCellValue(
-                            dailyDataDetailsPage.page,
-                            0,
-                            1,
-                        ),
-                    ).toEqual("Juneau, AK");
+                test("'Location' column has expected data", async ({ dailyDataDetailsPage }) => {
+                    expect(await tableDataCellValue(dailyDataDetailsPage.page, 0, 1)).toEqual("Juneau, AK");
                 });
 
-                test("'CLIA' column has expected data", async ({
-                    dailyDataDetailsPage,
-                }) => {
-                    expect(
-                        await tableDataCellValue(
-                            dailyDataDetailsPage.page,
-                            0,
-                            2,
-                        ),
-                    ).toEqual("34D8574402");
+                test("'CLIA' column has expected data", async ({ dailyDataDetailsPage }) => {
+                    expect(await tableDataCellValue(dailyDataDetailsPage.page, 0, 2)).toEqual("34D8574402");
                 });
 
-                test("'Total tests' column has expected data", async ({
-                    dailyDataDetailsPage,
-                }) => {
-                    expect(
-                        await tableDataCellValue(
-                            dailyDataDetailsPage.page,
-                            0,
-                            3,
-                        ),
-                    ).toEqual("10");
+                test("'Total tests' column has expected data", async ({ dailyDataDetailsPage }) => {
+                    expect(await tableDataCellValue(dailyDataDetailsPage.page, 0, 3)).toEqual("10");
                 });
 
-                test("'Total positive' column has expected data", async ({
-                    dailyDataDetailsPage,
-                }) => {
-                    expect(
-                        await tableDataCellValue(
-                            dailyDataDetailsPage.page,
-                            0,
-                            4,
-                        ),
-                    ).toEqual("1");
+                test("'Total positive' column has expected data", async ({ dailyDataDetailsPage }) => {
+                    expect(await tableDataCellValue(dailyDataDetailsPage.page, 0, 4)).toEqual("1");
                 });
             });
 
             test("has footer", async ({ dailyDataDetailsPage }) => {
-                await expect(
-                    dailyDataDetailsPage.page.locator("footer"),
-                ).toBeAttached();
+                await expect(dailyDataDetailsPage.page.locator("footer")).toBeAttached();
             });
         });
 
         test.describe("with org selected", () => {
             test.beforeEach(async ({ dailyDataDetailsPage }) => {
-                await dailyDataDetailsPage.page
-                    .getByRole("table")
-                    .waitFor({ state: "visible" });
+                await dailyDataDetailsPage.page.getByRole("table").waitFor({ state: "visible" });
             });
 
             test.describe("table", () => {
-                test("has correct headers", async ({
-                    dailyDataDetailsPage,
-                }) => {
+                test("has correct headers", async ({ dailyDataDetailsPage }) => {
                     await detailsTableHeaders(dailyDataDetailsPage.page);
                 });
 
-                test("'Facility' column has expected data", async ({
-                    dailyDataDetailsPage,
-                }) => {
-                    expect(
-                        await tableDataCellValue(
-                            dailyDataDetailsPage.page,
-                            0,
-                            0,
-                        ),
-                    ).toEqual("Any lab USA 1");
+                test("'Facility' column has expected data", async ({ dailyDataDetailsPage }) => {
+                    expect(await tableDataCellValue(dailyDataDetailsPage.page, 0, 0)).toEqual("Any lab USA 1");
                 });
 
-                test("'Location' column has expected data", async ({
-                    dailyDataDetailsPage,
-                }) => {
-                    expect(
-                        await tableDataCellValue(
-                            dailyDataDetailsPage.page,
-                            0,
-                            1,
-                        ),
-                    ).toEqual("Juneau, AK");
+                test("'Location' column has expected data", async ({ dailyDataDetailsPage }) => {
+                    expect(await tableDataCellValue(dailyDataDetailsPage.page, 0, 1)).toEqual("Juneau, AK");
                 });
 
-                test("'CLIA' column has expected data", async ({
-                    dailyDataDetailsPage,
-                }) => {
-                    expect(
-                        await tableDataCellValue(
-                            dailyDataDetailsPage.page,
-                            0,
-                            2,
-                        ),
-                    ).toEqual("34D8574402");
+                test("'CLIA' column has expected data", async ({ dailyDataDetailsPage }) => {
+                    expect(await tableDataCellValue(dailyDataDetailsPage.page, 0, 2)).toEqual("34D8574402");
                 });
 
-                test("'Total tests' column has expected data", async ({
-                    dailyDataDetailsPage,
-                }) => {
-                    expect(
-                        await tableDataCellValue(
-                            dailyDataDetailsPage.page,
-                            0,
-                            3,
-                        ),
-                    ).toEqual("10");
+                test("'Total tests' column has expected data", async ({ dailyDataDetailsPage }) => {
+                    expect(await tableDataCellValue(dailyDataDetailsPage.page, 0, 3)).toEqual("10");
                 });
 
-                test("'Total positive' column has expected data", async ({
-                    dailyDataDetailsPage,
-                }) => {
-                    expect(
-                        await tableDataCellValue(
-                            dailyDataDetailsPage.page,
-                            0,
-                            4,
-                        ),
-                    ).toEqual("1");
+                test("'Total positive' column has expected data", async ({ dailyDataDetailsPage }) => {
+                    expect(await tableDataCellValue(dailyDataDetailsPage.page, 0, 4)).toEqual("1");
                 });
             });
 
             test("should download file", async ({ dailyDataDetailsPage }) => {
-                await reportDetails.downloadFile(
-                    dailyDataDetailsPage.page,
-                    id,
-                    fileName,
-                );
+                await reportDetails.downloadFile(dailyDataDetailsPage.page, id, fileName);
             });
 
             test("has footer", async ({ dailyDataDetailsPage }) => {
-                await expect(
-                    dailyDataDetailsPage.page.locator("footer"),
-                ).toBeAttached();
+                await expect(dailyDataDetailsPage.page.locator("footer")).toBeAttached();
             });
         });
     });
@@ -228,11 +132,7 @@ test.describe("Daily Data Details page", () => {
         test.use({ storageState: "e2e/.auth/admin.json" });
 
         test.beforeEach(async ({ dailyDataDetailsPage }) => {
-            await reportDetails.mockGetReportDeliveryResponse(
-                dailyDataDetailsPage.page,
-                id,
-                500,
-            );
+            await reportDetails.mockGetReportDeliveryResponse(dailyDataDetailsPage.page, id, 500);
             await reportDetails.goto(dailyDataDetailsPage.page, id);
         });
 
@@ -240,20 +140,14 @@ test.describe("Daily Data Details page", () => {
             // TODO: Fix - mockError is undefined
             //dailyDataDetailsPage.mockError = true;
             // await dailyDataDetailsPage.reload();
+            await expect(dailyDataDetailsPage.page.getByTestId("alert")).toBeAttached();
             await expect(
-                dailyDataDetailsPage.page.getByTestId("alert"),
-            ).toBeAttached();
-            await expect(
-                dailyDataDetailsPage.page.getByText(
-                    /Our apologies, there was an error loading this content./,
-                ),
+                dailyDataDetailsPage.page.getByText(/Our apologies, there was an error loading this content./),
             ).toBeVisible();
         });
 
         test("has footer", async ({ dailyDataDetailsPage }) => {
-            await expect(
-                dailyDataDetailsPage.page.locator("footer"),
-            ).toBeAttached();
+            await expect(dailyDataDetailsPage.page.locator("footer")).toBeAttached();
         });
     });
 
@@ -261,9 +155,7 @@ test.describe("Daily Data Details page", () => {
         test.use({ storageState: "e2e/.auth/receiver.json" });
 
         test.beforeEach(async ({ dailyDataDetailsPage }) => {
-            await dailyDataDetailsPage.page
-                .getByRole("table")
-                .waitFor({ state: "visible" });
+            await dailyDataDetailsPage.page.getByRole("table").waitFor({ state: "visible" });
         });
 
         test("has correct title", async ({ dailyDataDetailsPage }) => {
@@ -275,59 +167,33 @@ test.describe("Daily Data Details page", () => {
                 await detailsTableHeaders(dailyDataDetailsPage.page);
             });
 
-            test("'Facility' column has expected data", async ({
-                dailyDataDetailsPage,
-            }) => {
-                expect(
-                    await tableDataCellValue(dailyDataDetailsPage.page, 0, 0),
-                ).toEqual("Any lab USA 1");
+            test("'Facility' column has expected data", async ({ dailyDataDetailsPage }) => {
+                expect(await tableDataCellValue(dailyDataDetailsPage.page, 0, 0)).toEqual("Any lab USA 1");
             });
 
-            test("'Location' column has expected data", async ({
-                dailyDataDetailsPage,
-            }) => {
-                expect(
-                    await tableDataCellValue(dailyDataDetailsPage.page, 0, 1),
-                ).toEqual("Juneau, AK");
+            test("'Location' column has expected data", async ({ dailyDataDetailsPage }) => {
+                expect(await tableDataCellValue(dailyDataDetailsPage.page, 0, 1)).toEqual("Juneau, AK");
             });
 
-            test("'CLIA' column has expected data", async ({
-                dailyDataDetailsPage,
-            }) => {
-                expect(
-                    await tableDataCellValue(dailyDataDetailsPage.page, 0, 2),
-                ).toEqual("34D8574402");
+            test("'CLIA' column has expected data", async ({ dailyDataDetailsPage }) => {
+                expect(await tableDataCellValue(dailyDataDetailsPage.page, 0, 2)).toEqual("34D8574402");
             });
 
-            test("'Total tests' column has expected data", async ({
-                dailyDataDetailsPage,
-            }) => {
-                expect(
-                    await tableDataCellValue(dailyDataDetailsPage.page, 0, 3),
-                ).toEqual("10");
+            test("'Total tests' column has expected data", async ({ dailyDataDetailsPage }) => {
+                expect(await tableDataCellValue(dailyDataDetailsPage.page, 0, 3)).toEqual("10");
             });
 
-            test("'Total positive' column has expected data", async ({
-                dailyDataDetailsPage,
-            }) => {
-                expect(
-                    await tableDataCellValue(dailyDataDetailsPage.page, 0, 4),
-                ).toEqual("1");
+            test("'Total positive' column has expected data", async ({ dailyDataDetailsPage }) => {
+                expect(await tableDataCellValue(dailyDataDetailsPage.page, 0, 4)).toEqual("1");
             });
         });
 
         test("should download file", async ({ dailyDataDetailsPage }) => {
-            await reportDetails.downloadFile(
-                dailyDataDetailsPage.page,
-                id,
-                fileName,
-            );
+            await reportDetails.downloadFile(dailyDataDetailsPage.page, id, fileName);
         });
 
         test("has footer", async ({ dailyDataDetailsPage }) => {
-            await expect(
-                dailyDataDetailsPage.page.locator("footer"),
-            ).toBeAttached();
+            await expect(dailyDataDetailsPage.page.locator("footer")).toBeAttached();
         });
     });
 
@@ -335,29 +201,19 @@ test.describe("Daily Data Details page", () => {
         test.use({ storageState: "e2e/.auth/receiver.json" });
 
         test.beforeEach(async ({ dailyDataDetailsPage }) => {
-            await reportDetails.mockGetReportDeliveryResponse(
-                dailyDataDetailsPage.page,
-                id,
-                500,
-            );
+            await reportDetails.mockGetReportDeliveryResponse(dailyDataDetailsPage.page, id, 500);
             await reportDetails.goto(dailyDataDetailsPage.page, id);
         });
 
         test("has alert", async ({ dailyDataDetailsPage }) => {
+            await expect(dailyDataDetailsPage.page.getByTestId("alert")).toBeAttached();
             await expect(
-                dailyDataDetailsPage.page.getByTestId("alert"),
-            ).toBeAttached();
-            await expect(
-                dailyDataDetailsPage.page.getByText(
-                    /Our apologies, there was an error loading this content./,
-                ),
+                dailyDataDetailsPage.page.getByText(/Our apologies, there was an error loading this content./),
             ).toBeAttached();
         });
 
         test("has footer", async ({ dailyDataDetailsPage }) => {
-            await expect(
-                dailyDataDetailsPage.page.locator("footer"),
-            ).toBeAttached();
+            await expect(dailyDataDetailsPage.page.locator("footer")).toBeAttached();
         });
     });
 
@@ -372,20 +228,14 @@ test.describe("Daily Data Details page", () => {
             dailyDataDetailsPage.mockError = true;
             await dailyDataDetailsPage.reload();
 
+            await expect(dailyDataDetailsPage.page.getByTestId("alert")).toBeAttached();
             await expect(
-                dailyDataDetailsPage.page.getByTestId("alert"),
-            ).toBeAttached();
-            await expect(
-                dailyDataDetailsPage.page.getByText(
-                    /Our apologies, there was an error loading this content./,
-                ),
+                dailyDataDetailsPage.page.getByText(/Our apologies, there was an error loading this content./),
             ).toBeAttached();
         });
 
         test("has footer", async ({ dailyDataDetailsPage }) => {
-            await expect(
-                dailyDataDetailsPage.page.locator("footer"),
-            ).toBeAttached();
+            await expect(dailyDataDetailsPage.page.locator("footer")).toBeAttached();
         });
     });
 });

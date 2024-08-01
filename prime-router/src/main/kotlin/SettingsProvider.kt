@@ -7,6 +7,7 @@ import gov.cdc.prime.router.CustomerStatus.INACTIVE
 import gov.cdc.prime.router.CustomerStatus.TESTING
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.validation.IItemValidator
+import gov.cdc.prime.router.validation.MarsOtcElrOnboardingValidator
 import gov.cdc.prime.router.validation.MarsOtcElrValidator
 import gov.cdc.prime.router.validation.NoopItemValidator
 
@@ -63,4 +64,5 @@ enum class Topic(
     MONKEYPOX("monkeypox", false, false),
     TEST("test", false, false),
     MARS_OTC_ELR("mars-otc-elr", true, false, MarsOtcElrValidator()),
+    MARS_OTC_ELR_ONBOARDING("mars-otc-elr-onboarding", true, false, MarsOtcElrOnboardingValidator()),
 }
