@@ -10,7 +10,7 @@ plugins {
 group = "gov.cdc.prime"
 version = "0.0.1-SNAPSHOT"
 
-extra["springCloudAzureVersion"] = "5.13.0"
+extra["springCloudAzureVersion"] = "5.14.0"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
