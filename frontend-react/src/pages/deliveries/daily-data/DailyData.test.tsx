@@ -2,12 +2,10 @@ import { screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
 import { DailyData } from "./DailyData";
-import { makeDeliveryFixtureArray } from "../../../__mockServers__/DeliveriesMockServer";
-import {
-    orgServer,
-    receiversGenerator,
-} from "../../../__mockServers__/OrganizationMockServer";
-import useOrgDeliveries from "../../../hooks/api/deliveries/UseOrgDeliveries/UseOrgDeliveries";
+import { makeRSDeliveryHistoryResponseFixture } from "../../../__mockServers__/DeliveriesHistoryMockServer";
+import { orgServer, receiversGenerator } from "../../../__mockServers__/OrganizationMockServer";
+
+import useDeliveriesHistory from "../../../hooks/api/deliveries/UseDeliveriesHistory/UseDeliveriesHistory";
 import useOrganizationReceivers from "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers";
 import { filterManagerFixture } from "../../../hooks/filters/filters.fixtures";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager/UseFilterManager";
@@ -19,15 +17,6 @@ import { selectDatesFromRange } from "../../../utils/TestUtils";
 const { mockSessionContentReturnValue } = await vi.importMock<
     typeof import("../../../contexts/Session/__mocks__/useSessionContext")
 >("../../../contexts/Session/useSessionContext");
-const mockUsePagination = {
-    currentPageResults: makeDeliveryFixtureArray(10),
-    paginationProps: { currentPageNum: 1, slots: [1, 2, 3, 4] },
-    isLoading: false,
-    setSearchTerm: () => {
-        return;
-    },
-    searchTerm: "",
-};
 
 const mockReceivers = receiversGenerator(5);
 const mockActiveReceiver = mockReceivers[0];
@@ -37,25 +26,11 @@ const mockFilterManager: FilterManager = {
     rangeSettings: { from: "2024-03-01", to: "2024-03-30" },
 };
 
-vi.mock("../../../hooks/UsePagination/UsePagination", async (importActual) => ({
-    ...(await importActual<
-        typeof import("../../../hooks/UsePagination/UsePagination")
-    >()),
-    default: () => {
-        return {
-            ...mockUsePagination,
-        };
-    },
-    __esModule: true,
-}));
-
-vi.mock(
-    "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers",
-);
-vi.mock("../../../hooks/api/deliveries/UseOrgDeliveries/UseOrgDeliveries");
+vi.mock("../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers");
+vi.mock("../../../hooks/api/deliveries/UseDeliveriesHistory/UseDeliveriesHistory");
 
 const mockUseOrganizationReceivers = vi.mocked(useOrganizationReceivers);
-const mockUseOrgDeliveries = vi.mocked(useOrgDeliveries);
+const mockUseOrgDeliveries = vi.mocked(useDeliveriesHistory);
 const mockUseAppInsightsContext = vi.mocked(useAppInsightsContext);
 const { trackEvent } = mockUseAppInsightsContext();
 const mockTrackEvent = vi.mocked(trackEvent);
@@ -115,9 +90,12 @@ describe("DeliveriesTable", () => {
 
             // Mock the response from the Deliveries hook
             const mockUseOrgDeliveriesCallback = {
-                fetchResults: () => Promise.resolve([]),
+                data: makeRSDeliveryHistoryResponseFixture(10),
                 filterManager: mockFilterManager,
+                searchTerm: "",
+                setSearchTerm: () => Promise.resolve([]),
                 setService: () => Promise.resolve([]),
+                dataUpdatedAt: 111,
             };
             mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
@@ -145,14 +123,14 @@ describe("DeliveriesTableWithNumbered", () => {
                 } as any);
 
                 const mockUseOrgDeliveriesCallback = {
-                    fetchResults: () =>
-                        Promise.resolve(makeDeliveryFixtureArray(101)),
+                    data: makeRSDeliveryHistoryResponseFixture(10),
                     filterManager: mockFilterManager,
+                    searchTerm: "",
+                    setSearchTerm: () => Promise.resolve([]),
                     setService: () => Promise.resolve([]),
+                    dataUpdatedAt: 111,
                 };
-                mockUseOrgDeliveries.mockReturnValue(
-                    mockUseOrgDeliveriesCallback,
-                );
+                mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
                 // Render the component
                 renderApp(<DailyData />);
@@ -166,9 +144,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 // Column headers render
                 expect(screen.getByText("Report ID")).toBeInTheDocument();
                 expect(screen.getByText("Time received")).toBeInTheDocument();
-                expect(
-                    screen.getByText("File available until"),
-                ).toBeInTheDocument();
+                expect(screen.getByText("File available until")).toBeInTheDocument();
                 expect(screen.getByText("Items")).toBeInTheDocument();
                 expect(screen.getByText("Filename")).toBeInTheDocument();
             });
@@ -204,7 +180,7 @@ describe("DeliveriesTableWithNumbered", () => {
             function setup() {
                 // Mock our receiver services feed data
                 mockUseOrganizationReceivers.mockReturnValue({
-                    allReceivers: [],
+                    allReceivers: [mockActiveReceiver],
                     activeReceivers: [],
                     isLoading: false,
                     isDisabled: false,
@@ -231,14 +207,14 @@ describe("DeliveriesTableWithNumbered", () => {
 
                 // Mock the response from the Deliveries hook
                 const mockUseOrgDeliveriesCallback = {
-                    fetchResults: () =>
-                        Promise.resolve(makeDeliveryFixtureArray(0)),
+                    data: makeRSDeliveryHistoryResponseFixture(10),
                     filterManager: mockFilterManager,
+                    searchTerm: "",
+                    setSearchTerm: () => Promise.resolve([]),
                     setService: () => Promise.resolve([]),
+                    dataUpdatedAt: 111,
                 };
-                mockUseOrgDeliveries.mockReturnValue(
-                    mockUseOrgDeliveriesCallback,
-                );
+                mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
                 // Render the component
                 renderApp(<DailyData />);
@@ -283,10 +259,12 @@ describe("DeliveriesTableWithNumbered", () => {
 
             // Mock the response from the Deliveries hook
             const mockUseOrgDeliveriesCallback = {
-                fetchResults: () =>
-                    Promise.resolve(makeDeliveryFixtureArray(0)),
+                data: makeRSDeliveryHistoryResponseFixture(10),
                 filterManager: mockFilterManager,
+                searchTerm: "",
+                setSearchTerm: () => Promise.resolve([]),
                 setService: () => Promise.resolve([]),
+                dataUpdatedAt: 111,
             };
             mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
@@ -296,15 +274,9 @@ describe("DeliveriesTableWithNumbered", () => {
 
         test("renders an error saying admins shouldn't fetch organization data", async () => {
             setup();
-            expect(
-                await screen.findByText(
-                    "Cannot fetch Organization data as admin",
-                ),
-            ).toBeVisible();
+            expect(await screen.findByText("Cannot fetch Organization data as admin")).toBeVisible();
 
-            expect(
-                await screen.findByText("Please try again as an Organization"),
-            ).toBeVisible();
+            expect(await screen.findByText("Please try again as an Organization")).toBeVisible();
         });
     });
 });
