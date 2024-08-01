@@ -169,6 +169,7 @@ class FHIRDestinationFilter(
                         queueMessage.blobSubFolderName,
                         nextEvent.eventAction
                     )
+                    report.bodyURL = blobInfo.blobUrl
                     // ensure tracking is set
                     actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
@@ -178,6 +179,7 @@ class FHIRDestinationFilter(
                         pipelineStepName = TaskAction.destination_filter
                     ) {
                         parentReportId(queueMessage.reportId)
+                        trackingId(bundle)
                     }
 
                     listOf(
