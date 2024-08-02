@@ -43,7 +43,6 @@ class AzureConfig {
 
     @Bean
     fun tableClient(): TableClient {
-
         val tableServiceClient = TableServiceClientBuilder()
             .connectionString(connectionString)
             .buildClient()

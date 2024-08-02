@@ -1,0 +1,74 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+
+constants:
+  MSH: '/MSH'
+  OBX: '/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX'
+
+elements:
+  - name: oh-patient-race-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+    condition: '%resource.code.exists()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
+
+  - name: oh-sending-application-namespace-id
+    value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
+    hl7Spec: [ '%{MSH}-3-1' ]
+
+  - name: oh-sending-application-universal-id
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+    hl7Spec: [ '%{MSH}-3-2' ]
+
+  - name: oh-sending-application-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{MSH}-3-3' ]
+
+  - name: oh-sending-facility-namespace-id
+    value: [ '"CDC PRIME"' ]
+    hl7Spec: [ '%{MSH}-4-1' ]
+
+  - name: oh-sending-application-universal-id
+    value: [ '"36DSMP9999"' ]
+    hl7Spec: [ '%{MSH}-4-2' ]
+
+  - name: oh-receiving-application-namespace-id
+    value: [ '"OHDOH"' ]
+    hl7Spec: [ '%{MSH}-5-1' ]
+
+  - name: oh-receiving-application-universal-id
+    value: [ '"2.16.840.1.114222.4.1.3674"' ]
+    hl7Spec: [ '%{MSH}-5-2' ]
+
+  - name: oh-receiving-application-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{MSH}-5-3' ]
+
+  - name: oh-receiving-facility-namespace-id
+    value: [ '"OHDOH"' ]
+    hl7Spec: [ '%{MSH}-6-1' ]
+
+  - name: oh-receiving-facility-universal-id
+    value: [ '"2.16.840.1.114222.4.1.3674"' ]
+    hl7Spec: [ '%{MSH}-6-2' ]
+
+  - name: oh-receiving-facility-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{MSH}-6-3' ]
+
+  - name: oh-unwanted-fields
+    value: [ '""' ]
+    hl7Spec: [ '%{MSH}-19-1', '%{MSH}-19-2', '%{MSH}-19-3' ]
+
+  - name: oh-race-unknown-as-blank
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd")'
+    condition: '%resource.value[x].coding[0].code = "UNK" or %resource.value.coding[0].code = "ASKU"'
+    value: [ '""' ]
+    hl7Spec: [ '%{PID}-10-1' , '%{PID}-10-2' , '%{PID}-10-3' , '%{PID}-10-7' , '%{PID}-10-9' ]
+
+  - name: oh-observation
+    resource: Bundle.entry.resource.ofType(Observation)
+    condition: 'Bundle.entry.resource.ofType(Observation).code.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code").value.code = "AOE"'
+    schema: classpath:/metadata/hl7_mapping/receivers/STLTs/OH/OH-observation-fields.yml
+    resourceIndex: resultIndex

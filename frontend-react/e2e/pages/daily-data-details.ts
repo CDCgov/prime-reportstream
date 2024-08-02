@@ -1,8 +1,4 @@
-import {
-    BasePage,
-    BasePageTestArgs,
-    type RouteHandlerFulfillEntry,
-} from "./BasePage";
+import { BasePage, BasePageTestArgs, type RouteHandlerFulfillEntry } from "./BasePage";
 import { API_WATERS_REPORT, URL_REPORT_DETAILS } from "./report-details";
 import { RSDelivery, RSFacility } from "../../src/config/endpoints/deliveries";
 import { MOCK_GET_DELIVERY } from "../mocks/delivery";
@@ -20,7 +16,7 @@ export class DailyDataDetailsPage extends BasePage {
         super(
             {
                 url: `${URL_REPORT_DETAILS}/${id}`,
-                title: "Daily Data - ReportStream",
+                title: "ReportStream - CDC's free, interoperable data transfer platform",
                 heading: testArgs.page.getByRole("heading", {
                     name: "Daily Data Details",
                 }),
@@ -41,26 +37,14 @@ export class DailyDataDetailsPage extends BasePage {
         };
         this._facilities = [];
         this.addResponseHandlers([
-            [
-                DailyDataDetailsPage.API_DELIVERY,
-                async (res) => (this._reportDelivery = await res.json()),
-            ],
-            [
-                DailyDataDetailsPage.API_FACILITIES,
-                async (res) => (this._facilities = await res.json()),
-            ],
+            [DailyDataDetailsPage.API_DELIVERY, async (res) => (this._reportDelivery = await res.json())],
+            [DailyDataDetailsPage.API_FACILITIES, async (res) => (this._facilities = await res.json())],
         ]);
-        this.addMockRouteHandlers([
-            this.createMockDeliveryHandler(),
-            this.createMockFacilitiesHandler(),
-        ]);
+        this.addMockRouteHandlers([this.createMockDeliveryHandler(), this.createMockFacilitiesHandler()]);
     }
 
     get isPageLoadExpected() {
-        return (
-            super.isPageLoadExpected &&
-            this.testArgs.storageState === this.testArgs.adminLogin.path
-        );
+        return super.isPageLoadExpected && this.testArgs.storageState === this.testArgs.adminLogin.path;
     }
 
     createMockDeliveryHandler(): RouteHandlerFulfillEntry {
