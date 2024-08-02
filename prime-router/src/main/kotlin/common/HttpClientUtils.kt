@@ -30,7 +30,7 @@ class HttpClientUtils {
         const val REQUEST_TIMEOUT_MILLIS: Long = 130000 // need to be public to be used by inline
         const val SETTINGS_REQUEST_TIMEOUT_MILLIS = 30000
 
-        private var httpClient: HttpClient =
+        private val httpClient: HttpClient =
             HttpClient(Apache5) {
                 install(ContentNegotiation) {
                     json(
