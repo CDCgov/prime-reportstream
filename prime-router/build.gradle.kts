@@ -610,7 +610,7 @@ tasks.register("killFunc") {
         if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
             exec {
                 workingDir = project.rootDir
-                commandLine = listOf("cmd", "/c", "taskkill /F /IM ${processName}.exe || exit 0")
+                commandLine = listOf("cmd", "/c", "taskkill /F /IM $processName.exe || exit 0")
             }
         } else {
             exec {
@@ -620,7 +620,6 @@ tasks.register("killFunc") {
         }
     }
 }
-
 
 tasks.register("run") {
     group = rootProject.description ?: ""
