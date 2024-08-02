@@ -1,12 +1,12 @@
 package gov.cdc.prime.reportstream.submissions.controllers
 
 import com.azure.core.util.Context
-import com.azure.storage.blob.models.BlobItem
-import com.azure.storage.queue.models.PeekedMessageItem
 import com.azure.data.tables.TableClient
 import com.azure.data.tables.models.TableEntity
 import com.azure.storage.blob.BlobContainerClient
+import com.azure.storage.blob.models.BlobItem
 import com.azure.storage.queue.QueueClient
+import com.azure.storage.queue.models.PeekedMessageItem
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -44,7 +44,6 @@ class SubmissionControllerIntegrationTest {
 
     @Autowired
     private lateinit var tableClient: TableClient
-
 
     private lateinit var objectMapper: ObjectMapper
 

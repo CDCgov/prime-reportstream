@@ -1,3 +1,4 @@
+import { Pagination } from "@trussworks/react-uswds";
 import { useState } from "react";
 
 import DataDashboardTableFilters from "./DataDashboardTableFilters/DataDashboardTableFilters";
@@ -9,7 +10,6 @@ import useOrganizationReceivers from "../../../hooks/api/organizations/UseOrgani
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder/UseSortOrder";
 import useAppInsightsContext from "../../../hooks/UseAppInsightsContext/UseAppInsightsContext";
-import { getSlots } from "../../../hooks/UsePagination/UsePagination";
 import Table from "../../../shared/Table/Table";
 import { EventName } from "../../../utils/AppInsights";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
@@ -17,7 +17,6 @@ import { FeatureName } from "../../../utils/FeatureName";
 import AdminFetchAlert from "../../alerts/AdminFetchAlert";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import Spinner from "../../Spinner";
-import Pagination from "../../Table/Pagination";
 import { USLink } from "../../USLink";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
 
@@ -146,14 +145,30 @@ function DashboardFilterAndTable({
             <Table apiSortable borderless rowData={data} />
             {data.length > 0 && (
                 <Pagination
-                    currentPageNum={currentPageNum}
-                    setSelectedPage={(pageNum) => {
+                    currentPage={currentPageNum}
+                    pathname=""
+                    onClickPageNumber={(e) => {
+                        const pageNumValue = parseInt(
+                            (e.target as HTMLElement).innerText,
+                        );
                         filterManager.updatePage({
                             type: PageSettingsActionType.SET_PAGE,
-                            payload: { page: pageNum },
+                            payload: { page: pageNumValue },
                         });
                     }}
-                    slots={getSlots(currentPageNum, results?.meta.totalPages)}
+                    onClickNext={() => {
+                        filterManager.updatePage({
+                            type: PageSettingsActionType.SET_PAGE,
+                            payload: { page: currentPageNum + 1 },
+                        });
+                    }}
+                    onClickPrevious={() => {
+                        filterManager.updatePage({
+                            type: PageSettingsActionType.SET_PAGE,
+                            payload: { page: currentPageNum - 1 },
+                        });
+                    }}
+                    maxSlots={results?.meta.totalPages}
                 />
             )}
         </>
