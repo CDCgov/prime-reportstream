@@ -1025,10 +1025,6 @@
                     "valueString" : "CHERRY CRK NURSING CTR"
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "H"
                   }
@@ -1173,10 +1169,6 @@
                           "valueString" : "4861 20TH AVE"
                         }
                       ]
-                    },
-                    {
-                      "url" : "XAD.6",
-                      "valueString" : "USA"
                     },
                     {
                       "url" : "XAD.7",
@@ -1348,10 +1340,6 @@
                           "valueString" : "4861 20TH AVE"
                         }
                       ]
-                    },
-                    {
-                      "url" : "XAD.6",
-                      "valueString" : "USA"
                     },
                     {
                       "url" : "XAD.7",
@@ -1613,10 +1601,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "H"
                   }
@@ -1649,10 +1633,6 @@
                         "valueString" : "4861 20TH AVE"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -2851,10 +2831,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -3201,10 +3177,6 @@
                         "valueString" : "4567 E. NINTH AVENUE"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -4331,10 +4303,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -4706,10 +4674,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -5057,10 +5021,6 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -5448,10 +5408,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -5799,10 +5755,6 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -6190,10 +6142,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -6541,10 +6489,6 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -7977,10 +7921,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -8362,10 +8302,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -8721,10 +8657,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -9078,10 +9010,6 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -9446,10 +9374,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -9803,10 +9727,6 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -10164,10 +10084,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -10521,10 +10437,6 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -10882,10 +10794,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -11241,10 +11149,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -11598,10 +11502,6 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -12004,10 +11904,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -12408,10 +12304,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -12798,10 +12690,6 @@
                         "valueString" : "4567 E. NINTH AVENUE"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -13204,10 +13092,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -13594,10 +13478,6 @@
                         "valueString" : "4567 E. NINTH AVENUE"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -13998,10 +13878,6 @@
                         "valueString" : "4567 E. NINTH AVENUE"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -14957,10 +14833,6 @@
                           ]
                         },
                         {
-                          "url" : "XAD.6",
-                          "valueString" : "USA"
-                        },
-                        {
                           "url" : "XAD.7",
                           "valueCode" : "B"
                         }
@@ -14993,10 +14865,6 @@
                               "valueString" : "5600 S Quebec St #312A"
                             }
                           ]
-                        },
-                        {
-                          "url" : "XAD.6",
-                          "valueString" : "USA"
                         },
                         {
                           "url" : "XAD.7",
@@ -15829,10 +15697,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -15988,10 +15852,6 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -16327,10 +16187,6 @@
                           ]
                         },
                         {
-                          "url" : "XAD.6",
-                          "valueString" : "USA"
-                        },
-                        {
                           "url" : "XAD.7",
                           "valueCode" : "B"
                         }
@@ -16363,10 +16219,6 @@
                               "valueString" : "5600 S Quebec St #312A"
                             }
                           ]
-                        },
-                        {
-                          "url" : "XAD.6",
-                          "valueString" : "USA"
                         },
                         {
                           "url" : "XAD.7",
@@ -17199,10 +17051,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -17358,10 +17206,6 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -17697,10 +17541,6 @@
                           ]
                         },
                         {
-                          "url" : "XAD.6",
-                          "valueString" : "USA"
-                        },
-                        {
                           "url" : "XAD.7",
                           "valueCode" : "B"
                         }
@@ -17733,10 +17573,6 @@
                               "valueString" : "5600 S Quebec St #312A"
                             }
                           ]
-                        },
-                        {
-                          "url" : "XAD.6",
-                          "valueString" : "USA"
                         },
                         {
                           "url" : "XAD.7",
@@ -18569,10 +18405,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -18728,10 +18560,6 @@
                         "valueString" : "1501 S. POTOMAC"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",

@@ -471,17 +471,6 @@
         ],
         "address" : [
           {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
-                "extension" : [
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  }
-                ]
-              }
-            ],
             "city" : "ROCINANTE",
             "state" : "IG",
             "postalCode" : "02139",
@@ -1058,17 +1047,6 @@
               {
                 "url" : "orc-22-ordering-facility-address",
                 "valueAddress" : {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
-                      "extension" : [
-                        {
-                          "url" : "XAD.6",
-                          "valueString" : "USA"
-                        }
-                      ]
-                    }
-                  ],
                   "state" : "IG",
                   "postalCode" : "12345",
                   "country" : "USA"
@@ -1263,17 +1241,6 @@
         ],
         "address" : [
           {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
-                "extension" : [
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  }
-                ]
-              }
-            ],
             "state" : "IG",
             "postalCode" : "12345",
             "country" : "USA"
@@ -1284,7 +1251,7 @@
     {
       "fullUrl" : "PractitionerRole/1716965606769185000.b709f005-7525-467f-bb33-5812c79a0d39",
       "resource" : {
-        "resourceType" : "PractitionerRole",
+        "resourceType" : "PractitionerRole",1
         "id" : "1716965606769185000.b709f005-7525-467f-bb33-5812c79a0d39",
         "practitioner" : {
           "reference" : "Practitioner/1716965606769699000.059e0fa7-daa8-4d4d-a27f-d80730c4af8f"

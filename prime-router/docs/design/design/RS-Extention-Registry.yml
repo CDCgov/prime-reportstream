@@ -3549,10 +3549,6 @@
                   "valueString": "Other Designation"
                 },
                 {
-                  "url": "XAD.6",
-                  "valueString": "FR"
-                },
-                {
                   "url": "XAD.7",
                   "valueCode": "H"
                 },
@@ -3606,10 +3602,6 @@
               url: "XAD.2"
               valueType: String
               hl7Use: XAD.2
-            - id: XAD.6
-              url: "XAD.6"
-              valueType: String
-              hl7Use: XAD.6
             - id: XAD.7
               url: "XAD.7"
               valueType: String
