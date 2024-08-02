@@ -32,7 +32,6 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
-import gov.cdc.prime.router.azure.TableAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
@@ -114,35 +113,43 @@ class FHIRConverter(
     private fun runReceiveResults(
         queueMessage: FhirConvertQueueMessage,
         actionLogger: ActionLogger,
+        actionHistory: ActionHistory,
     ) {
-        val receiveActionHistory = ActionHistory(TaskAction.receive)
-
-        // Retrieve the sender settings
-        val sender = queueMessage.headers["client_id"]?.let { clientId ->
-            settings.findSender(clientId)
-        } ?: return handleSenderNotFound(queueMessage, actionLogger, receiveActionHistory)
-
-        if (sender.customerStatus == CustomerStatus.INACTIVE) {
-            return handleInactiveSender(queueMessage, actionLogger, receiveActionHistory)
-        }
-
         val contextMap = mapOf(
-            MDCUtils.MDCProperty.ACTION_NAME to receiveActionHistory.action.actionName.name,
+            MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
             MDCUtils.MDCProperty.REPORT_ID to queueMessage.reportId,
             MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobURL,
         )
 
-        return withLoggingContext(contextMap) {
+        withLoggingContext(contextMap) {
+            // Retrieve the sender settings
+            val clientId = queueMessage.headers["client_id"]
+
+            val sender = clientId?.takeIf { it.isNotBlank() }?.let { settings.findSender(it) }
+
+            if (sender == null) {
+                handleSenderNotFound(queueMessage, actionLogger, actionHistory)
+            } else {
+                queueMessage.topic = sender.topic
+                queueMessage.schemaName = sender.schemaName
+
+                if (sender.customerStatus == CustomerStatus.INACTIVE) {
+                    handleInactiveSender(queueMessage, actionLogger, actionHistory)
+                }
+            }
+
             val payloadName = queueMessage.headers["payloadname"]
             val mimeType = queueMessage.headers["Content-Type"]?.substringBefore(';') ?: ""
 
-            receiveActionHistory.trackActionResult(HttpStatus.CREATED)
-            receiveActionHistory.trackActionParams(queueMessage.headers.toString())
+            actionHistory.trackActionResult(HttpStatus.CREATED)
+            actionHistory.trackActionParams(queueMessage.headers.toString())
 
-            receiveActionHistory.trackActionSenderInfo(sender.fullName, payloadName)
+            if (sender != null) {
+                actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
+            }
             val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Accepted").toTableEntity()
 
-            receiveActionHistory.trackReceivedNoReport(
+            actionHistory.trackReceivedNoReport(
                 queueMessage.reportId,
                 queueMessage.blobURL,
                 MimeFormat.valueOfFromMimeType(mimeType).toString(),
@@ -150,11 +157,10 @@ class FHIRConverter(
                 payloadName
             )
 
-            val tableAccess = TableAccess()
-            tableAccess.insertEntity(tableEntity)
+            BlobAccess.insertTableEntity(tableEntity)
 
             if (actionLogger.hasErrors()) {
-                throw actionLogger.exception
+                // event
             }
         }
     }
@@ -170,11 +176,11 @@ class FHIRConverter(
     private fun handleSenderNotFound(
         queueMessage: FhirConvertQueueMessage,
         actionLogger: ActionLogger,
-        receiveActionHistory: ActionHistory,
+        actionHistory: ActionHistory,
     ) {
-        receiveActionHistory.trackActionResult(HttpStatus.NOT_FOUND)
+        actionHistory.trackActionResult(HttpStatus.NOT_FOUND)
         val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Rejected").toTableEntity()
-        TableAccess().insertEntity(tableEntity)
+        BlobAccess.insertTableEntity(tableEntity)
         actionLogger.error(InvalidParamMessage("client_id is a required parameter"))
     }
 
@@ -189,11 +195,11 @@ class FHIRConverter(
     private fun handleInactiveSender(
         queueMessage: FhirConvertQueueMessage,
         actionLogger: ActionLogger,
-        receiveActionHistory: ActionHistory,
+        actionHistory: ActionHistory,
     ) {
-        receiveActionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
+        actionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
         val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Rejected").toTableEntity()
-        TableAccess().insertEntity(tableEntity)
+        BlobAccess.insertTableEntity(tableEntity)
         actionLogger.error(SenderNotFound(queueMessage.headers["client_id"].toString()))
     }
 
@@ -211,11 +217,12 @@ class FHIRConverter(
         )
         withLoggingContext(contextMap) {
             if (queueMessage.headers.isNotEmpty()) {
-                runReceiveResults(queueMessage, actionLogger)
+                runReceiveResults(queueMessage, actionLogger, actionHistory)
+            } else {
+                actionHistory.trackExistingInputReport(queueMessage.reportId)
             }
 
             actionLogger.setReportId(queueMessage.reportId)
-            actionHistory.trackExistingInputReport(queueMessage.reportId)
             val format = Report.getFormatFromBlobURL(queueMessage.blobURL)
             logger.info("Starting FHIR Convert step")
 
@@ -258,7 +265,7 @@ class FHIRConverter(
                                 Report.ParentItemLineageData(queueMessage.reportId, bundleIndex.toInt() + 1)
                             ),
                             metadata = this.metadata,
-                            topic = queueMessage.topic,
+                            topic = queueMessage.topic!!,
                             nextAction = TaskAction.destination_filter
                         )
 
@@ -286,7 +293,7 @@ class FHIRConverter(
                         azureEventService.trackEvent(
                             ReportCreatedEvent(
                                 report.id,
-                                queueMessage.topic
+                                queueMessage.topic!!
                             )
                         )
 
@@ -299,7 +306,7 @@ class FHIRConverter(
                                 blobInfo.blobUrl,
                                 BlobUtils.digestToString(blobInfo.digest),
                                 queueMessage.blobSubFolderName,
-                                queueMessage.topic
+                                queueMessage.topic!!
                             )
                         )
                     }.collect(Collectors.toList())
@@ -319,7 +326,7 @@ class FHIRConverter(
                     emptyList(),
                     1,
                     metadata = this.metadata,
-                    topic = queueMessage.topic,
+                    topic = queueMessage.topic!!,
                     nextAction = TaskAction.none
                 )
 
@@ -384,7 +391,7 @@ class FHIRConverter(
                                 "format" to format.name
                             )
                         ) {
-                            getBundlesFromRawHL7(rawReport, validator, queueMessage.topic.hl7ParseConfiguration)
+                            getBundlesFromRawHL7(rawReport, validator, queueMessage.topic!!.hl7ParseConfiguration)
                         }
                     } catch (ex: ParseFailureError) {
                         actionLogger.error(

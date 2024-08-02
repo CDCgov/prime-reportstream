@@ -11,18 +11,23 @@ import ca.uhn.fhir.validation.ResultSeverityEnum
 import ca.uhn.fhir.validation.SingleValidationMessage
 import ca.uhn.fhir.validation.ValidationResult
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
+import com.microsoft.azure.functions.HttpStatus
 import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01
+import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.SenderNotFound
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
@@ -68,6 +73,7 @@ import org.junit.jupiter.api.assertThrows
 import java.io.File
 import java.util.UUID
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 private const val BLOB_URL = "http://blobstore.example/file.hl7"
 private const val BLOB_SUB_FOLDER_NAME = "test-sender"
@@ -147,47 +153,162 @@ class FhirConverterTests {
         unmockkAll()
     }
 
-//    // good hl7, check actionHistory, item lineages, upload was called, task, queue message
-//    @Test
-//    fun `test processHl7 happy path`() {
-//        mockkObject(BlobAccess)
-//        mockkObject(Report)
-//
-//        // set up
-//        val actionHistory = mockk<ActionHistory>()
-//        val actionLogger = mockk<ActionLogger>()
-//        val transformer = mockk<FhirTransformer>()
-//        val settingsProvider = mockk<SettingsProvider>()
-//
-//        metadata.lookupTableStore += mapOf(
-//            "observation-mapping" to LookupTable(
-//                "observation-mapping",
-//                emptyList()
-//            )
-//        )
-//        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
-//
-//        val queueMessage = mockk<QueueMessage.ConvertQueueMessage>(relaxed = true)
-//        every { queueMessage.headers["client_id"] } returns "unknown_client_id"
-//
-//
-//        every { actionLogger.hasErrors() } returns true
-//
-//        every { settingsProvider.findSender(any()) } returns null
-//
-//        // act
-//        accessSpy.transact { txn ->
-//            engine.run(queueMessage, actionLogger, actionHistory, txn)
-//        }
-//
-//        // assert
-//        verify(exactly = 1) {
-//            actionHistory.trackExistingInputReport(any())
-//            transformer.process(any())
-//            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-//            BlobAccess.Companion.uploadBlob(any(), any(), any())
-//        }
-//    }
+    // good hl7, check actionHistory, item lineages, upload was called, task, queue message
+    @Test
+    fun `test processHl7 and handle sender not found`() {
+        mockkObject(BlobAccess)
+        // set up
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = ActionLogger()
+        val settingsProvider = mockk<SettingsProvider>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+
+        val queueMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
+        every { queueMessage.headers["client_id"] } returns "unknown_client_id"
+        every { queueMessage.headers["payloadname"] } returns ""
+        every { queueMessage.headers["Content-Type"] } returns ""
+        every { settingsProvider.findSender(any()) } returns null
+        val action = Action()
+        action.actionName = TaskAction.convert
+        every { actionHistory.action } returns action
+        every { actionHistory.trackActionResult(any<HttpStatus>()) } returns Unit
+        every { actionHistory.trackActionParams(any<String>()) } returns Unit
+        every { actionHistory.trackReceivedNoReport(any(), any(), any(), any(), any()) } returns Unit
+
+        // act
+        var exceptionThrown = false
+        try {
+            accessSpy.transact { txn ->
+                engine.run(queueMessage, actionLogger, actionHistory, txn)
+            }
+        } catch (ex: ActionError) {
+            exceptionThrown = true
+        }
+
+        // assert
+        assertTrue(exceptionThrown)
+
+        // assert
+        assertThat(actionLogger.errors[0].equals(InvalidParamMessage("client_id is a required parameter")))
+        verify(exactly = 1) {
+            BlobAccess.Companion.insertTableEntity(any())
+            actionHistory.trackActionResult(HttpStatus.NOT_FOUND)
+        }
+    }
+
+    // good hl7, check actionHistory, item lineages, upload was called, task, queue message
+    @Test
+    fun `test processHl7 and handle inactive sender`() {
+        mockkObject(BlobAccess)
+        // set up
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = ActionLogger()
+        val settingsProvider = mockk<SettingsProvider>()
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            MimeFormat.CSV,
+            schemaName = "one",
+            customerStatus = CustomerStatus.INACTIVE
+        )
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+
+        val queueMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
+        every { queueMessage.headers["client_id"] } returns "test_client_id"
+        every { queueMessage.headers["payloadname"] } returns ""
+        every { queueMessage.headers["Content-Type"] } returns ""
+        every { settingsProvider.findSender(any()) } returns null
+        val action = Action()
+        action.actionName = TaskAction.convert
+        every { actionHistory.action } returns action
+        every { actionHistory.trackActionResult(any<HttpStatus>()) } returns Unit
+        every { actionHistory.trackActionParams(any<String>()) } returns Unit
+        every { engine.settings.findSender(any()) } returns sender
+
+        // act
+        var exceptionThrown = false
+        try {
+            accessSpy.transact { txn ->
+                engine.run(queueMessage, actionLogger, actionHistory, txn)
+            }
+        } catch (ex: ActionError) {
+            exceptionThrown = true
+        }
+
+        // assert
+        assertTrue(exceptionThrown)
+
+        // assert
+        assertThat(SenderNotFound(queueMessage.headers["client_id"].toString()))
+        verify(exactly = 1) {
+            BlobAccess.Companion.insertTableEntity(any())
+            actionHistory.trackActionResult(HttpStatus.NOT_FOUND)
+        }
+    }
+
+    // good hl7, check actionHistory, item lineages, upload was called, task, queue message
+    @Test
+    fun `test processHl7 happy path with queueMessage headers`() {
+        mockkObject(BlobAccess)
+        mockkObject(Report)
+
+        // set up
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+        val transformer = mockk<FhirTransformer>()
+
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable(
+                "observation-mapping",
+                emptyList()
+            )
+        )
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val message = spyk(
+            FhirConvertQueueMessage(
+                UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER_NAME, emptyMap(), topic = Topic.FULL_ELR,
+                SCHEMA_NAME
+            )
+        )
+
+        every { message.headers["client_id"] } returns "test_client_id"
+        every { message.headers["payloadname"] } returns ""
+        every { message.headers["Content-Type"] } returns ""
+
+        val bodyFormat = MimeFormat.FHIR
+        val bodyUrl = "https://anyblob.com"
+
+        every { actionLogger.hasErrors() } returns false
+        every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
+        every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
+        every { actionLogger.setReportId(any()) } returns actionLogger
+        every { BlobAccess.downloadContent(any(), any()) }.returns(validHl7)
+        every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.HL7
+        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        val action = Action()
+        action.actionName = TaskAction.convert
+        every { actionHistory.action } returns action
+        every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
+        every { transformer.process(any()) } returnsArgument (0)
+
+        // act
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
+
+        // assert
+        verify(exactly = 1) {
+            actionHistory.trackExistingInputReport(any())
+            transformer.process(any())
+            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
+            BlobAccess.Companion.uploadBlob(any(), any(), any())
+        }
+    }
 
     // good hl7, check actionHistory, item lineages, upload was called, task, queue message
     @Test

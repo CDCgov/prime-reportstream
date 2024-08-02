@@ -49,8 +49,8 @@ data class FhirConvertQueueMessage(
     override val digest: String,
     override val blobSubFolderName: String,
     override val headers: Map<String, String> = emptyMap(),
-    val topic: Topic? = null,
-    val schemaName: String = "",
+    var topic: Topic? = null,
+    var schemaName: String = "",
 ) : ReportPipelineMessage(), QueueMessage.ConvertInformation
 
 @JsonTypeName("route")

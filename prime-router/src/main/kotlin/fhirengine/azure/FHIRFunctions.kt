@@ -19,6 +19,7 @@ import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
+import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
@@ -252,7 +253,20 @@ class FHIRFunctions(
             "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
         )
 
-        return QueueMessage.deserialize(message) as ReportPipelineMessage
+        return when (val queueMessage = QueueMessage.deserialize(message)) {
+            is QueueMessage.ConvertQueueMessage -> {
+                FhirConvertQueueMessage(
+                    queueMessage.reportId,
+                    queueMessage.blobURL,
+                    queueMessage.digest,
+                    queueMessage.blobSubFolderName,
+                    queueMessage.headers
+                )
+            }
+            else -> {
+                queueMessage as ReportPipelineMessage
+            }
+        }
     }
 
     /**
