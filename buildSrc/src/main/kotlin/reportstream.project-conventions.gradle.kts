@@ -28,7 +28,7 @@ java {
 val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions.jvmTarget = "$majorJavaVersion"
-compileKotlin.kotlinOptions.allWarningsAsErrors = false
+compileKotlin.kotlinOptions.allWarningsAsErrors = true
 compileTestKotlin.kotlinOptions.jvmTarget = "$majorJavaVersion"
 compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
