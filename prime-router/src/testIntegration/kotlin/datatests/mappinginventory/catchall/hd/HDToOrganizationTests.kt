@@ -42,7 +42,7 @@ class HDToOrganizationTests {
     }
 
     @Test
-    fun `test that Organization country uses MSH17 when MSH17 present`() {
+    fun `test that HD Organization maps msh4 and msh17 to same resource when present`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
                 "catchall/hd/HD-to-Organization-country-msh"

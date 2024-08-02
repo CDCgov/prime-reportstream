@@ -42,6 +42,26 @@
     "resource" : {
       "resourceType" : "Organization",
       "id" : "1721169700399250000.5b83dd59-9275-4345-a079-6b28489e2b05",
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "HD.1"
+        } ],
+        "value" : "CDC Atlanta"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "HD.2,HD.3"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0301",
+            "code" : "ISO"
+          } ]
+        },
+        "system" : "urn:ietf:rfc:3986",
+        "value" : "2.16.840.1.114222.4.3.3.2.1.2"
+      } ],
       "address" : [ {
         "country" : "FR"
       } ]
@@ -60,6 +80,44 @@
           "display" : "ORU^R01^ORU_R01"
         } ]
       }
+      },
+      "agent" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+            "code" : "author"
+          } ]
+        },
+        "who" : {
+          "reference" : "Organization/1722629572051350000.321f74ca-244a-4eb9-b332-e653570ba0b6"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/1722629572051350000.321f74ca-244a-4eb9-b332-e653570ba0b6",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1722629572051350000.321f74ca-244a-4eb9-b332-e653570ba0b6",
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "HD.1"
+        } ],
+        "value" : "CDC Atlanta"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "HD.2,HD.3"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0301",
+            "code" : "ISO"
+          } ]
+        },
+        "system" : "urn:ietf:rfc:3986",
+        "value" : "2.16.840.1.114222.4.3.3.2.1.2"
+      } ]
     }
   }, {
     "fullUrl" : "Provenance/1721169700660250000.c2f21160-22e4-4038-b5eb-3c492cf86d1d",
