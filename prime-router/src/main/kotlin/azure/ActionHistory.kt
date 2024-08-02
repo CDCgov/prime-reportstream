@@ -25,6 +25,10 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
@@ -218,13 +222,7 @@ class ActionHistory(
             }
         }
         // capture the azure client IP but override with the first forwarded for if present
-        val senderIp =
-            (
-                (
-                    request.headers["x-forwarded-for"]?.split(",")
-                        ?.firstOrNull()
-                    )?.take(ACTION.SENDER_IP.dataType.length()) ?: request.headers["x-azure-clientip"]
-                )
+        val senderIp = getSenderIP(request)
         if (senderIp != null && InetAddressValidator.getInstance().isValid(senderIp)) {
             action.senderIp = senderIp
         }
@@ -615,6 +613,8 @@ class ActionHistory(
         params: String,
         result: String,
         header: WorkflowEngine.Header,
+        reportEventService: IReportStreamEventService,
+        transportType: String,
     ) {
         if (isReportAlreadyTracked(sentReportId)) {
             error(
@@ -649,6 +649,21 @@ class ActionHistory(
         reportFile.itemCount = header.reportFile.itemCount
         reportFile.blobDigest = blobInfo.digest
         reportFile.bodyUrl = blobInfo.blobUrl
+
+        reportEventService.sendReportEvent(
+            childReport = reportFile,
+            eventName = ReportStreamEventName.REPORT_SENT,
+            pipelineStepName = TaskAction.send
+        ) {
+            parentReportId(header.reportFile.reportId)
+            params(
+                listOfNotNull(
+                    ReportStreamEventProperties.TRANSPORT_TYPE to transportType,
+                    ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
+                    filename?.let { ReportStreamEventProperties.FILENAME to it }
+                ).toMap()
+            )
+        }
 
         reportsOut[reportFile.reportId] = reportFile
     }
