@@ -1251,7 +1251,7 @@
     {
       "fullUrl" : "PractitionerRole/1716965606769185000.b709f005-7525-467f-bb33-5812c79a0d39",
       "resource" : {
-        "resourceType" : "PractitionerRole",1
+        "resourceType" : "PractitionerRole",
         "id" : "1716965606769185000.b709f005-7525-467f-bb33-5812c79a0d39",
         "practitioner" : {
           "reference" : "Practitioner/1716965606769699000.059e0fa7-daa8-4d4d-a27f-d80730c4af8f"
