@@ -1,5 +1,22 @@
+
 $data = [pscustomobject]@{
     InactiveMBUsers = @()
+}
+$global:MBUsers = "Inactive Metabase users"
+function Get-SlackMessage {
+    param(
+        [string]$Title,
+        [string[]]$Name,
+        [string[]]$Date
+        
+    )
+
+    return @"
+*$Title*
+---
+$Name[0]
+
+"@
 }
 $headers = @{"x-api-key" = "mb_5ovOOr1U+zZ1a/MmRIB5ITEJyPTiGKh4FfV+8Bthf2w=" }
 $SixMonthsOld = (Get-Date).AddMonths(-6)
@@ -15,6 +32,8 @@ foreach ($User in $val.data) {
             $commonName = $User.common_name
             Write-Host "Name - " $commonName
             Write-Host "Login - " $User.date_joined
+            $MBUsers+="`n"
+            $MBUsers +=$commonName + ' ' +$user.date_joined
 
             $data.InactiveMBUsers += @{
                 Name       = $commonName
@@ -23,12 +42,14 @@ foreach ($User in $val.data) {
             }
     }
 }
-$json1 = $data | ConvertTo-Json
+# $json1 = $data | ConvertTo-Json
 
-$jsonstring=$json1 | ConvertFrom-Json | ConvertTo-Json -Compress -Depth 100
- Write-Host $jsonstring
-echo "InactiveMBUsers=$jsonstring"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+# $jsonstring=$json1 | ConvertFrom-Json | ConvertTo-Json -Compress -Depth 100
+#  Write-Host $jsonstring
+# echo "InactiveMBUsers=$jsonstring"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
+$slackMessageMBUsers = Get-SlackMessage -Title "Inactive Metabase Users" -Name $data.InactiveMBUsers.Name -Date $data.InactiveMBUsers.DateJoined
 
-$encodedslackMessageUsers = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($jsonstring))
-Write-Output "SLACK_MESSAGE_Users=$encodedslackMessageUsers" >> $env:GITHUB_ENV
+Write-Host $MBUsers
+$encodedslackMessageSummary = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($MBUsers))
+Write-Output "SLACK_MESSAGE_SUMMARY=$encodedslackMessageSummary" >> $env:GITHUB_ENV

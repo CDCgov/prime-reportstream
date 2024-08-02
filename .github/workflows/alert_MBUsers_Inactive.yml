@@ -44,7 +44,7 @@ jobs:
       - name: Decode Slack Message
         shell: pwsh
         run: |
-          Write-Host ${{ steps.users_out.outputs.messageInactiveUsers.env }}
+          Write-Host ${{ steps.users_out.outputs.messageInactiveUsers }}
       
       # - name: Slack Notification
       #   uses: ./.github/actions/notifications
