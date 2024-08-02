@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { tableDataCellValue } from "../../helpers/utils";
-import { detailsTableHeaders, title } from "../../pages/daily-data";
+import { detailsTableHeaders } from "../../pages/daily-data";
 import { DailyDataDetailsPage } from "../../pages/daily-data-details";
 import * as reportDetails from "../../pages/report-details";
 import { test as baseTest } from "../../test";
@@ -41,7 +41,7 @@ const test = baseTest.extend<DailyDataDetailsPageFixtures>({
 const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
 const fileName = `hhsprotect-covid-19-73e3cbc8-9920-4ab7-871f-843a1db4c074.csv`;
 
-test.describe.skip("Daily Data Details page", () => {
+test.describe("Daily Data Details page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ dailyDataDetailsPage }) => {
             await expect(dailyDataDetailsPage.page).toHaveURL("/login");
@@ -90,6 +90,10 @@ test.describe.skip("Daily Data Details page", () => {
         test.describe("with org selected", () => {
             test.beforeEach(async ({ dailyDataDetailsPage }) => {
                 await dailyDataDetailsPage.page.getByRole("table").waitFor({ state: "visible" });
+            });
+
+            test("has correct title", async ({ dailyDataDetailsPage }) => {
+                await expect(dailyDataDetailsPage.page).toHaveTitle(dailyDataDetailsPage.title);
             });
 
             test.describe("table", () => {
@@ -159,7 +163,7 @@ test.describe.skip("Daily Data Details page", () => {
         });
 
         test("has correct title", async ({ dailyDataDetailsPage }) => {
-            await title(dailyDataDetailsPage.page);
+            await expect(dailyDataDetailsPage.page).toHaveTitle(dailyDataDetailsPage.title);
         });
 
         test.describe("table", () => {
@@ -219,10 +223,6 @@ test.describe.skip("Daily Data Details page", () => {
 
     test.describe("sender user", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
-
-        // test.beforeEach(async ({ dailyDataDetailsPage }) => {
-        //     await reportDetails.goto(dailyDataDetailsPage.page, id);
-        // });
 
         test("has alert", async ({ dailyDataDetailsPage }) => {
             dailyDataDetailsPage.mockError = true;
