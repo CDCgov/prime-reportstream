@@ -1533,10 +1533,6 @@
                     "valueString" : "Other Designation"
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   },

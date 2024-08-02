@@ -1109,9 +1109,6 @@
             "url" : "XAD.2",
             "valueString" : "Apt 4D"
           }, {
-            "url" : "XAD.6",
-            "valueString" : "USA"
-          }, {
             "url" : "XAD.7",
             "valueCode" : "H"
           } ]
@@ -1135,9 +1132,6 @@
           }, {
             "url" : "XAD.2",
             "valueString" : "Apt 14"
-          }, {
-            "url" : "XAD.6",
-            "valueString" : "USA"
           }, {
             "url" : "XAD.7",
             "valueCode" : "C"

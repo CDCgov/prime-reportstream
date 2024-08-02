@@ -1688,10 +1688,6 @@
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
                 "extension" : [
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "H"
                   }
@@ -3257,10 +3253,6 @@
                         "valueString" : "123 Main St"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   }
                 ]
               }
@@ -3546,10 +3538,6 @@
                         "valueString" : "123 Main St"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   }
                 ]
               }
@@ -3991,10 +3979,6 @@
                         "valueString" : "1600 Clifton Rd"
                       }
                     ]
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",
@@ -5198,10 +5182,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -5481,10 +5461,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "B"
                   }
@@ -5547,10 +5523,6 @@
                           "valueString" : "Rm. E-361"
                         },
                         {
-                          "url" : "XAD.6",
-                          "valueString" : "USA"
-                        },
-                        {
                           "url" : "XAD.7",
                           "valueCode" : "M"
                         }
@@ -5583,10 +5555,6 @@
                               "valueString" : "11475 C Avenue"
                             }
                           ]
-                        },
-                        {
-                          "url" : "XAD.6",
-                          "valueString" : "USA"
                         },
                         {
                           "url" : "XAD.7",
@@ -5933,10 +5901,6 @@
                     ]
                   },
                   {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
-                  },
-                  {
                     "url" : "XAD.7",
                     "valueCode" : "M"
                   }
@@ -6084,10 +6048,6 @@
                   {
                     "url" : "XAD.2",
                     "valueString" : "Rm. E-361"
-                  },
-                  {
-                    "url" : "XAD.6",
-                    "valueString" : "USA"
                   },
                   {
                     "url" : "XAD.7",

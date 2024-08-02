@@ -178,9 +178,6 @@
               "url" : "XAD.2",
               "valueString" : "Other Designation"
             }, {
-              "url" : "XAD.6",
-              "valueString" : "USA"
-            }, {
               "url" : "XAD.7",
               "valueCode" : "HV"
             }, {
@@ -268,9 +265,6 @@
           }, {
             "url" : "XAD.2",
             "valueString" : "Other Designation"
-          }, {
-            "url" : "XAD.6",
-            "valueString" : "USA"
           }, {
             "url" : "XAD.7",
             "valueCode" : "HV"

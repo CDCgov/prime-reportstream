@@ -301,9 +301,6 @@
                 "valueString" : "4861 20TH AVE"
               } ]
             }, {
-              "url" : "XAD.6",
-              "valueString" : "USA"
-            }, {
               "url" : "XAD.7",
               "valueCode" : "H"
             } ]
@@ -428,9 +425,6 @@
                 "url" : "SAD.1",
                 "valueString" : "4861 20TH AVE"
               } ]
-            }, {
-              "url" : "XAD.6",
-              "valueString" : "USA"
             }, {
               "url" : "XAD.7",
               "valueCode" : "H"
@@ -776,9 +770,6 @@
               "valueString" : "4861 20TH AVE"
             } ]
           }, {
-            "url" : "XAD.6",
-            "valueString" : "USA"
-          }, {
             "url" : "XAD.7",
             "valueCode" : "H"
           } ]
@@ -801,9 +792,6 @@
               "url" : "SAD.1",
               "valueString" : "4861 20TH AVE"
             } ]
-          }, {
-            "url" : "XAD.6",
-            "valueString" : "USA"
           }, {
             "url" : "XAD.7",
             "valueCode" : "H"
@@ -1065,9 +1053,6 @@
               "valueString" : "4861 20TH AVE"
             } ]
           }, {
-            "url" : "XAD.6",
-            "valueString" : "USA"
-          }, {
             "url" : "XAD.7",
             "valueCode" : "H"
           } ]
@@ -1090,9 +1075,6 @@
               "url" : "SAD.1",
               "valueString" : "4861 20TH AVE"
             } ]
-          }, {
-            "url" : "XAD.6",
-            "valueString" : "USA"
           }, {
             "url" : "XAD.7",
             "valueCode" : "H"
