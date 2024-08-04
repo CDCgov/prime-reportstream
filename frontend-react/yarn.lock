@@ -1465,6 +1465,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.17.0":
+  version: 7.25.0
+  resolution: "@babel/runtime@npm:7.25.0"
+  dependencies:
+    regenerator-runtime: ^0.14.0
+  checksum: 4a2a374a58eb01aaa65c5762606e90b3a1f448e0c637d42278b6cc0b42a9f5399b5f381ba9f237ee087da2860d14dd2d1de7bddcbe18be6a3cafba97e44bed64
+  languageName: node
+  linkType: hard
+
 "@babel/template@npm:^7.24.7":
   version: 7.24.7
   resolution: "@babel/template@npm:7.24.7"
@@ -1546,6 +1555,48 @@ __metadata:
   dependencies:
     "@jridgewell/trace-mapping": 0.3.9
   checksum: 5718f267085ed8edb3e7ef210137241775e607ee18b77d95aa5bd7514f47f5019aa2d82d96b3bf342ef7aa890a346fa1044532ff7cc3009e7d24fce3ce6200fa
+  languageName: node
+  linkType: hard
+
+"@data-client/core@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@data-client/core@npm:0.1.0"
+  dependencies:
+    "@babel/runtime": ^7.17.0
+    "@data-client/normalizr": ^0.1.0
+    flux-standard-action: ^2.1.1
+  checksum: 9d39c06e95ecb3704e367fc9604a0b81764aaa1fdfbc4840d17e486cd62f49537b7eec47cbcdf9c790bf2e63a0907ea749f898d00650f06dfe681332ec58ade7
+  languageName: node
+  linkType: hard
+
+"@data-client/endpoint@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@data-client/endpoint@npm:0.1.0"
+  dependencies:
+    "@babel/runtime": ^7.17.0
+  checksum: 1234555c1e54df751454bad9f0b4424c0b8e7077aee2153297f195614d4610a162e2affbadc5d70824437f2f3543f184ab41e9707b68ebf748d5d04119f5136d
+  languageName: node
+  linkType: hard
+
+"@data-client/normalizr@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@data-client/normalizr@npm:0.1.0"
+  dependencies:
+    "@babel/runtime": ^7.17.0
+  checksum: eef026297a15a39466f0938d3adacd7b914e7036fcb8a7f0f373287ca79632ecff646e26091d44f6961be77b983eeac1a0785eed058874428a999bbefb385a1c
+  languageName: node
+  linkType: hard
+
+"@data-client/use-enhanced-reducer@npm:^0.1.0":
+  version: 0.1.10
+  resolution: "@data-client/use-enhanced-reducer@npm:0.1.10"
+  peerDependencies:
+    "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0-0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0
+    react: ^16.14.0 || ^17.0.0 || ^18.0.0-0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: c199de41725eb2a2f8007467bcb18d0b0bfcbee2e6bb11036eac4b4fb22d17e978ab972dae4236b30c696d37cda285af38b0ec87bb6e22b6d775fa49d7858447
   languageName: node
   linkType: hard
 
@@ -2389,41 +2440,59 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rest-hooks/core@npm:^3.2.4":
-  version: 3.2.4
-  resolution: "@rest-hooks/core@npm:3.2.4"
+"@rest-hooks/core@npm:^4.4.2":
+  version: 4.4.3
+  resolution: "@rest-hooks/core@npm:4.4.3"
   dependencies:
-    "@babel/runtime": ^7.13.0
-    "@rest-hooks/endpoint": ^2.2.7
-    "@rest-hooks/normalizr": ^8.2.6
-    "@rest-hooks/use-enhanced-reducer": ^1.1.1
-    flux-standard-action: ^2.1.1
+    "@data-client/core": ^0.1.0
+  checksum: 625e7a14fd6cd1b0a49e7d7b62366078256c46d79d350b75eb2419f5c7460f6d414fc3699c9b31f604430154d7c9a48a483a41ff48e77ef9f49731deb78f7625
+  languageName: node
+  linkType: hard
+
+"@rest-hooks/endpoint@npm:^3.2.2":
+  version: 3.8.5
+  resolution: "@rest-hooks/endpoint@npm:3.8.5"
+  dependencies:
+    "@data-client/endpoint": ^0.1.0
+  checksum: e20e239c8ecd48d32815e0437594ca6e1bc0c0f1d9524aa5ce422b80f66bd4055fccbe6b37390c6a26010dc25fd180bdf3c43eb84431ffde34d535c4d93223e2
+  languageName: node
+  linkType: hard
+
+"@rest-hooks/react@npm:^6.0.0":
+  version: 6.2.0
+  resolution: "@rest-hooks/react@npm:6.2.0"
+  dependencies:
+    "@babel/runtime": ^7.17.0
+    "@rest-hooks/core": ^4.4.2
+    "@rest-hooks/use-enhanced-reducer": ^1.2.8
   peerDependencies:
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
+    "@react-navigation/native": ^6.0.0
+    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
+    react: ^16.8.4 || ^17.0.0 || ^18.0.0
+  peerDependenciesMeta:
+    "@react-navigation/native":
+      optional: true
+    "@types/react":
+      optional: true
+  checksum: 4c4930f4dad6f78a2a5d098cc49547358f14b2205ccd38aca4cbf21a0d216863dac9f6c2a2077b3dd3b41cbc9075b490297a0103378a2e1663b41e0d36ba28fb
+  languageName: node
+  linkType: hard
+
+"@rest-hooks/redux@npm:^6.0.0":
+  version: 6.3.7
+  resolution: "@rest-hooks/redux@npm:6.3.7"
+  dependencies:
+    "@babel/runtime": ^7.17.0
+    "@rest-hooks/core": ^4.4.2
+  peerDependencies:
+    "@rest-hooks/react": ^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0
+    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
+    react: ^16.8.4 || ^17.0.0 || ^18.0.0
+    redux: ^4.0.0
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 3316061adc84fc89567cd42cb6d4bca4e94abc7e4d060fbfe17faaabdfd5c2159d83d53dcd7c8cb650912b82bbd023d21bda11055a0110f1f684be124bc96546
-  languageName: node
-  linkType: hard
-
-"@rest-hooks/endpoint@npm:^2.2.7":
-  version: 2.2.7
-  resolution: "@rest-hooks/endpoint@npm:2.2.7"
-  dependencies:
-    "@babel/runtime": ^7.13.0
-    "@rest-hooks/normalizr": ^8.2.6
-  checksum: 8e3740dbc785b6129dd401c3737a4a111282a2cb36096eb75a4a6446b7020a5d5e70d3cc0d44ac33dd8840e1773d255e1bec0354cce61449a91996b70fb1f011
-  languageName: node
-  linkType: hard
-
-"@rest-hooks/normalizr@npm:^8.2.6":
-  version: 8.2.6
-  resolution: "@rest-hooks/normalizr@npm:8.2.6"
-  dependencies:
-    "@babel/runtime": ^7.13.0
-  checksum: 0076e0ae41f2fe9a1a499144bdc307c8ad7382ad8c071a60feff3ffa0340066ce4749b155b4aa5eb365c09306495ed7b5dc7548145d751cd5582330c02e30d15
+  checksum: 1f3377dba68a47d102a4a7d4c22aae745dbecd0defc15899611a99c45c15c97271a4c9aae5e20629d54535c7a32432feed3d10dc33197c9522049744980ca4bc
   languageName: node
   linkType: hard
 
@@ -2459,16 +2528,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rest-hooks/use-enhanced-reducer@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@rest-hooks/use-enhanced-reducer@npm:1.1.1"
-  peerDependencies:
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-  checksum: 04afdd8a611ac3ff5b8b744633164638419f484cad9a13f741fe698aa648566f91d5a857fe52d980cf67002d6a9ff5997b500f6337cbb0905e7136ebf47d2715
+"@rest-hooks/use-enhanced-reducer@npm:^1.2.8":
+  version: 1.2.9
+  resolution: "@rest-hooks/use-enhanced-reducer@npm:1.2.9"
+  dependencies:
+    "@data-client/use-enhanced-reducer": ^0.1.0
+  checksum: a44aec57e7e98ef65386b99c509da4371ec4ec1b77694f6d4d723190a4648ed9541ce38b7b95323886c792228c44d328edcfeadefb151b587d57703e99686c69
   languageName: node
   linkType: hard
 
@@ -7672,7 +7737,7 @@ __metadata:
 
 "fsevents@patch:fsevents@*#~builtin<compat/fsevents>, fsevents@patch:fsevents@~2.3.2#~builtin<compat/fsevents>, fsevents@patch:fsevents@~2.3.3#~builtin<compat/fsevents>":
   version: 2.3.3
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.3#~builtin<compat/fsevents>::version=2.3.3&hash=df0bf1"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.3#~builtin<compat/fsevents>::version=2.3.3&hash=18f3a7"
   dependencies:
     node-gyp: latest
   conditions: os=darwin
@@ -7681,7 +7746,7 @@ __metadata:
 
 "fsevents@patch:fsevents@2.3.2#~builtin<compat/fsevents>":
   version: 2.3.2
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=df0bf1"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=18f3a7"
   dependencies:
     node-gyp: latest
   conditions: os=darwin
@@ -11857,7 +11922,7 @@ __metadata:
     remark-frontmatter: ^5.0.0
     remark-mdx-frontmatter: ^5.0.0
     remark-mdx-toc: ^0.3.1
-    rest-hooks: ^6.1.7
+    rest-hooks: ^6.6.3
     sanitize-html: ^2.13.0
     sass: ^1.77.8
     storybook: ^8.2.5
@@ -12110,6 +12175,15 @@ __metadata:
     indent-string: ^4.0.0
     strip-indent: ^3.0.0
   checksum: fa1ef20404a2d399235e83cc80bd55a956642e37dd197b4b612ba7327bf87fa32745aeb4a1634b2bab25467164ab4ed9c15be2c307923dd08b0fe7c52431ae6b
+  languageName: node
+  linkType: hard
+
+"redux@npm:^4.0.0":
+  version: 4.2.1
+  resolution: "redux@npm:4.2.1"
+  dependencies:
+    "@babel/runtime": ^7.9.2
+  checksum: f63b9060c3a1d930ae775252bb6e579b42415aee7a23c4114e21a0b4ba7ec12f0ec76936c00f546893f06e139819f0e2855e0d55ebfce34ca9c026241a6950dd
   languageName: node
   linkType: hard
 
@@ -12402,7 +12476,7 @@ __metadata:
 
 "resolve@patch:resolve@^1.10.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.14.2#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.1#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.4#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.8#~builtin<compat/resolve>":
   version: 1.22.8
-  resolution: "resolve@patch:resolve@npm%3A1.22.8#~builtin<compat/resolve>::version=1.22.8&hash=c3c19d"
+  resolution: "resolve@patch:resolve@npm%3A1.22.8#~builtin<compat/resolve>::version=1.22.8&hash=07638b"
   dependencies:
     is-core-module: ^2.13.0
     path-parse: ^1.0.7
@@ -12415,7 +12489,7 @@ __metadata:
 
 "resolve@patch:resolve@^2.0.0-next.5#~builtin<compat/resolve>":
   version: 2.0.0-next.5
-  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.5#~builtin<compat/resolve>::version=2.0.0-next.5&hash=c3c19d"
+  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.5#~builtin<compat/resolve>::version=2.0.0-next.5&hash=07638b"
   dependencies:
     is-core-module: ^2.13.0
     path-parse: ^1.0.7
@@ -12426,20 +12500,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rest-hooks@npm:^6.1.7":
-  version: 6.3.4
-  resolution: "rest-hooks@npm:6.3.4"
+"rest-hooks@npm:^6.6.3":
+  version: 6.6.3
+  resolution: "rest-hooks@npm:6.6.3"
   dependencies:
-    "@babel/runtime": ^7.13.0
-    "@rest-hooks/core": ^3.2.4
-    "@rest-hooks/endpoint": ^2.2.7
+    "@babel/runtime": ^7.17.0
+    "@rest-hooks/endpoint": ^3.2.2
+    "@rest-hooks/react": ^6.0.0
+    "@rest-hooks/redux": ^6.0.0
+    redux: ^4.0.0
   peerDependencies:
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
     react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 9beec93ffa23670c6c2af58ac4212d36ce108c6d3ea16416350fb6e14e072b8e5dd75f64682f5eabe2ddcf1dfae1c94ffd5551dee35cba4093c5a1b8de3ab3d7
+  checksum: ad6fa97c627bec4dd0e882a9d724d905a15f602009791e41379ef931366d739001b17a678c1124e270099dd83d6bbe104524d929aeee483d2dc0e50abc5f5be1
   languageName: node
   linkType: hard
 
@@ -13934,7 +14010,7 @@ __metadata:
 
 "typescript@patch:typescript@^5.5.4#~builtin<compat/typescript>":
   version: 5.5.4
-  resolution: "typescript@patch:typescript@npm%3A5.5.4#~builtin<compat/typescript>::version=5.5.4&hash=14eedb"
+  resolution: "typescript@patch:typescript@npm%3A5.5.4#~builtin<compat/typescript>::version=5.5.4&hash=701156"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
