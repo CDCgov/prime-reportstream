@@ -43,7 +43,7 @@
     "tsx": "^4.16.2",
     "use-deep-compare-effect": "^1.8.1",
     "uuid": "^10.0.0",
-    "web-vitals": "^3.4.0"
+    "web-vitals": "^3.5.2"
   },
   "scripts": {
     "postinstall": "scripts/postinstall.sh",
