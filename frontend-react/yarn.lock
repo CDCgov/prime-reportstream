@@ -2427,14 +2427,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rest-hooks/rest@npm:^3.0.3":
-  version: 3.0.3
-  resolution: "@rest-hooks/rest@npm:3.0.3"
+"@rest-hooks/rest@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "@rest-hooks/rest@npm:3.1.0"
   dependencies:
     "@babel/runtime": ^7.7.2
   peerDependencies:
-    "@rest-hooks/endpoint": ^2.0.0
-  checksum: 27d8678517ba1fb51dfa5e7e6a3dfa7088c9cd1f594197f42b826d9b86b8d503b369511933ce6c1ca25da020e6ea5bb5b8310a1b37e1f858720605d567728d1f
+    "@rest-hooks/endpoint": ^2.0.0 || ^3.0.0
+  checksum: 350b6e6f968f0f64435cef45fc05674397378a39d40e214c9da59e47ce7bf40d54897ac81a2b9738871575354acd6a385ac1aed2bb46d493550563e5040f387a
   languageName: node
   linkType: hard
 
@@ -7672,7 +7672,7 @@ __metadata:
 
 "fsevents@patch:fsevents@*#~builtin<compat/fsevents>, fsevents@patch:fsevents@~2.3.2#~builtin<compat/fsevents>, fsevents@patch:fsevents@~2.3.3#~builtin<compat/fsevents>":
   version: 2.3.3
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.3#~builtin<compat/fsevents>::version=2.3.3&hash=df0bf1"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.3#~builtin<compat/fsevents>::version=2.3.3&hash=18f3a7"
   dependencies:
     node-gyp: latest
   conditions: os=darwin
@@ -7681,7 +7681,7 @@ __metadata:
 
 "fsevents@patch:fsevents@2.3.2#~builtin<compat/fsevents>":
   version: 2.3.2
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=df0bf1"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=18f3a7"
   dependencies:
     node-gyp: latest
   conditions: os=darwin
@@ -11758,7 +11758,7 @@ __metadata:
     "@okta/okta-react": ^6.9.0
     "@okta/okta-signin-widget": ^7.20.1
     "@playwright/test": ^1.45.3
-    "@rest-hooks/rest": ^3.0.3
+    "@rest-hooks/rest": ^3.1.0
     "@rest-hooks/test": ^7.3.1
     "@storybook/addon-a11y": ^8.2.5
     "@storybook/addon-actions": ^8.2.5
@@ -12402,7 +12402,7 @@ __metadata:
 
 "resolve@patch:resolve@^1.10.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.14.2#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.1#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.4#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.8#~builtin<compat/resolve>":
   version: 1.22.8
-  resolution: "resolve@patch:resolve@npm%3A1.22.8#~builtin<compat/resolve>::version=1.22.8&hash=c3c19d"
+  resolution: "resolve@patch:resolve@npm%3A1.22.8#~builtin<compat/resolve>::version=1.22.8&hash=07638b"
   dependencies:
     is-core-module: ^2.13.0
     path-parse: ^1.0.7
@@ -12415,7 +12415,7 @@ __metadata:
 
 "resolve@patch:resolve@^2.0.0-next.5#~builtin<compat/resolve>":
   version: 2.0.0-next.5
-  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.5#~builtin<compat/resolve>::version=2.0.0-next.5&hash=c3c19d"
+  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.5#~builtin<compat/resolve>::version=2.0.0-next.5&hash=07638b"
   dependencies:
     is-core-module: ^2.13.0
     path-parse: ^1.0.7
@@ -13934,7 +13934,7 @@ __metadata:
 
 "typescript@patch:typescript@^5.5.4#~builtin<compat/typescript>":
   version: 5.5.4
-  resolution: "typescript@patch:typescript@npm%3A5.5.4#~builtin<compat/typescript>::version=5.5.4&hash=14eedb"
+  resolution: "typescript@patch:typescript@npm%3A5.5.4#~builtin<compat/typescript>::version=5.5.4&hash=701156"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
