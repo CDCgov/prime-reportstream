@@ -22,41 +22,29 @@ jobs:
             pass: ${{ secrets.MBPwd }}
             user: ${{ secrets.MBUserName }}
         run: |
-            ./.github/scripts/MetabaseUsers/MBUserAPI.ps1 -pass "$Env:pass" -user "$Env:user" 
-      
-      - name: Get Version upgrade Details
-        id: VersionUpgrade
+            ./.github/scripts/MetabaseUsers/MBUserAPI.ps1  
+
+      - name: Decode Slack Message
         shell: pwsh
-        run: | 
-            echo  "${env:Versionupdates}" >> MBUsers.json
-          
-      - name: JSON to variables
-        uses: supriyaaddagada/json-to-variables@00f6ff3a5f15f4bc0ed261ea4c8c23147a717a36
-        with:
-            filename: 'MBUsers.json'
-            prefix: MetabaseUsers  
-
-      # - name: Decode Slack Message
-      #   shell: pwsh
-      #   run: |
-      #     $SLACK_MESSAGE_Users = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:SLACK_MESSAGE_SUMMARY))
-      #     echo $SLACK_MESSAGE_Users > SLACK_MESSAGE_Users.md
-      #     echo "## Inactive users`n$SLACK_MESSAGE_Users" >> $env:GITHUB_STEP_SUMMARY
+        run: |
+          $SLACK_MESSAGE_Users = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:SLACK_MESSAGE_SUMMARY))
+          echo $SLACK_MESSAGE_Users > SLACK_MESSAGE_Users.md
+          echo "## Inactive users`n$SLACK_MESSAGE_Users" >> $env:GITHUB_STEP_SUMMARY
       
-      # - name: Get Inactive users
-      #   id: users_out
-      #   shell: bash
-      #   run: |
-      #     messageInactiveUsers=$(cat SLACK_MESSAGE_Users.md)
-      #     EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-      #     echo "MESSAGE_RESPONSE<<$EOF" >> $GITHUB_OUTPUT
-      #     echo -e "$messageInactiveUsers">> $GITHUB_OUTPUT
-      #     echo "$EOF" >> $GITHUB_OUTPUT
+      - name: Get Inactive users
+        id: users_out
+        shell: bash
+        run: |
+          messageInactiveUsers=$(cat SLACK_MESSAGE_Users.md)
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "MESSAGE_RESPONSE<<$EOF" >> $GITHUB_OUTPUT
+          echo -e "$messageInactiveUsers">> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
 
-      # - name: Decode Slack Message
-      #   shell: pwsh
-      #   run: |
-      #     Write-Host ${{ steps.users_out.outputs.messageInactiveUsers }}
+      - name: Decode Slack Message
+        shell: pwsh
+        run: |
+          Write-Host ${{ steps.users_out.outputs.MESSAGE_RESPONSE }}
       
       # - name: Slack Notification
       #   uses: ./.github/actions/notifications
