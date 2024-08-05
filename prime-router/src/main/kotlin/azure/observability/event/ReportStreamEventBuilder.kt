@@ -33,7 +33,7 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
     private val name: ReportStreamEventName,
     private val childReportId: UUID,
     private val childBodyUrl: String,
-    private val theTopic: Topic,
+    private val theTopic: Topic?,
     private val pipelineStepName: TaskAction,
 ) : Logging {
 
@@ -119,7 +119,7 @@ open class ReportStreamReportEventBuilder(
     theName: ReportStreamEventName,
     childReportId: UUID,
     childBodyUrl: String,
-    theTopic: Topic,
+    theTopic: Topic?,
     pipelineStepName: TaskAction,
 ) : AbstractReportStreamEventBuilder<ReportStreamReportEvent>(
     reportEventService,
@@ -210,7 +210,7 @@ class ReportStreamReportProcessingErrorEventBuilder(
     theName: ReportStreamEventName,
     childReportId: UUID,
     childBodyUrl: String,
-    theTopic: Topic,
+    theTopic: Topic?,
     pipelineStepName: TaskAction,
     private val error: String,
 ) : ReportStreamReportEventBuilder(

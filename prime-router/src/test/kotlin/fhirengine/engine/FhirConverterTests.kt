@@ -13,7 +13,7 @@ import ca.uhn.fhir.validation.ValidationResult
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import com.microsoft.azure.functions.HttpStatus
 import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01
-import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.reportstream.shared.SubmissionsEntity
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CovidSender
@@ -75,7 +75,6 @@ import org.junit.jupiter.api.assertThrows
 import java.io.File
 import java.util.UUID
 import kotlin.test.Test
-import kotlin.test.assertTrue
 
 private const val BLOB_URL = "http://blobstore.example/file.hl7"
 private const val BLOB_SUB_FOLDER_NAME = "test-sender"
@@ -162,6 +161,7 @@ class FhirConverterTests {
     @Test
     fun `test processHl7 and handle sender not found`() {
         mockkObject(BlobAccess)
+        mockkClass(SubmissionsEntity::class)
         // set up
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = ActionLogger()
@@ -173,6 +173,8 @@ class FhirConverterTests {
         every { queueMessage.headers["client_id"] } returns "unknown_client_id"
         every { queueMessage.headers["payloadname"] } returns ""
         every { queueMessage.headers["Content-Type"] } returns ""
+        val reportId = UUID.randomUUID()
+        every { queueMessage.reportId } returns reportId
         every { settingsProvider.findSender(any()) } returns null
         val action = Action()
         action.actionName = TaskAction.convert
@@ -182,23 +184,20 @@ class FhirConverterTests {
         every { actionHistory.trackReceivedNoReport(any(), any(), any(), any(), any()) } returns Unit
 
         // act
-        var exceptionThrown = false
-        try {
-            accessSpy.transact { txn ->
-                engine.run(queueMessage, actionLogger, actionHistory, txn)
-            }
-        } catch (ex: ActionError) {
-            exceptionThrown = true
+        accessSpy.transact { txn ->
+            engine.run(queueMessage, actionLogger, actionHistory, txn)
         }
 
         // assert
-        assertTrue(exceptionThrown)
-
-        // assert
-        assertThat(actionLogger.errors[0].equals(InvalidParamMessage("client_id is a required parameter")))
+        assertThat(
+            actionLogger.errors[0].equals(
+            InvalidParamMessage("Sender not found matching client_id: unknown_client_id")
+            )
+        )
         verify(exactly = 1) {
             BlobAccess.Companion.insertTableEntity(any())
-            actionHistory.trackActionResult(HttpStatus.NOT_FOUND)
+            SubmissionsEntity(reportId.toString(), "Rejected").toTableEntity()
+            actionHistory.trackActionResult(HttpStatus.BAD_REQUEST)
         }
     }
 
@@ -209,7 +208,6 @@ class FhirConverterTests {
         // set up
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = ActionLogger()
-        val settingsProvider = mockk<SettingsProvider>()
         val sender = CovidSender(
             "Test Sender",
             "test",
@@ -222,34 +220,31 @@ class FhirConverterTests {
 
         val queueMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
         every { queueMessage.headers["client_id"] } returns "test_client_id"
-        every { queueMessage.headers["payloadname"] } returns ""
+        every { queueMessage.headers["payloadname"] } returns "test_name"
         every { queueMessage.headers["Content-Type"] } returns ""
-        every { settingsProvider.findSender(any()) } returns null
+        val reportId = UUID.randomUUID()
+        every { queueMessage.reportId } returns reportId
         val action = Action()
         action.actionName = TaskAction.convert
         every { actionHistory.action } returns action
         every { actionHistory.trackActionResult(any<HttpStatus>()) } returns Unit
         every { actionHistory.trackActionParams(any<String>()) } returns Unit
+        every { actionHistory.trackActionSenderInfo(any(), any()) } returns Unit
+        every { actionHistory.trackReceivedNoReport(any(), any(), any(), any(), any()) } returns Unit
         every { engine.settings.findSender(any()) } returns sender
 
         // act
-        var exceptionThrown = false
-        try {
-            accessSpy.transact { txn ->
-                engine.run(queueMessage, actionLogger, actionHistory, txn)
-            }
-        } catch (ex: ActionError) {
-            exceptionThrown = true
+        accessSpy.transact { txn ->
+            engine.run(queueMessage, actionLogger, actionHistory, txn)
         }
 
         // assert
-        assertTrue(exceptionThrown)
-
-        // assert
-        assertThat(SenderNotFound(queueMessage.headers["client_id"].toString()))
+        assertThat(actionLogger.errors[0].equals(SenderNotFound(queueMessage.headers["client_id"].toString())))
         verify(exactly = 1) {
             BlobAccess.Companion.insertTableEntity(any())
-            actionHistory.trackActionResult(HttpStatus.NOT_FOUND)
+            SubmissionsEntity(reportId.toString(), "Rejected").toTableEntity()
+            actionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
+            actionHistory.trackActionSenderInfo(sender.fullName, "test_name")
         }
     }
 
@@ -258,6 +253,14 @@ class FhirConverterTests {
     fun `test processHl7 happy path with queueMessage headers`() {
         mockkObject(BlobAccess)
         mockkObject(Report)
+
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            MimeFormat.CSV,
+            schemaName = "one",
+            customerStatus = CustomerStatus.ACTIVE
+        )
 
         // set up
         val actionHistory = mockk<ActionHistory>()
@@ -279,11 +282,15 @@ class FhirConverterTests {
         )
 
         every { message.headers["client_id"] } returns "test_client_id"
-        every { message.headers["payloadname"] } returns ""
+        every { message.headers["payloadname"] } returns "test_message"
         every { message.headers["Content-Type"] } returns ""
+        every { message.headers.isEmpty() } returns false
 
         val bodyFormat = MimeFormat.FHIR
         val bodyUrl = "https://anyblob.com"
+
+        val reportId = UUID.randomUUID()
+        every { message.reportId } returns reportId
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
@@ -294,12 +301,16 @@ class FhirConverterTests {
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { actionHistory.trackActionResult(any<HttpStatus>()) } returns Unit
+        every { actionHistory.trackActionParams(any<String>()) } returns Unit
+        every { actionHistory.trackActionSenderInfo(any(), any()) } returns Unit
+        every { actionHistory.trackReceivedNoReport(any(), any(), any(), any(), any()) } returns Unit
         val action = Action()
         action.actionName = TaskAction.convert
         every { actionHistory.action } returns action
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
         every { transformer.process(any()) } returnsArgument (0)
+        every { engine.settings.findSender(any()) } returns sender
 
         // act
         accessSpy.transact { txn ->
@@ -308,7 +319,9 @@ class FhirConverterTests {
 
         // assert
         verify(exactly = 1) {
-            actionHistory.trackExistingInputReport(any())
+            actionHistory.trackActionResult(HttpStatus.CREATED)
+            actionHistory.trackActionSenderInfo(sender.fullName, "test_message")
+            SubmissionsEntity(reportId.toString(), "Accepted").toTableEntity()
             transformer.process(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), any(), any())

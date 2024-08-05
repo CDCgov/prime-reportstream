@@ -154,7 +154,6 @@ class FHIRConverter(
             if (sender != null) {
                 actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
             }
-            val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Accepted").toTableEntity()
 
             actionHistory.trackReceivedNoReport(
                 queueMessage.reportId,
@@ -164,10 +163,22 @@ class FHIRConverter(
                 payloadName
             )
 
-            BlobAccess.insertTableEntity(tableEntity)
-
             if (actionLogger.hasErrors()) {
-                // event
+                reportEventService.sendReceiveProcessingError(
+                    ReportStreamEventName.REPORT_NOT_RECEIVABLE,
+                    TaskAction.convert,
+                    "Unable to create report from received message.",
+                    queueMessage.reportId,
+                    queueMessage.blobURL
+                ) {
+                    parentReportId(queueMessage.reportId)
+                    params(
+                        actionLogger.errors.associateBy { ReportStreamEventProperties.PROCESSING_ERROR }
+                    )
+                }
+            } else {
+                val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Accepted").toTableEntity()
+                BlobAccess.insertTableEntity(tableEntity)
             }
         }
     }
@@ -177,7 +188,7 @@ class FHIRConverter(
      *
      * @param queueMessage The queue message containing details about the report.
      * @param actionLogger The logger used to track actions and errors.
-     * @param receiveActionHistory The action history related to receiving the report.
+     * @param actionHistory The action history related to receiving the report.
      * @return An empty list of FHIR engine run results.
      */
     private fun handleSenderNotFound(
@@ -185,10 +196,12 @@ class FHIRConverter(
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ) {
-        actionHistory.trackActionResult(HttpStatus.NOT_FOUND)
+        actionHistory.trackActionResult(HttpStatus.BAD_REQUEST)
         val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Rejected").toTableEntity()
         BlobAccess.insertTableEntity(tableEntity)
-        actionLogger.error(InvalidParamMessage("client_id is a required parameter"))
+        actionLogger.error(
+            InvalidParamMessage("Sender not found matching client_id: " + queueMessage.headers["client_id"])
+        )
     }
 
     /**
@@ -196,7 +209,7 @@ class FHIRConverter(
      *
      * @param queueMessage The queue message containing details about the report.
      * @param actionLogger The logger used to track actions and errors.
-     * @param receiveActionHistory The action history related to receiving the report.
+     * @param actionHistory The action history related to receiving the report.
      * @return An empty list of FHIR engine run results.
      */
     private fun handleInactiveSender(
@@ -227,6 +240,11 @@ class FHIRConverter(
                 runReceiveResults(queueMessage, actionLogger, actionHistory)
             } else {
                 actionHistory.trackExistingInputReport(queueMessage.reportId)
+            }
+
+            // if errors added by runReceiveResults then convert should not continue
+            if (actionLogger.hasErrors()) {
+                return emptyList()
             }
 
             actionLogger.setReportId(queueMessage.reportId)
@@ -274,7 +292,7 @@ class FHIRConverter(
                                     Report.ParentItemLineageData(queueMessage.reportId, itemIndex.toInt() + 1)
                                 ),
                                 metadata = this.metadata,
-                                topic = queueMessage.topic,
+                                topic = queueMessage.topic!!,
                                 nextAction = TaskAction.none
                             )
                             val noneEvent = ProcessEvent(
@@ -298,7 +316,7 @@ class FHIRConverter(
                                         mapOf(
                                             ReportStreamEventProperties.ITEM_FORMAT to format,
                                             ReportStreamEventProperties.VALIDATION_PROFILE
-                                                to queueMessage.topic.validator.validatorProfileName
+                                                to queueMessage.topic!!.validator.validatorProfileName
                                         )
                                     )
                                 }
