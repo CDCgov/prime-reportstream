@@ -1349,36 +1349,36 @@ test.describe("Daily Data page", () => {
                 test.use({ storageState: "e2e/.auth/admin.json" });
 
                 test.describe(`${TEST_ORG_IGNORE} org - ${TEST_ORG_UP_RECEIVER_FULL_ELR} receiver`, () => {
-                    test("has correct title", async ({ dailyDataPage }) => {
-                        await expect(dailyDataPage.page).toHaveTitle(dailyDataPage.title);
-                        await expect(dailyDataPage.heading).toBeVisible();
-                    });
+                    test.describe("onLoad", () => {
+                        test.beforeEach(async ({ dailyDataPage }) => {
+                            await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                        });
 
-                    test("has receiver services dropdown", async ({ dailyDataPage }) => {
-                        await expect(dailyDataPage.page.locator("#receiver-dropdown")).toBeAttached();
-                    });
+                        test("has correct title", async ({ dailyDataPage }) => {
+                            await expect(dailyDataPage.page).toHaveTitle(dailyDataPage.title);
+                            await expect(dailyDataPage.heading).toBeVisible();
+                        });
 
-                    test("has filter", async ({ dailyDataPage }) => {
-                        await expect(dailyDataPage.page.getByTestId("filter-form")).toBeAttached();
-                    });
+                        test("table has correct headers", async ({ dailyDataPage }) => {
+                            await expect(dailyDataPage.page.locator(".usa-table th").nth(0)).toHaveText(/Report ID/);
+                            await expect(dailyDataPage.page.locator(".usa-table th").nth(1)).toHaveText(
+                                /Time received/,
+                            );
+                            await expect(dailyDataPage.page.locator(".usa-table th").nth(2)).toHaveText(
+                                /File available until/,
+                            );
+                            await expect(dailyDataPage.page.locator(".usa-table th").nth(3)).toHaveText(/Items/);
+                            await expect(dailyDataPage.page.locator(".usa-table th").nth(4)).toHaveText(/Filename/);
+                            await expect(dailyDataPage.page.locator(".usa-table th").nth(5)).toHaveText(/Receiver/);
+                        });
 
-                    test("table has correct headers", async ({ dailyDataPage }) => {
-                        await expect(dailyDataPage.page.locator(".usa-table th").nth(0)).toHaveText(/Report ID/);
-                        await expect(dailyDataPage.page.locator(".usa-table th").nth(1)).toHaveText(/Time received/);
-                        await expect(dailyDataPage.page.locator(".usa-table th").nth(2)).toHaveText(
-                            /File available until/,
-                        );
-                        await expect(dailyDataPage.page.locator(".usa-table th").nth(3)).toHaveText(/Items/);
-                        await expect(dailyDataPage.page.locator(".usa-table th").nth(4)).toHaveText(/Filename/);
-                        await expect(dailyDataPage.page.locator(".usa-table th").nth(5)).toHaveText(/Receiver/);
-                    });
+                        test("table has pagination", async ({ dailyDataPage }) => {
+                            await expect(dailyDataPage.page.locator('[aria-label="Pagination"]')).toBeAttached();
+                        });
 
-                    test("table has pagination", async ({ dailyDataPage }) => {
-                        await expect(dailyDataPage.page.locator('[aria-label="Pagination"]')).toBeAttached();
-                    });
-
-                    test("has footer", async ({ dailyDataPage }) => {
-                        await expect(dailyDataPage.page.locator("footer")).toBeAttached();
+                        test("has footer", async ({ dailyDataPage }) => {
+                            await expect(dailyDataPage.page.locator("footer")).toBeAttached();
+                        });
                     });
 
                     test.describe("filter", () => {
@@ -1481,6 +1481,48 @@ test.describe("Daily Data page", () => {
                                     filterStatusText,
                                 );
                             });
+
+                            test("clears 'Report ID'", async ({ dailyDataPage }) => {
+                                // Search by Report ID
+                                const reportId = await tableDataCellValue(dailyDataPage.page, 0, 0);
+                                await searchInput(dailyDataPage.page).fill(reportId);
+                                await searchButton(dailyDataPage.page).click();
+                                await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+
+                                const rowCount = await tableRows(dailyDataPage.page).count();
+                                expect(rowCount).toEqual(1);
+
+                                // Check filter status lists receiver value
+                                let filterStatusText = filterStatus(dailyDataPage.page, [reportId]);
+                                await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(
+                                    filterStatusText,
+                                );
+
+                                // Perform search with filters selected
+                                await dailyDataPage.page
+                                    .locator("#receiver-dropdown")
+                                    .selectOption(TEST_ORG_UP_RECEIVER_FULL_ELR);
+                                const fromDate = await setDate(dailyDataPage.page, "#start-date", 7);
+                                const toDate = await setDate(dailyDataPage.page, "#end-date", 0);
+                                await setTime(dailyDataPage.page, "#start-time", defaultStartTime);
+                                await setTime(dailyDataPage.page, "#end-time", defaultEndTime);
+
+                                await applyButton(dailyDataPage.page).click();
+                                await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+
+                                // Check filter status lists receiver value
+                                filterStatusText = filterStatus(dailyDataPage.page, [
+                                    TEST_ORG_UP_RECEIVER_FULL_ELR,
+                                    `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                                    `${defaultStartTime}–${defaultEndTime}`,
+                                ]);
+                                await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(
+                                    filterStatusText,
+                                );
+
+                                // Check search is cleared
+                                await expect(searchInput(dailyDataPage.page)).toHaveValue("");
+                            });
                         });
 
                         test.describe("on 'Reset'", () => {
@@ -1492,47 +1534,6 @@ test.describe("Daily Data page", () => {
                                 await expect(startTime(dailyDataPage.page)).toHaveValue("");
                                 await expect(endTime(dailyDataPage.page)).toHaveValue("");
                             });
-                        });
-
-                        test("clears 'Report ID' on 'Apply'", async ({ dailyDataPage }) => {
-                            // Search by Report ID
-                            const reportId = await tableDataCellValue(dailyDataPage.page, 0, 0);
-                            await searchInput(dailyDataPage.page).fill(reportId);
-                            await searchButton(dailyDataPage.page).click();
-                            await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
-
-                            const rowCount = await tableRows(dailyDataPage.page).count();
-                            expect(rowCount).toEqual(1);
-
-                            // Check filter status lists receiver value
-                            let filterStatusText = filterStatus(dailyDataPage.page, [reportId]);
-                            await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(
-                                filterStatusText,
-                            );
-
-                            // Perform search with filters selected
-                            await dailyDataPage.page
-                                .locator("#receiver-dropdown")
-                                .selectOption(TEST_ORG_UP_RECEIVER_FULL_ELR);
-                            const fromDate = await setDate(dailyDataPage.page, "#start-date", 7);
-                            const toDate = await setDate(dailyDataPage.page, "#end-date", 0);
-                            await setDate(dailyDataPage.page, "#start-date", 14);
-                            await setDate(dailyDataPage.page, "#end-date", 0);
-
-                            await applyButton(dailyDataPage.page).click();
-                            await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
-
-                            // Check filter status lists receiver value
-                            filterStatusText = filterStatus(dailyDataPage.page, [
-                                TEST_ORG_UP_RECEIVER_FULL_ELR,
-                                `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
-                            ]);
-                            await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(
-                                filterStatusText,
-                            );
-
-                            // Check search is cleared
-                            await expect(searchInput(dailyDataPage.page)).toHaveValue("");
                         });
                     });
 
@@ -1583,7 +1584,7 @@ test.describe("Daily Data page", () => {
                             expect(await tableDataCellValue(dailyDataPage.page, 0, 4)).toEqual(fileName);
                         });
 
-                        test("on search reset clears search results", async ({ dailyDataPage }) => {
+                        test("on search 'Reset' clears search results", async ({ dailyDataPage }) => {
                             const rowCount = await tableRows(dailyDataPage.page).count();
                             const reportId = await tableDataCellValue(dailyDataPage.page, 0, 0);
                             await searchInput(dailyDataPage.page).fill(reportId);
@@ -1597,54 +1598,51 @@ test.describe("Daily Data page", () => {
                             await expect(searchInput(dailyDataPage.page)).toHaveValue("");
                             expect(await tableRows(dailyDataPage.page).count()).toEqual(rowCount);
                         });
-                        //
-                        //     test("clears filters on search", async ({ dailyDataPage }) => {
-                        //         // TODO: uncomment code to use with live data
-                        //         // Perform search with all filters selected
-                        //         await dailyDataPage.page.locator("#receiver-dropdown").selectOption(TEST_ORG_UP_RECEIVER_FULL_ELR);
-                        //         // const fromDate = await setDate(dailyDataPage.page, "#start-date", 14);
-                        //         // const toDate = await setDate(dailyDataPage.page, "#end-date", 0);
-                        //         await setDate(dailyDataPage.page, "#start-date", 14);
-                        //         await setDate(dailyDataPage.page, "#end-date", 0);
-                        //         await setTime(dailyDataPage.page, "#start-time", defaultStartTime);
-                        //         await setTime(dailyDataPage.page, "#end-time", defaultEndTime);
-                        //
-                        //         await applyButton(dailyDataPage.page).click();
-                        //         await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
-                        //
-                        //         // Check filter status lists receiver value
-                        //         // let filterStatusText = filterStatus(dailyDataPage.page, [
-                        //         //     TEST_ORG_IGNORE_RECEIVER,
-                        //         //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
-                        //         //     `${defaultStartTime}–${defaultEndTime}`,
-                        //         // ]);
-                        //         // await expect(
-                        //         //     dailyDataPage.pagegetByTestId("filter-status"),
-                        //         // ).toContainText(filterStatusText);
-                        //
-                        //         const reportId = "729158ce-4125-46fa-bea0-3c0f910f472c";
-                        //         await searchInput(dailyDataPage.page).fill(reportId);
-                        //         await searchButton(dailyDataPage.page).click();
-                        //
-                        //         // Check filter status lists receiver value
-                        //         // filterStatusText = filterStatus(dailyDataPage.page, [reportId]);
-                        //         // await expect(
-                        //         //     dailyDataPage.pagegetByTestId("filter-status"),
-                        //         // ).toContainText(filterStatusText);
-                        //
-                        //         //Check table data matches search
-                        //         // expect(await tableDataCellValue(dailyDataPage.page, 0, 0)).toEqual(
-                        //         //     reportId,
-                        //         // );
-                        //
-                        //         // Check filters are cleared
-                        //         await expect(receiverDropdown(dailyDataPage.page)).toHaveValue("");
-                        //         await expect(startDate(dailyDataPage.page)).toHaveValue("");
-                        //         await expect(endDate(dailyDataPage.page)).toHaveValue("");
-                        //         await expect(startTime(dailyDataPage.page)).toHaveValue("");
-                        //         await expect(endTime(dailyDataPage.page)).toHaveValue("");
-                        //     });
-                        // });
+
+                        test("clears filters on search", async ({ dailyDataPage }) => {
+                            // Perform search with all filters selected
+                            await dailyDataPage.page
+                                .locator("#receiver-dropdown")
+                                .selectOption(TEST_ORG_UP_RECEIVER_FULL_ELR);
+                            const fromDate = await setDate(dailyDataPage.page, "#start-date", 7);
+                            const toDate = await setDate(dailyDataPage.page, "#end-date", 0);
+                            await setTime(dailyDataPage.page, "#start-time", defaultStartTime);
+                            await setTime(dailyDataPage.page, "#end-time", defaultEndTime);
+
+                            await applyButton(dailyDataPage.page).click();
+                            await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+
+                            // Check filter status lists receiver value
+                            let filterStatusText = filterStatus(dailyDataPage.page, [
+                                TEST_ORG_UP_RECEIVER_FULL_ELR,
+                                `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                                `${defaultStartTime}–${defaultEndTime}`,
+                            ]);
+                            await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(
+                                filterStatusText,
+                            );
+
+                            const reportId = await tableDataCellValue(dailyDataPage.page, 0, 0);
+                            await searchInput(dailyDataPage.page).fill(reportId);
+                            await searchButton(dailyDataPage.page).click();
+                            await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+
+                            // Check filter status lists receiver value
+                            filterStatusText = filterStatus(dailyDataPage.page, [reportId]);
+                            await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(
+                                filterStatusText,
+                            );
+
+                            //Check table data matches search
+                            expect(await tableDataCellValue(dailyDataPage.page, 0, 0)).toEqual(reportId);
+
+                            // Check filters are cleared
+                            await expect(receiverDropdown(dailyDataPage.page)).toHaveValue("");
+                            await expect(startDate(dailyDataPage.page)).toHaveValue("");
+                            await expect(endDate(dailyDataPage.page)).toHaveValue("");
+                            await expect(startTime(dailyDataPage.page)).toHaveValue("");
+                            await expect(endTime(dailyDataPage.page)).toHaveValue("");
+                        });
                     });
                 });
             });

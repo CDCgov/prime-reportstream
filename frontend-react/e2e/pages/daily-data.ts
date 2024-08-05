@@ -25,7 +25,7 @@ export class DailyDataPage extends BasePage {
         super(
             {
                 url: DailyDataPage.URL_DAILY_DATA,
-                title: "ReportStream - CDC's free, interoperable data transfer platform",
+                title: "Daily Data - ReportStream",
                 heading: testArgs.page.getByRole("heading", {
                     name: "Daily Data",
                 }),
@@ -248,7 +248,7 @@ export function toDateWithTime(date: string, time: string) {
 
 export function filterStatus(page: Page, filters: (string | undefined)[]) {
     // RowCount is not attainable with live data since it is returned from the API
-    let filterStatus = ` for: `;
+    let filterStatus = ` Showing all data for: `;
 
     for (let i = 0; i < filters.length; i++) {
         filterStatus += filters[i];
