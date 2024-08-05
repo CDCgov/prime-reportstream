@@ -12,6 +12,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.RestCredential
@@ -89,6 +90,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
+        reportEventService: IReportStreamEventService,
     ): RetryItems? {
         val logger: Logger = context.logger
 
@@ -161,7 +163,9 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             externalFileName,
                             restTransportInfo.toString(),
                             msg,
-                            header
+                            header,
+                            reportEventService,
+                            this::class.java.simpleName
                         )
                         actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
                     } catch (t: Throwable) {
@@ -619,6 +623,10 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             contentType(ContentType.Application.Json)
                             // create JSON object for the BODY. This encodes "/" character as "//", needed for WA to accept as valid JSON
                             JSONObject().put("body", message.toString(Charsets.UTF_8)).toString()
+                        }
+                        "application/hl7-v2" -> {
+                            val filteredMsg = message.toString(Charsets.UTF_8).replace("\n", "\r").dropLast(1) + "\r"
+                            TextContent(filteredMsg, ContentType("application", "hl7-v2"))
                         }
                         // NY Content-Type: multipart/form-data
                         "multipart/form-data" -> {
