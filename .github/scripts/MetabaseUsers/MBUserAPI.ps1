@@ -33,7 +33,7 @@ foreach ($User in $val.data) {
             Write-Host "Name - " $commonName
             Write-Host "Login - " $User.date_joined
             $MBUsers+="`n"
-            $MBUsers +=$commonName + ' ' +$user.date_joined
+            $MBUsers +='Name-' +$commonName + ' Last Login Date - ' +$LastLogin + ' Date Joined - '+$User.date_joined
 
             $data.InactiveMBUsers += @{
                 Name       = $commonName
