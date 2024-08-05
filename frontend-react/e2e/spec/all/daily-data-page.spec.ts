@@ -30,6 +30,7 @@ import {
     startTimeClear,
     tableHeaders,
 } from "../../pages/daily-data";
+import { URL_REPORT_DETAILS } from "../../pages/report-details";
 import { test as baseTest } from "../../test";
 
 const defaultStartTime = "9:00am";
@@ -1642,6 +1643,27 @@ test.describe("Daily Data page", () => {
                             await expect(endDate(dailyDataPage.page)).toHaveValue("");
                             await expect(startTime(dailyDataPage.page)).toHaveValue("");
                             await expect(endTime(dailyDataPage.page)).toHaveValue("");
+                        });
+                    });
+
+                    test.describe("on report id click", () => {
+                        test.beforeEach(async ({ dailyDataPage }) => {
+                            await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                            await dailyDataPage.page
+                                .locator("#receiver-dropdown")
+                                .selectOption(TEST_ORG_UP_RECEIVER_FULL_ELR);
+                            await applyButton(dailyDataPage.page).click();
+                            await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                        });
+
+                        test("opens the Daily Data details page", async ({ dailyDataPage }) => {
+                            const reportId = await tableDataCellValue(dailyDataPage.page, 0, 0);
+
+                            await dailyDataPage.page.getByRole("link", { name: reportId }).click();
+                            await expect(dailyDataPage.page).toHaveURL(`${URL_REPORT_DETAILS}/${reportId}`);
+                            await dailyDataPage.page.waitForLoadState("domcontentloaded");
+                            await expect(dailyDataPage.page).toHaveTitle(/Daily Data - ReportStream/);
+                            await expect(dailyDataPage.page.locator("h1").getByText(reportId)).toBeVisible();
                         });
                     });
                 });
