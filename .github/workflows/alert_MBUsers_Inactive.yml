@@ -27,7 +27,7 @@ jobs:
       - name: Decode Slack Message
         shell: pwsh
         run: |
-          $SLACK_MESSAGE_Users = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:SLACK_MESSAGE_Users))
+          $SLACK_MESSAGE_Users = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:SLACK_MESSAGE_SUMMARY))
           echo $SLACK_MESSAGE_Users > SLACK_MESSAGE_Users.md
           echo "## Inactive users`n$SLACK_MESSAGE_Users" >> $env:GITHUB_STEP_SUMMARY
       
