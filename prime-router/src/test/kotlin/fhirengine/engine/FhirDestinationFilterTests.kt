@@ -351,7 +351,68 @@ class FhirDestinationFilterTests {
                     "sendingOrg.sendingOrgClient"
                 )
             )
-            assertThat(event.params).isEqualTo(emptyMap())
+            assertThat(event.params)
+                .isEqualTo(
+                    mapOf(
+                    ReportStreamEventProperties.RECEIVER_NAME to "co-phd.full-elr-hl7",
+                    ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                        observationSummaries = listOf(
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        listOf(
+                                            CodeSummary(
+                                                snomedSystem,
+                                                "840539006",
+                                                @Suppress("ktlint:standard:max-line-length")
+                                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                            )
+                                        ),
+                                        loincSystem,
+                                        "94558-4",
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95418-0",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95417-2",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95421-4",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95419-8",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                        ),
+                        patientState = listOf("CA"),
+                        performerState = emptyList(),
+                        orderingFacilityState = listOf("CA"),
+                        eventType = "ORU/ACK - Unsolicited transmission of an observation message"
+                    )
+                )
+                )
         }
 
         // assert

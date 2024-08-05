@@ -304,6 +304,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             }
 
             // check events
+            val bundle = FhirTranscoder.decode(reportContents)
             assertThat(azureEventsService.reportStreamEvents[ReportStreamEventName.ITEM_ROUTED]!!).hasSize(1)
             assertThat(
                 azureEventsService
@@ -332,7 +333,18 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                     "phd.Test Sender"
                 )
             )
-            assertThat(event.params).isEqualTo(emptyMap())
+            assertThat(event.params).isEqualTo(
+                mapOf(
+                ReportStreamEventProperties.RECEIVER_NAME to "phd.x",
+                ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                    observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
+                    eventType = "ORU/ACK - Unsolicited transmission of an observation message",
+                    patientState = listOf("CO"),
+                    performerState = emptyList(),
+                    orderingFacilityState = listOf("CO")
+                )
+            )
+            )
 
             // check action table
             UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.destination_filter))
