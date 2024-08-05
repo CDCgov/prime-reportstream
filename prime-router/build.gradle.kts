@@ -36,7 +36,7 @@ plugins {
     id("org.flywaydb.flyway") version "10.17.0"
     id("nu.studer.jooq") version "9.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("com.microsoft.azure.azurefunctions") version "1.16.0"
+    id("com.microsoft.azure.azurefunctions") version "1.16.1"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.8.20"
@@ -53,11 +53,7 @@ val azureAppName = "prime-data-hub-router"
 val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 val defaultDuplicateStrategy = DuplicatesStrategy.WARN
-azurefunctions {
-    appName = azureAppName
-    pricingTier = ""
-    region = ""
-}
+azurefunctions.appName = azureAppName
 val appJvmTarget = "17"
 val javaVersion = when (appJvmTarget) {
     "17" -> JavaVersion.VERSION_17
