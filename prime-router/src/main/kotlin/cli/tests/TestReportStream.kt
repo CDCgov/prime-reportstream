@@ -736,7 +736,8 @@ abstract class CoolTest {
                 if (asyncProcessMode && receiver.topic == Topic.COVID_19) actionsList.add(TaskAction.process)
                 if (receiver.topic.isUniversalPipeline) {
                     actionsList.add(TaskAction.convert)
-                    actionsList.add(TaskAction.route)
+                    actionsList.add(TaskAction.destination_filter)
+                    actionsList.add(TaskAction.receiver_filter)
                     actionsList.add(TaskAction.translate)
                 }
                 if (!receiver.topic.isSendOriginal && receiver.timing != null) {
