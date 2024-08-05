@@ -79,7 +79,7 @@
       conditionFilter:
         # "matches(test_type, Antigen, Mol), Positive results"
         #  RSV:  	55735004, COVID:	840539006, FLU: 	6142004
-        - "%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006'|'55735004'|'6142004')).exists() and (%resource.livdTableLookup('Test Type').contains('Antigen') or %resource.livdTableLookup('Test Type').contains('Mol')) and %resource.interpretation.coding.code = 'A'"
+        - "%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006'|'55735004'|'6142004')).exists() and %resource.interpretation.coding.code = 'A'"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
