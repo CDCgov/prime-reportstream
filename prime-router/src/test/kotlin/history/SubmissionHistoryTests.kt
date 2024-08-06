@@ -692,7 +692,6 @@ class SubmissionHistoryTests {
         }
     }
 
-    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     @Test
     fun `test DetailedSubmissionHistory UP overallStatus (received) (legacy route step)`() {
         // received: freshly received, no routing yet
@@ -856,7 +855,6 @@ class SubmissionHistoryTests {
         }
     }
 
-    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     @Test
     fun `test DetailedSubmissionHistory LEGACY overallStatus calculations (received) (legacy route step)`() {
         val testReceived = DetailedSubmissionHistory(
@@ -1024,7 +1022,6 @@ class SubmissionHistoryTests {
         }
     }
 
-    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
     @Test
     fun `test DetailedSubmissionHistory overallStatus (waiting to deliver) (legacy route step)`() {
         val inputReport = DetailedReport(

@@ -28,9 +28,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.fhirengine.azure.FHIRFunctions
-import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
-import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import org.jooq.impl.DSL
 import org.testcontainers.containers.GenericContainer
@@ -298,67 +296,6 @@ object UniversalPipelineTestUtils {
         }
         assertThat(itemLineages).transform { lineages -> lineages.map { it.childReportId }.sorted() }
             .isEqualTo(reportFiles.map { it.reportId }.sorted())
-
-        return reportFiles
-    }
-
-    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
-    fun verifyLineageAndFetchCreatedReportFiles(
-        previousStepReport: Report,
-        expectedRootReport: Report,
-        txn: DataAccessTransaction,
-        expectedNumberOfItems: Int,
-    ): List<ReportFile> {
-        val reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess))
-
-        val itemLineages = DSL
-            .using(txn)
-            .select(ItemLineage.ITEM_LINEAGE.asterisk())
-            .from(ItemLineage.ITEM_LINEAGE)
-            .where(ItemLineage.ITEM_LINEAGE.PARENT_REPORT_ID.eq(previousStepReport.id))
-            .fetchInto(gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage::class.java)
-        assertThat(itemLineages).hasSize(expectedNumberOfItems)
-        assertThat(itemLineages.map { it.childIndex }).isEqualTo(MutableList(expectedNumberOfItems) { 1 })
-
-        // if the previousStepReport had multiple items, then the parent indexes will be a list of numbers
-        // starting at "1" and ascending by one for every item. if the previousStepReport had one item but
-        // that item goes to multiple places then the parent index will always be "1".
-        // for example - the result of the "convert" step will fall into the if block. The result of a "route"
-        // step will fall into the "else" block because the preceding "convert" step will always create
-        // reports with one and only one item to be routed.
-        if (previousStepReport.itemCount > 1) {
-            assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expectedNumberOfItems).toList())
-        } else {
-            assertThat(itemLineages.map { it.parentIndex }).isEqualTo(MutableList(expectedNumberOfItems) { 1 })
-        }
-
-        val reportLineages = DSL
-            .using(txn)
-            .select(ReportLineage.REPORT_LINEAGE.asterisk())
-            .from(ReportLineage.REPORT_LINEAGE)
-            .where(ReportLineage.REPORT_LINEAGE.PARENT_REPORT_ID.eq(previousStepReport.id))
-            .fetchInto(gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage::class.java)
-        assertThat(reportLineages).hasSize(expectedNumberOfItems)
-        val childReportIds = reportLineages.map {
-            it.childReportId
-        }
-        val reportFiles = DSL
-            .using(txn)
-            .select(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.asterisk())
-            .from(gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE)
-            .where(
-                gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.REPORT_ID.`in`(
-                    childReportIds
-                )
-            )
-            .fetchInto(ReportFile::class.java)
-        assertThat(reportFiles).hasSize(expectedNumberOfItems)
-        assertThat(itemLineages).transform { lineages -> lineages.map { it.childReportId }.sorted() }
-            .isEqualTo(reportFiles.map { it.reportId }.sorted())
-        childReportIds.forEach {
-            val rootReport = reportService.getRootReport(it)
-            assertThat(rootReport.reportId).isEqualTo(expectedRootReport.id)
-        }
 
         return reportFiles
     }
