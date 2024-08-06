@@ -11,4 +11,5 @@
 -- Alter the table to make schema_name and schema_topic nullable
 ALTER TABLE public.report_file
     ALTER COLUMN schema_name DROP NOT NULL,
-    ALTER COLUMN schema_topic DROP NOT NULL;
+    ALTER COLUMN schema_topic DROP NOT NULL,
+    ALTER COLUMN item_count DROP NOT NULL;
