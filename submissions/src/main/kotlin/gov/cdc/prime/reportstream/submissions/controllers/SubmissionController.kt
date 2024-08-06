@@ -120,7 +120,7 @@ class SubmissionController(
             reportId,
             filterHeaders(headers),
         )
-        val messageString = objectMapper.writeValueAsString(message)
+        val messageString = message.serialize()
         logger.debug("Created message for queue")
 
         // Upload to Queue
@@ -220,7 +220,7 @@ class SubmissionController(
     }
 
     private fun filterHeaders(headers: Map<String, String>): Map<String, String> {
-        val headersToInclude = listOf("client_id", "Content-Type", "payloadname", "x-azure-clientip")
+        val headersToInclude = listOf("client_id", "content-type", "payloadname", "x-azure-clientip")
         return headers.filter { it.key in headersToInclude }
     }
 

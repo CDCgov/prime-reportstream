@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
-import assertk.assertions.contains
 import assertk.assertions.containsOnly
 import assertk.assertions.each
 import assertk.assertions.hasSize
@@ -129,18 +128,28 @@ class FHIRConverterIntegrationTests {
         )
     }
 
-    private fun generateQueueMessage(report: Report, blobContents: String, sender: Sender): String {
+    private fun generateQueueMessage(
+        report: Report,
+        blobContents: String,
+        sender: Sender,
+        headers: Map<String, String>? = null,
+    ): String {
+        val headersString = headers?.entries?.joinToString(separator = ",\n") { (key, value) ->
+            """"$key": "$value""""
+        } ?: ""
+
         return """
-            {
-                "type": "convert",
-                "reportId": "${report.id}",
-                "blobURL": "${report.bodyURL}",
-                "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
-                "blobSubFolderName": "${sender.fullName}",
-                "topic": "${sender.topic.jsonVal}",
-                "schemaName": "${sender.schemaName}" 
-            }
-        """.trimIndent()
+        {
+            "type": "convert",
+            "reportId": "${report.id}",
+            "blobURL": "${report.bodyURL}",
+            "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+            "blobSubFolderName": "${sender.fullName}",
+            "topic": "${sender.topic.jsonVal}",
+            "schemaName": "${sender.schemaName}"
+            ${if (headersString.isNotEmpty()) ",\n$headersString" else ""}
+        }
+    """.trimIndent()
     }
 
     @BeforeEach

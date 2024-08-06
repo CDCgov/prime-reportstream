@@ -171,11 +171,12 @@ class FHIRConverter(
                     queueMessage.reportId,
                     queueMessage.blobURL
                 ) {
-                    parentReportId(queueMessage.reportId)
                     params(
                         actionLogger.errors.associateBy { ReportStreamEventProperties.PROCESSING_ERROR }
                     )
                 }
+                val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Rejected").toTableEntity()
+                BlobAccess.insertTableEntity(tableEntity)
             } else {
                 val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Accepted").toTableEntity()
                 BlobAccess.insertTableEntity(tableEntity)
@@ -197,8 +198,6 @@ class FHIRConverter(
         actionHistory: ActionHistory,
     ) {
         actionHistory.trackActionResult(HttpStatus.BAD_REQUEST)
-        val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Rejected").toTableEntity()
-        BlobAccess.insertTableEntity(tableEntity)
         actionLogger.error(
             InvalidParamMessage("Sender not found matching client_id: " + queueMessage.headers["client_id"])
         )
@@ -218,8 +217,6 @@ class FHIRConverter(
         actionHistory: ActionHistory,
     ) {
         actionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
-        val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Rejected").toTableEntity()
-        BlobAccess.insertTableEntity(tableEntity)
         actionLogger.error(SenderNotFound(queueMessage.headers["client_id"].toString()))
     }
 
@@ -232,7 +229,6 @@ class FHIRConverter(
         val contextMap = mapOf(
             MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
             MDCUtils.MDCProperty.REPORT_ID to queueMessage.reportId,
-            MDCUtils.MDCProperty.TOPIC to queueMessage.topic!!,
             MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobURL
         )
         withLoggingContext(contextMap) {

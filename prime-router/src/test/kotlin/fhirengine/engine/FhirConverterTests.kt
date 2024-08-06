@@ -283,7 +283,7 @@ class FhirConverterTests {
 
         every { message.headers["client_id"] } returns "test_client_id"
         every { message.headers["payloadname"] } returns "test_message"
-        every { message.headers["Content-Type"] } returns ""
+        every { message.headers["Content-Type"] } returns "application/fhir+ndjson;test"
         every { message.headers.isEmpty() } returns false
 
         val bodyFormat = MimeFormat.FHIR
@@ -321,6 +321,13 @@ class FhirConverterTests {
         verify(exactly = 1) {
             actionHistory.trackActionResult(HttpStatus.CREATED)
             actionHistory.trackActionSenderInfo(sender.fullName, "test_message")
+            actionHistory.trackReceivedNoReport(
+                reportId,
+                BLOB_URL,
+                bodyFormat.toString(),
+                TaskAction.convert,
+                "test_message"
+            )
             SubmissionsEntity(reportId.toString(), "Accepted").toTableEntity()
             transformer.process(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())

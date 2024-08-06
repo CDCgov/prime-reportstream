@@ -2,6 +2,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
@@ -50,7 +51,7 @@ interface QueueMessage {
         val headers: Map<String, String>
     }
 
-    @JsonTypeName("convert")
+    @JsonTypeName("convert-fhir")
     data class ConvertQueueMessage(
         override val blobURL: String,
         override val digest: String,
@@ -62,11 +63,14 @@ interface QueueMessage {
     object ObjectMapperProvider {
 
         private val ptv = BasicPolymorphicTypeValidator.builder()
+            .allowIfBaseType(QueueMessage::class.java)
+            .allowIfSubType(LinkedHashMap::class.java)
             .build()
+
         val mapper: JsonMapper = jacksonMapperBuilder()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .polymorphicTypeValidator(ptv)
-            .activateDefaultTyping(ptv)
+            .activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL)
             .build()
 
         fun registerSubtypes(vararg subtypes: Class<out QueueMessage>) {
