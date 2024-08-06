@@ -167,6 +167,7 @@ test.describe("Daily Data page", () => {
 
                     test.afterEach(async ({ dailyDataPage }) => {
                         await filterReset(dailyDataPage.page).click();
+                        await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                     });
 
                     test.skip("table loads with selected receiver data", async ({ dailyDataPage }) => {
@@ -175,6 +176,7 @@ test.describe("Daily Data page", () => {
                                 name: "Apply",
                             })
                             .click();
+                        await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                         // Check that table data contains the receiver selected
                         await expectTableColumnValues(dailyDataPage.page, 5, `${TEST_ORG_UP_RECEIVER_FULL_ELR}`);
@@ -381,6 +383,7 @@ test.describe("Daily Data page", () => {
 
                     test.afterEach(async ({ dailyDataPage }) => {
                         await filterReset(dailyDataPage.page).click();
+                        await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                     });
 
                     test("with 'From' date", async ({ dailyDataPage }) => {
@@ -569,6 +572,8 @@ test.describe("Daily Data page", () => {
                 test.describe("on reset", () => {
                     test("form elements clear", async ({ dailyDataPage }) => {
                         await filterReset(dailyDataPage.page).click();
+                        await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+
                         await expect(receiverDropdown(dailyDataPage.page)).toHaveValue("");
                         await expect(startDate(dailyDataPage.page)).toHaveValue("");
                         await expect(endDate(dailyDataPage.page)).toHaveValue("");
@@ -787,6 +792,7 @@ test.describe("Daily Data page", () => {
 
                 test.afterEach(async ({ dailyDataPage }) => {
                     await filterReset(dailyDataPage.page).click();
+                    await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                 });
 
                 test("table loads with selected receiver data", async ({ dailyDataPage }) => {
@@ -795,6 +801,7 @@ test.describe("Daily Data page", () => {
                             name: "Apply",
                         })
                         .click();
+                    await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                     // Check that table data contains the receiver selected
                     await expectTableColumnValues(dailyDataPage.page, 5, `${TEST_ORG_AK_RECEIVER}`);
@@ -998,6 +1005,7 @@ test.describe("Daily Data page", () => {
 
                 test.afterEach(async ({ dailyDataPage }) => {
                     await filterReset(dailyDataPage.page).click();
+                    await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                 });
 
                 test("with 'From' date", async ({ dailyDataPage }) => {
@@ -1229,6 +1237,8 @@ test.describe("Daily Data page", () => {
             test.describe("on reset", () => {
                 test("form elements clear", async ({ dailyDataPage }) => {
                     await filterReset(dailyDataPage.page).click();
+                    await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+
                     await expect(receiverDropdown(dailyDataPage.page)).toHaveValue("");
                     await expect(startDate(dailyDataPage.page)).toHaveValue("");
                     await expect(endDate(dailyDataPage.page)).toHaveValue("");
@@ -1424,6 +1434,7 @@ test.describe("Daily Data page", () => {
 
                             test.afterEach(async ({ dailyDataPage }) => {
                                 await filterReset(dailyDataPage.page).click();
+                                await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                             });
 
                             test("with 'Receiver' selected", async ({ dailyDataPage }) => {
@@ -1529,6 +1540,8 @@ test.describe("Daily Data page", () => {
                         test.describe("on 'Reset'", () => {
                             test("form elements clear", async ({ dailyDataPage }) => {
                                 await filterReset(dailyDataPage.page).click();
+                                await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+
                                 await expect(receiverDropdown(dailyDataPage.page)).toHaveValue("");
                                 await expect(startDate(dailyDataPage.page)).toHaveValue("");
                                 await expect(endDate(dailyDataPage.page)).toHaveValue("");
