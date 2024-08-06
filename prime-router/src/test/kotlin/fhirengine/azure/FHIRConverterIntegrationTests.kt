@@ -338,7 +338,7 @@ class FHIRConverterIntegrationTests {
                     1,
                     2,
                     2,
-                    null,
+                    "371784",
                     "phd.hl7-elr-no-transform"
                 )
             )
@@ -353,7 +353,7 @@ class FHIRConverterIntegrationTests {
                                 )
                             ),
                         patientState = listOf("TX"),
-                        orderingFacilityState = emptyList(),
+                        orderingFacilityState = listOf("FL"),
                         performerState = emptyList(),
                         eventType = "ORU^R01^ORU_R01"
                     )
@@ -492,7 +492,7 @@ class FHIRConverterIntegrationTests {
                     1,
                     3,
                     3,
-                    null,
+                    "1234d1d1-95fe-462c-8ac6-46728dbau8cd",
                     "phd.fhir-elr-no-transform"
                 )
             )

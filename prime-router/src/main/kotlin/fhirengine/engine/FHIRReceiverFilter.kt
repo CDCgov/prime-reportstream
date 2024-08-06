@@ -435,7 +435,14 @@ class FHIRReceiverFilter(
                     actionHistory.trackCreatedReport(nextEvent, emptyReport)
 
                     val bundleDigestExtractor = BundleDigestExtractor(
-                        FhirPathBundleDigestLabResultExtractorStrategy()
+                        FhirPathBundleDigestLabResultExtractorStrategy(
+                            CustomContext(
+                                bundle,
+                                bundle,
+                                mutableMapOf(),
+                                CustomFhirPathFunctions()
+                            )
+                        )
                     )
                     reportEventService.sendItemEvent(
                         eventName = ReportStreamEventName.ITEM_FILTER_FAILED,
