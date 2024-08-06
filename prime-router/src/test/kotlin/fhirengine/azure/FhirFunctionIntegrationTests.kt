@@ -786,7 +786,6 @@ class FhirFunctionIntegrationTests {
 
             databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess
         )
-        // fhirFunc.doRoute(queueMessage, 1, fhirEngine, actionHistory)
         fhirFunc.process(queueMessage, 1, fhirEngine, actionHistory)
 
         val convertTask = ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchTask(report.id)
