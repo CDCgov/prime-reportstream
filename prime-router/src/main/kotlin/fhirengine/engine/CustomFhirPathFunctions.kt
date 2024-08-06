@@ -10,7 +10,6 @@ import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.metadata.GeoData
 import gov.cdc.prime.router.metadata.LivdLookup
-import org.apache.logging.log4j.kotlin.logger
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.Observation
@@ -190,8 +189,6 @@ class CustomFhirPathFunctions : FhirPathFunctions {
             }
         }
 
-        logger.info("prim value: " + parameters[1].first().primitiveValue())
-
         return mutableListOf(
             StringType(
                 when (type) {
@@ -257,7 +254,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                 "Harry James Potter",
                 "Ronald Bilius Weasely"
             )
-            GeoData.DataTypes.TELEPHONE -> Faker().numerify("2#########:1:")
+            GeoData.DataTypes.TELEPHONE -> Faker().numerify("12#########")
             GeoData.DataTypes.EMAIL -> randomChoice(
                 "HermioneJeanGranger@gmail.com",
                 "HarryJamesPotter@yahoo.com",
