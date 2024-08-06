@@ -4,7 +4,7 @@ import useSessionContext from "../../../contexts/Session/useSessionContext";
 const useCreateResend = () => {
     const { authorizedFetch } = useSessionContext();
 
-    const fn = (params: { reportId: string; receiverId: string }) => {
+    const fn = (params: { reportId: string; receiver: string }) => {
         return authorizedFetch({
             url: `/adm/resend`,
             method: "post",
