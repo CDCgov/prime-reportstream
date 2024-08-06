@@ -246,7 +246,7 @@ export function toDateWithTime(date: string, time: string) {
     return toDateTime;
 }
 
-export function filterStatus(page: Page, filters: (string | undefined)[]) {
+export function filterStatus(filters: (string | undefined)[]) {
     // RowCount is not attainable with live data since it is returned from the API
     let filterStatus = ` Showing all data for: `;
 

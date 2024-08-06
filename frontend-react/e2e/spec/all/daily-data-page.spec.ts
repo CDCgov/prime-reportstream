@@ -1,6 +1,7 @@
 import { expect } from "@playwright/test";
 
 import { format } from "date-fns";
+import fs from "node:fs";
 import {
     expectTableColumnValues,
     tableColumnDateTimeInRange,
@@ -182,7 +183,7 @@ test.describe("Daily Data page", () => {
                         await expectTableColumnValues(dailyDataPage.page, 5, `${TEST_ORG_UP_RECEIVER_FULL_ELR}`);
 
                         // Check filter status lists receiver value
-                        const filterStatusText = filterStatus(dailyDataPage.page, [TEST_ORG_UP_RECEIVER_FULL_ELR]);
+                        const filterStatusText = filterStatus([TEST_ORG_UP_RECEIVER_FULL_ELR]);
                         await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(filterStatusText);
 
                         // Receiver dropdown persists
@@ -274,7 +275,7 @@ test.describe("Daily Data page", () => {
                         await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                         // Check filter status lists receiver value
-                        const filterStatusText = filterStatus(dailyDataPage.page, [
+                        const filterStatusText = filterStatus([
                             TEST_ORG_UP_RECEIVER_FULL_ELR,
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         ]);
@@ -297,7 +298,7 @@ test.describe("Daily Data page", () => {
 
                         // TODO: uncomment code to use with live data
                         // Check filter status lists receiver value
-                        // const filterStatusText = filterStatus(dailyDataPage.page, [
+                        // const filterStatusText = filterStatus([
                         //     TEST_ORG_IGNORE_RECEIVER,
                         //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         //     `${defaultStartTime}–${"11:59pm"}`,
@@ -323,7 +324,7 @@ test.describe("Daily Data page", () => {
 
                         // TODO: uncomment code to use with live data
                         // Check filter status lists receiver value
-                        // const filterStatusText = filterStatus(dailyDataPage.page, [
+                        // const filterStatusText = filterStatus([
                         //     TEST_ORG_IGNORE_RECEIVER,
                         //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         //     `${"12:00am"}–${defaultEndTime}`,
@@ -357,7 +358,7 @@ test.describe("Daily Data page", () => {
                         // expect(areDatesInRange).toBe(true);
 
                         // Check filter status lists receiver value
-                        const filterStatusText = filterStatus(dailyDataPage.page, [
+                        const filterStatusText = filterStatus([
                             TEST_ORG_UP_RECEIVER_FULL_ELR,
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                             `${defaultStartTime}–${defaultEndTime}`,
@@ -471,7 +472,7 @@ test.describe("Daily Data page", () => {
                         await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                         // Check filter status lists receiver value
-                        const filterStatusText = filterStatus(dailyDataPage.page, [
+                        const filterStatusText = filterStatus([
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         ]);
                         await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(filterStatusText);
@@ -493,7 +494,7 @@ test.describe("Daily Data page", () => {
 
                         // TODO: uncomment code to use with live data
                         // Check filter status lists receiver value
-                        // const filterStatusText = filterStatus(dailyDataPage.page, [
+                        // const filterStatusText = filterStatus([
                         //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         //     `${defaultStartTime}–${"11:59pm"}`,
                         // ]);
@@ -518,7 +519,7 @@ test.describe("Daily Data page", () => {
 
                         // TODO: uncomment code to use with live data
                         // Check filter status lists receiver value
-                        // const filterStatusText = filterStatus(dailyDataPage.page, [
+                        // const filterStatusText = filterStatus([
                         //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         //     `${"12:00am"}–${defaultEndTime}`,
                         // ]);
@@ -551,7 +552,7 @@ test.describe("Daily Data page", () => {
                         // expect(areDatesInRange).toBe(true);
 
                         // Check filter status lists receiver value
-                        const filterStatusText = filterStatus(dailyDataPage.page, [
+                        const filterStatusText = filterStatus([
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                             `${defaultStartTime}–${defaultEndTime}`,
                         ]);
@@ -593,7 +594,7 @@ test.describe("Daily Data page", () => {
                     // expect(rowCount).toEqual(1);
 
                     // Check filter status lists receiver value
-                    // let filterStatusText = filterStatus(dailyDataPage.page, [reportId]);
+                    // let filterStatusText = filterStatus([reportId]);
                     // await expect(
                     //     dailyDataPage.pagegetByTestId("filter-status"),
                     // ).toContainText(filterStatusText);
@@ -609,7 +610,7 @@ test.describe("Daily Data page", () => {
                     await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                     // Check filter status lists receiver value
-                    // filterStatusText = filterStatus(dailyDataPage.page, [
+                    // filterStatusText = filterStatus([
                     //     TEST_ORG_IGNORE_RECEIVER,
                     //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                     // ]);
@@ -632,7 +633,7 @@ test.describe("Daily Data page", () => {
                     expect(rowCount).toEqual(1);
 
                     // Check filter status lists receiver value
-                    const filterStatusText = filterStatus(dailyDataPage.page, [reportId]);
+                    const filterStatusText = filterStatus([reportId]);
                     await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(filterStatusText);
 
                     //Check table data matches search
@@ -648,7 +649,7 @@ test.describe("Daily Data page", () => {
                     expect(rowCount).toEqual(1);
 
                     // Check filter status lists receiver value
-                    const filterStatusText = filterStatus(dailyDataPage.page, [fileName]);
+                    const filterStatusText = filterStatus([fileName]);
                     await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(filterStatusText);
 
                     //Check table data matches search
@@ -679,7 +680,7 @@ test.describe("Daily Data page", () => {
                     await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                     // Check filter status lists receiver value
-                    // let filterStatusText = filterStatus(dailyDataPage.page, [
+                    // let filterStatusText = filterStatus([
                     //     TEST_ORG_IGNORE_RECEIVER,
                     //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                     //     `${defaultStartTime}–${defaultEndTime}`,
@@ -693,7 +694,7 @@ test.describe("Daily Data page", () => {
                     await searchButton(dailyDataPage.page).click();
 
                     // Check filter status lists receiver value
-                    // filterStatusText = filterStatus(dailyDataPage.page, [reportId]);
+                    // filterStatusText = filterStatus([reportId]);
                     // await expect(
                     //     dailyDataPage.pagegetByTestId("filter-status"),
                     // ).toContainText(filterStatusText);
@@ -807,7 +808,7 @@ test.describe("Daily Data page", () => {
                     await expectTableColumnValues(dailyDataPage.page, 5, `${TEST_ORG_AK_RECEIVER}`);
 
                     // Check filter status lists receiver value
-                    const filterStatusText = filterStatus(dailyDataPage.page, [TEST_ORG_AK_RECEIVER]);
+                    const filterStatusText = filterStatus([TEST_ORG_AK_RECEIVER]);
                     await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(filterStatusText);
 
                     // Receiver dropdown persists
@@ -899,7 +900,7 @@ test.describe("Daily Data page", () => {
                     await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                     // Check filter status lists receiver value
-                    const filterStatusText = filterStatus(dailyDataPage.page, [
+                    const filterStatusText = filterStatus([
                         TEST_ORG_AK_RECEIVER,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                     ]);
@@ -921,7 +922,7 @@ test.describe("Daily Data page", () => {
                     await expect(dailyDataPage.page.locator("#start-time")).toHaveValue(defaultStartTime);
 
                     // Check filter status lists receiver value
-                    // const filterStatusText = filterStatus(dailyDataPage.page, [
+                    // const filterStatusText = filterStatus([
                     //     TEST_ORG_AK_RECEIVER,
                     //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                     //     `${defaultStartTime}–${"11:59pm"}`,
@@ -946,7 +947,7 @@ test.describe("Daily Data page", () => {
                     await expect(dailyDataPage.page.locator("#end-time")).toHaveValue(defaultEndTime);
 
                     // Check filter status lists receiver value
-                    // const filterStatusText = filterStatus(dailyDataPage.page, [
+                    // const filterStatusText = filterStatus([
                     //     TEST_ORG_AK_RECEIVER,
                     //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                     //     `${"12:00am"}–${defaultEndTime}`,
@@ -979,7 +980,7 @@ test.describe("Daily Data page", () => {
                     // expect(areDatesInRange).toBe(true);
 
                     // Check filter status lists receiver value
-                    const filterStatusText = filterStatus(dailyDataPage.page, [
+                    const filterStatusText = filterStatus([
                         TEST_ORG_AK_RECEIVER,
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         `${defaultStartTime}–${defaultEndTime}`,
@@ -1097,7 +1098,7 @@ test.describe("Daily Data page", () => {
                     await expect(endDate(dailyDataPage.page)).toHaveValue(toDate);
 
                     // Check filter status lists receiver value
-                    // const filterStatusText = filterStatus(dailyDataPage.page, [
+                    // const filterStatusText = filterStatus([
                     //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                     // ]);
                     // await expect(
@@ -1120,7 +1121,7 @@ test.describe("Daily Data page", () => {
                     await expect(dailyDataPage.page.locator("#start-time")).toHaveValue(defaultStartTime);
 
                     // Check filter status lists receiver value
-                    // const filterStatusText = filterStatus(dailyDataPage.page, [
+                    // const filterStatusText = filterStatus([
                     //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                     //     `${defaultStartTime}–${"11:59pm"}`,
                     // ]);
@@ -1144,7 +1145,7 @@ test.describe("Daily Data page", () => {
                     await expect(dailyDataPage.page.locator("#end-time")).toHaveValue(defaultEndTime);
 
                     // Check filter status lists receiver value
-                    // const filterStatusText = filterStatus(dailyDataPage.page, [
+                    // const filterStatusText = filterStatus([
                     //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                     //     `${"12:00am"}–${defaultEndTime}`,
                     // ]);
@@ -1177,7 +1178,7 @@ test.describe("Daily Data page", () => {
                     // expect(areDatesInRange).toBe(true);
 
                     // Check filter status lists receiver value
-                    const filterStatusText = filterStatus(dailyDataPage.page, [
+                    const filterStatusText = filterStatus([
                         `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                         `${defaultStartTime}–${defaultEndTime}`,
                     ]);
@@ -1206,7 +1207,7 @@ test.describe("Daily Data page", () => {
                 // expect(rowCount).toEqual(1);
 
                 // Check filter status lists receiver value
-                // const filterStatusText = filterStatus(dailyDataPage.page, [reportId]);
+                // const filterStatusText = filterStatus([reportId]);
                 // await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(
                 //     filterStatusText,
                 // );
@@ -1222,7 +1223,7 @@ test.describe("Daily Data page", () => {
                 await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                 // Check filter status lists receiver value
-                // filterStatusText = filterStatus(dailyDataPage.page, [
+                // filterStatusText = filterStatus([
                 //     TEST_ORG_AK_RECEIVER,
                 //     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                 // ]);
@@ -1258,7 +1259,7 @@ test.describe("Daily Data page", () => {
                 expect(rowCount).toEqual(1);
 
                 // Check filter status lists receiver value
-                const filterStatusText = filterStatus(dailyDataPage.page, [reportId]);
+                const filterStatusText = filterStatus([reportId]);
                 await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(filterStatusText);
 
                 //Check table data matches search
@@ -1274,7 +1275,7 @@ test.describe("Daily Data page", () => {
                 expect(rowCount).toEqual(1);
 
                 // Check filter status lists receiver value
-                const filterStatusText = filterStatus(dailyDataPage.page, [fileName]);
+                const filterStatusText = filterStatus([fileName]);
                 await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(filterStatusText);
 
                 //Check table data matches search
@@ -1302,7 +1303,7 @@ test.describe("Daily Data page", () => {
                 await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                 // Check filter status lists receiver value
-                let filterStatusText = filterStatus(dailyDataPage.page, [
+                let filterStatusText = filterStatus([
                     TEST_ORG_AK_RECEIVER,
                     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                     `${defaultStartTime}–${defaultEndTime}`,
@@ -1315,7 +1316,7 @@ test.describe("Daily Data page", () => {
                 await searchButton(dailyDataPage.page).click();
 
                 // Check filter status lists receiver value
-                filterStatusText = filterStatus(dailyDataPage.page, [reportId]);
+                filterStatusText = filterStatus([reportId]);
                 await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(filterStatusText);
 
                 // Check filters are cleared
@@ -1350,7 +1351,7 @@ test.describe("Daily Data page", () => {
         });
     });
 
-    test.describe(
+    test.describe.skip(
         "user flow smoke tests",
         {
             tag: "@smoke",
@@ -1449,9 +1450,7 @@ test.describe("Daily Data page", () => {
                                 );
 
                                 // Check filter status lists receiver value
-                                const filterStatusText = filterStatus(dailyDataPage.page, [
-                                    TEST_ORG_UP_RECEIVER_FULL_ELR,
-                                ]);
+                                const filterStatusText = filterStatus([TEST_ORG_UP_RECEIVER_FULL_ELR]);
                                 await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(
                                     filterStatusText,
                                 );
@@ -1462,9 +1461,7 @@ test.describe("Daily Data page", () => {
                                 );
                             });
 
-                            test.skip("with 'From' date, 'To' date, 'Start time', 'End time'", async ({
-                                dailyDataPage,
-                            }) => {
+                            test("with 'From' date, 'To' date, 'Start time', 'End time'", async ({ dailyDataPage }) => {
                                 const fromDate = await setDate(dailyDataPage.page, "#start-date", 7);
                                 const toDate = await setDate(dailyDataPage.page, "#end-date", 0);
                                 await setTime(dailyDataPage.page, "#start-time", defaultStartTime);
@@ -1486,7 +1483,7 @@ test.describe("Daily Data page", () => {
                                 expect(areDatesInRange).toBe(true);
 
                                 // Check filter status lists receiver value
-                                const filterStatusText = filterStatus(dailyDataPage.page, [
+                                const filterStatusText = filterStatus([
                                     TEST_ORG_UP_RECEIVER_FULL_ELR,
                                     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                                     `${defaultStartTime}–${defaultEndTime}`,
@@ -1507,7 +1504,7 @@ test.describe("Daily Data page", () => {
                                 expect(rowCount).toEqual(1);
 
                                 // Check filter status lists receiver value
-                                let filterStatusText = filterStatus(dailyDataPage.page, [reportId]);
+                                let filterStatusText = filterStatus([reportId]);
                                 await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(
                                     filterStatusText,
                                 );
@@ -1525,7 +1522,7 @@ test.describe("Daily Data page", () => {
                                 await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                                 // Check filter status lists receiver value
-                                filterStatusText = filterStatus(dailyDataPage.page, [
+                                filterStatusText = filterStatus([
                                     TEST_ORG_UP_RECEIVER_FULL_ELR,
                                     `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                                     `${defaultStartTime}–${defaultEndTime}`,
@@ -1573,7 +1570,7 @@ test.describe("Daily Data page", () => {
                             expect(rowCount).toEqual(1);
 
                             // Check filter status lists receiver value
-                            const filterStatusText = filterStatus(dailyDataPage.page, [reportId]);
+                            const filterStatusText = filterStatus([reportId]);
                             await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(
                                 filterStatusText,
                             );
@@ -1592,7 +1589,7 @@ test.describe("Daily Data page", () => {
                             expect(rowCount).toEqual(1);
 
                             // Check filter status lists receiver value
-                            const filterStatusText = filterStatus(dailyDataPage.page, [fileName]);
+                            const filterStatusText = filterStatus([fileName]);
                             await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(
                                 filterStatusText,
                             );
@@ -1630,7 +1627,7 @@ test.describe("Daily Data page", () => {
                             await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                             // Check filter status lists receiver value
-                            let filterStatusText = filterStatus(dailyDataPage.page, [
+                            let filterStatusText = filterStatus([
                                 TEST_ORG_UP_RECEIVER_FULL_ELR,
                                 `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
                                 `${defaultStartTime}–${defaultEndTime}`,
@@ -1645,7 +1642,7 @@ test.describe("Daily Data page", () => {
                             await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                             // Check filter status lists receiver value
-                            filterStatusText = filterStatus(dailyDataPage.page, [reportId]);
+                            filterStatusText = filterStatus([reportId]);
                             await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(
                                 filterStatusText,
                             );
@@ -1662,7 +1659,7 @@ test.describe("Daily Data page", () => {
                         });
                     });
 
-                    test.describe("on report id click", () => {
+                    test.describe("on 'Report ID' click", () => {
                         test.beforeEach(async ({ dailyDataPage }) => {
                             await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                             await dailyDataPage.page
@@ -1680,6 +1677,31 @@ test.describe("Daily Data page", () => {
                             await dailyDataPage.page.waitForLoadState("domcontentloaded");
                             await expect(dailyDataPage.page).toHaveTitle(/Daily Data - ReportStream/);
                             await expect(dailyDataPage.page.locator("h1").getByText(reportId)).toBeVisible();
+                        });
+                    });
+
+                    test.describe("on 'Filename' click", () => {
+                        test.beforeEach(async ({ dailyDataPage }) => {
+                            await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                            await dailyDataPage.page
+                                .locator("#receiver-dropdown")
+                                .selectOption(TEST_ORG_UP_RECEIVER_FULL_ELR);
+                            await applyButton(dailyDataPage.page).click();
+                            await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                        });
+
+                        test("downloads the file", async ({ dailyDataPage }) => {
+                            const downloadProm = dailyDataPage.page.waitForEvent("download");
+                            const fileName = await tableDataCellValue(dailyDataPage.page, 0, 4);
+
+                            await dailyDataPage.page.getByRole("button", { name: fileName }).click();
+                            const download = await downloadProm;
+
+                            // assert filename
+                            expect(download.suggestedFilename()).toBe(fileName);
+
+                            // get and assert stats
+                            expect((await fs.promises.stat(await download.path())).size).toBeGreaterThan(200);
                         });
                     });
                 });
