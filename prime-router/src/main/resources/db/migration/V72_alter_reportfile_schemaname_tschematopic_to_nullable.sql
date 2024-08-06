@@ -9,6 +9,6 @@
 */
 
 -- Alter the table to make schema_name and schema_topic nullable
-ALTER TABLE report_file
+ALTER TABLE public.report_file
     ALTER COLUMN schema_name DROP NOT NULL,
     ALTER COLUMN schema_topic DROP NOT NULL;
