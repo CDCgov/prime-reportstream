@@ -345,14 +345,6 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         // set up
         val reportContents = File(VALID_FHIR_URL).readText()
 
-//        val receiveReport = UniversalPipelineTestUtils.createReport(
-//            reportContents,
-//            TaskAction.receive,
-//            Event.EventAction.DESTINATION_FILTER,
-//            azuriteContainer,
-//            fileName = "receive.fhir"
-//        )
-
         val convertReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.convert,
