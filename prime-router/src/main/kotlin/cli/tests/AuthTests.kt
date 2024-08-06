@@ -26,9 +26,11 @@ import gov.cdc.prime.router.tokens.AuthUtils
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.Scope
 import io.ktor.client.plugins.timeout
+import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.io.IOException
 import java.net.URLEncoder
@@ -1170,14 +1172,25 @@ class Server2ServerAuthTests : CoolTest() {
         )
         val orgEndpoint = "${environment.url}/api/settings/organizations"
 
+        val client = HttpClientUtils.createDefaultHttpClient(
+            userToken
+        )
+
+        val clientAdmin = HttpClientUtils.createDefaultHttpClient(
+            adminToken
+        )
+
         // Case: GET All Org Settings (Admin-only endpoint)
         // Unhappy Path: user on admin-only endpoint
-        val response = HttpClientUtils.get(
-            url = orgEndpoint,
-            accessToken = userToken,
-            timeout = 45000, // default timeout is 15s; raising higher due to slow Function startup issues
-            acceptedContent = ContentType.Application.Json
-        )
+        val response = runBlocking {
+            client.get(orgEndpoint) {
+                timeout {
+                    requestTimeoutMillis = 45000
+                    // default timeout is 15s; raising higher due to slow Function startup issues
+                }
+                accept(ContentType.Application.Json)
+            }
+        }
 
         if (response.status != HttpStatusCode.Unauthorized) {
             bad(
@@ -1188,12 +1201,15 @@ class Server2ServerAuthTests : CoolTest() {
         }
 
         // Happy Path: admin on admin-only endpoint
-        val response2 = HttpClientUtils.get(
-            url = orgEndpoint,
-            accessToken = adminToken,
-            timeout = 45000, // default timeout is 15s; raising higher due to slow Function startup issues
-            acceptedContent = ContentType.Application.Json
-        )
+        val response2 = runBlocking {
+            clientAdmin.get(orgEndpoint) {
+                timeout {
+                    requestTimeoutMillis = 45000
+                    // default timeout is 15s; raising higher due to slow Function startup issues
+                }
+                accept(ContentType.Application.Json)
+            }
+        }
 
         if (response2.status != HttpStatusCode.OK) {
             bad(
@@ -1205,12 +1221,15 @@ class Server2ServerAuthTests : CoolTest() {
 
         // Case: GET Receivers for an Org (Endpoint allowed for admins and members of the org)
         // Happy Path: user on user-allowed endpoint
-        val response3 = HttpClientUtils.get(
-            url = "$orgEndpoint/${authorizedOrg.name}/receivers",
-            accessToken = userToken,
-            timeout = 45000, // default timeout is 15s; raising higher due to slow Function startup issues
-            acceptedContent = ContentType.Application.Json
-        )
+        val response3 = runBlocking {
+            client.get("$orgEndpoint/${authorizedOrg.name}/receivers") {
+                timeout {
+                    requestTimeoutMillis = 45000
+                    // default timeout is 15s; raising higher due to slow Function startup issues
+                }
+                accept(ContentType.Application.Json)
+            }
+        }
 
         if (response3.status != HttpStatusCode.OK) {
             bad(
@@ -1221,12 +1240,15 @@ class Server2ServerAuthTests : CoolTest() {
         }
 
         // Happy Path: admin on user-allowed endpoint
-        val response4 = HttpClientUtils.get(
-            url = "$orgEndpoint/${authorizedOrg.name}/receivers",
-            accessToken = adminToken,
-            timeout = 45000, // default timeout is 15s; raising higher due to slow Function startup issues
-            acceptedContent = ContentType.Application.Json
-        )
+        val response4 = runBlocking {
+            clientAdmin.get("$orgEndpoint/${authorizedOrg.name}/receivers") {
+                timeout {
+                    requestTimeoutMillis = 45000
+                    // default timeout is 15s; raising higher due to slow Function startup issues
+                }
+                accept(ContentType.Application.Json)
+            }
+        }
 
         if (response4.status != HttpStatusCode.OK) {
             bad(
@@ -1237,12 +1259,15 @@ class Server2ServerAuthTests : CoolTest() {
         }
 
         // UnhappyPath: user on an unauthorized org name
-        val response5 = HttpClientUtils.get(
-            url = "$orgEndpoint/${unauthorizedOrg.name}/receivers",
-            accessToken = userToken,
-            timeout = 45000, // default timeout is 15s; raising higher due to slow Function startup issues
-            acceptedContent = ContentType.Application.Json
-        )
+        val response5 = runBlocking {
+            client.get("$orgEndpoint/${unauthorizedOrg.name}/receivers") {
+                timeout {
+                    requestTimeoutMillis = 45000
+                    // default timeout is 15s; raising higher due to slow Function startup issues
+                }
+                accept(ContentType.Application.Json)
+            }
+        }
 
         if (response5.status != HttpStatusCode.Unauthorized) {
             bad(
