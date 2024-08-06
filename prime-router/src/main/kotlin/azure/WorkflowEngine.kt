@@ -393,7 +393,7 @@ class WorkflowEngine(
         actionHistory: ActionHistory,
         receiver: Receiver,
     ) {
-        // generate empty report for receiver's specified foramt
+        // generate empty report for receiver's specified format
         val toSchema = metadata.findSchema(receiver.schemaName)
             ?: error("${receiver.schemaName} schema is missing from catalog")
         val clientSource = ClientSource("ReportStream", "EmptyBatch")
