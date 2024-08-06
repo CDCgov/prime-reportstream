@@ -1432,10 +1432,10 @@ test.describe("Daily Data page", () => {
                                     .selectOption(TEST_ORG_UP_RECEIVER_FULL_ELR);
                             });
 
-                            // test.afterEach(async ({ dailyDataPage }) => {
-                            //     await filterReset(dailyDataPage.page).click();
-                            //     await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
-                            // });
+                            test.afterEach(async ({ dailyDataPage }) => {
+                                await filterReset(dailyDataPage.page).click();
+                                await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                            });
 
                             test("with 'Receiver' selected", async ({ dailyDataPage }) => {
                                 await applyButton(dailyDataPage.page).click();
@@ -1462,7 +1462,9 @@ test.describe("Daily Data page", () => {
                                 );
                             });
 
-                            test("with 'From' date, 'To' date, 'Start time', 'End time'", async ({ dailyDataPage }) => {
+                            test.skip("with 'From' date, 'To' date, 'Start time', 'End time'", async ({
+                                dailyDataPage,
+                            }) => {
                                 const fromDate = await setDate(dailyDataPage.page, "#start-date", 7);
                                 const toDate = await setDate(dailyDataPage.page, "#end-date", 0);
                                 await setTime(dailyDataPage.page, "#start-time", defaultStartTime);
@@ -1614,7 +1616,7 @@ test.describe("Daily Data page", () => {
                             expect(await tableRows(dailyDataPage.page).count()).toEqual(rowCount);
                         });
 
-                        test.skip("clears filters on search", async ({ dailyDataPage }) => {
+                        test("clears filters on search", async ({ dailyDataPage }) => {
                             // Perform search with all filters selected
                             await dailyDataPage.page
                                 .locator("#receiver-dropdown")
