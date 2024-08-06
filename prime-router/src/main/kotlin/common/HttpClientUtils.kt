@@ -2,12 +2,14 @@ package gov.cdc.prime.router.common
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.apache5.Apache5
+import io.ktor.client.engine.apache.Apache
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.accept
 import io.ktor.client.request.forms.submitForm
+import io.ktor.client.request.header
 import io.ktor.client.request.headers
 import io.ktor.client.request.parameter
 import io.ktor.client.request.request
@@ -30,30 +32,10 @@ class HttpClientUtils {
         const val REQUEST_TIMEOUT_MILLIS: Long = 130000 // need to be public to be used by inline
         const val SETTINGS_REQUEST_TIMEOUT_MILLIS = 30000
 
-        private val httpClient: HttpClient =
-            HttpClient(Apache5) {
-                install(ContentNegotiation) {
-                    json(
-                        Json {
-                            prettyPrint = true
-                            isLenient = true
-                            ignoreUnknownKeys = true
-                        }
-                    )
-                }
-                install(HttpTimeout)
-                engine {
-                    followRedirects = true
-                    socketTimeout = TIMEOUT
-                    connectTimeout = TIMEOUT.toLong()
-                    connectionRequestTimeout = TIMEOUT.toLong()
-                }
-            }
-
         /**
          * GET (query resource) operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param accessToken: null default, the access token needed to call the endpoint
+         * @param tokens: null default, the access token needed to call the endpoint
          * @param headers: null default, the headers of the request
          * @param acceptedContent: default application/json the accepted content type
          * @param timeout: default to a system base value in millis
@@ -91,7 +73,7 @@ class HttpClientUtils {
         /**
          * GET (query resource) operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param accessToken: null default, the access token needed to call the endpoint
+         * @param tokens: null default, the access token needed to call the endpoint
          * @param headers: null default, the headers of the request
          * @param acceptedContent: default application/json the accepted content type
          * @param timeout: default to a system base value in millis
@@ -124,7 +106,7 @@ class HttpClientUtils {
         /**
          * PUT (modify resource) operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param accessToken: null default, the access token needed to call the endpoint
+         * @param tokens: null default, the access token needed to call the endpoint
          * @param headers: null default, the headers of the request
          * @param acceptedContent: default application/json the accepted content type
          * @param timeout: default to a system base value in millis
@@ -165,7 +147,7 @@ class HttpClientUtils {
         /**
          * PUT (modify resource) operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param accessToken: null default, the access token needed to call the endpoint
+         * @param tokens: null default, the access token needed to call the endpoint
          * @param headers: null default, the headers of the request
          * @param acceptedContent: default application/json the accepted content type
          * @param timeout: default to a system base value in millis
@@ -201,7 +183,7 @@ class HttpClientUtils {
         /**
          * POST (create resource) operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param accessToken: null default, the access token needed to call the endpoint
+         * @param tokens: null default, the access token needed to call the endpoint
          * @param headers: null default, the headers of the request
          * @param acceptedContent: default application/json the accepted content type
          * @param timeout: default to a system base value in millis
@@ -241,7 +223,7 @@ class HttpClientUtils {
         /**
          * POST (create resource) operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param accessToken: null default, the access token needed to call the endpoint
+         * @param tokens: null default, the access token needed to call the endpoint
          * @param headers: null default, the headers of the request
          * @param acceptedContent: default application/json the accepted content type
          * @param timeout: default to a system base value in millis
@@ -278,7 +260,7 @@ class HttpClientUtils {
          * Submit form to the endpoint as indicated by [url]
          *
          * @param url: required, the url to the resource endpoint
-         * @param accessToken: null default, the access token needed to call the endpoint
+         * @param tokens: null default, the access token needed to call the endpoint
          * @param headers: null default, the headers of the request
          * @param acceptedContent: default application/json the accepted content type
          * @param timeout: default to a system base value in millis
@@ -312,7 +294,7 @@ class HttpClientUtils {
          * Submit form to the endpoint as indicated by [url]
          *
          * @param url: required, the url to the resource endpoint
-         * @param accessToken: null default, the access token needed to call the endpoint
+         * @param tokens: null default, the access token needed to call the endpoint
          * @param headers: null default, the headers of the request
          * @param acceptedContent: default application/json the accepted content type
          * @param timeout: default to a system base value in millis
@@ -330,7 +312,7 @@ class HttpClientUtils {
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                (httpClient ?: getDefaultHttpClient()).submitForm(
+                (httpClient ?: createDefaultHttpClient(accessToken)).submitForm(
                     url,
                     formParameters = Parameters.build {
                         formParams?.forEach { param ->
@@ -349,11 +331,7 @@ class HttpClientUtils {
                             }
                         }
                     }
-                    accessToken?.let {
-                        headers {
-                            append("Authorization", "Bearer $accessToken")
-                        }
-                    }
+
                     accept(acceptedContent)
                 }
             }
@@ -362,7 +340,7 @@ class HttpClientUtils {
         /**
          * HEAD operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param accessToken: null default, the access token needed to call the endpoint
+         * @param tokens: null default, the access token needed to call the endpoint
          * @param headers: null default, the headers of the request
          * @param acceptedContent: default application/json the accepted content type
          * @param timeout: default to a system base value in millis
@@ -398,9 +376,9 @@ class HttpClientUtils {
         /**
          * HEAD operation to the given endpoint resource [url]
          * @param url: required, the url to the resource endpoint
-         * @param accessToken: null default, the access token needed to call the endpoint
+         * @param tokens: null default, the access token needed to call the endpoint
          * @param headers: null default, the headers of the request
-         * @param acceptedContent: default application/json the accepted content type
+         * @param acceptContent: default application/json the accepted content type
          * @param timeout: default to a system base value in millis
          * @param queryParameters: null default, query parameters of the request
          * @param httpClient: null default, a http client injected by caller
@@ -433,7 +411,7 @@ class HttpClientUtils {
          * A thin wrapper on top of the underlying 3rd party http client, e.g. ktor http client
          * with:
          * @param url: required, the url to the resource endpoint
-         * @param accessToken: null default, the access token needed to call the endpoint
+         * @param tokens: null default, the access token needed to call the endpoint
          * @param headers: null default, the headers of the request
          * @param acceptedContent: default application/json the accepted content type
          * @param timeout: default to a system base value in millis
@@ -472,7 +450,7 @@ class HttpClientUtils {
          * A thin wrapper on top of the underlying 3rd party http client, e.g. ktor http client
          * with:
          * @param url: required, the url to the resource endpoint
-         * @param accessToken: null default, the access token needed to call the endpoint
+         * @param tokens: null default, the access token needed to call the endpoint
          * @param headers: null default, the headers of the request
          * @param acceptedContent: default application/json the accepted content type
          * @param timeout: default to a system base value in millis
@@ -518,26 +496,22 @@ class HttpClientUtils {
             httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                (httpClient ?: getDefaultHttpClient()).request(url) {
+                (httpClient ?: createDefaultHttpClient(accessToken)).request(url) {
                     this.method = method
                     timeout {
                         requestTimeoutMillis = timeout
                     }
                     url {
                         queryParameters?.forEach {
-                            parameter(it.key, it.value)
+                            parameter(it.key, it.value.toString())
                         }
                     }
+
                     headers?.let {
                         headers {
                             headers.forEach {
                                 append(it.key, it.value)
                             }
-                        }
-                    }
-                    accessToken?.let {
-                        headers {
-                            append("Authorization", "Bearer $accessToken")
                         }
                     }
                     acceptedContent?.let {
@@ -552,15 +526,48 @@ class HttpClientUtils {
         }
 
         /**
-         * Get a http client with sensible default settings
+         * Create a http client with sensible default settings
          * note: most configuration parameters are overridable
          * e.g. expectSuccess default to false because most of the time
          * the caller wants to handle the whole range of response status
-         *
+         * @param bearerTokens null default, the access token needed to call the endpoint
          * @return a HttpClient with all sensible defaults
          */
-        fun getDefaultHttpClient(): HttpClient {
-            return httpClient
+        fun createDefaultHttpClient(accessToken: String?): HttpClient {
+            return HttpClient(Apache) {
+                // installs logging into the call to post to the server
+                // commented out - not to override underlying default logger settings
+                // enable to trace http client internals when needed
+                // install(Logging) {
+                //     logger = Logger.SIMPLE
+                //     level = LogLevel.INFO
+                // }
+                // not using Bearer Auth handler due to refresh token behavior
+                accessToken?.let {
+                    defaultRequest {
+                        header("Authorization", "Bearer $it")
+                    }
+                }
+                install(ContentNegotiation) {
+                    json(
+                        Json {
+                            prettyPrint = true
+                            isLenient = true
+                            ignoreUnknownKeys = true
+                        }
+                    )
+                }
+
+                install(HttpTimeout)
+                engine {
+                    followRedirects = true
+                    socketTimeout = TIMEOUT
+                    connectTimeout = TIMEOUT
+                    connectionRequestTimeout = TIMEOUT
+                    customizeClient {
+                    }
+                }
+            }
         }
     }
 }
