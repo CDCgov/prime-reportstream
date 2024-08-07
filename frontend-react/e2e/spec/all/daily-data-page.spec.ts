@@ -1529,6 +1529,7 @@ test.describe("Daily Data page", () => {
 
                             await dailyDataPage.page.getByRole("link", { name: reportId }).click();
                             await expect(dailyDataPage.page).toHaveURL(`${URL_REPORT_DETAILS}/${reportId}`);
+                            // eslint-disable-next-line playwright/no-networkidle
                             await dailyDataPage.page.waitForLoadState("networkidle");
                             await expect(dailyDataPage.page).toHaveTitle(/Daily Data - ReportStream/);
                             await expect(dailyDataPage.page.locator("h1").getByText(reportId)).toBeVisible();
