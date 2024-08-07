@@ -19,9 +19,11 @@ class LookupTableConditionMapper(metadata: Metadata) : IConditionMapper {
         ?: throw IllegalStateException("Unable to load lookup table 'observation-mapping' for code to condition lookup")
 
     override fun lookupConditions(codings: List<Coding>): Map<Coding, List<Coding>> {
-        val codesToCodings = codings.associateBy { it.code }
-        return mappingTable.FilterBuilder().isIn(ObservationMappingConstants.TEST_CODE_KEY, codings.map { it.code })
+        val codesToCodings = codings.associateBy { it.code } // for mapping codes back into their mappings
+        return mappingTable.FilterBuilder() // constrain the underlying query for the search
+            .isIn(ObservationMappingConstants.TEST_CODE_KEY, codesToCodings.keys.toList())
             .filter().caseSensitiveDataRowsMap.fold(mutableMapOf<Coding, List<Coding>>()) { acc, condition ->
+                // map the resulting data to the original coding
                 val code = codesToCodings[condition[ObservationMappingConstants.TEST_CODE_KEY]]!!
                 val conditions = acc[code] ?: mutableListOf()
                 acc[code] = conditions.plus(
@@ -54,29 +56,32 @@ class ConditionStamper(private val conditionMapper: IConditionMapper) {
     /**
      * Lookup condition codes for an [observation] and add them as custom extensions
      * @param observation the observation that will be stamped
-     * @return a [ObservationStampingResult] including stamping success and any mapping failures
+     * @return a [ObservationStampingResult] including stamping success status and any mapping failures. stamping is
+     *         successful if at least one code is identified and mapped
      */
     fun stampObservation(observation: Observation): ObservationStampingResult {
-        val codeSourcesMap = observation.getCodeSourcesMap().filterValues { it.isNotEmpty() }
-        if (codeSourcesMap.values.flatten().isEmpty()) return ObservationStampingResult(false)
+        val codingsSourceMap = observation.getCodeSourcesMap().filterValues { it.isNotEmpty() }
+        val codings = codingsSourceMap.values.flatten()
+        if (codings.isEmpty()) return ObservationStampingResult(false)
 
-        val conditionsToCode = conditionMapper.lookupConditions(codeSourcesMap.values.flatten())
+        val codingsToConditions = conditionMapper.lookupConditions(codings)
         var mappedSomething = false
 
-        val failures = codeSourcesMap.mapNotNull { codes ->
-            val unnmapped = codes.value.mapNotNull { code ->
-                val conditions = conditionsToCode.getOrDefault(code, emptyList())
+        val failures = codingsSourceMap.mapNotNull { codingsSource ->
+            // stamp conditions and gather mapping failures on a per code source
+            val unmappedCodings = codingsSource.value.mapNotNull { code ->
+                val conditions = codingsToConditions.getOrDefault(code, emptyList())
                 if (conditions.isEmpty()) {
-                    code
+                    code // could not be mapped -- add as failure
                 } else {
-                    conditions.forEach { code.addExtension(conditionCodeExtensionURL, it) }
+                    conditions.forEach { code.addExtension(conditionCodeExtensionURL, it) } // add condition
                     mappedSomething = true
                     null
                 }
             }
-            if (unnmapped.isEmpty()) null else ObservationMappingFailure(codes.key, unnmapped)
+            if (unmappedCodings.isEmpty()) null else ObservationMappingFailure(codingsSource.key, unmappedCodings)
         }
-
+        // there may be failures even if we were successful - only one code source need succeed
         return ObservationStampingResult(mappedSomething, failures)
     }
 }

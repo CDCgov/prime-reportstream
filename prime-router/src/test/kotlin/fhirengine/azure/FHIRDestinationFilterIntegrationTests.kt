@@ -304,6 +304,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             }
 
             // check events
+            val bundle = FhirTranscoder.decode(reportContents)
             assertThat(azureEventsService.reportStreamEvents[ReportStreamEventName.ITEM_ROUTED]!!).hasSize(1)
             assertThat(
                 azureEventsService
@@ -317,7 +318,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                     report.id,
                     listOf(report.id),
                     Topic.FULL_ELR,
-                    "",
+                    routedReport.bodyUrl,
                     TaskAction.destination_filter,
                     OffsetDateTime.now()
                 ),
@@ -328,11 +329,22 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                     1,
                     1,
                     1,
-                    null,
+                    "MT_COCNB_ORU_NBPHELR.1.5348467",
                     "phd.Test Sender"
                 )
             )
-            assertThat(event.params).isEqualTo(emptyMap())
+            assertThat(event.params).isEqualTo(
+                mapOf(
+                ReportStreamEventProperties.RECEIVER_NAME to "phd.x",
+                ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                    observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
+                    eventType = "ORU/ACK - Unsolicited transmission of an observation message",
+                    patientState = listOf("CO"),
+                    performerState = emptyList(),
+                    orderingFacilityState = listOf("CO")
+                )
+            )
+            )
 
             // check action table
             UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.destination_filter))
@@ -411,7 +423,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 1,
                 1,
                 1,
-                null,
+                "MT_COCNB_ORU_NBPHELR.1.5348467",
                 "phd.Test Sender"
             )
         )
@@ -422,7 +434,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                 patientState = listOf("CO"),
                 performerState = emptyList(),
-                orderingFacilityState = emptyList()
+                orderingFacilityState = listOf("CO")
             )
         )
         )

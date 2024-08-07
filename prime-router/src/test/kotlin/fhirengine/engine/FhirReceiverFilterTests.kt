@@ -78,7 +78,7 @@ class FhirReceiverFilterTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
-    private val actionHistory = ActionHistory(TaskAction.route)
+    private val actionHistory = ActionHistory(TaskAction.receiver_filter)
     private val azureEventService = InMemoryAzureEventService()
     private val reportServiceMock = mockk<ReportService>()
     private val submittedId = UUID.randomUUID()
