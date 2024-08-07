@@ -1209,10 +1209,13 @@ test.describe("Daily Data page", () => {
             test.describe("admin user", () => {
                 test.use({ storageState: "e2e/.auth/admin.json" });
 
+                test.beforeAll(({ browserName }) => {
+                    test.skip(browserName !== "chromium");
+                });
+
                 test.describe(`${TEST_ORG_IGNORE} org - ${TEST_ORG_UP_RECEIVER_FULL_ELR} receiver`, () => {
                     test.describe("onLoad", () => {
-                        test.beforeEach(async ({ dailyDataPage, browserName }) => {
-                            test.skip(browserName !== "chromium");
+                        test.beforeEach(async ({ dailyDataPage }) => {
                             await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                         });
 
