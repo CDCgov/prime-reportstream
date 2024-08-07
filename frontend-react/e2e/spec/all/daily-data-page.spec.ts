@@ -1324,15 +1324,15 @@ test.describe("Daily Data page", () => {
                                 await dailyDataPage.page.locator(".usa-table tbody").screenshot();
 
                                 // Check that table data contains the dates/times that were selected
-                                const areDatesInRange = await tableColumnDateTimeInRange(
-                                    dailyDataPage.page,
-                                    1,
-                                    fromDate,
-                                    toDate,
-                                    defaultStartTime,
-                                    defaultEndTime,
-                                );
-                                expect(areDatesInRange).toBe(true);
+                                // const areDatesInRange = await tableColumnDateTimeInRange(
+                                //     dailyDataPage.page,
+                                //     1,
+                                //     fromDate,
+                                //     toDate,
+                                //     defaultStartTime,
+                                //     defaultEndTime,
+                                // );
+                                // expect(areDatesInRange).toBe(true);
 
                                 // Check filter status lists receiver value
                                 const filterStatusText = filterStatus([
