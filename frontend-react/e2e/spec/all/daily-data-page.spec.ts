@@ -4,7 +4,6 @@ import { format } from "date-fns";
 import fs from "node:fs";
 import {
     expectTableColumnValues,
-    tableColumnDateTimeInRange,
     tableDataCellValue,
     tableRows,
     TEST_ORG_AK_RECEIVER,
