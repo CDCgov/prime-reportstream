@@ -32,6 +32,14 @@ If your e2e tests fail during the GitHub build. The following steps will help in
 
 ---
 
+## Updating the TEST_*_USERNAME OKTA accounts
+
+1. Change the password in OKTA for the `TEST_*_USERNAME` user account(s).
+2. Have DevOps update the [GitHub Action](https://github.com/CDCgov/prime-reportstream/settings/secrets/actions) `TEST_*_PASSWORD` secret(s) for the `TEST_*_USERNAME` user account(s).
+3. Have DevOps update the [Dependabot](https://github.com/CDCgov/prime-reportstream/settings/secrets/dependabot) `TEST_*_PASSWORD` secret(s) for the `TEST_*_USERNAME` user account(s).
+
+---
+
 ## Processes
 
 Always run the e2e tests before committing to GitHub

@@ -308,6 +308,27 @@ elements:
     bundleProperty: '%resource.code.coding[0].display'
     value: [ '%resource.code.text' ]
 
+  - name: sr-observation-result-description-lookup
+    condition: '%resource.value.coding.code.exists() and %resource.value.coding.display.empty()'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.value.coding.display'
+    value: [ '%resource.value.coding.code' ]
+    valueSet:
+      values:
+        260385009: Negative
+        260415000: Not Detected
+        260373001: Detected
+        10828004: Positive
+        720735008: Presumptive positive
+        419984006: Inconclusive
+        42425007: Equivocal
+        895231008: Not detected in pooled specimen
+        462371000124108: Detected in pooled specimen
+        455371000124106: Invalid result
+        125154007: Specimen unsatisfactory for evaluation
+        373121007: Test not done
+        82334004: Indeterminate
+
   # Populating display based on text
   - name: sr-patient-race-display
     resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'

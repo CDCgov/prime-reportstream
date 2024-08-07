@@ -21,11 +21,15 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestLabResult
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
+import gov.cdc.prime.router.azure.observability.event.ItemEventData
 import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
-import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
-import gov.cdc.prime.router.azure.observability.event.ReportNotRoutedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportEventData
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
 import gov.cdc.prime.router.common.validFHIRRecord1
@@ -53,6 +57,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.File
+import java.time.OffsetDateTime
 import java.util.UUID
 
 private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/valid_data.fhir"
@@ -108,6 +113,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         return FHIRDestinationFilter(
             metadata,
             settings,
+            db = ReportStreamTestDatabaseContainer.testDatabaseAccess,
             reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess)),
             azureEventService = azureEventService
         )
@@ -228,19 +234,11 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             }
 
             // check events
-            assertThat(azureEventsService.events).hasSize(1)
-            val bundle = FhirTranscoder.decode(reportContents)
-            assertThat(azureEventsService.events.single()).isEqualTo(
-                ReportAcceptedEvent(
-                    report.id,
-                    report.id,
-                    Topic.FULL_ELR,
-                    "phd.Test Sender",
-                    AzureEventUtils.getObservationSummaries(bundle),
-                    reportContents.length,
-                    AzureEventUtils.getIdentifier(bundle)
-                )
-            )
+            assertThat(azureEventsService.reportStreamEvents[ReportStreamEventName.ITEM_ROUTED]!!).hasSize(2)
+            assertThat(
+                azureEventsService
+                .reportStreamEvents[ReportStreamEventName.ITEM_ROUTED]!!.first()
+            ).isInstanceOf<ReportStreamItemEvent>()
 
             // check action table
             UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.destination_filter))
@@ -306,18 +304,46 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             }
 
             // check events
-            assertThat(azureEventsService.events).hasSize(1)
             val bundle = FhirTranscoder.decode(reportContents)
-            assertThat(azureEventsService.events.single()).isEqualTo(
-                ReportAcceptedEvent(
+            assertThat(azureEventsService.reportStreamEvents[ReportStreamEventName.ITEM_ROUTED]!!).hasSize(1)
+            assertThat(
+                azureEventsService
+                .reportStreamEvents[ReportStreamEventName.ITEM_ROUTED]!!.first()
+            ).isInstanceOf<ReportStreamItemEvent>()
+            val event: ReportStreamItemEvent = azureEventsService
+                .reportStreamEvents[ReportStreamEventName.ITEM_ROUTED]!!.first() as ReportStreamItemEvent
+            assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+                ReportEventData(
+                    routedReport.reportId,
                     report.id,
-                    report.id,
+                    listOf(report.id),
                     Topic.FULL_ELR,
-                    "phd.Test Sender",
-                    AzureEventUtils.getObservationSummaries(bundle),
-                    reportContents.length,
-                    AzureEventUtils.getIdentifier(bundle)
+                    routedReport.bodyUrl,
+                    TaskAction.destination_filter,
+                    OffsetDateTime.now()
+                ),
+                ReportEventData::timestamp
+            )
+            assertThat(event.itemEventData).isEqualTo(
+                ItemEventData(
+                    1,
+                    1,
+                    1,
+                    "MT_COCNB_ORU_NBPHELR.1.5348467",
+                    "phd.Test Sender"
                 )
+            )
+            assertThat(event.params).isEqualTo(
+                mapOf(
+                ReportStreamEventProperties.RECEIVER_NAME to "phd.x",
+                ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                    observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
+                    eventType = "ORU/ACK - Unsolicited transmission of an observation message",
+                    patientState = listOf("CO"),
+                    performerState = emptyList(),
+                    orderingFacilityState = listOf("CO")
+                )
+            )
             )
 
             // check action table
@@ -373,34 +399,44 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         }
 
         // check events
-        assertThat(azureEventsService.events).hasSize(2)
         val bundle = FhirTranscoder.decode(reportContents)
-        assertThat(azureEventsService.events.first())
-            .isInstanceOf<ReportAcceptedEvent>()
-            .isEqualTo(
-                ReportAcceptedEvent(
-                    report.id,
-                    report.id,
-                    Topic.FULL_ELR,
-                    "phd.Test Sender",
-                    AzureEventUtils.getObservationSummaries(bundle),
-                    reportContents.length,
-                    AzureEventUtils.getIdentifier(bundle)
-                )
+        assertThat(azureEventsService.reportStreamEvents[ReportStreamEventName.ITEM_NOT_ROUTED]!!).hasSize(1)
+        assertThat(azureEventsService.reportStreamEvents[ReportStreamEventName.ITEM_NOT_ROUTED]!!.first())
+            .isInstanceOf<ReportStreamItemEvent>()
+        val event: ReportStreamItemEvent = azureEventsService
+            .reportStreamEvents[ReportStreamEventName.ITEM_NOT_ROUTED]?.first() as ReportStreamItemEvent
+        assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+            ReportEventData(
+                UUID.randomUUID(),
+                report.id,
+                listOf(report.id),
+                Topic.FULL_ELR,
+                "",
+                TaskAction.destination_filter,
+                OffsetDateTime.now()
+            ),
+            ReportEventData::timestamp,
+            ReportEventData::childReportId
         )
-        assertThat(azureEventsService.events.last())
-            .isInstanceOf<ReportNotRoutedEvent>()
-            .isEqualToIgnoringGivenProperties(
-                ReportNotRoutedEvent(
-                    UUID.randomUUID(), // ignored
-                    report.id,
-                    report.id,
-                    Topic.FULL_ELR,
-                    "phd.Test Sender",
-                    reportContents.length,
-                    AzureEventUtils.getIdentifier(bundle)
-                ),
-                ReportNotRoutedEvent::reportId
+        assertThat(event.itemEventData).isEqualTo(
+            ItemEventData(
+                1,
+                1,
+                1,
+                "MT_COCNB_ORU_NBPHELR.1.5348467",
+                "phd.Test Sender"
+            )
+        )
+        assertThat(event.params).isEqualTo(
+            mapOf(
+            ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
+                eventType = "ORU/ACK - Unsolicited transmission of an observation message",
+                patientState = listOf("CO"),
+                performerState = emptyList(),
+                orderingFacilityState = listOf("CO")
+            )
+        )
         )
     }
 }
