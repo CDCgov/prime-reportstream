@@ -20,9 +20,10 @@ import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.UnmappableConditionMessage
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.ConditionMapper
+import gov.cdc.prime.router.azure.ConditionStamper
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.LookupTableConditionMapper
@@ -44,6 +45,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
+import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.validation.IItemValidator
@@ -387,7 +389,7 @@ class FHIRConverter(
             }
 
             val areAllItemsParsedAndValid = processedItems.all { it.getError() == null }
-            val conditionMapper: ConditionMapper = LookupTableConditionMapper(metadata)
+            val stamper = ConditionStamper(LookupTableConditionMapper(metadata))
             val bundles = processedItems.map { item ->
                 val error = item.getError()
                 if (error != null) {
@@ -395,8 +397,23 @@ class FHIRConverter(
                 }
                 // 'stamp' observations with their condition code
                 if (item.bundle != null) {
-                    conditionMapper.stampBundle(item.bundle!!).forEach {
-                        actionLogger.getItemLogger(item.index + 1, it.observationId).warn(it.failures)
+                    item.bundle!!.getObservations().forEach { observation ->
+                        val result = stamper.stampObservation(observation)
+                        if (!result.success) {
+                            val logger = actionLogger.getItemLogger(item.index + 1, observation.id)
+                            if (result.failures.isEmpty()) {
+                                logger.warn(UnmappableConditionMessage())
+                            } else {
+                                logger.warn(
+                                    result.failures.map {
+                                    UnmappableConditionMessage(
+                                        it.failures.map { it.code },
+                                        it.source
+                                    )
+                                }
+                                )
+                            }
+                        }
                     }
                 }
                 item

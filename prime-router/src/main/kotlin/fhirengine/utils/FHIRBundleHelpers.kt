@@ -5,7 +5,9 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.ReportStreamFilter
-import gov.cdc.prime.router.azure.ConditionMapper
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_CODE_IDENTIFIER
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_VALUE_IDENTIFIER
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
 import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -44,11 +46,11 @@ fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
     // This guards against the auto create behavior configuration getting changed. As currently, configured if code
     // is null, it will be auto created, but a configuration change would cause this to blow up.
     if (this.code != null) {
-        codeSourcesMap[ConditionMapper.BUNDLE_CODE_IDENTIFIER] = this.code.coding
+        codeSourcesMap[BUNDLE_CODE_IDENTIFIER] = this.code.coding
     }
 
     if (this.value is CodeableConcept) {
-        codeSourcesMap[ConditionMapper.BUNDLE_VALUE_IDENTIFIER] = this.valueCodeableConcept.coding
+        codeSourcesMap[BUNDLE_VALUE_IDENTIFIER] = this.valueCodeableConcept.coding
     }
 
     return codeSourcesMap
@@ -61,7 +63,7 @@ fun Observation.getMappedConditionExtensions(): List<Extension> {
     return this.getCodeSourcesMap()
         .flatMap { it.value }
         .flatMap { it.extension }
-        .filter { it.url == ConditionMapper.conditionCodeExtensionURL }
+        .filter { it.url == conditionCodeExtensionURL }
 }
 
 /**

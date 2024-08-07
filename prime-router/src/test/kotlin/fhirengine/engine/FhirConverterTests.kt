@@ -27,7 +27,6 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.ConditionMapper
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -38,6 +37,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.validation.AbstractItemValidator
 import gov.cdc.prime.router.validation.FHIRValidationResult
@@ -353,10 +353,10 @@ class FhirConverterTests {
                 "observation-mapping",
                 listOf(
                     listOf(
-                        ConditionMapper.TEST_CODE_KEY,
-                        ConditionMapper.CONDITION_CODE_KEY,
-                        ConditionMapper.CONDITION_CODE_SYSTEM_KEY,
-                        ConditionMapper.CONDITION_NAME_KEY
+                        ObservationMappingConstants.TEST_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
+                        ObservationMappingConstants.CONDITION_NAME_KEY
                     ),
                     listOf(
                         "80382-5",
@@ -450,10 +450,10 @@ class FhirConverterTests {
                 "observation-mapping",
                 listOf(
                     listOf(
-                        ConditionMapper.TEST_CODE_KEY,
-                        ConditionMapper.CONDITION_CODE_KEY,
-                        ConditionMapper.CONDITION_CODE_SYSTEM_KEY,
-                        ConditionMapper.CONDITION_NAME_KEY
+                        ObservationMappingConstants.TEST_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
+                        ObservationMappingConstants.CONDITION_NAME_KEY
                     ),
                     listOf(
                         "80382-5",

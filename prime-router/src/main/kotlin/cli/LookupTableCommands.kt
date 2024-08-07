@@ -23,13 +23,13 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.google.common.base.Preconditions
 import de.m3y.kformat.Table
 import de.m3y.kformat.table
-import gov.cdc.prime.router.azure.ConditionMapper
 import gov.cdc.prime.router.azure.LookupTableFunctions
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.cli.FileUtilities.saveTableAsCSV
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import io.ktor.client.HttpClient
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
@@ -603,7 +603,7 @@ class LookupTableCompareMappingCommand(httpClient: HttpClient? = null) : Generic
         ): List<Map<String, String>> {
             return compendium.map { // process every code in the compendium
                 if (tableTestCodeMap[it.getValue(SENDER_COMPENDIUM_CODE_KEY)]?.get(
-                        ConditionMapper.TEST_CODESYSTEM_KEY
+                        ObservationMappingConstants.TEST_CODESYSTEM_KEY
                     ) == it.getValue(SENDER_COMPENDIUM_CODESYSTEM_KEY)
                 ) { // check for a matching code and code system i.e. mapped
                     it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_TRUE)
@@ -648,12 +648,12 @@ class LookupTableCompareMappingCommand(httpClient: HttpClient? = null) : Generic
         }
 
         // Check loaded table for needed columns
-        arrayOf(ConditionMapper.TEST_CODE_KEY, ConditionMapper.TEST_CODESYSTEM_KEY).forEach {
+        arrayOf(ObservationMappingConstants.TEST_CODE_KEY, ObservationMappingConstants.TEST_CODESYSTEM_KEY).forEach {
             if (it !in tableData[0].keys) throw PrintMessage("Loaded table $tableName missing column: $it")
         }
 
         // Create lookup table of codes
-        val tableMap = tableData.associateBy { it[ConditionMapper.TEST_CODE_KEY] }
+        val tableMap = tableData.associateBy { it[ObservationMappingConstants.TEST_CODE_KEY] }
 
         // Add a mapped? value to each row of table data
         val outputData = compareMappings(inputData, tableMap)
@@ -781,18 +781,18 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
         fun ValueSet.toMappings(conditionData: Map<String, String> = emptyMap()): List<Map<String, String>> =
             this.expansion.contains.map { test ->
                 mapOf(
-                    ConditionMapper.TEST_CODE_KEY to test.code,
-                    ConditionMapper.TEST_CODESYSTEM_KEY to // coerce to our values
-                        ConditionMapper.TEST_CODESYSTEM_MAP.getOrDefault(
+                    ObservationMappingConstants.TEST_CODE_KEY to test.code,
+                    ObservationMappingConstants.TEST_CODESYSTEM_KEY to // coerce to our values
+                        ObservationMappingConstants.TEST_CODESYSTEM_MAP.getOrDefault(
                             test.system,
                             test.system
                         ),
-                    ConditionMapper.TEST_OID_KEY to this.idElement.idPart,
-                    ConditionMapper.TEST_NAME_KEY to this.name,
-                    ConditionMapper.TEST_DESCRIPTOR_KEY to test.display,
-                    ConditionMapper.TEST_STATUS_KEY to this.status.toString()
+                    ObservationMappingConstants.TEST_OID_KEY to this.idElement.idPart,
+                    ObservationMappingConstants.TEST_NAME_KEY to this.name,
+                    ObservationMappingConstants.TEST_DESCRIPTOR_KEY to test.display,
+                    ObservationMappingConstants.TEST_STATUS_KEY to this.status.toString()
                         .lowercase().replaceFirstChar(Char::titlecase),
-                    ConditionMapper.TEST_VERSION_KEY to test.version.split('/').last()
+                    ObservationMappingConstants.TEST_VERSION_KEY to test.version.split('/').last()
                 ) + conditionData
             }
 
@@ -802,10 +802,10 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
          */
         fun buildOIDMap(tableData: List<Map<String, String>>) =
             tableData.groupBy {
-                if (it[ConditionMapper.CONDITION_VALUE_SOURCE_KEY] != OBX_MAPPING_RCTC_VALUE_SOURCE) {
+                if (it[ObservationMappingConstants.CONDITION_VALUE_SOURCE_KEY] != OBX_MAPPING_RCTC_VALUE_SOURCE) {
                     OBX_MAPPING_NON_RCTC_KEY // not an RCTC mapping - cannot be updated
                 } else {
-                    it[ConditionMapper.TEST_OID_KEY].let { oid -> // group by OID
+                    it[ObservationMappingConstants.TEST_OID_KEY].let { oid -> // group by OID
                         if (oid.isNullOrBlank()) OBX_MAPPING_NO_OID_KEY else oid // group mappings with blank/null OIDs
                     }
                 }
@@ -822,7 +822,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
         ): List<Map<String, String>> {
             return updateOIDMap.map { update -> // process every oid test group update
                 val conditionData = tableOIDMap[update.key]!![0].filterKeys {
-                    it in ConditionMapper.CONDITION_KEYS // fetch existing condition data for this oid
+                    it in ObservationMappingConstants.CONDITION_KEYS // fetch existing condition data for this oid
                 }
                 update.value.toMappings(conditionData)
             // flatten + add carryover
@@ -869,7 +869,7 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                 }
             }.also { tableData ->
                 // Verify the loaded table contains the appropriate columns
-                ConditionMapper.ALL_KEYS.forEach {
+                ObservationMappingConstants.ALL_KEYS.forEach {
                     if (it !in tableData[0].keys) throw PrintMessage("Loaded data is missing column: $it")
                 }
             }

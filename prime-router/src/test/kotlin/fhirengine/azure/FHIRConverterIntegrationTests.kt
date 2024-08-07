@@ -15,7 +15,6 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.ConditionMapper
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
@@ -66,6 +65,7 @@ import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockkConstructor
@@ -364,10 +364,10 @@ class FHIRConverterIntegrationTests {
     fun `should successfully convert FHIR messages`() {
         val observationMappingTable = Table.create(
             "observation-mapping",
-            StringColumn.create(ConditionMapper.TEST_CODE_KEY, "80382-5"),
-            StringColumn.create(ConditionMapper.CONDITION_CODE_KEY, "6142004"),
-            StringColumn.create(ConditionMapper.CONDITION_CODE_SYSTEM_KEY, "SNOMEDCT"),
-            StringColumn.create(ConditionMapper.CONDITION_NAME_KEY, "Influenza (disorder)")
+            StringColumn.create(ObservationMappingConstants.TEST_CODE_KEY, "80382-5"),
+            StringColumn.create(ObservationMappingConstants.CONDITION_CODE_KEY, "6142004"),
+            StringColumn.create(ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY, "SNOMEDCT"),
+            StringColumn.create(ObservationMappingConstants.CONDITION_NAME_KEY, "Influenza (disorder)")
         )
         val observationMappingLookupTable = LookupTable(
             name = "observation-mapping",

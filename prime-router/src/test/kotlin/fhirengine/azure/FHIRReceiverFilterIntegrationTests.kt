@@ -21,7 +21,7 @@ import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.ConditionMapper
+import gov.cdc.prime.router.azure.ConditionStamper
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.LookupTableConditionMapper
@@ -51,6 +51,7 @@ import gov.cdc.prime.router.fhirengine.utils.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
@@ -144,10 +145,10 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 "observation-mapping",
                 listOf(
                     listOf(
-                        ConditionMapper.TEST_CODE_KEY,
-                        ConditionMapper.CONDITION_CODE_KEY,
-                        ConditionMapper.CONDITION_CODE_SYSTEM_KEY,
-                        ConditionMapper.CONDITION_NAME_KEY
+                        ObservationMappingConstants.TEST_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
+                        ObservationMappingConstants.CONDITION_NAME_KEY
                     ),
                     listOf(
                         "94558-5",
@@ -160,7 +161,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         )
     }
 
-    val conditionMapper = LookupTableConditionMapper(observationMappingMetadata)
+    val stamper = ConditionStamper(LookupTableConditionMapper(observationMappingMetadata))
 
     @Container
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
@@ -596,8 +597,9 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
         val receiverFilter = createReceiverFilter(azureEventService, org)
         val reportContents = File(MULTIPLE_OBSERVATIONS_FHIR_URL).readText()
-        val bundle = FhirTranscoder.decode(reportContents)
-        conditionMapper.stampBundle(bundle)
+        val bundle = FhirTranscoder.decode(reportContents).apply {
+            this.getObservations().forEach { stamper.stampObservation(it) }
+        }
         val stampedReportContents = FhirTranscoder.encode(bundle)
         val report = UniversalPipelineTestUtils.createReport(
             stampedReportContents,
