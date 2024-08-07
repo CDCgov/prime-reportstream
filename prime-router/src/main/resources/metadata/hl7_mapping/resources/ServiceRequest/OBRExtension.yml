@@ -74,6 +74,7 @@ elements:
     hl7Spec: [ '%{obrFieldPath}-24' ]
 
   - name: result-status
+    condition: '%resource.extension.where(url = "OBR.25").value.exists()'
     value: [ '%resource.extension.where(url = "OBR.25").value' ]
     hl7Spec: [ '%{obrFieldPath}-25' ]
 
