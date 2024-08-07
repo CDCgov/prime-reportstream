@@ -1324,6 +1324,7 @@ test.describe("Daily Data page", () => {
                                 await applyButton(dailyDataPage.page).click();
                                 await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
+                                // TODO: Fix - Doesnt work in CI
                                 // Check that table data contains the dates/times that were selected
                                 // const areDatesInRange = await tableColumnDateTimeInRange(
                                 //     dailyDataPage.page,
@@ -1500,6 +1501,7 @@ test.describe("Daily Data page", () => {
                                 filterStatusText,
                             );
 
+                            // TODO: Fix - Doesnt work in CI
                             //Check table data matches search
                             // expect(await tableDataCellValue(dailyDataPage.page, 0, 0)).toEqual(reportId);
 
@@ -1512,7 +1514,7 @@ test.describe("Daily Data page", () => {
                         });
                     });
 
-                    test.describe.skip("on 'Report ID' click", () => {
+                    test.describe("on 'Report ID' click", () => {
                         test.beforeEach(async ({ dailyDataPage }) => {
                             await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                             await dailyDataPage.page
