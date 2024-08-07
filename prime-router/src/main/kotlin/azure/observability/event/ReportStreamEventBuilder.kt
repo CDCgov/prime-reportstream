@@ -5,6 +5,7 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
+import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
 import java.util.UUID
@@ -36,6 +37,10 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
     private val theTopic: Topic,
     private val pipelineStepName: TaskAction,
 ) : Logging {
+
+    companion object {
+        val sendEventEnabled = Environment.isLocal()
+    }
 
     constructor(
         reportEventService: IReportStreamEventService,
@@ -92,9 +97,11 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
     }
 
     fun send() {
-        val event = buildEvent()
-        sendToAzure(event)
-        logEvent(event)
+        if (sendEventEnabled) {
+            val event = buildEvent()
+            sendToAzure(event)
+            logEvent(event)
+        }
     }
 
     private fun sendToAzure(event: T): AbstractReportStreamEventBuilder<T> {
