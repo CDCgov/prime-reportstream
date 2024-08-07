@@ -34,7 +34,7 @@ import { URL_REPORT_DETAILS } from "../../pages/report-details";
 import { test as baseTest } from "../../test";
 
 const defaultStartTime = "9:00am";
-const defaultEndTime = "11:30pm";
+const defaultEndTime = "11:00pm";
 
 export interface DailyDataPageFixtures {
     dailyDataPage: DailyDataPage;
