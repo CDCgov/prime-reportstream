@@ -621,11 +621,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         boundary: String,
         reportCreateDate: OffsetDateTime,
     ) {
-        logger.info("posting report to rest API")
+        logger.info("sending report to rest API")
         expectSuccess = true // throw an exception if not successful
 
         // Calculate Content-Length if needed.
-        postHeaders(
+        buildHeaders(
             // Calculate Content-Length if needed.
             headers.map { (key, value) ->
                 if (key == "Content-Length" && value == "<calculated when request is sent>") {
@@ -776,7 +776,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
          * @param [header] is a map of all values provided in receiver setting
          * @return Unit with all headers appended
          */
-        private fun HttpMessageBuilder.postHeaders(header: Map<String, String>): Unit =
+        private fun HttpMessageBuilder.buildHeaders(header: Map<String, String>): Unit =
             header.forEach { entry ->
                 headers.append(entry.key, entry.value)
             }
