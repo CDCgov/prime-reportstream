@@ -1320,6 +1320,7 @@ test.describe("Daily Data page", () => {
                                 // Apply button is enabled
                                 await applyButton(dailyDataPage.page).click();
                                 await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                                await dailyDataPage.page.getByTestId("filter-container").screenshot();
 
                                 // Check that table data contains the dates/times that were selected
                                 const areDatesInRange = await tableColumnDateTimeInRange(
