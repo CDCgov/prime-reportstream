@@ -1405,7 +1405,7 @@ test.describe("Daily Data page", () => {
                         });
                     });
 
-                    test.describe.skip("search", () => {
+                    test.describe("search", () => {
                         test.beforeEach(async ({ dailyDataPage }) => {
                             await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                         });
@@ -1514,7 +1514,7 @@ test.describe("Daily Data page", () => {
                         });
                     });
 
-                    test.describe.skip("on 'Report ID' click", () => {
+                    test.describe("on 'Report ID' click", () => {
                         test.beforeEach(async ({ dailyDataPage }) => {
                             await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                             await dailyDataPage.page
