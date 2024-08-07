@@ -98,6 +98,7 @@ export async function tableColumnDateTimeInRange(
         const columnValue = await tableRows(page).nth(i).locator("td").nth(columnNumber).innerText();
 
         const columnDate = new Date(columnValue);
+        console.log("columnDate: ", columnDate);
 
         if (!(columnDate >= startDateTime && columnDate < endDateTime)) {
             datesInRange = false;
