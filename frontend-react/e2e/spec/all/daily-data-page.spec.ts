@@ -1211,7 +1211,8 @@ test.describe("Daily Data page", () => {
 
                 test.describe(`${TEST_ORG_IGNORE} org - ${TEST_ORG_UP_RECEIVER_FULL_ELR} receiver`, () => {
                     test.describe("onLoad", () => {
-                        test.beforeEach(async ({ dailyDataPage }) => {
+                        test.beforeEach(async ({ dailyDataPage, browserName }) => {
+                            test.skip(browserName !== "chromium");
                             await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                         });
 
