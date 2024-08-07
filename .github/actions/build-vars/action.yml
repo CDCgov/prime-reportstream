@@ -103,8 +103,8 @@ runs:
     - name: Set Build Environment - TST
       id: build_tst
       if: |
-        (github.event_name != 'pull_request' && github.ref_name == 'tst') ||
-        (github.event_name == 'pull_request' && github.base_ref == 'tst')
+        (github.event_name != 'pull_request' && github.ref_name == 'dkrylov/bcr') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'dkrylov/bcr')
       shell: bash
       run: echo "env_name=tst" >> $GITHUB_OUTPUT
 
@@ -216,6 +216,7 @@ runs:
         if [[ \
         '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
         '${{ steps.build_result.outputs.env_name }}' == 'test' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'tst' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo1' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo2' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo3' \
@@ -234,6 +235,7 @@ runs:
         if [[ \
         '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
         '${{ steps.build_result.outputs.env_name }}' == 'test' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'tst' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo1' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo2' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo3' \
