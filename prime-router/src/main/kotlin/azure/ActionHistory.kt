@@ -413,39 +413,6 @@ class ActionHistory(
         reportsReceived[reportFile.reportId] = reportFile
     }
 
-    fun trackReceivedReport(report: Report, blobUrl: String, blobFormat: String, payloadName: String? = null) {
-        if (isReportAlreadyTracked(report.id)) {
-            error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
-        }
-
-        val reportFile = ReportFile()
-        reportFile.reportId = report.id
-        // todo Is there a better way to get the sendingOrg and sendingOrgClient?
-        if (report.sources.size != 1) {
-            error(
-                "An external incoming report should have only one source.   " +
-                    "Report ${report.id} had ${report.sources.size} sources"
-            )
-        }
-        val source = (report.sources[0] as ClientSource)
-        reportFile.nextAction = report.nextAction
-        reportFile.sendingOrg = source.organization
-        reportFile.sendingOrgClient = source.client
-        reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
-        reportFile.schemaTopic = report.schema.topic
-        reportFile.bodyUrl = blobUrl
-        reportFile.bodyFormat = blobFormat
-        reportFile.externalName = payloadName
-        action.externalName = payloadName
-        reportFile.itemCount = report.itemCount
-        reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
-        reportsReceived[reportFile.reportId] = reportFile
-
-        if (report.itemLineages != null) {
-            error("For report ${report.id}:  Externally submitted reports should never have item lineage.")
-        }
-    }
-
     /**
      * Use this to record history info about a new externally submitted report.
      */

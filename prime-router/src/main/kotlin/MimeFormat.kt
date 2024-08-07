@@ -32,8 +32,9 @@ enum class MimeFormat(val ext: String, val mimeType: String, val isSingleItemFor
 
         fun valueOfIgnoreCase(bodyFormat: String): MimeFormat = valueOf(bodyFormat.uppercase())
 
-        fun valueOfFromMimeType(mimeType: String): MimeFormat? {
-            return MimeFormat.values().find { it.mimeType == mimeType }
+        fun valueOfFromMimeType(mimeType: String): MimeFormat {
+            return entries.find { it.mimeType == mimeType }
+                ?: throw IllegalArgumentException("Unexpected extension $mimeType.")
         }
     }
 }

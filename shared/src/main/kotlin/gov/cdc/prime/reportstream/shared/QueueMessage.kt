@@ -19,7 +19,7 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(QueueMessage.ConvertQueueMessage::class, name = "convert"),
+    JsonSubTypes.Type(QueueMessage.ReceiveQueueMessage::class, name = "receive"),
 )
 interface QueueMessage {
     fun serialize(): String {
@@ -47,18 +47,18 @@ interface QueueMessage {
         val reportId: UUID
     }
 
-    interface ConvertInformation {
+    interface ReceiveInformation {
         val headers: Map<String, String>
     }
 
-    @JsonTypeName("convert-fhir")
-    data class ConvertQueueMessage(
+    @JsonTypeName("receive-fhir")
+    data class ReceiveQueueMessage(
         override val blobURL: String,
         override val digest: String,
         override val blobSubFolderName: String,
         override val reportId: UUID,
         override val headers: Map<String, String>,
-    ) : QueueMessage, ReportInformation, ConvertInformation
+    ) : QueueMessage, ReportInformation, ReceiveInformation
 
     object ObjectMapperProvider {
 
@@ -79,7 +79,7 @@ interface QueueMessage {
 
         init {
             // Register common subtypes here if necessary
-            mapper.registerSubtypes(ConvertQueueMessage::class.java)
+            mapper.registerSubtypes(ReceiveQueueMessage::class.java)
         }
     }
 }

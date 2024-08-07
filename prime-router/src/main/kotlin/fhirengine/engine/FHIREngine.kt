@@ -24,6 +24,7 @@ import gov.cdc.prime.router.serializers.Hl7Serializer
 import org.jooq.Field
 import java.time.OffsetDateTime
 
+const val elrReceiveQueueName = "elr-fhir-receive"
 const val elrConvertQueueName = "elr-fhir-convert"
 const val elrRoutingQueueName = "elr-fhir-route"
 const val elrDestinationFilterQueueName = "elr-fhir-destination-filter"

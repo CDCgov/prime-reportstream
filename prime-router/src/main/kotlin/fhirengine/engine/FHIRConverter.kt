@@ -8,25 +8,20 @@ import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator.ParseFailureError
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.common.collect.Streams
-import com.microsoft.azure.functions.HttpStatus
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.IProcessedItem
 import fhirengine.engine.ProcessedFHIRItem
 import fhirengine.engine.ProcessedHL7Item
 import gov.cdc.prime.reportstream.shared.BlobUtils
-import gov.cdc.prime.reportstream.shared.SubmissionsEntity
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.ErrorCode
-import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.SenderNotFound
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
@@ -101,123 +96,11 @@ class FHIRConverter(
         is FhirConvertQueueMessage -> {
             fhirEngineRunResults(message, message.schemaName, actionLogger, actionHistory)
         }
-
         else -> {
             throw RuntimeException(
                 "Message was not a FhirConvert and cannot be processed: $message"
             )
         }
-    }
-
-    /**
-     * Processes the received results by handling the sender information and logging the action history.
-     *
-     * @param queueMessage The queue message containing details about the report.
-     * @param actionLogger The logger used to track actions and errors.
-     * @param convertActionHistory The action history related to the conversion process.
-     * @return A list of FHIR engine run results.
-     */
-    private fun runReceiveResults(
-        queueMessage: FhirConvertQueueMessage,
-        actionLogger: ActionLogger,
-        actionHistory: ActionHistory,
-    ) {
-        val contextMap = mapOf(
-            MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
-            MDCUtils.MDCProperty.REPORT_ID to queueMessage.reportId,
-            MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobURL,
-        )
-
-        withLoggingContext(contextMap) {
-            // Retrieve the sender settings
-            val clientId = queueMessage.headers["client_id"]
-
-            val sender = clientId?.takeIf { it.isNotBlank() }?.let { settings.findSender(it) }
-
-            if (sender == null) {
-                handleSenderNotFound(queueMessage, actionLogger, actionHistory)
-            } else {
-                queueMessage.topic = sender.topic
-                queueMessage.schemaName = sender.schemaName
-
-                if (sender.customerStatus == CustomerStatus.INACTIVE) {
-                    handleInactiveSender(queueMessage, actionLogger, actionHistory)
-                }
-            }
-
-            val payloadName = queueMessage.headers["payloadname"]
-            val mimeType = queueMessage.headers["Content-Type"]?.substringBefore(';') ?: ""
-
-            actionHistory.trackActionResult(HttpStatus.CREATED)
-            actionHistory.trackActionParams(queueMessage.headers.toString())
-
-            if (sender != null) {
-                actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
-            }
-
-            actionHistory.trackReceivedNoReport(
-                queueMessage.reportId,
-                queueMessage.blobURL,
-                MimeFormat.valueOfFromMimeType(mimeType).toString(),
-                TaskAction.convert,
-                payloadName
-            )
-
-            if (actionLogger.hasErrors()) {
-                reportEventService.sendReceiveProcessingError(
-                    ReportStreamEventName.REPORT_NOT_RECEIVABLE,
-                    TaskAction.convert,
-                    "Unable to create report from received message.",
-                    queueMessage.reportId,
-                    queueMessage.blobURL
-                ) {
-                    params(
-                        actionLogger.errors.associateBy { ReportStreamEventProperties.PROCESSING_ERROR }
-                    )
-                }
-                val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Rejected").toTableEntity()
-                BlobAccess.insertTableEntity(tableEntity)
-            } else {
-                val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Accepted").toTableEntity()
-                BlobAccess.insertTableEntity(tableEntity)
-            }
-        }
-    }
-
-    /**
-     * Handles cases where the sender is not found.
-     *
-     * @param queueMessage The queue message containing details about the report.
-     * @param actionLogger The logger used to track actions and errors.
-     * @param actionHistory The action history related to receiving the report.
-     * @return An empty list of FHIR engine run results.
-     */
-    private fun handleSenderNotFound(
-        queueMessage: FhirConvertQueueMessage,
-        actionLogger: ActionLogger,
-        actionHistory: ActionHistory,
-    ) {
-        actionHistory.trackActionResult(HttpStatus.BAD_REQUEST)
-        actionLogger.error(
-            InvalidParamMessage("Sender not found matching client_id: " + queueMessage.headers["client_id"])
-        )
-    }
-
-    /**
-     * Handles cases where the sender is inactive.
-     *
-     * @param queueMessage The queue message containing details about the report.
-     * @param actionLogger The logger used to track actions and errors.
-     * @param actionHistory The action history related to receiving the report.
-     * @return An empty list of FHIR engine run results.
-     */
-    private fun handleInactiveSender(
-        queueMessage: FhirConvertQueueMessage,
-        actionLogger: ActionLogger,
-        actionHistory: ActionHistory,
-    ) {
-        actionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
-        actionLogger.error(SenderNotFound(queueMessage.headers["client_id"].toString()))
     }
 
     private fun fhirEngineRunResults(
@@ -232,17 +115,7 @@ class FHIRConverter(
             MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobURL
         )
         withLoggingContext(contextMap) {
-            if (queueMessage.headers.isNotEmpty()) {
-                runReceiveResults(queueMessage, actionLogger, actionHistory)
-            } else {
-                actionHistory.trackExistingInputReport(queueMessage.reportId)
-            }
-
-            // if errors added by runReceiveResults then convert should not continue
-            if (actionLogger.hasErrors()) {
-                return emptyList()
-            }
-
+            actionHistory.trackExistingInputReport(queueMessage.reportId)
             actionLogger.setReportId(queueMessage.reportId)
             val format = Report.getFormatFromBlobURL(queueMessage.blobURL)
             logger.info("Starting FHIR Convert step")
@@ -288,7 +161,7 @@ class FHIRConverter(
                                     Report.ParentItemLineageData(queueMessage.reportId, itemIndex.toInt() + 1)
                                 ),
                                 metadata = this.metadata,
-                                topic = queueMessage.topic!!,
+                                topic = queueMessage.topic,
                                 nextAction = TaskAction.none
                             )
                             val noneEvent = ProcessEvent(

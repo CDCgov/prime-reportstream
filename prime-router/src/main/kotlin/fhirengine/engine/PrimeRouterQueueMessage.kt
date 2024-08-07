@@ -30,17 +30,20 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
 )
 abstract class PrimeRouterQueueMessage : QueueMessage
 
-// interface ReportInformation {
-//    val blobURL: String
-//    val digest: String
-//    val blobSubFolderName: String
-//    val reportId: ReportId
-//    val topic: Topic
-// }
-
 abstract class ReportPipelineMessage :
     QueueMessage.ReportInformation,
     PrimeRouterQueueMessage()
+
+@JsonTypeName("receive")
+data class FhirReceiveQueueMessage(
+    override val reportId: ReportId,
+    override val blobURL: String,
+    override val digest: String,
+    override val blobSubFolderName: String,
+    override val headers: Map<String, String> = emptyMap(),
+    var topic: Topic?,
+    var schemaName: String = "",
+) : ReportPipelineMessage(), QueueMessage.ReceiveInformation
 
 @JsonTypeName("convert")
 data class FhirConvertQueueMessage(
@@ -48,10 +51,9 @@ data class FhirConvertQueueMessage(
     override val blobURL: String,
     override val digest: String,
     override val blobSubFolderName: String,
-    override val headers: Map<String, String> = emptyMap(),
-    var topic: Topic? = null,
+    var topic: Topic,
     var schemaName: String = "",
-) : ReportPipelineMessage(), QueueMessage.ConvertInformation
+) : ReportPipelineMessage()
 
 @JsonTypeName("route")
 data class FhirRouteQueueMessage(

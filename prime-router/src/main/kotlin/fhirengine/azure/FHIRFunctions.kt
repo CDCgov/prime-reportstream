@@ -23,6 +23,7 @@ import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrReceiveQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrReceiverFilterQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrSendQueueName
@@ -37,6 +38,41 @@ class FHIRFunctions(
     private val databaseAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
     private val queueAccess: QueueAccess = QueueAccess,
 ) : Logging {
+
+    /**
+     * An azure function for ingesting full-ELR data and creating report lineage
+     */
+    @FunctionName("receive-fhir")
+    @StorageAccount("AzureWebJobsStorage")
+    fun receive(
+        @QueueTrigger(name = "message", queueName = elrReceiveQueueName)
+        message: String,
+        // Number of times this message has been dequeued
+        @BindingName("DequeueCount") dequeueCount: Int = 1,
+    ) {
+        doConvert(message, dequeueCount, FHIRConverter())
+    }
+
+    /**
+     * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
+     * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
+     * the [dequeueCount] is tracked as part of the log.
+     * [actionHistory] is an optional parameter for use in testing
+     */
+    internal fun doReceive(
+        message: String,
+        dequeueCount: Int,
+        fhirEngine: FHIREngine,
+        actionHistory: ActionHistory = ActionHistory(TaskAction.convert),
+    ) {
+        val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
+        messagesToDispatch.forEach {
+            queueAccess.sendMessage(
+                elrDestinationFilterQueueName,
+                it.serialize()
+            )
+        }
+    }
 
     /**
      * An azure function for ingesting full-ELR HL7 data and converting it to FHIR

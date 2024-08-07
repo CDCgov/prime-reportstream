@@ -357,7 +357,6 @@ class UniversalPipelineReceiver : SubmissionReceiver {
                     blobInfo.blobUrl,
                     BlobUtils.digestToString(blobInfo.digest),
                     sender.fullName,
-                    emptyMap(),
                     sender.topic,
                     sender.schemaName
                 ).serialize()
