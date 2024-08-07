@@ -1201,7 +1201,7 @@ test.describe("Daily Data page", () => {
         });
     });
 
-    test.describe.skip(
+    test.describe(
         "user flow smoke tests",
         {
             tag: "@smoke",
@@ -1400,7 +1400,7 @@ test.describe("Daily Data page", () => {
                         });
                     });
 
-                    test.describe("search", () => {
+                    test.describe.skip("search", () => {
                         test.beforeEach(async ({ dailyDataPage }) => {
                             await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                         });
@@ -1509,7 +1509,7 @@ test.describe("Daily Data page", () => {
                         });
                     });
 
-                    test.describe("on 'Report ID' click", () => {
+                    test.describe.skip("on 'Report ID' click", () => {
                         test.beforeEach(async ({ dailyDataPage }) => {
                             await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                             await dailyDataPage.page
@@ -1530,7 +1530,7 @@ test.describe("Daily Data page", () => {
                         });
                     });
 
-                    test.describe("on 'Filename' click", () => {
+                    test.describe.skip("on 'Filename' click", () => {
                         test.beforeEach(async ({ dailyDataPage }) => {
                             await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                             await dailyDataPage.page
