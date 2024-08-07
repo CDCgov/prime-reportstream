@@ -195,7 +195,7 @@ class Report : Logging {
     /**
      * The number of items in the report
      */
-    val itemCount: Int
+    var itemCount: Int? = null
 
     /**
      * The number of items that passed the jurisdictionalFilter for this report, prior to
@@ -364,6 +364,37 @@ class Report : Logging {
         this.itemCount = numberOfMessages
         this.metadata = metadata ?: Metadata.getInstance()
         this.itemCountBeforeQualFilter = numberOfMessages
+        this.nextAction = nextAction
+    }
+
+    /**
+     * Full ELR Report constructor for ingest
+     * [bodyFormat] is the format for this report. Should be HL7
+     * [sources] is the ClientSource or TestSource, where this data came from
+     * [numberOfMessages] how many incoming messages does this Report represent
+     * [metadata] is the metadata to use, mocked meta is passed in for testing
+     * [itemLineage] itemlineages for this report to track parent/child reports
+     */
+    constructor(
+        bodyFormat: MimeFormat,
+        sources: List<Source>,
+        nextAction: TaskAction,
+        topic: Topic,
+        metadata: Metadata? = null,
+        itemLineage: List<ItemLineage>? = null,
+        destination: Receiver? = null,
+    ) {
+        this.id = UUID.randomUUID()
+        // UP submissions do not need a schema, but it is required by the database to maintain legacy functionality
+        this.schema = Schema("None", topic)
+        this.sources = sources
+        this.bodyFormat = bodyFormat
+        this.destination = destination
+        this.createdDateTime = OffsetDateTime.now()
+        this.itemLineages = itemLineage
+        // we do not need the 'table' representation in this instance
+        this.table = createTable(emptyMap<String, List<String>>())
+        this.metadata = metadata ?: Metadata.getInstance()
         this.nextAction = nextAction
     }
 
@@ -681,11 +712,12 @@ class Report : Logging {
                 // to reliably shuffle against. because shuffling is pseudo-random, it's possible that
                 // with something below a threshold we could end up leaking PII, therefore
                 // ignore the call to shuffle and just fake it
-                val synthesizeStrategy = if (itemCount < SHUFFLE_THRESHOLD && strategy == SynthesizeStrategy.SHUFFLE) {
-                    SynthesizeStrategy.FAKE
-                } else {
-                    strategy
-                }
+                val synthesizeStrategy =
+                    if (itemCount!! < SHUFFLE_THRESHOLD && strategy == SynthesizeStrategy.SHUFFLE) {
+                        SynthesizeStrategy.FAKE
+                    } else {
+                        strategy
+                    }
                 // look in the mapping parameter passed in for the current element
                 when (synthesizeStrategy) {
                     // examine the synthesizeStrategy for the field
@@ -1160,7 +1192,7 @@ class Report : Logging {
         return StringColumn.create(toElement.name, values.asList())
     }
 
-    private fun buildEmptyColumn(name: String): StringColumn = StringColumn.create(name, List(itemCount) { "" })
+    private fun buildEmptyColumn(name: String): StringColumn = StringColumn.create(name, List(itemCount!!) { "" })
 
     /**
      * Given a column name, this function walks through each value and if the value in that
@@ -1261,7 +1293,7 @@ class Report : Logging {
         val fakeDataService = FakeDataService()
         return StringColumn.create(
             name,
-            List(itemCount) {
+            List(itemCount!!) {
                 val context = FakeReport.RowContext(metadata, targetState, schema.name, targetCounty)
                 fakeDataService.getFakeValueForElement(element, context)
             }

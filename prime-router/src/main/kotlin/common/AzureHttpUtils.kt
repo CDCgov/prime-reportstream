@@ -13,4 +13,13 @@ object AzureHttpUtils {
                 )?.take(Tables.ACTION.SENDER_IP.dataType.length()) ?: request.headers["x-azure-clientip"]
             )
     }
+
+    fun getSenderIP(headers: Map<String, String>): String? {
+        return (
+            (
+                headers["x-forwarded-for"]?.split(",")
+                    ?.firstOrNull()
+                )?.take(Tables.ACTION.SENDER_IP.dataType.length()) ?: headers["x-azure-clientip"]
+            )
+    }
 }

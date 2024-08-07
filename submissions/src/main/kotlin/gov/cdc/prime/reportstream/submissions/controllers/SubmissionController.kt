@@ -113,7 +113,7 @@ class SubmissionController(
 
         // Queue upload should occur as the last step ensuring the other steps successfully process
         // Create the message for the queue
-        val message = QueueMessage.ConvertQueueMessage(
+        val message = QueueMessage.ReceiveQueueMessage(
             blobClient.blobUrl,
             BlobUtils.digestToString(digest),
             "",
@@ -220,7 +220,8 @@ class SubmissionController(
     }
 
     private fun filterHeaders(headers: Map<String, String>): Map<String, String> {
-        val headersToInclude = listOf("client_id", "content-type", "payloadname", "x-azure-clientip")
+        val headersToInclude =
+            listOf("client_id", "content-type", "payloadname", "x-azure-clientip", "content-length")
         return headers.filter { it.key in headersToInclude }
     }
 
