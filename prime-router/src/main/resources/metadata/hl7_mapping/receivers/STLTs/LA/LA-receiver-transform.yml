@@ -61,3 +61,73 @@ elements:
     condition: '%resource.code.exists()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '%{PID}-10-3' ]
+
+  - name: la-patient-county-codes
+    value: [ 'Bundle.entry.resource.ofType(Patient).address.district' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-11-6' ]
+    valueSet:
+      values:
+        Acadia: 22001
+        Allen: 22003
+        Ascension: 22005
+        Assumption: 22007
+        Avoyelles: 22009
+        Beauregard: 22011
+        Bienville: 22013
+        Bossier: 22015
+        Caddo: 22017
+        Calcasieu: 22019
+        Caldwell: 22021
+        Cameron: 22023
+        Catahoula: 22025
+        Claiborne: 22027
+        Concordia: 22029
+        De Soto: 22031
+        East Baton Rouge: 22033
+        East Carroll: 22035
+        East Feliciana: 22037
+        Evangeline: 22039
+        Franklin: 22041
+        Grant: 22043
+        Iberia: 22045
+        Iberville: 22047
+        Jackson: 22049
+        Jefferson: 22051
+        Jefferson Davis: 22053
+        Lafayette: 22055
+        Lafourche: 22057
+        LaSalle: 22059
+        Lincoln: 22061
+        Livingston: 22063
+        Madison: 22065
+        Morehouse: 22067
+        Natchitoches: 22069
+        Orleans: 22071
+        Ouachita: 22073
+        Plaquemines: 22075
+        Pointe Coupee: 22077
+        Rapides: 22079
+        Red River: 22081
+        Richland: 22083
+        Sabine: 22085
+        St. Bernard: 22087
+        St. Charles: 22089
+        St. Helena: 22091
+        St. James: 22093
+        St. John the Baptist: 22095
+        St. Landry: 22097
+        St. Martin: 22099
+        St. Mary: 22101
+        St. Tammany: 22103
+        Tangipahoa: 22105
+        Tensas: 22107
+        Terrebonne: 22109
+        Union: 22111
+        Vermilion: 22113
+        Vernon: 22115
+        Washington: 22117
+        Webster: 22119
+        West Baton Rouge: 22121
+        West Carroll: 22123
+        West Feliciana: 22125
+        Winn: 22127
