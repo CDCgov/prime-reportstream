@@ -228,7 +228,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
             GeoData.DataTypes.OTHER_TEXT -> "I am some random text"
             GeoData.DataTypes.BLANK -> ""
             GeoData.DataTypes.TEXT_OR_BLANK -> randomChoice("I am some random text", "")
-            GeoData.DataTypes.NUMBER -> Random.nextInt().toString()
+            GeoData.DataTypes.NUMBER -> Random.nextInt().toString().replace("-", "")
             GeoData.DataTypes.DATE -> DateUtilities.getDateAsFormattedString(
                 getRandomDate().toInstant(),
                 DateUtilities.datePattern
@@ -246,20 +246,12 @@ class CustomFhirPathFunctions : FhirPathFunctions {
             GeoData.DataTypes.ID -> Faker().numerify("######")
             GeoData.DataTypes.ID_CLIA -> Faker().numerify("##D#######")
             GeoData.DataTypes.ID_DLN -> Faker().idNumber().valid()
-            GeoData.DataTypes.ID_SSN -> Faker().idNumber().invalidSvSeSsn()
+            GeoData.DataTypes.ID_SSN -> Faker().idNumber().validSvSeSsn()
             GeoData.DataTypes.ID_NPI -> NPIUtilities.generateRandomNPI(Faker())
             GeoData.DataTypes.STREET -> Faker().address().streetAddress()
-            GeoData.DataTypes.PERSON_NAME -> randomChoice(
-                "Hermione Jean Granger",
-                "Harry James Potter",
-                "Ronald Bilius Weasely"
-            )
+            GeoData.DataTypes.PERSON_NAME -> Faker().name().fullName()
             GeoData.DataTypes.TELEPHONE -> Faker().numerify("12#########")
-            GeoData.DataTypes.EMAIL -> randomChoice(
-                "HermioneJeanGranger@gmail.com",
-                "HarryJamesPotter@yahoo.com",
-                "RonaldBiliusWeasely@aol.com"
-            )
+            GeoData.DataTypes.EMAIL -> Faker().name().fullName().replace(" ", "").replace(".", "") + "@gmail.com"
             GeoData.DataTypes.SPECIMEN_SOURCE_SITE_CODE -> "71836000"
             GeoData.DataTypes.TEST_RESULT_STATUS -> randomChoice("F", "C")
             GeoData.DataTypes.PROCESSING_MODE_CODE -> "P"
