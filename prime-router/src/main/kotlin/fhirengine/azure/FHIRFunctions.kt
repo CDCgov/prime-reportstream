@@ -16,6 +16,7 @@ import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
+import gov.cdc.prime.router.fhirengine.engine.FHIRReceiver
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
@@ -50,7 +51,7 @@ class FHIRFunctions(
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
-        doConvert(message, dequeueCount, FHIRConverter())
+        doReceive(message, dequeueCount, FHIRReceiver())
     }
 
     /**

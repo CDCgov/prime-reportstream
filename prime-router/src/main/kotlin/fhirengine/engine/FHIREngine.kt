@@ -131,6 +131,14 @@ abstract class FHIREngine(
 
             // create the correct FHIREngine type for the action being taken
             return when (taskAction) {
+                TaskAction.receive -> FHIRReceiver(
+                    metadata ?: Metadata.getInstance(),
+                    settingsProvider!!,
+                    databaseAccess ?: databaseAccessSingleton,
+                    blobAccess ?: BlobAccess(),
+                    azureEventService ?: AzureEventServiceImpl(),
+                    reportService ?: ReportService()
+                )
                 TaskAction.process -> FHIRConverter(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,

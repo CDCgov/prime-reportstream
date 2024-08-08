@@ -11,23 +11,18 @@ import ca.uhn.fhir.validation.ResultSeverityEnum
 import ca.uhn.fhir.validation.SingleValidationMessage
 import ca.uhn.fhir.validation.ValidationResult
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
-import com.microsoft.azure.functions.HttpStatus
 import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01
-import gov.cdc.prime.reportstream.shared.SubmissionsEntity
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.SenderNotFound
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
@@ -159,184 +154,6 @@ class FhirConverterTests {
 
     // good hl7, check actionHistory, item lineages, upload was called, task, queue message
     @Test
-    fun `test processHl7 and handle sender not found`() {
-        mockkObject(BlobAccess)
-        mockkClass(SubmissionsEntity::class)
-        // set up
-        val actionHistory = mockk<ActionHistory>()
-        val actionLogger = ActionLogger()
-        val settingsProvider = mockk<SettingsProvider>()
-
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
-
-        val queueMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
-        every { queueMessage.headers["client_id"] } returns "unknown_client_id"
-        every { queueMessage.headers["payloadname"] } returns ""
-        every { queueMessage.headers["Content-Type"] } returns ""
-        val reportId = UUID.randomUUID()
-        every { queueMessage.reportId } returns reportId
-        every { settingsProvider.findSender(any()) } returns null
-        val action = Action()
-        action.actionName = TaskAction.convert
-        every { actionHistory.action } returns action
-        every { actionHistory.trackActionResult(any<HttpStatus>()) } returns Unit
-        every { actionHistory.trackActionParams(any<String>()) } returns Unit
-        every { actionHistory.trackReceivedNoReport(any(), any(), any(), any(), any()) } returns Unit
-
-        // act
-        accessSpy.transact { txn ->
-            engine.run(queueMessage, actionLogger, actionHistory, txn)
-        }
-
-        // assert
-        assertThat(
-            actionLogger.errors[0].equals(
-            InvalidParamMessage("Sender not found matching client_id: unknown_client_id")
-            )
-        )
-        verify(exactly = 1) {
-            BlobAccess.Companion.insertTableEntity(any())
-            SubmissionsEntity(reportId.toString(), "Rejected").toTableEntity()
-            actionHistory.trackActionResult(HttpStatus.BAD_REQUEST)
-        }
-    }
-
-    // good hl7, check actionHistory, item lineages, upload was called, task, queue message
-    @Test
-    fun `test processHl7 and handle inactive sender`() {
-        mockkObject(BlobAccess)
-        // set up
-        val actionHistory = mockk<ActionHistory>()
-        val actionLogger = ActionLogger()
-        val sender = CovidSender(
-            "Test Sender",
-            "test",
-            MimeFormat.CSV,
-            schemaName = "one",
-            customerStatus = CustomerStatus.INACTIVE
-        )
-
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
-
-        val queueMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
-        every { queueMessage.headers["client_id"] } returns "test_client_id"
-        every { queueMessage.headers["payloadname"] } returns "test_name"
-        every { queueMessage.headers["Content-Type"] } returns ""
-        val reportId = UUID.randomUUID()
-        every { queueMessage.reportId } returns reportId
-        val action = Action()
-        action.actionName = TaskAction.convert
-        every { actionHistory.action } returns action
-        every { actionHistory.trackActionResult(any<HttpStatus>()) } returns Unit
-        every { actionHistory.trackActionParams(any<String>()) } returns Unit
-        every { actionHistory.trackActionSenderInfo(any(), any()) } returns Unit
-        every { actionHistory.trackReceivedNoReport(any(), any(), any(), any(), any()) } returns Unit
-        every { engine.settings.findSender(any()) } returns sender
-
-        // act
-        accessSpy.transact { txn ->
-            engine.run(queueMessage, actionLogger, actionHistory, txn)
-        }
-
-        // assert
-        assertThat(actionLogger.errors[0].equals(SenderNotFound(queueMessage.headers["client_id"].toString())))
-        verify(exactly = 1) {
-            BlobAccess.Companion.insertTableEntity(any())
-            SubmissionsEntity(reportId.toString(), "Rejected").toTableEntity()
-            actionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
-            actionHistory.trackActionSenderInfo(sender.fullName, "test_name")
-        }
-    }
-
-    // good hl7, check actionHistory, item lineages, upload was called, task, queue message
-    @Test
-    fun `test processHl7 happy path with queueMessage headers`() {
-        mockkObject(BlobAccess)
-        mockkObject(Report)
-
-        val sender = CovidSender(
-            "Test Sender",
-            "test",
-            MimeFormat.CSV,
-            schemaName = "one",
-            customerStatus = CustomerStatus.ACTIVE
-        )
-
-        // set up
-        val actionHistory = mockk<ActionHistory>()
-        val actionLogger = mockk<ActionLogger>()
-        val transformer = mockk<FhirTransformer>()
-
-        metadata.lookupTableStore += mapOf(
-            "observation-mapping" to LookupTable(
-                "observation-mapping",
-                emptyList()
-            )
-        )
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
-        val message = spyk(
-            FhirConvertQueueMessage(
-                UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER_NAME, emptyMap(), topic = Topic.FULL_ELR,
-                SCHEMA_NAME
-            )
-        )
-
-        every { message.headers["client_id"] } returns "test_client_id"
-        every { message.headers["payloadname"] } returns "test_message"
-        every { message.headers["Content-Type"] } returns "application/fhir+ndjson;test"
-        every { message.headers.isEmpty() } returns false
-
-        val bodyFormat = MimeFormat.FHIR
-        val bodyUrl = "https://anyblob.com"
-
-        val reportId = UUID.randomUUID()
-        every { message.reportId } returns reportId
-
-        every { actionLogger.hasErrors() } returns false
-        every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
-        every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
-        every { actionLogger.setReportId(any()) } returns actionLogger
-        every { BlobAccess.downloadContent(any(), any()) }.returns(validHl7)
-        every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.HL7
-        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
-        every { actionHistory.trackActionResult(any<HttpStatus>()) } returns Unit
-        every { actionHistory.trackActionParams(any<String>()) } returns Unit
-        every { actionHistory.trackActionSenderInfo(any(), any()) } returns Unit
-        every { actionHistory.trackReceivedNoReport(any(), any(), any(), any(), any()) } returns Unit
-        val action = Action()
-        action.actionName = TaskAction.convert
-        every { actionHistory.action } returns action
-        every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
-        every { transformer.process(any()) } returnsArgument (0)
-        every { engine.settings.findSender(any()) } returns sender
-
-        // act
-        accessSpy.transact { txn ->
-            engine.run(message, actionLogger, actionHistory, txn)
-        }
-
-        // assert
-        verify(exactly = 1) {
-            actionHistory.trackActionResult(HttpStatus.CREATED)
-            actionHistory.trackActionSenderInfo(sender.fullName, "test_message")
-            actionHistory.trackReceivedNoReport(
-                reportId,
-                BLOB_URL,
-                bodyFormat.toString(),
-                TaskAction.convert,
-                "test_message"
-            )
-            SubmissionsEntity(reportId.toString(), "Accepted").toTableEntity()
-            transformer.process(any())
-            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any(), any())
-        }
-    }
-
-    // good hl7, check actionHistory, item lineages, upload was called, task, queue message
-    @Test
     fun `test processHl7 happy path`() {
         mockkObject(BlobAccess)
         mockkObject(Report)
@@ -355,7 +172,7 @@ class FhirConverterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
             FhirConvertQueueMessage(
-                UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER_NAME, emptyMap(), topic = Topic.FULL_ELR,
+                UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER_NAME, Topic.FULL_ELR,
                 SCHEMA_NAME
             )
         )
@@ -410,8 +227,7 @@ class FhirConverterTests {
                 BLOB_FHIR_URL,
                 "test",
                 BLOB_SUB_FOLDER_NAME,
-                emptyMap(),
-                topic = Topic.FULL_ELR,
+                Topic.FULL_ELR,
                 SCHEMA_NAME
             )
         )
@@ -480,7 +296,7 @@ class FhirConverterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
             FhirConvertQueueMessage(
-                UUID.randomUUID(), BLOB_FHIR_URL, "test", BLOB_SUB_FOLDER_NAME, emptyMap(), topic = Topic.FULL_ELR,
+                UUID.randomUUID(), BLOB_FHIR_URL, "test", BLOB_SUB_FOLDER_NAME, Topic.FULL_ELR,
                 SCHEMA_NAME
             )
         )
@@ -570,8 +386,7 @@ class FhirConverterTests {
                 BLOB_FHIR_URL,
                 "test",
                 BLOB_SUB_FOLDER_NAME,
-                emptyMap(),
-                topic = Topic.FULL_ELR,
+                Topic.FULL_ELR,
                 SCHEMA_NAME
             )
         )
@@ -662,8 +477,7 @@ class FhirConverterTests {
                 BLOB_FHIR_URL,
                 "test",
                 BLOB_SUB_FOLDER_NAME,
-                emptyMap(),
-                topic = Topic.FULL_ELR,
+                Topic.FULL_ELR,
                 SCHEMA_NAME
             )
         )

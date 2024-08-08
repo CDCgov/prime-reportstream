@@ -262,7 +262,7 @@ object UniversalPipelineTestUtils {
             assertThat(itemLineages).hasSize(expected)
             assertThat(itemLineages.map { it.childIndex }).isEqualTo(MutableList(expected) { 1 })
 
-            if (parent.itemCount > 1) {
+            if (parent.itemCount!! > 1) {
                 assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expected).toList())
             } else {
                 assertThat(itemLineages.map { it.parentIndex }).isEqualTo(MutableList(expected) { 1 })
@@ -326,7 +326,7 @@ object UniversalPipelineTestUtils {
         // for example - the result of the "convert" step will fall into the if block. The result of a "route"
         // step will fall into the "else" block because the preceding "convert" step will always create
         // reports with one and only one item to be routed.
-        if (previousStepReport.itemCount > 1) {
+        if (previousStepReport.itemCount!! > 1) {
             assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expectedNumberOfItems).toList())
         } else {
             assertThat(itemLineages.map { it.parentIndex }).isEqualTo(MutableList(expectedNumberOfItems) { 1 })

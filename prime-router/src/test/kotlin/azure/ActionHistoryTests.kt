@@ -130,7 +130,13 @@ class ActionHistoryTests {
         val actionHistory1 = ActionHistory(TaskAction.receive)
         val blobInfo1 = BlobAccess.BlobInfo(MimeFormat.CSV, "myUrl", byteArrayOf(0x11, 0x22))
         val payloadName = "quux"
-        actionHistory1.trackExternalInputReport(report1, blobInfo1, payloadName)
+        actionHistory1.trackExternalInputReport(
+            report1,
+            blobInfo1.blobUrl,
+            blobInfo1.format.toString(),
+            blobInfo1.digest,
+            payloadName
+        )
         assertNotNull(actionHistory1.reportsReceived[report1.id])
         val reportFile = actionHistory1.reportsReceived[report1.id]!!
         assertThat(reportFile.schemaName).isEqualTo("one")
@@ -144,7 +150,14 @@ class ActionHistoryTests {
         assertThat(actionHistory1.action.externalName).isEqualTo(payloadName)
 
         // not allowed to track the same report twice.
-        assertFailure { actionHistory1.trackExternalInputReport(report1, blobInfo1) }
+        assertFailure {
+            actionHistory1.trackExternalInputReport(
+                report1,
+                blobInfo1.blobUrl,
+                blobInfo1.format.toString(),
+                blobInfo1.digest
+            )
+        }
     }
 
     @Test

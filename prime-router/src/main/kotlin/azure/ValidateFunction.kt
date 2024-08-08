@@ -149,7 +149,7 @@ class ValidateFunction(
                 Destination(
                     it.receiver.organizationName,
                     it.receiver.name,
-                    itemCount = it.report.itemCount,
+                    itemCount = it.report.itemCount!!,
                     sentReports = mutableListOf(),
                     downloadedReports = mutableListOf(),
                     filteredReportItems = it.report.filteringResults.map { ReportStreamFilterResultForResponse(it) }

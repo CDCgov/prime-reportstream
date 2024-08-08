@@ -416,7 +416,13 @@ class ActionHistory(
     /**
      * Use this to record history info about a new externally submitted report.
      */
-    fun trackExternalInputReport(report: Report, blobInfo: BlobAccess.BlobInfo, payloadName: String? = null) {
+    fun trackExternalInputReport(
+        report: Report,
+        blobUrl: String,
+        blobFormat: String,
+        blobDigest: ByteArray,
+        payloadName: String? = null,
+    ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
         }
@@ -436,9 +442,9 @@ class ActionHistory(
         reportFile.sendingOrgClient = source.client
         reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
         reportFile.schemaTopic = report.schema.topic
-        reportFile.bodyUrl = blobInfo.blobUrl
-        reportFile.bodyFormat = blobInfo.format.toString()
-        reportFile.blobDigest = blobInfo.digest
+        reportFile.bodyUrl = blobUrl
+        reportFile.bodyFormat = blobFormat
+        reportFile.blobDigest = blobDigest
         reportFile.externalName = payloadName
         action.externalName = payloadName
         reportFile.itemCount = report.itemCount

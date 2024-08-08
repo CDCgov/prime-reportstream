@@ -185,7 +185,7 @@ class FHIRConverter(
                                         mapOf(
                                             ReportStreamEventProperties.ITEM_FORMAT to format,
                                             ReportStreamEventProperties.VALIDATION_PROFILE
-                                                to queueMessage.topic!!.validator.validatorProfileName
+                                                to queueMessage.topic.validator.validatorProfileName
                                         )
                                     )
                                 }
@@ -204,7 +204,7 @@ class FHIRConverter(
                                     Report.ParentItemLineageData(queueMessage.reportId, itemIndex.toInt() + 1)
                                 ),
                                 metadata = this.metadata,
-                                topic = queueMessage.topic!!,
+                                topic = queueMessage.topic,
                                 nextAction = TaskAction.destination_filter
                             )
 
@@ -267,7 +267,7 @@ class FHIRConverter(
                                     blobInfo.blobUrl,
                                     BlobUtils.digestToString(blobInfo.digest),
                                     queueMessage.blobSubFolderName,
-                                    queueMessage.topic!!
+                                    queueMessage.topic
                                 )
                             )
                         }
@@ -288,7 +288,7 @@ class FHIRConverter(
                     emptyList(),
                     1,
                     metadata = this.metadata,
-                    topic = queueMessage.topic!!,
+                    topic = queueMessage.topic,
                     nextAction = TaskAction.none
                 )
 
@@ -351,7 +351,7 @@ class FHIRConverter(
         actionLogger: ActionLogger,
         routeReportWithInvalidItems: Boolean = true,
     ): List<IProcessedItem<*>> {
-        val validator = queueMessage.topic!!.validator
+        val validator = queueMessage.topic.validator
         val rawReport = BlobAccess.downloadContent(queueMessage.blobURL, queueMessage.digest)
         return if (rawReport.isBlank()) {
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
@@ -366,7 +366,7 @@ class FHIRConverter(
                                 "format" to format.name
                             )
                         ) {
-                            getBundlesFromRawHL7(rawReport, validator, queueMessage.topic!!.hl7ParseConfiguration)
+                            getBundlesFromRawHL7(rawReport, validator, queueMessage.topic.hl7ParseConfiguration)
                         }
                     } catch (ex: ParseFailureError) {
                         actionLogger.error(
