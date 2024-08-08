@@ -1,0 +1,46 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+constants:
+  PID: '/PATIENT_RESULT/PATIENT/PID'
+
+elements:
+
+  - name: me-name-of-the-sender-application-Namespace-Id
+    condition: 'true'
+    value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
+    hl7Spec: [ 'MSH-3-1' ]
+
+  - name: me-sender-application-Universal-Id
+    condition: 'true'
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+    hl7Spec: [ 'MSH-3-2' ]
+
+  - name: me-sender-application-Universal-Id-Type
+    condition: 'true'
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-3-3' ]
+
+  - name: me-name-of-the-receiving-application
+    condition: 'true'
+    value: [ '"ME-DOH"' ]
+    hl7Spec: [ 'MSH-5-1' ]
+
+  - name: me-receiving-facility-namespace-ID
+    condition: 'true'
+    value: [ '"ME-DOH"' ]
+    hl7Spec: [ 'MSH-6-1' ]
+
+  - name: me-patient-race-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+    condition: '%resource.code.exists()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '%{PID}-10-3' ]
+
+  - name: observation-result-with-aoe
+    resource: '%resource.result.resolve()'
+
+
+
+
+
