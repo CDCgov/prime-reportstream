@@ -255,7 +255,7 @@ runs:
       id: fetch_vpn_ip
       shell: bash
       run: |
-        if [[ \        
+        if [[ \
         '${{ steps.build_result.outputs.env_name }}' == 'tst' \
         ]]; then
           DNS_IP="172.17.0.135"
