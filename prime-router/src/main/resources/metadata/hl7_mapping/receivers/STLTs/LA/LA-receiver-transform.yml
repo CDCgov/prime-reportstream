@@ -64,7 +64,7 @@ elements:
 
   - name: la-patient-county-codes
     value: [ 'Bundle.entry.resource.ofType(Patient).address.district' ]
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-11-6' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-11-9' ]
     valueSet:
       values:
         Acadia: 22001
