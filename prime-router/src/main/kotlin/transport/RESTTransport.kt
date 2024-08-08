@@ -465,7 +465,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             val restUrl = restTransportInfo.authTokenUrl
             val idTokenInfoString: String = client.post(restUrl) {
                 expectSuccess = true // throw an exception if not successful
-                postHeaders(
+                buildHeaders(
                     if (restTransportInfo.authHeaders["Authorization-Type"] == "Basic Auth") {
                         // Authorization-Type: "Basic Auth" requires the following:
                         // Header:
@@ -535,7 +535,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     ): String {
         httpClient.use { client ->
             return client.get(encryptionKeyUrl) {
-                postHeaders(
+                buildHeaders(
                     headers.map { (key, value) -> Pair(key, value) }.toMap()
                 )
             }.body<String>()
@@ -621,7 +621,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         boundary: String,
         reportCreateDate: OffsetDateTime,
     ) {
-        logger.info("Sending report to rest API")
+        logger.info("sending report to rest API")
         expectSuccess = true // throw an exception if not successful
 
         // Calculate Content-Length if needed.
