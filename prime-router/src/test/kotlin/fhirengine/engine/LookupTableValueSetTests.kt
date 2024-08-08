@@ -19,6 +19,7 @@ import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.ContactPoint
 import org.hl7.fhir.r4.model.HumanName
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.StringType
@@ -77,22 +78,24 @@ class LookupTableValueSetTests {
         mockkObject(Metadata)
         every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
 
-        var bundle = Bundle()
+        val bundle = Bundle()
         bundle.id = "bundle1"
-        var resource = Patient()
+        val resource = Patient()
         resource.addName(HumanName().setTextElement(StringType("abc123")))
+        resource.addTelecom(ContactPoint().setValueElement(StringType("abc123")))
         bundle.addEntry().resource = resource
-        var resource2 = Patient()
+        val resource2 = Patient()
         resource2.addName(HumanName().setTextElement(StringType("def456")))
+        resource2.addTelecom(ContactPoint().setValueElement(StringType("def456")))
         bundle.addEntry().resource = resource2
-        var resource3 = Patient()
+        val resource3 = Patient()
         resource3.addName(HumanName().setTextElement(StringType("jkl369")))
+        resource3.addTelecom(ContactPoint().setValueElement(StringType("jkl369")))
         bundle.addEntry().resource = resource3
 
-        var valueConfig = LookupTableValueSetConfig(tableName = "table", keyColumn = "key", valueColumn = "value")
-
-        var patientElement = FhirTransformSchemaElement(
-            "patientElement",
+        val valueConfig = LookupTableValueSetConfig(tableName = "table", keyColumn = "key", valueColumn = "value")
+        val patientNameElement = FhirTransformSchemaElement(
+            "patientNameElement",
             value = listOf("%resource.name.text"),
             resource = "%resource",
             bundleProperty = "%resource.name.text",
@@ -100,7 +103,18 @@ class LookupTableValueSetTests {
                 valueConfig
             )
         )
-        var childSchema = FhirTransformSchema(elements = mutableListOf(patientElement))
+        val valueConfig2 =
+            LookupTableValueSetConfig(tableName = "table", keyColumn = "key", valueColumn = "secondValue")
+        val patientTelecomElement = FhirTransformSchemaElement(
+            "patientTelecomElement",
+            value = listOf("%resource.telecom.value"),
+            resource = "%resource",
+            bundleProperty = "%resource.telecom.value",
+            valueSet = LookupTableValueSet(
+                valueConfig2
+            )
+        )
+        val childSchema = FhirTransformSchema(elements = mutableListOf(patientNameElement, patientTelecomElement))
 
         val elemA = FhirTransformSchemaElement(
             "elementA",
@@ -109,56 +123,16 @@ class LookupTableValueSetTests {
             resourceIndex = "patientIndex",
         )
 
-        var schema = FhirTransformSchema(elements = mutableListOf(elemA))
+        val schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
         FhirTransformer(schema).process(bundle)
 
         assertThat(resource.name[0].text).isEqualTo("ghi789")
+        assertThat(resource.telecom[0].value).isEqualTo("ijk012")
         assertThat(resource2.name[0].text).isEqualTo("")
+        assertThat(resource2.telecom[0].value).isEqualTo("lmn345")
         assertThat(resource3.name[0].text).isEqualTo("jkl369")
-
-        // Test getting the second column from the same table.
-
-        bundle = Bundle()
-        bundle.id = "bundle2"
-        resource = Patient()
-        resource.addName(HumanName().setTextElement(StringType("def456")))
-        bundle.addEntry().resource = resource
-        resource2 = Patient()
-        resource2.addName(HumanName().setTextElement(StringType("abc123")))
-        bundle.addEntry().resource = resource2
-        resource3 = Patient()
-        resource3.addName(HumanName().setTextElement(StringType("jkl369")))
-        bundle.addEntry().resource = resource3
-
-        valueConfig = LookupTableValueSetConfig(tableName = "table", keyColumn = "key", valueColumn = "secondValue")
-
-        patientElement = FhirTransformSchemaElement(
-            "patientElement",
-            value = listOf("%resource.name.text"),
-            resource = "%resource",
-            bundleProperty = "%resource.name.text",
-            valueSet = LookupTableValueSet(
-                valueConfig
-            )
-        )
-
-        childSchema = FhirTransformSchema(elements = mutableListOf(patientElement))
-
-        val elemB = FhirTransformSchemaElement(
-            "elementB",
-            resource = "Bundle.entry.resource.ofType(Patient)",
-            schemaRef = childSchema,
-            resourceIndex = "patientIndex",
-        )
-
-        schema = FhirTransformSchema(elements = mutableListOf(elemB))
-
-        FhirTransformer(schema).process(bundle)
-
-        assertThat(resource.name[0].text).isEqualTo("lmn345")
-        assertThat(resource2.name[0].text).isEqualTo("ijk012")
-        assertThat(resource3.name[0].text).isEqualTo("jkl369")
+        assertThat(resource3.telecom[0].value).isEqualTo("jkl369")
 
         unmockkAll()
     }
