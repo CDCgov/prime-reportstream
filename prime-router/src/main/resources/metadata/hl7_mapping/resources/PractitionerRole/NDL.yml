@@ -52,4 +52,4 @@ elements:
 
   - name: ndl-extension-value
     resource: '%resource.extension(%`rsext-ndl-practitioner-role`)'
-    schema: classpath:/metadata/hl7_mapping/v251-elr/resources/PractitionerRole/NDLExtension.yml
+    schema: classpath:/metadata/hl7_mapping/resources/PractitionerRole/NDLExtension.yml
