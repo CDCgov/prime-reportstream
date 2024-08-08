@@ -9,12 +9,15 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
+import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SenderNotFound
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
@@ -84,7 +87,7 @@ class FHIRReceiver(
         queueMessage: FhirReceiveQueueMessage,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
-    ) {
+    ): List<FHIREngineRunResult> {
         val contextMap = mapOf(
             MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
             MDCUtils.MDCProperty.REPORT_ID to queueMessage.reportId,
@@ -125,6 +128,7 @@ class FHIRReceiver(
                 }
                 val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Rejected").toTableEntity()
                 BlobAccess.insertTableEntity(tableEntity)
+                return emptyList()
             } else {
                 val sources = listOf(ClientSource(organization = sender!!.organizationName, client = sender.name))
                 val report = Report(
@@ -151,6 +155,30 @@ class FHIRReceiver(
 
                 val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Accepted").toTableEntity()
                 BlobAccess.insertTableEntity(tableEntity)
+
+                // create route event
+                val routeEvent = ProcessEvent(
+                    Event.EventAction.CONVERT,
+                    report.id,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                )
+
+                return listOf(
+                    FHIREngineRunResult(
+                        routeEvent,
+                        report,
+                        queueMessage.blobURL,
+                        FhirDestinationFilterQueueMessage(
+                            report.id,
+                            queueMessage.blobURL,
+                            queueMessage.digest,
+                            queueMessage.blobSubFolderName,
+                            sender.topic
+                        )
+                    )
+                )
             }
         }
     }
