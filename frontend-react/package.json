@@ -198,7 +198,7 @@
     "@types/react": "18.3.3"
   },
   "engines": {
-    "node": "^20.14"
+    "node": "^20.15"
   },
   "packageManager": "yarn@3.6.3"
 }
