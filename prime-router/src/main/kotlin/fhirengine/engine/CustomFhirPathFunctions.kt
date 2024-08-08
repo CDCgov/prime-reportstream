@@ -23,7 +23,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
     enum class CustomFhirPathFunctionNames {
 
         LivdTableLookup,
-
+        FIPSCountyLookup,
         ;
 
         companion object {
@@ -57,6 +57,13 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                     1
                 )
             }
+            CustomFhirPathFunctionNames.FIPSCountyLookup -> {
+                FunctionDetails(
+                    "looks up data in the fipps county table that match the information provided",
+                    2,
+                    2
+                )
+            }
 
             else -> null
         }
@@ -78,7 +85,9 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                 CustomFhirPathFunctionNames.LivdTableLookup -> {
                     livdTableLookup(focus, parameters)
                 }
-
+                CustomFhirPathFunctionNames.FIPSCountyLookup -> {
+                    fipsCountyLookup(parameters)
+                }
                 else -> error(IllegalStateException("Tried to execute invalid FHIR Path function $functionName"))
             }
             )
@@ -144,5 +153,20 @@ class CustomFhirPathFunctions : FhirPathFunctions {
         } else {
             mutableListOf(StringType(result))
         }
+    }
+
+    /**
+     * Get the FIPS Code from the FIPS County table based on the county name and state
+     * @return a String with the FIPS Code
+     */
+    fun fipsCountyLookup(
+        parameters: MutableList<MutableList<Base>>?,
+        metadata: Metadata = Metadata.getInstance(),
+    ): MutableList<Base> {
+        val lookupTable = metadata.findLookupTable(name = "fips-county")
+        var filters = lookupTable?.FilterBuilder() ?: error("Could not find table fips-county")
+        filters = filters.equalsIgnoreCase("County", parameters!!.first().first().primitiveValue())
+        filters = filters.equalsIgnoreCase("State", parameters[1].first().primitiveValue())
+        return mutableListOf(StringType(filters.findSingleResult("FIPS")))
     }
 }
