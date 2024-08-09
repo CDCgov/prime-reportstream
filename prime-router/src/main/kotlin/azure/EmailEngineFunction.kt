@@ -227,11 +227,8 @@ class EmailScheduleEngine {
      * @returns List of all organizations supported
      */
     private fun fetchAllOrgs(): Iterable<String> {
-        @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
         return workflowEngine.db.transactReturning { tx ->
-            @Suppress("UNRESOLVED_REFERENCE")
             val settings = workflowEngine.db.fetchSettings(SettingType.ORGANIZATION, tx)
-            @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
             settings.map { it.getName() }
         }
     }
