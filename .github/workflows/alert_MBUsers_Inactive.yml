@@ -22,7 +22,7 @@ jobs:
             pass: ${{ secrets.MBPwd }}
             user: ${{ secrets.MBUserName }}
         run: |
-            ./.github/scripts/MetabaseUsers/MBUserAPI.ps1  
+            ./.github/scripts/MetabaseUsers/MBUserAPI.ps1 -key  ${{ secrets.Metabase_key }}
 
       - name: Decode Slack Message
         shell: pwsh
