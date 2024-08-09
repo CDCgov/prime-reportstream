@@ -38,11 +38,11 @@ foreach ($User in $val.data) {
         Write-Host "Login - " $User.date_joined
         $MBUsers += "`n"
         if ($LastLogin) {
-            $LastLoginDate = [datetime]::Parse($LastLogin)
+            $LastLoginDate = [datetime]::Parse($LastLogin).ToShortDateString()
         }
         $JoinDate = [datetime]::Parse($User.date_joined)
 
-        $MBUsers += 'Name-' + $commonName + ' Last Login Date - ' + $LastLoginDate + ' Date Joined - ' + $JoinDate
+        $MBUsers += 'Name-' + $commonName + ' Last Login Date - ' + $LastLoginDate + ' Date Joined - ' + $JoinDate.ToShortDateString()
 
         $data.InactiveMBUsers += @{
             Name       = $commonName
