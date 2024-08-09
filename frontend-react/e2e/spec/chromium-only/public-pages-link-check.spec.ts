@@ -1,7 +1,8 @@
 /* eslint-disable playwright/no-conditional-in-test */
-import { expect, test } from "@playwright/test";
 import axios, { AxiosError } from "axios";
+import * as fs from "fs";
 import * as publicPagesLinkCheck from "../../pages/public-pages-link-check";
+import { expect, test } from "../../test";
 
 // To save bandwidth, this test is within the /spec/chromium-only/ folder
 // Since we're just checking link validity. This is specified within our
@@ -12,10 +13,9 @@ import * as publicPagesLinkCheck from "../../pages/public-pages-link-check";
 //   testMatch: "spec/chromium-only/*.spec.ts",
 // },
 
-test.describe("Evaluate links on public facing pages", () => {
+test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () => {
     let urlPaths: string[] = [];
-    const normalizeUrl = (href: string, baseUrl: string) =>
-        new URL(href, baseUrl).toString();
+    const normalizeUrl = (href: string, baseUrl: string) => new URL(href, baseUrl).toString();
 
     // Using our sitemap.xml, we'll create a pathnames array
     test.beforeAll(async ({ browser }) => {
@@ -28,18 +28,14 @@ test.describe("Evaluate links on public facing pages", () => {
         // we have the convoluted
         // elem.textContent ? new URL(elem.textContent).pathname : null,
         // combined with the .filter for null values
-        urlPaths = (await page.evaluate((xmlStr) => {
+        urlPaths = await page.evaluate((xmlStr) => {
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlStr, "text/xml");
             const urlElements = xmlDoc.querySelectorAll("urlset url loc");
             return Array.from(urlElements)
-                .map((elem) =>
-                    elem.textContent
-                        ? new URL(elem.textContent).pathname
-                        : null,
-                )
+                .map((elem) => (elem.textContent ? new URL(elem.textContent).pathname : null))
                 .filter((path) => path !== null);
-        }, sitemapXml)) as string[];
+        }, sitemapXml);
         await page.close();
     });
 
@@ -49,6 +45,8 @@ test.describe("Evaluate links on public facing pages", () => {
 
     test("Check all public-facing URLs and their links for a valid 200 response", async ({
         page,
+        frontendWarningsLogPath,
+        isFrontendWarningsLog,
     }) => {
         let aggregateHref = [];
         // Set test timeout to be 1 minute instead of 30 seconds
@@ -57,9 +55,7 @@ test.describe("Evaluate links on public facing pages", () => {
             await publicPagesLinkCheck.publicPageGoto(page, path);
             const baseUrl = new URL(page.url()).origin;
 
-            const allATags = await page
-                .getByRole("link", { includeHidden: true })
-                .elementHandles();
+            const allATags = await page.getByRole("link", { includeHidden: true }).elementHandles();
 
             for (const aTag of allATags) {
                 const href = await aTag.getAttribute("href");
@@ -76,6 +72,8 @@ test.describe("Evaluate links on public facing pages", () => {
             timeout: 10000,
         });
 
+        const warnings: { url: string; message: string }[] = [];
+
         const validateLink = async (url: string) => {
             try {
                 const response = await axiosInstance.get(url);
@@ -83,6 +81,9 @@ test.describe("Evaluate links on public facing pages", () => {
             } catch (error) {
                 const e = error as AxiosError;
                 console.error(`Error accessing ${url}:`, e.message);
+                const warning = { url: url, message: e.message };
+                warnings.push(warning);
+
                 return {
                     url,
                     status: e.response ? e.response.status : "Request failed",
@@ -90,9 +91,11 @@ test.describe("Evaluate links on public facing pages", () => {
             }
         };
 
-        const results = await Promise.all(
-            aggregateHref.map((href) => validateLink(href)),
-        );
+        const results = await Promise.all(aggregateHref.map((href) => validateLink(href)));
+
+        if (isFrontendWarningsLog && warnings.length > 0) {
+            fs.writeFileSync(frontendWarningsLogPath, `${JSON.stringify(warnings)}\n`);
+        }
 
         results.forEach((result) => {
             try {

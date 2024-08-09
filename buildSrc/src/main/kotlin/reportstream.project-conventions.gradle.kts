@@ -17,9 +17,6 @@ kotlin {
     jvmToolchain(17)
 }
 
-
-
-
 val majorJavaVersion = 17
 java {
     sourceCompatibility = JavaVersion.toVersion(majorJavaVersion)
@@ -50,7 +47,24 @@ dependencies {
     // Common dependencies
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+    implementation("com.azure:azure-core:1.49.0")
+    implementation("com.azure:azure-core-http-netty:1.15.0")
+    implementation("com.azure:azure-data-tables:12.2.0")
+    implementation("com.azure:azure-storage-queue:12.21.0") {
+        exclude(group = "com.azure", module = "azure-core")
+    }
+    implementation("com.azure:azure-storage-blob:12.26.0") {
+        exclude(group = "com.azure", module = "azure-core")
+    }
+    implementation("com.microsoft.azure:applicationinsights-core:3.5.3")
 
+    implementation("org.apache.logging.log4j:log4j-api:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-core:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.4.0")
+    implementation("io.github.oshai:kotlin-logging-jvm:6.0.9")
 
     // Common test dependencies
     testImplementation(kotlin("test-junit5"))

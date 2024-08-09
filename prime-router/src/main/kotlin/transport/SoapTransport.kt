@@ -10,6 +10,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.SoapCredential
@@ -111,6 +112,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                     // return just the body of the message
                     return prettyPrintXmlResponse(body)
                 }
+
                 else -> {
                     // default to this if we don't get SOAP12 in the receiver settings.
                     val response: HttpResponse = client.post(soapEndpoint) {
@@ -147,9 +149,11 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
         transportType: TransportType,
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
+        externalFileName: String,
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
+        reportEventService: IReportStreamEventService,
     ): RetryItems? {
         // verify that we have a SOAP transport type for our parameters. I think if we ever fell
         // into this scenario with different parameters there's something seriously wrong in the system,
@@ -158,8 +162,6 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
             ?: error("Transport type passed in not of SOAPTransportType")
         // verify we have a receiver
         val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
-        // get the external file name to send to the client, if we need it
-        val fileName = header.reportFile.externalName
         context.logger.info(
             "Preparing to send $sentReportId " +
                 "to ${soapTransportType.soapAction} at ${soapTransportType.endpoint}"
@@ -175,8 +177,9 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
         // about this kind of stuff. So this is some semi-tight coupling we will just have to manage.
         // And honestly, if a client changes their SOAP endpoint, we'd (probably) need to do some coding
         // on our end, so incurring the maintenance cost here is (probably) okay.
-        val xmlObject = SoapObjectService.getXmlObjectForAction(soapTransportType, header, context, credential)
-            ?: error("Unable to find a SOAP object for the namespaces provided")
+        val xmlObject =
+            SoapObjectService.getXmlObjectForAction(soapTransportType, header, context, credential, externalFileName)
+                ?: error("Unable to find a SOAP object for the namespaces provided")
         // wrap the object in the generic envelope. At least this gets to be generic
         val soapEnvelope = SoapEnvelope(
             xmlObject,
@@ -203,10 +206,12 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                     actionHistory.trackSentReport(
                         receiver,
                         sentReportId,
-                        fileName,
+                        externalFileName,
                         soapTransportType.toString(),
                         msg,
-                        header
+                        header,
+                        reportEventService,
+                        this::class.java.simpleName
                     )
                     actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
                 }
@@ -238,6 +243,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                     actionHistory.trackActionResult(msg)
                     null
                 }
+
                 is ServerResponseException -> {
                     // this is largely duplicated code as below, but we may want to add additional
                     // instrumentation based on the specific error type we're getting. One benefit
@@ -253,6 +259,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                     actionHistory.trackActionResult(msg)
                     RetryToken.allItems
                 }
+
                 else -> {
                     // this is an unknown exception, and maybe not one related to ktor, so we should
                     // track, but try again

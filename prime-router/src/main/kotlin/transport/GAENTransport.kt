@@ -15,6 +15,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
@@ -72,9 +73,11 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
         transportType: TransportType,
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
+        externalFileName: String,
         retryItems: RetryItems?,
         context: ExecutionContext,
         actionHistory: ActionHistory,
+        reportEventService: IReportStreamEventService,
     ): RetryItems? {
         val gaenTransportInfo = transportType as GAENTransportType
         val reportId = header.reportFile.reportId
@@ -103,7 +106,7 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
 
             // Record the work in history and logs
             when (postResult) {
-                PostResult.SUCCESS -> recordFullSuccess(params)
+                PostResult.SUCCESS -> recordFullSuccess(params, reportEventService)
                 PostResult.RETRY -> recordFailureWithRetry(params)
                 PostResult.FAIL -> recordFailure(params)
             }
@@ -120,7 +123,7 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
     /**
      * Record in [ActionHistory] the full success of this notification. Log an info message as well.
      */
-    private fun recordFullSuccess(params: SendParams) {
+    private fun recordFullSuccess(params: SendParams, reportEventService: IReportStreamEventService) {
         val msg = "${params.receiver.fullName}: Successful exposure notifications of ${params.comboId}"
         val history = params.actionHistory
         params.context.logger.info(msg)
@@ -132,7 +135,9 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
             null,
             params.gaenTransportInfo.toString(),
             msg,
-            params.header
+            params.header,
+            reportEventService,
+            this::class.java.simpleName
         )
         history.trackItemLineages(Report.createItemLineagesFromDb(params.header, params.sentReportId))
     }
@@ -169,8 +174,8 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
         gaenTransportInfo: GAENTransportType,
     ) {
         val msg = "FAILED GAEN notification of inputReportId $reportId to $gaenTransportInfo " +
-                "(receiver = $receiverFullName);" +
-                "No retry; Exception: ${ex.javaClass.canonicalName} ${ex.localizedMessage}"
+            "(receiver = $receiverFullName);" +
+            "No retry; Exception: ${ex.javaClass.canonicalName} ${ex.localizedMessage}"
         // Dev note: Expecting severe level to trigger monitoring alerts
         context.logger.severe(msg)
         actionHistory.setActionType(TaskAction.send_error)
@@ -256,7 +261,7 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
             }
             if (postResult != PostResult.SUCCESS) {
                 val warning = "${params.receiver.fullName}: Error from GAEN server for ${notification.uuid}:" +
-                        ", response status: ${response.status.value} body: $respStr"
+                    ", response status: ${response.status.value} body: $respStr"
                 params.context.logger.warning(warning)
                 params.actionHistory.trackActionResult(warning)
             }

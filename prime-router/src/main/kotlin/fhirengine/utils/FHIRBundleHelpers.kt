@@ -129,9 +129,7 @@ fun Bundle.getObservations() = this.entry.map { it.resource }.filterIsInstance<O
 
 fun Bundle.getObservationsWithCondition(codes: List<String>): List<Observation> =
     if (codes.isEmpty()) {
-        // TODO: consider throwing IllegalArgumentException here while implementing
-        //  https://github.com/CDCgov/prime-reportstream/issues/12705
-        emptyList()
+        throw IllegalArgumentException("Invalid mapped condition filter")
     } else {
         this.getObservations().filter {
             it.getMappedConditionCodes().any(codes::contains)
@@ -202,7 +200,7 @@ fun Bundle.getDiagnosticReportNoObservations(): List<Base> {
  * If the [resource] being deleted is an [Observation] and that results in diagnostic reports having no
  * observations, the [DiagnosticReport] will be deleted
  */
-fun Bundle.deleteResource(resource: Base) {
+fun Bundle.deleteResource(resource: Base, removeOrphanedDiagnosticReport: Boolean = true) {
     val referencesToClean = mutableSetOf<String>()
 
     // build up all resources and their references in a map as a starting point
@@ -276,8 +274,14 @@ fun Bundle.deleteResource(resource: Base) {
     deleteResourceInternal(resource)
     cleanUpReferences()
 
-    // clean up empty Diagnostic Reports and references to them
-    cleanUpEmptyDiagnosticReports()
+    // The original use case of this function was just to remove Observations from a bundle
+    // but has since expanded so this behavior is opt-in
+    // TODO: Remove as part of https://github.com/CDCgov/prime-reportstream/issues/14568
+    if (removeOrphanedDiagnosticReport) {
+        // clean up empty Diagnostic Reports and references to them
+        cleanUpEmptyDiagnosticReports()
+    }
+
     cleanUpReferences()
 }
 

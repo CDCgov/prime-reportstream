@@ -56,7 +56,7 @@ class LoginCommand : OktaCommand(
     val env by option(
         "--env", help = "Connect to <name> environment", metavar = "name", envvar = "PRIME_ENVIRONMENT"
     )
-        .choice("local", "test", "staging", "prod")
+        .choice("local", "test", "staging", "prod", "demo1")
         .default("local", "local")
 
     override fun run() {
