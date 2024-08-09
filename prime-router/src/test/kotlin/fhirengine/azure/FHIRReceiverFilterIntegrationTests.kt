@@ -38,6 +38,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles
 import gov.cdc.prime.router.common.validFHIRRecord1
 import gov.cdc.prime.router.common.validFHIRRecord1Identifier
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
@@ -1026,14 +1027,38 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
         val receiverFilter = createReceiverFilter(azureEventService, org)
         val reportContents = File(VALID_FHIR_URL).readText()
-        val report = UniversalPipelineTestUtils.createReport(
+
+        val convertReport = UniversalPipelineTestUtils.createReport(
+            reportContents,
+            TaskAction.convert,
+            Event.EventAction.DESTINATION_FILTER,
+            azuriteContainer,
+            TaskAction.receive,
+            fileName = "convert.fhir"
+        )
+
+        val destinationFilterReport = UniversalPipelineTestUtils.createReport(
+            reportContents,
+            TaskAction.destination_filter,
+            Event.EventAction.DESTINATION_FILTER,
+            azuriteContainer,
+            TaskAction.convert,
+            convertReport,
+            fileName = "destination_filter.fhir"
+        )
+
+        val receiverFilterReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
             Event.EventAction.RECEIVER_FILTER,
-            azuriteContainer
+            azuriteContainer,
+            TaskAction.destination_filter,
+            destinationFilterReport,
+            fileName = "receiver_filter.fhir"
         )
+
         val queueMessage = generateQueueMessage(
-            report,
+            receiverFilterReport,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform,
             receiver.fullName
@@ -1049,12 +1074,14 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         }
 
         // check action table
-        UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.receiver_filter))
+        UniversalPipelineTestUtils.checkActionTable(
+            listOf(TaskAction.receive, TaskAction.convert, TaskAction.destination_filter, TaskAction.receiver_filter)
+        )
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             // check for terminated lineage
-            val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1).single()
+            val routedReport = UniversalPipelineTestUtils.fetchChildReports(receiverFilterReport, txn, 1).single()
             assertThat(routedReport.nextAction).isEqualTo(TaskAction.none)
             assertThat(routedReport.bodyUrl).isNull()
             assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
@@ -1082,6 +1109,9 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                         it.receiverOrg == receiver.organizationName
                     }
             }
+
+            verifyLineageAndFetchCreatedReportFiles(receiverFilterReport, convertReport, txn, 1)
+
             // check events
             assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.ITEM_FILTER_FAILED]!!).hasSize(1)
             val bundle = FhirTranscoder.decode(reportContents)
@@ -1094,8 +1124,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
                 ReportEventData(
                     routedReport.reportId,
-                    report.id,
-                    listOf(report.id),
+                    receiverFilterReport.id,
+                    listOf(convertReport.id),
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
