@@ -55,6 +55,20 @@ elements:
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
 
+  # IL only support HL7 2.5.1.  Therefore, we replace 'PRS: Personal' with 'PRN: Primary Residence Number'
+  - name: il-patient-telecom-use-code
+    resource: 'Bundle.entry.resource.ofType(Patient).telecom'
+    condition: '%resource.use = "mobile"'
+    value: [ '"PRN"' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-13-2' ]
+
+  # IL only support HL7 2.5.1.  Therefore, we replace 'CP: Cellular or Mobile Phone' with 'PH: Telphone'
+  - name: il-patient-telecom-equipment-type
+    resource: 'Bundle.entry.resource.ofType(Patient).telecom'
+    condition: '%resource.use = "mobile"'
+    value: [ '"PH"' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-13-3' ]
+
   - name: observation-result-with-aoe
     # suppressAoe: 'true'
     resource: '%resource.result.resolve()'

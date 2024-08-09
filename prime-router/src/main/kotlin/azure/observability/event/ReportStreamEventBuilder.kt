@@ -92,9 +92,9 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
     }
 
     fun send() {
-        val event = buildEvent()
-        sendToAzure(event)
-        logEvent(event)
+            val event = buildEvent()
+            sendToAzure(event)
+            logEvent(event)
     }
 
     private fun sendToAzure(event: T): AbstractReportStreamEventBuilder<T> {
