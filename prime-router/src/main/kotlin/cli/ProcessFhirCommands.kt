@@ -18,7 +18,7 @@ import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.common.Environment
@@ -29,7 +29,6 @@ import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -64,7 +63,7 @@ class ProcessFhirCommands : CliktCommand(
      * The format to output the data.
      */
     private val outputFormat by option("--output-format", help = "output format")
-        .choice(Report.Format.HL7.toString(), Report.Format.FHIR.toString()).required()
+        .choice(MimeFormat.HL7.toString(), MimeFormat.FHIR.toString()).required()
 
     /**
      * String of file names
@@ -106,7 +105,7 @@ class ProcessFhirCommands : CliktCommand(
         val inputFileType = inputFile.extension.uppercase()
         when {
             // HL7 to FHIR conversion
-            inputFileType == "HL7" && outputFormat == Report.Format.FHIR.toString() -> {
+            inputFileType == "HL7" && outputFormat == MimeFormat.FHIR.toString() -> {
                 var fhirMessage = convertHl7ToFhir(contents).first
                 fhirMessage = applyEnrichmentSchemas(fhirMessage)
                 outputResult(
@@ -115,17 +114,17 @@ class ProcessFhirCommands : CliktCommand(
             }
 
             // FHIR to HL7 conversion
-            (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == Report.Format.HL7.toString() -> {
+            (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == MimeFormat.HL7.toString() -> {
                 outputResult(convertFhirToHl7(contents))
             }
 
             // FHIR to FHIR conversion
-            (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == Report.Format.FHIR.toString() -> {
+            (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == MimeFormat.FHIR.toString() -> {
                 outputResult(convertFhirToFhir(contents), actionLogger)
             }
 
             // HL7 to FHIR to HL7 conversion
-            inputFileType == "HL7" && outputFormat == Report.Format.HL7.toString() -> {
+            inputFileType == "HL7" && outputFormat == MimeFormat.HL7.toString() -> {
                 val (bundle, inputMessage) = convertHl7ToFhir(contents)
                 val output = convertFhirToHl7(FhirTranscoder.encode(bundle))
                 outputResult(output)
@@ -402,43 +401,40 @@ class FhirPathCommand : CliktCommand(
         fhirPathContext = CustomContext(bundle, bundle, constantList, CustomFhirPathFunctions())
         printHelp()
 
-        // Loop until you press CTRL-C or ENTER at the prompt.
         var lastPath = ""
+
+        // Loop until you press CTRL-C or ENTER at the prompt.
         while (true) {
             echo("", true)
             echo("%resource = $focusPath")
             echo("Last path = $lastPath")
             print("FHIR path> ") // This needs to be a print as an echo does not show on the same line
+
             val input = readln()
 
-            try {
-                // Process the input checking for special/custom commands
-                when {
-                    input.isBlank() -> printHelp()
+            // Process the input checking for special/custom commands
+            when {
+                input.isBlank() -> printHelp()
 
-                    input == "quit" || input == "exit" ->
-                        throw ProgramResult(0)
+                input == "quit" || input == "exit" -> throw ProgramResult(0)
 
-                    input.startsWith("resource") -> setFocusResource(input, bundle)
+                input.startsWith("resource") -> setFocusResource(input, bundle)
 
-                    input == "reset" -> setFocusResource("Bundle", bundle)
+                input == "reset" -> setFocusResource("Bundle", bundle)
 
-                    else -> {
-                        val path = if (input.startsWith("!!")) {
-                            input.replace("!!", lastPath)
-                        } else {
-                            input
-                        }
-                        if (path.isBlank()) {
-                            printHelp()
-                        } else {
-                            evaluatePath(path, bundle)
-                            lastPath = path
-                        }
+                else -> {
+                    val path = if (input.startsWith("!!")) {
+                        input.replace("!!", lastPath)
+                    } else {
+                        input
+                    }
+                    if (path.isBlank()) {
+                        printHelp()
+                    } else {
+                        evaluatePath(path, bundle)
+                        lastPath = path
                     }
                 }
-            } catch (e: FhirPathExecutionException) {
-                echo("Invalid FHIR path specified.", true)
             }
         }
     }
@@ -462,8 +458,8 @@ class FhirPathCommand : CliktCommand(
         } else {
             try {
                 val path = inputParts[1].trim().trimStart('\'').trimEnd('\'')
-                val pathExpression =
-                    FhirPathUtils.parsePath(path) ?: throw FhirPathExecutionException("Invalid FHIR path")
+                val pathExpression = FhirPathUtils.parsePath(path)
+                    ?: throw FhirPathExecutionException("Invalid FHIR Path: null or blank")
                 val resourceList = FhirPathUtils.pathEngine.evaluate(
                     fhirPathContext, focusResource!!, bundle, bundle, pathExpression
                 )
@@ -489,15 +485,7 @@ class FhirPathCommand : CliktCommand(
     private fun evaluatePath(input: String, bundle: Bundle) {
         // Check the syntax for the FHIR path
         try {
-            val values = try {
-                FhirPathUtils.evaluate(fhirPathContext, focusResource!!, bundle, input)
-            } catch (e: IndexOutOfBoundsException) {
-                // This happens when a value for an extension is speced, but the extension does not exist.
-                emptyList()
-            } catch (e: SchemaException) {
-                echo("Error evaluating path: ${e.message}")
-                emptyList()
-            }
+            val values = FhirPathUtils.evaluate(fhirPathContext, focusResource!!, bundle, input)
 
             values.forEach {
                 // Print out the value, but add a dash to each collection entry if more than one

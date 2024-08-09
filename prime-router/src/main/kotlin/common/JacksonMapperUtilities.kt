@@ -35,10 +35,11 @@ object JacksonMapperUtilities {
         /**
          * OffsetDateTime serializer that does not include fractions of seconds.
          */
-        class NoOptionalFieldsOffsetDateTimeSerializer : OffsetDateTimeSerializer(
-            INSTANCE, false, false,
-            timestampFormatter
-        )
+        class NoOptionalFieldsOffsetDateTimeSerializer :
+            OffsetDateTimeSerializer(
+                INSTANCE, false, false,
+                timestampFormatter
+            )
 
         // Serialize (object->JSON) date/times with no second fraction.
         addSerializer(OffsetDateTime::class.java, NoOptionalFieldsOffsetDateTimeSerializer())
@@ -64,7 +65,7 @@ object JacksonMapperUtilities {
     /**
      * jacksonObjectMapper using library defaults.
      */
-    val jacksonObjectMapper: ObjectMapper = jacksonObjectMapper()
+    val jacksonObjectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
 
     /**
      * Mapper using library defaults.
@@ -95,6 +96,7 @@ object JacksonMapperUtilities {
             )
             .registerModule(JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
 
         // This line is required to keep the separation of ValueSetCollection subtypes if we ever
         // want to open-source that portion of the codebase

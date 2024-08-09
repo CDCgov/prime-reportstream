@@ -7,6 +7,9 @@ import {
 } from "@playwright/test";
 import { join } from "node:path";
 
+// eslint-disable-next-line import/export
+export * from "@playwright/test";
+
 export interface TestLogin {
     username: string;
     password: string;
@@ -20,6 +23,8 @@ export interface CustomFixtures {
     senderLogin: TestLogin;
     receiverLogin: TestLogin;
     isMockDisabled: boolean;
+    frontendWarningsLogPath: string;
+    isFrontendWarningsLog: boolean;
 }
 
 export type PlaywrightAllTestArgs = PlaywrightTestArgs &
@@ -27,6 +32,9 @@ export type PlaywrightAllTestArgs = PlaywrightTestArgs &
     PlaywrightWorkerArgs &
     PlaywrightWorkerOptions;
 
+const e2eDataPath = join(import.meta.dirname, "../e2e-data");
+const isCI = Boolean(process.env.CI);
+const frontendWarningsPath = join(e2eDataPath, "frontend-warnings.json");
 const isMockDisabled = Boolean(process.env.MOCK_DISABLED);
 
 function createLogins<const T extends string[]>(
@@ -67,6 +75,7 @@ function createLogins<const T extends string[]>(
 
 export const logins = createLogins(["admin", "receiver", "sender"]);
 
+// eslint-disable-next-line import/export
 export const test = base.extend<CustomFixtures>({
     adminLogin: {
         ...logins.admin,
@@ -81,6 +90,8 @@ export const test = base.extend<CustomFixtures>({
         landingPage: "/",
     },
     isMockDisabled,
+    frontendWarningsLogPath: frontendWarningsPath,
+    isFrontendWarningsLog: isCI,
 });
 
 export type TestArgs<P extends keyof PlaywrightAllTestArgs> = Pick<
@@ -89,4 +100,3 @@ export type TestArgs<P extends keyof PlaywrightAllTestArgs> = Pick<
 > &
     CustomFixtures;
 
-export { expect } from "@playwright/test";

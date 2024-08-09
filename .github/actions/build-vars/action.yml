@@ -4,7 +4,7 @@ description: 'Variables shared by build workflows'
 inputs:
   sp-creds:
     description: "Azure Service Principal creds"
-    default: false
+    default: 'false'
 outputs:
   env_name:
     value: ${{ steps.build_result.outputs.env_name }}
@@ -12,11 +12,14 @@ outputs:
   version:
     value: ${{ steps.version_result.outputs.version }}
     description: 'Tag name'
+  is_deployment_pr:
+    value: ${{ steps.deployment_pr_result.outputs.is_deployment_pr }}
+    description: 'Is deployment PR'
   has_router_change:
     value: ${{ steps.backend_change_result.outputs.has_router_change }}
     description: 'For non-prod, do not build if no changes'
-  has_react_change:
-    value: ${{ steps.frontend_change_result.outputs.has_react_change }}
+  has_frontend_change:
+    value: ${{ steps.frontend_change_result.outputs.has_frontend_change }}
     description: 'For non-prod, do not build if no changes'
   has_terraform_change:
     value: ${{ steps.filter.outputs.terraform }}
@@ -157,18 +160,19 @@ runs:
         list-files: json
         filters: |
           router:
-            - 'prime-router/**/**.!(md)'
+            - 'prime-router/**/!(*.md)'
             - 'operations/!((app|readme-assets|slack-boltjs-app|vpn))/**'
             - '.github/actions/build-backend/action.yml'
             - '.github/actions/deploy-backend/action.yml'
             - '.github/actions/build-vars/action.yml'
             - '.github/workflows/build_hub.yml'
           frontend_react:
-            - 'frontend-react/**/**.!(md)'
+            - 'frontend-react/**/!(*.md)'
             - '.github/actions/build-vars/action.yml'
-            - '.github/actions/build-frontend/action.yml'            
+            - '.github/actions/build-frontend/action.yml'
+            - '.github/workflows/frontend_ci.yml'          
           terraform:
-            - 'operations/app/terraform/**/**.!(md)'
+            - 'operations/app/terraform/**/!(*.md)'
             - '.github/workflows/validate_terraform.yml'
             - '.github/workflows/deploy_terraform.yml'
 
@@ -179,6 +183,21 @@ runs:
         printf "\n<details><summary>Backend</summary>\n\n\`${{ steps.filter.outputs.router_files }}\`</details>" >> $GITHUB_STEP_SUMMARY
         printf "\n<details><summary>Frontend</summary>\n\n\`${{ steps.filter.outputs.frontend_react_files }}\`</details>" >> $GITHUB_STEP_SUMMARY
         printf "\n<details><summary>Terraform</summary>\n\n\`${{ steps.filter.outputs.terraform_files }}\`</details>" >> $GITHUB_STEP_SUMMARY
+
+    - name: Determine if deployment PR
+      id: deployment_pr_result
+      shell: bash
+      run: |
+        echo "is_deployment_pr=false" >> $GITHUB_OUTPUT;
+        if [[ \
+          '${{ github.event_name }}' == 'pull_request' && \
+          '${{ github.ref_name }}' == deployment* || \
+          '${{ github.ref_name }}' == demo* || \
+          '${{ github.ref_name }}' == trialfrontend* || \
+          '${{ github.ref_name }}' == 'production' \
+        ]]; then
+          echo "is_deployment_pr=true" >> $GITHUB_OUTPUT
+        fi
 
     - name: Force backend change if prod
       if: github.event_name != 'schedule'
@@ -196,12 +215,13 @@ runs:
         else
           echo "has_router_change=${{ steps.filter.outputs.router }}" >> $GITHUB_OUTPUT
         fi
-
-    - name: Force frontend change if prod
+    
+    - name: Determine if frontend changed
       if: github.event_name != 'schedule'
       id: frontend_change_result
       shell: bash
       run: |
+        echo "has_frontend_change=false" >> $GITHUB_OUTPUT;
         if [[ \
         '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
         '${{ steps.build_result.outputs.env_name }}' == 'test' || \
@@ -209,9 +229,9 @@ runs:
         '${{ steps.build_result.outputs.env_name }}' == 'demo2' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo3' \
         ]]; then
-          echo "has_react_change=true" >> $GITHUB_OUTPUT
+          echo "has_frontend_change=true" >> $GITHUB_OUTPUT
         else
-          echo "has_react_change=${{ steps.filter.outputs.frontend_react }}" >> $GITHUB_OUTPUT
+          echo "has_frontend_change=${{ steps.filter.outputs.frontend_react }}" >> $GITHUB_OUTPUT
         fi
 
     - uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a

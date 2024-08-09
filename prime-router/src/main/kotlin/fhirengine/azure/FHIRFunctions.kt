@@ -16,14 +16,12 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
-import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrReceiverFilterQueueName
-import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrSendQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import org.apache.commons.lang3.StringUtils
@@ -65,42 +63,7 @@ class FHIRFunctions(
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
-                elrRoutingQueueName,
-                it.serialize()
-            )
-        }
-    }
-
-    /**
-     * An azure function for routing full-ELR FHIR data.
-     */
-    @FunctionName("route-fhir")
-    @StorageAccount("AzureWebJobsStorage")
-    fun route(
-        @QueueTrigger(name = "message", queueName = elrRoutingQueueName)
-        message: String,
-        // Number of times this message has been dequeued
-        @BindingName("DequeueCount") dequeueCount: Int = 1,
-    ) {
-        doRoute(message, dequeueCount, FHIRRouter())
-    }
-
-    /**
-     * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
-     * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
-     * the [dequeueCount] is tracked as part of the log.
-     * [actionHistory] is an optional parameter for use in testing
-     */
-    internal fun doRoute(
-        message: String,
-        dequeueCount: Int,
-        fhirEngine: FHIRRouter,
-        actionHistory: ActionHistory = ActionHistory(TaskAction.route),
-    ) {
-        val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
-        messagesToDispatch.forEach {
-            queueAccess.sendMessage(
-                elrTranslationQueueName,
+                elrDestinationFilterQueueName,
                 it.serialize()
             )
         }
@@ -130,7 +93,7 @@ class FHIRFunctions(
         message: String,
         dequeueCount: Int,
         fhirEngine: FHIRDestinationFilter,
-        actionHistory: ActionHistory = ActionHistory(TaskAction.route),
+        actionHistory: ActionHistory = ActionHistory(TaskAction.destination_filter),
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
 
@@ -166,7 +129,7 @@ class FHIRFunctions(
         message: String,
         dequeueCount: Int,
         fhirEngine: FHIRReceiverFilter,
-        actionHistory: ActionHistory = ActionHistory(TaskAction.route),
+        actionHistory: ActionHistory = ActionHistory(TaskAction.receiver_filter),
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
@@ -216,7 +179,7 @@ class FHIRFunctions(
     /**
      * Deserializes the message, create the DB transaction and then runs the FHIR engine
      *
-     * @param message the fhir convert/route/translate message to process
+     * @param message the queue message to process
      * @param dequeueCount the number of times the messages has been processed
      * @param fhirEngine the engine that will do the work
      * @param actionHistory the history to record results to

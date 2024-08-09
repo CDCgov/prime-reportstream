@@ -2,7 +2,7 @@ package gov.cdc.prime.router.transport
 
 import assertk.assertThat
 import assertk.assertions.isNull
-import assertk.assertions.isSameAs
+import assertk.assertions.isSameInstanceAs
 import com.helger.as2lib.exception.WrappedAS2Exception
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.AS2TransportType
@@ -13,9 +13,11 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.credentials.UserJksCredential
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.spyk
 import org.junit.jupiter.api.BeforeEach
@@ -113,7 +115,17 @@ class AS2TransportIntegrationTests {
             .returns(UserJksCredential("x", "xzy", "pass", "a1", "a2"))
 
         // The Test
-        val retryItems = as2Transport.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
+        val retryItems =
+            as2Transport.send(
+                transportType,
+                header,
+                UUID.randomUUID(),
+                "test",
+                null,
+                context,
+                actionHistory,
+                mockk<IReportStreamEventService>(relaxed = true)
+            )
 
         assertThat(retryItems).isNull()
     }
@@ -129,8 +141,18 @@ class AS2TransportIntegrationTests {
             .returns(UserJksCredential("x", "xzy", "pass", "a1", "a2"))
 
         // Test that retryItems was returned
-        val retryItems = as2Transport.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
+        val retryItems =
+            as2Transport.send(
+                transportType,
+                header,
+                UUID.randomUUID(),
+                "test",
+                null,
+                context,
+                actionHistory,
+                mockk<IReportStreamEventService>(relaxed = true)
+            )
 
-        assertThat(retryItems).isSameAs(RetryToken.allItems)
+        assertThat(retryItems).isSameInstanceAs(RetryToken.allItems)
     }
 }

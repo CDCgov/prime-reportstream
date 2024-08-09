@@ -4,7 +4,6 @@ plugins {
     id("reportstream.project-conventions")
 }
 
-
 group = "gov.cdc.prime.reportstream"
 version = "0.0.1-SNAPSHOT"
 
@@ -13,9 +12,10 @@ repositories {
 }
 
 dependencies {
-    implementation("org.apache.commons:commons-lang3:3.14.0")
+    implementation("org.apache.commons:commons-lang3:3.15.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.28.1")
+    testImplementation("org.apache.commons:commons-compress:1.26.2")
 }
 
 tasks.test {
