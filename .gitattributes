@@ -12,4 +12,7 @@
 *.csv text eol=lf
 *.hl7 text eol=lf
 .environment/sftp-conf/ssh_host_*_key text eol=lf
+* text=auto
+*.gradle text eol=lf
+
 
