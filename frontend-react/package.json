@@ -6,7 +6,7 @@
   "npmClient": "yarn",
   "dependencies": {
     "@microsoft/applicationinsights-react-js": "^17.3.0",
-    "@microsoft/applicationinsights-web": "^3.3.0",
+    "@microsoft/applicationinsights-web": "^3.3.1",
     "@okta/okta-react": "^6.9.0",
     "@okta/okta-signin-widget": "^7.20.1",
     "@rest-hooks/rest": "^3.0.3",
