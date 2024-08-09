@@ -1,7 +1,6 @@
-# param (
-#     [string]$key
-# )
-$key = 'mb_h7RFQv6J2zsrmlDkyE08aNWB/YPKirsK1OPO4DqCBNQ='
+param (
+    [string]$key
+)
 $data = [pscustomobject]@{
     InactiveMBUsers = @()
 }
