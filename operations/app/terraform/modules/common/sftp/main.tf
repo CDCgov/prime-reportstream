@@ -21,10 +21,12 @@ resource "azurerm_container_group" "sftp" {
   os_type             = "Linux"
   restart_policy      = "Always"
 
-  exposed_port = [{
-    port     = 22
-    protocol = "TCP"
-  }]
+  exposed_port = [
+    {
+      port     = 22
+      protocol = "TCP"
+    }
+  ]
 
   container {
     name         = "sftp-source"
@@ -69,7 +71,9 @@ resource "azurerm_container_group" "sftp" {
         name       = "sftpuserauth${volume.value}"
         mount_path = "/home/${volume.value}/.ssh/keys"
         read_only  = true
-        secret     = { ssh = base64encode(data.azurerm_ssh_public_key.sftp["${var.instance}-${volume.value}"].public_key) }
+        secret = {
+          ssh = base64encode(data.azurerm_ssh_public_key.sftp["${var.instance}-${volume.value}"].public_key)
+        }
       }
     }
 
@@ -97,5 +101,11 @@ resource "azurerm_container_group" "sftp" {
 
   tags = {
     environment = var.environment
+  }
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
   }
 }

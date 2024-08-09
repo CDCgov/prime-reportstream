@@ -41,7 +41,11 @@ resource "azurerm_container_registry" "container_registry" {
   trust_policy {
     enabled = "true"
   }
-
+  lifecycle {
+    ignore_changes = [
+      tags, georeplications[0].tags
+    ]
+  }
   tags = {
     environment = var.environment
   }

@@ -47,8 +47,8 @@ locals {
   # Set ip restrictions within site_config
   ip_restrictions = [
     # Vnet access
-    { action = "Allow", name = "AllowVNetTraffic", priority = 100, virtual_network_subnet_id = var.subnets.public_subnets[2], service_tag = null, ip_address = null },
-    { action = "Allow", name = "AllowVNetEastTraffic", priority = 100, virtual_network_subnet_id = var.subnets.public_subnets[0], service_tag = null, ip_address = null },
+    { action = "Allow", name = "AllowVNetTraffic", priority = 100, virtual_network_subnet_id = var.subnets.app_subnets[0], service_tag = null, ip_address = null },
+    { action = "Allow", name = "AllowVNetEastTraffic", priority = 100, virtual_network_subnet_id = var.subnets.app_subnets[0], service_tag = null, ip_address = null },
     { action = "Allow", name = "AllowFrontDoorTraffic", priority = 110, virtual_network_subnet_id = null, service_tag = "AzureFrontDoor.Backend", ip_address = null },
     { action = "Allow", name = "AllowAppInsightsTraffic", priority = 110, virtual_network_subnet_id = null, service_tag = "ApplicationInsightsAvailability", ip_address = null },
     # Administrator access
@@ -98,8 +98,10 @@ resource "azurerm_function_app" "admin" {
   lifecycle {
     ignore_changes = [
       # validated 5/29/2024
-      site_config[0].ip_restriction,
-      app_settings["SCM_DO_BUILD_DURING_DEPLOYMENT"]
+      site_config[0].ip_restriction, tags,
+      app_settings["SCM_DO_BUILD_DURING_DEPLOYMENT"],
+      app_settings["APPINSIGHTS_INSTRUMENTATIONKEY"],
+      app_settings["APPLICATIONINSIGHTS_CONNECTION_STRING"]
     ]
   }
   depends_on = [
@@ -127,7 +129,7 @@ resource "azurerm_app_service_virtual_network_swift_connection" "admin_function_
 
 locals {
   admin_publish_command = <<EOF
-      az functionapp deployment source config-zip --resource-group ${local.interface.resource_group_name} --name ${azurerm_function_app.admin.name} --src ${data.archive_file.admin_function_app.output_path} --build-remote false --timeout 600
+      az functionapp deployment source config-zip --resource-group ${local.interface.resource_group_name} --name ${azurerm_function_app.admin.name} --src ${data.archive_file.admin_function_app.output_path} --build-remote true --timeout 600
     EOF
 }
 

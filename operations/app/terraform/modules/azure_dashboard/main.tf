@@ -14,5 +14,10 @@ resource "azurerm_portal_dashboard" "az_dashboard" {
       appinsights_name    = "${var.resource_prefix}-appinsights"
       resource_group_name = var.resource_group
   })
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
 

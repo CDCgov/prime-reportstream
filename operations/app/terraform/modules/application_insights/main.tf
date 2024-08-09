@@ -17,7 +17,11 @@ resource "azurerm_application_insights" "app_insights" {
   internet_ingestion_enabled = true
   # needs to be true to allow engineer debugging through Azure UI
   internet_query_enabled = true
-
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
   tags = {
     environment = var.environment
   }
@@ -34,6 +38,11 @@ resource "azurerm_monitor_action_group" "action_group" {
     service_uri             = var.pagerduty_url
     use_common_alert_schema = true
   }
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
   tags = {
     environment = var.environment
   }
@@ -49,6 +58,11 @@ resource "azurerm_monitor_action_group" "action_group_metabase" {
     service_uri             = var.pagerduty_url
     use_common_alert_schema = true
   }
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
   tags = {
     environment = var.environment
   }
@@ -63,7 +77,11 @@ resource "azurerm_monitor_action_group" "action_group_slack" {
     name          = "slack-notification"
     email_address = var.slack_email_address
   }
-
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
   tags = {
     environment = var.environment
   }
@@ -78,7 +96,11 @@ resource "azurerm_monitor_action_group" "action_group_dummy" {
     service_uri             = "https://events.pagerduty.com/integration"
     use_common_alert_schema = false
   }
-
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
   tags = {
     environment = var.environment
   }

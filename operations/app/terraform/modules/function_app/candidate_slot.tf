@@ -16,14 +16,14 @@ resource "azurerm_function_app_slot" "candidate" {
       action                    = "Allow"
       name                      = "AllowVNetTraffic"
       priority                  = 100
-      virtual_network_subnet_id = var.subnets.public_subnets[2]
+      virtual_network_subnet_id = var.subnets.app_subnets[0]
     }
 
     ip_restriction {
       action                    = "Allow"
       name                      = "AllowVNetEastTraffic"
       priority                  = 100
-      virtual_network_subnet_id = var.subnets.public_subnets[0]
+      virtual_network_subnet_id = var.subnets.app_subnets[0]
     }
 
     ip_restriction {
