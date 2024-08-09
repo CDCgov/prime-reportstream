@@ -105,6 +105,8 @@ is retrieved.
 - **VPC**: Virtual Private Cloud
 - **Resource Server**: A server that will require authn/authz to access. In our case ResportStream
 - **Authorization Server**: A server that handles authn/authz and issuing/revoking credentials
+- **JWT Claim**: A key/value pair in the json body of the JWT
+- **JWT Scopes**: A reserved claim in the [OAuth 2.0 spec](https://datatracker.ietf.org/doc/html/rfc8693#name-scope-scopes-claim)  containing a space-separated list of scopes associated with the token.
 
 ## Architecture options
 
@@ -180,24 +182,18 @@ Authz configuration file example:
 {
     "endpoints": [
         {
-            "endpoint": "/api/v1/resource",
+            "endpoint": "/api/waters",
             "methods": {
-                "GET": {
-                    "scopes": ["read"]
-                },
                 "POST": {
-                    "scopes": ["write"]
-                },
-                "DELETE": {
-                    "scopes": ["delete"]
+                    "scopes": ["report"]
                 }
             }
         },
         {
-            "endpoint": "/api/v1/history/{id}",
+            "endpoint": "api/history/{orgName}/submissions",
             "methods": {
                 "GET": {
-                    "scopes": ["read"]
+                    "scopes": ["user"]
                 }
             }
         }
@@ -205,7 +201,7 @@ Authz configuration file example:
 }
 ```
 
-![Microservice](microservice.png)
+![Reverse Proxy Microservice](reverseProxyMicroservice.png)
 
 ### Use libraries with limited code in shared project
 
@@ -315,7 +311,7 @@ fun protectedReadEndpoint(
         
         // possible results
         when {
-            authnResult == Authenticated && authzResult == Authorized -> httpClient.request(method, protectedEndpoint, body)
+            authnResult == Authenticated -> httpClient.request(method, protectedEndpoint, body)
             else -> UnauthorizedResponse
         }
     } else {
@@ -345,3 +341,92 @@ fun reportsEndpoint() {
 ```
 
 ![Combo](combo.png)
+
+###  Traditional Microservice
+
+This approach would create a more traditional microservice that ReportStream would call out to when it required authn/authz functionality.
+
+Pros
+- Microservice able to handle parts of authentication that ReportStream will not have to worry about
+- Authz code would be directly adjacent to the endpoint mappings they protect
+- Can handle complex authorization requirements for specific endpoints with ease
+- Less devops support as ReportStream would still handle incoming requests
+- Easily Scalable to other services
+
+Cons
+- Authentication code must be called directly in ReportStream
+- Unable to take advantage of annotations
+- A lot of overhead for now given we would only have 
+
+Code example:
+```kotlin
+
+// has read scope
+@GetMapping("/api/v1/protected/endpoint")
+fun protectedReadEndpoint(request: HttpRequest) {
+    val accessToken = request.accessToken
+    val authResult = authClient.checkAuth(accessToken) // http call out to new microservice
+    if (authResult == Authenticated) {
+        requiredAuthzScope(accessToken, listOf("requiredScope")) {
+            // business logic
+        }
+    }
+}
+
+// handles all incoming requests
+@RequestMapping("/api/v1/authenticate")
+fun protectedReadEndpoint(
+    @RequestBody(required = false) body: String,
+    method: HttpMethod, 
+    request: HttpServletRequest,
+    response: HttpServletResponse
+) {
+    // this is all psudeocode!
+    
+    val authnResult = authService.checkToken(request)
+    
+    when (authnResult) {
+        is Authenticated -> SuccessfulAuthenticationResponse // 200
+        else -> FailureAuthenticationResponse // 401
+    } 
+}
+```
+
+![auth-microservice](authMicroservice.png)
+
+## Additional Decisions
+
+### Scopes and claims
+
+We should heavily simplify scopes. Our current implementation has organization and sender name as a part of the scope which is overkill.
+
+We have the data available on the request/JWT to know who the client/user is, so we do not need that duplicated as a part of the scope.
+
+Here are the simplified scopes I recommend:
+```
+report // able to submit reports as their org
+user // able to access their org
+admin // able to administer their org
+superadmin // able to do anything
+```
+
+The scope should let them in the door, and we can further limit them based on their identity (org, sender, etc).
+
+### Integrity of submitted reports
+
+We want to ensure that reports submitted to ReportStream are being submitted by allowed senders. For instance, we want to avoid
+a sender submitting a report as another sender. This can be done by configuring a custom claim on the JWT with the org name. We can
+then compare that value to the value we get in the header/query param.
+
+### Access token retrival options
+
+Okta allows multiple methods for retrieving your access token through the client credentials flow.
+- Username/password
+- JWT Auth
+
+The only benefit I see for JWT auth is that a nefarious actor must be more technically savvy. I'm ok with either of these methods being used.
+
+### Smoke tests
+
+We will want to set up a test client and organization to be able to automate retrieving an access token via the client credentials flow.
+Currently, we have to have a human authenticated locally through a browser which drastically slows down deployment, so this would be a big win.
