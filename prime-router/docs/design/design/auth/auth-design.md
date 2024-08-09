@@ -356,7 +356,6 @@ Pros
 Cons
 - Authentication code must be called directly in ReportStream
 - Unable to take advantage of annotations
-- A lot of overhead for now given we would only have 
 
 Code example:
 ```kotlin
