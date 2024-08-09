@@ -69,6 +69,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'pdhstaging-pgsql\.postgres\.database\.azure\.com', # Not a secret
             'PASSWORD=changeIT',                                # Example in a .md document - not a secret
             'PASSWORD=mypass',                                  # Example from .md doc
+            'secrets\[format',                                  # Formatted secret variable - not a secret
         ]
         commits = [
             '57736fab4c8c3e6d8c72178cba621e6b13e61ef5',         # Documentation

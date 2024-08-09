@@ -1,0 +1,89 @@
+name: Database maintenance
+
+on:
+  push:
+    branches:
+      - josiahsiegel/add/db-maint
+
+jobs:
+  db_maint:
+    name: "DB Maintenance - pdh${{ matrix.env }}-pgsql"
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        env: [demo3]
+        db: [prime_data_hub]
+    #environment: ${{ matrix.env }}
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Get public ip
+        shell: bash
+        run: echo "PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)" >> $GITHUB_ENV
+
+      # Allow runner db access
+      - name: Add db access
+        id: add-db-access
+        uses: ./.github/actions/retry
+        with:
+          timeout_minutes: 120
+          max_attempts: 6
+          retry_wait_seconds: 30
+          command: |
+            az postgres server update -g prime-data-hub-${{ matrix.env }} -n pdh${{ matrix.env }}-pgsql --public-network-access "Enabled"
+            sleep 30;
+            az postgres server firewall-rule create -g prime-data-hub-${{ matrix.env }} -s pdh${{ matrix.env }}-pgsql -n github_actions_runner \
+              --start-ip-address ${{ env.PUBLIC_IP }} --end-ip-address ${{ env.PUBLIC_IP }}
+            az postgres server firewall-rule show -g prime-data-hub-${{ matrix.env }} -s pdh${{ matrix.env }}-pgsql -n github_actions_runner
+          shell: bash
+
+      - name: Optimize db server size before maintenance
+        if: ${{ matrix.env != 'staging' }} && ${{ matrix.env != 'prod' }}
+        shell: bash
+        run: |
+          az postgres server update -g prime-data-hub-${{ matrix.env }} \
+          -n pdh${{ matrix.env }}-pgsql-replica --sku-name GP_Gen5_16
+          sleep 120;
+          az postgres server update -g prime-data-hub-${{ matrix.env }} \
+          -n pdh${{ matrix.env }}-pgsql --sku-name GP_Gen5_16
+
+      - name: Run maint query
+        uses: ./.github/actions/db-query
+        with:
+          pass: ${{ secrets[format('POSTGRESQL_{0}_PWD', matrix.env)] }}
+          host: pdh${{ matrix.env }}-pgsql
+          port: 5432
+          user: prime
+          database: ${{ matrix.db }}
+          output-file: output_pdh${{ matrix.env }}-pgsql_${{ matrix.db }}.html
+          options: -H
+          query: |
+            \echo <h1>${{ matrix.db }} maintenance</h1>
+            \echo <h2>Running ANALYZE</h2>
+            ANALYZE;
+
+      # Reduce primary db size. Replica reduced nightly due to runtime
+      - name: Optimize db server size after maintenance
+        if: always() && ${{ matrix.env != 'staging' }} && ${{ matrix.env != 'prod' }}
+        shell: bash
+        run: |
+          sleep 300;
+          az postgres server update -g prime-data-hub-${{ matrix.env }} \
+          -n pdh${{ matrix.env }}-pgsql --sku-name GP_Gen5_4
+
+      # Remove runner db access
+      - name: Remove db access
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          az postgres server firewall-rule delete -g prime-data-hub-${{ matrix.env }} -s pdh${{ matrix.env }}-pgsql -n github_actions_runner --yes;
+          sleep 10;
+          az postgres server update -g prime-data-hub-${{ matrix.env }} -n pdh${{ matrix.env }}-pgsql --public-network-access "Disabled";
+          sleep 30;
