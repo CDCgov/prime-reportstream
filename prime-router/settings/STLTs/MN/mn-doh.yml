@@ -110,6 +110,7 @@
       authTokenUrl: ""
       tlsKeystore: null
       headers:
+        method: "PUT"
         Content-Type: "text/plain"
         BearerToken: "API"
       type: "REST"
