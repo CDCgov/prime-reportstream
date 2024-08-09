@@ -4,9 +4,9 @@ import { fromDateWithTime, toDateWithTime } from "../pages/daily-data";
 
 export const TEST_ORG_IGNORE = "ignore";
 export const TEST_ORG_AK = "ak-phd";
-export const TEST_ORG_UP_RECEIVER_FULL_ELR = "FULL_ELR";
-export const TEST_ORG_CP_RECEIVER_CSV = "CSV";
-export const TEST_ORG_ELIMS_RECEIVER_ELR = "ELR_ELIMS";
+export const TEST_ORG_UP_RECEIVER_UP = "FULL_ELR";
+export const TEST_ORG_CP_RECEIVER_CP = "CSV";
+export const TEST_ORG_ELIMS_RECEIVER_ELIMS = "ELR_ELIMS";
 export const TEST_ORG_AK_RECEIVER = "elr";
 export async function scrollToFooter(page: Page) {
     // Scrolling to the bottom of the page

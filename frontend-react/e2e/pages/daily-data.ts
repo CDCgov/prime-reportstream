@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { BasePage, BasePageTestArgs, type RouteHandlerFulfillEntry } from "./BasePage";
 import { API_WATERS_ORG } from "./report-details";
 import { RSReceiver } from "../../src/config/endpoints/settings";
-import { TEST_ORG_AK, TEST_ORG_AK_RECEIVER, TEST_ORG_IGNORE, TEST_ORG_UP_RECEIVER_FULL_ELR } from "../helpers/utils";
+import { TEST_ORG_AK, TEST_ORG_AK_RECEIVER, TEST_ORG_IGNORE, TEST_ORG_UP_RECEIVER_UP } from "../helpers/utils";
 import {
     MOCK_GET_DELIVERIES_AK,
     MOCK_GET_DELIVERIES_AK_FILENAME,
@@ -46,7 +46,7 @@ export class DailyDataPage extends BasePage {
             this.createMockGetDeliveriesForOrgHandler(
                 TEST_ORG_IGNORE,
                 MOCK_GET_DELIVERIES_IGNORE_FULL_ELR,
-                TEST_ORG_UP_RECEIVER_FULL_ELR,
+                TEST_ORG_UP_RECEIVER_UP,
             ),
 
             // Alaska Org
