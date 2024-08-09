@@ -16,10 +16,10 @@
       schemaName: "azure:/hl7_mapping/receivers/STLTs/NJ/NJ-receiver-transform.yml"
       useTestProcessingMode: false
       useBatchHeaders: true
-      receivingApplicationName: null
-      receivingApplicationOID: null
-      receivingFacilityName: null
-      receivingFacilityOID: null
+      receivingApplicationName: "ELRS"
+      receivingApplicationOID: "2.16.840.1.113883.3.1299.5.1.6.1"
+      receivingFacilityName: "NJDOH"
+      receivingFacilityOID: "2.16.840.1.113883.3.1299"
       messageProfileId: null
       replaceValue: { }
       replaceValueAwithB: { }
