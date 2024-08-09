@@ -610,93 +610,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         }
     }
 
-    /**
-     * Builds an HTTP request based on a [message] and the receiver's [headers] settings
-     */
-    private fun HttpRequestBuilder.build(
-        logger: Logger,
-        headers: Map<String, String>,
-        message: ByteArray,
-        fileName: String,
-        boundary: String,
-        reportCreateDate: OffsetDateTime,
-    ) {
-        logger.info("sending report to rest API")
-        expectSuccess = true // throw an exception if not successful
-
-        // Calculate Content-Length if needed.
-        buildHeaders(
-            // Calculate Content-Length if needed.
-            headers.map { (key, value) ->
-                if (key == "Content-Length" && value == "<calculated when request is sent>") {
-                    Pair(key, message.size.toString())
-                } else {
-                    Pair(key, value)
-                }
-            }.toMap()
-        )
-
-        setBody(
-            when (headers["Content-Type"]) {
-                // OK or NBS Content-Type: text/plain
-                "text/plain" -> {
-                    TextContent(message.toString(Charsets.UTF_8), ContentType.Text.Plain)
-                }
-                // Flexion Content-Type: text/fhir+ndjson
-                "text/fhir+ndjson" -> {
-                    TextContent(message.toString(Charsets.UTF_8), ContentType.Application.Json)
-                }
-                // WA Content-Type: application/json
-                "application/json" -> {
-                    contentType(ContentType.Application.Json)
-                    // create JSON object for the BODY. This encodes "/" character as "//", needed for WA to accept as valid JSON
-                    JSONObject().put("body", message.toString(Charsets.UTF_8)).toString()
-                }
-                "application/hl7-v2" -> {
-                    val filteredMsg = message.toString(Charsets.UTF_8).replace("\n", "\r").dropLast(1) + "\r"
-                    TextContent(filteredMsg, ContentType("application", "hl7-v2"))
-                }
-                // NY Content-Type: multipart/form-data
-                "multipart/form-data" -> {
-                    MultiPartFormDataContent(
-                        formData {
-                            append(
-                                headers["Key"] ?: "payload", message,
-                                Headers.build {
-                                    append(HttpHeaders.ContentType, "text/plain")
-                                    append(HttpHeaders.ContentDisposition, "filename=\"${fileName}\"")
-                                }
-                            )
-                        },
-                        boundary
-                    )
-                }
-                "elims/json" -> {
-                    contentType(ContentType.Application.Json)
-                    val body = JSONObject()
-                    body.put("System_ID", headers["System_ID"] ?: "")
-                    body.put("Key", headers["Key"] ?: "")
-                    body.put("DateReceived", reportCreateDate.toString())
-                    body.put("FileName", fileName)
-                    // This encodes "\" character as "\\", needed for Hl7 to be read as valid JSON
-                    body.put("Message", message.toString(Charsets.UTF_8))
-                    body.put("Comment", "")
-                    body.toString()
-                }
-                else -> {
-                    // Note: It is here for default content-type.  It is used for integration test
-                    contentType(ContentType.Text.Plain)
-                    val headerContentType = headers["Content-Type"]
-                    logger.warning(
-                        "Unsupported Content-Type: " +
-                            "$headerContentType - please check your REST Transport setting"
-                    )
-                }
-            }
-        )
-        accept(ContentType.Application.Json)
-    }
-
     companion object {
         /** A default value for the timeouts to connect and send messages */
         private const val TIMEOUT = 120_000
@@ -776,9 +689,96 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
          * @param [header] is a map of all values provided in receiver setting
          * @return Unit with all headers appended
          */
-        private fun HttpMessageBuilder.buildHeaders(header: Map<String, String>): Unit =
+        fun HttpMessageBuilder.buildHeaders(header: Map<String, String>): Unit =
             header.forEach { entry ->
                 headers.append(entry.key, entry.value)
             }
+
+        /**
+         * Builds an HTTP request based on a [message] and the receiver's [headers] settings
+         */
+        fun HttpRequestBuilder.build(
+            logger: Logger,
+            headers: Map<String, String>,
+            message: ByteArray,
+            fileName: String,
+            boundary: String,
+            reportCreateDate: OffsetDateTime,
+        ) {
+            logger.info("sending report to rest API")
+            expectSuccess = true // throw an exception if not successful
+
+            // Calculate Content-Length if needed.
+            buildHeaders(
+                // Calculate Content-Length if needed.
+                headers.map { (key, value) ->
+                    if (key == "Content-Length" && value == "<calculated when request is sent>") {
+                        Pair(key, message.size.toString())
+                    } else {
+                        Pair(key, value)
+                    }
+                }.toMap()
+            )
+
+            setBody(
+                when (headers["Content-Type"]) {
+                    // OK or NBS Content-Type: text/plain
+                    "text/plain" -> {
+                        TextContent(message.toString(Charsets.UTF_8), ContentType.Text.Plain)
+                    }
+                    // Flexion Content-Type: text/fhir+ndjson
+                    "text/fhir+ndjson" -> {
+                        TextContent(message.toString(Charsets.UTF_8), ContentType.Application.Json)
+                    }
+                    // WA Content-Type: application/json
+                    "application/json" -> {
+                        contentType(ContentType.Application.Json)
+                        // create JSON object for the BODY. This encodes "/" character as "//", needed for WA to accept as valid JSON
+                        JSONObject().put("body", message.toString(Charsets.UTF_8)).toString()
+                    }
+                    "application/hl7-v2" -> {
+                        val filteredMsg = message.toString(Charsets.UTF_8).replace("\n", "\r").dropLast(1) + "\r"
+                        TextContent(filteredMsg, ContentType("application", "hl7-v2"))
+                    }
+                    // NY Content-Type: multipart/form-data
+                    "multipart/form-data" -> {
+                        MultiPartFormDataContent(
+                            formData {
+                                append(
+                                    headers["Key"] ?: "payload", message,
+                                    Headers.build {
+                                        append(HttpHeaders.ContentType, "text/plain")
+                                        append(HttpHeaders.ContentDisposition, "filename=\"${fileName}\"")
+                                    }
+                                )
+                            },
+                            boundary
+                        )
+                    }
+                    "elims/json" -> {
+                        contentType(ContentType.Application.Json)
+                        val body = JSONObject()
+                        body.put("System_ID", headers["System_ID"] ?: "")
+                        body.put("Key", headers["Key"] ?: "")
+                        body.put("DateReceived", reportCreateDate.toString())
+                        body.put("FileName", fileName)
+                        // This encodes "\" character as "\\", needed for Hl7 to be read as valid JSON
+                        body.put("Message", message.toString(Charsets.UTF_8))
+                        body.put("Comment", "")
+                        body.toString()
+                    }
+                    else -> {
+                        // Note: It is here for default content-type.  It is used for integration test
+                        contentType(ContentType.Text.Plain)
+                        val headerContentType = headers["Content-Type"]
+                        logger.warning(
+                            "Unsupported Content-Type: " +
+                                "$headerContentType - please check your REST Transport setting"
+                        )
+                    }
+                }
+            )
+            accept(ContentType.Application.Json)
+        }
     }
 }
