@@ -77,7 +77,7 @@ class FhirDestinationFilterTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
-    private val actionHistory = ActionHistory(TaskAction.route)
+    private val actionHistory = ActionHistory(TaskAction.destination_filter)
     private val azureEventService = InMemoryAzureEventService()
     private val reportServiceMock = mockk<ReportService>()
     private val submittedId = UUID.randomUUID()
@@ -336,22 +336,83 @@ class FhirDestinationFilterTests {
                     message.reportId,
                     listOf(submittedId),
                     Topic.FULL_ELR,
-                    "",
+                    "test",
                     TaskAction.destination_filter,
                     OffsetDateTime.now()
                 ),
-                ReportEventData::timestamp
+                ReportEventData::timestamp,
             )
             assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     1,
                     1,
-                    null,
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
                     "sendingOrg.sendingOrgClient"
                 )
             )
-            assertThat(event.params).isEqualTo(emptyMap())
+            assertThat(event.params)
+                .isEqualTo(
+                    mapOf(
+                    ReportStreamEventProperties.RECEIVER_NAME to "co-phd.full-elr-hl7",
+                    ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                        observationSummaries = listOf(
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        listOf(
+                                            CodeSummary(
+                                                snomedSystem,
+                                                "840539006",
+                                                @Suppress("ktlint:standard:max-line-length")
+                                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                            )
+                                        ),
+                                        loincSystem,
+                                        "94558-4",
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95418-0",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95417-2",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95421-4",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95419-8",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                        ),
+                        patientState = listOf("CA"),
+                        performerState = emptyList(),
+                        orderingFacilityState = listOf("CA"),
+                        eventType = "ORU/ACK - Unsolicited transmission of an observation message"
+                    )
+                )
+                )
         }
 
         // assert
