@@ -51,7 +51,7 @@ test.describe("Sending data page", () => {
 
     test.describe("onboarding at a glance section", () => {
         test("single accordion item", async ({ sendingDataPage }) => {
-            const accordionItem = "accordionButton_1--content";
+            const accordionItem = "accordionItem_1--content";
             await expect(sendingDataPage.page.getByTestId(accordionItem)).toBeHidden();
 
             await sendingDataPage.page
