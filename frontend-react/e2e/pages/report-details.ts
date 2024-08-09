@@ -2,8 +2,9 @@ import { expect, Page } from "@playwright/test";
 import fs from "node:fs";
 import {
     MOCK_GET_DELIVERIES_AK,
-    MOCK_GET_DELIVERIES_AK_5,
-    MOCK_GET_DELIVERIES_AK_ELR,
+    MOCK_GET_DELIVERIES_AK_FILENAME,
+    MOCK_GET_DELIVERIES_AK_FULL_ELR,
+    MOCK_GET_DELIVERIES_AK_REPORT_ID,
     MOCK_GET_DELIVERIES_IGNORE,
     MOCK_GET_DELIVERIES_IGNORE_FILENAME,
     MOCK_GET_DELIVERIES_IGNORE_FULL_ELR,
@@ -48,14 +49,14 @@ export async function mockGetDeliveriesForOrgAlaskaResponse({
 }: MockGetDeliveriesForOrgResponseOptions) {
     if (receiver) {
         await page.route(`${API_WATERS_ORG}/ak-phd.${receiver}/deliveries?*`, async (route) => {
-            await route.fulfill({ json: MOCK_GET_DELIVERIES_AK_ELR, status: responseStatus });
+            await route.fulfill({ json: MOCK_GET_DELIVERIES_AK_FULL_ELR, status: responseStatus });
         });
     } else if (byReportId) {
         await page.route(
             `${API_WATERS_ORG}/ak-phd/deliveries?sortdir=DESC&cursor=3000-01-01T00:00:00.000Z&since=2000-01-01T00:00:00.000Z&until=3000-01-01T00:00:00.000Z&pageSize=61&receivingOrgSvcStatus=ACTIVE,TESTING&reportId=f4155156-1230-4f0a-8a50-0a0cdec5aa0e`,
             async (route) => {
                 await route.fulfill({
-                    json: MOCK_GET_DELIVERIES_AK_5,
+                    json: MOCK_GET_DELIVERIES_AK_REPORT_ID,
                     status: 200,
                 });
             },
@@ -65,7 +66,7 @@ export async function mockGetDeliveriesForOrgAlaskaResponse({
             `${API_WATERS_ORG}/ak-phd/deliveries?sortdir=DESC&cursor=3000-01-01T00:00:00.000Z&since=2000-01-01T00:00:00.000Z&until=3000-01-01T00:00:00.000Z&pageSize=61&receivingOrgSvcStatus=ACTIVE,TESTING&fileName=ak-receiver-transform.yml-f4155156-1230-4f0a-8a50-0a0cdec5aa0e-20240423214401.hl7`,
             async (route) => {
                 await route.fulfill({
-                    json: MOCK_GET_DELIVERIES_AK_5,
+                    json: MOCK_GET_DELIVERIES_AK_FILENAME,
                     status: 200,
                 });
             },

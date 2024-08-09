@@ -118,7 +118,7 @@ export const MOCK_GET_DELIVERIES_AK = {
     },
 };
 
-export const MOCK_GET_DELIVERIES_AK_ELR = {
+export const MOCK_GET_DELIVERIES_AK_FULL_ELR = {
     data: [
         {
             deliveryId: 0,
@@ -274,7 +274,31 @@ export const MOCK_GET_DELIVERIES_AK_ELR = {
     },
 };
 
-export const MOCK_GET_DELIVERIES_AK_5 = {
+export const MOCK_GET_DELIVERIES_AK_REPORT_ID = {
+    data: [
+        {
+            deliveryId: 5,
+            createdAt: "2024-04-23T21:44:01.210Z",
+            expiresAt: "2024-05-23T21:44:01.210Z",
+            receiver: "ak-phd.full-elr-test",
+            receivingOrgSvcStatus: "active",
+            reportId: "f4155156-1230-4f0a-8a50-0a0cdec5aa0e",
+            topic: "full-elr",
+            reportItemCount: 5,
+            fileName: "ak-receiver-transform.yml-f4155156-1230-4f0a-8a50-0a0cdec5aa0e-20240423214401.hl7",
+            fileType: "HL7_BATCH",
+        },
+    ],
+    meta: {
+        type: "delivery_history",
+        totalCount: 104,
+        totalFilteredCount: 104,
+        totalPages: 11,
+        nextPage: 2,
+    },
+};
+
+export const MOCK_GET_DELIVERIES_AK_FILENAME = {
     data: [
         {
             deliveryId: 5,
