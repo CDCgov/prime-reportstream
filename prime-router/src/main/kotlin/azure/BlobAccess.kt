@@ -204,7 +204,7 @@ class BlobAccess() : Logging {
             blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
         ): TableClient {
             return TableClientBuilder()
-                .connectionString(System.getenv(blobConnInfo.connectionString))
+                .connectionString(blobConnInfo.connectionString)
                 .tableName(tableName)
                 .buildClient()
         }

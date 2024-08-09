@@ -57,7 +57,7 @@ class FHIRReceiver(
     override val engineType: String = "Receive"
 
     private val clientIdHeader = "client_id"
-    private val contentTypeHeader = "Content-Type"
+    private val contentTypeHeader = "content-type"
 
     /**
      * Processes a message of type [QueueMessage]. This message can be in either HL7 or FHIR format and will be placed
@@ -263,12 +263,13 @@ class FHIRReceiver(
                 routeEvent,
                 report,
                 queueMessage.blobURL,
-                FhirDestinationFilterQueueMessage(
+                FhirConvertQueueMessage(
                     report.id,
                     queueMessage.blobURL,
                     queueMessage.digest,
                     queueMessage.blobSubFolderName,
-                    sender.topic
+                    sender.topic,
+                    sender.schemaName
                 )
             )
         )

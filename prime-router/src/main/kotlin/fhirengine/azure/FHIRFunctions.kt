@@ -64,12 +64,12 @@ class FHIRFunctions(
         message: String,
         dequeueCount: Int,
         fhirEngine: FHIREngine,
-        actionHistory: ActionHistory = ActionHistory(TaskAction.convert),
+        actionHistory: ActionHistory = ActionHistory(TaskAction.receive),
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
             queueAccess.sendMessage(
-                elrDestinationFilterQueueName,
+                elrConvertQueueName,
                 it.serialize()
             )
         }
