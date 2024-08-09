@@ -11467,6 +11467,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"postcss@npm:^8.4.41":
+  version: 8.4.41
+  resolution: "postcss@npm:8.4.41"
+  dependencies:
+    nanoid: ^3.3.7
+    picocolors: ^1.0.1
+    source-map-js: ^1.2.0
+  checksum: f865894929eb0f7fc2263811cc853c13b1c75103028b3f4f26df777e27b201f1abe21cb4aa4c2e901c80a04f6fb325ee22979688fe55a70e2ea82b0a517d3b6f
+  languageName: node
+  linkType: hard
+
 "prelude-ls@npm:^1.2.1":
   version: 1.2.1
   resolution: "prelude-ls@npm:1.2.1"
@@ -11838,7 +11849,7 @@ __metadata:
     npm-run-all: ^4.1.5
     otpauth: ^9.3.1
     patch-package: ^8.0.0
-    postcss: ^8.4.39
+    postcss: ^8.4.41
     prettier: ^3.3.3
     react: ^18.3.1
     react-dom: ^18.3.1
