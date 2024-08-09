@@ -72,4 +72,22 @@ class ORCOBRToServiceRequestDiagnosticReportTests {
         val testFileName = "catchall/orcobr/orc_obr-to-servicerequest_diagnosticreport-obr8-not-populated"
         assert(verifyHL7ToFHIRToHL7Mapping(testFileName).passed)
     }
+
+    @Test
+    fun `test handles mapped HL7 values to OBRExtension from OBR25`() {
+        val testFileName = "catchall/orcobr/orc_obr-to-servicerequest_diagnosticreport-obr25"
+        assert(verifyHL7ToFHIRToHL7Mapping(testFileName).passed)
+    }
+
+    @Test
+    fun `test handles unmapped HL7 values to OBRExtension from OBR25`() {
+        val testFileName = "catchall/orcobr/orc_obr-to-servicerequest_diagnosticreport-obr25-not-mapped"
+        assert(verifyHL7ToFHIRToHL7Mapping(testFileName).passed)
+    }
+
+    @Test
+    fun `test does not map OBR25 when OBRExtension is not populated`() {
+        val testFileName = "catchall/orcobr/orc_obr-to-servicerequest_diagnosticreport-obr25-obrext-not-populated"
+        assert(verifyHL7ToFHIRToHL7Mapping(testFileName, true, false, true).passed)
+    }
 }

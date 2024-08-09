@@ -151,7 +151,7 @@ class FHIRTranslatorIntegrationTests : Logging {
             "SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210622\r" +
             "PID|1||||Steuber||20150707|O||^^^^^^^^Native Hawaiian or Other Pacific Islander|^^^IG^^s4fgh||~|||||||||^^^^^^^^Non Hispanic or Latino|||||||20210614\r" +
             "ORC|||||||||||||||||||||Any facility USA|^^^IG||^^^IG\r" +
-            "OBR|1|||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay|||||||||||||||||||||C\r" +
+            "OBR|1|||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay\r" +
             "OBX|1||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay|770814|^^^^^^^^Not detected||Abnormal|||||||||||LumiraDx Platform_LumiraDx\r" +
             "NTE|1|L|ciu1se|^^^^^^^^Remark\r" +
             "OBX|2||^^^^^^^^Whether patient is employed in a healthcare setting||^^^^^^^^Yes\r" +
@@ -251,7 +251,7 @@ class FHIRTranslatorIntegrationTests : Logging {
             "SFT|Orange Software Vendor Name|0.2-YELLOW|Purple PRIME ReportStream|0.1-SNAPSHOT||20210622\r" +
             "PID|1||||Steuber||20150707|O||^^^^^^^^Native Hawaiian or Other Pacific Islander|^^^IG^^s4fgh||~|||||||||^^^^^^^^Non Hispanic or Latino|||||||20210614\r" +
             "ORC|||||||||||||||||||||Any facility USA|^^^IG||^^^IG\r" +
-            "OBR|1|||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay|||||||||||||||||||||C\r" +
+            "OBR|1|||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay\r" +
             "OBX|1||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay|770814|^^^^^^^^Not detected||Abnormal|||||||||||LumiraDx Platform_LumiraDx\r" +
             "NTE|1|L|ciu1se|^^^^^^^^Remark\r" +
             "OBX|2||^^^^^^^^Whether patient is employed in a healthcare setting||^^^^^^^^Yes\r" +

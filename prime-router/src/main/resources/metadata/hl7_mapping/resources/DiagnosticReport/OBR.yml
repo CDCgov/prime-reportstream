@@ -29,18 +29,6 @@ elements:
     value: [ '%resource.category.coding.where(extension(%`rsext-codeable-concept-id`).exists()).code' ]
     hl7Spec: [ '%{obrFieldPath}-24' ]
 
-  - name: result-status
-    value: [ '%resource.status' ]
-    hl7Spec: [ '%{obrFieldPath}-25' ]
-    valueSet:
-      values:
-        partial: A
-        corrected: C
-        amended: C
-        final: F
-        preliminary: P
-        cancelled: X
-
   - name: result-interpreter
     resource: '%resource.resultsInterpreter.resolve()'
     constants:

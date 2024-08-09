@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.datatests.mappinginventory.catchall.cnn
+package gov.cdc.prime.router.datatests.mappinginventory.cnn
 
 import gov.cdc.prime.router.datatests.mappinginventory.verifyHL7ToFHIRToHL7Mapping
 import org.junit.jupiter.api.Test

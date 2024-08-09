@@ -56,3 +56,15 @@ extension:
           type: STRING
           expressionType: HL7Spec
           valueOf: CNN.7
+    - expressionType: nested
+      vars:
+        cnn8: STRING_ALL, CNN.8
+      condition: $cnn8 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          valueOf: CNN.8
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CNN.8

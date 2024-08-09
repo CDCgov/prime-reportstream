@@ -176,6 +176,9 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
         "extension" : [ {
+          "url" : "OBR.25",
+          "valueId" : "F"
+        }, {
           "url" : "OBR.39",
           "valueCodeableConcept" : {
             "coding" : [ {

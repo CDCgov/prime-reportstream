@@ -48,6 +48,12 @@ allows us to give each test a name, description, and comment. Later down the roa
 sender transforms and receiver transforms. These will be broken down by sender/receiver so that, again, there is a 
 lot of organization around the tests.
 
+### Testing Strategies
+Updating mapping tests for a large amount of files manually is tedious and inefficient. There is a bash scrip which can
+be used to update all the `.fhir` files for an entire directory at once: 
+`prime-reportstream/prime-router/src/scripts/recreate-fhir-in-dir.sh`. Once new mappings have been added, 
+this file can be run on an existing `.hl7` test input file and will generate the resulting `.fhir` output. 
+
 ## Future Work
 The other important thing that can happen either before or after the creation of the tests is cleaning up the output.
 It is currently challenging to figure out what does not match when the tests break. We want to change the tests to use 

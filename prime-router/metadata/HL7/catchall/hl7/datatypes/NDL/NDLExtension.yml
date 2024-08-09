@@ -1,0 +1,22 @@
+# $schema: ./../../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  valueOf: ndl-practitioner-role
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: nested
+      condition: $ndl9 NOT_NULL
+      vars:
+        ndl9: NDL.9
+      expressionsMap:
+        url:
+          type: STRING
+          valueOf: NDL.9
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: NDL.9

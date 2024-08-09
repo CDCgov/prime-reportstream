@@ -1382,6 +1382,13 @@
     "resource" : {
       "resourceType" : "ServiceRequest",
       "id" : "1710883410203615000.b42d7a87-086a-487d-89d6-36c77f137edb",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
+        "extension" : [ {
+          "url" : "OBR.25",
+          "valueId" : "F"
+        } ]
+      } ],
       "status" : "unknown",
       "code" : {
         "coding" : [ {

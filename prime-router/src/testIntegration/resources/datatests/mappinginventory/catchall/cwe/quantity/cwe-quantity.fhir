@@ -229,10 +229,34 @@
       }
     },
     {
-      "fullUrl" : "ServiceRequest/1707325155101769000.b124103f-9502-41c3-a856-4fc5c9f00bab",
+      "fullUrl" : "Specimen/1721441659712836000.2853d7eb-3a3c-4a03-b642-f12513e7353d",
+      "resource" : {
+        "resourceType" : "Specimen",
+        "id" : "1721441659712836000.2853d7eb-3a3c-4a03-b642-f12513e7353d",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
+            "valueString" : "OBR"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "ServiceRequest/1721441659716217000.67e9e77a-c601-48a8-9116-5cc881f81a06",
       "resource" : {
         "resourceType" : "ServiceRequest",
-        "id" : "1707325155101769000.b124103f-9502-41c3-a856-4fc5c9f00bab",
+        "id" : "1721441659716217000.67e9e77a-c601-48a8-9116-5cc881f81a06",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
+            "extension" : [
+              {
+                "url" : "OBR.25",
+                "valueId" : "F"
+              }
+            ]
+          }
+        ],
         "status" : "unknown",
         "code" : {
           "coding" : [
@@ -285,6 +309,11 @@
             }
           ]
         },
+        "specimen" : [
+          {
+            "reference" : "Specimen/1721441659712836000.2853d7eb-3a3c-4a03-b642-f12513e7353d"
+          }
+        ],
         "result" : [
           {
             "reference" : "Observation/1707325154932355000.025a5fba-7fdc-4e7e-9e28-af37de9d399e"
