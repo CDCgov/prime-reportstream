@@ -187,11 +187,11 @@
         "address": [
           {
             "line": [
-              "53 Buttonwood Ave"
+              "5555 Hillview Street"
             ],
-            "city": "Brooklyn",
-            "state": "MO",
-            "postalCode": "11224",
+            "city": "Shawview Heights",
+            "state": "IL",
+            "postalCode": "29152",
             "country": "USA"
           }
         ],
@@ -219,7 +219,7 @@
             "value": "12D4567890"
           }
         ],
-        "name": "Testing Lab pakupyyazibjewjklzmadxbqaxgjholhovcgywxpamrkbqktramfvlryonijtkjcctefpztqwdxvjyijsnzagcnazrxmcdcnatpuvoifpektpywzlbbaylloiigvthhjzqhuntxwnmxsbhmzzzmhvdrszuotabmwxgjmysgkiokkkaevrtfctkxfzdxrueqzocptrfpeebbyyrswetzujmeglgdwrbycbbml",
+        "name": "Testing Lab",
         "telecom": [
           {
             "system": "phone",
@@ -233,7 +233,7 @@
               "123 Beach Way"
             ],
             "city": "Denver",
-            "state": "MO",
+            "state": "NH",
             "postalCode": "80210",
             "country": "USA"
           }
@@ -272,7 +272,7 @@
               "321 Ocean Drive"
             ],
             "city": "Denver",
-            "state": "MO",
+            "state": "NH",
             "postalCode": "80210",
             "country": "USA"
           }
@@ -391,7 +391,18 @@
                   "code": "MNI"
                 }
               ]
-            }
+            },
+            "value": "Not blank",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                "value": "entity-namespace-id"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "value": "entity-universal-id"
+              }
+            ]
           }
         ],
         "manufacturer": "Access Bio, Inc.",
@@ -532,6 +543,9 @@
               "display": "Yes"
             }
           ]
+        },
+        "device": {
+          "reference": "Device/d303372c-70cb-46b7-bf74-23f4dc91e661"
         }
       }
     },
@@ -569,6 +583,9 @@
           "reference": "Patient/7c0d1de9-270e-4d9c-a4ec-af92560cec67"
         },
         "valueDateTime": "2024-06-01"
+      },
+      "device": {
+        "reference": "Device/d303372c-70cb-46b7-bf74-23f4dc91e661"
       }
     },
     {
