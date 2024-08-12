@@ -82,5 +82,8 @@ object GeoData {
         TELEPHONE("telephone"),
         EMAIL("email"),
         BIRTHDAY("birthday"),
+        ID_NUMBER("id_number"),
+        PATIENT_STREET_ADDRESS_2("patient_street_address_2"),
+        SOURCE_OF_COMMENT("source_of_comment"),
     }
 }

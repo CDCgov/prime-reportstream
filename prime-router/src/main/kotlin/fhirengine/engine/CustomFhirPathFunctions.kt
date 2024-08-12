@@ -192,72 +192,77 @@ class CustomFhirPathFunctions : FhirPathFunctions {
         return mutableListOf(
             StringType(
                 when (type) {
-            GeoData.DataTypes.CITY -> getRandomGeoValue(
-                parameters[1].first().primitiveValue(),
-                GeoData.ColumnNames.CITY,
-                metadata
-            )
-            GeoData.DataTypes.POSTAL_CODE -> getRandomGeoValue(
-                parameters[1].first().primitiveValue(),
-                GeoData.ColumnNames.ZIP_CODE,
-                metadata
-            )
-            GeoData.DataTypes.TESTING_LAB -> "Any lab USA"
-            GeoData.DataTypes.SENDER_IDENTIFIER -> UUID.randomUUID().toString()
-            GeoData.DataTypes.FACILITY_NAME -> "Any facility USA"
-            GeoData.DataTypes.NAME_OF_SCHOOL -> "Any Fake School"
-            GeoData.DataTypes.REFERENCE_RANGE -> randomChoice("", "Normal", "Abnormal", "Negative")
-            GeoData.DataTypes.RESULT_FORMAT -> "CWE"
-            GeoData.DataTypes.PATIENT_PREFERRED_LANGUAGE -> randomChoice("ENG", "FRE", "SPA", "CHI", "KOR")
-            GeoData.DataTypes.PATIENT_COUNTRY -> "USA"
-            GeoData.DataTypes.SITE_OF_CARE -> FakeReport.getRandomSiteOfCare()
-            GeoData.DataTypes.PATIENT_AGE_AND_UNITS -> getPatientAgeAndUnits()
-            GeoData.DataTypes.COUNTY -> getRandomGeoValue(
-                parameters[1].first().primitiveValue(),
-                GeoData.ColumnNames.COUNTY,
-                metadata
-            )
-            GeoData.DataTypes.EQUIPMENT_MODEL_NAME -> randomChoice(
-                    "LumiraDx SARS-CoV-2 Ag Test",
-                    "BD Veritor System for Rapid Detection of SARS-CoV-2"
-                )
-            GeoData.DataTypes.TEST_PERFORMED_CODE -> randomChoice(
-                "95209-3",
-                "94558-4"
-            )
-            GeoData.DataTypes.OTHER_TEXT -> "I am some random text"
-            GeoData.DataTypes.BLANK -> ""
-            GeoData.DataTypes.TEXT_OR_BLANK -> randomChoice("I am some random text", "")
-            GeoData.DataTypes.NUMBER -> Random.nextInt().toString().replace("-", "")
-            GeoData.DataTypes.DATE -> DateUtilities.getDateAsFormattedString(
-                getRandomDate().toInstant(),
-                DateUtilities.datePattern
-            )
-            GeoData.DataTypes.BIRTHDAY -> DateUtilities.getDateAsFormattedString(
-                getRandomDate().toInstant(),
-                DateUtilities.datePattern
-            )
-            GeoData.DataTypes.DATETIME -> DateUtilities.getDateAsFormattedString(
-                getRandomDate().toInstant(),
-                DateUtilities.datetimePattern
-            )
-            GeoData.DataTypes.HD -> "0.0.0.0.1"
-            GeoData.DataTypes.EI -> "SomeEntityID"
-            GeoData.DataTypes.ID -> Faker().numerify("######")
-            GeoData.DataTypes.ID_CLIA -> Faker().numerify("##D#######")
-            GeoData.DataTypes.ID_DLN -> Faker().idNumber().valid()
-            GeoData.DataTypes.ID_SSN -> Faker().idNumber().validSvSeSsn()
-            GeoData.DataTypes.ID_NPI -> NPIUtilities.generateRandomNPI(Faker())
-            GeoData.DataTypes.STREET -> Faker().address().streetAddress()
-            GeoData.DataTypes.PERSON_NAME -> Faker().name().fullName()
-            GeoData.DataTypes.TELEPHONE -> Faker().numerify("12#########")
-            GeoData.DataTypes.EMAIL -> Faker().name().fullName().replace(" ", "").replace(".", "") + "@gmail.com"
-            GeoData.DataTypes.SPECIMEN_SOURCE_SITE_CODE -> "71836000"
-            GeoData.DataTypes.TEST_RESULT_STATUS -> randomChoice("F", "C")
-            GeoData.DataTypes.PROCESSING_MODE_CODE -> "P"
-            GeoData.DataTypes.VALUE_TYPE -> "CWE"
-            GeoData.DataTypes.TEST_RESULT -> randomChoice("260373001", "260415000", "419984006")
-        }
+                    GeoData.DataTypes.CITY -> getRandomGeoValue(
+                        parameters[1].first().primitiveValue(),
+                        GeoData.ColumnNames.CITY,
+                        metadata
+                    )
+                    GeoData.DataTypes.POSTAL_CODE -> getRandomGeoValue(
+                        parameters[1].first().primitiveValue(),
+                        GeoData.ColumnNames.ZIP_CODE,
+                        metadata
+                    )
+                    GeoData.DataTypes.TESTING_LAB -> "Any lab USA"
+                    GeoData.DataTypes.SENDER_IDENTIFIER -> UUID.randomUUID().toString()
+                    GeoData.DataTypes.FACILITY_NAME -> "Any facility USA"
+                    GeoData.DataTypes.NAME_OF_SCHOOL -> "Any Fake School"
+                    GeoData.DataTypes.REFERENCE_RANGE -> randomChoice("", "Normal", "Abnormal", "Negative")
+                    GeoData.DataTypes.RESULT_FORMAT -> "CWE"
+                    GeoData.DataTypes.PATIENT_PREFERRED_LANGUAGE -> randomChoice("ENG", "FRE", "SPA", "CHI", "KOR")
+                    GeoData.DataTypes.PATIENT_COUNTRY -> "USA"
+                    GeoData.DataTypes.SITE_OF_CARE -> FakeReport.getRandomSiteOfCare()
+                    GeoData.DataTypes.PATIENT_AGE_AND_UNITS -> getPatientAgeAndUnits()
+                    GeoData.DataTypes.COUNTY -> getRandomGeoValue(
+                        parameters[1].first().primitiveValue(),
+                        GeoData.ColumnNames.COUNTY,
+                        metadata
+                    )
+                    GeoData.DataTypes.EQUIPMENT_MODEL_NAME -> randomChoice(
+                            "LumiraDx SARS-CoV-2 Ag Test",
+                            "BD Veritor System for Rapid Detection of SARS-CoV-2"
+                        )
+                    GeoData.DataTypes.TEST_PERFORMED_CODE -> randomChoice(
+                        "95209-3",
+                        "94558-4"
+                    )
+                    GeoData.DataTypes.OTHER_TEXT -> "I am some random text"
+                    GeoData.DataTypes.BLANK -> ""
+                    GeoData.DataTypes.TEXT_OR_BLANK -> randomChoice("I am some random text", "")
+                    GeoData.DataTypes.NUMBER -> Random.nextInt().toString().replace("-", "")
+                    GeoData.DataTypes.DATE -> DateUtilities.getDateAsFormattedString(
+                        getRandomDate().toInstant(),
+                        DateUtilities.datePattern
+                    )
+                    GeoData.DataTypes.BIRTHDAY -> DateUtilities.getDateAsFormattedString(
+                        getRandomDate().toInstant(),
+                        DateUtilities.datePattern
+                    )
+                    GeoData.DataTypes.DATETIME -> DateUtilities.getDateAsFormattedString(
+                        getRandomDate().toInstant(),
+                        DateUtilities.datetimePattern
+                    )
+                    GeoData.DataTypes.HD -> "0.0.0.0.1"
+                    GeoData.DataTypes.EI -> "SomeEntityID"
+                    GeoData.DataTypes.ID -> Faker().numerify("######")
+                    GeoData.DataTypes.ID_CLIA -> Faker().numerify("##D#######")
+                    GeoData.DataTypes.ID_DLN -> Faker().idNumber().valid()
+                    GeoData.DataTypes.ID_SSN -> Faker().idNumber().validSvSeSsn()
+                    GeoData.DataTypes.ID_NPI -> NPIUtilities.generateRandomNPI(Faker())
+                    GeoData.DataTypes.STREET -> Faker().address().streetAddress()
+                    GeoData.DataTypes.PERSON_NAME -> Faker().name().fullName()
+                    GeoData.DataTypes.TELEPHONE -> Faker().numerify("12#########")
+                    GeoData.DataTypes.EMAIL -> Faker().name().fullName()
+                        .replace(" ", "")
+                        .replace(".", "") + "@gmail.com"
+                    GeoData.DataTypes.SPECIMEN_SOURCE_SITE_CODE -> "71836000"
+                    GeoData.DataTypes.TEST_RESULT_STATUS -> randomChoice("F", "C")
+                    GeoData.DataTypes.PROCESSING_MODE_CODE -> "P"
+                    GeoData.DataTypes.VALUE_TYPE -> "CWE"
+                    GeoData.DataTypes.TEST_RESULT -> randomChoice("260373001", "260415000", "419984006")
+                    GeoData.DataTypes.PATIENT_STREET_ADDRESS_2 -> randomChoice("Apt. 305", "Suite 22", "Building 2")
+                    GeoData.DataTypes.ID_NUMBER -> randomChoice("ABC123", "123LKJ", "bjh098")
+                    GeoData.DataTypes.SOURCE_OF_COMMENT -> randomChoice("L", "O", "P")
+                }
             )
         )
     }
