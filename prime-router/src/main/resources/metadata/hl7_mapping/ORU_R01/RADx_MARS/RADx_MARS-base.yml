@@ -67,7 +67,7 @@ elements:
   - name: radx-mars-order-observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
     condition: '%resource.count() > 0'
-    schema: classpath:/metadata/hl7_mapping/RADx_MARS/RADx_MARS-order-observation.yml
+    schema: classpath:/metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-order-observation.yml
     resourceIndex: orderIndex
 
   # RADx Format Requirement:
