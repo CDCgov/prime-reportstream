@@ -181,4 +181,108 @@ class CustomFhirPathFunctionTest {
             (result[0] as StringType).value
         ).isEqualTo("41051")
     }
+
+    @Test
+    fun `test getting the fips code for a county and state - value not found`() {
+        val testTable = Table.create(
+            "fips-county",
+            StringColumn.create("state", "OR", "OR"),
+            StringColumn.create("county", "multnomah", "clackamas"),
+            StringColumn.create("FIPS", "41051", "41005")
+        )
+        val testLookupTable = LookupTable(name = "fips-county", table = testTable)
+
+        mockkConstructor(Metadata::class)
+        every { anyConstructed<Metadata>().findLookupTable("fips-county") } returns testLookupTable
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+
+        // Test getting city
+        val result = CustomFhirPathFunctions().fipsCountyLookup(
+            mutableListOf(mutableListOf(StringType("Shasta")), mutableListOf(StringType("OR"))),
+
+            )
+
+        assertThat(
+            (result[0] as StringType).value
+        ).isEqualTo("Shasta")
+    }
+
+    @Test
+    fun `test getting the fips code for a county and state - null county passed`() {
+        val testTable = Table.create(
+            "fips-county",
+            StringColumn.create("state", "OR", "OR"),
+            StringColumn.create("county", "multnomah", "clackamas"),
+            StringColumn.create("FIPS", "41051", "41005")
+        )
+        val testLookupTable = LookupTable(name = "fips-county", table = testTable)
+
+        mockkConstructor(Metadata::class)
+        every { anyConstructed<Metadata>().findLookupTable("fips-county") } returns testLookupTable
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+
+        // Test getting city
+        val result = CustomFhirPathFunctions().fipsCountyLookup(
+            mutableListOf(mutableListOf(StringType(null)), mutableListOf(StringType("OR"))),
+
+            )
+
+        assertThat(
+            (result[0] as StringType).value
+        ).isEqualTo("")
+    }
+
+    @Test
+    fun `test getting the fips code for a county and state - state null`() {
+        val testTable = Table.create(
+            "fips-county",
+            StringColumn.create("state", "OR", "OR"),
+            StringColumn.create("county", "multnomah", "clackamas"),
+            StringColumn.create("FIPS", "41051", "41005")
+        )
+        val testLookupTable = LookupTable(name = "fips-county", table = testTable)
+
+        mockkConstructor(Metadata::class)
+        every { anyConstructed<Metadata>().findLookupTable("fips-county") } returns testLookupTable
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+
+        // Test getting city
+        val result = CustomFhirPathFunctions().fipsCountyLookup(
+            mutableListOf(mutableListOf(StringType("Shasta")), mutableListOf(StringType(null))),
+
+            )
+
+        assertThat(
+            (result[0] as StringType).value
+        ).isEqualTo("Shasta")
+    }
+
+    @Test
+    fun `test getting the fips code for a county and state - proof lowercase works`() {
+        val testTable = Table.create(
+            "fips-county",
+            StringColumn.create("state", "OR", "OR"),
+            StringColumn.create("county", "multnomah", "clackamas"),
+            StringColumn.create("FIPS", "41051", "41005")
+        )
+        val testLookupTable = LookupTable(name = "fips-county", table = testTable)
+
+        mockkConstructor(Metadata::class)
+        every { anyConstructed<Metadata>().findLookupTable("fips-county") } returns testLookupTable
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+
+        // Test getting city
+        val result = CustomFhirPathFunctions().fipsCountyLookup(
+            mutableListOf(mutableListOf(StringType("Shasta")), mutableListOf(StringType("ca"))),
+
+            )
+
+        assertThat(
+            (result[0] as StringType).value
+        ).isEqualTo("Shasta")
+    }
 }

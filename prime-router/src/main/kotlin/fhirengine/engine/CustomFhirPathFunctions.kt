@@ -165,8 +165,26 @@ class CustomFhirPathFunctions : FhirPathFunctions {
     ): MutableList<Base> {
         val lookupTable = metadata.findLookupTable(name = "fips-county")
         var filters = lookupTable?.FilterBuilder() ?: error("Could not find table fips-county")
-        filters = filters.equalsIgnoreCase("County", parameters!!.first().first().primitiveValue())
-        filters = filters.equalsIgnoreCase("State", parameters[1].first().primitiveValue())
-        return mutableListOf(StringType(filters.findSingleResult("FIPS")))
+
+        // it says it cannot be null, but it can
+        if (parameters == null || parameters.first().isNullOrEmpty()) {
+            return mutableListOf(StringType(""))
+        }
+
+        val county = parameters.first().first().primitiveValue() ?: return mutableListOf(StringType(""))
+        filters = filters.equalsIgnoreCase("County", county)
+
+        // it says it cannot be null, but it can
+        if (parameters[1].isNullOrEmpty()) {
+            return mutableListOf(StringType(county))
+        }
+        val state = parameters[1].first().primitiveValue() ?: return mutableListOf(StringType(county))
+        filters = filters.equalsIgnoreCase("State", state.uppercase())
+        val result = filters.findSingleResult("FIPS")
+        return if (!result.isNullOrBlank()) {
+            mutableListOf(StringType(result))
+        } else {
+            mutableListOf(StringType(parameters.first().first().primitiveValue()))
+        }
     }
 }
