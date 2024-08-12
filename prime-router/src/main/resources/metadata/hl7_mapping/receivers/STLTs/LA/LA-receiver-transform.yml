@@ -63,6 +63,6 @@ elements:
     hl7Spec: [ '%{PID}-10-3' ]
 
   - name: la-patient-county-codes
-    condition: [ 'Bundle.entry.resource.ofType(Patient).address.district.empty().not() and Bundle.entry.resource.ofType(Patient).address.state.empty().not()' ]
+    condition: 'Bundle.entry.resource.ofType(Patient).address.district.empty().not() and Bundle.entry.resource.ofType(Patient).address.state.empty().not()' 
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-11-9' ]
     value: ["FIPSCountyLookup(Bundle.entry.resource.ofType(Patient).address.district,Bundle.entry.resource.ofType(Patient).address.state)[0]"]
