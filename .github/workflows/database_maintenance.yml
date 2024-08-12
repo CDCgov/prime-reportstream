@@ -10,7 +10,6 @@ jobs:
     name: "DB Maintenance - pdh${{ matrix.env }}-pgsql"
     runs-on: ubuntu-latest
     strategy:
-      #max-parallel: 1
       matrix:
         env: [prod, staging]
         db: [prime_data_hub]
@@ -53,6 +52,7 @@ jobs:
           database: ${{ matrix.db }}
           query: |
             VACUUM VERBOSE public.item_lineage;
+            VACUUM VERBOSE public.action_log;
             ANALYZE VERBOSE;
 
         # Remove runner db access
