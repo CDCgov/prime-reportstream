@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        env: [prod, staging]
+        env: [staging] #[prod, staging]
         db: [prime_data_hub]
     #environment: ${{ matrix.env }}
     steps:
@@ -51,9 +51,34 @@ jobs:
           user: prime
           database: ${{ matrix.db }}
           query: |
-            VACUUM VERBOSE public.item_lineage;
-            VACUUM VERBOSE public.action_log;
-            ANALYZE VERBOSE;
+            DO $$
+            DECLARE
+              need_vacuum boolean;
+            BEGIN
+              SELECT pg_stat_get_dead_tuples(oid) > 1000000 INTO need_vacuum
+              FROM pg_class
+              WHERE relname = 'item_lineage';
+
+              IF need_vacuum THEN
+                RAISE NOTICE 'Running VACUUM on item_lineage';
+                VACUUM VERBOSE public.item_lineage;
+              ELSE
+                RAISE NOTICE 'VACUUM not needed for item_lineage';
+              END IF;
+
+              SELECT pg_stat_get_dead_tuples(oid) > 1000000 INTO need_vacuum
+              FROM pg_class
+              WHERE relname = 'action_log';
+
+              IF need_vacuum THEN
+                RAISE NOTICE 'Running VACUUM on action_log';
+                VACUUM VERBOSE public.action_log;
+              ELSE
+                RAISE NOTICE 'VACUUM not needed for action_log';
+              END IF;
+
+              ANALYZE VERBOSE;
+            END $$;
 
         # Remove runner db access
       - name: Remove db access
