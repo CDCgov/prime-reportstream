@@ -119,7 +119,7 @@ class FhirTransformer(
                         updateBundle(
                             bundleProperty,
                             value,
-                            context,
+                            elementContext,
                             bundle,
                             singleFocusResource
                         )
@@ -145,10 +145,10 @@ class FhirTransformer(
                     val appendToProperty = element.appendToProperty
                         ?: throw SchemaException("appendToProperty must be set if the action is append")
                     // The limitation here is that nested-nested schemas cannot do appends, but that seems fine
-                    val appendContext = if (CustomContext.getAppendToIndex(context) != null) {
-                        context
+                    val appendContext = if (CustomContext.getAppendToIndex(elementContext) != null) {
+                        elementContext
                     } else {
-                        CustomContext.setAppendToIndex(existing + index, context)
+                        CustomContext.setAppendToIndex(existing + index, elementContext)
                     }
                     if (value != null) {
                         val bundleProperty = element.bundleProperty
