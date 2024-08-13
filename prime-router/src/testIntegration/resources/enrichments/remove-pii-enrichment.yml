@@ -1,0 +1,71 @@
+elements:
+  - name: pii-removal-patient-id
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    value: [ 'getFakeValueForElement("ID_NUMBER")' ]
+    bundleProperty: '%resource.identifier.value'
+
+  - name: pii-removal-patient-last-name
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    value: [ 'getFakeValueForElement("PERSON_FAMILY_NAME").substring(%resource.indexOf(" "),)' ]
+    bundleProperty: '%resource.name.family'
+
+  - name: pii-removal-patient-last-name
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    value: [ 'getFakeValueForElement("PERSON_GIVEN_NAME")' ]
+    bundleProperty: '%resource.name.given'
+
+  - name: pii-removal-patient-last-name
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    value: [ 'getFakeValueForElement("PERSON_GIVEN_NAME")' ]
+    bundleProperty: '%resource.name.given'
+
+  - name: pii-removal-patient-middle-name
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    value: [ 'getFakeValueForElement("PERSON_GIVEN_NAME")' ]
+    bundleProperty: '%resource.name[0].extension(%`rsext-xpn-human-name`).extension.where(url="XPN.3").value'
+
+  - name: pii-removal-patient-dob
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    value: [ 'getFakeValueForElement("BIRTHDAY")' ]
+    bundleProperty: '%resource.birthDate'
+
+  - name: pii-removal-patient-street-address
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    value: [ 'getFakeValueForElement("STREET")' ]
+    bundleProperty: '%resource.address.line'
+
+  - name: pii-removal-patient-street-address2
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    value: [ 'getFakeValueForElement("PATIENT_STREET_ADDRESS_2")' ]
+    bundleProperty: '%resource.address.extension(%`rsext-xad-address`).extension.where(url = "XAD.2").value'
+
+  - name: pii-removal-patient-city
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    value: [ 'getFakeValueForElement("CITY",%resource.address.state)' ]
+    bundleProperty: '%resource.address.city'
+
+  - name: pii-removal-patient-email
+    condition: 'Bundle.entry.resource.ofType(Patient).telecom.where(system = "email")'
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    value: [ 'getFakeValueForElement("EMAIL")' ]
+    bundleProperty: '%resource.telecom.value'
+
+  - name: pii-removal-patient-phone-area-code
+    condition: "Bundle.entry.resource.ofType(Patient).telecom[0].where((use = 'home' or use = 'mobile'))"
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    value: [ 'getFakeValueForElement("TELEPHONE").substring(0,3)' ]
+    bundleProperty: '%resource.telecom.extension(%`ext-contactpoint-area`).value'
+
+  - name: pii-removal-patient-local-phone
+    condition: "Bundle.entry.resource.ofType(Patient).telecom[0].where((use = 'home' or use = 'mobile'))"
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    value: [ 'getFakeValueForElement("TELEPHONE")' ]
+    bundleProperty: '%resource.telecom.value'
+
+  - name: pii-removal-note-set-id
+    condition: "Bundle.entry.resource.ofType(Patient)"
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    value: [ 'getFakeValueForElement("TELEPHONE")' ]
+    bundleProperty: '%resource.telecom.value'
+
+

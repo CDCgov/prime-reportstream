@@ -249,7 +249,14 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                     GeoData.DataTypes.ID_SSN -> Faker().idNumber().validSvSeSsn()
                     GeoData.DataTypes.ID_NPI -> NPIUtilities.generateRandomNPI(Faker())
                     GeoData.DataTypes.STREET -> Faker().address().streetAddress()
-                    GeoData.DataTypes.PERSON_NAME -> Faker().name().fullName()
+                    GeoData.DataTypes.PERSON_GIVEN_NAME -> {
+                      val fullName = Faker().name().fullName()
+                      fullName.substring(0, fullName.indexOf(" "))
+                    }
+                    GeoData.DataTypes.PERSON_FAMILY_NAME -> {
+                        val fullName = Faker().name().fullName()
+                        fullName.substring(fullName.lastIndexOf(' '), fullName.length)
+                    }
                     GeoData.DataTypes.TELEPHONE -> Faker().numerify("12#########")
                     GeoData.DataTypes.EMAIL -> Faker().name().fullName()
                         .replace(" ", "")
