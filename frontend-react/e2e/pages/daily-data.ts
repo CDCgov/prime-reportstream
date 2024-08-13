@@ -212,40 +212,6 @@ export async function setTime(page: Page, locator: string, time: string) {
     await page.keyboard.press("Tab");
 }
 
-export function fromDateWithTime(date: string, time: string) {
-    const fromDateTime = new Date(date);
-
-    if (time) {
-        // eslint-disable-next-line prefer-const
-        let [hours, minutes] = time
-            .substring(0, time.length - 2)
-            .split(":")
-            .map(Number);
-        hours = hours + (time.indexOf("pm") !== -1 ? 12 : 0);
-        fromDateTime.setHours(hours, minutes, 0, 0);
-    } else {
-        fromDateTime.setHours(0, 0, 0);
-    }
-    return fromDateTime;
-}
-
-export function toDateWithTime(date: string, time: string) {
-    const toDateTime = new Date(date);
-
-    if (time) {
-        // eslint-disable-next-line prefer-const
-        let [hours, minutes] = time
-            .substring(0, time.length - 2)
-            .split(":")
-            .map(Number);
-        hours = hours + (time.indexOf("pm") !== -1 ? 12 : 0);
-        toDateTime.setHours(hours, minutes, 0, 0);
-    } else {
-        toDateTime.setHours(23, 59, 0);
-    }
-    return toDateTime;
-}
-
 export function filterStatus(page: Page, filters: (string | undefined)[]) {
     // RowCount is not attainable with live data since it is returned from the API
     let filterStatus = ` for: `;
