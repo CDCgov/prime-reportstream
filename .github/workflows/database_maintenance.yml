@@ -5,6 +5,9 @@ on:
     branches:
       - josiahsiegel/add/db-maint
 
+env:
+  VACUUM_CMD: "VACUUM ANALYZE"
+
 jobs:
   db_maint:
     name: "DB Maintenance - pdh${{ matrix.env }}-pgsql"
@@ -35,58 +38,62 @@ jobs:
           max_attempts: 6
           retry_wait_seconds: 30
           command: |
-            az postgres server update -g prime-data-hub-${{ matrix.env }} -n pdh${{ matrix.env }}-pgsql --public-network-access "Enabled"
+            az postgres server update -g prime-data-hub-${{ matrix.env }} \
+              -n pdh${{ matrix.env }}-pgsql --public-network-access "Enabled"
             sleep 30;
-            az postgres server firewall-rule create -g prime-data-hub-${{ matrix.env }} -s pdh${{ matrix.env }}-pgsql -n github_actions_runner \
+            az postgres server firewall-rule create -g prime-data-hub-${{ matrix.env }} \
+              -s pdh${{ matrix.env }}-pgsql -n github_actions_runner \
               --start-ip-address ${{ env.PUBLIC_IP }} --end-ip-address ${{ env.PUBLIC_IP }}
-            az postgres server firewall-rule show -g prime-data-hub-${{ matrix.env }} -s pdh${{ matrix.env }}-pgsql -n github_actions_runner
+            az postgres server firewall-rule show -g prime-data-hub-${{ matrix.env }} \
+              -s pdh${{ matrix.env }}-pgsql -n github_actions_runner
           shell: bash
 
       - name: Run maint query
-        uses: ./.github/actions/db-query
+        id: query
+        uses: yakubique/query-postgresql@v1.2
         with:
-          pass: ${{ secrets[format('POSTGRESQL_{0}_PWD', matrix.env)] }}
-          host: pdh${{ matrix.env }}-pgsql
+          query: './.github/scripts/database_maintenance/identify_bloat.sql'
+          host: pdh${{ matrix.env }}-pgsql.postgres.database.azure.com
           port: 5432
-          user: prime
-          database: ${{ matrix.db }}
-          query: |
-            DO $$
-            DECLARE
-              need_vacuum boolean;
-            BEGIN
-              SELECT pg_stat_get_dead_tuples(oid) > 1000000 INTO need_vacuum
-              FROM pg_class
-              WHERE relname = 'item_lineage';
+          username: prime@pdh${{ matrix.env }}-pgsql.postgres.database.azure.com
+          password: ${{ secrets[format('POSTGRESQL_{0}_PWD', matrix.env)] }}
+          db: ${{ matrix.db }}
+          ssl: 'true'
+          from_file: true
+          to_file: true
 
-              IF need_vacuum THEN
-                RAISE NOTICE 'Running VACUUM on item_lineage';
-                VACUUM VERBOSE public.item_lineage;
-              ELSE
-                RAISE NOTICE 'VACUUM not needed for item_lineage';
-              END IF;
-
-              SELECT pg_stat_get_dead_tuples(oid) > 1000000 INTO need_vacuum
-              FROM pg_class
-              WHERE relname = 'action_log';
-
-              IF need_vacuum THEN
-                RAISE NOTICE 'Running VACUUM on action_log';
-                VACUUM VERBOSE public.action_log;
-              ELSE
-                RAISE NOTICE 'VACUUM not needed for action_log';
-              END IF;
-
-              ANALYZE VERBOSE;
-            END $$;
-
+      - name: Read JSON output
+        id: read_json
+        run: |
+          content=$(cat "${{ steps.query.outputs.result }}")
+          echo "tables=$(echo "$content" | jq -c '.')" >> $GITHUB_OUTPUT
+  
+      - name: Run vacuum for each table
+        env:
+          TABLES: ${{ steps.read_json.outputs.tables }}
+          PGPASSWORD: ${{ secrets[format('POSTGRESQL_{0}_PWD', matrix.env)] }}
+          VACUUM_CMD: ${{ env.VACUUM_CMD }}
+        run: |
+          tables=$(echo "$TABLES" | jq -c '.[]')
+          for table in $tables; do
+            schema_name=$(echo "$table" | jq -r '.schemaname')
+            table_name=$(echo "$table" | jq -r '.tblname')
+            
+            echo "Running vacuum for table: $schema_name.$table_name"
+            psql -h pdh${{ matrix.env }}-pgsql.postgres.database.azure.com -p 5432 \
+              -U prime@pdh${{ matrix.env }}-pgsql.postgres.database.azure.com \
+              -d ${{ matrix.db }} -c "$VACUUM_CMD $schema_name.$table_name;"
+          done
+  
         # Remove runner db access
       - name: Remove db access
         if: always()
         continue-on-error: true
         shell: bash
         run: |
-          az postgres server firewall-rule delete -g prime-data-hub-${{ matrix.env }} -s pdh${{ matrix.env }}-pgsql -n github_actions_runner --yes;
+          az postgres server firewall-rule delete -g prime-data-hub-${{ matrix.env }} \
+            -s pdh${{ matrix.env }}-pgsql -n github_actions_runner --yes;
           sleep 10;
-          az postgres server update -g prime-data-hub-${{ matrix.env }} -n pdh${{ matrix.env }}-pgsql --public-network-access "Disabled";
+          az postgres server update -g prime-data-hub-${{ matrix.env }} \
+            -n pdh${{ matrix.env }}-pgsql --public-network-access "Disabled";
           sleep 30;
