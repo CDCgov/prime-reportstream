@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-import { tableRows } from "../../helpers/utils";
-import * as lastMileFailures from "../../pages/last-mile-failures";
+import { tableRows } from "../../../helpers/utils";
+import * as lastMileFailures from "../../../pages/last-mile-failures";
 
 test.describe("Last Mile Failure page", () => {
     test.describe("not authenticated", () => {

@@ -1,13 +1,10 @@
 import { expect, test } from "@playwright/test";
-import { noData, tableRows } from "../../helpers/utils";
-import { MOCK_GET_MESSAGE, MOCK_GET_MESSAGES } from "../../mocks/messages";
-import * as messageIdSearch from "../../pages/message-id-search";
-import {
-    MESSAGE_ID,
-    URL_MESSAGE_ID_SEARCH,
-} from "../../pages/message-id-search";
-import { openReportIdDetailPage } from "../../pages/submission-history";
-import * as submissionHistory from "../../pages/submission-history";
+import { noData, tableRows } from "../../../helpers/utils";
+import { MOCK_GET_MESSAGE, MOCK_GET_MESSAGES } from "../../../mocks/messages";
+import * as messageIdSearch from "../../../pages/message-id-search";
+import { MESSAGE_ID, URL_MESSAGE_ID_SEARCH } from "../../../pages/message-id-search";
+import { openReportIdDetailPage } from "../../../pages/submission-history";
+import * as submissionHistory from "../../../pages/submission-history";
 
 test.describe("Message ID Search Page", () => {
     test.describe("not authenticated", () => {
@@ -54,9 +51,7 @@ test.describe("Message ID Search Page", () => {
                 await expect(page.locator("footer")).toBeAttached();
             });
 
-            test("displays expected table headers and data", async ({
-                page,
-            }) => {
+            test("displays expected table headers and data", async ({ page }) => {
                 // include header row
                 const rowCount = MOCK_GET_MESSAGES.length + 1;
                 const table = page.getByRole("table");
@@ -64,12 +59,7 @@ test.describe("Message ID Search Page", () => {
                 const rows = await table.getByRole("row").all();
                 expect(rows).toHaveLength(rowCount);
 
-                const colHeaders = [
-                    "Message ID",
-                    "Sender",
-                    "Date/time submitted",
-                    "Incoming Report Id",
-                ];
+                const colHeaders = ["Message ID", "Sender", "Date/time submitted", "Incoming Report Id"];
                 for (const [i, row] of rows.entries()) {
                     const cols = await row.getByRole("cell").allTextContents();
                     expect(cols).toHaveLength(colHeaders.length);
@@ -77,9 +67,7 @@ test.describe("Message ID Search Page", () => {
                     const { messageId, sender, submittedDate, reportId } =
                         i === 0
                             ? MOCK_GET_MESSAGES[0]
-                            : MOCK_GET_MESSAGES.find(
-                                  (i) => i.reportId === cols[3],
-                              ) ?? { reportId: "INVALID" };
+                            : (MOCK_GET_MESSAGES.find((i) => i.reportId === cols[3]) ?? { reportId: "INVALID" });
                     // if first row, we expect column headers. else, the data row matching the report id
                     const expectedColContents =
                         i === 0
@@ -87,9 +75,7 @@ test.describe("Message ID Search Page", () => {
                             : [
                                   messageId,
                                   sender ?? "",
-                                  submittedDate
-                                      ? new Date(submittedDate).toLocaleString()
-                                      : "",
+                                  submittedDate ? new Date(submittedDate).toLocaleString() : "",
                                   reportId ?? "",
                               ];
 
@@ -99,9 +85,7 @@ test.describe("Message ID Search Page", () => {
                 }
             });
 
-            test("table column 'Message ID' will open message id details", async ({
-                page,
-            }) => {
+            test("table column 'Message ID' will open message id details", async ({ page }) => {
                 const messageIdCell = tableRows(page)
                     .nth(0)
                     .locator("td")
@@ -112,17 +96,11 @@ test.describe("Message ID Search Page", () => {
                 expect(page.locator("h1").getByText(MESSAGE_ID)).toBeTruthy();
             });
 
-            test("table column 'Incoming Report Id' will open report id details", async ({
-                page,
-            }) => {
+            test("table column 'Incoming Report Id' will open report id details", async ({ page }) => {
                 const reportId = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
-                const reportIdCell = tableRows(page)
-                    .nth(0)
-                    .locator("td")
-                    .nth(3)
-                    .getByRole("link", {
-                        name: reportId,
-                    });
+                const reportIdCell = tableRows(page).nth(0).locator("td").nth(3).getByRole("link", {
+                    name: reportId,
+                });
                 await reportIdCell.click();
                 await openReportIdDetailPage(page, reportId);
             });

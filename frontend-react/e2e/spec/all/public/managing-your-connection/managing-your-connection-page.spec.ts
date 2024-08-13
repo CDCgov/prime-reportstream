@@ -1,25 +1,15 @@
-import { scrollToFooter, scrollToTop } from "../../helpers/utils";
-import { ManagingYourConnectionPage } from "../../pages/managing-your-connection";
-import { test as baseTest, expect } from "../../test";
+import { scrollToFooter, scrollToTop } from "../../../../helpers/utils";
+import { ManagingYourConnectionPage } from "../../../../pages/managing-your-connection";
+import { test as baseTest, expect } from "../../../../test";
 
 const cards = [
     {
         name: "For healthcare organizations",
-        links: [
-            "Manage your public key",
-            "View your submission history",
-            "Login",
-            "contact us",
-        ],
+        links: ["Manage your public key", "View your submission history", "Login", "contact us"],
     },
     {
         name: "For public health agencies",
-        links: [
-            "Refer healthcare organizations",
-            "View your dashboard",
-            "Login",
-            "contact us",
-        ],
+        links: ["Refer healthcare organizations", "View your dashboard", "Login", "contact us"],
     },
 ];
 
@@ -63,23 +53,16 @@ test.describe(
     },
     () => {
         test("has correct title", async ({ managingYourConnectionPage }) => {
-            await expect(managingYourConnectionPage.page).toHaveTitle(
-                managingYourConnectionPage.title,
-            );
+            await expect(managingYourConnectionPage.page).toHaveTitle(managingYourConnectionPage.title);
             await expect(managingYourConnectionPage.heading).toBeVisible();
         });
 
         test.describe("Quick links", () => {
             for (const card of cards) {
-                test(`should have ${card.name} links`, async ({
-                    managingYourConnectionPage,
-                }) => {
-                    const cardHeader = managingYourConnectionPage.page.locator(
-                        ".usa-card__header",
-                        {
-                            hasText: card.name,
-                        },
-                    );
+                test(`should have ${card.name} links`, async ({ managingYourConnectionPage }) => {
+                    const cardHeader = managingYourConnectionPage.page.locator(".usa-card__header", {
+                        hasText: card.name,
+                    });
 
                     await expect(cardHeader).toBeVisible();
 
@@ -101,23 +84,13 @@ test.describe(
                 await expect(managingYourConnectionPage.footer).toBeAttached();
             });
 
-            test("explicit scroll to footer and then scroll to top", async ({
-                managingYourConnectionPage,
-            }) => {
-                await expect(
-                    managingYourConnectionPage.footer,
-                ).not.toBeInViewport();
+            test("explicit scroll to footer and then scroll to top", async ({ managingYourConnectionPage }) => {
+                await expect(managingYourConnectionPage.footer).not.toBeInViewport();
                 await scrollToFooter(managingYourConnectionPage.page);
-                await expect(
-                    managingYourConnectionPage.footer,
-                ).toBeInViewport();
-                await expect(
-                    managingYourConnectionPage.page.getByTestId("govBanner"),
-                ).not.toBeInViewport();
+                await expect(managingYourConnectionPage.footer).toBeInViewport();
+                await expect(managingYourConnectionPage.page.getByTestId("govBanner")).not.toBeInViewport();
                 await scrollToTop(managingYourConnectionPage.page);
-                await expect(
-                    managingYourConnectionPage.page.getByTestId("govBanner"),
-                ).toBeInViewport();
+                await expect(managingYourConnectionPage.page.getByTestId("govBanner")).toBeInViewport();
             });
         });
     },

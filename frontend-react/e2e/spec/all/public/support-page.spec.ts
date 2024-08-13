@@ -1,7 +1,7 @@
-import site from "../../../src/content/site.json" assert { type: "json" };
-import { scrollToFooter, scrollToTop } from "../../helpers/utils";
-import { SupportPage } from "../../pages/support.js";
-import { test as baseTest, expect } from "../../test";
+import site from "../../../../src/content/site.json" assert { type: "json" };
+import { scrollToFooter, scrollToTop } from "../../../helpers/utils";
+import { SupportPage } from "../../../pages/support.js";
+import { test as baseTest, expect } from "../../../test";
 
 const cards = [
     {
@@ -58,9 +58,7 @@ test.describe("Support page", () => {
     });
 
     test("Should have a way of contacting support", async ({ supportPage }) => {
-        const contactLink = supportPage.page
-            .locator(`a[href="${site.forms.contactUs.url}"]`)
-            .first();
+        const contactLink = supportPage.page.locator(`a[href="${site.forms.contactUs.url}"]`).first();
 
         await contactLink.scrollIntoViewIfNeeded();
         await expect(contactLink).toBeVisible();
@@ -78,9 +76,7 @@ test.describe("Support page", () => {
             const viewAllLink = cardContainer.locator("a").last();
 
             await viewAllLink.click();
-            await expect(
-                supportPage.page.locator(`#${card.anchorID}`),
-            ).toBeVisible();
+            await expect(supportPage.page.locator(`#${card.anchorID}`)).toBeVisible();
         });
     }
 
@@ -89,19 +85,13 @@ test.describe("Support page", () => {
             await expect(supportPage.footer).toBeAttached();
         });
 
-        test("explicit scroll to footer and then scroll to top", async ({
-            supportPage,
-        }) => {
+        test("explicit scroll to footer and then scroll to top", async ({ supportPage }) => {
             await expect(supportPage.footer).not.toBeInViewport();
             await scrollToFooter(supportPage.page);
             await expect(supportPage.footer).toBeInViewport();
-            await expect(
-                supportPage.page.getByTestId("govBanner"),
-            ).not.toBeInViewport();
+            await expect(supportPage.page.getByTestId("govBanner")).not.toBeInViewport();
             await scrollToTop(supportPage.page);
-            await expect(
-                supportPage.page.getByTestId("govBanner"),
-            ).toBeInViewport();
+            await expect(supportPage.page.getByTestId("govBanner")).toBeInViewport();
         });
     });
 });

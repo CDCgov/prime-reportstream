@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { selectTestOrg } from "../../helpers/utils";
-import * as reportDetails from "../../pages/report-details";
-import * as submissionDetails from "../../pages/submission-history";
-import { URL_SUBMISSION_HISTORY } from "../../pages/submission-history";
+import { selectTestOrg } from "../../../helpers/utils";
+import * as reportDetails from "../../../pages/report-details";
+import * as submissionDetails from "../../../pages/submission-history";
+import { URL_SUBMISSION_HISTORY } from "../../../pages/submission-history";
 
 const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
 test.describe("Submissions Details page", () => {
@@ -27,9 +27,7 @@ test.describe("Submissions Details page", () => {
             });
 
             test("has reportId in breadcrumb", async ({ page }) => {
-                await expect(
-                    page.locator(".usa-breadcrumb ol li").nth(1),
-                ).toHaveText(`Details: ${id}`);
+                await expect(page.locator(".usa-breadcrumb ol li").nth(1)).toHaveText(`Details: ${id}`);
             });
 
             test("has footer", async ({ page }) => {
@@ -48,15 +46,8 @@ test.describe("Submissions Details page", () => {
                 await submissionDetails.title(page);
             });
 
-            test("breadcrumb navigates to Submission History page", async ({
-                page,
-            }) => {
-                await submissionDetails.breadcrumbLink(
-                    page,
-                    0,
-                    "Submissions",
-                    URL_SUBMISSION_HISTORY,
-                );
+            test("breadcrumb navigates to Submission History page", async ({ page }) => {
+                await submissionDetails.breadcrumbLink(page, 0, "Submissions", URL_SUBMISSION_HISTORY);
             });
 
             test("has footer", async ({ page }) => {
@@ -74,9 +65,7 @@ test.describe("Submissions Details page", () => {
         });
 
         test("has error message", async ({ page }) => {
-            await expect(
-                page.getByText(/An error has occurred./),
-            ).toBeAttached();
+            await expect(page.getByText(/An error has occurred./)).toBeAttached();
         });
 
         test("has footer", async ({ page }) => {
@@ -97,20 +86,11 @@ test.describe("Submissions Details page", () => {
         });
 
         test("has reportId in breadcrumb", async ({ page }) => {
-            await expect(
-                page.locator(".usa-breadcrumb ol li").nth(1),
-            ).toHaveText(`Details: ${id}`);
+            await expect(page.locator(".usa-breadcrumb ol li").nth(1)).toHaveText(`Details: ${id}`);
         });
 
-        test("breadcrumb navigates to Submission History page", async ({
-            page,
-        }) => {
-            await submissionDetails.breadcrumbLink(
-                page,
-                0,
-                "Submissions",
-                URL_SUBMISSION_HISTORY,
-            );
+        test("breadcrumb navigates to Submission History page", async ({ page }) => {
+            await submissionDetails.breadcrumbLink(page, 0, "Submissions", URL_SUBMISSION_HISTORY);
         });
 
         test("has footer", async ({ page }) => {
@@ -127,9 +107,7 @@ test.describe("Submissions Details page", () => {
         });
 
         test("has error message", async ({ page }) => {
-            await expect(
-                page.getByText(/An error has occurred./),
-            ).toBeAttached();
+            await expect(page.getByText(/An error has occurred./)).toBeAttached();
         });
 
         test("has footer", async ({ page }) => {
@@ -145,9 +123,7 @@ test.describe("Submissions Details page", () => {
         });
 
         test("has error message", async ({ page }) => {
-            await expect(
-                page.getByText(/An error has occurred./),
-            ).toBeAttached();
+            await expect(page.getByText(/An error has occurred./)).toBeAttached();
         });
 
         test("has footer", async ({ page }) => {

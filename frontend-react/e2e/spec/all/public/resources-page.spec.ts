@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import * as resources from "../../pages/resources";
+import * as resources from "../../../pages/resources";
 
 // eslint-disable-next-line playwright/no-skipped-test
 test.describe.skip("Developer Resources page", () => {
@@ -61,9 +61,7 @@ test.describe.skip("Developer Resources page", () => {
             });
         }
 
-        test("should redirect unauthenticated users to login page on managing public key", async ({
-            page,
-        }) => {
+        test("should redirect unauthenticated users to login page on managing public key", async ({ page }) => {
             await page
                 .getByRole("link", {
                     name: "Manage your public key",

@@ -8,8 +8,8 @@ import {
     tableRows,
     TEST_ORG_AK_RECEIVER,
     TEST_ORG_UP_RECEIVER_FULL_ELR,
-} from "../../helpers/utils";
-import * as dailyData from "../../pages/daily-data";
+} from "../../../helpers/utils";
+import * as dailyData from "../../../pages/daily-data";
 import {
     applyButton,
     DailyDataPage,
@@ -30,12 +30,12 @@ import {
     startTime,
     startTimeClear,
     tableHeaders,
-} from "../../pages/daily-data";
+} from "../../../pages/daily-data";
 import {
     mockGetDeliveriesForOrgAlaskaResponse,
     mockGetDeliveriesForOrgIgnoreResponse,
-} from "../../pages/report-details";
-import { test as baseTest } from "../../test";
+} from "../../../pages/report-details";
+import { test as baseTest } from "../../../test";
 
 const defaultStartTime = "9:00am";
 const defaultEndTime = "11:30pm";

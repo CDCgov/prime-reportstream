@@ -1,6 +1,6 @@
-import { scrollToFooter, scrollToTop } from "../../helpers/utils";
-import { ReferHealthcarePage } from "../../pages/refer-healthcare";
-import { test as baseTest, expect } from "../../test";
+import { scrollToFooter, scrollToTop } from "../../../../helpers/utils";
+import { ReferHealthcarePage } from "../../../../pages/refer-healthcare";
+import { test as baseTest, expect } from "../../../../test";
 
 export interface ReferHealthcarePageFixtures {
     referHealthcarePage: ReferHealthcarePage;
