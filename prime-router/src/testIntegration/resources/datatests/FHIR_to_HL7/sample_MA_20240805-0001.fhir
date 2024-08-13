@@ -1,16 +1,16 @@
 {
   "resourceType": "Bundle",
   "identifier": {
-    "value": "181c18ad-8ca1-4244-83e3-7e474dbf33c4"
+    "value": "12300125"
   },
   "type": "message",
-  "timestamp": "2024-08-01T22:39:54.929Z",
+  "timestamp": "2024-08-09T23:29:23.227Z",
   "entry": [
     {
-      "fullUrl": "MessageHeader/efcb3ecc-cc5a-42c0-aafe-38a47b4a2c0e",
+      "fullUrl": "MessageHeader/92f95e58-8e16-4833-9aba-2194a3338bc5",
       "resource": {
         "resourceType": "MessageHeader",
-        "id": "efcb3ecc-cc5a-42c0-aafe-38a47b4a2c0e",
+        "id": "92f95e58-8e16-4833-9aba-2194a3338bc5",
         "meta": {
           "tag": [
             {
@@ -80,7 +80,7 @@
               },
               {
                 "url": "MSH.7",
-                "valueInstant": "2024-08-01T22:39:54.929Z"
+                "valueInstant": "2024-08-09T23:29:23.227Z"
               }
             ]
           },
@@ -101,7 +101,7 @@
           }
         ],
         "sender": {
-          "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+          "reference": "Organization/e7d0a49b-a7eb-46f3-a939-c9a392029061"
         },
         "source": {
           "extension": [
@@ -111,7 +111,7 @@
             },
             {
               "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-install-date",
-              "valueInstant": "2024-07-31T22:01:50Z"
+              "valueInstant": "2024-08-09T16:32:01Z"
             },
             {
               "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
@@ -143,20 +143,20 @@
         },
         "focus": [
           {
-            "reference": "Provenance/b53a5a52-d217-4432-8c3e-98fd4d0f7c17"
+            "reference": "Provenance/05efa3fe-4400-4e14-9583-888e0b35faa2"
           },
           {
-            "reference": "DiagnosticReport/181c18ad-8ca1-4244-83e3-7e474dbf33c4"
+            "reference": "DiagnosticReport/12300125"
           }
         ]
       }
     },
     {
-      "fullUrl": "Provenance/b53a5a52-d217-4432-8c3e-98fd4d0f7c17",
+      "fullUrl": "Provenance/05efa3fe-4400-4e14-9583-888e0b35faa2",
       "resource": {
         "resourceType": "Provenance",
-        "id": "b53a5a52-d217-4432-8c3e-98fd4d0f7c17",
-        "recorded": "2024-08-01T22:39:54.929Z",
+        "id": "05efa3fe-4400-4e14-9583-888e0b35faa2",
+        "recorded": "2024-08-09T23:29:23.227Z",
         "activity": {
           "coding": [
             {
@@ -169,17 +169,17 @@
         "agent": [
           {
             "who": {
-              "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+              "reference": "Organization/e7d0a49b-a7eb-46f3-a939-c9a392029061"
             }
           }
         ]
       }
     },
     {
-      "fullUrl": "DiagnosticReport/181c18ad-8ca1-4244-83e3-7e474dbf33c4",
+      "fullUrl": "DiagnosticReport/12300125",
       "resource": {
         "resourceType": "DiagnosticReport",
-        "id": "181c18ad-8ca1-4244-83e3-7e474dbf33c4",
+        "id": "12300125",
         "identifier": [
           {
             "extension": [
@@ -188,11 +188,11 @@
                 "extension": [
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                    "valueString": "Testing Lab"
+                    "valueString": "Simple HealthKit"
                   },
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                    "valueString": "12D4567890"
+                    "valueString": "05D2201580"
                   },
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
@@ -212,7 +212,7 @@
                 }
               ]
             },
-            "value": "181c18ad-8ca1-4244-83e3-7e474dbf33c4"
+            "value": "12300125"
           },
           {
             "extension": [
@@ -225,11 +225,11 @@
                 "extension": [
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                    "valueString": "Testing Lab"
+                    "valueString": "Simple HealthKit"
                   },
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                    "valueString": "12D4567890"
+                    "valueString": "05D2201580"
                   },
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
@@ -246,12 +246,12 @@
                 }
               ]
             },
-            "value": "181c18ad-8ca1-4244-83e3-7e474dbf33c4"
+            "value": "12300125"
           }
         ],
         "basedOn": [
           {
-            "reference": "ServiceRequest/671712e4-48d1-4872-8b0a-08b8c081b109"
+            "reference": "ServiceRequest/9537c69e-3bc3-4f39-8422-ca5f1b726fb0"
           }
         ],
         "status": "final",
@@ -259,48 +259,48 @@
           "coding": [
             {
               "system": "http://loinc.org",
-              "code": "94563-4"
+              "code": "85478-6"
             }
           ]
         },
         "subject": {
-          "reference": "Patient/98796b2b-f07e-4750-9141-3007811d2b33"
+          "reference": "Patient/1002"
         },
-        "effectiveDateTime": "2024-08-01T22:24:54+00:00",
+        "effectiveDateTime": "2024-08-09T12:00:00-04:00",
         "_effectiveDateTime": {
           "extension": [
             {
               "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueDateTime": "2024-08-01T22:24:54+00:00"
+              "valueDateTime": "2024-08-09T12:00:00-04:00"
             }
           ]
         },
-        "issued": "2024-08-01T22:39:54+00:00",
+        "issued": "2024-08-09T12:00:00-04:00",
         "_issued": {
           "extension": [
             {
               "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueInstant": "2024-08-01T22:39:54+00:00"
+              "valueInstant": "2024-08-09T12:00:00-04:00"
             }
           ]
         },
         "specimen": [
           {
-            "reference": "Specimen/4f3ad0be-242c-4ff9-afc2-ce317cc2a1db"
+            "reference": "Specimen/5d38994e-f840-47e0-9585-1abd65a72d34"
           }
         ],
         "result": [
           {
-            "reference": "Observation/bf2a59bd-6062-4b42-86cc-430e40c98239"
+            "reference": "Observation/77105a2f-e485-413a-8855-7219bb3a8b7b"
           }
         ]
       }
     },
     {
-      "fullUrl": "Patient/98796b2b-f07e-4750-9141-3007811d2b33",
+      "fullUrl": "Patient/1002",
       "resource": {
         "resourceType": "Patient",
-        "id": "98796b2b-f07e-4750-9141-3007811d2b33",
+        "id": "1002",
         "extension": [
           {
             "url": "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
@@ -315,11 +315,11 @@
                   ],
                   "system": "http://terminology.hl7.org/CodeSystem/v3-Race",
                   "version": "2.5.1",
-                  "code": "2028-9",
-                  "display": "asian"
+                  "code": "UNK",
+                  "display": "UNK"
                 }
               ],
-              "text": "asian"
+              "text": "UNK"
             }
           },
           {
@@ -366,13 +366,13 @@
               {
                 "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
                 "valueReference": {
-                  "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+                  "reference": "Organization/e7d0a49b-a7eb-46f3-a939-c9a392029061"
                 }
               }
             ],
-            "value": "98796b2b-f07e-4750-9141-3007811d2b33",
+            "value": "1002",
             "assigner": {
-              "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+              "reference": "Organization/e7d0a49b-a7eb-46f3-a939-c9a392029061"
             }
           }
         ],
@@ -384,7 +384,7 @@
                 "extension": [
                   {
                     "url": "XPN.2",
-                    "valueString": "Patienseven"
+                    "valueString": "Peter"
                   }
                 ]
               }
@@ -392,7 +392,7 @@
             "use": "official",
             "family": "Test",
             "given": [
-              "Patienseven"
+              "Peter"
             ]
           }
         ],
@@ -404,7 +404,7 @@
                 "extension": [
                   {
                     "url": "XTN.1",
-                    "valueString": "(340) 555 5555"
+                    "valueString": "(541) 261 0980"
                   },
                   {
                     "url": "XTN.2",
@@ -416,11 +416,11 @@
                   },
                   {
                     "url": "XTN.7",
-                    "valueInteger": 5555555
+                    "valueInteger": 2610980
                   },
                   {
                     "url": "XTN.12",
-                    "valueString": "(340) 555 5555"
+                    "valueString": "(541) 261 0980"
                   }
                 ]
               },
@@ -430,16 +430,16 @@
               },
               {
                 "url": "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
-                "valueInteger": 340
+                "valueInteger": 541
               }
             ],
             "system": "phone",
-            "value": "(340) 555 5555",
+            "value": "(541) 261 0980",
             "use": "mobile"
           }
         ],
         "gender": "male",
-        "birthDate": "1988-04-23",
+        "birthDate": "1988-04-24",
         "deceasedBoolean": false,
         "address": [
           {
@@ -470,46 +470,16 @@
           }
         ],
         "managingOrganization": {
-          "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+          "reference": "Organization/e7d0a49b-a7eb-46f3-a939-c9a392029061"
         }
       }
     },
     {
-      "fullUrl": "Organization/719ec8ad-cf59-405a-9832-c4065945c130",
+      "fullUrl": "Organization/e7d0a49b-a7eb-46f3-a939-c9a392029061",
       "resource": {
         "resourceType": "Organization",
-        "id": "719ec8ad-cf59-405a-9832-c4065945c130",
+        "id": "e7d0a49b-a7eb-46f3-a939-c9a392029061",
         "extension": [
-          {
-            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
-            "valueCoding": {
-              "extension": [
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueCodeableConcept": {
-                    "extension": [
-                      {
-                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
-                        "valueString": "XON.2"
-                      }
-                    ],
-                    "coding": [
-                      {
-                        "extension": [
-                          {
-                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                            "valueString": "coding"
-                          }
-                        ],
-                        "code": "L"
-                      }
-                    ]
-                  }
-                }
-              ],
-              "code": "L"
-            }
-          },
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
             "valueString": "OBX.25"
@@ -533,8 +503,8 @@
                       "valueString": "coding"
                     }
                   ],
-                  "code": "12D4567890",
-                  "display": "Testing Lab"
+                  "code": "05D2201580",
+                  "display": "Simple HealthKit"
                 }
               ]
             }
@@ -544,7 +514,7 @@
             "extension": [
               {
                 "url": "XON.10",
-                "valueString": "12D4567890"
+                "valueString": "05D2201580"
               }
             ]
           }
@@ -593,7 +563,7 @@
                 }
               ]
             },
-            "value": "12D4567890"
+            "value": "05D2201580"
           },
           {
             "extension": [
@@ -610,49 +580,14 @@
                 }
               ]
             },
-            "value": "Testing Lab"
+            "value": "Simple HealthKit"
           }
         ],
-        "name": "Testing Lab",
+        "name": "Simple HealthKit",
         "telecom": [
           {
-            "extension": [
-              {
-                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
-                "extension": [
-                  {
-                    "url": "XTN.1",
-                    "valueString": "(530) 867 5309"
-                  },
-                  {
-                    "url": "XTN.2",
-                    "valueString": "WPN"
-                  },
-                  {
-                    "url": "XTN.3",
-                    "valueString": "PH"
-                  },
-                  {
-                    "url": "XTN.7",
-                    "valueInteger": 8675309
-                  },
-                  {
-                    "url": "XTN.12",
-                    "valueString": "(530) 867 5309"
-                  }
-                ]
-              },
-              {
-                "url": "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
-                "valueInteger": 1
-              },
-              {
-                "url": "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
-                "valueInteger": 530
-              }
-            ],
             "system": "phone",
-            "value": "(530) 867 5309",
+            "value": "(541) 261 0980",
             "use": "work"
           }
         ],
@@ -667,7 +602,7 @@
                     "extension": [
                       {
                         "url": "SAD.1",
-                        "valueString": "123 Beach Way"
+                        "valueString": "124 Test ST."
                       }
                     ]
                   }
@@ -675,21 +610,153 @@
               }
             ],
             "line": [
-              "123 Beach Way"
+              "124 Test ST."
             ],
-            "city": "Denver",
-            "state": "CO",
-            "postalCode": "80210",
+            "city": "Boston",
+            "state": "MA",
+            "postalCode": "02108",
             "country": "USA"
           }
         ]
       }
     },
     {
-      "fullUrl": "Practitioner/ee29ccf5-631d-4b35-a6d4-30a61c0eb8d9",
+      "fullUrl": "Organization/07a2a205-9220-4687-8656-0c80ef6a40b0",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "07a2a205-9220-4687-8656-0c80ef6a40b0",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+            "valueCoding": {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueCodeableConcept": {
+                    "extension": [
+                      {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                        "valueString": "XON.2"
+                      }
+                    ],
+                    "coding": [
+                      {
+                        "extension": [
+                          {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                            "valueString": "coding"
+                          }
+                        ],
+                        "code": "L"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "code": "L"
+            }
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization",
+            "extension": [
+              {
+                "url": "XON.10",
+                "valueString": "05D2201580"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "use": "official",
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0301",
+                  "code": "CLIA"
+                }
+              ]
+            },
+            "value": "05D2201580"
+          }
+        ],
+        "name": "Regional Training Center",
+        "telecom": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+                "extension": [
+                  {
+                    "url": "XTN.1",
+                    "valueString": "(541) 261 0980"
+                  },
+                  {
+                    "url": "XTN.2",
+                    "valueString": "WPN"
+                  },
+                  {
+                    "url": "XTN.3",
+                    "valueString": "PH"
+                  },
+                  {
+                    "url": "XTN.7",
+                    "valueInteger": 2610980
+                  },
+                  {
+                    "url": "XTN.12",
+                    "valueString": "(541) 261 0980"
+                  }
+                ]
+              },
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+                "valueInteger": 1
+              },
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+                "valueInteger": 541
+              }
+            ],
+            "system": "phone",
+            "value": "(541) 261 0980",
+            "use": "work"
+          }
+        ],
+        "address": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+                    "extension": [
+                      {
+                        "url": "SAD.1",
+                        "valueString": "46421 Landing Pkwy"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "line": [
+              "46421 Landing Pkwy"
+            ],
+            "city": "Little Rock",
+            "state": "AR",
+            "postalCode": "72002",
+            "country": "USA"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Practitioner/1245319599",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "ee29ccf5-631d-4b35-a6d4-30a61c0eb8d9",
+        "id": "1245319599",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -700,7 +767,7 @@
               },
               {
                 "url": "XCN.3",
-                "valueString": "Phil"
+                "valueString": "Gerry"
               }
             ]
           },
@@ -751,9 +818,9 @@
         ],
         "name": [
           {
-            "family": "McTester",
+            "family": "Larry",
             "given": [
-              "Phil"
+              "Gerry"
             ]
           }
         ],
@@ -765,7 +832,7 @@
                 "extension": [
                   {
                     "url": "XTN.1",
-                    "valueString": "(530) 867 5309"
+                    "valueString": "(541) 261 0980"
                   },
                   {
                     "url": "XTN.2",
@@ -777,11 +844,11 @@
                   },
                   {
                     "url": "XTN.7",
-                    "valueInteger": 8675309
+                    "valueInteger": 2610980
                   },
                   {
                     "url": "XTN.12",
-                    "valueString": "(530) 867 5309"
+                    "valueString": "(541) 261 0980"
                   }
                 ]
               },
@@ -791,11 +858,11 @@
               },
               {
                 "url": "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
-                "valueInteger": 530
+                "valueInteger": 541
               }
             ],
             "system": "phone",
-            "value": "(530) 867 5309",
+            "value": "(541) 261 0980",
             "use": "work"
           }
         ],
@@ -810,7 +877,7 @@
                     "extension": [
                       {
                         "url": "SAD.1",
-                        "valueString": "321 Ocean Drive"
+                        "valueString": "204 Hospital Way"
                       }
                     ]
                   }
@@ -818,31 +885,31 @@
               }
             ],
             "line": [
-              "321 Ocean Drive"
+              "204 Hospital Way"
             ],
-            "city": "Denver",
-            "state": "CO",
-            "postalCode": "80210",
+            "city": "Boston",
+            "state": "MA",
+            "postalCode": "02108",
             "country": "USA"
           }
         ]
       }
     },
     {
-      "fullUrl": "Specimen/4f3ad0be-242c-4ff9-afc2-ce317cc2a1db",
+      "fullUrl": "Specimen/5d38994e-f840-47e0-9585-1abd65a72d34",
       "resource": {
         "resourceType": "Specimen",
-        "id": "4f3ad0be-242c-4ff9-afc2-ce317cc2a1db",
+        "id": "5d38994e-f840-47e0-9585-1abd65a72d34",
         "identifier": [
           {
             "extension": [
               {
                 "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                "valueString": "Testing Lab"
+                "valueString": "Simple HealthKit"
               },
               {
                 "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                "valueString": "12D4567890"
+                "valueString": "05D2201580"
               },
               {
                 "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
@@ -857,15 +924,15 @@
                 "extension": [
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier",
-                    "valueId": "181c18ad-8ca1-4244-83e3-7e474dbf33c4"
+                    "valueId": "12300125"
                   },
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                    "valueString": "Testing Lab"
+                    "valueString": "Simple HealthKit"
                   },
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                    "valueString": "12D4567890"
+                    "valueString": "05D2201580"
                   },
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
@@ -882,7 +949,7 @@
                 }
               ]
             },
-            "value": "181c18ad-8ca1-4244-83e3-7e474dbf33c4"
+            "value": "12300125"
           }
         ],
         "type": {
@@ -900,18 +967,18 @@
               ],
               "system": "http://snomed.info/sct",
               "version": "2.67",
-              "code": "119364003",
-              "display": "Serum specimen"
+              "code": "445297001",
+              "display": "Swab of internal nose"
             }
           ],
-          "text": "Serum specimen"
+          "text": "Swab of internal nose"
         },
         "subject": {
-          "reference": "Patient/98796b2b-f07e-4750-9141-3007811d2b33"
+          "reference": "Patient/1002"
         },
-        "receivedTime": "2024-08-01T22:24:54+00:00",
+        "receivedTime": "2024-08-09T12:00:00-04:00",
         "collection": {
-          "collectedDateTime": "2024-08-01T22:24:54+00:00",
+          "collectedDateTime": "2024-08-09T12:00:00-04:00",
           "bodySite": {
             "coding": [
               {
@@ -926,20 +993,20 @@
                   }
                 ],
                 "system": "http://snomed.info/sct",
-                "code": "119297000",
-                "display": "Blood specimen (specimen)"
+                "code": "87100004",
+                "display": "Topography unknown (body structure)"
               }
             ],
-            "text": "Blood specimen (specimen)"
+            "text": "Topography unknown (body structure)"
           }
         }
       }
     },
     {
-      "fullUrl": "ServiceRequest/671712e4-48d1-4872-8b0a-08b8c081b109",
+      "fullUrl": "ServiceRequest/9537c69e-3bc3-4f39-8422-ca5f1b726fb0",
       "resource": {
         "resourceType": "ServiceRequest",
-        "id": "671712e4-48d1-4872-8b0a-08b8c081b109",
+        "id": "9537c69e-3bc3-4f39-8422-ca5f1b726fb0",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control",
@@ -954,7 +1021,7 @@
           },
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date",
-            "valueDateTime": "2024-08-01T22:39:54+00:00"
+            "valueDateTime": "2024-08-09T12:00:00-04:00"
           },
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event",
@@ -976,11 +1043,11 @@
                       "extension": [
                         {
                           "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                          "valueString": "Testing Lab"
+                          "valueString": "Simple HealthKit"
                         },
                         {
                           "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                          "valueString": "12D4567890"
+                          "valueString": "05D2201580"
                         },
                         {
                           "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
@@ -997,7 +1064,7 @@
                       }
                     ]
                   },
-                  "value": "181c18ad-8ca1-4244-83e3-7e474dbf33c4"
+                  "value": "12300125"
                 }
               },
               {
@@ -1009,11 +1076,11 @@
                       "extension": [
                         {
                           "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                          "valueString": "Testing Lab"
+                          "valueString": "Simple HealthKit"
                         },
                         {
                           "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                          "valueString": "12D4567890"
+                          "valueString": "05D2201580"
                         },
                         {
                           "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
@@ -1033,13 +1100,13 @@
                       }
                     ]
                   },
-                  "value": "181c18ad-8ca1-4244-83e3-7e474dbf33c4"
+                  "value": "12300125"
                 }
               },
               {
                 "url": "OBR.16",
                 "valueReference": {
-                  "reference": "Practitioner/ee29ccf5-631d-4b35-a6d4-30a61c0eb8d9"
+                  "reference": "Practitioner/1245319599"
                 }
               },
               {
@@ -1051,7 +1118,7 @@
                       "extension": [
                         {
                           "url": "XTN.1",
-                          "valueString": "(530) 867 5309"
+                          "valueString": "(541) 261 0980"
                         },
                         {
                           "url": "XTN.2",
@@ -1063,11 +1130,11 @@
                         },
                         {
                           "url": "XTN.7",
-                          "valueInteger": 8675309
+                          "valueInteger": 2610980
                         },
                         {
                           "url": "XTN.12",
-                          "valueString": "(530) 867 5309"
+                          "valueString": "(541) 261 0980"
                         }
                       ]
                     },
@@ -1077,7 +1144,7 @@
                     },
                     {
                       "url": "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
-                      "valueInteger": 530
+                      "valueInteger": 541
                     },
                     {
                       "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
@@ -1085,7 +1152,7 @@
                     }
                   ],
                   "system": "phone",
-                  "value": "(530) 867 5309",
+                  "value": "(541) 261 0980",
                   "use": "work"
                 }
               }
@@ -1096,7 +1163,7 @@
             "extension": [
               {
                 "url": "ORC.15",
-                "valueDateTime": "2024-08-01T22:39:54+00:00"
+                "valueDateTime": "2024-08-09T12:00:00-04:00"
               }
             ]
           }
@@ -1113,11 +1180,11 @@
                 "extension": [
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                    "valueString": "Testing Lab"
+                    "valueString": "Simple HealthKit"
                   },
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                    "valueString": "12D4567890"
+                    "valueString": "05D2201580"
                   },
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
@@ -1134,7 +1201,7 @@
                 }
               ]
             },
-            "value": "181c18ad-8ca1-4244-83e3-7e474dbf33c4"
+            "value": "12300125"
           },
           {
             "extension": [
@@ -1143,11 +1210,11 @@
                 "extension": [
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-                    "valueString": "Testing Lab"
+                    "valueString": "Simple HealthKit"
                   },
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-                    "valueString": "12D4567890"
+                    "valueString": "05D2201580"
                   },
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
@@ -1167,7 +1234,7 @@
                 }
               ]
             },
-            "value": "181c18ad-8ca1-4244-83e3-7e474dbf33c4"
+            "value": "12300125"
           }
         ],
         "status": "completed",
@@ -1186,13 +1253,13 @@
                 }
               ],
               "system": "http://loinc.org",
-              "code": "94563-4",
-              "display": "SARS-CoV-2 (COVID-19) IgG Ab [Presence] in Serum or Plasma by Immunoassay"
+              "code": "95941-1",
+              "display": "Influenza virus A and B and SARS-CoV-2 (COVID-19) and Respiratory syncytial virus RNA panel - Respiratory system specimen by NAA with probe detection"
             }
           ]
         },
         "subject": {
-          "reference": "Patient/98796b2b-f07e-4750-9141-3007811d2b33"
+          "reference": "Patient/1002"
         },
         "requester": {
           "extension": [
@@ -1205,7 +1272,7 @@
                     "extension": [
                       {
                         "url": "XTN.1",
-                        "valueString": "(530) 867 5309"
+                        "valueString": "(541) 261 0980"
                       },
                       {
                         "url": "XTN.2",
@@ -1217,11 +1284,11 @@
                       },
                       {
                         "url": "XTN.7",
-                        "valueInteger": 8675309
+                        "valueInteger": 2610980
                       },
                       {
                         "url": "XTN.12",
-                        "valueString": "(530) 867 5309"
+                        "valueString": "(541) 261 0980"
                       }
                     ]
                   },
@@ -1231,7 +1298,7 @@
                   },
                   {
                     "url": "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
-                    "valueInteger": 530
+                    "valueInteger": 541
                   },
                   {
                     "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
@@ -1239,42 +1306,30 @@
                   }
                 ],
                 "system": "phone",
-                "value": "(530) 867 5309",
+                "value": "(541) 261 0980",
                 "use": "work"
               }
             }
           ],
-          "reference": "PractitionerRole/dd2e73b8-cb69-41fe-ac4f-82e205fdf3e1"
+          "reference": "PractitionerRole/28e303ba-bc66-4c9a-9be4-36daeaa5aaac"
         },
         "performer": [
           {
-            "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+            "reference": "Organization/e7d0a49b-a7eb-46f3-a939-c9a392029061"
           }
         ],
         "supportingInfo": [
           {
-            "reference": "Observation/d6178597-0e66-31f4-bd83-5f7bd6e61d30"
-          },
-          {
-            "reference": "Observation/32c92bb8-ad57-3332-bccd-e20058feac0b"
-          },
-          {
-            "reference": "Observation/e162cd93-65be-3c67-9b6f-4ffacd9e702e"
-          },
-          {
-            "reference": "Observation/207cbcb3-6f98-3e86-87f5-e559ed388e40"
-          },
-          {
-            "reference": "Observation/b76daeea-2658-3cd6-ad8c-615e5dc46ad1"
+            "reference": "Observation/42c7a0ba-a833-35b0-bb70-926d4ec2f4c5"
           }
         ]
       }
     },
     {
-      "fullUrl": "Device/cf71e3b5-d0e4-4820-ad67-64c3727a9d53",
+      "fullUrl": "Device/b4da0568-8fc7-403a-b6e2-2244b735103a",
       "resource": {
         "resourceType": "Device",
-        "id": "cf71e3b5-d0e4-4820-ad67-64c3727a9d53",
+        "id": "b4da0568-8fc7-403a-b6e2-2244b735103a",
         "identifier": [
           {
             "extension": [
@@ -1288,9 +1343,6 @@
                 ]
               }
             ],
-            "value": "MS Fast Analyzer_Sophonix"
-          },
-          {
             "type": {
               "coding": [
                 {
@@ -1300,25 +1352,25 @@
             }
           }
         ],
-        "manufacturer": "BioCheck, Inc.",
+        "manufacturer": "NeuMoDx Molecular, Inc.",
         "deviceName": [
           {
-            "name": "BioCheck SARS-CoV-2 IgG Antibody Test Kit",
+            "name": "NeuMoDx Flu A-B/RSV/SARS-CoV-2 Vantage Assay",
             "type": "model-name"
           }
         ]
       }
     },
     {
-      "fullUrl": "PractitionerRole/dd2e73b8-cb69-41fe-ac4f-82e205fdf3e1",
+      "fullUrl": "PractitionerRole/28e303ba-bc66-4c9a-9be4-36daeaa5aaac",
       "resource": {
         "resourceType": "PractitionerRole",
-        "id": "dd2e73b8-cb69-41fe-ac4f-82e205fdf3e1",
+        "id": "28e303ba-bc66-4c9a-9be4-36daeaa5aaac",
         "practitioner": {
-          "reference": "Practitioner/ee29ccf5-631d-4b35-a6d4-30a61c0eb8d9"
+          "reference": "Practitioner/1245319599"
         },
         "organization": {
-          "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+          "reference": "Organization/07a2a205-9220-4687-8656-0c80ef6a40b0"
         }
       }
     },
@@ -1331,10 +1383,10 @@
       }
     },
     {
-      "fullUrl": "Observation/bf2a59bd-6062-4b42-86cc-430e40c98239",
+      "fullUrl": "Observation/77105a2f-e485-413a-8855-7219bb3a8b7b",
       "resource": {
         "resourceType": "Observation",
-        "id": "bf2a59bd-6062-4b42-86cc-430e40c98239",
+        "id": "77105a2f-e485-413a-8855-7219bb3a8b7b",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
@@ -1352,7 +1404,7 @@
                 "valueCodeableConcept": {
                   "coding": [
                     {
-                      "display": "BioCheck SARS-CoV-2 IgG Antibody Test Kit"
+                      "display": "NeuMoDx Flu A-B/RSV/SARS-CoV-2 Vantage Assay"
                     }
                   ]
                 }
@@ -1361,12 +1413,12 @@
           },
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time",
-            "valueInstant": "2024-08-01T22:39:54.890Z",
+            "valueInstant": "2024-08-09T16:00:00.000Z",
             "_valueInstant": {
               "extension": [
                 {
                   "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-                  "valueInstant": "2024-08-01T22:39:54.890Z"
+                  "valueInstant": "2024-08-09T16:00:00.000Z"
                 }
               ]
             }
@@ -1381,8 +1433,16 @@
                   "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
                   "valueCoding": {
                     "system": "SNOMEDCT",
-                    "code": "895448002",
-                    "display": "Multisystem inflammatory syndrome in children (disorder)"
+                    "code": "541131000124102",
+                    "display": "Infection caused by novel Influenza A virus variant (disorder)"
+                  }
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
+                  "valueCoding": {
+                    "system": "SNOMEDCT",
+                    "code": "7180009",
+                    "display": "Meningitis (disorder)"
                   }
                 },
                 {
@@ -1395,28 +1455,28 @@
                 }
               ],
               "system": "http://loinc.org",
-              "code": "94563-4",
-              "display": "SARS-CoV-2 (COVID-19) IgG Ab [Presence] in Serum or Plasma by Immunoassay"
+              "code": "85478-6",
+              "display": "Influenza virus B RNA [Presence] in Upper respiratory specimen by NAA with probe detection"
             }
           ],
-          "text": "COVID-19"
+          "text": "Flu B"
         },
         "subject": {
-          "reference": "Patient/98796b2b-f07e-4750-9141-3007811d2b33"
+          "reference": "Patient/1002"
         },
-        "effectiveDateTime": "2024-08-01T22:24:54+00:00",
+        "effectiveDateTime": "2024-08-09T12:00:00-04:00",
         "_effectiveDateTime": {
           "extension": [
             {
               "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueDateTime": "2024-08-01T22:24:54+00:00"
+              "valueDateTime": "2024-08-09T12:00:00-04:00"
             }
           ]
         },
-        "issued": "2024-08-01T22:39:54.890Z",
+        "issued": "2024-08-09T16:00:00.000Z",
         "performer": [
           {
-            "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+            "reference": "Organization/e7d0a49b-a7eb-46f3-a939-c9a392029061"
           }
         ],
         "valueCodeableConcept": {
@@ -1465,7 +1525,7 @@
             {
               "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
               "valueCoding": {
-                "code": "BioCheck SARS-CoV-2 IgG Antibody Test Kit_BioCheck, Inc."
+                "code": "NeuMoDx Flu A-B/RSV/SARS-CoV-2 Vantage Assay_NeuMoDx Molecular, Inc."
               }
             }
           ],
@@ -1477,25 +1537,25 @@
                   "valueString": "coding"
                 }
               ],
-              "code": "BioCheck SARS-CoV-2 IgG Antibody Test Kit_BioCheck, Inc.",
-              "display": "BioCheck SARS-CoV-2 IgG Antibody Test Kit"
+              "code": "NeuMoDx Flu A-B/RSV/SARS-CoV-2 Vantage Assay_NeuMoDx Molecular, Inc.",
+              "display": "NeuMoDx Flu A-B/RSV/SARS-CoV-2 Vantage Assay"
             }
           ],
-          "text": "BioCheck SARS-CoV-2 IgG Antibody Test Kit_BioCheck, Inc."
+          "text": "NeuMoDx Flu A-B/RSV/SARS-CoV-2 Vantage Assay_NeuMoDx Molecular, Inc."
         },
         "specimen": {
-          "reference": "Specimen/4f3ad0be-242c-4ff9-afc2-ce317cc2a1db"
+          "reference": "Specimen/5d38994e-f840-47e0-9585-1abd65a72d34"
         },
         "device": {
-          "reference": "Device/cf71e3b5-d0e4-4820-ad67-64c3727a9d53"
+          "reference": "Device/b4da0568-8fc7-403a-b6e2-2244b735103a"
         }
       }
     },
     {
-      "fullUrl": "Observation/d6178597-0e66-31f4-bd83-5f7bd6e61d30",
+      "fullUrl": "Observation/42c7a0ba-a833-35b0-bb70-926d4ec2f4c5",
       "resource": {
         "resourceType": "Observation",
-        "id": "d6178597-0e66-31f4-bd83-5f7bd6e61d30",
+        "id": "42c7a0ba-a833-35b0-bb70-926d4ec2f4c5",
         "meta": {
           "tag": [
             {
@@ -1575,20 +1635,20 @@
           "text": "Has symptoms related to condition of interest"
         },
         "subject": {
-          "reference": "Patient/98796b2b-f07e-4750-9141-3007811d2b33"
+          "reference": "Patient/1002"
         },
-        "effectiveDateTime": "2024-08-01T22:24:54+00:00",
+        "effectiveDateTime": "2024-08-09T12:00:00-04:00",
         "_effectiveDateTime": {
           "extension": [
             {
               "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueDateTime": "2024-08-01T22:24:54+00:00"
+              "valueDateTime": "2024-08-09T12:00:00-04:00"
             }
           ]
         },
         "performer": [
           {
-            "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+            "reference": "Organization/e7d0a49b-a7eb-46f3-a939-c9a392029061"
           }
         ],
         "valueCodeableConcept": {
@@ -1601,583 +1661,12 @@
                 },
                 {
                   "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                  "valueString": "HL70136"
+                  "valueString": "NULLFL"
                 }
               ],
-              "system": "http://terminology.hl7.org/ValueSet/v2-0136",
-              "code": "N",
-              "display": "No"
-            }
-          ]
-        },
-        "interpretation": [
-          {
-            "coding": [
-              {
-                "extension": [
-                  {
-                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                    "valueString": "coding"
-                  }
-                ]
-              }
-            ]
-          }
-        ],
-        "method": {
-          "coding": [
-            {
-              "extension": [
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString": "coding"
-                }
-              ]
-            }
-          ]
-        }
-      }
-    },
-    {
-      "fullUrl": "Observation/32c92bb8-ad57-3332-bccd-e20058feac0b",
-      "resource": {
-        "resourceType": "Observation",
-        "id": "32c92bb8-ad57-3332-bccd-e20058feac0b",
-        "meta": {
-          "tag": [
-            {
-              "code": "AOE"
-            }
-          ]
-        },
-        "extension": [
-          {
-            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
-            "extension": [
-              {
-                "url": "OBX.2",
-                "valueString": "CWE"
-              },
-              {
-                "url": "OBX.11",
-                "valueString": "F"
-              },
-              {
-                "url": "OBX.29",
-                "valueString": "QST"
-              }
-            ]
-          }
-        ],
-        "identifier": [
-          {
-            "use": "official",
-            "type": {
-              "coding": [
-                {
-                  "system": "http://loinc.org",
-                  "code": "81959-9",
-                  "display": "Public health laboratory ask at order entry panel"
-                }
-              ]
-            }
-          }
-        ],
-        "status": "final",
-        "code": {
-          "coding": [
-            {
-              "extension": [
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding": {
-                    "system": "ReportStream",
-                    "code": "AOE",
-                    "display": "Ask at order entry question"
-                  }
-                },
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString": "coding"
-                },
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                  "valueString": "LN"
-                }
-              ],
-              "system": "http://loinc.org",
-              "version": "2.68",
-              "code": "82810-3",
-              "display": "Pregnancy status"
-            }
-          ],
-          "text": "Pregnancy status"
-        },
-        "subject": {
-          "reference": "Patient/98796b2b-f07e-4750-9141-3007811d2b33"
-        },
-        "effectiveDateTime": "2024-08-01T22:24:54+00:00",
-        "_effectiveDateTime": {
-          "extension": [
-            {
-              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueDateTime": "2024-08-01T22:24:54+00:00"
-            }
-          ]
-        },
-        "performer": [
-          {
-            "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
-          }
-        ],
-        "valueCodeableConcept": {
-          "coding": [
-            {
-              "extension": [
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString": "coding"
-                },
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                  "valueString": "SCT"
-                }
-              ],
-              "system": "http://snomed.info/sct",
-              "code": "60001007",
-              "display": "Not pregnant"
-            }
-          ]
-        },
-        "interpretation": [
-          {
-            "coding": [
-              {
-                "extension": [
-                  {
-                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                    "valueString": "coding"
-                  }
-                ]
-              }
-            ]
-          }
-        ],
-        "method": {
-          "coding": [
-            {
-              "extension": [
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString": "coding"
-                }
-              ]
-            }
-          ]
-        }
-      }
-    },
-    {
-      "fullUrl": "Observation/e162cd93-65be-3c67-9b6f-4ffacd9e702e",
-      "resource": {
-        "resourceType": "Observation",
-        "id": "e162cd93-65be-3c67-9b6f-4ffacd9e702e",
-        "meta": {
-          "tag": [
-            {
-              "code": "AOE"
-            }
-          ]
-        },
-        "extension": [
-          {
-            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
-            "extension": [
-              {
-                "url": "OBX.2",
-                "valueString": "CWE"
-              },
-              {
-                "url": "OBX.11",
-                "valueString": "F"
-              },
-              {
-                "url": "OBX.29",
-                "valueString": "QST"
-              }
-            ]
-          }
-        ],
-        "identifier": [
-          {
-            "use": "official",
-            "type": {
-              "coding": [
-                {
-                  "system": "http://loinc.org",
-                  "code": "81959-9",
-                  "display": "Public health laboratory ask at order entry panel"
-                }
-              ]
-            }
-          }
-        ],
-        "status": "final",
-        "code": {
-          "coding": [
-            {
-              "extension": [
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding": {
-                    "system": "ReportStream",
-                    "code": "AOE",
-                    "display": "Ask at order entry question"
-                  }
-                },
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding": {
-                    "system": "ReportStream",
-                    "code": "AOE",
-                    "display": "Ask at order entry question"
-                  }
-                },
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString": "coding"
-                },
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                  "valueString": "LN"
-                }
-              ],
-              "system": "http://loinc.org",
-              "version": "2.69",
-              "code": "95418-0",
-              "display": "Employed in a healthcare setting"
-            }
-          ],
-          "text": "Employed in a healthcare setting"
-        },
-        "subject": {
-          "reference": "Patient/98796b2b-f07e-4750-9141-3007811d2b33"
-        },
-        "effectiveDateTime": "2024-08-01T22:24:54+00:00",
-        "_effectiveDateTime": {
-          "extension": [
-            {
-              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueDateTime": "2024-08-01T22:24:54+00:00"
-            }
-          ]
-        },
-        "performer": [
-          {
-            "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
-          }
-        ],
-        "valueCodeableConcept": {
-          "coding": [
-            {
-              "extension": [
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString": "coding"
-                },
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                  "valueString": "HL70136"
-                }
-              ],
-              "system": "http://terminology.hl7.org/ValueSet/v2-0136",
-              "code": "N",
-              "display": "No"
-            }
-          ]
-        },
-        "interpretation": [
-          {
-            "coding": [
-              {
-                "extension": [
-                  {
-                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                    "valueString": "coding"
-                  }
-                ]
-              }
-            ]
-          }
-        ],
-        "method": {
-          "coding": [
-            {
-              "extension": [
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString": "coding"
-                }
-              ]
-            }
-          ]
-        }
-      }
-    },
-    {
-      "fullUrl": "Observation/207cbcb3-6f98-3e86-87f5-e559ed388e40",
-      "resource": {
-        "resourceType": "Observation",
-        "id": "207cbcb3-6f98-3e86-87f5-e559ed388e40",
-        "meta": {
-          "tag": [
-            {
-              "code": "AOE"
-            }
-          ]
-        },
-        "extension": [
-          {
-            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
-            "extension": [
-              {
-                "url": "OBX.2",
-                "valueString": "CWE"
-              },
-              {
-                "url": "OBX.11",
-                "valueString": "F"
-              },
-              {
-                "url": "OBX.29",
-                "valueString": "QST"
-              }
-            ]
-          }
-        ],
-        "identifier": [
-          {
-            "use": "official",
-            "type": {
-              "coding": [
-                {
-                  "system": "http://loinc.org",
-                  "code": "81959-9",
-                  "display": "Public health laboratory ask at order entry panel"
-                }
-              ]
-            }
-          }
-        ],
-        "status": "final",
-        "code": {
-          "coding": [
-            {
-              "extension": [
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding": {
-                    "system": "ReportStream",
-                    "code": "AOE",
-                    "display": "Ask at order entry question"
-                  }
-                },
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding": {
-                    "system": "ReportStream",
-                    "code": "AOE",
-                    "display": "Ask at order entry question"
-                  }
-                },
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString": "coding"
-                },
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                  "valueString": "LN"
-                }
-              ],
-              "system": "http://loinc.org",
-              "version": "2.69",
-              "code": "95421-4",
-              "display": "Resides in a congregate care setting"
-            }
-          ],
-          "text": "Resides in a congregate care setting"
-        },
-        "subject": {
-          "reference": "Patient/98796b2b-f07e-4750-9141-3007811d2b33"
-        },
-        "effectiveDateTime": "2024-08-01T22:24:54+00:00",
-        "_effectiveDateTime": {
-          "extension": [
-            {
-              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueDateTime": "2024-08-01T22:24:54+00:00"
-            }
-          ]
-        },
-        "performer": [
-          {
-            "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
-          }
-        ],
-        "valueCodeableConcept": {
-          "coding": [
-            {
-              "extension": [
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString": "coding"
-                },
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                  "valueString": "HL70136"
-                }
-              ],
-              "system": "http://terminology.hl7.org/ValueSet/v2-0136",
-              "code": "N",
-              "display": "No"
-            }
-          ]
-        },
-        "interpretation": [
-          {
-            "coding": [
-              {
-                "extension": [
-                  {
-                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                    "valueString": "coding"
-                  }
-                ]
-              }
-            ]
-          }
-        ],
-        "method": {
-          "coding": [
-            {
-              "extension": [
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString": "coding"
-                }
-              ]
-            }
-          ]
-        }
-      }
-    },
-    {
-      "fullUrl": "Observation/b76daeea-2658-3cd6-ad8c-615e5dc46ad1",
-      "resource": {
-        "resourceType": "Observation",
-        "id": "b76daeea-2658-3cd6-ad8c-615e5dc46ad1",
-        "meta": {
-          "tag": [
-            {
-              "code": "AOE"
-            }
-          ]
-        },
-        "extension": [
-          {
-            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
-            "extension": [
-              {
-                "url": "OBX.2",
-                "valueString": "CWE"
-              },
-              {
-                "url": "OBX.11",
-                "valueString": "F"
-              },
-              {
-                "url": "OBX.29",
-                "valueString": "QST"
-              }
-            ]
-          }
-        ],
-        "identifier": [
-          {
-            "use": "official",
-            "type": {
-              "coding": [
-                {
-                  "system": "http://loinc.org",
-                  "code": "81959-9",
-                  "display": "Public health laboratory ask at order entry panel"
-                }
-              ]
-            }
-          }
-        ],
-        "status": "final",
-        "code": {
-          "coding": [
-            {
-              "extension": [
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding": {
-                    "system": "ReportStream",
-                    "code": "AOE",
-                    "display": "Ask at order entry question"
-                  }
-                },
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString": "coding"
-                },
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                  "valueString": "LN"
-                }
-              ],
-              "system": "http://loinc.org",
-              "code": "76691-5",
-              "display": "Gender identity"
-            }
-          ],
-          "text": "Gender identity"
-        },
-        "subject": {
-          "reference": "Patient/98796b2b-f07e-4750-9141-3007811d2b33"
-        },
-        "effectiveDateTime": "2024-08-01T22:24:54+00:00",
-        "_effectiveDateTime": {
-          "extension": [
-            {
-              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-              "valueDateTime": "2024-08-01T22:24:54+00:00"
-            }
-          ]
-        },
-        "performer": [
-          {
-            "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
-          }
-        ],
-        "valueCodeableConcept": {
-          "coding": [
-            {
-              "extension": [
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString": "coding"
-                },
-                {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                  "valueString": "SCT"
-                }
-              ],
-              "system": "http://snomed.info/sct",
-              "code": "446151000124109",
-              "display": "Male gender identity"
+              "system": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+              "code": "UNK",
+              "display": "unknown"
             }
           ]
         },
