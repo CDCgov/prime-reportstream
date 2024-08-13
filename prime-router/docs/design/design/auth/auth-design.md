@@ -16,7 +16,7 @@ We use a mix/match of the following for different endpoints:
 ## Reasons for updating
 
 - Unify authn/authz to one consistent method as having multiple methods makes it difficult to determine who is using which method
-- Reduce attack surface area since currently we have the weaknesses of each method
+- Reduce attack surface area since currently we have to maintain the codebase for each method
 - Minimize authn/authz issues being the cause for missing sent reports
 - Make life easier for Engagement team by having a single choice when onboarding a new sender/receiver
 - Share authn/authz multiple other microservices
@@ -32,7 +32,7 @@ We use a mix/match of the following for different endpoints:
   - Lookup table CRUD operation endpoints
 - Centralize user management
 - Revoke access if a secret is compromised
-- Audit which clients are accessing which resources
+- Easily audit which clients are accessing which resources
 - Fine-tune access control for specific clients
 - Unify authn/authz approach for all microservices
 - Allow clients the ability to self-service to ease client onboarding
