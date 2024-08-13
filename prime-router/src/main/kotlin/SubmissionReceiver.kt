@@ -9,7 +9,6 @@ import gov.cdc.prime.router.azure.ReportWriter
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
@@ -351,7 +350,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         if (sender.customerStatus != CustomerStatus.INACTIVE) {
             // move to processing (send to <elrProcessQueueName> queue)
             workflowEngine.queue.sendMessage(
-                elrConvertQueueName,
+                "elr-fhir-convert",
                 FhirConvertQueueMessage(
                     report.id,
                     blobInfo.blobUrl,

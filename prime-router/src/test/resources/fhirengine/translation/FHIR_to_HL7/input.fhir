@@ -267,6 +267,17 @@
             }
           ]
         },
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
+            "extension" : [
+              {
+                "url" : "OBR.25",
+                "valueId" : "F"
+              }
+            ]
+          }
+        ],
         "subject" : {
           "reference" : "Patient/1707833532717873000.d363d125-6050-4c07-a7bf-3b7c641a65bc"
         }

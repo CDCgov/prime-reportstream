@@ -22,8 +22,10 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.ConditionStamper
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.LookupTableConditionMapper
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -36,7 +38,6 @@ import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
-import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
 import gov.cdc.prime.router.common.validFHIRRecord1
@@ -45,13 +46,12 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.addMappedConditions
 import gov.cdc.prime.router.fhirengine.utils.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
@@ -81,6 +81,8 @@ private const val ONE_CONDITION_ONE_AOE_FHIR_URL =
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
 class FHIRReceiverFilterIntegrationTests : Logging {
+
+    val elrTranslationQueueName = "elr-fhir-translate"
 
     // Must have message ID, patient last name, patient first name, DOB, specimen type
     // At least one of patient street, patient zip code, patient phone number, patient email
@@ -160,6 +162,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             )
         )
     }
+
+    val stamper = ConditionStamper(LookupTableConditionMapper(observationMappingMetadata))
 
     @Container
     val azuriteContainer = TestcontainersUtils.createAzuriteContainer(
@@ -595,9 +599,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
         val receiverFilter = createReceiverFilter(azureEventService, org)
         val reportContents = File(MULTIPLE_OBSERVATIONS_FHIR_URL).readText()
-        val bundle = FhirTranscoder.decode(reportContents)
-        bundle.getObservations().forEach {
-            it.addMappedConditions(observationMappingMetadata)
+        val bundle = FhirTranscoder.decode(reportContents).apply {
+            this.getObservations().forEach { stamper.stampObservation(it) }
         }
         val stampedReportContents = FhirTranscoder.encode(bundle)
         val report = UniversalPipelineTestUtils.createReport(

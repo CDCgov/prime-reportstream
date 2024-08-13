@@ -547,14 +547,25 @@ class SubmissionFunctionTests : Logging {
                 convertReport, txn, action
             )
 
-            action.actionName = TaskAction.route
+            action.actionName = TaskAction.destination_filter
 
-            val routeActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
-            val routeReport = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
-                .setActionId(routeActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1)
+            val destinationFilterActionId = ReportStreamTestDatabaseContainer
+                .testDatabaseAccess.insertAction(txn, action)
+            val destinationFilterReport = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
+                .setActionId(destinationFilterActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1)
                 .setReceivingOrg("flexion")
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
-                routeReport, txn, action
+                destinationFilterReport, txn, action
+            )
+
+            action.actionName = TaskAction.receiver_filter
+
+            val receiverFilterActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
+            val receiverFilterReport = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
+                .setActionId(receiverFilterActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1)
+                .setReceivingOrg("flexion")
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
+                receiverFilterReport, txn, action
             )
 
             action.actionName = TaskAction.translate
@@ -583,14 +594,19 @@ class SubmissionFunctionTests : Logging {
             reportLineage.parentReportId = receiveReport.reportId
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportLineage(reportLineage, txn)
 
-            reportLineage.actionId = routeActionId
-            reportLineage.childReportId = routeReport.reportId
+            reportLineage.actionId = destinationFilterActionId
+            reportLineage.childReportId = destinationFilterReport.reportId
             reportLineage.parentReportId = convertReport.reportId
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportLineage(reportLineage, txn)
+
+            reportLineage.actionId = receiverFilterActionId
+            reportLineage.childReportId = receiverFilterReport.reportId
+            reportLineage.parentReportId = destinationFilterReport.reportId
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportLineage(reportLineage, txn)
 
             reportLineage.actionId = translateActionId
             reportLineage.childReportId = translateReport.reportId
-            reportLineage.parentReportId = routeReport.reportId
+            reportLineage.parentReportId = receiverFilterReport.reportId
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportLineage(reportLineage, txn)
 
             reportLineage.actionId = batchActionId

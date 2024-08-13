@@ -343,9 +343,6 @@ updates:
       bouncycastle:
         patterns:
           - "org.bouncycastle:bc*"
-      testcontainers:
-        patterns:
-          - "org.testcontainers*"
       log4j:
         patterns:
           - "org.apache.logging.log4j:log4j*"
@@ -358,9 +355,6 @@ updates:
       jjwt:
         patterns:
           - "io.jsonwebtoken:jjwt*"
-      junit:
-        patterns:
-          - "org.junit.jupiter:junit*"
       flyway:
         patterns:
           - "org.flywaydb*"

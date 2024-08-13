@@ -116,6 +116,14 @@ index.js:2 Refused to apply inline style because it violates the
 
 To get started you will need to create three separate OKTA users. An admin, sender, and receiver.
 
+```
+Example:
+<yourname>+admin@googlegroups.com
+<yourname>+sender@googlegroups.com
+<yourname>+receiver@googlegroups.com
+
+```
+
 1. Assign the admin, sender, and receiver users to the Test Users Group
 2. Assign the sender user to the DHSender_ignore Group.
 3. Assign the receiver user to the DHak-phd Group and make sure that you have data locally to support that organization.
@@ -150,7 +158,7 @@ yarn run test:e2e-smoke # Runs the e2e tests that have the tag = @smoke and are 
 
 ```
 
-Currently, the tests are running each time a pull request is made and must pass before the pull request can be merged into master.
+Currently, the tests are running each time a pull request is made and must pass before the pull request can be merged into master. (These tests are using the reportstreamtesting OKTA accounts.)
 
 ## CSS Norms
 

@@ -16,15 +16,9 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
-import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
-import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
-import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
-import gov.cdc.prime.router.fhirengine.engine.elrReceiverFilterQueueName
-import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
-import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -41,27 +35,12 @@ class FHIRFunctions(
     @FunctionName("convert-fhir")
     @StorageAccount("AzureWebJobsStorage")
     fun convert(
-        @QueueTrigger(name = "message", queueName = elrConvertQueueName)
+        @QueueTrigger(name = "message", queueName = "elr-fhir-convert")
         message: String,
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
         process(message, dequeueCount, FHIRConverter(), ActionHistory(TaskAction.convert))
-    }
-
-    // TODO: remove after route queue empty (see https://github.com/CDCgov/prime-reportstream/issues/15039)
-    /**
-     * An azure function for routing full-ELR FHIR data.
-     */
-    @FunctionName("route-fhir")
-    @StorageAccount("AzureWebJobsStorage")
-    fun route(
-        @QueueTrigger(name = "message", queueName = elrRoutingQueueName)
-        message: String,
-        // Number of times this message has been dequeued
-        @BindingName("DequeueCount") dequeueCount: Int = 1,
-    ) {
-        process(message, dequeueCount, FHIRRouter(), ActionHistory(TaskAction.route))
     }
 
     /**
@@ -70,7 +49,7 @@ class FHIRFunctions(
     @FunctionName("destination-filter-fhir")
     @StorageAccount("AzureWebJobsStorage")
     fun destinationFilter(
-        @QueueTrigger(name = "message", queueName = elrDestinationFilterQueueName)
+        @QueueTrigger(name = "message", queueName = "elr-fhir-destination-filter")
         message: String,
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
@@ -84,7 +63,7 @@ class FHIRFunctions(
     @FunctionName("receiver-filter-fhir")
     @StorageAccount("AzureWebJobsStorage")
     fun receiverFilter(
-        @QueueTrigger(name = "message", queueName = elrReceiverFilterQueueName)
+        @QueueTrigger(name = "message", queueName = "elr-fhir-receiver-filter")
         message: String,
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
@@ -98,7 +77,7 @@ class FHIRFunctions(
     @FunctionName("translate-fhir")
     @StorageAccount("AzureWebJobsStorage")
     fun translate(
-        @QueueTrigger(name = "message", queueName = elrTranslationQueueName)
+        @QueueTrigger(name = "message", queueName = "elr-fhir-translate")
         message: String,
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
@@ -127,7 +106,7 @@ class FHIRFunctions(
     /**
      * Deserializes the message, create the DB transaction and then runs the FHIR engine
      *
-     * @param message the fhir convert/route/translate message to process
+     * @param message the queue message to process
      * @param dequeueCount the number of times the messages has been processed
      * @param fhirEngine the engine that will do the work
      * @param actionHistory the history to record results to

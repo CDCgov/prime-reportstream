@@ -130,15 +130,6 @@ abstract class FHIREngine(
                     azureEventService ?: AzureEventServiceImpl(),
                     reportService ?: ReportService()
                 )
-                TaskAction.route -> FHIRRouter(
-                    metadata ?: Metadata.getInstance(),
-                    settingsProvider!!,
-                    databaseAccess ?: databaseAccessSingleton,
-                    blobAccess ?: BlobAccess(),
-                    azureEventService ?: AzureEventServiceImpl(),
-                    reportService ?: ReportService()
-
-                )
                 TaskAction.destination_filter -> FHIRDestinationFilter(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,

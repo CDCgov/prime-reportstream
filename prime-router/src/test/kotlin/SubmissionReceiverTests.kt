@@ -11,7 +11,6 @@ import gov.cdc.prime.router.azure.ReportWriter
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
-import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
@@ -30,6 +29,7 @@ import java.io.File
 import kotlin.test.assertTrue
 
 class SubmissionReceiverTests {
+    val elrConvertQueueName = "elr-fhir-convert"
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))

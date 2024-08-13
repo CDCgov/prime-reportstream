@@ -1,3 +1,4 @@
+import { Pagination } from "@trussworks/react-uswds";
 import { useState } from "react";
 
 import { RSReceiver } from "../../../config/endpoints/settings";
@@ -8,19 +9,14 @@ import useOrganizationReceivers from "../../../hooks/api/organizations/UseOrgani
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder/UseSortOrder";
 import useAppInsightsContext from "../../../hooks/UseAppInsightsContext/UseAppInsightsContext";
-import { getSlots } from "../../../hooks/UsePagination/UsePagination";
 import { Table } from "../../../shared";
 import { EventName } from "../../../utils/AppInsights";
-import {
-    transformFacilityTypeClass,
-    transformFacilityTypeLabel,
-} from "../../../utils/DataDashboardUtils";
+import { transformFacilityTypeClass, transformFacilityTypeLabel } from "../../../utils/DataDashboardUtils";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
 import AdminFetchAlert from "../../alerts/AdminFetchAlert";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import Spinner from "../../Spinner";
-import Pagination from "../../Table/Pagination";
 import DataDashboardTableFilters from "../DataDashboardTable/DataDashboardTableFilters/DataDashboardTableFilters";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
 
@@ -41,11 +37,7 @@ function FacilitiesProvidersFilterAndTable({
         if (result) setActiveReceiver(result);
     };
 
-    const {
-        data: results,
-        filterManager,
-        isLoading,
-    } = useReceiverSubmitters(activeReceiver.name);
+    const { data: results, filterManager, isLoading } = useReceiverSubmitters(activeReceiver.name);
 
     if (isLoading || !results) return <Spinner />;
 
@@ -85,24 +77,21 @@ function FacilitiesProvidersFilterAndTable({
             ) : (
                 ""
             ),
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.FACILITY_TYPE),
+            columnCustomSort: () => onColumnCustomSort(DeliveriesAttr.FACILITY_TYPE),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
             columnKey: DeliveriesAttr.TEST_RESULT_COUNT,
             columnHeader: "Report count",
             content: dataRow.testResultCount,
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.TEST_RESULT_COUNT),
+            columnCustomSort: () => onColumnCustomSort(DeliveriesAttr.TEST_RESULT_COUNT),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
             columnKey: DeliveriesAttr.REPORT_DATE,
             columnHeader: "Most recent report date",
             content: formatDateWithoutSeconds(dataRow.firstReportDate),
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.REPORT_DATE),
+            columnCustomSort: () => onColumnCustomSort(DeliveriesAttr.REPORT_DATE),
             columnCustomSortSettings: filterManager.sortSettings,
         },
     ]);
@@ -112,9 +101,7 @@ function FacilitiesProvidersFilterAndTable({
     return (
         <div>
             <section id="facilities-providers">
-                <div className="text-bold font-sans-md">
-                    Showing all results ({results?.meta.totalFilteredCount})
-                </div>
+                <div className="text-bold font-sans-md">Showing all results ({results?.meta.totalFilteredCount})</div>
                 <div className="display-flex flex-row">
                     <ReceiverServices
                         receiverServices={receiverServices}
@@ -125,13 +112,7 @@ function FacilitiesProvidersFilterAndTable({
                         startDateLabel="From: (mm/dd/yyyy)"
                         endDateLabel="To: (mm/dd/yyyy)"
                         filterManager={filterManager}
-                        onFilterClick={({
-                            from,
-                            to,
-                        }: {
-                            from: string;
-                            to: string;
-                        }) => {
+                        onFilterClick={({ from, to }: { from: string; to: string }) => {
                             filterManager?.updatePage({
                                 type: PageSettingsActionType.RESET,
                             });
@@ -151,17 +132,28 @@ function FacilitiesProvidersFilterAndTable({
                 <Table apiSortable borderless rowData={data} />
                 {data.length > 0 && (
                     <Pagination
-                        currentPageNum={currentPageNum}
-                        setSelectedPage={(pageNum) => {
+                        currentPage={currentPageNum}
+                        pathname=""
+                        onClickPageNumber={(e) => {
+                            const pageNumValue = parseInt((e.target as HTMLElement).innerText);
                             filterManager.updatePage({
                                 type: PageSettingsActionType.SET_PAGE,
-                                payload: { page: pageNum },
+                                payload: { page: pageNumValue },
                             });
                         }}
-                        slots={getSlots(
-                            currentPageNum,
-                            results?.meta.totalPages,
-                        )}
+                        onClickNext={() => {
+                            filterManager.updatePage({
+                                type: PageSettingsActionType.SET_PAGE,
+                                payload: { page: currentPageNum + 1 },
+                            });
+                        }}
+                        onClickPrevious={() => {
+                            filterManager.updatePage({
+                                type: PageSettingsActionType.SET_PAGE,
+                                payload: { page: currentPageNum - 1 },
+                            });
+                        }}
+                        maxSlots={results?.meta.totalPages}
                     />
                 )}
             </section>
@@ -170,8 +162,7 @@ function FacilitiesProvidersFilterAndTable({
 }
 
 export default function FacilitiesProvidersTable() {
-    const { isLoading, isDisabled, activeReceivers } =
-        useOrganizationReceivers();
+    const { isLoading, isDisabled, activeReceivers } = useOrganizationReceivers();
     const [activeReceiver, setActiveReceiver] = useState(activeReceivers?.[0]);
     if (isLoading) return <Spinner />;
 

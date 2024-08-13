@@ -17,13 +17,6 @@ import gov.cdc.prime.router.azure.QueueAccess
 import java.util.Base64
 import java.util.UUID
 
-const val elrConvertQueueName = "elr-fhir-convert"
-const val elrRoutingQueueName = "elr-fhir-route"
-const val elrDestinationFilterQueueName = "elr-fhir-destination-filter"
-const val elrReceiverFilterQueueName = "elr-fhir-receiver-filter"
-const val elrTranslationQueueName = "elr-fhir-translate"
-const val elrSendQueueName = "send"
-
 // This is a size limit dictated by our infrastructure in azure
 // https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-azure-and-service-bus-queues-compared-contrasted
 private const val MESSAGE_SIZE_LIMIT = 64 * 1000
@@ -34,7 +27,6 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
     JsonSubTypes.Type(FhirConvertQueueMessage::class, name = "convert"),
-    JsonSubTypes.Type(FhirRouteQueueMessage::class, name = "route"),
     JsonSubTypes.Type(FhirDestinationFilterQueueMessage::class, name = "destination-filter"),
     JsonSubTypes.Type(FhirReceiverFilterQueueMessage::class, name = "receiver-filter"),
     JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "translate"),
@@ -112,18 +104,9 @@ data class FhirConvertQueueMessage(
     override val blobSubFolderName: String,
     override val topic: Topic,
     val schemaName: String = "",
-    override val messageQueueName: String = elrConvertQueueName,
-) : ReportPipelineMessage()
-
-@JsonTypeName("route")
-data class FhirRouteQueueMessage(
-    override val reportId: ReportId,
-    override val blobURL: String,
-    override val digest: String,
-    override val blobSubFolderName: String,
-    override val topic: Topic,
-    override val messageQueueName: String = elrRoutingQueueName,
-) : ReportPipelineMessage()
+) : ReportPipelineMessage() {
+    override val messageQueueName = "elr-fhir-convert"
+}
 
 @JsonTypeName("destination-filter")
 data class FhirDestinationFilterQueueMessage(
@@ -132,8 +115,9 @@ data class FhirDestinationFilterQueueMessage(
     override val digest: String,
     override val blobSubFolderName: String,
     override val topic: Topic,
-    override val messageQueueName: String = elrDestinationFilterQueueName,
-) : ReportPipelineMessage()
+) : ReportPipelineMessage() {
+    override val messageQueueName = "elr-fhir-destination-filter"
+}
 
 @JsonTypeName("receiver-filter")
 data class FhirReceiverFilterQueueMessage(
@@ -143,8 +127,9 @@ data class FhirReceiverFilterQueueMessage(
     override val blobSubFolderName: String,
     override val topic: Topic,
     val receiverFullName: String,
-    override val messageQueueName: String = elrReceiverFilterQueueName,
-) : ReportPipelineMessage()
+) : ReportPipelineMessage() {
+    override val messageQueueName = "elr-fhir-receiver-filter"
+}
 
 @JsonTypeName("translate")
 data class FhirTranslateQueueMessage(
@@ -154,8 +139,9 @@ data class FhirTranslateQueueMessage(
     override val blobSubFolderName: String,
     override val topic: Topic,
     val receiverFullName: String,
-    override val messageQueueName: String = elrTranslationQueueName,
-) : ReportPipelineMessage()
+) : ReportPipelineMessage() {
+    override val messageQueueName = "elr-fhir-translate"
+}
 
 abstract class WithEventAction : QueueMessage() {
     abstract val eventAction: Event.EventAction
@@ -167,8 +153,9 @@ data class BatchEventQueueMessage(
     val receiverName: String,
     val emptyBatch: Boolean,
     val at: String,
-    override val messageQueueName: String = "",
-) : WithEventAction()
+) : WithEventAction() {
+    override val messageQueueName = ""
+}
 
 @JsonTypeName("report")
 data class ReportEventQueueMessage(
@@ -176,8 +163,9 @@ data class ReportEventQueueMessage(
     val emptyBatch: Boolean,
     val reportId: UUID,
     val at: String,
-    override val messageQueueName: String = elrSendQueueName,
-) : WithEventAction()
+) : WithEventAction() {
+    override val messageQueueName = "send"
+}
 
 @JsonTypeName("process")
 data class ProcessEventQueueMessage(
@@ -187,5 +175,6 @@ data class ProcessEventQueueMessage(
     val defaults: Map<String, String>,
     val routeTo: List<String>,
     val at: String,
-    override val messageQueueName: String = "",
-) : WithEventAction()
+) : WithEventAction() {
+    override val messageQueueName = ""
+}

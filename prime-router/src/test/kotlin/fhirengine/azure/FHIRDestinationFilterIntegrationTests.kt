@@ -38,7 +38,6 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
 import gov.cdc.prime.router.fhirengine.engine.FhirReceiverFilterQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.elrReceiverFilterQueueName
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
@@ -66,6 +65,8 @@ private const val VALID_FHIR_URL = "src/test/resources/fhirengine/engine/valid_d
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
 class FHIRDestinationFilterIntegrationTests : Logging {
+    val elrReceiverFilterQueueName = "elr-fhir-receiver-filter"
+
     // patient must reside in Colorado
     val jurisdictionalFilterCo: ReportStreamFilter = listOf("Bundle.entry.resource.ofType(Patient).address.state='CO'")
 
@@ -305,6 +306,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             }
 
             // check events
+            val bundle = FhirTranscoder.decode(reportContents)
             assertThat(azureEventsService.reportStreamEvents[ReportStreamEventName.ITEM_ROUTED]!!).hasSize(1)
             assertThat(
                 azureEventsService
@@ -318,7 +320,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                     report.id,
                     listOf(report.id),
                     Topic.FULL_ELR,
-                    "",
+                    routedReport.bodyUrl,
                     TaskAction.destination_filter,
                     OffsetDateTime.now()
                 ),
@@ -329,11 +331,22 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                     1,
                     1,
                     1,
-                    null,
+                    "MT_COCNB_ORU_NBPHELR.1.5348467",
                     "phd.Test Sender"
                 )
             )
-            assertThat(event.params).isEqualTo(emptyMap())
+            assertThat(event.params).isEqualTo(
+                mapOf(
+                ReportStreamEventProperties.RECEIVER_NAME to "phd.x",
+                ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                    observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
+                    eventType = "ORU/ACK - Unsolicited transmission of an observation message",
+                    patientState = listOf("CO"),
+                    performerState = emptyList(),
+                    orderingFacilityState = listOf("CO")
+                )
+            )
+            )
 
             // check action table
             UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.destination_filter))
