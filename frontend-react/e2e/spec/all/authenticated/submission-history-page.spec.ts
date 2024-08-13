@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 import { noData, selectTestOrg, tableDataCellValue, tableRows, TEST_ORG_IGNORE } from "../../../helpers/utils";
-import * as submissionHistory from "../../../pages/submission-history";
-import { openReportIdDetailPage } from "../../../pages/submission-history";
+import * as submissionHistory from "../../../pages/authenticated/submission-history";
+import { openReportIdDetailPage } from "../../../pages/authenticated/submission-history";
 
 const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
 test.describe("Submission history page", () => {

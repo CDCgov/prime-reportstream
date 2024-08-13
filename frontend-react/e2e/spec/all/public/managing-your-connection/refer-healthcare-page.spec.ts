@@ -1,5 +1,5 @@
 import { scrollToFooter, scrollToTop } from "../../../../helpers/utils";
-import { ReferHealthcarePage } from "../../../../pages/refer-healthcare";
+import { ReferHealthcarePage } from "../../../../pages/public/managing-your-connection/refer-healthcare";
 import { test as baseTest, expect } from "../../../../test";
 
 export interface ReferHealthcarePageFixtures {

@@ -1,8 +1,5 @@
 import { Page } from "@playwright/test";
-import {
-    MOCK_GET_RESEND,
-    MOCK_GET_SEND_FAILURES,
-} from "../mocks/lastMilefailures";
+import { MOCK_GET_RESEND, MOCK_GET_SEND_FAILURES } from "../../mocks/lastMilefailures";
 
 const URL_LAST_MILE = "/admin/lastmile";
 const API_GET_RESEND = "/api/adm/getresend?days_to_show=15";
@@ -14,10 +11,7 @@ export async function goto(page: Page) {
     });
 }
 
-export async function mockGetSendFailuresResponse(
-    page: Page,
-    responseStatus = 200,
-) {
+export async function mockGetSendFailuresResponse(page: Page, responseStatus = 200) {
     await page.route(API_GET_SEND_FAILURES, async (route) => {
         const json = MOCK_GET_SEND_FAILURES;
         await route.fulfill({ json, status: responseStatus });

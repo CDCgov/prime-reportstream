@@ -1,10 +1,6 @@
-import {
-    BasePage,
-    BasePageTestArgs,
-    type RouteHandlerFulfillEntry,
-} from "./BasePage";
-import { RSOrganizationSettings } from "../../src/config/endpoints/settings";
-import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../mocks/organizations";
+import { RSOrganizationSettings } from "../../../src/config/endpoints/settings";
+import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../../mocks/organizations";
+import { BasePage, BasePageTestArgs, type RouteHandlerFulfillEntry } from "../BasePage";
 
 export class OrganizationPage extends BasePage {
     static readonly API_ORGANIZATIONS = "/api/settings/organizations";
@@ -23,19 +19,13 @@ export class OrganizationPage extends BasePage {
 
         this._organizationSettings = [];
         this.addResponseHandlers([
-            [
-                OrganizationPage.API_ORGANIZATIONS,
-                async (res) => (this._organizationSettings = await res.json()),
-            ],
+            [OrganizationPage.API_ORGANIZATIONS, async (res) => (this._organizationSettings = await res.json())],
         ]);
         this.addMockRouteHandlers([this.createMockOrganizationHandler()]);
     }
 
     get isPageLoadExpected() {
-        return (
-            super.isPageLoadExpected &&
-            this.testArgs.storageState === this.testArgs.adminLogin.path
-        );
+        return super.isPageLoadExpected && this.testArgs.storageState === this.testArgs.adminLogin.path;
     }
 
     createMockOrganizationHandler(): RouteHandlerFulfillEntry {

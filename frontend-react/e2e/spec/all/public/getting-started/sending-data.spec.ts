@@ -1,6 +1,6 @@
 import site from "../../../../../src/content/site.json" assert { type: "json" };
 import { scrollToFooter, scrollToTop } from "../../../../helpers/utils";
-import { SendingDataPage } from "../../../../pages/getting-started/sending-data.js";
+import { SendingDataPage } from "../../../../pages/public/getting-started/sending-data.js";
 import { test as baseTest, expect } from "../../../../test";
 
 export interface SendingDataPageFixtures {

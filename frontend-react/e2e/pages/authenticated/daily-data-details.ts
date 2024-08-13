@@ -1,8 +1,8 @@
-import { BasePage, BasePageTestArgs, type RouteHandlerFulfillEntry } from "./BasePage";
 import { API_WATERS_REPORT, URL_REPORT_DETAILS } from "./report-details";
-import { RSDelivery, RSFacility } from "../../src/config/endpoints/deliveries";
-import { MOCK_GET_DELIVERY } from "../mocks/delivery";
-import { MOCK_GET_FACILITIES } from "../mocks/facilities";
+import { RSDelivery, RSFacility } from "../../../src/config/endpoints/deliveries";
+import { MOCK_GET_DELIVERY } from "../../mocks/delivery";
+import { MOCK_GET_FACILITIES } from "../../mocks/facilities";
+import { BasePage, BasePageTestArgs, type RouteHandlerFulfillEntry } from "../BasePage";
 
 const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
 

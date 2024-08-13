@@ -1,18 +1,13 @@
 import { expect, Locator } from "@playwright/test";
 import { endOfDay, format, startOfDay, subDays } from "date-fns";
-import { RSReceiverStatus } from "../../../src/hooks/api/UseReceiversConnectionStatus/UseReceiversConnectionStatus";
+import { RSReceiverStatus } from "../../../../src/hooks/api/UseReceiversConnectionStatus/UseReceiversConnectionStatus";
 import {
     createStatusTimePeriodData,
     SUCCESS_RATE_CLASSNAME_MAP,
-} from "../../../src/pages/admin/receiver-dashboard/utils";
-import { DatePair, dateShortFormat } from "../../../src/utils/DateTimeUtils";
-import { createMockGetReceiverStatus } from "../../mocks/receiverStatus";
-import {
-    BasePage,
-    BasePageTestArgs,
-    type ResponseHandlerEntry,
-    type RouteHandlerFulfillEntry,
-} from "../BasePage";
+} from "../../../../src/pages/admin/receiver-dashboard/utils";
+import { DatePair, dateShortFormat } from "../../../../src/utils/DateTimeUtils";
+import { createMockGetReceiverStatus } from "../../../mocks/receiverStatus";
+import { BasePage, BasePageTestArgs, type ResponseHandlerEntry, type RouteHandlerFulfillEntry } from "../../BasePage";
 
 export interface AdminReceiverStatusPageUpdateFiltersProps {
     dateRange?: {
@@ -90,9 +85,7 @@ export class AdminReceiverStatusPage extends BasePage {
         );
 
         this.addMockRouteHandlers([this.createMockReceiverStatusHandler()]);
-        this.addResponseHandlers([
-            this.createMockReceiverStatusResponseHandler(),
-        ]);
+        this.addResponseHandlers([this.createMockReceiverStatusResponseHandler()]);
 
         const now = new Date();
 
@@ -100,13 +93,8 @@ export class AdminReceiverStatusPage extends BasePage {
         this._timePeriodData = [];
 
         this.filterForm = this.page.getByRole("form", { name: "filter" });
-        const dateRangeOverlay = this.page
-            .getByRole("dialog")
-            .locator(".usa-modal-overlay");
-        const dateRangeDefaultValue = [
-            startOfDay(subDays(now, 2)),
-            endOfDay(now),
-        ] as DatePair;
+        const dateRangeOverlay = this.page.getByRole("dialog").locator(".usa-modal-overlay");
+        const dateRangeDefaultValue = [startOfDay(subDays(now, 2)), endOfDay(now)] as DatePair;
         this.filterFormInputs = {
             dateRange: {
                 label: this.page.locator("label", {
@@ -116,8 +104,7 @@ export class AdminReceiverStatusPage extends BasePage {
                     name: "Change...",
                 }),
                 modalOverlay: dateRangeOverlay,
-                expectedModalOverlayText:
-                    "Select date range to show. (Max 10 days span)FromToUpdate",
+                expectedModalOverlayText: "Select date range to show. (Max 10 days span)FromToUpdate",
                 modalOverlayCalendar: dateRangeOverlay.getByRole("application"),
                 modalPrimaryButton: dateRangeOverlay.getByRole("button", {
                     name: "Update",
@@ -144,22 +131,15 @@ export class AdminReceiverStatusPage extends BasePage {
                     name: "Receiver Name:",
                 }),
                 expectedDefaultValue: "",
-                tooltip: this.page
-                    .getByTestId("tooltipWrapper")
-                    .nth(0)
-                    .getByRole("tooltip"),
+                tooltip: this.page.getByTestId("tooltipWrapper").nth(0).getByRole("tooltip"),
                 value: "",
             },
             resultMessage: {
                 label: this.page.locator("label", {
                     hasText: "Results Message:",
                 }),
-                expectedTooltipText:
-                    "Filter rows on the Result Message details. This value is found in the details.",
-                tooltip: this.page
-                    .getByTestId("tooltipWrapper")
-                    .nth(1)
-                    .getByRole("tooltip"),
+                expectedTooltipText: "Filter rows on the Result Message details. This value is found in the details.",
+                tooltip: this.page.getByTestId("tooltipWrapper").nth(1).getByRole("tooltip"),
                 input: this.page.getByRole("textbox", {
                     name: "Results Message:",
                 }),
@@ -171,10 +151,7 @@ export class AdminReceiverStatusPage extends BasePage {
                     hasText: "Success Type:",
                 }),
                 expectedTooltipText: "Show only rows in one of these states.",
-                tooltip: this.page
-                    .getByTestId("tooltipWrapper")
-                    .nth(2)
-                    .getByRole("tooltip"),
+                tooltip: this.page.getByTestId("tooltipWrapper").nth(2).getByRole("tooltip"),
                 input: this.page.getByRole("combobox", {
                     name: "Success Type:",
                 }),
@@ -192,10 +169,7 @@ export class AdminReceiverStatusPage extends BasePage {
      * Error expected additionally if user context isn't admin
      */
     get isPageLoadExpected() {
-        return (
-            super.isPageLoadExpected &&
-            this.testArgs.storageState === this.testArgs.adminLogin.path
-        );
+        return super.isPageLoadExpected && this.testArgs.storageState === this.testArgs.adminLogin.path;
     }
 
     get receiverStatus() {
@@ -213,10 +187,7 @@ export class AdminReceiverStatusPage extends BasePage {
                 const url = new URL(request.url());
                 const startDate = url.searchParams.get("start_date");
                 const endDate = url.searchParams.get("end_date");
-                const range =
-                    startDate && endDate
-                        ? ([new Date(startDate), new Date(endDate)] as DatePair)
-                        : undefined;
+                const range = startDate && endDate ? ([new Date(startDate), new Date(endDate)] as DatePair) : undefined;
 
                 return {
                     json: this.createMockReceiverStatuses(range),
@@ -233,27 +204,18 @@ export class AdminReceiverStatusPage extends BasePage {
                 const url = new URL(apiRes.url());
                 const startDate = url.searchParams.get("start_date");
                 const endDate = url.searchParams.get("end_date");
-                const range =
-                    startDate && endDate
-                        ? ([new Date(startDate), new Date(endDate)] as DatePair)
-                        : undefined;
+                const range = startDate && endDate ? ([new Date(startDate), new Date(endDate)] as DatePair) : undefined;
                 this._receiverStatus = data;
-                this._timePeriodData = range
-                    ? this.createTimePeriodData({ data, range })
-                    : [];
+                this._timePeriodData = range ? this.createTimePeriodData({ data, range }) : [];
             },
         ];
     }
 
-    createMockReceiverStatuses(
-        ...args: Parameters<typeof createMockGetReceiverStatus>
-    ) {
+    createMockReceiverStatuses(...args: Parameters<typeof createMockGetReceiverStatus>) {
         return createMockGetReceiverStatus(...args);
     }
 
-    createTimePeriodData(
-        ...args: Parameters<typeof createStatusTimePeriodData>
-    ) {
+    createTimePeriodData(...args: Parameters<typeof createStatusTimePeriodData>) {
         return createStatusTimePeriodData(...args);
     }
 
@@ -281,11 +243,7 @@ export class AdminReceiverStatusPage extends BasePage {
         });
     }
 
-    getExpectedReceiverStatusRowTitle(
-        organizationName: string,
-        receiverName: string,
-        successRate: number | string,
-    ) {
+    getExpectedReceiverStatusRowTitle(organizationName: string, receiverName: string, successRate: number | string) {
         return [organizationName, receiverName, successRate, "%"].join("");
     }
 
@@ -303,16 +261,14 @@ export class AdminReceiverStatusPage extends BasePage {
             allCustom: async () => {
                 return (await days.all()).map((d) =>
                     Object.assign(d, {
-                        timePeriods:
-                            this.getReceiverStatusRowDisplayDayTimePeriods(d),
+                        timePeriods: this.getReceiverStatusRowDisplayDayTimePeriods(d),
                     }),
                 );
             },
             nthCustom: (nth: number) => {
                 const day = days.nth(nth);
                 return Object.assign(day, {
-                    timePeriods:
-                        this.getReceiverStatusRowDisplayDayTimePeriods(day),
+                    timePeriods: this.getReceiverStatusRowDisplayDayTimePeriods(day),
                 });
             },
         });
@@ -334,39 +290,21 @@ export class AdminReceiverStatusPage extends BasePage {
     }: AdminReceiverStatusPageUpdateFiltersProps) {
         // API request will only fire if date ranges are different
         const isDateRangeDifferent =
-            dateRange == null ||
-            this.getIsDateRangesDifferent(
-                this.filterFormInputs.dateRange.value,
-                dateRange.value,
-            );
-        const isRequestAwaitedBool =
-            dateRange != null &&
-            isDateRangeDifferent &&
-            dateRange.isRequestAwaited !== false;
+            dateRange == null || this.getIsDateRangesDifferent(this.filterFormInputs.dateRange.value, dateRange.value);
+        const isRequestAwaitedBool = dateRange != null && isDateRangeDifferent && dateRange.isRequestAwaited !== false;
         const p = isRequestAwaitedBool
-            ? this.page.waitForRequest(
-                  AdminReceiverStatusPage.API_RECEIVER_STATUS,
-              )
+            ? this.page.waitForRequest(AdminReceiverStatusPage.API_RECEIVER_STATUS)
             : Promise.resolve();
 
         if (dateRange && isDateRangeDifferent) {
             const { value, inputMethod } = dateRange;
             await this.updateFilterDateRange(...value, inputMethod);
         }
-        if (
-            receiverName != null &&
-            receiverName !== this.filterFormInputs.receiverName.value
-        )
+        if (receiverName != null && receiverName !== this.filterFormInputs.receiverName.value)
             await this.updateFilterReceiverName(receiverName);
-        if (
-            resultMessage != null &&
-            resultMessage !== this.filterFormInputs.resultMessage.value
-        )
+        if (resultMessage != null && resultMessage !== this.filterFormInputs.resultMessage.value)
             await this.updateFilterResultMessage(resultMessage);
-        if (
-            successType != null &&
-            successType !== this.filterFormInputs.successType.value
-        )
+        if (successType != null && successType !== this.filterFormInputs.successType.value)
             await this.updateFilterSuccessType(successType);
 
         if (!isRequestAwaitedBool) return undefined as void;
@@ -376,11 +314,7 @@ export class AdminReceiverStatusPage extends BasePage {
         return reqUrl;
     }
 
-    async updateFilterDateRange(
-        start: Date,
-        end: Date,
-        inputMethod: "textbox" | "calendar" = "textbox",
-    ) {
+    async updateFilterDateRange(start: Date, end: Date, inputMethod: "textbox" | "calendar" = "textbox") {
         const {
             button,
             modalStartInput,
@@ -438,10 +372,8 @@ export class AdminReceiverStatusPage extends BasePage {
             dateRange: {
                 value: this.filterFormInputs.dateRange.expectedDefaultValue,
             },
-            receiverName:
-                this.filterFormInputs.receiverName.expectedDefaultValue,
-            resultMessage:
-                this.filterFormInputs.resultMessage.expectedDefaultValue,
+            receiverName: this.filterFormInputs.receiverName.expectedDefaultValue,
+            resultMessage: this.filterFormInputs.resultMessage.expectedDefaultValue,
             successType: this.filterFormInputs.successType.expectedDefaultValue,
         };
         return await this.updateFilters(resetValues);
@@ -471,9 +403,7 @@ export class AdminReceiverStatusPage extends BasePage {
     async testReceiverStatusDisplay() {
         const [startDate, endDate] = this.filterFormInputs.dateRange.value;
         const statusRows = this.receiverStatusRowsLocator;
-        await expect(statusRows).toHaveCount(
-            new Set(this.receiverStatus?.map((r) => r.receiverId)).size,
-        );
+        await expect(statusRows).toHaveCount(new Set(this.receiverStatus?.map((r) => r.receiverId)).size);
 
         const expectedDaysText = [
             dateShortFormat(startDate),
@@ -482,13 +412,7 @@ export class AdminReceiverStatusPage extends BasePage {
         ].join("            ");
         for (const [
             i,
-            {
-                days,
-                successRate,
-                organizationName,
-                receiverName,
-                successRateType,
-            },
+            { days, successRate, organizationName, receiverName, successRateType },
         ] of this.timePeriodData.entries()) {
             const { title, display, days: daysLoc } = statusRows.nthCustom(i);
 
@@ -497,9 +421,7 @@ export class AdminReceiverStatusPage extends BasePage {
                 receiverName,
                 successRate,
             );
-            const expectedClass = new RegExp(
-                SUCCESS_RATE_CLASSNAME_MAP[successRateType],
-            );
+            const expectedClass = new RegExp(SUCCESS_RATE_CLASSNAME_MAP[successRateType]);
 
             await expect(title).toBeVisible();
             await expect(title).toHaveText(expectedTitleText);
@@ -516,9 +438,7 @@ export class AdminReceiverStatusPage extends BasePage {
 
                 for (const [i, { successRateType }] of timePeriods.entries()) {
                     const sliceEle = daySlices.nth(i);
-                    const expectedClass = new RegExp(
-                        SUCCESS_RATE_CLASSNAME_MAP[successRateType],
-                    );
+                    const expectedClass = new RegExp(SUCCESS_RATE_CLASSNAME_MAP[successRateType]);
 
                     await expect(sliceEle).toBeVisible();
                     await expect(sliceEle).toHaveClass(expectedClass);

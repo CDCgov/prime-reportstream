@@ -1,6 +1,6 @@
 import { Page } from "@playwright/test";
 
-import { MESSAGE_ID } from "../pages/message-id-search";
+import { MESSAGE_ID } from "../../pages/authenticated/message-id-search";
 
 export const URL_MESSAGE_DETAILS = `/message-details/${MESSAGE_ID}`;
 

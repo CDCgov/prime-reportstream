@@ -1,16 +1,16 @@
 import { expect, Page } from "@playwright/test";
 import { format } from "date-fns";
-import { BasePage, BasePageTestArgs, type RouteHandlerFulfillEntry } from "./BasePage";
 import { API_WATERS_ORG } from "./report-details";
-import { RSReceiver } from "../../src/config/endpoints/settings";
-import { TEST_ORG_UP_RECEIVER_FULL_ELR } from "../helpers/utils";
+import { RSReceiver } from "../../../src/config/endpoints/settings";
+import { TEST_ORG_UP_RECEIVER_FULL_ELR } from "../../helpers/utils";
 import {
     MOCK_GET_DELIVERIES_IGNORE,
     MOCK_GET_DELIVERIES_IGNORE_FILENAME,
     MOCK_GET_DELIVERIES_IGNORE_FULL_ELR,
     MOCK_GET_DELIVERIES_IGNORE_REPORT_ID,
-} from "../mocks/deliveries";
-import { MOCK_GET_RECEIVERS_AK, MOCK_GET_RECEIVERS_IGNORE } from "../mocks/organizations";
+} from "../../mocks/deliveries";
+import { MOCK_GET_RECEIVERS_AK, MOCK_GET_RECEIVERS_IGNORE } from "../../mocks/organizations";
+import { BasePage, BasePageTestArgs, type RouteHandlerFulfillEntry } from "../BasePage";
 
 export class DailyDataPage extends BasePage {
     static readonly URL_DAILY_DATA = "/daily-data";

@@ -8,11 +8,11 @@ import {
     MOCK_GET_DELIVERIES_IGNORE_FILENAME,
     MOCK_GET_DELIVERIES_IGNORE_FULL_ELR,
     MOCK_GET_DELIVERIES_IGNORE_REPORT_ID,
-} from "../mocks/deliveries";
-import { MOCK_GET_DELIVERY } from "../mocks/delivery";
-import { MOCK_GET_FACILITIES } from "../mocks/facilities";
-import { MOCK_GET_HISTORY_REPORT } from "../mocks/historyReport";
-import { MOCK_GET_SUBMISSION_HISTORY } from "../mocks/submissionHistory";
+} from "../../mocks/deliveries";
+import { MOCK_GET_DELIVERY } from "../../mocks/delivery";
+import { MOCK_GET_FACILITIES } from "../../mocks/facilities";
+import { MOCK_GET_HISTORY_REPORT } from "../../mocks/historyReport";
+import { MOCK_GET_SUBMISSION_HISTORY } from "../../mocks/submissionHistory";
 
 export const URL_REPORT_DETAILS = "/report-details";
 export const API_WATERS_REPORT = "**/api/waters/report";

@@ -1,5 +1,5 @@
 import { scrollToFooter, scrollToTop } from "../../../../helpers/utils";
-import { ManagingYourConnectionPage } from "../../../../pages/managing-your-connection";
+import { ManagingYourConnectionPage } from "../../../../pages/public/managing-your-connection/managing-your-connection";
 import { test as baseTest, expect } from "../../../../test";
 
 const cards = [

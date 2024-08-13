@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test";
 import { noData, tableRows } from "../../../helpers/utils";
 import { MOCK_GET_MESSAGE, MOCK_GET_MESSAGES } from "../../../mocks/messages";
-import * as messageIdSearch from "../../../pages/message-id-search";
-import { MESSAGE_ID, URL_MESSAGE_ID_SEARCH } from "../../../pages/message-id-search";
-import { openReportIdDetailPage } from "../../../pages/submission-history";
-import * as submissionHistory from "../../../pages/submission-history";
+import * as messageIdSearch from "../../../pages/authenticated/message-id-search";
+import { MESSAGE_ID, URL_MESSAGE_ID_SEARCH } from "../../../pages/authenticated/message-id-search";
+import { openReportIdDetailPage } from "../../../pages/authenticated/submission-history";
+import * as submissionHistory from "../../../pages/authenticated/submission-history";
 
 test.describe("Message ID Search Page", () => {
     test.describe("not authenticated", () => {

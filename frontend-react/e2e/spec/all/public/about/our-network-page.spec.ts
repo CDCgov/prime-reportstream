@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-import * as sideNav from "../../../../pages/about-side-navigation";
-import * as ourNetwork from "../../../../pages/our-network";
+import * as ourNetwork from "../../../../pages/public/about/our-network";
+import * as sideNav from "../../../../pages/public/about-side-navigation";
 test.describe(
     "Our network page",
     {

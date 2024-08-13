@@ -1,6 +1,6 @@
 import site from "../../../../src/content/site.json" assert { type: "json" };
 import { scrollToFooter, scrollToTop } from "../../../helpers/utils";
-import { SupportPage } from "../../../pages/support.js";
+import { SupportPage } from "../../../pages/public/support.js";
 import { test as baseTest, expect } from "../../../test";
 
 const cards = [

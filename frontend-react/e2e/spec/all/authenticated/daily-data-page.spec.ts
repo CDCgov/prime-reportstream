@@ -9,7 +9,7 @@ import {
     TEST_ORG_AK_RECEIVER,
     TEST_ORG_UP_RECEIVER_FULL_ELR,
 } from "../../../helpers/utils";
-import * as dailyData from "../../../pages/daily-data";
+import * as dailyData from "../../../pages/authenticated/daily-data";
 import {
     applyButton,
     DailyDataPage,
@@ -30,11 +30,11 @@ import {
     startTime,
     startTimeClear,
     tableHeaders,
-} from "../../../pages/daily-data";
+} from "../../../pages/authenticated/daily-data";
 import {
     mockGetDeliveriesForOrgAlaskaResponse,
     mockGetDeliveriesForOrgIgnoreResponse,
-} from "../../../pages/report-details";
+} from "../../../pages/authenticated/report-details";
 import { test as baseTest } from "../../../test";
 
 const defaultStartTime = "9:00am";

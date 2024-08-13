@@ -1,8 +1,8 @@
 import { expect } from "@playwright/test";
 import { tableDataCellValue } from "../../../helpers/utils";
-import { detailsTableHeaders } from "../../../pages/daily-data";
-import { DailyDataDetailsPage } from "../../../pages/daily-data-details";
-import * as reportDetails from "../../../pages/report-details";
+import { detailsTableHeaders } from "../../../pages/authenticated/daily-data";
+import { DailyDataDetailsPage } from "../../../pages/authenticated/daily-data-details";
+import * as reportDetails from "../../../pages/authenticated/report-details";
 import { test as baseTest } from "../../../test";
 
 export interface DailyDataDetailsPageFixtures {

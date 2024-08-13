@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 import * as internalLinks from "../../../../helpers/internal-links";
-import * as sideNav from "../../../../pages/about-side-navigation";
-import * as roadmap from "../../../../pages/roadmap";
-import { URL_ROADMAP } from "../../../../pages/roadmap";
+import * as roadmap from "../../../../pages/public/about/roadmap";
+import { URL_ROADMAP } from "../../../../pages/public/about/roadmap";
+import * as sideNav from "../../../../pages/public/about-side-navigation";
 
 test.describe(
     "Product roadmap page",

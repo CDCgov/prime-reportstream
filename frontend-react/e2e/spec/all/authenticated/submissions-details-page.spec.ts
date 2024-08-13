@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 import { selectTestOrg } from "../../../helpers/utils";
-import * as reportDetails from "../../../pages/report-details";
-import * as submissionDetails from "../../../pages/submission-history";
-import { URL_SUBMISSION_HISTORY } from "../../../pages/submission-history";
+import * as reportDetails from "../../../pages/authenticated/report-details";
+import * as submissionDetails from "../../../pages/authenticated/submission-history";
+import { URL_SUBMISSION_HISTORY } from "../../../pages/authenticated/submission-history";
 
 const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
 test.describe("Submissions Details page", () => {

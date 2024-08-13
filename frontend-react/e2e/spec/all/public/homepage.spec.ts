@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test";
 
 import { scrollToFooter, scrollToTop } from "../../../helpers/utils";
-import * as header from "../../../pages/header";
-import * as homepage from "../../../pages/homepage";
-import * as managingYourConnection from "../../../pages/managing-your-connection";
-import * as ourNetwork from "../../../pages/our-network";
-import * as security from "../../../pages/security";
+import * as ourNetwork from "../../../pages/public/about/our-network";
+import * as security from "../../../pages/public/about/security";
+import * as header from "../../../pages/public/header";
+import * as homepage from "../../../pages/public/homepage";
+import * as managingYourConnection from "../../../pages/public/managing-your-connection/managing-your-connection";
 
 test.describe(
     "Homepage",

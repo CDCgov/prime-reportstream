@@ -1,5 +1,5 @@
 import { expect, Page } from "@playwright/test";
-import { BasePage, BasePageTestArgs } from "./BasePage";
+import { BasePage, BasePageTestArgs } from "../../BasePage";
 
 export async function onLoad(page: Page) {
     await expect(page).toHaveURL(/managing-your-connection/);
