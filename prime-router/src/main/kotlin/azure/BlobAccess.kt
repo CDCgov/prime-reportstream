@@ -250,9 +250,9 @@ class BlobAccess() : Logging {
         fun insertTableEntity(entity: TableEntity) {
             try {
                 getTableClient("submissions").createEntity(entity)
-                logger.info("Entity inserted successfully: ${entity.rowKey}")
+                logger.info("Entity inserted successfully: ${entity.partitionKey} is ${entity.rowKey}")
             } catch (e: Exception) {
-                logger.error("Failed to insert entity: ${entity.rowKey}", e)
+                logger.error("Failed to insert entity: ${entity.partitionKey} with ${entity.rowKey}", e)
             }
         }
 

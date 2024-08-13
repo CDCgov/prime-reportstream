@@ -95,7 +95,7 @@ class FHIRReceiver(
         val contextMap = createLoggingContextMap(queueMessage, actionHistory)
         // Use the logging context for tracing
         withLoggingContext(contextMap) {
-            val sender = getSender(queueMessage, actionLogger, actionHistory) ?: return emptyList()
+            val sender = getSender(queueMessage, actionLogger, actionHistory)
 
             // Handle errors if any
             if (actionLogger.hasErrors()) {
@@ -104,7 +104,7 @@ class FHIRReceiver(
             }
 
             // Process the message if no errors occurred
-            return handleSuccessfulProcessing(queueMessage, sender, actionHistory)
+            return handleSuccessfulProcessing(queueMessage, sender!!, actionHistory)
         }
     }
 
@@ -151,7 +151,6 @@ class FHIRReceiver(
         // Handle case where sender is inactive
         if (sender.customerStatus == CustomerStatus.INACTIVE) {
             handleInactiveSender(queueMessage, actionLogger, actionHistory)
-            return null
         }
 
         // Track sender information
@@ -208,7 +207,6 @@ class FHIRReceiver(
      *
      * @param queueMessage The queue message containing details about the report.
      * @param sender The sender information.
-     * @param actionLogger The logger used to track actions and errors.
      * @param actionHistory The action history related to receiving the report.
      * @return A list of FHIR engine run results.
      */
