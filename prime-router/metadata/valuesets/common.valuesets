@@ -1,0 +1,574 @@
+# These ValueSets are not associated with specific topic.
+# ValueSets are used with CODE data elements and their display equivalents
+#
+# Name conventions
+#
+#  for SNOMED-CT use the standard element name
+#  for hl7 value sets use the HL7 name
+#  for LOINC value sets use TBD
+#  for LOCAL match the standard element
+#
+# sort alphabetically
+#
+---
+# used for OBX-8
+- name: hl70078
+  system: HL7
+  version: 2.7
+  referenceUrl: https://phinvads.cdc.gov/vads/ViewCodeSystem.action?id=2.16.840.1.113883.12.78
+  values:
+  - code: A
+    display: Abnormal (applies to non-numeric results)
+  - code: ">"
+    display: Above absolute high-off instrument scale
+  - code: H
+    display: Above high normal
+  - code: HH
+    display: Above upper panic limits
+  - code: AC
+    display: Anti-complementary substances present
+  - code: "<"
+    display: Below absolute low-off instrument scale
+  - code: L
+    display: Below low normal
+  - code: LL
+    display: Below lower panic limits
+  - code: B
+    display: Better--use when direction not relevant
+  - code: TOX
+    display: Cytotoxic substance present
+  - code: DET
+    display: Detected
+  - code: IND
+    display: Indeterminate
+  - code: I
+    display: Intermediate. Indicates for microbiology susceptibilities only.
+  - code: MS
+    display: Moderately susceptible. Indicates for microbiology susceptibilities only.
+  - code: NEG
+    display: Negative
+  - code: "null"
+    display: No range defined, or normal ranges don't apply
+  - code: NR
+    display: Non-reactive
+  - code: N
+    display: Normal (applies to non-numeric results)
+  - code: ND
+    display: Not Detected
+  - code: POS
+    display: Positive
+  - code: QCF
+    display: Quality Control Failure
+  - code: RR
+    display: Reactive
+  - code: R
+    display: Resistant. Indicates for microbiology susceptibilities only.
+  - code: D
+    display: Significant change down
+  - code: U
+    display: Significant change up
+  - code: S
+    display: Susceptible. Indicates for microbiology susceptibilities only.
+  - code: AA
+    display: "Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)"
+  - code: VS
+    display: Very susceptible. Indicates for microbiology susceptibilities only.
+  - code: WR
+    display: Weakly reactive
+  - code: W
+    display: Worse--use when direction not relevant
+
+- name: hl70085
+  system: HL7
+  values:
+      - code: C
+        display: Record coming over is a correction and thus replaces a final result
+      - code: D
+        display: Deletes the OBX record
+      - code: F
+        display: Final results; Can only be changed with a corrected result
+      - code: I
+        display: Specimen in lab; results pending
+      - code: N
+        display: Not asked; used to affirmatively document that the observation identified in the OBX was not sought when the universal service ID in OBR-4 implies that it would be sought.
+      - code: O
+        display: Order detail description only (no result)
+      - code: P
+        display: Preliminary results
+      - code: R
+        display: Results entered -- not verified
+      - code: S
+        display: Partial results
+      - code: U
+        display: Results status change to final without retransmitting results already sent as ‘preliminary.’  E.g., radiology changes status from preliminary to final
+      - code: W
+        display: Post original as wrong, e.g., transmitted for wrong patient
+      - code: X
+        display: Results cannot be obtained for this observation
+
+- name: hl70136
+  system: HL7
+  values:
+    - code: Y
+      display: Yes
+    - code: N
+      display: No
+    - code: UNK
+      display: Unknown
+      system: NULLFL
+
+- name: patient_age_units
+  reference: Per the HHS guidance
+  referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
+  system: UCUM
+  values:
+    - code: min
+      display: minutes
+    - code: h
+      display: hours
+    - code: d
+      display: days
+    - code: wk
+      display: weeks
+    - code: mo
+      display: months
+    - code: a
+      display: years
+
+- name: hhs_age_units
+  reference: Per the HHS guidance, use 'yr' instead of 'a'
+  referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
+  system: LOCAL
+  values:
+    - code: mo
+      display: months
+    - code: yr
+      display: years
+
+- name: hl70001
+  system: HL7
+  reference: HHS guidance for sex at birth
+  referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Tables/0001
+  values:
+    - code: M
+      display: Male
+    - code: F
+      display: Female
+    - code: O
+      display: Other
+    - code: A
+      display: Ambiguous
+    - code: U
+      display: Unknown
+    - code: N
+      display: Not applicable
+
+- name: hl70189
+  system: HL7
+  reference: HL7 guidance for ethnicity
+  referenceUrl: https://www.hl7.org/fhir/v2/0189/index.html
+  version: 2.9
+  values:
+    - code: H
+      display: Hispanic or Latino
+    - code: N
+      display: Non Hispanic or Latino
+    - code: U
+      display: Unknown
+
+- name: omb_ethnicity
+  system: FHIR
+  reference: OMB 2020 Census values per the HHS guidance
+  referenceUrl: https://hl7.org/fhir/us/core/2017Jan/ValueSet-omb-ethnicity.html
+  values:
+    - code: 2135-2
+      display: Hispanic or Latino
+    - code: 2186-5
+      display: Non Hispanic or Latino
+    - code: UNK
+      display: Unknown
+    - code: ASKU
+      display: Asked, but unknown
+
+- name: hl70005
+  system: HL7
+  reference: Race, from OMB 2020 Census specified by the HHS guidance which corresponds to hl70005
+  referenceUrl: https://phinvads.cdc.gov/vads/ViewValueSet.action?id=B246B692-6DF8-E111-B875-001A4BE7FA90
+  values:
+    - display: American Indian or Alaska Native
+      code: 1002-5
+      version: 2.5.1
+    - display: Asian
+      code: 2028-9
+      version: 2.5.1
+    - display: Black or African American
+      code: 2054-5
+      version: 2.5.1
+    - display: Native Hawaiian or Other Pacific Islander
+      code: 2076-8
+      version: 2.5.1
+    - display: White
+      code: 2106-3
+      version: 2.5.1
+    - display: Other
+      code: 2131-1
+      version: 2.5.1
+    - display: Unknown
+      code: UNK
+      version: 2.5.1
+      system: NULLFL
+    - display: Asked, but unknown
+      code: ASKU
+      version: 2.5.1
+      system: NULLFL
+
+- name: specimen_role
+  system: FHIR
+  referenceUrl: https://terminology.hl7.org/ValueSet-v3-SpecimenRoleType.html
+  values:
+    - code: B
+      display: Blind sample
+    - code: E
+      display: Electronic QC
+    - code: F
+      display: Filer
+    - code: G
+      display: Group
+    - code: L
+      display: Pool
+    - code: O
+      display: Operator proficiency
+    - code: P
+      display: Patient
+    - code: Q
+      display: Control specimen
+    - code: R
+      display: Replicate
+    - code: V
+      display: Verifying collaborator
+
+- name: hl70123
+  system: HL7
+  referenceUrl: https://www.hl7.org/fhir/v2/0123/index.html
+  values:
+    - code: A
+      display: Some, but not all, results available
+    - code: C
+      display: Corrected, final
+    - code: F
+      display: Final results
+    - code: I
+      display: No results available; specimen received, procedure incomplete
+    - code: M
+      display: Corrected, not final
+    - code: N
+      display: Procedure completed, results pending
+    - code: O
+      display: Order received; specimen not yet received
+    - code: P
+      display: Preliminary
+    - code: R
+      display: Results stored; not yet verified
+    - code: S
+      display: No results available; procedure scheduled, but not done
+    - code: X
+      display: No results available; Order canceled
+    - code: Y
+      display: No order on record for this test
+    - code: Z
+      display: No record of this patient
+
+- name: hl70087
+  system: HL7
+  referenceUrl: https://phinvads.cdc.gov/vads/ViewValueSet.action?id=E2DB0027-57A7-DF11-9BDD-0015173D1785
+  values:
+    - code: A
+      display: Abnormal (applies to non-numeric results)
+    - code: >
+      display: Above absolute high-off instrument scale
+    - code: H
+      display: Above high normal
+    - code: HH
+      display: Above upper panic limits
+    - code: AC
+      display: Anti-complementary substances present
+    - code: <
+      display: Below absolute low-off instrument scale
+    - code: L
+      display: Below low normal
+    - code: LL
+      display: Below lower panic limits
+    - code: B
+      display: Better--use when direction not relevant
+    - code: TOX
+      display: Cytotoxic substance present
+    - code: DET
+      display: Detected
+    - code: IND
+      display: Indeterminate
+    - code: I
+      display: Intermediate. Indicates for microbiology susceptibilities only.
+    - code: MS
+      display: Moderately susceptible. Indicates for microbiology susceptibilities only.
+    - code: NEG
+      display: Negative
+    - code: NR
+      display: Non-reactive
+    - code: N
+      display: Normal (applies to non-numeric results)
+    - code: ND
+      display: Not Detected
+    - code: POS
+      display: Positive
+    - code: QCF
+      display: Quality Control Failure
+    - code: RR
+      display: Reactive
+    - code: R
+      display: Resistant. Indicates for microbiology susceptibilities only.
+    - code: D
+      display: Significant change down
+    - code: U
+      display: Significant change up
+    - code: S
+      display: Susceptible. Indicates for microbiology susceptibilities only.
+    - code: AA
+      display: "Very abnormal (applies to non-numeric units, analogous to panic limits for display: numeric units)"
+    - code: VS
+      display: Very susceptible. Indicates for microbiology susceptibilities only.
+    - code: WR
+      display: Weakly reactive
+    - code: W
+      display: Worse--use when direction not relevant
+
+- name: hl70103
+  system: HL7
+  values:
+    - code: D
+      display: Debugging
+    - code: P
+      display: Production
+    - code: T
+      display: Training
+
+- name: hl70105
+  system: HL7
+  referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Tables/0105
+  values:
+      - code: L
+        display: Ancillary (filler) department is source of comment
+      - code: O
+        display: Other system is source of comment
+      - code: P
+        display: Orderer (placer) is source of comment
+
+- name: hl70364
+  system: HL7
+  referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Tables/0364
+  values:
+      - code: 1R
+        display: Primary Reason
+      - code: 2R
+        display: Secondary Reason
+      - code: AI
+        display: Ancillary Instructions
+      - code: DR
+        display: Duplicate/Interaction Reason
+      - code: GI
+        display: General Instructions
+      - code: GR
+        display: General Reason
+      - code: PI
+        display: Patient Instructions
+      - code: RE
+        display: Remark
+
+- name: hl70125
+  system: HL7
+  referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Tables/0125
+  values:
+      - code: AD
+        display: Address
+      - code: CE
+        display: Coded Entry
+      - code: CF
+        display: Coded Element With Formatted Values
+      - code: CK
+        display: Composite ID With Check Digit
+      - code: CN
+        display: Composite ID And Name
+      - code: CP
+        display: Composite Price
+      - code: CWE
+        display: Coded With Exceptions
+      - code: CX
+        display: Extended Composite ID With Check Digit
+      - code: DT
+        display: Date
+      - code: ED
+        display: Encapsulated Data
+      - code: FT
+        display: Formatted Text (Display)
+      - code: MO
+        display: Money
+      - code: NM
+        display: Numeric
+      - code: PN
+        display: Person Name
+      - code: RP
+        display: Reference Pointer
+      - code: SN
+        display: Structured Numeric
+      - code: ST
+        display: String Data
+      - code: TM
+        display: Time
+      - code: TN
+        display: Telephone Number
+      - code: TS
+        display: Time Stamp (Date & Time)
+      - code: TX
+        display: Text Data (Display)
+      - code: XAD
+        display: Extended Address
+      - code: XCN
+        display: Extended Composite Name and Number For Persons
+      - code: XON
+        display: Extended Composite Name and Number For Organizations
+      - code: XPN
+        display: Extended Person Name
+      - code: XTN
+        display: Extended Telecommunications Number
+
+- name: hl70048
+  system: HL7
+  referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.8/Tables/0488
+  values:
+      - code: ANP
+        display: Plates, Anaerobic
+      - code: BAP
+        display: Plates, Blood Agar
+      - code: BCAE
+        display: Blood Culture, Aerobic Bottle
+      - code: BCAN
+        display: Blood Culture, Anaerobic Bottle
+      - code: BCPD
+        display: Blood Culture, Pediatric Bottle
+      - code: BIO
+        display: Biopsy
+      - code: CAP
+        display: Capillary Specimen
+      - code: CATH
+        display: Catheterized
+      - code: CVP
+        display: Line, CVP
+      - code: EPLA
+        display: Environmental, Plate
+      - code: ESWA
+        display: Environmental, Swab
+      - code: FNA
+        display: Aspiration, Fine Needle
+      - code: KOFFP
+        display: Plate, Cough
+      - code: LNA
+        display: Line, Arterial
+      - code: LNV
+        display: Line, Venous
+      - code: MARTL
+        display: Martin-Lewis Agar
+      - code: ML11
+        display: Mod. Martin-Lewis Agar
+      - code: MLP
+        display: Plate, Martin-Lewis
+      - code: NYP
+        display: Plate, New York City
+      - code: PACE
+        display: Pace, Gen-Probe
+      - code: PIN
+        display: Pinworm Prep
+      - code: PNA
+        display: Aterial puncture
+      - code: PRIME
+        display: Pump Prime
+      - code: PUMP
+        display: Pump Specimen
+      - code: QC5
+        display: Quality Control For Micro
+      - code: SCLP
+        display: Scalp, Fetal Vein
+      - code: SCRAPS
+        display: Scrapings
+      - code: SHA
+        display: Shaving
+      - code: SWA
+        display: Swab
+      - code: SWD
+        display: Swab, Dacron tipped
+      - code: TMAN
+        display: Transport Media, Anaerobic
+      - code: TMCH
+        display: Transport Media, Chalamydia
+      - code: TMM4
+        display: Transport Media, M4
+      - code: TMMY
+        display: Transport Media, Mycoplasma
+      - code: TMOT
+        display: Transport Media
+      - code: TMP
+        display: Plate, Thayer-Martin
+      - code: TMPV
+        display: Transport Media, PVA
+      - code: TMSC
+        display: Transport Media, Stool Culture
+      - code: TMUP
+        display: Transport Media, Ureaplasma
+      - code: TMVI
+        display: Transport Media, Viral
+      - code: VENIP
+        display: Venipuncture
+      - code: WOOD
+        display: Swab, Wooden Shaft
+
+
+- name: site_of_care
+  system: SNOMED_CT
+  referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
+  values:
+      -   display: Hospital
+          code: 22232009
+      -   display: Hospital ship
+          code: 2081004
+      -   display: Long Term Care Hospital
+          code: 32074000
+      -   display: Secure Hospital
+          code: 224929004
+      -   display: Nursing Home
+          code: 42665001
+      -   display: Retirement Home
+          code: 30629002
+      -   display: Orphanage
+          code: 74056004
+      -   display: Prison-based care site
+          code: 722173008
+      -   display: Substance Abuse Treatment Center
+          code: 20078004
+      -   display: Boarding House
+          code: 257573002
+      -   display: Military Accommodation
+          code: 224683003
+      -   display: Hospice
+          code: 284546000
+      -   display: Hostel
+          code: 257628001
+      -   display: Sheltered Housing
+          code: 310207003
+      -   display: Penal Institution
+          code: 57656006
+      -   display: Religious institutional residence
+          code: 285113009
+      -   display: Work (environment)
+          code: 285141008
+      -   display: Homeless
+          code: 32911000
+      -   display: Unknown
+          code: 261665006

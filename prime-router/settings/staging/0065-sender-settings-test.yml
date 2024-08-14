@@ -1,0 +1,28 @@
+# Run ./prime receiver set --input ./settings/staging/0065-sender-settings-test.yml --env staging
+name: SETTINGS_TEST
+externalName: Used to test putting sender settings into the data, using ignore.ignore-empty
+organizationName: ignore
+topic: covid-19
+customerStatus: active
+jurisdictionalFilter: [ "matches(ordering_facility_county, SETTINGS_TEST)" ]
+qualityFilter: [ "allowAll()" ]
+# These three filters must match the settings for the ignore.ignore-empty Sender.
+routingFilter:
+  - matches(sender_fullname, ignore.ignore-empty)
+  - matches(sender_orgname, ignore)
+processingModeFilter:
+  - matches(processing_mode_code, T)
+timing:
+  operation: MERGE
+  numberPerDay: 1440 # Every minute
+  initialTime: 00:00
+translation:
+  type: CUSTOM
+  schemaName: empty
+  format: CSV
+transport:
+  type: SFTP
+  host: sftp
+  port: 22
+  filePath: ./upload
+  credentialName: DEFAULT-SFTP

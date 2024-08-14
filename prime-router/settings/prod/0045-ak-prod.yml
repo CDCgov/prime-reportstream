@@ -1,0 +1,59 @@
+- name: "ak-phd"
+  description: "Alaska Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "AK"
+  countyName: null
+  senders: []
+  receivers:
+  - name: "elr"
+    organizationName: "ak-phd"
+    topic: "covid-19"
+    translation: !<HL7>
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: null
+      receivingApplicationOID: null
+      receivingFacilityName: null
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {
+        PID-22-3: "CDCREC"
+      }
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: "PID-5-7, ORC-12-1, OBR-16-1"
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      phoneNumberFormatting: "STANDARD"
+      processingModeCode: null
+      replaceDiiWithOid: null
+      useNCESFacilityName: false
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "HL7"
+    jurisdictionalFilter:
+    - "orEquals(ordering_facility_state, AK, patient_state, AK)"
+    qualityFilter: []
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:15"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: ""
+    transport: !<SFTP>
+      host: "sftp-west.inductivehealth.com"
+      port: "22"
+      filePath: "./prod"
+      credentialName: null
+      type: "SFTP"
+    externalName: null

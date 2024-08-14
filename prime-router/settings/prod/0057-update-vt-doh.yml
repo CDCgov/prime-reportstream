@@ -1,0 +1,125 @@
+# ./prime multiple-settings set --env prod --input ./settings/prod/0057-update-vt-doh.yml
+---
+- name: "vt-doh"
+  description: "Vermont Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "VT"
+  countyName: null
+  senders: []
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, VT, patient_state, VT)"
+      qualityFilter:
+        - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob)"
+        - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
+        - "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
+        - "isValidCLIA(testing_lab_clia,reporting_facility_clia)"
+        - "doesNotMatch(processing_mode_code,T,D)"
+  receivers:
+  - name: "elr"
+    organizationName: "vt-doh"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "NBS"
+      receivingApplicationOID: "2.16.840.1.114222.4.1.185.1"
+      receivingFacilityName: "VDH"
+      receivingFacilityOID: "2.16.840.1.114222.4.1.185"
+      messageProfileId: null
+      replaceValue:
+        MSH-3-1: "CDC PRIME - Atlanta,"
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: "OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3"
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: "OBX-23-1"
+      usePid14ForPatientEmail: true
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: true
+      processingModeCode: null
+      replaceDiiWithOid: null
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "HL7"
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:15"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+    description: ""
+    transport: !<SFTP>
+      host: "gs-sftp.ahs.state.vt.us"
+      port: "22"
+      filePath: "./Prod/ToVDH/"
+      credentialName: null
+      type: "SFTP"
+    externalName: null
+  - name: "elr-secondary"
+    organizationName: "vt-doh"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "NBS"
+      receivingApplicationOID: "2.16.840.1.114222.4.1.185.1"
+      receivingFacilityName: "VDH"
+      receivingFacilityOID: "2.16.840.1.114222.4.1.185"
+      messageProfileId: null
+      replaceValue:
+        MSH-3-1: "CDC PRIME - Atlanta,"
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: "OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3"
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: "OBX-23-1"
+      usePid14ForPatientEmail: true
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: true
+      processingModeCode: null
+      replaceDiiWithOid: null
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD_SECONDARY"
+      receivingOrganization: null
+      type: "HL7"
+    reverseTheQualityFilter: true
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:15"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+    description: ""
+    transport: !<SFTP>
+      host: "gs-sftp.ahs.state.vt.us"
+      port: "22"
+      filePath: "./Test/ToVDH/"
+      credentialName: null
+      type: "SFTP"
+    externalName: null

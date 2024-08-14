@@ -1,0 +1,8 @@
+# $schema: ../../../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
+elements:
+  ## PID-14 looks at telecom resources where use = work
+  ## To map email to pid-14 this transform updates telecom.use to work
+  - name: map-email-to-pid-14
+    resource: 'Bundle.entry.resource.ofType(Patient).telecom.where(system = "email")'
+    bundleProperty: '%resource.use'
+    value: [ '"work"' ]

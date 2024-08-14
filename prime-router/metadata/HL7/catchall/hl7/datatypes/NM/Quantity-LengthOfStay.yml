@@ -1,0 +1,18 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+value:
+  type: STRING
+  valueOf: NM.1
+  expressionType: HL7Spec
+
+unit:
+  type: STRING
+  value: days
+
+system:
+  type: STRING
+  value: http://unitsofmeasure.org/
+
+code:
+  type: STRING
+  value: d

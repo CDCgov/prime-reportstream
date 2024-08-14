@@ -1,0 +1,66 @@
+# $schema: ./../../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Location
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+identifier:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    value:
+      type: STRING
+      valueOf: IS
+      expressionType: HL7Spec
+
+status:
+  valueOf: $ndlLocationStatus
+  type: STRING
+  expressionType: HL7Spec
+
+mode:
+  value: 'instance'
+  type: STRING
+
+physicalType:
+  expressionType: nested
+  expressionsMap:
+    coding:
+      expressionType: nested
+      generateList: true
+      expressions:
+        - expressionType: nested
+          expressionsMap:
+            code:
+              condition: $physicalTypeCode NOT_EQUALS poc
+              type: STRING
+              valueOf: $physicalTypeCode
+            _code:
+              condition: $physicalTypeCode EQUALS poc
+              expressionType: nested
+              expressionsMap:
+                extension:
+                  generateList: true
+                  expressionType: nested
+                  expressionsMap:
+                    url:
+                      type: SYSTEM_URL
+                      value: location-physical-type-poc
+                    valueString:
+                      value: "poc"
+            system:
+              type: STRING
+              value: "http://terminology.hl7.org/CodeSystem/location-physical-type"
+
+partOf:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Location
+  condition: $refLocation EQUALS $partOfId
+  vars:
+    refLocation: $BASE_VALUE, GeneralUtils.extractAttribute(refLocation,"$.identifier.value[0].value","String")
+
+

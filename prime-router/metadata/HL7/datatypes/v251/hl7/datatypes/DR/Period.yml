@@ -1,0 +1,51 @@
+# $schema: ./../../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+start:
+  condition: $dateTimeIn NOT_NULL
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: DR.1
+_start:
+  expressionType: nested
+  vars:
+    dr1: DR.1
+  condition: $dr1 NOT_NULL
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: DR.1
+          expressionType: HL7Spec
+
+end:
+  condition: $dateTimeIn NOT_NULL
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: DR.2
+_end:
+  expressionType: nested
+  condition: $dr2 NOT_NULL
+  vars:
+    dr2: DR.2
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: DR.2
+          expressionType: HL7Spec

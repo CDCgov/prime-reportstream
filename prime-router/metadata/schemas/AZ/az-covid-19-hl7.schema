@@ -1,0 +1,18 @@
+---
+# deprecated
+name: az-covid-19-hl7
+description: AZ COVID-19
+referenceUrl: https://www.azdhs.gov/documents/preparedness/epidemiology-disease-control/meaningful-use/az-emr-implementation-guide.pdf
+trackingElement: message_id
+topic: covid-19
+extends: covid-19
+elements:
+  - name: receiving_application
+    default: AZ.DOH.ELR^2.16.840.1.114222.4.3.3.2.9.3^ISO
+
+  - name: receiving_facility
+    default: AZDOH^2.16.840.1.114222.4.1.142^ISO
+
+  - name: message_profile_id
+    default: AZELRIG^ADHS^2.16.840.1.113883.9.31^ISO
+

@@ -1,0 +1,32 @@
+# Run ./prime receiver set --input ./settings/prod/0030-hhsprotect.yml --env prod
+# The change is additions to the juris filter to allow Waters data to flow to hhsprotect
+# Note that the processing_mode_code filter is still set to allow both "T" and "P" data, for now, in Prod.
+---
+name: "elr"
+organizationName: "hhsprotect"
+topic: "covid-19"
+translation: !<CUSTOM>
+  schemaName: "hhsprotect/hhsprotect-covid-19"
+  format: "CSV"
+  defaults: {}
+  nameFormat: "STANDARD"
+  receivingOrganization: null
+  type: "CUSTOM"
+jurisdictionalFilter:
+- "matches(sender_id, SafeHealth,ImageMover,Cue,InBios,Strac,.*CueHlth.*,.*ImageMover.*)"
+qualityFilter:
+- "allowAll()"
+- "doesNotMatch(processing_mode_code,D)"
+reverseTheQualityFilter: false
+deidentify: true
+timing:
+  operation: "MERGE"
+  numberPerDay: 12
+  initialTime: "01:25"
+  timeZone: "EASTERN"
+  maxReportCount: 500
+description: ""
+transport: !<BLOBSTORE>
+  storageName: "PartnerStorage"
+  containerName: "hhsprotect"
+  type: "BLOBSTORE"

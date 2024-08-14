@@ -1,0 +1,12 @@
+name,system,referenceURL,reference,created_by,created_at
+gender,LOCAL,https://www.hhs.gov/sites/default/files/non-lab-based-covid19-test-reporting.pdf,"This maps multiple values to the ReportStream internal (M, F, U, O - Other, A - Ambiguous)", ,
+race,LOCAL,https://phinvads.cdc.gov/vads/ViewValueSet.action?id=B246B692-6DF8-E111-B875-001A4BE7FA90,Map multiple values for Race to the OMB Values to hl70005, ,
+ethnicity,LOCAL,https://www.hl7.org/fhir/v2/0189/index.html,Map multiple ethnicity values to RS internal values, ,
+yesno,LOCAL,https://www.hhs.gov/sites/default/files/non-lab-based-covid19-test-reporting.pdf,"This maps (YES,NO,UNK) to the ReportStream internal hl70136 (Y,N,UNK)", ,
+pregnant,SNOMED_CT,https://loinc.org/82810-3/,Multiple values are mapped to the Pregnancy SNOMED Codes, ,
+residence_type,SNOMED_CT,https://loinc.org/75617-1/,Multiple values are mapped to the HHS guidence for SNOMED-CT, ,
+test_result,SNOMED_CT,https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf,This maps multiple values to the ReportStream internal codes which are SNOMED-CT codes, ,
+specimen_source_site_code,SNOMED_CT,https://phinvads.cdc.gov/vads/ViewValueSet.action?id=9A2D4051-3AA6-42EB-AE88-541C9094B0FB,Subset of the all body structure codes, ,
+specimen_type,SNOMED_CT,https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf,, ,
+state,LOCAL,https://pe.usps.com/text/pub28/28apb.htm,, ,
+patient_preferred_language,ISO,https://phinvads.cdc.gov/vads/ViewValueSet.action?id=43D34BBC-617F-DD11-B38D-00188B398520#,, ,

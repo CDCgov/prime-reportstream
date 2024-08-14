@@ -1,0 +1,140 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+# This extension stores HL7 fields that are either not mapped to FHIR
+# or become ambiguous when mapped
+# URL: https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address
+
+url:
+  type: SYSTEM_URL
+  value: xad-address
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: resource
+      vars:
+        xad1: STRING_ALL, XAD.1
+      condition: $xad1 NOT_NULL
+      valueOf: datatypes/XAD/SADExtension
+      specs: XAD.1
+    - expressionType: nested
+      vars:
+        xad2: STRING_ALL, XAD.2
+      condition: $xad2 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: XAD.2
+        valueString:
+          type: STRING
+          valueOf: XAD.2
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        xad7: STRING_ALL, XAD.7
+      condition: $xad7 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: XAD.7
+        valueCode:
+          type: STRING
+          valueOf: XAD.7
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        xad8: STRING_ALL, XAD.8
+      condition: $xad8 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: XAD.8
+        valueString:
+          type: STRING
+          valueOf: XAD.8
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        xad11: STRING_ALL, XAD.11
+      condition: $xad11 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: XAD.11
+        valueCode:
+          type: STRING
+          valueOf: XAD.11
+          expressionType: HL7Spec
+    # XAD.12 is deprecated in the HAPI HL7 2.7 structures
+    # so there is no spec we can pass, instead we reference the
+    # sub fields directly here
+    - expressionType: nested
+      vars:
+        start: XAD.12.1
+        end: XAD.12.2
+      condition: $start NOT_NULL || $end NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: XAD.12
+        extension:
+          expressionType: nested
+          condition: $start NOT_NULL
+          generateList: true
+          expressions:
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: XAD.12.1
+                valueString:
+                  type: STRING
+                  valueOf: $start
+                  expressionType: HL7Spec
+            - expressionType: nested
+              condition: $end NOT_NULL
+              expressionsMap:
+                url:
+                  type: STRING
+                  value: XAD.12.2
+                valueString:
+                  type: STRING
+                  valueOf: $end
+                  expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        xad13: STRING, XAD.13
+      condition: $xad13 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: XAD.13
+        valueString:
+          type: STRING
+          valueOf: XAD.13
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        xad14: XAD.14
+      condition: $xad14 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: XAD.14
+        valueString:
+          type: STRING
+          valueOf: XAD.14
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        xad19: STRING_ALL, XAD.19
+      condition: $xad19 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: XAD.19
+        valueCode:
+          type: STRING
+          valueOf: XAD.19
+          expressionType: HL7Spec

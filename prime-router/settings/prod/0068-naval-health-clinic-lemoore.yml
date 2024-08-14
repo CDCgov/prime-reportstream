@@ -1,0 +1,17 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0068-naval-health-clinic-lemoore.yml --env prod
+---
+- name: "naval-health-clinic-lemoore"
+  description: "Naval Health Clinic - Lemoore"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "naval-health-clinic-lemoore"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "active"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"

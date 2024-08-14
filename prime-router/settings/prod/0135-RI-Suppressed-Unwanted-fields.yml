@@ -1,0 +1,88 @@
+# ./prime multiple-settings set --env prod --input ./settings/prod/0135-RI-Suppressed-Unwanted-fields.yml
+---
+- name: "ri-phd"
+  description: "Rhode Island Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "RI"
+  countyName: null
+  filters:
+    - topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, RI, patient_state, RI)
+      qualityFilter: null
+      routingFilter: null
+      processingModeFilter: null
+  senders: []
+  receivers:
+    - name: "elr"
+      organizationName: "ri-phd"
+      topic: "covid-19"
+      customerStatus: "inactive"
+      translation: !<HL7>
+        schemaName: "covid-19"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: RI_DOH
+        receivingApplicationOID: null
+        receivingFacilityName: RI_DOH
+        receivingFacilityOID: null
+        reportingFacilityName: null
+        reportingFacilityId: null
+        suppressQstForAoe: false
+        truncateHDNamespaceIds: true
+        suppressHl7Fields: ORC-12-1, OBR-16-1, PID-5-7
+        truncateHl7Fields: null
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB: {}
+        reportingFacilityIdType: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, RI, patient_state, RI)"
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:20"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<SFTP>
+        host: "sftp-east.inductivehealth.com"
+        port: "22"
+        filePath: "/ELR/SimpleReport/Prod"
+        credentialName: null
+        type: "SFTP"
+      transport: null
+      externalName: null
+      timeZone: EASTERN
+      dateTimeFormat: LOCAL

@@ -1,0 +1,279 @@
+---
+- name: "ignore"
+  description: "FOR TESTING ONLY"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  senders:
+  - name: "ignore-strac"
+    organizationName: "ignore"
+    format: "CSV"
+    topic: "covid-19"
+    schemaName: "strac/strac-covid-19"
+  - name: "ignore-simple-report"
+    organizationName: "ignore"
+    format: "CSV"
+    topic: "covid-19"
+    schemaName: "primedatainput/pdi-covid-19"
+  - name: "ignore-waters"
+    organizationName: "ignore"
+    format: "CSV"
+    topic: "covid-19"
+    schemaName: "waters/waters-covid-19"
+  - name: "ignore-empty"
+    organizationName: "ignore"
+    format: "CSV"
+    topic: "covid-19"
+    schemaName: "empty"
+  receivers:
+  - name: "HL7_BATCH"
+    organizationName: "ignore"
+    topic: "covid-19"
+    translation: !<CUSTOM>
+      schemaName: "az/az-covid-19-hl7"
+      format: "HL7_BATCH"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "matches(ordering_facility_state, IG)"
+    - "matches(ordering_facility_county, HL7_BATCH)"
+    qualityFilter: []
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+    description: ""
+    transport: !<SFTP>
+      host: "10.0.2.4"
+      port: "22"
+      filePath: "./upload"
+      type: "SFTP"
+  - name: "HL7_NULL"
+    organizationName: "ignore"
+    topic: "covid-19"
+    translation: !<CUSTOM>
+      schemaName: "tx/tx-covid-19"
+      format: "HL7"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "matches(ordering_facility_state, IG)"
+    - "matches(ordering_facility_county, HL7_NULL)"
+    qualityFilter: []
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+    description: ""
+    transport: !<NULL>
+      dummy: null
+      type: "NULL"
+  - name: "SFTP_FAIL"
+    organizationName: "ignore"
+    topic: "covid-19"
+    translation: !<CUSTOM>
+      schemaName: "az/az-covid-19-hl7"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "matches(ordering_facility_state, IG)"
+    - "matches(ordering_facility_county, SFTP_FAIL)"
+    qualityFilter: []
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+    description: ""
+    transport: !<SFTP>
+      host: "sftp_FAIL_BAD"
+      port: "2222"
+      filePath: "./upload_FAIL"
+      type: "SFTP"
+  - name: "BLOBSTORE"
+    organizationName: "ignore"
+    topic: "covid-19"
+    translation: !<CUSTOM>
+      schemaName: "hhsprotect/hhsprotect-covid-19"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "matches(ordering_facility_state, IG)"
+    - "matches(ordering_facility_county, BLOBSTORE)"
+    qualityFilter: []
+    reverseTheQualityFilter: false
+    deidentify: true
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: ""
+    transport: !<BLOBSTORE>
+      storageName: "PartnerStorage"
+      containerName: "hhsprotect"
+      type: "BLOBSTORE"
+  - name: "QUALITY_ALL"
+    organizationName: "ignore"
+    topic: "covid-19"
+    translation: !<CUSTOM>
+      schemaName: "empty"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "matches(ordering_facility_state, IG)"
+    - "matches(ordering_facility_county, QUALITY_ALL)"
+    qualityFilter:
+    - "allowAll()"
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing: null
+    description: ""
+    transport: null
+  - name: "QUALITY_FAIL"
+    organizationName: "ignore"
+    topic: "covid-19"
+    translation: !<CUSTOM>
+      schemaName: "empty"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "matches(ordering_facility_state, IG)"
+    - "matches(ordering_facility_county, QUALITY_FAIL)"
+    qualityFilter:
+    - "hasValidDataFor(blankField)"
+    - "hasAtLeastOneOf(message_id,blankField)"
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing: null
+    description: ""
+    transport: null
+  - name: "CSV"
+    organizationName: "ignore"
+    topic: "covid-19"
+    translation: !<CUSTOM>
+      schemaName: az/pima-az-covid-19
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "matches(ordering_facility_state, IG)"
+    - "matches(ordering_facility_county, CSV)"
+    qualityFilter:
+    - "allowAll()"
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+    description: "For testing only."
+    transport: !<SFTP>
+      host: "10.0.2.4"
+      port: "22"
+      filePath: "./upload"
+      type: "SFTP"
+  - name: "HL7"
+    organizationName: "ignore"
+    topic: "covid-19"
+    translation: !<CUSTOM>
+      schemaName: "fl/fl-covid-19"
+      format: "HL7"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "matches(ordering_facility_state, IG)"
+    - "matches(ordering_facility_county, HL7)"
+    qualityFilter: []
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: ""
+    transport: !<SFTP>
+      host: "10.0.2.4"
+      port: "22"
+      filePath: "./upload"
+      type: "SFTP"
+  - name: "QUALITY_PASS"
+    organizationName: "ignore"
+    topic: "covid-19"
+    translation: !<CUSTOM>
+      schemaName: "empty"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "standard"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "matches(ordering_facility_state, IG)"
+    - "matches(ordering_facility_county, QUALITY_PASS, removed)"
+    qualityFilter:
+    - "hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)"
+    - "hasAtLeastOneOf(message_id,blankField)"
+    - "matches(ordering_facility_county, QUALITY_PASS)"
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing: null
+    description: ""
+    transport: null
+  - name: "QUALITY_REVERSED"
+    organizationName: "ignore"
+    topic: "covid-19"
+    translation: !<CUSTOM>
+      schemaName: "empty"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "standard"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "matches(ordering_facility_state, IG)"
+    - "matches(ordering_facility_county, QUALITY_REVERSED, kept)"
+    qualityFilter:
+    - "hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)"
+    - "hasAtLeastOneOf(message_id,blankField)"
+    - "matches(ordering_facility_county, QUALITY_REVERSED)"
+    reverseTheQualityFilter: true
+    deidentify: false
+    timing: null
+    description: ""
+    transport: null

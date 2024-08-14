@@ -1,0 +1,38 @@
+# ./prime multiple-settings set --env staging --input ./settings/staging/0132-limsabc-nova-to-prod
+# NOTE: Updated from UI
+---
+- name: limsabc-nova
+  description: Nova Labnetics
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: limsabc-nova
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/hl7-ingest-covid-19-prod
+      format: HL7
+#- name: "hhsprotect"
+#  description: "HHSProtect"
+#  jurisdiction: "FEDERAL"
+#  receivers:
+#    - name: "elr"
+#      organizationName: "hhsprotect"
+#      topic: "covid-19"
+#      customerStatus: active
+#      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,reopenlab,limsabc-nova,geneus-diagnostics,clxhealth)" ]
+#      qualityFilter: [ "allowAll()" ]
+#      translation:
+#        type: "CUSTOM"
+#        schemaName: "hhsprotect/hhsprotect-covid-19"
+#        format: "CSV"
+#      deidentify: true
+#      deidentifiedValue: "<DEIDENTIFIED>"
+#      timing:
+#        operation: "MERGE"
+#        numberPerDay: 1440
+#        initialTime: "00:00"
+#        timeZone: "EASTERN"
+#      transport:
+#        type: BLOBSTORE
+#        storageName: PartnerStorage
+#        containerName: hhsprotect

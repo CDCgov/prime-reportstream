@@ -1,0 +1,15 @@
+# $schema: ../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
+extends: classpath:/fhir_sender_transforms/test_base_schema.yml
+elements:
+  - name: note
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0]'
+    bundleProperty: '%resource.id'
+    value: [ '"extensionId"' ]
+  - name: observations
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0].result.resolve()'
+    resourceIndex: observationIndex
+    schema: classpath:/fhir_sender_transforms/observation.yml
+  - name: id
+    resource: 'Bundle.entry.resource.ofType(Patient)[0]'
+    bundleProperty: '%resource.id'
+    value: [ '"123456"' ]

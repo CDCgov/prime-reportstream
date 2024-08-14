@@ -1,0 +1,25 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Location
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+type:
+  expressionType: resource
+  valueOf: datatypes/CWE/CodeableConcept
+  specs: DLD.1
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: dld2-effective-date
+    valueString:
+      valueOf: DLD.2
+      type: STRING
+      expressionType: HL7Spec

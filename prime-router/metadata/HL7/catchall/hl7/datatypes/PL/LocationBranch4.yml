@@ -1,0 +1,82 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Location
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+identifier:
+  generateList: true
+  expressionType: nested
+  vars:
+    pl7: STRING_ALL, PL.7
+    pl4: STRING_ALL, PL.4
+  expressions:
+    - expressionType: nested
+      condition: $pl7 NOT_NULL
+      generateList: true
+      expressions:
+        - expressionType: resource
+          valueOf: datatypes/HD/Identifier/IdentifierNamespaceId
+          specs: PL.7
+        - expressionType: resource
+          valueOf: datatypes/HD/Identifier/IdentifierUniversalId
+          specs: PL.7
+    - expressionType: nested
+      condition: $pl7 NULL && $pl4 NOT_NULL
+      generateList: true
+      expressions:
+        - expressionType: resource
+          valueOf: datatypes/HD/Identifier/IdentifierNamespaceId
+          specs: PL.4
+        - expressionType: resource
+          valueOf: datatypes/HD/Identifier/IdentifierUniversalId
+          specs: PL.4
+
+
+
+physicalType:
+  expressionType: nested
+  vars:
+    pl7: STRING_ALL, PL.7
+    pl4: STRING_ALL, PL.4
+  constants:
+    system: "http://terminology.hl7.org/CodeSystem/location-physical-type"
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        coding:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            code:
+              valueOf: "bu"
+            system:
+              valueOf: $system
+      condition: $pl7 NOT_NULL
+    - expressionType: nested
+      expressionsMap:
+        coding:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            code:
+              valueOf: "si"
+            system:
+              valueOf: $system
+      condition: $pl7 NULL && $pl4 NOT_NULL
+
+
+partOf:
+  expressionType: nested
+  vars:
+    pl7: STRING_ALL, PL.7
+    pl4: STRING_ALL, PL.4
+  condition: $pl7 NOT_NULL
+  expressions:
+    - expressionType: reference
+      condition: $pl4 NOT_NULL
+      valueOf: datatypes/PL/LocationBranch5
+      specs: $BASE_VALUE

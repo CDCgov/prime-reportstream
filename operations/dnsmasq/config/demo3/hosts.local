@@ -1,0 +1,31 @@
+##############
+# Key Vaults #
+##############
+
+10.0.5.5  pdhdemo3-appconfigjeo.vaultcore.azure.net pdhdemo3-appconfigjeo.privatelink.vaultcore.azure.net
+10.0.5.15 pdhdemo3-clientconfigjeo.vaultcore.azure.net pdhdemo3-clientconfigjeo.privatelink.vaultcore.azure.net
+10.0.5.4  pdhdemo3-keyvaultjeo.vaultcore.azure.net pdhdemo3-keyvaultjeo.privatelink.vaultcore.azure.net
+
+
+#############
+# Databases #
+#############
+
+10.0.5.8  pdhdemo3-pgsql.postgres.database.azure.com pdhdemo3-pgsql.privatelink.postgres.database.azure.com
+
+
+####################
+# Storage Accounts #
+####################
+
+10.0.5.12 pdhdemo3storageaccount.blob.core.windows.net pdhdemo3storageaccount.privatelink.blob.core.windows.net
+10.0.5.13 pdhdemo3storageaccount.file.core.windows.net pdhdemo3storageaccount.privatelink.file.core.windows.net
+10.0.5.14 pdhdemo3storageaccount.queue.core.windows.net pdhdemo3storageaccount.privatelink.queue.core.windows.net
+
+10.0.5.6  pdhdemo3partner.blob.core.windows.net pdhdemo3partner.privatelink.blob.core.windows.net
+
+10.0.5.9  pdhdemo3candidate.blob.core.windows.net pdhdemo3candidate.privatelink.blob.core.windows.net
+10.0.5.11 pdhdemo3candidate.file.core.windows.net pdhdemo3candidate.privatelink.file.core.windows.net
+10.0.5.10 pdhdemo3candidate.queue.core.windows.net pdhdemo3candidate.privatelink.queue.core.windows.net
+
+10.0.5.7  pdhdemo3candpartner.blob.core.windows.net pdhdemo3candpartner.privatelink.blob.core.windows.net

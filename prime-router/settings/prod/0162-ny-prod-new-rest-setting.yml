@@ -1,0 +1,278 @@
+# To submit this to localhost, run:
+#
+# ./prime multiple-settings set --env prod --input ./settings/prod/0162-ny-prod-new-rest-setting.yml
+---
+- name: "ny-phd"
+  description: "New York Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "NY"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+  - name: "full-elr-test"
+    organizationName: "ny-phd"
+    topic: "full-elr"
+    customerStatus: "testing"
+    translation: !<HL7>
+      schemaName: "metadata/hl7_mapping/receivers/STLTs/NY/NY-receiver-transform"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "ECLRS"
+      receivingApplicationOID: null
+      receivingFacilityName: "NYSDOH"
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB:
+        MSH-4-1:
+        - '*': "CDC PRIME REPORTSTREAM"
+        MSH-4-2:
+        - '*': "10DRPTSTRM"
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+    - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'NY') or (Bundle.entry.resource.ofType(Patient).address.state.exists()\
+      \ and Bundle.entry.resource.ofType(Patient).address.state = 'NY')"
+    qualityFilter: []
+    routingFilter: []
+    processingModeFilter:
+    - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'T'"
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<REST>
+      reportUrl: "https://api2.health.ny.gov/services/uphn/openapi/V1.0/ECLRSPRE"
+      authTokenUrl: "https://api2.health.ny.gov/token"
+      authType: null
+      tlsKeystore: "NY-PHD--ELR--JKS"
+      parameters: {}
+      headers:
+        UPHN-INFOMAP: "{\"properties\":\"labClia=10DRPTSTRM,target=NYS,content=L,format=HL7\"\
+          }"
+        Content-Type:  "multipart/form-data"
+        Key: "payload"
+      type: "REST"
+    externalName: "full-elr-test"
+    timeZone: null
+    dateTimeFormat: "OFFSET"
+  - name: "full-elr"
+    organizationName: "ny-phd"
+    topic: "full-elr"
+    customerStatus: "testing"
+    translation: !<HL7>
+      schemaName: "metadata/hl7_mapping/receivers/STLTs/NY/NY-receiver-transform"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "ECLRS"
+      receivingApplicationOID: null
+      receivingFacilityName: "NYSDOH"
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB:
+        MSH-4-1:
+        - '*': "CDC PRIME REPORTSTREAM"
+        MSH-4-2:
+        - '*': "10DRPTSTRM"
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+    - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'NY') or (Bundle.entry.resource.ofType(Patient).address.state.exists()\
+      \ and Bundle.entry.resource.ofType(Patient).address.state = 'NY')"
+    qualityFilter: []
+    routingFilter: []
+    processingModeFilter:
+    - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P'"
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<REST>
+      reportUrl: "https://api2.health.ny.gov/services/uphn/openapi/V1.0/ECLRSPOST"
+      authTokenUrl: "https://api2.health.ny.gov/token"
+      authType: null
+      tlsKeystore: "NY-PHD--ELR--JKS"
+      parameters: {}
+      headers:
+        UPHN-INFOMAP: "{\"properties\":\"labClia=10DRPTSTRM,target=NYS,content=L,format=HL7\"\
+          }"
+        Content-Type:  "multipart/form-data"
+        Key: "payload"
+      type: "REST"
+    externalName: "full-elr"
+    timeZone: null
+    dateTimeFormat: "OFFSET"
+  - name: "elr"
+    organizationName: "ny-phd"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "ECLRS"
+      receivingApplicationOID: null
+      receivingFacilityName: "NYSDOH"
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB:
+        MSH-4-1:
+        - '*': "CDC PRIME REPORTSTREAM"
+        MSH-4-2:
+        - '*': "10DRPTSTRM"
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+    - "orEquals(ordering_facility_state, NY, patient_state, NY)"
+    qualityFilter: []
+    routingFilter:
+    - "DoesNotMatch(sender_id, simple_report)"
+    - "DoesNotMatch(test_performed_code, 85478-6,76080-1,92141-1,80383-3,82170-2,85477-8,76078-5,77026-3,77028-9,77027-1,92142-9,80382-5,82166-0,82167-8,82169-4,82168-6,92809-3,92808-5,95423-0)"
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:20"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<REST>
+      reportUrl: "https://api2.health.ny.gov/services/uphn/openapi/V1.0/ECLRSPOST"
+      authTokenUrl: "https://api2.health.ny.gov/token"
+      authType: null
+      tlsKeystore: "NY-PHD--ELR--JKS"
+      parameters: {}
+      headers:
+        UPHN-INFOMAP: "{\"properties\":\"labClia=10DRPTSTRM,target=NYS,content=L,format=HL7\"\
+          }"
+        Content-Type:  "multipart/form-data"  # Added for sending multipart/form-data or file format message content
+        Key: "payload"  # Added for the key value as payload.
+      type: "REST"
+    externalName: "ELR Primary"
+    timeZone: null
+    dateTimeFormat: "OFFSET"

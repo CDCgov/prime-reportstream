@@ -1,0 +1,154 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+# MSH.10 is captured through Bundle.Identifier
+resourceType: MessageHeader
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+eventCoding:
+  expressionType: resource
+  valueOf: datatypes/MSG/Coding
+  specs: MSH.9
+  required: true
+
+meta:
+  expressionType: resource
+  valueOf: datatypes/PT/Meta
+  specs: MSH.11
+  vars:
+    metaSecurity: STRING, MSH.8
+
+source:
+  expressionType: nested
+  vars:
+    msh3: STRING_ALL, MSH.3
+    msh24: STRING_ALL, MSH.24
+  expressions:
+    - constants:
+        messageHeaderSourceField: MSH.3
+      condition: $msh3 NOT_NULL
+      valueOf: segments/MSH/datatypes/HD/Source
+      expressionType: resource
+      specs: MSH.3
+    - constants:
+        messageHeaderSourceField: MSH.24
+      condition: $msh3 NULL && $msh24 NOT_NULL
+      valueOf: segments/MSH/datatypes/HD/Source
+      expressionType: resource
+      specs: MSH.24
+
+sender:
+  condition: $msh4 NOT_NULL || $organizationCountry NOT_NULL
+  valueOf: datatypes/HD/Organization
+  expressionType: reference
+  generateList: true
+  specs: MSH.4
+  vars:
+    organizationCountry: MSH.17
+    msh4: STRING_ALL, MSH.4
+
+destination:
+  vars:
+    msh6: MSH.6
+    msh23: MSH.23
+    msh5: STRING_ALL, MSH.5
+    msh25: STRING_ALL, MSH.25
+  expressionType: nested
+  generateList: true
+  expressions:
+    - constants:
+        messageHeaderDestinationField: MSH.5
+      condition: $msh5 NOT_NULL
+      expressionType: resource
+      valueOf: segments/MSH/datatypes/HD/Destination
+      specs: MSH.5
+    - constants:
+        messageHeaderDestinationField: MSH.25
+      condition: $msh25 NOT_NULL && $msh25 NOT_EQUALS $msh5
+      valueOf: segments/MSH/datatypes/HD/Destination
+      expressionType: resource
+      specs: MSH.25
+    - constants:
+        messageHeaderDestinationField: MSH.25
+      condition: $msh25 NOT_NULL && $msh5 NULL
+      valueOf: segments/MSH/datatypes/HD/Destination
+      expressionType: resource
+      specs: MSH.25
+    - expressionType: nested
+      condition: $msh6 NOT_NULL && $msh5 NULL && $msh25 NULL
+      constants:
+        hdOrganizationHL7Field: MSH.6
+      expressionsMap:
+        receiver:
+          expressionType: reference
+          valueOf: datatypes/HD/Organization
+          specs: MSH.6
+    - expressionType: nested
+      condition: $msh6 NOT_NULL && $msh23 NOT_NULL
+      constants:
+        XONHL7Field: MSH.23
+      expressionsMap:
+        receiver:
+          expressionType: reference
+          valueOf: datatypes/XON/Organization
+          specs: MSH.23
+
+language:
+  vars:
+    cwe1: MSH.19.1
+  expressionType: nested
+  expressions:
+    - condition: $cwe1 NOT_NULL
+      valueOf: MSH.19.1
+      type: STRING
+      expressionType: HL7Spec
+    - condition: $cwe1 NULL
+      valueOf: MSH.19.4
+      type: STRING
+      expressionType: HL7Spec
+
+# MSH.12 is hardcoded to 2.5.1
+extension_messageHeader:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - condition: $msh2 NOT_NULL && $msh2 EQUALS_STRING ^~\&#
+      expressionType: nested
+      vars:
+        msh2: String, MSH.2
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: encoding-characters
+        valueString:
+          type: STRING
+          valueOf: MSH.2
+          expressionType: HL7Spec
+    - condition: $msh18 NOT_NULL
+      expressionType: nested
+      vars:
+        msh18: STRING_ALL, MSH.18
+      specs: MSH.18 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: character-set
+        valueString:
+          generateList: true
+          type: STRING
+          valueOf: $BASE_VALUE
+          expressionType: HL7Spec
+    - expressionType: resource
+      valueOf: segments/MSH/MSHExtension
+
+responsible:
+  vars:
+    msh22: MSH.22
+  condition: $msh22 NOT_NULL
+  expressionType: reference
+  valueOf: datatypes/XON/Organization
+  specs: MSH.22

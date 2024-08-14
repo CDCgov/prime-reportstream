@@ -1,0 +1,242 @@
+---
+name: strac-covid-19
+description: STRAC POC COVID-19 flat file
+topic: covid-19
+trackingElement: placer_order_id # placer_order_id is the internal STRAC id number
+basedOn: covid-19
+elements:
+  - name: sender_id
+    cardinality: ONE
+    default: Strac
+    csvFields: [{name: senderId}]
+
+  - name: reporting_facility_name
+    csvFields: [{name: reporting_facility_name}]
+
+  - name: reporting_facility_clia
+    csvFields: [{name: reporting_facility_CLIA}]
+
+  - name: ordering_facility_name
+    csvFields: [{name: Ordering_Facility_Name}]
+
+  - name: ordering_facility_phone_number
+    csvFields: [{name: Ordering_Facility_Phone_Number}]
+
+  - name: ordering_facility_street
+    csvFields: [{name: Ordering_Facility_Address}]
+
+  - name: ordering_facility_city
+    csvFields: [{name: Ordering_Facility_City}]
+
+  - name: ordering_facility_state
+    csvFields: [{name: Ordering_Facility_State}]
+
+  - name: ordering_facility_county
+    csvFields: [{name: Ordering_Facility_County}]
+
+  - name: ordering_facility_zip_code
+    csvFields: [{name: Ordering_Facility_ZIP, format: $zipFive}]
+
+  - name: ordering_provider_street
+    csvFields: [{name: Ordering_Provider_Address}]
+
+  - name: ordering_provider_state
+    csvFields: [{name: Ordering_Provider_State}]
+
+  - name: ordering_provider_zip_code
+    csvFields: [{name: Ordering_Provider_ZIP, format: $zipFive}]
+
+  - name: placer_order_id
+    type: ID
+    csvFields: [{name: id}]
+
+  - name: filler_order_id
+    type: ID
+    csvFields: [{name: kit_id}]
+
+  - name: strac_patient_appt_datetime
+    type: DATETIME
+    csvFields: [{name: patient_appt_datetime}]
+
+  - name: patient_first_name
+    csvFields: [{name: patient_first_name}]
+
+  - name: patient_last_name
+    csvFields: [{name: patient_last_name}]
+
+  - name: patient_street
+    csvFields: [{name: patient_address}]
+
+  - name: patient_street2
+    csvFields: [{name: patient_address2}]
+
+  - name: patient_phone_number
+    csvFields: [{name: patient_callback_number}]
+
+  - name: patient_city
+    csvFields: [{name: patient_city}]
+
+  - name: patient_county
+    csvFields: [{name: patient_county}]
+
+  - name: patient_drivers_license
+    csvFields: [{name: patient_dl}]
+
+  - name: patient_dob
+    csvFields: [{name: patient_dob}]
+
+  - name: patient_email
+    csvFields: [{name: patient_email}]
+
+  - name: patient_ethnicity
+    csvFields: [{name: patient_ethnicity}]
+
+  - name: pregnant
+    csvFields: [{name: patient_pregnant, format: $display}]
+
+  - name: patient_race
+    csvFields: [{name: patient_race, format: $code}]
+
+  - name: test_result_date
+    csvFields: [{name: patient_results}]
+
+  - name: date_result_released
+    mapper: use(test_result_date)
+
+  - name: patient_gender
+    csvFields: [{name: patient_sex}]
+
+  - name: patient_state
+    csvFields: [{name: patient_state}]
+
+  - name: illness_onset_date
+    csvFields: [{name: patient_symptom_onset}]
+
+  - name: patient_zip_code
+    csvFields: [{name: patient_zip, format: $zipFive}]
+
+  - name: test_result
+    csvFields: [{name: patient_positive, format: $alt}]
+    altValues:
+      - code: 260373001
+        display: positive
+      - code: 260415000
+        display: negative
+      - code: 455371000124106
+        display: invalid
+      - code: 720735008
+        display: Presumptive positive
+      - code: 10828004
+        display: Positive
+      - code: 42425007
+        display: Equivocal
+      - code: 260385009
+        display: Negative
+      - code: 895231008
+        display: Not detected in pooled specimen
+      - code: 462371000124108
+        display: Detected in pooled specimen
+      - code: 419984006
+        display: Inconclusive
+      - code: 125154007
+        display: Specimen unsatisfactory for evaluation
+      - code: 840539006
+        display: Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+        version: 20200309
+      - code: 840544004
+        display: Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+        version: 20200309
+      - code: 840546002
+        display: Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+        version: 20200309
+      - code: 840533007
+        display: Severe acute respiratory syndrome coronavirus 2 (organism)
+        version: 20200309
+      - code: 840536004
+        display: Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+        version: 20200309
+      - code: 840535000
+        display: Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+        version: 20200309
+      - code: 840534001
+        display: Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+        version: 20200309
+
+
+  # Base all LVID values on this mapper
+  - name: equipment_model_name
+    mapper:
+    default: BinaxNOW COVID-19 Ag Card
+    csvFields: [{name: equipment_model_name }]
+
+  #
+  # These are the mapping of these fields into
+  #
+  - name: ordered_test_code
+
+  - name: ordered_test_name
+
+  - name: ordered_test_system
+
+  - name: order_test_date
+    mapper: use(strac_patient_appt_datetime)
+
+  - name: reference_range
+    default: Not Detected
+
+  - name: specimen_type
+    default: 258500001
+
+  - name: specimen_collection_date_time
+    mapper: use(strac_patient_appt_datetime)
+
+  - name: specimen_received_date_time
+    type: TEXT
+    mapper: use(strac_patient_appt_datetime)
+
+  - name: abnormal_flag
+
+  - name: test_result_status
+    default: F
+
+  - name: testing_lab_name
+    mapper: use(ordering_facility_name)
+
+  - name: testing_lab_street
+    mapper: use(ordering_facility_street)
+
+  - name: testing_lab_city
+    mapper: use(ordering_facility_city)
+
+  - name: testing_lab_state
+    mapper: use(ordering_facility_state)
+
+  - name: testing_lab_zip_code
+    mapper: use(ordering_facility_zip_code)
+
+  # After some discussion, the placer_order_id was the best choice until STRAC provides a true patient_id
+  - name: patient_id
+    mapper: use(placer_order_id)
+
+  - name: patient_id_type
+    mapper: ifPresent(patient_id, PI)
+
+  - name: message_id
+    mapper: use(placer_order_id)
+
+  # the kit_id is the serial number on the test kit
+  - name: specimen_id
+    mapper: use(filler_order_id)
+
+  # reporting facility and testing lab operate under the same CLIA with STRAC
+  - name: testing_lab_clia
+    mapper: use(reporting_facility_clia)
+
+  # these fields are calculated, but not outputted, for filtering purposes
+  - name: test_authorized_for_otc
+  - name: test_authorized_for_home
+  - name: test_authorized_for_unproctored
+
+  # the ordering provider needs to be filled in as well
+  - name: ordering_provider_city
+    mapper: use(ordering_facility_city)

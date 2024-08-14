@@ -1,0 +1,11 @@
+# $schema: ../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
+elements:
+  - name: note
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0]'
+    bundleProperty: '%resource.id'
+    value: [ '"baseid"' ]
+
+  - name: placeholder-element
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    bundleProperty: '%resource.name.text'
+    value: [ '"placeholder value"' ]

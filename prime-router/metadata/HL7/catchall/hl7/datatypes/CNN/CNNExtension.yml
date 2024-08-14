@@ -1,0 +1,70 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  valueOf: cnn-practitioner
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        cnn3: STRING_ALL, CNN.3
+      condition: $cnn3 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          valueOf: CNN.3
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CNN.3
+    - expressionType: nested
+      vars:
+        cnn4: STRING_ALL, CNN.4
+      condition: $cnn4 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          valueOf: CNN.4
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CNN.4
+    - expressionType: nested
+      vars:
+        cnn5: STRING_ALL, CNN.5
+      condition: $cnn5 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          valueOf: CNN.5
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CNN.5
+    - expressionType: nested
+      vars:
+        cnn7: STRING_ALL, CNN.7
+      condition: $cnn7 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          valueOf: CNN.7
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CNN.7
+    - expressionType: nested
+      vars:
+        cnn8: STRING_ALL, CNN.8
+      condition: $cnn8 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          valueOf: CNN.8
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CNN.8

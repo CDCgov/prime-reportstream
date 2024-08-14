@@ -1,0 +1,86 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: pid-patient
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: nested
+      specs: PID.8
+      condition: $pid8 NOT_NULL
+      vars:
+        pid8: STRING_ALL, PID.8
+      expressionsMap:
+        url:
+          type: STRING
+          value: PID.8
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: PID.18
+      condition: $pid18 NOT_NULL
+      generateList: true
+      vars:
+        pid18: STRING_ALL, PID.18
+      expressionsMap:
+        url:
+          type: STRING
+          value: PID.18
+        valueIdentifier:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
+          constants:
+            CXIdentifierField: PID.18
+    - expressionType: nested
+      condition: $pid24 NOT_NULL
+      vars:
+        pid24: STRING_ALL, PID.24
+      expressionsMap:
+        url:
+          type: STRING
+          value: PID.24
+        valueString:
+          type: STRING
+          valueOf: PID.24
+          expressionType: HL7Spec
+    - expressionType: nested
+      condition: $pid30 NOT_NULL
+      vars:
+        pid30: STRING_ALL, PID.30
+      expressionsMap:
+        url:
+          type: STRING
+          value: PID.30
+        valueString:
+          type: STRING
+          valueOf: PID.30
+          expressionType: HL7Spec
+    - expressionType: nested
+      specs: PID.32 *
+      generateList: true
+      condition: $pid32 NOT_NULL
+      vars:
+        pid32: STRING_ALL, PID.32
+      expressionsMap:
+        url:
+          type: STRING
+          value: PID.32
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: PID.38 *
+      condition: $pid38 NOT_NULL
+      vars:
+        pid38: STRING_ALL, PID.38
+      expressionsMap:
+        url:
+          type: STRING
+          value: PID.38
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource

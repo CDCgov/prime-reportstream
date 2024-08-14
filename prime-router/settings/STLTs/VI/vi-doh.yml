@@ -1,0 +1,69 @@
+# $schema: ./../../../metadata/json_schema/organizations/organizations.json
+
+- name: vi-doh
+  description: Virgin Islands
+  jurisdiction: STATE
+  stateCode: "VI"
+  receivers:
+    - name: elr
+      externalName:
+      organizationName: vi-doh
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'VI') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'VI')" ]
+      qualityFilter: [ ]
+      conditionFilter: [ ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/VI/VI-receiver-transform"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: null
+        receivingApplicationOID: null
+        receivingFacilityName: null
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: { }
+        replaceValueAwithB: { }
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: { }
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: { }
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: false
+          truncateHl7Fields: [ ]
+          customLengthHl7Fields: { }
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP

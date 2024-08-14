@@ -1,0 +1,17 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0094-quantgene-ca.yml --env staging
+---
+- name: "quantgene-ca"
+  description: "Quantgene in CA - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "quantgene-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"

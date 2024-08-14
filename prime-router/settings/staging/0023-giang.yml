@@ -1,0 +1,30 @@
+---
+name: "huge"
+organizationName: "waters"
+topic: "covid-19"
+translation: !<CUSTOM>
+  schemaName: "waters/waters-covid-19"
+  format: "CSV"
+  defaults: {}
+  nameFormat: "STANDARD"
+  receivingOrganization: null
+  type: "CUSTOM"
+jurisdictionalFilter:
+- "hasAtLeastOneOf(waters_submitter, sender_id)"
+- "orEquals(patient_state, HG, ordering_facility_state, HG)"
+qualityFilter:
+- "allowAll()"
+reverseTheQualityFilter: false
+deidentify: true
+timing:
+  operation: "MERGE"
+  numberPerDay: 48
+  initialTime: "00:30"
+  timeZone: "EASTERN"
+  maxReportCount: 5000
+description: ""
+transport: !<SFTP>
+  host: "3.217.175.115"
+  port: "22"
+  filePath: "./public/huge"
+  type: "SFTP"

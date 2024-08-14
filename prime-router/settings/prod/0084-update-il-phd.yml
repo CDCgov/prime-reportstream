@@ -1,0 +1,113 @@
+# ./prime multiple-settings set --env prod --input ./settings/prod/0084-update-il-phd.yml
+---
+- name: "il-phd"
+  description: "Illinois Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "IL"
+  countyName: null
+  senders: []
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, IL, patient_state, IL)"
+      qualityFilter: []
+  receivers:
+  - name: "elr-secondary"
+    organizationName: "il-phd"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: null
+      receivingApplicationOID: null
+      receivingFacilityName: null
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      reportingFacilityName: "CDC PRIME"
+      reportingFacilityId: "11D2030855"
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: true
+      defaultAoeToUnknown: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: "OBX-23-1, ORC-21-1"
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: true
+      processingModeCode: null
+      replaceDiiWithOid: null
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD_SECONDARY"
+      receivingOrganization: null
+      type: "HL7"
+    reverseTheQualityFilter: true
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:15"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: ""
+    transport: null
+    externalName: "Secondary Feed"
+  - name: "elr"
+    organizationName: "il-phd"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: null
+      receivingApplicationOID: null
+      receivingFacilityName: null
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      reportingFacilityName: "CDC PRIME"
+      reportingFacilityId: "11D2030855"
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: true
+      defaultAoeToUnknown: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: "OBX-23-1, ORC-21-1"
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: true
+      processingModeCode: null
+      replaceDiiWithOid: null
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "HL7"
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:15"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: ""
+    transport: !<SFTP>
+      host: "moveit.illinois.gov"
+      port: "22"
+      filePath: "/Distribution/DPH/LabData/HL7-251/"
+      credentialName: null
+      type: "SFTP"
+    externalName: "Primary Feed"

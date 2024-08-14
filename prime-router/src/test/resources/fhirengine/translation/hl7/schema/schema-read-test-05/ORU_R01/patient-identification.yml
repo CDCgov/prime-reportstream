@@ -1,0 +1,16 @@
+elements:
+  - name: patient-segment-set-id
+    value:
+      - '1'
+    hl7Spec:
+      - /PATIENT_RESULT/PATIENT/PID-1
+
+  - name: patient-name
+    condition: '%resource is Patient and %resource.name.family.exists()'
+    required: true
+    schema: classpath:/fhirengine/translation/hl7/schema/schema-read-test-05/ORU_R01/patient-name.yml
+
+  - name: name-type-code
+    condition: '%resource is Patient and %resource.exists()'
+    required: true
+    schema: classpath:/fhirengine/translation/hl7/schema/schema-read-test-05/ORU_R01/patient-identification-code.yml

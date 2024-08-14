@@ -1,0 +1,75 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+# When annotationText is a concatenation of multiple NTE records, the first NTE.5 is used
+# to create the practitioner reference.  Other NTE.5's are ignored.
+
+
+# NTE.5 is not available in 2.5.1 version of the spec
+authorReference:
+  condition: $performer NOT_NULL
+  valueOf: datatypes/XCN/Practitioner
+  expressionType: reference
+  specs: NTE.5
+  vars:
+    performer: NTE.5
+
+time:
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: NTE.6
+
+_time:
+  expressionType: nested
+  vars:
+    dateTimeIn: NTE.6
+  condition: $dateTimeIn NOT_NULL
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
+
+text:
+  type: STRING
+  valueOf: NTE.3
+  required: true
+  expressionType: HL7Spec
+
+extension_1-noteComment:
+  generateList: true
+  expressionType: nested
+  specs: NTE.3 *
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: note-comment
+    valueId:
+      valueOf: FT
+      expressionType: HL7Spec
+      type: STRING
+
+extension_2-noteType:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: note-type
+    valueCodeableConcept:
+      valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      specs: NTE.4
+
+extension_3:
+  generateList: true
+  expressionType: resource
+  valueOf: segments/NTE/NTEExtension

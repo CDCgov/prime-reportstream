@@ -1,0 +1,190 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: pv1-patient-visit
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - vars:
+        pv112: STRING_ALL, PV1.12
+      condition: $pv112 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV1.12
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: PV1.12
+          expressionType: resource
+    - vars:
+        pv118: STRING_ALL, PV1.18
+      condition: $pv118 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV1.18
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: PV1.18
+          expressionType: resource
+    - vars:
+        pv130: STRING_ALL, PV1.30
+      condition: $pv130 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV1.30
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.30
+    - vars:
+        pv131: STRING_ALL, PV1.31
+      condition: $pv131 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV1.31
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: PV1.31
+    - vars:
+        pv132: STRING_ALL, PV1.32
+      condition: $pv132 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV1.32
+        valueDecimal:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.32
+    - vars:
+        pv133: STRING_ALL, PV1.33
+      condition: $pv133 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV1.33
+        valueDecimal:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.33
+    - vars:
+        pv134: STRING_ALL, PV1.34
+      condition: $pv134 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV1.34
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: PV1.34
+    - vars:
+        pv135: STRING, PV1.35
+      condition: $pv135 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV1.35
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.35
+    - vars:
+        pv139: STRING_ALL, PV1.39
+      condition: $pv139 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV1.39
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: PV1.39
+    - vars:
+        pv141: STRING_ALL, PV1.41
+      condition: $pv141 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV1.41
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: PV1.41
+          expressionType: resource
+    - vars:
+        pv146: STRING_ALL, PV1.46
+      condition: $pv146 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV1.46
+        valueDecimal:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.46
+    - vars:
+        pv147: STRING_ALL, PV1.47
+      condition: $pv147 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV1.47
+        valueDecimal:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.47
+    - vars:
+        pv148: STRING_ALL, PV1.48
+      condition: $pv148 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV1.48
+        valueDecimal:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.48
+    - vars:
+        pv149: STRING_ALL, PV1.49
+      condition: $pv149 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV1.49
+        valueDecimal:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.49
+    - vars:
+        pv151: STRING_ALL, PV1.51
+      condition: $pv151 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV1.51
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: PV1.51
+          expressionType: resource

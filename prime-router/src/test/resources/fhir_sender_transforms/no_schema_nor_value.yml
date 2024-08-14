@@ -1,0 +1,24 @@
+# $schema: ../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
+# This is going to be DiagnosticReport
+elements:
+  - name: status
+    constants:
+      someString: blah blah
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0]'
+    condition: '%resource.status.exists()'
+    bundleProperty: '%resource.status'
+  - name: identifier
+    constants:
+      anotherString: hello
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0]'
+    condition: '%resource.identifier.exists()'
+    bundleProperty: '%resource.identifier'
+    valueSet:
+      values:
+        "CO": "Colorado"
+        "IG": "ignore"
+
+  - name: observations
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0].result'
+    resourceIndex: observationIndex
+    schema: classpath:/fhir_sender_transforms/observation.yml

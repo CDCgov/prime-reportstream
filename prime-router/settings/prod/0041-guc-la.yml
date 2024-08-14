@@ -1,0 +1,11 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0041-guc-la.yml --env prod
+---
+- name: guc-la
+  description: Experity CSV lab report schema, Greenlight Urgent Care, LA
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: guc-la
+      topic: covid-19
+      schemaName: experity/guc-la-covid-19
+      format: CSV

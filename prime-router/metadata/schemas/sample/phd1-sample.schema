@@ -1,0 +1,21 @@
+---
+name: phd1-sample
+topic: test
+trackingElement: specimen_id
+elements:
+  - name: lab
+    type: TEXT
+  - name: first_name
+    type: TEXT
+    pii: true
+  - name: last_name
+    type: TEXT
+    pii: true
+  - name: state
+    type: TEXT
+  - name: test_time
+    type: DATE
+  - name: specimen_id
+    type: ID
+  - name: observation
+    type: TEXT

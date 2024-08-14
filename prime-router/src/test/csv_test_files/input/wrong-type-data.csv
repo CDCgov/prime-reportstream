@@ -1,0 +1,2 @@
+lab,first_name,last_name,state,test_time,specimen_id,observation
+1234,1234,1234,not-a-state-name,not-a-date,not-a-number,not-a-lab-result

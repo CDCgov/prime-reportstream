@@ -1,0 +1,4 @@
+# $schema: ./../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+# This file exists to override what is provided in the hl7v2-converter library
+# as there are no common elements currently that should get added to every FHIR resource

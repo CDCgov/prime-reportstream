@@ -1,0 +1,35 @@
+# update OH
+- name: oh-doh
+  description: Ohio Department of Health
+  jurisdiction: STATE
+  stateCode: OH
+  receivers:
+    - name: elr
+      organizationName: oh-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, OH)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        suppressQstForAoe: true
+        receivingApplicationName: OHDOH
+        receivingApplicationOID: 2.16.840.1.114222.4.1.3674
+        receivingFacilityName: OHDOH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 36DSMP9999
+        nameFormat: OHIO
+        suppressHl7Fields: OBX-23-11
+        # turn off UNK and ASKU for this field
+        useBlankInsteadOfUnknown: patient_race
+      transport:
+        type: SFTP
+        host: 156.63.28.72
+        port: 4022
+        filePath: CDC-ELR/ProdFiles
+      timing:
+        operation: MERGE
+        numberPerDay: 12
+        initialTime: 01:15
+        timeZone: EASTERN

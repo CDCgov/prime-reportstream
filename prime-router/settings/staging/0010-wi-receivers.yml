@@ -1,0 +1,58 @@
+---
+name: wi-dph
+description: Wisconsin Department of Public Health
+jurisdiction: STATE
+stateCode: WI
+receivers:
+  - name: elr
+    organizationName: wi-dph
+    topic: covid-19
+    translation:
+      type: HL7
+      useBatchHeaders: true
+      receivingApplicationName: vCMR
+      receivingApplicationOID: 2.16.840.1.113883.3.33.4.2.2
+      receivingFacilityName: WEDSS
+      receivingFacilityOID: 2.16.840.1.113883.3.33
+    jurisdictionalFilter:
+      - "orEquals(ordering_facility_state, WI, patient_state, WI)"
+      - "matches(processing_mode_code, P)"
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "CENTRAL"
+      maxReportCount: 100
+    description: ""
+    transport:
+      host: "10.0.2.4"
+      port: "22"
+      filePath: "./upload"
+      type: "SFTP"
+  - name: elr-test
+      organizationName: wi-dph
+      topic: covid-19
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: vCMR
+        receivingApplicationOID: 2.16.840.1.113883.3.33.4.2.2
+        receivingFacilityName: WEDSS
+        receivingFacilityOID: 2.16.840.1.113883.3.33
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, WI, patient_state, WI)"
+        - "matches(processing_mode_code, T)"
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "CENTRAL"
+        maxReportCount: 100
+      description: ""
+      transport:
+        host: "10.0.2.4"
+        port: "22"
+        filePath: "./upload"
+        type: "SFTP"

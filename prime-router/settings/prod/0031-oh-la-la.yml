@@ -1,0 +1,152 @@
+# Run this with   ./prime multiple-settings set --input ./settings/prod/0031-oh-la-la.yml --env prod
+---
+- name: "la-doh"
+  description: "Louisiana Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "LA"
+  countyName: null
+  receivers:
+  - name: "elr-secondary"
+    organizationName: "la-doh"
+    topic: "covid-19"
+    translation: !<HL7>
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "LA-ELR"
+      receivingApplicationOID: null
+      receivingFacilityName: "LADOH"
+      receivingFacilityOID: null
+      messageProfileId: null
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      processingModeCode: "P"
+      nameFormat: "APHL"
+      receivingOrganization: "LAOPH"
+      type: "HL7"
+    jurisdictionalFilter:
+    - "orEquals(ordering_facility_state, LA, patient_state, LA)"
+    qualityFilter: []
+    reverseTheQualityFilter: true
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:15"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+    description: ""
+    transport: !<SFTP>
+      host: "204.58.124.41"
+      port: "22"
+      filePath: "./TEST"
+      type: "SFTP"
+
+- name: "vt-doh"
+  description: "Vermont Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "VT"
+  countyName: null
+  senders: []
+  receivers:
+  - name: "elr-secondary"
+    organizationName: "vt-doh"
+    topic: "covid-19"
+    translation: !<HL7>
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "NBS"
+      receivingApplicationOID: "2.16.840.1.114222.4.1.185.1"
+      receivingFacilityName: "VDH"
+      receivingFacilityOID: "2.16.840.1.114222.4.1.185"
+      messageProfileId: null
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      processingModeCode: null
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "HL7"
+    jurisdictionalFilter:
+    - "orEquals(ordering_facility_state, VT, patient_state, VT)"
+    qualityFilter: []
+    reverseTheQualityFilter: true
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:15"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+    description: ""
+    transport: !<SFTP>
+      host: "gs-sftp.ahs.state.vt.us"
+      port: "22"
+      filePath: "./Test/ToVDH/"
+      type: "SFTP"
+
+- name: "oh-doh"
+  description: "Ohio Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "OH"
+  countyName: null
+  receivers:
+  - name: "elr-secondary"
+    organizationName: "oh-doh"
+    topic: "covid-19"
+    translation: !<HL7>
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "OHDOH"
+      receivingApplicationOID: "2.16.840.1.114222.4.1.3674"
+      receivingFacilityName: "OHDOH"
+      receivingFacilityOID: "2.16.840.1.114222.4.1.3674"
+      messageProfileId: null
+      reportingFacilityName: "CDC PRIME"
+      reportingFacilityId: "36DSMP9999"
+      reportingFacilityIdType: null
+      suppressQstForAoe: true
+      suppressHl7Fields: "OBX-23-11"
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      useBlankInsteadOfUnknown: "patient_race"
+      truncateHDNamespaceIds: false
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      processingModeCode: null
+      nameFormat: "OHIO"
+      receivingOrganization: null
+      type: "HL7"
+    jurisdictionalFilter:
+    - "orEquals(ordering_facility_state, OH, patient_state, OH)"
+    qualityFilter: []
+    reverseTheQualityFilter: true
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:15"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+    description: ""
+    transport: !<SFTP>
+      host: "156.63.28.72"
+      port: "4022"
+      filePath: "CDC-ELR/TestFiles"
+      type: "SFTP"

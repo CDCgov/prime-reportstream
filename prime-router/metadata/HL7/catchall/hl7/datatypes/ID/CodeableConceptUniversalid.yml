@@ -1,0 +1,15 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+coding:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        code:
+          expressionType: HL7Spec
+          type: STRING
+          valueOf: $BASE_VALUE
+        system:
+          type: STRING
+          value: "http://terminology.hl7.org/CodeSystem/v2-0301"

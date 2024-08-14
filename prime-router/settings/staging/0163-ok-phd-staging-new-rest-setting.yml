@@ -1,0 +1,97 @@
+# To submit this to localhost, run:
+#
+# ./prime multiple-settings set --env staging --input ./settings/staging/0163-ok-phd-staging-new-rest-setting.yml
+---
+- name: "ok-phd"
+  description: "Oklahoma Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "OK"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+  - name: "elr"
+    organizationName: "ok-phd"
+    topic: "covid-19"
+    customerStatus: "inactive"
+    translation: !<HL7>
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "SpringML"
+      receivingApplicationOID: null
+      receivingFacilityName: "OKSDOH"
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB: {}
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+    - "allowNone()"
+    qualityFilter: []
+    routingFilter: []
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<REST>
+      reportUrl: "https://labupload-uat.health.ok.gov/api/document/hl7"
+      authTokenUrl: "https://labupload-uat.health.ok.gov/api/auth/token"
+      headers:
+        senderLabName: "CDC PRIME REPORTSTREAM"
+        RecordId: "header.reportFile.reportId"
+        sourceLabName: "CDC PRIME REPORTSTREAM"
+        Content-Type: "text/plain"  # Added for sending text/plain format message content
+      authHeaders:
+        ExpectSuccess: true   # Added to auth header to expect success otherwise throw exception.
+        Content-Type: "application/json"  # Added for authentication body as json.
+        Authorization-Type: "email/password"  # Added for using email and password to authenticate and get token
+      type: "REST"
+    externalName: null
+    timeZone: null
+    dateTimeFormat: "OFFSET"

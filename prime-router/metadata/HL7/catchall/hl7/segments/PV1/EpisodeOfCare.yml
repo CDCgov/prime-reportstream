@@ -1,0 +1,40 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: EpisodeOfCare
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+identifier:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - vars:
+        pv154: STRING_ALL, PV1.54
+      condition: $pv154 NOT_NULL
+      expressionType: resource
+      valueOf: datatypes/CX/Identifier
+      specs: PV1.54
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          value: PV1.54
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: episode-of-care-name
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV1.53

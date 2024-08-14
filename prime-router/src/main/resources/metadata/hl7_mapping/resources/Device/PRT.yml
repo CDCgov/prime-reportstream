@@ -1,0 +1,21 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+constants:
+  hl7PRTFieldPath: '%{hl7SegmentGroup}/PRT'
+  hl7OBXFieldPath: '%{hl7SegmentGroup}/OBX'
+
+elements:
+  - name: participation-set-id
+    value: [ '%prtDeviceIndex + 1' ]
+    hl7Spec: [ '%{hl7PRTFieldPath}-1' ]
+
+  - name: observation-set-id
+    value: [ '%prtDeviceIndex + 1' ]
+    hl7Spec: [ '%{hl7OBXFieldPath}-1' ]
+
+  - name: placer-order-number
+    resource: '%resource.udiCarrier.where(extension(%`rsext-hl7v2Field`).value = "PRT.10")'
+    constants:
+      eiFieldPath: '%{hl7PRTFieldPath}(%{entityIdIndex})-10'
+    schema: classpath:/metadata/hl7_mapping/datatypes/device-udiCarrier/EI.yml
+    resourceIndex: entityIdIndex

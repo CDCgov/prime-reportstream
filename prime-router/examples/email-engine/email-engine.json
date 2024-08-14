@@ -1,0 +1,7 @@
+{ 
+"template":"d-415aa983fe064c02989bc7465d0c9ed8", 
+"type":"daily", 
+"cronSchedule":"01 11 * * *",
+"organizations":[ "pima-az-phd"],
+"emails":["qtv1@cdc.gov", "qpu0@cdc.gov", "qva8@cdc.gov", "qop4@cdc.gov" ]
+}

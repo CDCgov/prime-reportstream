@@ -1,0 +1,49 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0055-pmg.yml --env prod
+---
+- name: pmg
+  description: Premier Medical Group USA
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: pmg
+      topic: covid-19
+      customerStatus: testing
+      schemaName: direct/pmg-covid-19
+      format: CSV
+
+- name: "hhsprotect"
+  description: "HHSProtect"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  senders: []
+  receivers:
+  - name: "elr"
+    organizationName: "hhsprotect"
+    topic: "covid-19"
+    translation: !<CUSTOM>
+      schemaName: "hhsprotect/hhsprotect-covid-19"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "matches(sender_id, SafeHealth,ImageMover,Cue,InBios,Strac,.*CueHlth.*,reddyfmc,primary,cuc-al,guc-la,abbott,lifepoint,hca,prescryptive,pmg)"
+    qualityFilter:
+    - "allowAll()"
+    - "doesNotMatch(processing_mode_code,T,D)"
+    reverseTheQualityFilter: false
+    deidentify: true
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:25"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: ""
+    transport: !<BLOBSTORE>
+      storageName: "PartnerStorage"
+      containerName: "hhsprotect"
+      type: "BLOBSTORE"
+    externalName: null

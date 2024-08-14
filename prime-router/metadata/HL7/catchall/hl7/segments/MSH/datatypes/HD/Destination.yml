@@ -1,0 +1,89 @@
+# $schema: ./../../../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+name:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: HD.1
+
+endpoint:
+  vars:
+    hd2: STRING, HD.2
+    hd3: STRING, HD.3
+  constants:
+    oidUrlPrefix: "urn:oid:"
+    uuidUrlPrefix: "urn:uuid:"
+  expressionType: nested
+  expressions:
+    - condition: $hd2 NOT_NULL && $hd3 EQUALS ISO
+      vars:
+        endpointValue: $oidUrlPrefix + $hd2
+      type: STRING
+      valueOf: $endpointValue
+    - condition: $hd2 NOT_NULL && $hd3 EQUALS UUID
+      vars:
+        endpointValue: $uuidUrlPrefix + $hd2
+      type: STRING
+      valueOf: $endpointValue
+
+_endpoint:
+  vars:
+    hd3: STRING, HD.3
+  expressionType: nested
+  condition: $hd3 NULL
+  expressionsMap:
+    extension:
+      expressionType: nested
+      generateList: true
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: data-absent-reason
+        valueCode:
+          value: "unknown"
+
+receiver:
+  expressionType: nested
+  expressions:
+    - condition: $msh6 NOT_NULL
+      expressionType: reference
+      specs: $msh6
+      valueOf: datatypes/HD/Organization
+      constants:
+        hdOrganizationHL7Field: MSH.6
+    - condition: $msh6 NULL && $msh23 NOT_NULL
+      expressionType: reference
+      specs: $msh23
+      valueOf: datatypes/XON/Organization
+      constants:
+        XONHL7Field: MSH.23
+
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: universal-id
+        valueString:
+          type: STRING
+          valueOf: HD.2
+          expressionType: HL7Spec
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: universal-id-type
+        valueString:
+          type: STRING
+          valueOf: HD.3
+          expressionType: HL7Spec
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          valueOf: $messageHeaderDestinationField

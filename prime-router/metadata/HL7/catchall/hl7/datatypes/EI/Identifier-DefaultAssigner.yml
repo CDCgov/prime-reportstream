@@ -1,0 +1,50 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+value:
+  expressionType: HL7Spec
+  type: STRING
+  valueOf: EI.1
+
+assigner:
+  valueOf: datatypes/HD/Organization
+  expressionType: reference
+  specs: $eiAssigningOrganization
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: namespace-id
+        valueString:
+          expressionType: HL7Spec
+          type: STRING
+          valueOf: EI.2
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: universal-id
+        valueString:
+          expressionType: HL7Spec
+          type: STRING
+          valueOf: EI.3
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: universal-id-type
+        valueString:
+          expressionType: HL7Spec
+          type: STRING
+          valueOf: EI.4
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: ei-assigner-organization-type
+        valueString:
+          valueOf: 'organization'

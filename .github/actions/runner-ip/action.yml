@@ -1,0 +1,18 @@
+# action.yml
+name: 'Runner IP'
+description: 'Get IP address of GitHub runner'
+outputs:
+  ip-address:
+    description: Public IP address of runner
+    value: ${{ steps.get_ip.outputs.ip }}
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Get public ip
+      id: get_ip
+      shell: bash
+      run: |
+        PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+        echo "ip=$PUBLIC_IP" >> $GITHUB_OUTPUT

@@ -1,0 +1,236 @@
+---
+name: genabio-covid-19
+description: Genabio
+topic: covid-19
+trackingElement: patient_id
+basedOn: covid-19
+extends: direct/direct-covid-19
+
+elements:
+  - name: message_id
+    csvFields: [{ name: message_id }]
+
+  - name: sender_id
+    default: Genabio
+
+  - name: processing_mode_code
+    default: T
+
+  - name: patient_id
+    csvFields: [{ name: patient_id }]
+
+  - name: patient_last_name
+    csvFields: [{ name: patient_last_name }]
+
+  - name: patient_first_name
+    csvFields: [ { name: patient_first_name } ]
+
+  - name: patient_middle_name
+    csvFields: [ { name: patient_middle_name } ]
+
+  - name: patient_street
+    csvFields: [ { name: patient_street } ]
+
+  - name: patient_street2
+    csvFields: [ { name: patient_street2 } ]
+
+  - name: patient_city
+    csvFields: [ { name: patient_city } ]
+
+  - name: patient_state
+    csvFields: [ { name: patient_state } ]
+
+  - name: patient_zip_code
+    csvFields: [ { name: patient_zip_code } ]
+
+  - name: patient_county
+    csvFields: [ { name: patient_county } ]
+
+  - name: patient_phone_number
+    csvFields: [ { name: patient_phone_number } ]
+
+  - name: patient_dob
+    csvFields: [ { name: patient_dob } ]
+
+  - name: patient_gender
+    valueSet: sender-automation/gender
+    csvFields: [ { name: patient_gender, format: $display } ]
+
+  - name: patient_race
+    valueSet: sender-automation/race
+    csvFields: [ { name: patient_race, format: $display } ]
+
+  - name: patient_ethnicity
+    valueSet: sender-automation/ethnicity
+    csvFields: [ { name: patient_ethnicity, format: $display } ]
+
+  - name: patient_preferred_language
+    type: CODE
+    valueSet: iso639
+    pii: false
+    cardinality: ZERO_OR_ONE
+    csvFields: [ { name: patient_preferred_language } ]
+
+  - name: patient_email
+    csvFields: [ { name: patient_email } ]
+
+  - name: accession_number
+    type: TEXT
+    mapper: use(patient_id)
+    csvFields: [ { name: accession_number } ]
+
+  - name: equipment_model_name
+    csvFields: [ { name: equipment_model_name } ]
+
+  - name: test_performed_code
+    csvFields: [ { name: test_performed_code } ]
+
+  - name: test_result
+    valueSet: sender-automation/test_result
+    csvFields: [ { name: test_result, format: $display } ]
+
+  - name: order_test_date
+    csvFields: [ { name: order_test_date } ]
+
+  - name: specimen_collection_date
+    type: DATETIME
+    csvFields: [ { name: specimen_collection_date } ]
+
+  - name: testing_lab_specimen_received_date
+    type: DATETIME
+    csvFields: [ { name: testing_lab_specimen_received_date } ]
+
+  - name: test_result_date
+    csvFields: [ { name: test_result_date } ]
+
+  - name: date_result_released
+    csvFields: [ { name: date_result_released } ]
+
+  - name: specimen_type
+    valueSet: sender-automation/specimen_type
+    csvFields: [ { name: specimen_type, format: $display } ]
+
+  - name: ordering_provider_id
+    csvFields: [ { name: ordering_provider_id } ]
+
+  - name: ordering_provider_last_name
+    csvFields: [ { name: ordering_provider_last_name } ]
+
+  - name: ordering_provider_first_name
+    csvFields: [ { name: ordering_provider_first_name } ]
+
+  - name: ordering_provider_middle_name
+    type: TEXT_OR_BLANK
+    csvFields: [ { name: ordering_provider_middle_name } ]
+
+  - name: ordering_provider_street
+    csvFields: [ { name: ordering_provider_street } ]
+
+  - name: ordering_provider_street2
+    csvFields: [ { name: ordering_provider_street2 } ]
+
+  - name: ordering_provider_city
+    csvFields: [ { name: ordering_provider_city } ]
+
+  - name: ordering_provider_state
+    csvFields: [ { name: ordering_provider_state } ]
+
+  - name: ordering_provider_zip_code
+    csvFields: [ { name: ordering_provider_zip_code } ]
+
+  - name: ordering_provider_phone_number
+    csvFields: [ { name: ordering_provider_phone_number } ]
+
+  - name: testing_lab_clia
+    csvFields: [ { name: testing_lab_clia } ]
+
+  - name: testing_lab_name
+    csvFields: [ { name: testing_lab_name } ]
+
+  - name: testing_lab_street
+    csvFields: [ { name: testing_lab_street } ]
+
+  - name: testing_lab_street2
+    csvFields: [ { name: testing_lab_street2 } ]
+
+  - name: testing_lab_city
+    csvFields: [ { name: testing_lab_city } ]
+
+  - name: testing_lab_state
+    csvFields: [ { name: testing_lab_state } ]
+
+  - name: testing_lab_zip_code
+    csvFields: [ { name: testing_lab_zip_code } ]
+
+  - name: testing_lab_phone_number
+    csvFields: [ { name: testing_lab_phone_number } ]
+
+  - name: pregnant
+    valueSet: sender-automation/yesno
+    csvFields: [ { name: pregnant, format: $display } ]
+
+  - name: employed_in_healthcare
+    valueSet: sender-automation/yesno
+    csvFields: [ { name: employed_in_healthcare, format: $display } ]
+
+  - name: symptomatic_for_disease
+    valueSet: sender-automation/yesno
+    csvFields: [ { name: symptomatic_for_disease, format: $display } ]
+
+  - name: illness_onset_date
+    type: DATE
+    cardinality: ZERO_OR_ONE
+    csvFields: [ { name: illness_onset_date } ]
+
+  - name: resident_congregate_setting
+    valueSet: sender-automation/yesno
+    csvFields: [ { name: resident_congregate_setting, format: $display } ]
+
+  - name: residence_type
+    type: CODE
+    cardinality: ZERO_OR_ONE
+    valueSet: site_of_care
+    csvFields: [ { name: residence_type, format: $display } ]
+
+  - name: hospitalized
+    valueSet: sender-automation/yesno
+    csvFields: [ { name: hospitalized, format: $display } ]
+
+  - name: icu
+    valueSet: sender-automation/yesno
+    csvFields: [ { name: icu, format: $display } ]
+
+  - name: ordering_facility_name
+    csvFields: [ { name: ordering_facility_name } ]
+
+  - name: ordering_facility_street
+    csvFields: [ { name: ordering_facility_street } ]
+
+  - name: ordering_facility_street2
+    csvFields: [ { name: ordering_facility_street2 } ]
+
+  - name: ordering_facility_city
+    csvFields: [ { name: ordering_facility_city } ]
+
+  - name: ordering_facility_state
+    csvFields: [ { name: ordering_facility_state } ]
+
+  - name: ordering_facility_zip_code
+    csvFields: [ { name: ordering_facility_zip_code } ]
+
+  - name: ordering_facility_phone_number
+    csvFields: [ { name: ordering_facility_phone_number } ]
+
+  - name: comment
+    type: TEXT
+    csvFields: [ { name: comment } ]
+
+  - name: test_result_status
+    csvFields: [ { name: test_result_status } ]
+
+  - name: reporting_facility_name
+    csvFields: [ { name: reporting_facility_name } ]
+
+  - name: reporting_facility_clia
+    csvFields: [ { name: reporting_facility_clia } ]
+

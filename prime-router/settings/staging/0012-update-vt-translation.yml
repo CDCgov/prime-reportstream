@@ -1,0 +1,29 @@
+---
+- name: vt-doh
+  description: Vermont Department of Health
+  jurisdiction: STATE
+  stateCode: VT
+  receivers:
+    - name: elr
+      organizationName: vt-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, VT)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: NBS
+        receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
+        receivingFacilityName: VDH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        suppressHl7Fields: OBX-18
+      transport:
+        type: SFTP
+        host: 10.0.2.4
+        port: 22
+        filePath: ./
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: EASTERN

@@ -1,0 +1,213 @@
+---
+name: directlite-covid-19
+description: Direct Submission to ReportStream COVID-19 flat file, Lite edition (tm)
+topic: covid-19
+trackingElement: specimen_id
+basedOn: covid-19
+elements:
+
+  - name: sender_id
+    cardinality: ONE
+    csvFields: [{ name: senderId}]
+
+  - name: processing_mode_code
+    csvFields: [{name: processingModeCode}]
+
+  - name: ordered_test_code
+    documentation: eg, 94531-1
+    csvFields: [{ name: testOrdered}]
+
+  - name: ordered_test_name
+    documentation: Should be the name that matches to Test Ordered LOINC Long Name, in LIVD table
+    csvFields: [{ name: testName}]
+
+  - name: test_result
+    documentation:  eg, 260373001
+    csvFields: [{ name: testResult }]
+
+  - name: test_result_status
+    default: F
+
+  - name: placer_order_id
+    mapper: use(message_id)
+
+  - name: filler_order_id
+    mapper: use(message_id)
+
+  - name: test_performed_code
+    documentation: eg, 94558-4
+    csvFields: [{ name: testPerformed }]
+    
+  - name: test_result_date
+    documentation: eg, 20210111
+    csvFields: [{ name: testResultDate}]
+
+  - name: date_result_released
+    documentation: eg, 20210112
+    csvFields: [{ name: testReportDate}]
+
+  - name: test_kit_name_id
+    documentation: Must match LIVD column M, "Test Kit Name ID"
+    csvFields: [{ name: deviceIdentifier}]
+
+  - name: equipment_model_name
+    documentation: If present, match LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
+    csvFields: [{ name: deviceName}]
+
+  - name: specimen_id
+    documentation: A unique id, such as a UUID. Note - Need to override the mapper in covid-19.schema file.
+    mapper: use(specimen_id)
+    csvFields: [{ name: specimenId}]
+
+  - name: message_id
+    documentation: ReportStream copies value from the specimenId if none is provided by the sender.
+    mapper: use(specimen_id)
+    csvFields: [{ name: testId}]
+
+  - name: patient_age
+    csvFields: [{ name: patientAge}]
+
+  - name: patient_race
+    csvFields: [{ name: patientRace}]
+
+  - name: patient_ethnicity
+    documentation:  Internally, ReportStream uses hl70189 (H,N,U), but should use HHS values. (2135-2, 2186-5, UNK, ASKU). A mapping is done here, but better is to switch all of RS to HHS standard.
+    altValues:
+      - code: H
+        display: 2135-2
+      - code: N
+        display: 2186-5
+      - code: U
+        display: UNK
+      - code: U
+        display: ASKU
+    csvFields: [{ name: patientEthnicity, format: $alt}]
+
+  - name: patient_gender
+    csvFields: [{ name: patientSex}]
+
+  - name: patient_zip_code 
+    csvFields: [{ name: patientZip}]
+
+  - name: patient_county
+    csvFields: [{ name: patientCounty}]
+
+  - name: ordering_provider_id
+    documentation:  eg, "1265050918"
+    csvFields: [{ name: orderingProviderNpi}]
+
+  - name: ordering_provider_last_name
+    csvFields: [{ name: orderingProviderLname}]
+
+  - name: ordering_provider_first_name
+    csvFields: [{ name: orderingProviderFname}]
+
+  - name: ordering_provider_zip_code
+    csvFields: [{ name: orderingProviderZip}]
+
+  - name: testing_lab_clia
+    documentation: Expecting a CLIA number here.  eg, "10D2218834"
+    cardinality: ZERO_OR_ONE
+    csvFields: [{ name: performingFacility}]
+
+  - name: testing_lab_name
+    csvFields: [{ name: performingFacilityName}]
+
+  - name: testing_lab_state
+    csvFields: [{ name: performingFacilityState}]
+
+  - name: testing_lab_zip_code
+    csvFields: [{ name: performingFacilityZip}]
+
+  - name: specimen_type
+    csvFields: [{ name: specimenSource}]
+
+  - name: patient_id
+    csvFields: [{ name: patientUniqueId}]
+
+  - name: patient_id_type
+    default: PI
+
+  - name: patient_id_hash
+    # Custom.   Needs to go into covid-19. Mimic waters here.
+    type: TEXT
+    mapper: hash(patient_id)
+    csvFields: [{ name: patientUniqueIdHash}]
+
+  - name: patient_state
+    cardinality: ZERO_OR_ONE
+    csvFields: [{ name: patientState}]
+
+  - name: first_test
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: firstTest, format: $display}]
+
+  - name: previous_test_type
+    documentation:  Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
+    type: TEXT
+    csvFields: [{ name: previousTestType}]
+
+  - name: previous_test_result
+    documentation: Custom field.  Example - 260415000
+    type: CODE
+    valueSet: covid-19/test_result
+    csvFields: [{ name: previousTestResult}]
+
+  - name: employed_in_healthcare
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: healthcareEmployee, format: $display}]
+
+  - name: symptomatic_for_disease
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: symptomatic, format: $display}]
+
+  - name: symptoms_list
+    documentation:  Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptomCode2^date2; ...
+    type: TEXT
+    csvFields: [{ name: symptomsList}]
+
+  - name: hospitalized
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: hospitalized, format: $display}]
+
+  - name: icu
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: symptomsIcu, format: $display}]
+
+  - name: resident_congregate_setting
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: congregateResident, format: $display}]
+
+  - name: site_of_care
+    documentation: Custom field
+    type: CODE
+    valueSet: site_of_care
+    csvFields: [{ name: congregateResidentType}]
+
+  - name: pregnant
+    csvFields: [{ name: pregnant}]
+
+  - name: reporting_facility_name
+    mapper: use(testing_lab_name)
+
+  - name: reporting_facility_clia
+    mapper: use(testing_lab_clia)
+
+  # These fields are calculated
+  - name: test_authorized_for_otc
+  - name: test_authorized_for_home
+  - name: test_authorized_for_unproctored
+  - name: test_type
+  - name: abnormal_flag

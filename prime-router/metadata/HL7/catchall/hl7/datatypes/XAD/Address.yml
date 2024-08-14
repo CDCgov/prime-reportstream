@@ -1,0 +1,144 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+line:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.1.1
+    - type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.1.2
+    - type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.1.3
+    - type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.2
+    - type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.19
+
+city:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: XAD.3
+
+state:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: XAD.4
+
+postalCode:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: XAD.5
+
+country:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: XAD.6
+
+type:
+  vars:
+    xad7: String, XAD.7
+  condition: $xad7 EQUALS M || $xad7 EQUALS SH
+  type: STRING
+  expressionType: JEXL
+  valueOf: 'GeneralUtils.getFhirAddressType(xad7)'
+
+use:
+  vars:
+    xad7: String, XAD.7
+  condition: $xad7 EQUALS BA || $xad7 EQUALS BI || $xad7 EQUALS C || $xad7 EQUALS B || $xad7 EQUALS H || $xad7 EQUALS O
+  type: STRING
+  valueOf: 'GeneralUtils.getFhirAddressUse(xad7)'
+  expressionType: JEXL
+
+district:
+  type: STRING
+  valueOf: XAD.9
+  expressionType: HL7Spec
+
+# This needs to use variables because the message parses this field using NULLDT since it is deprecated which means that
+# the values do not get correctly loaded and will not be mapped over correctly using a spec.
+period_1:
+  vars:
+    xad13: String, XAD.13
+    xad14: String, XAD.14
+    start: String, XAD.12.1
+    end: String, XAD.12.2
+  condition: $xad13 NULL && $xad14 NULL
+  expressionType: resource
+  valueOf: datatypes/DR/Period
+
+# XAD.12 is deprecated so the schema favors using XAD.13/14 if either are populated
+period_2:
+  vars:
+    xad13: String, XAD.13
+    xad14: String, XAD.14
+  condition: $xad13 NOT_NULL || $xad14 NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    start:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(periodStart,ZONEID)"
+      expressionType: JEXL
+      vars:
+        periodStart: XAD.13
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(periodEnd,ZONEID)"
+      expressionType: JEXL
+      vars:
+        periodEnd: XAD.14
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        xad10: STRING_ALL, XAD.10
+      condition: $xad10 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: iso21090-ADXP-censusTract
+        valueCode:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XAD.10
+    - vars:
+        xad7: String, XAD.7
+      condition: $xad7 EQUALS HV
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: iso21090-AD-use
+        valueCode:
+          type: STRING
+          valueOf: XAD.7
+          expressionType: HL7Spec
+    - generateList: true
+      expressionType: nested
+      condition: $hl7v2Field NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Field
+    - generateList: true
+      expressionType: nested
+      condition: $hl7v2Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Component
+    - expressionType: resource
+      valueOf: datatypes/XAD/XADExtension

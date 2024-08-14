@@ -1,0 +1,295 @@
+---
+name: waters-covid-19
+description: WATERS OTC,POC COVID-19 flat file
+topic: covid-19
+trackingElement: message_id
+basedOn: covid-19
+elements:
+
+  - name: sender_id
+    csvFields: [{ name: SubmitterUID }]
+    default: waters
+
+  # This is waters unique id for each row.
+  #  Like a transaction code - allows Waters and their sender to have a shared unique id.
+  - name: message_id
+    cardinality: ONE
+    csvFields: [{ name: testId}]
+
+  # Waters asked if we can warn if the value is not correct.
+  # The concern was that some might send test_performed code by accident.
+  - name: ordered_test_code
+    csvFields: [{ name: testOrdered}]
+
+  # Should be the name that matches to ordered_test_code in LIVD table
+  - name: ordered_test_name
+    csvFields: [{ name: testName}]
+
+  # Not in Mark's example.
+  # I added this and made it required so we remember to discuss.
+  # Very important field for routing data to states.
+  - name: ordering_facility_state
+    cardinality: ZERO_OR_ONE
+    csvFields: [{ name: ordering_facility_state}]
+
+  # Not in Mark's example.
+  # Not required.
+  # Very important field for routing data to local jurisdictions
+  - name: ordering_facility_county
+    cardinality: ZERO_OR_ONE
+    csvFields: [{ name: ordering_facility_county}]
+
+  - name: test_result
+    csvFields: [{ name: testResult }]
+
+  - name: order_test_date
+    csvFields: [{ name: testOrderedDate}]
+
+  - name: test_result_date
+    csvFields: [{ name: testResultDate}]
+
+  - name: date_result_released
+    csvFields: [{ name: testReportDate}]
+
+  # Must match LIVD column M, "Test Kit Name ID"
+  - name: test_kit_name_id
+    cardinality: ONE
+    csvFields: [{ name: deviceIdentifier}]
+
+  # Must match LIVD column B, "Model"
+  # Example:  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
+  - name: equipment_model_name
+    cardinality: ONE
+    csvFields: [{ name: deviceName}]
+
+  # Hash by waters of value in patient_id.  Custom waters field.
+  - name: patient_id_hash
+    type: TEXT
+    csvFields: [{ name: patientUniqueId}]
+
+  - name: patient_age
+    csvFields: [{ name: patientAge}]
+
+  - name: patient_race
+    csvFields: [{ name: patientRace}]
+
+  # ReportStream uses hl70189 (H,N,U), but Waters sends OMB (2135-2, 2186-5, UNK, ASKU)
+  # Simplest way to map them was with an alt table
+  - name: patient_ethnicity
+    altValues:
+      - code: H
+        display: 2135-2
+      - code: N
+        display: 2186-5
+      - code: U
+        display: UNK
+      - code: U
+        display: ASKU
+    csvFields: [{ name: patientEthnicity, format: $alt}]
+
+  - name: patient_gender
+    csvFields: [{ name: patientSex}]
+
+  - name: patient_zip_code 
+    csvFields: [{ name: PatZip}]
+
+  # Custom waters field.
+  # Use this if patientState is empty.
+  # Waters calculates a state from the zip code,
+  # if a zip is provided but not a state two-letter code
+  # ? Example data has '99' for the value here...
+  - name: alternative_patient_state
+    type: TEXT
+    csvFields: [{ name: PatStID}]
+
+  - name: patient_county
+    cardinality: ZERO_OR_ONE
+    csvFields: [{ name: patientCounty}]
+
+  # Very important field for routing data to states.
+  - name: patient_state
+    cardinality: ZERO_OR_ONE
+    csvFields: [{ name: patientState}]
+
+  - name: patient_city
+    csvFields: [{ name: patientCity_pii}]
+
+  - name: patient_dob
+    csvFields: [{ name: patientDob_pii}]
+
+  - name: patient_email
+    csvFields: [{ name: patientEmail_pii}]
+
+  - name: patient_street
+    csvFields: [{ name: patientHomeAddress_pii}]
+
+  - name: patient_street2
+    csvFields: [{ name: patientHomeAddress2_pii}]
+
+  - name: patient_last_name
+    cardinality: ZERO_OR_ONE
+    csvFields: [{ name: patientNameLast_pii}]
+
+  - name: patient_first_name
+    csvFields: [{ name: patientNameFirst_pii}]
+
+  - name: patient_middle_name
+    csvFields: [{ name: patientNameMiddle_pii}]
+
+  - name: patient_phone_number
+    csvFields: [{ name: patientPhone_pii}]
+
+  # Unhashed version of patient ID
+  - name: patient_id
+    csvFields: [{ name: patientUniqueId_pii}]
+
+  - name: specimen_type
+    csvFields: [{ name: specimenSource}]
+
+  # Need to override the mapper in covid-19.schema file.
+  - name: specimen_id
+    mapper: use(specimen_id)
+    csvFields: [{ name: specimenId}]
+
+  # Barcode or QR code.  Unique within one manufacturer.
+  - name: equipment_instance_id
+    csvFields: [{ name: serialNumber}]
+
+  - name: specimen_collection_date_time
+    csvFields: [{ name: specimenCollectedDate}]
+
+  - name: first_test
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: firstTest, format: $display}]
+
+  # Custom waters field
+  - name: previous_test_date
+    type: DATE
+    csvFields: [{ name: previousTestDate}]
+
+  # Custom waters field
+  - name: previous_test_result
+    type: TEXT
+    valueSet: covid-19/test_result
+    csvFields: [{ name: previousTestResult}]
+
+  # Custom waters field
+  # Notel Example value matched LIVD column "F", "Test Performed LOINC Code"
+  - name: previous_test_type
+    type: TEXT
+    csvFields: [{ name: previousTestType}]
+
+  - name: employed_in_healthcare
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: healthcareEmployee, format: $display}]
+
+  # Custom waters field but using same name as simple_report uses.
+  - name: patient_role 
+    csvFields: [{name: healthcareEmployeeType}]
+    type: TEXT
+
+  - name: hospitalized
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: hospitalized, format: $display}]
+
+  - name: symptomatic_for_disease
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: symptomatic, format: $display}]
+
+  # Custom waters field
+  # Format for each symptom is symtomCode^date;  
+  # We are just treating this as a string for now.
+  - name: symptoms_list
+    type: TEXT
+    csvFields: [{ name: symptomsList}]
+
+  - name: icu
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: symptomsIcu, format: $display}]
+
+  - name: resident_congregate_setting
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: congregateResident, format: $display}]
+
+  # Custom waters field
+  - name: site_of_care
+    type: CODE
+    valueSet: site_of_care
+    csvFields: [{ name: congregateResidentType}]
+
+  - name: pregnant
+    csvFields: [{ name: pregnant}]
+
+  - name: ordering_provider_id
+    csvFields: [{ name: orderingProviderNpi}]
+
+  - name: ordering_provider_last_name
+    csvFields: [{ name: orderingProviderLname}]
+
+  - name: ordering_provider_first_name
+    csvFields: [{ name: orderingProviderFname}]
+
+  - name: ordering_provider_zip_code
+    csvFields: [{ name: orderingProviderZip}]
+
+  - name: ordering_provider_street
+    csvFields: [{ name: orderingProviderAddress}]
+
+  - name: ordering_provider_street2
+    csvFields: [{ name: orderingProviderAddress2}]
+
+  - name: ordering_provider_city
+    csvFields: [{ name: orderingProviderCity}]
+
+  - name: ordering_provider_state
+    csvFields: [{ name: orderingProviderState}]
+
+  - name: ordering_provider_phone_number
+    csvFields: [{ name: orderingProviderPhone}]
+
+  # We are expecting a CLIA number here
+  - name: testing_lab_clia
+    cardinality: ZERO_OR_ONE
+    csvFields: [{ name: performingFacility}]
+
+  # Copy from testing_lab_clia
+  - name: reporting_facility_clia
+    cardinality: ZERO_OR_ONE
+    mapper: use(testing_lab_clia)
+    csvFields: [{ name: reportingFacilityCLIA}]
+
+  # Expecting an ISO heirarchic designator here.
+  # If that's wrong, change this to 'reporting_facility_name'
+  - name: reporting_facility
+    csvFields: [{ name: reportingFacility}]
+
+  - name: testing_lab_zip_code
+    csvFields: [{ name: performingFacilityZip}]
+
+  # Time that waters recieved the record
+  - name: waters_receive_date
+    type: DATETIME
+    csvFields: [{ name: TXNTIMESTAMP, format: yyyyMMddhhmmss}]
+
+  - name: waters_submitter
+    type: TEXT
+    csvFields: [{ name: TxInitiator }]
+
+  # these fields are calculated for filtering purposes
+  - name: test_authorized_for_otc
+  - name: test_authorized_for_home
+  - name: test_authorized_for_unproctored
+  - name: abnormal_flag
+  - name: test_type

@@ -1,0 +1,121 @@
+# ./prime multiple-settings set --env prod --input ./settings/prod/0084-update-ca-dph-truncate-fields.yml
+---
+- name: "ca-dph"
+  description: "California Department of Public Health"
+  jurisdiction: "STATE"
+  stateCode: "CA"
+  countyName: null
+  senders: []
+  receivers:
+  - name: "elr"
+    organizationName: "ca-dph"
+    topic: "covid-19"
+    translation: !<HL7>
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "CDPH CA REDIE"
+      receivingApplicationOID: "2.16.840.1.114222.4.3.3.10.1.1"
+      receivingFacilityName: "CDPH_CID"
+      receivingFacilityOID: "2.16.840.1.114222.4.1.214104"
+      messageProfileId: null
+      replaceValue: {}
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: true
+      defaultAoeToUnknown: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: OBX-23-1, ORC-21-1
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: "CDPH000075"
+      phoneNumberFormatting: "STANDARD"
+      processingModeCode: null
+      replaceDiiWithOid: null
+      useNCESFacilityName: false
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "HL7"
+    jurisdictionalFilter:
+    - "orEquals(ordering_facility_state, CA, patient_state, CA)"
+    qualityFilter:
+    - "doesNotMatch(processing_mode_code,T,D)"
+    - "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
+    - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
+    - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob,ordering_provider_id)"
+    - "isValidCLIA(testing_lab_clia)"
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 3
+      initialTime: "09:15"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: ""
+    transport: !<SFTP>
+      host: "ecgpe.healthtechnologygroup.com"
+      port: "22"
+      filePath: "./in/SimpleProd/HL7"
+      credentialName: null
+      type: "SFTP"
+    externalName: "Primary Feed"
+  - name: "elr-secondary"
+    organizationName: "ca-dph"
+    topic: "covid-19"
+    translation: !<HL7>
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "CDPH CA REDIE"
+      receivingApplicationOID: "2.16.840.1.114222.4.3.3.10.1.1"
+      receivingFacilityName: "CDPH_CID"
+      receivingFacilityOID: "2.16.840.1.114222.4.1.214104"
+      messageProfileId: "PHLabReport-Batch^^2.16.840.1.113883.9.10^ISO"
+      replaceValue: {}
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: true
+      defaultAoeToUnknown: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: OBX-23-1, ORC-21-1
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: "CDPH000075"
+      phoneNumberFormatting: "STANDARD"
+      processingModeCode: null
+      replaceDiiWithOid: null
+      useNCESFacilityName: false
+      nameFormat: "STANDARD_SECONDARY"
+      receivingOrganization: null
+      type: "HL7"
+    jurisdictionalFilter:
+    - "orEquals(ordering_facility_state, CA, patient_state, CA)"
+    qualityFilter:
+    - "doesNotMatch(processing_mode_code,T,D)"
+    - "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
+    - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
+    - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob,ordering_provider_id)"
+    - "isValidCLIA(testing_lab_clia)"
+    reverseTheQualityFilter: true
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:21"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: ""
+    transport: !<SFTP>
+      host: "ecgpe.healthtechnologygroup.com"
+      port: "22"
+      filePath: "./in/reportstream-otc/HL7"
+      credentialName: null
+      type: "SFTP"
+    externalName: "Secondary OTC Feed"

@@ -1,0 +1,284 @@
+---
+name: dcipher-monkeypox
+description: Monkeypox flat file format for submission to DCIPHER
+topic: monkeypox
+trackingElement: message_id
+basedOn: monkeypox
+extends: monkeypox
+elements:
+
+
+  - name: reporting_facility_clia
+    csvFields: [{ name: testing_facility_oid  }]
+    documentation: Unique identifier of the facility that sends the message. Note DCIPHER needs OID here.
+
+  - name: testing_lab_name
+    csvFields: [{ name: testing_facility_name  }]
+    documentation: Unique name of the facility that sends the message, corresponding to the OID above. 
+    
+  - name: event_name
+    type: TEXT
+    csvFields: [{ name: event_name  }]
+    default: 2022 Monkeypox
+
+  - name: program
+    type: TEXT
+    csvFields: [{ name: program  }]
+    default: LRN-B
+
+  - name: filler_order_id
+    csvFields: [{ name: sample_additional_identifier }]
+    documentation: Primary identifier for the specimen, as in HL7 field SPM-2.2.1
+
+  - name: specimen_description
+    csvFields: [{ name: sample_description }]
+    documentation: Additional information specifically about the specimen to be sent in the message, as in HL7 field SPM-14
+
+  - name: sample_category
+    type: TEXT
+    csvFields: [{ name: sample_category }]
+    default: Human - Clinical
+
+  - name: specimen_condition
+    csvFields: [{ name: sample_condition }]
+    documentation: Description of the physical state of the specimen, as in HL7 field SPM-24.2
+
+  - name: specimen_type_name
+    csvFields: [{ name: sample_type }]
+    documentation: Description of the precise nature of the entity that will be the source material for the observation, as in HL7 field SPM-4.2
+
+  - name: sample_type_other_text
+    type: TEXT
+    csvFields: [{ name: sample_type_other_text }]
+    default: NULL
+    documentation: Alternate description of the specimen, as in HL7 field SPM-4.9
+
+  - name: suspect_agent
+    type: TEXT
+    csvFields: [{ name: suspect_agent }]
+    default: NULL
+
+  - name: specimen_collection_date_time
+    csvFields: [{ name: collection_timestamp }]
+    documentation: Time at which the sample was collected, as opposed to the time the sample collection device was recovered, as in HL7 fields SPM-17.1.1 and OBR-7.
+
+  - name: testing_lab_specimen_received_datetime
+    csvFields: [{ name: received_timestamp }]
+    documentation: Time at which the specimen is received at the diagnostic service.  The actual time recorded is based on how the specimen receipt is managed, and may correspond to the time the sample is logged in. Corresponds to HL7 field SPM-18.1
+
+  - name: sample_modified_date
+    type: DATETIME
+    csvFields: [{ name: sample_modified_date }]
+    mapper: timestamp()
+    documentation: Date/time sample last updated at CDC (system-generated).
+
+  - name: sample_start
+    type: TEXT
+    csvFields: [{ name: sample_start }]
+    default: NULL
+
+  - name: sample_stop
+    type: TEXT
+    csvFields: [{ name: sample_stop }]
+    default: NULL
+
+  - name: sample_duration
+    type: TEXT
+    csvFields: [{ name: sample_duration }]
+    default: NULL
+
+  - name: sample_volume
+    type: TEXT
+    csvFields: [{ name: sample_volume }]
+    default: NULL
+
+  - name: sample_longitude
+    type: TEXT
+    csvFields: [{ name: sample_longitude }]
+    default: NULL
+
+  - name: sample_latitude
+    type: TEXT
+    csvFields: [{ name: sample_latitude }]
+    default: NULL
+
+  - name: locator_id
+    type: TEXT
+    csvFields: [{ name: locator_id }]
+    default: NULL
+
+  - name: tested_agent
+    type: TEXT
+    csvFields: [{ name: tested_agent }]
+    default: Variola & poxvirus
+
+  - name: test_performed_name
+    csvFields: [{ name: test_assay }]
+    documentation: Name of test performed, as in HL7 field OBX-3.2
+
+  - name: test_result_date
+    csvFields: [{ name: test_date }]
+    documentation: Date/time lab performed the test
+    #note confirm formatting        #Date
+
+  - name: test_modified_on
+    type: DATETIME
+    csvFields: [{ name: test_modifed_on }]
+    mapper: timestamp()
+    documentation: Date/time test last updated at CDC (system-generated).
+
+  - name: extraction_kit
+    type: TEXT
+    csvFields: [{ name: extraction_kit }]
+    default: NULL
+
+  - name: amplification_kit
+    type: TEXT
+    csvFields: [{ name: amplification_kit }]
+    default: NULL
+
+  - name: test_kit_name_id
+    csvFields: [{ name: test_equipment_used }]
+    documentation: Description of the equipment used to perform the test, as in HL7 field OBX-17.
+
+  - name: test_performed_code
+    csvFields: [{ name: test_parameter }]
+    documentation: Code or text describing the parameter or subtest being evaluated, as in HL7 field OBX-3.
+
+  - name: test_result_id
+    csvFields: [{ name: test_result }]
+    documentation: Result of the test performed, as in HL7 field OBX-5.
+
+  - name: test_result_text
+    csvFields: [{ name: data_value_text }]
+    documentation: If provided, a numeric result value.
+
+  - name: test_moiety
+    type: TEXT
+    csvFields: [{ name: test_moiety }]
+    default: NULL
+
+  - name: test_interpretation_for_moiety
+    type: TEXT
+    csvFields: [{ name: test_interpretation_for_moiety }]
+    default: NULL
+
+  - name: comment
+    csvFields: [{ name: test_comments }]
+    documentation: Any notes regarding how the test was performed that are not covered by other data elements (typically left blank)
+
+  - name: test_overall_findings
+    type: TEXT
+    csvFields: [{ name: test_overall_findings }]
+    documentation: Brief description of the test results
+    default: NULL
+
+  - name: sample_result_status
+    type: TEXT
+    csvFields: [{ name: sample_result_status }]
+    default: Testing Completed by lab
+    documentation: Use one from this value set - Testing Completed by lab, Testing Not Completed - further testing has been deferred to the CDC, Testing Not Completed - additional testing to be sent by lab
+
+  - name: sample_conclusion_comment
+    type: TEXT
+    csvFields: [{ name: sample_conclusion_comment }]
+    default: NULL
+    documentation: Any notes regarding the conclusions drawn that are not covered by other data elements (typically left blank)
+
+  - name: sample_conclusion
+    type: TEXT
+    csvFields: [{ name: sample_conclusion }]
+    default: NULL
+    documentation: Description of the conclusion that should be drawn from the test results e.g., Presumptive positive identification of Varicella Zoster virus
+
+  - name: subject_description
+    type: TEXT
+    csvFields: [{ name: subject_description }]
+    default: NULL
+
+  - name: patient_id_hash
+    type: TEXT
+    mapper: hash(patient_id)
+    csvFields: [{ name: Patient_id }]
+    documentation: Optional patient identifier. Using a hash to deidentify
+
+  - name: patient_street
+    csvFields: [{ name: subject_address_line_1 }]
+
+  - name: patient_street2
+    csvFields: [{ name: subject_address_line_2 }]
+
+  - name: patient_city
+    csvFields: [{ name: subject_city }]
+
+  - name: patient_state
+    csvFields: [{ name: subject_state }]
+
+  - name: patient_zip_code
+    csvFields: [{ name: subject_zip }]
+
+  - name: patient_age
+    csvFields: [{ name: subject_age }]
+
+  - name: patient_race
+    csvFields: [{ name: subject_race }]
+
+  - name: patient_ethnicity
+    csvFields: [{ name: subject_ethnicity }]
+
+  - name: patient_gender
+    csvFields: [{ name: subject_sex }]
+
+  - name: processing_date
+    type: DATETIME
+    csvFields: [{ name: processing_date }]
+    mapper: timestamp()
+    documentation: Date/time message was processed at CDC (system-generated)
+
+  - name: sample_temperature
+    type: TEXT
+    csvFields: [{ name: sample_temperature }]
+    default: NULL
+    documentation: The temperature of the sample at the time of testing, if available (typically NULL)
+
+  - name: sample_weight
+    type: TEXT
+    csvFields: [{ name: sample_weight }]
+    default: NULL
+    documentation: The weight of the sample at the time of testing, if available (typically left blank)
+
+  - name: message_id
+    csvFields: [{ name: message_id }]
+    documentation: Identifier for the message received (system-generated)
+
+  - name: message_type
+    type: TEXT
+    csvFields: [{ name: message_type }]
+    default: SAMPLE
+
+  - name: ordering_facility_city
+    csvFields: [{ name: ordering_facility_city }]
+
+  - name: ordering_facility_state
+    csvFields: [{ name: ordering_facility_state }]
+
+  - name: ordering_facility_zip_code
+    csvFields: [{ name: ordering_facility_zip_code }]
+
+  - name: specimen_collection_method_code
+    csvFields: [{ name: specimen_collection_method_code }]
+
+  - name: specimen_id
+    csvFields: [{ name: specimen_id }]
+
+  - name: date_result_released
+    csvFields: [{ name: date_result_released }]
+
+  - name: file_created_date
+    csvFields: [{ name: message_date }]
+
+  - name: order_test_date
+    csvFields: [{ name: order_test_date }]
+
+  - name: order_result_status
+    csvFields: [{ name: order_result_status }]

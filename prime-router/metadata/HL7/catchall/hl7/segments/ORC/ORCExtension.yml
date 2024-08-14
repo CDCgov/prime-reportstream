@@ -1,0 +1,260 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: orc-common-order
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        orc5: STRING_ALL, ORC.5
+      condition: $orc5 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.5
+        valueString:
+          type: STRING
+          valueOf: ORC.5
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        orc6: STRING_ALL, ORC.6
+      condition: $orc6 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.6
+        valueString:
+          type: STRING
+          valueOf: ORC.6
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        orc8: STRING_ALL, ORC.8
+      condition: $orc8 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.8
+        valueIdentifier:
+          valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
+          expressionType: resource
+          specs: ORC.8
+          constants:
+            backupExtension: "filler-assigned-identifier"
+    - expressionType: nested
+      vars:
+        orc10: STRING_ALL, ORC.10
+      condition: $orc10 NOT_NULL
+      specs: ORC.10 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.10
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/XCN/Practitioner
+    - expressionType: nested
+      vars:
+        orc11: STRING_ALL, ORC.11
+      condition: $orc11 NOT_NULL
+      specs: ORC.11 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.11
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/XCN/Practitioner
+    - expressionType: nested
+      vars:
+        orc12: STRING_ALL, ORC.12
+      condition: $orc12 NOT_NULL
+      specs: ORC.12 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: orc-12-ordering-provider
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/XCN/Practitioner
+    - expressionType: nested
+      vars:
+        orc13: STRING_ALL, ORC.13
+      condition: $orc13 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.13
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/PL/Location
+          specs: ORC.13
+    - expressionType: nested
+      condition: $orc15 NOT_NULL
+      vars:
+        orc15: STRING, ORC.15
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.15
+        valueString:
+          type: STRING
+          valueOf: ORC.15
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        orc17: ORC.17
+      condition: $orc17 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.17
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: ORC.17
+    - expressionType: nested
+      vars:
+        orc17: ORC.18
+      condition: $orc17 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.18
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: ORC.18
+    - expressionType: nested
+      vars:
+        orc19: STRING_ALL, ORC.19
+      condition: $orc19 NOT_NULL
+      specs: ORC.19 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.19
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/XCN/Practitioner
+    - expressionType: nested
+      vars:
+        orc21: STRING_ALL, ORC.21
+      condition: $orc21 NOT_NULL
+      specs: ORC.21 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: orc-21-ordering-facility-name
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/XON/Organization
+    - expressionType: nested
+      vars:
+        orc22: STRING_ALL, ORC.22
+      condition: $orc22 NOT_NULL
+      specs: ORC.22 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: orc-22-ordering-facility-address
+        valueAddress:
+          expressionType: resource
+          valueOf: datatypes/XAD/Address
+    - expressionType: nested
+      vars:
+        orc24: STRING_ALL, ORC.24
+      condition: $orc24 NOT_NULL
+      specs: ORC.24 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: orc-24-ordering-provider-address
+        valueAddress:
+          expressionType: resource
+          valueOf: datatypes/XAD/Address
+    - expressionType: nested
+      vars:
+        orc27: ORC.27
+      condition: $orc27 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.27
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: ORC.27
+    - expressionType: nested
+      vars:
+        orc28: ORC.28
+      condition: $orc28 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.28
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: ORC.28
+    - expressionType: nested
+      vars:
+        orc30: STRING_ALL, ORC.30
+      condition: $orc30 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.30
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CNE/CodeableConcept
+          specs: ORC.30
+    - expressionType: nested
+      vars:
+        orc31: STRING_ALL, ORC.31
+      condition: $orc31 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.31
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: ORC.31
+    - expressionType: nested
+      vars:
+        orc32: STRING, ORC.32
+      condition: $orc32 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.32
+        valueString:
+          type: STRING
+          valueOf: ORC.32
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        orc34: STRING_ALL, ORC.34
+      condition: $orc34 NOT_NULL
+      specs: ORC.34 *
+      generateList: True
+      expressionsMap:
+        url:
+          type: STRING
+          value: ORC.34
+        valueIdentifier:
+          valueOf: datatypes/EI/Identifier
+          expressionType: resource

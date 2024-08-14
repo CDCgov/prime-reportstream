@@ -1,0 +1,37 @@
+﻿name,natFlatFileField,hhsGuidanceField,required
+Patient_last_name,Patient_last_name,Patient name ,TRUE
+Patient_first_name,Patient_first_name,Patient name ,TRUE
+Patient_middle_name,Patient_middle_name,Patient name ,FALSE
+Patient_suffix,Patient_suffix,,FALSE
+Patient_race,Patient_race,Patient race ,FALSE
+Patient_DOB,Patient_DOB,Patient date of birth,TRUE
+Patient_gender,Patient_gender,Patient sex,TRUE
+Patient_ethnicity,Patient_ethnicity,Patient ethnicity,FALSE
+Patient_street,Patient_street,Patient street address,TRUE
+Patient_street2,Patient_street2,,FALSE
+Patient_city,Patient_city,,TRUE
+Patient_county,Patient_county,Patient residence county,FALSE
+Patient_state,Patient_state,,FALSE
+Patient_zip_code,Patient_zip_code,Patient residence zip code,TRUE
+Patient_phone_number,Patient_phone_number,Patient phone number,TRUE
+Employed_in_healthcare,Employed_in_healthcare,,TRUE
+Resident_congregate_setting,Resident_congregate_setting,Resident in congregate care/living setting,TRUE
+Role,,,FALSE
+Testing_lab_specimen_ID,Testing_lab_specimen_ID,,FALSE
+Test_result_coded,Test_result_coded,Test result ,FALSE
+Specimen_collection_date_time,Specimen_collection_date_time,Test result date,FALSE
+Ordering_provider_ID,Ordering_provider_ID,Ordering provider name; NPI,TRUE
+First_test,First_test,First Test,TRUE
+Symptomatic_for_disease,Symptomatic_for_disease,Symptomatic per CDC,FALSE
+Testing_lab_name,Testing_lab_name,,TRUE
+Testing_lab_ID,Testing_lab_ID,,FALSE
+Ordering_provider_last_name,Ordering_provider_last_name,,TRUE
+Ordering_provider_first_name,Ordering_provider_first_name,,FALSE
+Ordering_provider_street,Ordering_provider_street,Ordering provider address,FALSE
+Ordering_provider_zip_code,Ordering_provider_zip_code,Ordering provider zip code,TRUE
+Ordering_provider_phone,Ordering_provider_phone,Ordering provider phone number,FALSE
+Ordered_test_code,Ordered_test_code,Test ordered ,FALSE
+Specimen_source_site_code,Specimen_source_site_code,Specimen source,FALSE
+Device_type,,Device Identifier,FALSE
+Test_date,Test_date,Test result date,FALSE
+Date_result_released,Date_result_released,Test report date,FALSE

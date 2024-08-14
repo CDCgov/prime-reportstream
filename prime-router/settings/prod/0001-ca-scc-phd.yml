@@ -1,0 +1,21 @@
+---
+- name: ca-scc-phd
+  description: Public Health Department - Santa Clara, California
+  jurisdiction: COUNTY
+  stateCode: CA
+  countyName: Santa Clara
+  receivers:
+      - name: elr-download
+        organizationName: ca-scc-phd
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, CA)", "matches(ordering_facility_county, Santa Clara)" ]
+        deidentify: false
+        translation:
+          type: CUSTOM
+          schemaName: ca/ca-scc-covid-19
+          format: CSV
+        timing:
+          operation: MERGE
+          numberPerDay: 1 # daily
+          initialTime: 09:15 # A little after the 9am EASTERN reports from simple report
+          timeZone: EASTERN

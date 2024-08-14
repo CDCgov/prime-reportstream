@@ -1,0 +1,215 @@
+# To submit this to localhost, run:
+# ./prime multiple-settings set --input ./junk/flexion/AL/Settings/al-phl-staging-l.yml
+# ./prime multiple-settings set --env staging --input ./junk/flexion/AL/Settings/al-phl-staging.yml
+#
+# Description:
+#   These following setting are for Alabama Public Health Lab (al-phl) sender and receivers
+#   AL-PHL Sender (etor-nbs-orders) sends to ETOR-TI Receiver (etor-service-receiver)
+#   ETOR-TI Sender (etor-service-sender) sends to AL-PHL Receiver (etor-nbs-results)
+---
+- name: "al-phl"
+  description: "Alabama Public Health Lab"
+  jurisdiction: "STATE"
+  stateCode: "AL"
+  countyName: null
+  filters: []
+  featureFlags: []
+  keys: null
+  senders:
+    - !<full-elr>
+      name: "etor-nbs-results"
+      organizationName: "al-phl"
+      format: "HL7"
+      customerStatus: "active"
+      schemaName: ""
+      processingType: "sync"
+      allowDuplicates: true
+      senderType: null
+      primarySubmissionMethod: null
+      topic: "etor-ti"
+      version: null
+      createdBy: null
+      createdAt: null
+  receivers:
+    - name: "etor-nbs-orders"
+      organizationName: "al-phl"
+      topic: "etor-ti"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/receivers/Flexion/TILabOrder"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "AL-PHL"
+        receivingApplicationOID: null
+        receivingFacilityName: "AL"
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB: {}
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "standard"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: false
+          truncateHl7Fields: []
+          customLengthHl7Fields: {}
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21')"
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'AL') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'AL')"
+      qualityFilter:
+        - "true"
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      conditionFilter: []
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<SFTP>
+        host: "172.17.6.20"
+        port: "22"
+        filePath: "./upload"
+        credentialName: null
+        type: "SFTP"
+      externalName: "Alabama State Public Health Lab ETOR Receiver"
+      timeZone: null
+      dateTimeFormat: "OFFSET"
+#   BAPTIST Sender (etor-nbs-orders) sends to ETOR-TI Receiver (etor-service-receiver)
+#   ETOR-TI Sender (etor-service-sender) sends to AL-PHL Receiver (etor-nbs-results)
+- name: "baptist"
+  description: "Baptist Health"
+  jurisdiction: "STATE"
+  stateCode: "AL"
+  countyName: null
+  filters: []
+  featureFlags: []
+  keys: null
+  senders:
+    - !<full-elr>
+      name: "etor-nbs-orders"
+      organizationName: "baptist"
+      format: "HL7"
+      customerStatus: "active"
+      schemaName: ""
+      processingType: "sync"
+      allowDuplicates: true
+      senderType: null
+      primarySubmissionMethod: null
+      topic: "etor-ti"
+      version: null
+      createdBy: null
+      createdAt: null
+  receivers:
+    - name: "etor-nbs-results"
+      organizationName: "baptist"
+      topic: "etor-ti"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/receivers/Flexion/TILabOrder"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "AL-PHL"
+        receivingApplicationOID: null
+        receivingFacilityName: "AL"
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB: {}
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "standard"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: false
+          truncateHl7Fields: []
+          customLengthHl7Fields: {}
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21')"
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'AL') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'AL')"
+      qualityFilter:
+        - "true"
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      conditionFilter: []
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<SFTP>
+        host: "172.17.6.20"
+        port: "22"
+        filePath: "./upload"
+        credentialName: null
+        type: "SFTP"
+      externalName: "Baptist Health ETOR Receiver"
+      timeZone: null
+      dateTimeFormat: "OFFSET"

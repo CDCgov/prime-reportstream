@@ -1,0 +1,503 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Observation
+
+# Not implementing OBX.5 when OBX.2 is RP as the inventory say it still needs to be resolved
+# Not implementing OBX.5 when OBX.2 is CF, the type does not exist in NIST and the mapping is wrong in the inventory
+# Not implementing OBX.5 when OBX.2 is NA (Numeric Array), the inventory does not specify how that should map to SampledData
+# OBX.17 is repeatable but maps to method on Observation which is not, so it's all captured in OBXExtension
+# OBX.18 is repeatable but maps to device on Observation which is not, so it's all captured in OBXExtension
+# Not implementing OBX.20 not in mapping deprecated in NIST
+# Not implementing OBX.21 not in mapping deprecated in NIST
+# Not implementing OBX.22 not in mapping deprecated in NIST
+# Not implementing OBX.26 not in mapping not in NIST
+# Not implementing OBX.27 not in mapping not in NIST
+# Not implementing OBX.28 not in mapping not in NIST
+# Not implementing OBX.29 not in mapping not in NIST
+# Not implementing OBX.30 not in mapping not in NIST
+# Not implementing OBX.31 not in mapping not in NIST
+# Not implementing OBX.32 not in mapping not in NIST
+# Not implementing OBX.33 as it's not in the NIST spec the logic in the inventory cannot be implemented in the library
+
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+code:
+  vars:
+    obx3: STRING, OBX.3
+  condition: $obx3 NOT_NULL
+  expressionType: resource
+  valueOf: datatypes/CWE_ELR/CodeableConcept
+  specs: OBX.3
+
+valueString_obx:
+  vars:
+    obx2: STRING, OBX.2
+  expressionType: nested
+  expressions:
+    - condition: $obx2 EQUALS ST || $obx2 EQUALS FT || $obx2 EQUALS TX
+      type: STRING_ALL
+      valueOf: OBX.5
+      expressionType: HL7Spec
+    - condition: $obx2 EQUALS VR
+      vars:
+        vrValue: OBX.5.1 + $dash + OBX.5.2
+      constants:
+        dash: "-"
+      type: STRING
+      valueOf: $vrValue
+    - condition: $obx2 EQUALS SN && $obx53 EQUALS +
+      vars:
+        obx53: STRING, OBX.5.3
+        value: OBX.5.1 + $plus + OBX.5.2 + $plus + OBX.5.3 + $plus + OBX.5.4
+      constants:
+        plus: "+"
+      type: STRING
+      valueOf: $value
+
+valueCodeableConcept:
+  expressionType: nested
+  vars:
+    obx2: STRING, OBX.2
+  expressions:
+    - condition: $obx2 EQUALS CNE
+      valueOf: ../../datatypes/v251/hl7/datatypes/CNE/CodeableConcept
+      specs: OBX.5
+      expressionType: resource
+    - condition: $obx2 EQUALS CWE
+      valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
+      specs: OBX.5
+      expressionType: resource
+    - condition: $obx2 EQUALS CE
+      valueOf: ../../datatypes/v251/hl7/datatypes/CE/CodeableConcept
+      specs: OBX.5
+      expressionType: resource
+    - condition: $obx2 EQUALS IS
+      expressionType: nested
+      expressionsMap:
+        coding:
+          expressionType: nested
+          generateList: true
+          expressionsMap:
+            code:
+              type: STRING
+              expressionType: HL7Spec
+              valueOf: OBX.5
+
+valuePeriod:
+  condition: $obx2 EQUALS DR
+  valueOf: ../../datatypes/v251/hl7/datatypes/DR/Period
+  expressionType: resource
+  specs: OBX.5
+  vars:
+    obx2: STRING, OBX.2
+    start: OBX.5.1
+    end: OBX.5.2
+    dateTimeIn: OBX.5.1
+    dateTimeOut: OBX.5.2
+
+valueDateTime:
+  condition: $obx2 EQUALS DT || $obx2 EQUALS DTM
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: OBX.5
+    obx2: STRING, OBX.2
+_valueDateTime:
+  expressionType: nested
+  condition: $obx2 EQUALS DT || $obx2 EQUALS DTM
+  vars:
+    obx5: OBX.5
+    obx2: STRING, OBX.2
+  expressionsMap:
+    extension:
+      condition: $obx5 NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: OBX.5
+          expressionType: HL7Spec
+
+valueTime:
+  condition: $obx2 EQUALS TM
+  type: STRING
+  valueOf: OBX.5
+  expressionType: HL7Spec
+  vars:
+    obx2: STRING, OBX.2
+
+_valueTime:
+  expressionType: nested
+  condition: $obx2 EQUALS TM
+  vars:
+    obx5: OBX.5
+    obx2: STRING, OBX.2
+  expressionsMap:
+    extension:
+      condition: $obx5 NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: OBX.5
+          expressionType: HL7Spec
+
+valueRange:
+  vars:
+    obx2: STRING, OBX.2
+    CWERangeUnits: OBX.6
+    obx53: STRING, OBX.5.3
+  expressionType: nested
+  specs: OBX.5
+  expressions:
+    - condition: $obx2 EQUALS NR
+      valueOf: ../../datatypes/v251/hl7/datatypes/NR/Range
+      expressionType: resource
+    - condition: $obx2 EQUALS SN && $obx53 EQUALS -
+      valueOf: ../../datatypes/v251/hl7/datatypes/SN/Range
+      expressionType: resource
+
+
+valueRatio:
+  vars:
+    obx2: STRING, OBX.2
+    obx53: STRING, OBX.5.3
+    CWERangeUnits: OBX.6
+  condition: $obx2 EQUALS SN && ($obx53 EQUALS / || $obx53 EQUALS :)
+  valueOf: ../../datatypes/v251/hl7/datatypes/SN/Ratio
+  expressionType: resource
+  specs: OBX.5
+
+valueQuantity:
+  vars:
+    obx2: STRING, OBX.2
+    CWEQuantityUnits: OBX.6
+    obx53: STRING, OBX.5.3
+  expressionType: nested
+  expressions:
+    - condition: $obx2 EQUALS NM
+      expressionType: nested
+      expressionsMap:
+        value:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBX.5
+        code:
+          condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CWEQuantityUnits.1
+          vars:
+            identifier: CWEQuantityUnits.1
+            nameOfCodingSystem: CWEQuantityUnits.3
+        unit:
+          expressionType: nested
+          vars:
+            identifier: CWEQuantityUnits.1
+            text: CWEQuantityUnits.2
+          expressions:
+            - condition: $text NULL && $identifier NOT_NULL
+              type: STRING
+              valueOf: CWEQuantityUnits.1
+              expressionType: HL7Spec
+            - condition: $text NOT_NULL
+              type: STRING
+              valueOf: CWEQuantityUnits.2
+              expressionType: HL7Spec
+        system:
+          condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CWEQuantityUnits.3
+          vars:
+            identifier: CWEQuantityUnits.1
+            nameOfCodingSystem: CWEQuantityUnits.3
+    - condition: >
+        $obx2 EQUALS SN && $obx53 NOT_EQUALS : && $obx53 NOT_EQUALS / && $obx53 NOT_EQUALS - && $obx53 NOT_EQUALS +
+      expressionType: resource
+      valueOf: ../../datatypes/v251/hl7/datatypes/SN/Quantity
+      specs: OBX.5
+
+referenceRange:
+  vars:
+    obx7: STRING_ALL, OBX.7
+  condition: $obx7 NOT_NULL
+  expressionType: nested
+  generateList: true
+  expressionsMap:
+    text:
+      expressionType: HL7Spec
+      type: STRING
+      valueOf: OBX.7
+
+interpretation:
+  vars:
+    obx8: STRING_ALL, OBX.8
+  condition: $obx8 NOT_NULL
+  generateList: true
+  valueOf: datatypes/CWE_ELR/CodeableConcept
+  expressionType: resource
+  specs: OBX.8 *
+
+status:
+  type: OBSERVATION_STATUS
+  default: unknown
+  valueOf: OBX.11
+  expressionType: HL7Spec
+
+dataAbsentReason:
+  vars:
+    obx2: STRING, OBX.2
+    obx5: STRING, OBX.5
+    obx11: STRING, OBX.11
+  constants:
+    system: http://terminology.hl7.org/CodeSystem/data-absent-reason
+  expressionType: nested
+  expressions:
+    - condition: $obx11 EQUALS X
+      expressionType: nested
+      expressionsMap:
+        coding:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            code:
+              valueOf: cannot-be-obtained
+            system:
+              valueOf: $system
+    - condition: $obx11 EQUALS_STRING N
+      expressionType: nested
+      expressionsMap:
+        coding:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            code:
+              valueOf: not-asked
+            system:
+              valueOf: $system
+    - condition: $obx2 EQUALS ST && ($obx5 EQUALS_STRING $emptyString || $obx5 NULL)
+      expressionType: nested
+      constants:
+        emptyString: ""
+      expressionsMap:
+        coding:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            code:
+              valueOf: unknown
+            system:
+              valueOf: $system
+
+effectiveDateTime:
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: OBX.14
+_effectiveDateTime:
+  expressionType: nested
+  condition: $obx14 NOT_NULL
+  vars:
+    obx14: OBX.14
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: OBX.14
+          expressionType: HL7Spec
+
+method:
+  vars:
+    obx17: STRING_ALL, OBX.17
+  condition: $obx17 NOT_NuLL
+  valueOf: datatypes/CWE_ELR/CodeableConcept
+  expressionType: resource
+  specs: OBX.17
+
+device:
+  vars:
+    obx18: STRING_ALL, OBX.18
+  condition: $obx18 NOT_NULL
+  valueOf: segments/OBX/Device
+  expressionType: reference
+  specs: OBX.18
+
+performer:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: reference
+      vars:
+        obx15: STRING_ALL, OBX.15
+      condition: $obx15 NOT_NULL
+      valueOf: ../../datatypes/v251/hl7/datatypes/CWE/Organization
+      constants:
+        cweOrganizationHL7Field: OBX.15
+      specs: OBX.15
+    - expressionType: reference
+      generateList: true
+      specs: OBX.16 *
+      valueOf: segments/OBX/PractitionerRole
+      vars:
+        OBXPractitionerComponent: $BASE_VALUE
+        obx16: STRING_ALL, OBX.16
+      condition: $obx16 NOT_NULL
+      constants:
+        OBXPractitionerRoleSystem: "http://terminology.hl7.org/CodeSystem/practitioner-role"
+        OBXPractitionerRoleCode: "responsibleObserver"
+    - expressionType: reference
+      vars:
+        obx25: STRING_ALL, OBX.25
+        OBXPractitionerComponent: OBX.25
+        OBXPractitionerRoleOrganization: OBX.23
+        OBXPractitionerRoleOrganizationAddress: OBX.24
+      condition: $obx25 NOT_NULL
+      valueOf: segments/OBX/PractitionerRole
+      constants:
+        OBXPractitionerRoleSystem: "http://terminology.hl7.org/CodeSystem/v2-0912"
+        OBXPractitionerRoleCode: "MDIR"
+    - expressionType: reference
+      vars:
+        obx25: STRING_ALL, OBX.25
+        obx23: STRING_ALL, obx23
+        XADAddress: OBX.24
+      condition: $obx25 NULL && ($obx23 NOT_NULL || $XADAddress NOT_NULL)
+      valueOf: ../../datatypes/v251/hl7/datatypes/XON/Organization
+      specs: OBX.23
+      constants:
+        XONHL7Field: OBX.25
+
+extension:
+  generateList: true
+  expressionType: nested
+  vars:
+    obx2: STRING, OBX.2
+  expressions:
+    - expressionType: nested
+      vars:
+        obx4: STRING,OBX.4
+      condition: $obx4 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: sub-id
+        valueString:
+          expressionType: HL7Spec
+          type: STRING
+          valueOf: OBX.4
+    - expressionType: nested
+      vars:
+        obx10: STRING_ALL, OBX.10
+      condition: $obx10 NOT_NULL
+      generateList: true
+      specs: OBX.10 *
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: nature-of-abnormal-test
+        valueId:
+          valueOf: $BASE_VALUE
+          expressionType: HL7Spec
+          type: STRING
+    - expressionType: nested
+      vars:
+        obx19: STRING, OBX.19
+      condition: $obx19 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: analysis-date-time
+        valueDateTime:
+          type: STRING
+          valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+          expressionType: JEXL
+          vars:
+            dateTimeIn: OBX.19
+        _valueDateTime:
+          expressionType: nested
+          condition: $obx19 NOT_NULL
+          vars:
+            obx19: OBX.19
+          expressionsMap:
+            extension_1:
+              generateList: true
+              expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  value: hl7v2-date-time
+                valueString:
+                  type: STRING
+                  valueOf: $obx19
+                  expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        obx54: STRING, OBX.5.4
+      condition: $obx2 EQUALS ED && $obx54 EQUALS Base64
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: observation-value-attachment
+        valueAttachment:
+          valueOf: ../../datatypes/v251/hl7/datatypes/ED/Attachment
+          expressionType: resource
+          specs: OBX.5
+    - expressionType: resource
+      condition: $obx2 EQUALS SN
+      valueOf: ../../datatypes/v251/hl7/datatypes/SN/ExtensionSN
+      specs: OBX.5
+    - expressionType: resource
+      valueOf: segments/OBX/OBXExtension
+
+
+subject:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Patient
+
+encounter:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Encounter
+
+# $suppressNote is a constant that can be passed in so that a note is not generated
+# This was required when we translate the SPECIMEN.OBX segment so that the created observation
+# does not include notes from the OBSERVATION GROUP
+# ORDER_OBSERVATION
+#   NTE -> Should not be included as part of the Observation created from the OBX
+#   SPECIMEN
+#     OBX
+# See use here: https://github.com/CDCgov/prime-reportstream/blob/813fe6d15e780af3ea88eb61ddfbdf2a8f4462a9/prime-router/metadata/fhir_mapping/hl7/resource/ServiceRequest.yml#L380
+note_observation:
+  valueOf: segments/NTE/Annotation
+  condition: $suppressNote NULL
+  expressionType: resource
+  generateList: true
+  specs: NTE
+
+focus:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Specimen
+  useGroup: true

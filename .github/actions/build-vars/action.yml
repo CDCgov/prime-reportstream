@@ -1,0 +1,249 @@
+# action.yml
+name: 'Build Variables'
+description: 'Variables shared by build workflows'
+inputs:
+  sp-creds:
+    description: "Azure Service Principal creds"
+    default: 'false'
+outputs:
+  env_name:
+    value: ${{ steps.build_result.outputs.env_name }}
+    description: 'Test, staging, or prod'
+  version:
+    value: ${{ steps.version_result.outputs.version }}
+    description: 'Tag name'
+  is_deployment_pr:
+    value: ${{ steps.deployment_pr_result.outputs.is_deployment_pr }}
+    description: 'Is deployment PR'
+  has_router_change:
+    value: ${{ steps.backend_change_result.outputs.has_router_change }}
+    description: 'For non-prod, do not build if no changes'
+  has_frontend_change:
+    value: ${{ steps.frontend_change_result.outputs.has_frontend_change }}
+    description: 'For non-prod, do not build if no changes'
+  has_terraform_change:
+    value: ${{ steps.filter.outputs.terraform }}
+    description: 'Check if terraform changes. true or false'
+  prerelease:
+    value: ${{ steps.prerelease_result.outputs.prerelease }}
+    description: 'GitHub release or pre-release'
+  dns_ip:
+    value: ${{ steps.fetch_vpn_ip.outputs.dns_ip }}
+    description: 'VPN DNS IP'
+  backend_files:
+    value: ${{ steps.filter.outputs.router_files }}
+    description: 'JSON array of changed backend files'
+  frontend_files:
+    value: ${{ steps.filter.outputs.frontend_react_files }}
+    description: 'JSON array of changed frontend files'
+  terraform_files:
+    value: ${{ steps.filter.outputs.terraform_files }}
+    description: 'JSON array of changed terraform files'
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Set Build Environment - demo1
+      id: build_demo1
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'demo1') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'demo1')
+      shell: bash
+      run: echo "env_name=demo1" >> $GITHUB_OUTPUT
+
+    - name: Set Build Environment - DEMO2
+      id: build_demo2
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'demo2') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'demo2')
+      shell: bash
+      run: echo "env_name=demo2" >> $GITHUB_OUTPUT
+
+    - name: Set Build Environment - DEMO3
+      id: build_demo3
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'demo3') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'demo3')
+      shell: bash
+      run: echo "env_name=demo3" >> $GITHUB_OUTPUT
+
+    - name: Set Build Environment - trialfrontend01
+      id: build_trialfrontend01
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'trialfrontend01') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'trialfrontend01')
+      shell: bash
+      run: echo "env_name=trialfrontend01" >> $GITHUB_OUTPUT
+
+    - name: Set Build Environment - trialfrontend02
+      id: build_trialfrontend02
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'trialfrontend02') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'trialfrontend02')
+      shell: bash
+      run: echo "env_name=trialfrontend02" >> $GITHUB_OUTPUT
+
+    - name: Set Build Environment - trialfrontend03
+      id: build_trialfrontend03
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'trialfrontend03') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'trialfrontend03')
+      shell: bash
+      run: echo "env_name=trialfrontend03" >> $GITHUB_OUTPUT
+
+    - name: Set Build Environment - TEST
+      id: build_test
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'test') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'test')
+      shell: bash
+      run: echo "env_name=test" >> $GITHUB_OUTPUT
+
+    - name: Set Build Environment - STAGING
+      id: build_staging
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'master') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'master')
+      shell: bash
+      run: |
+        echo "env_name=staging" >> $GITHUB_OUTPUT
+        echo "prerelease=true" >> $GITHUB_OUTPUT
+        echo "version=v-pre-release" >> $GITHUB_OUTPUT
+
+    - name: Set Build Environment - PROD
+      id: build_prod
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'production') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'production')
+      shell: bash
+      run: |
+        echo "env_name=prod" >> $GITHUB_OUTPUT
+        echo "prerelease=false" >> $GITHUB_OUTPUT
+        echo "version=v-$(date +%Y.%m.%d-%H%M%S)" >> $GITHUB_OUTPUT
+
+    - name: Set Build Environment - RESULT
+      id: build_result
+      shell: bash
+      run: |
+        echo "env_name=\
+        ${{ steps.build_demo1.outputs.env_name }}\
+        ${{ steps.build_demo2.outputs.env_name }}\
+        ${{ steps.build_demo3.outputs.env_name }}\
+        ${{ steps.build_test.outputs.env_name }}\
+        ${{ steps.build_staging.outputs.env_name }}\
+        ${{ steps.build_trialfrontend01.outputs.env_name }}\
+        ${{ steps.build_trialfrontend02.outputs.env_name }}\
+        ${{ steps.build_trialfrontend03.outputs.env_name }}\
+        ${{ steps.build_prod.outputs.env_name }}" >> $GITHUB_OUTPUT
+
+    - name: Set if prerelease - RESULT
+      id: prerelease_result
+      shell: bash
+      run: |
+        echo "prerelease=\
+        ${{ steps.build_staging.outputs.prerelease }}\
+        ${{ steps.build_prod.outputs.prerelease }}" >> $GITHUB_OUTPUT
+
+    - name: Set tag version - RESULT
+      id: version_result
+      shell: bash
+      run: |
+        echo "version=\
+        ${{ steps.build_staging.outputs.version }}\
+        ${{ steps.build_prod.outputs.version }}" >> $GITHUB_OUTPUT
+
+    - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
+      if: github.event_name != 'schedule'
+      id: filter
+      with:
+        list-files: json
+        filters: |
+          router:
+            - 'prime-router/**/!(*.md)'
+            - 'operations/!((app|readme-assets|slack-boltjs-app|vpn))/**'
+            - '.github/actions/build-backend/action.yml'
+            - '.github/actions/deploy-backend/action.yml'
+            - '.github/actions/build-vars/action.yml'
+            - '.github/workflows/build_hub.yml'
+          frontend_react:
+            - 'frontend-react/**/!(*.md)'
+            - '.github/actions/build-vars/action.yml'
+            - '.github/actions/build-frontend/action.yml'
+            - '.github/workflows/frontend_ci.yml'          
+          terraform:
+            - 'operations/app/terraform/**/!(*.md)'
+            - '.github/workflows/validate_terraform.yml'
+            - '.github/workflows/deploy_terraform.yml'
+
+    - name: Files changed
+      shell: bash
+      run: |
+        printf "## NEW OR CHANGED FILES" >> $GITHUB_STEP_SUMMARY
+        printf "\n<details><summary>Backend</summary>\n\n\`${{ steps.filter.outputs.router_files }}\`</details>" >> $GITHUB_STEP_SUMMARY
+        printf "\n<details><summary>Frontend</summary>\n\n\`${{ steps.filter.outputs.frontend_react_files }}\`</details>" >> $GITHUB_STEP_SUMMARY
+        printf "\n<details><summary>Terraform</summary>\n\n\`${{ steps.filter.outputs.terraform_files }}\`</details>" >> $GITHUB_STEP_SUMMARY
+
+    - name: Determine if deployment PR
+      id: deployment_pr_result
+      shell: bash
+      run: |
+        echo "is_deployment_pr=false" >> $GITHUB_OUTPUT;
+        if [[ \
+          '${{ github.event_name }}' == 'pull_request' && \
+          '${{ github.ref_name }}' == deployment* || \
+          '${{ github.ref_name }}' == demo* || \
+          '${{ github.ref_name }}' == trialfrontend* || \
+          '${{ github.ref_name }}' == 'production' \
+        ]]; then
+          echo "is_deployment_pr=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Force backend change if prod
+      if: github.event_name != 'schedule'
+      id: backend_change_result
+      shell: bash
+      run: |
+        if [[ \
+        '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'test' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'demo1' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'demo2' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'demo3' \
+        ]]; then
+          echo "has_router_change=true" >> $GITHUB_OUTPUT
+        else
+          echo "has_router_change=${{ steps.filter.outputs.router }}" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Determine if frontend changed
+      if: github.event_name != 'schedule'
+      id: frontend_change_result
+      shell: bash
+      run: |
+        echo "has_frontend_change=false" >> $GITHUB_OUTPUT;
+        if [[ \
+        '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'test' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'demo1' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'demo2' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'demo3' \
+        ]]; then
+          echo "has_frontend_change=true" >> $GITHUB_OUTPUT
+        else
+          echo "has_frontend_change=${{ steps.filter.outputs.frontend_react }}" >> $GITHUB_OUTPUT
+        fi
+
+    - uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a
+      if: inputs.sp-creds != 'false'
+      with:
+        creds: ${{ inputs.sp-creds }}
+
+    - name: Fetch VPN DNS IP
+      if: inputs.sp-creds != 'false'
+      id: fetch_vpn_ip
+      shell: bash
+      run: |
+        DNS_IP=$(az container show -g prime-data-hub-${{ steps.build_result.outputs.env_name }} \
+        --name pdh${{ steps.build_result.outputs.env_name }}-dns --query 'ipAddress.ip' -o tsv)
+        echo "dns_ip=$DNS_IP" >> $GITHUB_OUTPUT

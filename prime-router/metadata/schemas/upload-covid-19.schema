@@ -1,0 +1,544 @@
+---
+name: upload-covid-19
+description: Schema for CSV Upload Tool
+topic: covid-19
+trackingElement: message_id
+basedOn: covid-19
+
+elements:
+    - name: sender_id
+      mapper: useSenderSetting(organizationName)
+
+    - name: processing_mode_code_fromsettings
+      type: TEXT
+      mapper: useSenderSetting(processingModeCode)
+
+    - name: processing_mode_code
+      cardinality: ONE
+      mapper: use(processing_mode_code, processing_mode_code_fromsettings)
+      csvFields: [ { name: processing_mode_code, format: $alt} ]
+      type: CODE
+      altValues:
+        - code: "T"
+          display: "TESTING"
+        - code: "T"
+          display: "INACTIVE"
+        - code: "T"
+          display: "T"
+        - code: "P"
+          display: "ACTIVE"
+        - code: "P"
+          display: "P"
+
+#    - name: sender_id_all
+#      default: "all"
+#      documentation: This is the sender_id value used in "all" sender_valuesets lookups
+#      type: TABLE
+#      table: sender_valuesets
+#      tableColumn: sender_id
+
+
+############### Set the major ID fields
+    - name: patient_id_temp
+      type: TEXT
+      mapper: concat($index, $currentDate)
+      delimiter: "+"
+
+    - name: patient_id
+      csvFields: [{name: patient_id}]
+      mapperOverridesValue: true
+      mapper: use(patient_id, patient_id_temp)
+
+    - name: accession_number_temp
+      type: TEXT
+      mapper: concat(patient_id, $index, $currentDate)
+      delimiter: "+"
+
+    - name: filler_order_id
+      csvFields: [ { name: accession_number } ]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, accession_number_temp, filler_order_id)
+
+    - name: placer_order_id
+      mapper: use(filler_order_id)
+
+    - name: message_id
+      mapper: concat(filler_order_id, $index, $currentDate)
+      delimiter: "+"
+
+    - name: testing_lab_specimen_id
+      mapper: use(filler_order_id)
+
+
+############### Patient Info
+    - name: patient_id_type
+      default: "PI"
+
+    - name: patient_last_name
+      cardinality: ONE 
+      csvFields: [{name: patient_last_name}]
+
+    - name: patient_middle_name
+      csvFields: [{name: patient_middle_name}]
+
+    - name: patient_first_name
+      cardinality: ONE 
+      csvFields: [{name: patient_first_name}]
+
+    - name: patient_street
+      cardinality: ONE 
+      csvFields: [{name: patient_street}]
+
+    - name: patient_street2
+      csvFields: [{name: patient_street2}]
+
+    - name: patient_city
+      cardinality: ONE 
+      csvFields: [{name: patient_city}]
+
+    - name: patient_state_fromCSV
+      type: TEXT
+      csvFields: [{ name: patient_state}]
+
+    - name: patient_state_fromValueSet
+      type: CODE
+      valueSet: sender-automation/state
+      documentation: Translate multiple inbound State values to RS values
+      csvFields: [{ name: patient_state, format: $display}]
+
+    - name: patient_state
+      cardinality: ONE 
+      mapper: use(patient_state_fromValueSet, patient_state_fromCSV)
+
+    - name: patient_zip_code
+      cardinality: ONE 
+      csvFields: [{name: patient_zip_code}]
+
+    - name: patient_county
+      type: TEXT
+      cardinality: ZERO_OR_ONE
+      csvFields: [{name: patient_county}]
+
+    - name: patient_county_code
+      type: TABLE
+      cardinality: ZERO_OR_ONE
+      table: fips-county
+      tableColumn: FIPS
+      mapper: lookup(patient_state, $Column:State, patient_county, $Column:County)
+
+    - name: patient_phone_number
+      csvFields: [{name: patient_phone_number}]
+
+    - name: patient_dob
+      type: DATE
+      cardinality: ONE 
+      csvFields: [{name: patient_dob}]
+
+# ----------The comment'd lines below is the code needed to start using the lookup table sender_valueset instead of the sender-automation.valuesets file.
+# ----------I'm leaving the code in this Schema, so I don't forget the syntax to make it work.
+#    - name: patient_gender_fromCSV
+#      csvFields: [{name: patient_gender}]
+#      type: TABLE
+#      table: sender_valuesets
+#      tableColumn: free_text_substring
+#
+#    - name: patient_gender
+#      cardinality: ONE 
+#      default: ""
+# Adding the csvFields means if no lookup value is found, use the value in this CSV field.
+##      csvFields: [{ name: patient_gender, format: $display}]
+#      type: TABLE
+#      table: sender_valuesets
+#      tableColumn: result
+#      mapper: lookup(sender_id_all, patient_gender_fromCSV)
+#      mapperOverridesValue: true
+
+    - name: patient_gender
+      cardinality: ONE 
+      type: CODE
+      valueSet: sender-automation/gender
+      documentation: Translate multiple inbound Gender values to RS values
+      csvFields: [{ name: patient_gender, format: $display}]
+
+    - name: patient_ethnicity
+      type: CODE
+      cardinality: ONE 
+      valueSet: sender-automation/ethnicity
+      documentation: Translate multiple inbound ethnicity values to RS / OMB values
+      csvFields: [{ name: patient_ethnicity, format: $display}]
+
+    - name: patient_race
+      type: CODE
+      cardinality: ONE 
+      valueSet: sender-automation/race
+      documentation: Translate multiple inbound Race values to RS / OMB values
+      csvFields: [{ name: patient_race, format: $display}]
+
+    - name: patient_preferred_language
+      type: CODE
+      valueSet: sender-automation/patient_preferred_language
+      documentation: Translate multiple inbound Language values to the ISO-639 codes
+      csvFields: [{name: patient_preferred_language, format: $display}]
+
+    - name: patient_email
+      csvFields: [{name: patient_email }]
+
+
+############### Order Info / Result Info / Specimen Info
+    - name: order_test_date
+      type: DATETIME
+      cardinality: ONE 
+      nullifyValue: true
+      csvFields: [{name: order_test_date}]
+
+    - name: specimen_collection_date_temp
+      type: TEXT
+      csvFields: [{name: specimen_collection_date }]
+
+    - name: specimen_collection_date_time
+      type: DATETIME
+      cardinality: ONE 
+      nullifyValue: true
+      csvFields: [{name: specimen_collection_date}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, order_test_date, specimen_collection_date_temp)
+
+    - name: testing_lab_specimen_received_date_temp
+      type: TEXT
+      csvFields: [{name: testing_lab_specimen_received_date}]
+
+    - name: testing_lab_specimen_received_datetime
+      type: DATETIME
+      cardinality: ONE 
+      nullifyValue: true
+      csvFields: [{name: testing_lab_specimen_received_date}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, order_test_date, testing_lab_specimen_received_date_temp)
+
+    - name: test_result_date
+      type: DATETIME
+      cardinality: ONE 
+      nullifyValue: true
+      csvFields: [{name: test_result_date}]
+
+    - name: date_result_released_temp
+      type: TEXT
+      csvFields: [{name: date_result_released}]
+
+    - name: date_result_released
+      type: DATETIME
+      cardinality: ONE 
+      nullifyValue: true
+      csvFields: [{name: date_result_released}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, test_result_date, date_result_released_temp)
+
+    - name: test_result
+      cardinality: ONE 
+      type: CODE
+      valueSet: sender-automation/test_result
+      documentation: Translate multiple inbound Test Result values to RS values
+      csvFields: [{ name: test_result, format: $display}]
+
+    - name: test_result_status
+      default: F
+      cardinality: ONE 
+      nullifyValue: true
+      type: CODE
+      csvFields: [{name: test_result_status, format: $alt}]
+      altValues:
+        - code: "F"
+          display: "F"
+        - code: "F"
+          display: "f"
+        - code: "C"
+          display: "C"
+        - code: "C"
+          display: "c"
+
+    - name: specimen_type
+      cardinality: ONE 
+      type: CODE
+      valueSet: sender-automation/specimen_type
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: specimen_type, format: $display}]
+
+    - name: specimen_source_site_code
+      type: CODE
+      valueSet: sender-automation/specimen_source_site_code
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: specimen_type, format: $display}]
+
+############### LIVD Lookup() related fields
+    - name: equipment_model_name
+      cardinality: ONE 
+      type: TEXT
+      csvFields: [{name: equipment_model_name }]
+      mapperOverridesValue: true
+
+    - name: test_performed_code
+      cardinality: ONE 
+      type: TEXT
+      csvFields: [{name: test_performed_code}]
+
+    - name: test_performed_name
+      cardinality: ZERO_OR_ONE
+      type: TEXT
+      csvFields: [{name: test_performed_name}]
+
+    - name: test_kit_name_id
+      cardinality: ZERO_OR_ONE
+      type: TEXT
+      csvFields: [{name: test_kit_name_id}]
+
+    - name: equipment_model_id
+      cardinality: ZERO_OR_ONE
+      type: TEXT
+      csvFields: [{name: equipment_model_id}]
+
+############### Ordering provider info
+    - name: ordering_provider_id
+      cardinality: ONE 
+      csvFields: [{name: ordering_provider_id}]
+
+    - name: ordering_provider_last_name
+      cardinality: ONE 
+      csvFields: [{name: ordering_provider_last_name}]
+
+    - name: ordering_provider_first_name
+      cardinality: ONE 
+      csvFields: [{name: ordering_provider_first_name}]
+
+    - name: ordering_provider_middle_name
+      csvFields: [{name: ordering_provider_middle_name}]
+
+    - name: ordering_provider_street
+      cardinality: ONE 
+      csvFields: [{name: ordering_provider_street}]
+
+    - name: ordering_provider_street2
+      csvFields: [{name: ordering_provider_street2}]
+
+    - name: ordering_provider_city
+      cardinality: ONE 
+      csvFields: [{name: ordering_provider_city}]
+
+    - name: ordering_provider_state_fromCSV
+      type: TEXT
+      csvFields: [{ name: ordering_provider_state}]
+
+    - name: ordering_provider_state_fromValueSet
+      type: CODE
+      valueSet: sender-automation/state
+      documentation: Translate multiple inbound State values to RS values
+      csvFields: [{ name: ordering_provider_state, format: $display}]
+
+    - name: ordering_provider_state
+      cardinality: ONE
+      mapper: use(ordering_provider_state_fromValueSet, ordering_provider_state_fromCSV)
+
+    - name: ordering_provider_zip_code
+      cardinality: ONE
+      csvFields: [{name: ordering_provider_zip_code}]
+
+    - name: ordering_provider_phone_number
+      cardinality: ONE
+      csvFields: [{name: ordering_provider_phone_number}]
+
+############### Testing lab info
+    - name: testing_lab_clia
+      cardinality: ONE 
+      csvFields: [{name: testing_lab_clia}]
+
+    - name: testing_lab_id
+      csvFields: [{name: testing_lab_clia}]
+
+    - name: testing_lab_name
+      cardinality: ONE 
+      csvFields: [{name: testing_lab_name}]
+
+    - name: testing_lab_street
+      cardinality: ONE 
+      csvFields: [{name: testing_lab_street}]
+
+    - name: testing_lab_street2
+      csvFields: [{name: testing_lab_street2}]
+
+    - name: testing_lab_city
+      cardinality: ONE 
+      csvFields: [{name: testing_lab_city}]
+
+    - name: testing_lab_state_fromCSV
+      type: TEXT
+      csvFields: [{ name: testing_lab_state}]
+
+    - name: testing_lab_state_fromValueSet
+      type: CODE
+      valueSet: sender-automation/state
+      documentation: Translate multiple inbound State values to RS values
+      csvFields: [{ name: testing_lab_state, format: $display}]
+
+    - name: testing_lab_state
+      cardinality: ONE 
+      mapper: use(testing_lab_state_fromValueSet, testing_lab_state_fromCSV)
+
+    - name: testing_lab_zip_code
+      cardinality: ONE 
+      csvFields: [{name: testing_lab_zip_code}]
+
+    - name: testing_lab_phone_number
+      csvFields: [{name: testing_lab_phone_number}]
+
+
+############### Ordering facility info
+    - name: ordering_facility_name_temp
+      type: TEXT
+      csvFields: [{name: ordering_facility_name}]
+
+    - name: ordering_facility_street_temp
+      type: TEXT
+      csvFields: [{name: ordering_facility_street}]
+
+    - name: ordering_facility_name
+      cardinality: ONE 
+      csvFields: [{name: ordering_facility_name}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, testing_lab_name, ordering_facility_name_temp)
+
+    - name: ordering_facility_street
+      cardinality: ONE 
+      csvFields: [{name: ordering_facility_street}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, testing_lab_street, ordering_facility_street_temp)
+
+    - name: ordering_facility_street2
+      csvFields: [{name: ordering_facility_street2}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, testing_lab_street2, ordering_facility_street_temp)
+
+    - name: ordering_facility_city
+      cardinality: ONE 
+      csvFields: [{name: ordering_facility_city}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, testing_lab_city, ordering_facility_street_temp)
+
+    - name: ordering_facility_state_fromCSV
+      type: TEXT
+      csvFields: [{ name: ordering_facility_state}]
+
+    - name: ordering_facility_state_fromValueSet
+      type: CODE
+      valueSet: sender-automation/state
+      documentation: Translate multiple inbound State values to RS values
+      csvFields: [{ name: ordering_facility_state, format: $display}]
+
+    - name: ordering_facility_state_temp
+      type: TEXT
+      mapper: use(ordering_facility_state_fromValueSet, ordering_facility_state_fromCSV)
+
+    - name: ordering_facility_state
+      cardinality: ONE 
+      mapper: use(ordering_facility_state_temp, testing_lab_state)
+
+    - name: ordering_facility_zip_code
+      cardinality: ONE 
+      csvFields: [{name: ordering_facility_zip_code}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, testing_lab_zip_code, ordering_facility_street_temp)
+
+    - name: ordering_facility_phone_number
+      cardinality: ONE 
+      csvFields: [{name: ordering_facility_phone_number}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, testing_lab_phone_number, ordering_facility_street_temp)
+
+
+################ Reporting Facility Info
+    - name: reporting_facility_name
+      cardinality: ONE
+      mapper: use(reporting_facility_name, testing_lab_name)
+      csvFields: [{name: reporting_facility_name }]
+
+    - name: reporting_facility_clia
+      cardinality: ONE
+      mapper: use(reporting_facility_clia, testing_lab_clia)
+      csvFields: [{name: reporting_facility_clia}]
+
+
+############### Set Other Miscellaneous Info
+    - name: filler_clia
+      csvFields: [{name: testing_lab_clia}]
+
+    - name: patient_id_assigner
+      csvFields: [{name: ordering_facility_name}]
+
+    - name: comment
+      csvFields: [{name: comment}]
+
+
+############### AOE fields
+    - name: pregnant
+      type: CODE
+      valueSet: sender-automation/pregnant
+      documentation: Translate multiple inbound values into the Pregnancy SNOMED Codes
+      csvFields: [{ name: pregnant, format: $display}]
+      default: ""
+
+    - name: first_test
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: first_test, format: $display}]
+      default: ""
+
+    - name: employed_in_healthcare
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: employed_in_healthcare, format: $display}]
+      default: ""
+
+    - name: symptomatic_for_disease
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: symptomatic_for_disease, format: $display}]
+      default: ""
+
+    - name: illness_onset_date
+      type: DATE
+      default: ""
+      csvFields: [{name: illness_onset_date, format: "yyyyMMdd"}]
+      nullifyValue: true
+
+    - name: hospitalized
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: hospitalized, format: $display}]
+      default: ""
+
+    - name: icu
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: icu, format: $display}]
+      default: ""
+
+    - name: resident_congregate_setting
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: resident_congregate_setting, format: $display}]
+      default: ""
+
+    - name: residence_type
+      type: CODE
+      valueSet: sender-automation/residence_type
+      documentation: Translate multiple inbound values into Residence Type SNOMED codes.
+      csvFields: [{ name: residence_type, format: $display}]
+      default: ""
+
+###### These fields are calculated for filtering purposes
+    - name: test_type
+    - name: abnormal_flag

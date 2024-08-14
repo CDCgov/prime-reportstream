@@ -1,0 +1,97 @@
+---
+name: hl7-ingest-covid-19
+topic: covid-19
+trackingElement: message_id
+description: Schema for ingesting HL7 messages
+extends: covid-19
+elements:
+  - name: device_id
+    mapper: none()
+    hl7Field: OBX-17-1
+    hl7OutputFields: [ OBX-17-9 ]
+    documentation: Device_id is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
+
+  - name: device_id_type
+    mapper: none()
+    hl7Field: OBX-17-3
+
+  - name: ordering_provider_id_authority
+    mapper: none()
+    hl7Field: ORC-12-9
+    hl7OutputFields: [ORC-12-9, OBR-16-9]
+    documentation: Usually the OID for CMS
+
+  - name: ordering_provider_id_authority_type
+    mapper: none()
+    hl7Field: ORC-12-13
+    hl7OutputFields: [ORC-12-13, OBR-16-13]
+    documentation: Usually NPI
+
+  - name: patient_middle_initial
+    mapper: middleInitial(patient_middle_name)
+    hl7Field: ""
+
+  - name: patient_id_assigner
+    mapper: none()
+    hl7Field: PID-3-4
+    hl7OutputFields: [ PID-3-6-2 ]
+
+  - name: patient_ethnicity
+    valueSet: sender-automation/ethnicity
+
+  - name: message_profile_id
+    hl7Field: MSH-21
+    default: ""
+    documentation: The message profile identifer
+
+  - name: sending_application
+    # Default is the official name of PRIME from CDC PHIN. Matches the OID in sending_application_id, below.
+    default: ""
+    hl7Field: MSH-3
+
+  - name: testing_lab_id_assigner
+    mapper: none()
+    hl7Field: OBX-23-6
+
+  - name: testing_lab_specimen_received_datetime
+    hl7Field: SPM-18-1
+    mapper: none()
+
+  # these fields are calculated for filtering purposes
+  - name: test_authorized_for_otc
+  - name: test_authorized_for_home
+  - name: test_authorized_for_unproctored
+  - name: abnormal_flag
+
+  # County can be ORC-22-8, but preferred is county code in ORC-22-9
+  - name: ordering_facility_county
+    hl7Field: ORC-22-8
+
+  - name: patient_state_zip_lookup
+    type: TABLE
+    pii: false
+    table: zip-code-data
+    tableColumn: state_abbr
+    mapper: zipCodeToState(patient_zip_code)
+
+  - name: patient_state
+    mapper: use(patient_state, patient_state_zip_lookup)
+    cardinality: ZERO_OR_ONE
+    natFlatFileField: Patient_state
+    hhsGuidanceField:
+    hl7Field: PID-11-4
+
+  - name: ordering_facility_state_zip_lookup
+    type: TABLE
+    pii: false
+    table: zip-code-data
+    tableColumn: state_abbr
+    mapper: zipCodeToState(ordering_facility_zip_code)
+
+  - name: ordering_facility_state
+    mapper: use(ordering_facility_state, ordering_facility_state_zip_lookup)
+    cardinality: ZERO_OR_ONE
+    natFlatFileField: Ordering_facility_state
+    hhsGuidanceField:
+    hl7Field: ORC-22-4
+    documentation: The state of the facility which the test was ordered from

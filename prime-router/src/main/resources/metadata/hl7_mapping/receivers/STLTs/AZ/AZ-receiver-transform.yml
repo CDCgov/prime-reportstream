@@ -1,0 +1,58 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+elements:
+
+  - name: az-sending-application-namespace-id
+    value: [ '"CDC PRIME - Atlanta"' ]
+    hl7Spec: [ 'MSH-3-1' ]
+
+  - name: az-sending-application-universal-id
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+    hl7Spec: [ 'MSH-3-2' ]
+
+  - name: az-sending-application-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-3-3' ]
+
+  - name: az-receiving-application-namespace
+    value: [ '"AZ.DOH.ELR"' ]
+    hl7Spec: [ 'MSH-5-1' ]
+
+  - name: az-receiving-application-universal-id
+    value: [ '"2.16.840.1.114222.4.3.3.2.9.3"' ]
+    hl7Spec: [ 'MSH-5-2' ]
+
+  - name: az-receiving-application-universal-it-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-5-3' ]
+
+  - name: az-receiving-facility-namespace
+    value: [ '"AZDOH"' ]
+    hl7Spec: [ 'MSH-6-1' ]
+
+  - name: az-receiving-facility-universal-id
+    value: [ '"2.16.840.1.1142224.1.142"' ]
+    hl7Spec: [ 'MSH-6-2' ]
+
+  - name: az-receiving-facility-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-6-3' ]
+
+  - name: az-patient-race-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+    condition: '%resource.code.exists()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
+
+  #overwrite all elements using schema classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTN.yml to remove %{hl7TelecomPath}-1
+  - name: xtn-extension-value
+    resource: '%resource.extension(%`rsext-xtn-contact-point`)'
+    schema: classpath:/metadata/hl7_mapping/receivers/Common/remove-xtn-1/XTNExtension.yml
+
+  - name: observation-result-with-aoe
+  # AZ does not want AOEs at all, so this is overridden to prevent identified AOEs from mapping to an HL7 segment
+    resource: '%resource.result.resolve()'
+

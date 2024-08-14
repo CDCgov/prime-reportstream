@@ -1,0 +1,17 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+low:
+  expressionType: nested
+  expressionsMap:
+    value:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: NR.1
+high:
+  expressionType: nested
+  expressionsMap:
+    value:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: NR.2
+

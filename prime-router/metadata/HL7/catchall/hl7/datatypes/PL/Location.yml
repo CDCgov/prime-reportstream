@@ -1,0 +1,292 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Location
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+identifier:
+  generateList: true
+  expressionType: nested
+  vars:
+    pl3: STRING_ALL, PL.3
+    pl2: STRING_ALL, PL.2
+    pl1: STRING_ALL, PL.1
+    pl8: STRING_ALL, PL.8
+    pl7: STRING_ALL, PL.7
+    pl4: STRING_ALL, PL.4
+    pl10: STRING_ALL, PL.10
+    pl11: STRING_ALL, PL.11
+  expressions:
+    - expressionType: nested
+      generateList: true
+      condition: $pl3 NOT_NULL
+      expressions:
+        - expressionType: resource
+          valueOf: datatypes/HD/Identifier/IdentifierNamespaceId
+          specs: PL.3
+        - expressionType: resource
+          valueOf: datatypes/HD/Identifier/IdentifierUniversalId
+          specs: PL.3
+        - expressionType: resource
+          condition: $pl11 NULL && $pl10 NOT_NULL
+          valueOf: datatypes/EI/Identifier-Organization
+          specs: PL.10
+        - expressionType: resource
+          vars:
+            eiAssigningOrganization: PL.11
+          condition: $pl11 NOT_NULL && $pl10 NOT_NULL
+          valueOf: datatypes/EI/Identifier-DefaultAssigner
+          specs: PL.10
+    - expressionType: nested
+      condition: $pl3 NULL && $pl2 NOT_NULL
+      generateList: true
+      expressions:
+        - expressionType: resource
+          valueOf: datatypes/HD/Identifier/IdentifierNamespaceId
+          specs: PL.2
+        - expressionType: resource
+          valueOf: datatypes/HD/Identifier/IdentifierUniversalId
+          specs: PL.2
+        - expressionType: resource
+          condition: $pl11 NULL && $pl10 NOT_NULL
+          valueOf: datatypes/EI/Identifier-Organization
+          specs: PL.10
+        - expressionType: resource
+          vars:
+            eiAssigningOrganization: PL.11
+          condition: $pl11 NOT_NULL && $pl10 NOT_NULL
+          valueOf: datatypes/EI/Identifier-DefaultAssigner
+          specs: PL.10
+    - expressionType: nested
+      condition: $pl3 NULL && $pl2 NULL && $pl1 NOT_NULL
+      generateList: true
+      expressions:
+        - expressionType: resource
+          valueOf: datatypes/HD/Identifier/IdentifierNamespaceId
+          specs: PL.1
+        - expressionType: resource
+          valueOf: datatypes/HD/Identifier/IdentifierUniversalId
+          specs: PL.1
+        - expressionType: resource
+          condition: $pl11 NULL && $pl10 NOT_NULL
+          valueOf: datatypes/EI/Identifier-Organization
+          specs: PL.10
+        - expressionType: resource
+          vars:
+            eiAssigningOrganization: PL.11
+          condition: $pl11 NOT_NULL && $pl10 NOT_NULL
+          valueOf: datatypes/EI/Identifier-DefaultAssigner
+          specs: PL.10
+    - expressionType: nested
+      condition: $pl3 NULL && $pl2 NULL && $pl1 NULL && $pl8 NOT_NULL
+      generateList: true
+      expressions:
+        - expressionType: resource
+          valueOf: datatypes/HD/Identifier/IdentifierNamespaceId
+          specs: PL.8
+        - expressionType: resource
+          valueOf: datatypes/HD/Identifier/IdentifierUniversalId
+          specs: PL.8
+        - expressionType: resource
+          condition: $pl11 NULL && $pl10 NOT_NULL
+          valueOf: datatypes/EI/Identifier-Organization
+          specs: PL.10
+        - expressionType: resource
+          vars:
+            eiAssigningOrganization: PL.11
+          condition: $pl11 NOT_NULL && $pl10 NOT_NULL
+          valueOf: datatypes/EI/Identifier-DefaultAssigner
+          specs: PL.10
+    - expressionType: nested
+      condition: $pl3 NULL && $pl2 NULL && $pl1 NULL && $pl8 NULL && $pl7 NOT_NULL
+      generateList: true
+      expressions:
+        - expressionType: resource
+          valueOf: datatypes/HD/Identifier/IdentifierNamespaceId
+          specs: PL.7
+        - expressionType: resource
+          valueOf: datatypes/HD/Identifier/IdentifierUniversalId
+          specs: PL.7
+        - expressionType: resource
+          condition: $pl11 NULL && $pl10 NOT_NULL
+          valueOf: datatypes/EI/Identifier-Organization
+          specs: PL.10
+        - expressionType: resource
+          vars:
+            eiAssigningOrganization: PL.11
+          condition: $pl11 NOT_NULL && $pl10 NOT_NULL
+          valueOf: datatypes/EI/Identifier-DefaultAssigner
+          specs: PL.10
+    - expressionType: nested
+      condition: $pl3 NULL && $pl2 NULL && $pl1 NULL && $pl8 NULL && $pl7 NULL && $pl4 NOT_NULL
+      generateList: true
+      expressions:
+        - expressionType: resource
+          valueOf: datatypes/HD/Identifier/IdentifierNamespaceId
+          specs: PL.4
+        - expressionType: resource
+          valueOf: datatypes/HD/Identifier/IdentifierUniversalId
+          specs: PL.4
+        - expressionType: resource
+          condition: $pl11 NULL && $pl10 NOT_NULL
+          valueOf: datatypes/EI/Identifier-Organization
+          specs: PL.10
+        - expressionType: resource
+          vars:
+            eiAssigningOrganization: PL.11
+          condition: $pl11 NOT_NULL && $pl10 NOT_NULL
+          valueOf: datatypes/EI/Identifier-DefaultAssigner
+          specs: PL.10
+
+physicalType:
+  expressionType: nested
+  vars:
+    pl3: STRING_ALL, PL.3
+    pl2: STRING_ALL, PL.2
+    pl1: STRING_ALL, PL.1
+    pl8: STRING_ALL, PL.8
+    pl7: STRING_ALL, PL.7
+    pl4: STRING_ALL, PL.4
+  constants:
+    system: "http://terminology.hl7.org/CodeSystem/location-physical-type"
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        coding:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            code:
+              valueOf: "bd"
+            system:
+              valueOf: $system
+      condition: $pl3 NOT_NULL
+    - expressionType: nested
+      expressionsMap:
+        coding:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            code:
+              valueOf: "ro"
+            system:
+              valueOf: $system
+      condition: $pl3 NULL && $pl2 NOT_NULL
+    - expressionType: nested
+      expressionsMap:
+        coding:
+          expressionType: nested
+          generateList: true
+          expressions:
+            - expressionType: nested
+              expressionsMap:
+                _code:
+                  expressionType: nested
+                  expressionsMap:
+                    extension:
+                      generateList: true
+                      expressionType: nested
+                      expressionsMap:
+                        url:
+                          type: SYSTEM_URL
+                          value: location-physical-type-poc
+                        valueString:
+                          value: "poc"
+                system:
+                  type: STRING
+                  value: "http://terminology.hl7.org/CodeSystem/location-physical-type"
+      condition: $pl3 NULL && $pl2 NULL && $pl1 NOT_NULL
+    - expressionType: nested
+      expressionsMap:
+        coding:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            code:
+              valueOf: "lvl"
+            system:
+              valueOf: $system
+      condition: $pl3 NULL && $pl2 NULL && $pl1 NULL && $pl8 NOT_NULL
+    - expressionType: nested
+      expressionsMap:
+        coding:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            code:
+              valueOf: "bu"
+            system:
+              valueOf: $system
+      condition: $pl3 NULL && $pl2 NULL && $pl1 NULL && $pl8 NULL && $pl7 NOT_NULL
+    - expressionType: nested
+      expressionsMap:
+        coding:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            code:
+              valueOf: "si"
+            system:
+              valueOf: $system
+      condition: $pl3 NULL && $pl2 NULL && $pl1 NULL && $pl8 NULL && $pl7 NULL && $pl4 NOT_NULL
+
+
+partOf:
+  expressionType: nested
+  vars:
+    pl3: STRING_ALL, PL.3
+    pl2: STRING_ALL, PL.2
+    pl1: STRING_ALL, PL.1
+    pl8: STRING_ALL, PL.8
+    pl7: STRING_ALL, PL.7
+    pl4: STRING_ALL, PL.4
+  condition: $pl3 NOT_NuLL || $pl2 NOT_NULL || $pl1 NOT_NULL || $pl8 NOT_NULL || $pl7 NOT_NULL
+  expressions:
+    - expressionType: reference
+      condition: $pl2 NOT_NULL
+      valueOf: datatypes/PL/LocationBranch1 #PL2
+      specs: $BASE_VALUE
+    - expressionType: reference
+      condition: $pl2 NULL && $pl1 NOT_NULL #PL1
+      valueOf: datatypes/PL/LocationBranch2
+      specs: $BASE_VALUE
+    - expressionType: reference
+      condition: $pl2 NULL && $pl1 NULL && $pl8 NOT_NULL
+      valueOf: datatypes/PL/LocationBranch3
+      specs: $BASE_VALUE
+    - expressionType: reference
+      condition: $pl2 NULL && $pl1 NULL && $pl8 NULL && $pl7 NOT_NULL
+      valueOf: datatypes/PL/LocationBranch4
+      specs: $BASE_VALUE
+    - expressionType: reference
+      condition: $pl2 NULL && $pl1 NULL && $pl8 NULL && $pl7 NULL && $pl4 NOT_NULL
+      valueOf: datatypes/PL/LocationBranch5
+      specs: $BASE_VALUE
+
+status:
+  expressionType: HL7Spec
+  valueOf: PL.5
+  type: STRING
+
+mode:
+  value: "instance"
+
+description:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: PL.9
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: pl6-person-location-type
+    valueString:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: PL.6

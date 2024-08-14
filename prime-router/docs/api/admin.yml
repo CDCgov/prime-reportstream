@@ -1,0 +1,255 @@
+openapi: "3.0.3"
+info:
+  title: Prime ReportStream
+  description: A router of public health data from multiple senders and receivers
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://reportstream.cdc.gov
+    email: reportstream@cdc.gov
+  version: 0.2.0-oas3
+paths:
+  # The amin end-point handles the misc queries and commands PRIME admins
+  #
+  /adm/getsendfailures:
+    get:
+      description: Returns list of recent failed report-forwarding sends. Used to resend failures. Prime admin only.
+      security:
+        - OAuth2: [ system_admin ]
+      parameters:
+        - in: query
+          name: days_to_show
+          description: Number of days back from today include in results
+          schema:
+            type: integer
+          required: false
+          example: "days_to_show=3"
+      responses:
+        '200':
+          description: OK
+          headers:
+            Last-Modified:
+              description: The date and time any setting was modified in GMT.
+              example: "Wed, 21 Oct 2015 07:28:00 GMT"
+              required: false
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ListSendFailures'
+
+  /adm/getresend:
+    get:
+      description: Returns list of recent failed report-forwarding sends. Used to resend failures. Prime admin only.
+      security:
+        - OAuth2: [ system_admin ]
+      parameters:
+        - in: query
+          name: days_to_show
+          description: Number of days back from today include in results
+          schema:
+            type: integer
+          required: false
+          example: "days_to_show=3"
+      responses:
+        '200':
+          description: OK
+          headers:
+            Last-Modified:
+              description: The date and time any setting was modified in GMT.
+              example: "Wed, 21 Oct 2015 07:28:00 GMT"
+              required: false
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ListResends'
+
+# Building
+  /adm/listreceiversconnstatus:
+    get:
+      description: Get recent report-forward sends across all orgs. Prime admin only.
+      security:
+        - OAuth2: [ system_admin ]
+      parameters:
+        - name: start_date
+          in: query
+          description: Date/time for the start range of matches
+          schema:
+            type: string
+            format: date-time
+          required: true
+          example: start_date=2022-07-04T00:46:58.708Z
+        - name: end_date
+          in: query
+          description: Optional date/time for the end range of matches
+          schema:
+            type: string
+            format: date-time
+          required: false
+          example: end_date=2022-07-04T00:46:58.708Z
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReceiversConnStatusResponse'
+components:
+  schemas:
+    ListSendFailures:
+      description: An organization connected to data hub
+      type: object
+      required: [ "name", "description", "jurisdiction" ]
+      properties:
+        actionId:
+          description: the unique id for the action
+          type: integer
+          example: 287
+        reportId:
+          description: the uuid for this report
+          type: string
+          format: uuid
+          example: "d05d17f7-acaa-4f0e-bda1-135dbd81d477"
+        receiver:
+          description: Org destination name of the receiver that failed
+          type: string
+          example: "ignore.HL7"
+        fileName:
+          description: Filename for the data that's prepared for forwarding but failing
+          type: string
+          example: "covid-19-d05d17f7-acaa-4f0e-bda1-135dbd81d477-20220601224923.hl7"
+        failedAt:
+          description: the time that the particular error happened
+          type: string
+          format: date-time
+          example: "2022-06-12T22:22:53.833Z"
+        actionParams:
+          description: The original action that failed had a url. These are the cgi params.
+          type: string
+          example: "report&SEND&d05d17f7-acaa-4f0e-bda1-135dbd81d477&false&2022-06-12T22:22:52.412762Z"
+        actionResult:
+          description: The long error message generated when the upload failed.
+          type: string
+          example: "FAILED Sftp upload of inputReportId d05d17f7-acaa-4f0e-bda1-135dbd81d477 to SFTPTransportType(host=sftp, port=22, filePath=./upload, credentialName=DEFAULT-SFTP) (orgService = ignore.HL7_BATCH_OFFSET_TIME_UTC), Exception: No content to sftp for report d05d17f7-acaa-4f0e-bda1-135dbd81d477, All retries failed.  Manual Intervention Required.  Send Error report for: d05d17f7-acaa-4f0e-bda1-135dbd81d477 to ignore.HL7_BATCH_OFFSET_TIME_UTC"
+        bodyUrl:
+          description: The body portion of the original action url. Contains the location of the file that failed to forward
+          type: string
+          example: "http://azurite:10000/devstoreaccount1/reports/ready%2Fignore.HL7_BATCH_OFFSET_TIME_UTC%2Fcovid-19-d05d17f7-acaa-4f0e-bda1-135dbd81d477-20220601224923.hl7"
+        reportFileReceiver:
+          description: The parsed receiver. It should be the same as receiver field above
+          type: string
+          example: "ignore.HL7_BATCH_OFFSET_TIME_UTC"
+
+    ListResends:
+      description: An organization connected to data hub
+      type: object
+      required: [ "actionId", "actionName", "description", "createdAt", "httpStatus", "actionResult" ]
+      properties:
+        actionId:
+          description: the unique id for the action
+          type: integer
+          example: 287
+        actionName:
+          description: For this selector it's always "resend"
+          type: string
+          example: "resend"
+        createdAt:
+          description: The time at which this action was created
+          type: string
+          format: time-date
+          example: "2022-07-01T18:52:06.919Z"
+        httpStatus:
+          description: The http result code from this action running
+          type: integer
+          example: 200
+        actionParams:
+          description: Parameters originally passed to this action. Formatted Json including Headers and QueryParameters
+          type: string
+        actionResult:
+          description: Result for this action.
+          type: string
+          format: application/json
+          example: "OK: Will resend all (5) items in be6ad9cd-180c-4496-aa82-e0016ee75674\nbe6ad9cd-180c-4496-aa82-e0016ee75674 has been queued to resend immediately to ignore.HL7_BATCH_PPK"
+        username:
+          description: Login email of account initiating request
+          type: string
+          format: email
+          example: "bob@example.com"
+        sender_ip:
+          description: IP address of account initiating request
+          type: string
+          example: "127.0.0.1"
+        actionResponse:
+          description: Not currently used, may be in the future
+          type: string
+          example: "null"
+        contentLength:
+          description: Not currently used, always zero
+          type: integer
+          example: 0
+        sendingOrg:
+          description: not currently used
+          type: string
+          example: "null"
+        sendingOrgClient:
+          description: not currently used
+          type: string
+          example: "null"
+        externalName:
+          description: not currently used
+          type: string
+          example: "null"
+
+    ReceiversConnStatusResponse:
+      type: object
+      description: An organization connected to data hub
+      properties:
+        receiverConnectionCheckResultId:
+          description: Internal primary key. Useful for react to use as a unique key
+          type: integer
+          example: 1639
+        organizationId:
+          description: Organization ID - primary key in Settings
+          type: integer
+          example: 37
+        receiverId:
+          description: Receiver ID - primary key in Settings
+          type: integer
+          example: 202
+        connectionCheckResult:
+          description: Protocol level or java exception result May be multiline
+          type: string
+          example: "**** az-phd.elr-secondary:  no transport defined."
+        connectionCheckSuccessful:
+          description: If the connection and transmission was successful or not
+          type: boolean
+          example: true
+        connectionCheckStartedAt:
+          description: Timestamp of when the check started
+          type: string
+          format: date-time
+          example: "2022-07-01T18:52:06.918Z"
+        connectionCheckCompletedAt:
+          description: Timestamp of when the check ended
+          type: string
+          format: date-time
+          example: "2022-07-01T18:52:06.919Z"
+        organizationName:
+          description: Name string associated with the organizationId field pulled from Settings
+          type: string
+          example: "az-phd"
+        receiverName:
+          description: Name string associated with the receiverId field pulled from Settings
+          type: string
+          example: "elr-secondary"
+  securitySchemes:
+    OAuth2:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'

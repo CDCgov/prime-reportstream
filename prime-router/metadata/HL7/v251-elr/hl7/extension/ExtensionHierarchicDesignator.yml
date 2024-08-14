@@ -1,0 +1,69 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  condition: $urlValue NOT_NULL
+  type: SYSTEM_URL
+  valueOf: $urlValue
+
+extension_1-namespaceId:
+  condition: $value NOT_NULL
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, HD.1
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: namespace-id
+
+extension_2-universalIdISO:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $universalIdType EQUALS ISO
+  vars:
+    idStr: String, HD.2
+    value: $urlPrefix + HD.2
+    universalIdType: String, HD.3
+  constants:
+    urlPrefix: "urn:oid:"
+    KEY_NAME_SUFFIX: Oid
+    urlValue: universal-id
+
+extension_3-universalIdUUID:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $universalIdType EQUALS UUID
+  vars:
+    idStr: String, HD.2
+    value: $urlPrefix + HD.2
+    universalIdType: String, HD.3
+  constants:
+    urlPrefix: "urn:uuid:"
+    KEY_NAME_SUFFIX: Uuid
+    urlValue: universal-id
+
+extension_4-universalIdNullType:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $value NOT_NULL && $universalIdType NULL
+  vars:
+    value: String, HD.2
+    universalIdType: String, HD.3
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: universal-id
+
+extension_5-universalIdUnknownType:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $value NOT_NULL && $universalIdType NOT_EQUALS ISO && $universalIdType NOT_EQUALS UUID
+  vars:
+    value: String, HD.2
+    universalIdType: String, HD.3
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: universal-id

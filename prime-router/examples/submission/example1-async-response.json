@@ -1,0 +1,34 @@
+{
+  "id" : "ade3fd00-ebbd-437d-bbd4-bd509647ec04",
+  "submissionId" : 267,
+  "overallStatus" : "Received",
+  "timestamp" : "2022-04-11T20:43:02.424Z",
+  "plannedCompletionAt" : null,
+  "actualCompletionAt" : null,
+  "sender" : "simple_report.default",
+  "reportItemCount" : 14,
+  "errorCount" : 0,
+  "warningCount" : 5,
+  "httpStatus" : 201,
+  "destinations" : [ ],
+  "errors" : [ ],
+  "warnings" : [ {
+    "scope" : "report",
+    "message" : "Missing Ordering_facility_email (ordering_facility_email) header"
+  }, {
+    "scope" : "item",
+    "indices" : [ 6, 7, 9 ],
+    "trackingIds" : [ "Hawaii6", "Hawaii7", "Hawaii9" ],
+    "field" : "Specimen_type_code (specimen_type)",
+    "message" : "Invalid code: '' is not a display value in altValues set for Specimen_type_code (specimen_type)."
+  }, {
+    "scope" : "item",
+    "indices" : [ 8 ],
+    "trackingIds" : [ "Hawaii8" ],
+    "field" : "Ordering_provider_phone_number (ordering_provider_phone_number)",
+    "message" : "Invalid phone number 'WRONG_ordering_provider_phone_number' for Ordering_provider_phone_number (ordering_provider_phone_number). Reformat to a 10-digit phone number (e.g. (555) - 555-5555)."
+  } ],
+  "topic" : "covid-19",
+  "externalName" : null,
+  "destinationCount" : 0
+}

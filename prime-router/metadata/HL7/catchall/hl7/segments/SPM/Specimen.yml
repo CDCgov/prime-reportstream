@@ -1,0 +1,258 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Specimen
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+identifier:
+  vars:
+    spm2: SPM.2
+    spm31: SPM.31
+    spm32: SPM.32
+  generateList: true
+  expressionType: nested
+  expressions:
+    - condition: $spm21 NOT_NULL
+      valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
+      expressionType: resource
+      specs: SPM.2
+      vars:
+        spm21: SPM.2.1
+      constants:
+        hl7v2Component: SPM.2.1
+        backupExtension: "filler-assigned-identifier"
+    - condition: $spm22 NOT_NULL
+      valueOf: datatypes/EIP/Identifier-FillerAssignedIdentifier
+      expressionType: resource
+      specs: SPM.2
+      vars:
+        spm22: SPM.2.2
+      constants:
+        hl7v2Component: SPM.2.2
+        backupExtension: "placer-assigned-identifier"
+    - valueOf: datatypes/CX/Identifier
+      condition: $spm31 NOT_NULL
+      expressionType: resource
+      generateList: true
+      specs: SPM.31 *
+      constants:
+        CXIdentifierField: SPM.31
+    - condition: $spm32 NOT_NULL
+      valueOf: datatypes/EI/Identifier
+      expressionType: resource
+      specs: SPM.32
+      constants:
+        hl7v2Field: SPM.32
+        code: "SHIP"
+        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+
+parent:
+  condition: $spm3 NOT_NULL
+  valueOf: segments/SPM/EIP/Specimen
+  expressionType: reference
+  vars:
+    spm3: SPM.3
+  specs: SPM.3 *
+
+type:
+  valueOf: datatypes/CWE/CodeableConcept
+  expressionType: resource
+  specs: SPM.4
+
+container:
+  condition: $spm6 NOT_NULL || $spm27 NOT_NULL
+  expressionType: nested
+  generateList: true
+  vars:
+    spm6: SPM.6
+    spm27: SPM.27
+  expressionsMap:
+    additiveCodeableConcept:
+      expressionType: nested
+      expressions:
+        - condition: $spm6 NOT_NULL
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: SPM.6 *
+    type:
+      valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      specs: SPM.27
+
+collection:
+  condition: $spm7 NOT_NULL || $spm8 NOT_NULL || $spm9 NOT_NULL || $spm12 NOT_NULL || $spm17 NOT_NULL
+  expressionType: nested
+  generateList: true
+  vars:
+    spm7: SPM.7
+    spm8: SPM.8
+    spm9: SPM.9
+    spm12: SPM.12
+    spm17: SPM.17
+  expressionsMap:
+    method:
+      valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      specs: SPM.7
+    bodySite:
+      valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      specs: SPM.8
+    extension:
+      condition: $spm9 NOT_NULL
+      expressionType: nested
+      generateList: true
+      specs: SPM.9 *
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: bodySiteModifier
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    quantity:
+      valueOf: datatypes/CQ/Quantity
+      expressionType: resource
+      specs: SPM.12
+    collectedPeriod:
+      expressionType: nested
+      vars:
+        spm17: SPM.17
+      expressions:
+        - condition: $end NOT_NULL
+          valueOf: datatypes/DR/Period
+          expressionType: resource
+          specs: SPM.17
+          vars:
+            start: SPM.17.1
+            end: SPM.17.2
+            dateTimeIn: SPM.17.1
+            dateTimeOut: SPM.17.2
+    collectedDateTime:
+      expressionType: nested
+      expressions:
+        - condition: $end NULL
+          type: STRING
+          valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+          expressionType: JEXL
+          vars:
+            dateTimeIn: SPM.17.1
+            end: SPM.17.2
+    _collectedDateTime:
+      condition: $dateTimeIn NOT_NULL && $end NULL
+      expressionType: nested
+      vars:
+        dateTimeIn: SPM.17.1
+        end: SPM.17.2
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $dateTimeIn
+              expressionType: HL7Spec
+
+note:
+  condition: $spm14 NOT_NULL
+  expressionType: nested
+  generateList: true
+  vars:
+    spm14: STRING_ALL, SPM.14
+  specs: SPM.14 *
+  expressionsMap:
+    text:
+      type: STRING
+      valueOf: ST
+      expressionType: HL7Spec
+    extension:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          type: STRING
+          valueOf: SPM.14
+
+receivedTime:
+  condition: $dateTimeIn NOT_NULL
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: SPM.18.1
+_receivedTime:
+  condition: $dateTimeIn NOT_NULL
+  expressionType: nested
+  vars:
+    dateTimeIn: SPM.18.1
+  expressionsMap:
+    extension:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
+
+status:
+  type: SPECIMEN_STATUS
+  valueOf: SPM.20
+  expressionType: HL7Spec
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: hl7v2Segment
+        valueString:
+          valueOf: 'SPM'
+    - expressionType: resource
+      valueOf: segments/SPM/SPMExtension
+    - expressionType: nested
+      condition: $spm21 NOT_NULL
+      generateList: true
+      vars:
+        spm21: SPM.21
+      specs: SPM.21 *
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: reject-reason
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+
+condition:
+  vars:
+    spm24: SPM.24
+  condition: $spm24 NOT_NULL
+  valueOf: datatypes/CWE/CodeableConcept
+  expressionType: resource
+  generateList: true
+  specs: SPM.24 *
+
+accessionIdentifier:
+  condition: $spm30 NOT_NULL
+  vars:
+    spm30: SPM.30
+  valueOf: datatypes/CX/Identifier
+  expressionType: resource
+  generateList: true
+  specs: SPM.30 *

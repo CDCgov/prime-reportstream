@@ -1,0 +1,63 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Provenance
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+target:
+  valueOf: datatype/Reference
+  generateList: true
+  expressionType: resource
+  specs: $Patient
+  useGroup: true
+
+recorded:
+  type: STRING
+  valueOf: "GeneralUtils.getCurrentDateTimeUsingZoneId(ZONEID)"
+  expressionType: JEXL
+
+activity:
+  expressionType: nested
+  expressionsMap:
+    coding:
+      expressionType: nested
+      expressionsMap:
+        code:
+          type: STRING
+          valueOf: "UPDATE"
+        system:
+          type: STRING
+          valueOf: "https://terminology.hl7.org/CodeSystem/v3-DataOperation"
+
+occurredDateTime:
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: PID.33
+
+agent:
+  expressionType: nested
+  generateList: true
+  vars:
+    msh34: STRING_ALL, PID.34
+  condition: $msh34 NOT_NULL
+  expressionsMap:
+    type:
+      expressionType: nested
+      expressionsMap:
+        coding:
+          expressionType: nested
+          expressionsMap:
+            code:
+              type: STRING
+              valueOf: "performer"
+            system:
+              type: SYSTEM_URL
+              valueOf: "http://terminology.hl7.org/CodeSystem/provenance-participant-type"
+    who:
+      valueOf: datatypes/HD/Organization
+      expressionType: reference
+      specs: PID.34

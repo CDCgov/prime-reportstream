@@ -1,0 +1,23 @@
+[
+  {
+    "facility": "Any lab USA",
+    "location": "Kurtistown, HI",
+    "CLIA": "43D1961163",
+    "positive": 0,
+    "total": 1
+  },
+  {
+    "facility": "Any lab USA",
+    "location": "Paauilo, HI",
+    "CLIA": "52D0993791",
+    "positive": 0,
+    "total": 14
+  },
+  {
+    "facility": "Any lab USA",
+    "location": "Kekaha, HI",
+    "CLIA": "90D6609198",
+    "positive": 0,
+    "total": 1
+  }
+]

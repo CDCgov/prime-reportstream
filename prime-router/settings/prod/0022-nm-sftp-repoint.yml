@@ -1,0 +1,41 @@
+---
+name: "elr"
+organizationName: "nm-doh"
+topic: "covid-19"
+translation: !<HL7>
+  useTestProcessingMode: false
+  useBatchHeaders: true
+  receivingApplicationName: "NMDOH"
+  receivingApplicationOID: "2.16.840.1.113883.3.5364"
+  receivingFacilityName: "NMDOH"
+  receivingFacilityOID: "2.16.840.1.113883.3.5364"
+  messageProfileId: null
+  reportingFacilityName: null
+  reportingFacilityId: null
+  suppressQstForAoe: false
+  suppressHl7Fields: "OBX-17-1"
+  suppressAoe: false
+  defaultAoeToUnknown: false
+  useBlankInsteadOfUnknown: "patient_race"
+  truncateHDNamespaceIds: true
+  usePid14ForPatientEmail: false
+  convertTimestampToDateTime: null
+  nameFormat: "APHL_LIGHT"
+  receivingOrganization: "elr"
+  type: "HL7"
+jurisdictionalFilter:
+  - "matches(ordering_facility_state, NM)"
+qualityFilter: []
+deidentify: false
+timing:
+  operation: "MERGE"
+  numberPerDay: 12
+  initialTime: "01:15"
+  timeZone: "EASTERN"
+  maxReportCount: 100
+description: ""
+transport: !<SFTP>
+  host: "sftp.syncronys.org"
+  port: "22"
+  filePath: "./incoming/ELR/"
+  type: "SFTP"

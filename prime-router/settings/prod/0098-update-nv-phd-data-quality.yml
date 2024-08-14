@@ -1,0 +1,105 @@
+# ./prime multiple-settings set --env prod --input ./settings/prod/0098-update-nv-phd-data-quality.yml
+---
+- name: "nv-phd"
+  description: "Nevada Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "NV"
+  countyName: null
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, NV, patient_state, NV)"
+      qualityFilter:
+        - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob)"
+        - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
+        - "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
+        - "isValidCLIA(testing_lab_clia,reporting_facility_clia)"
+        - "doesNotMatch(processing_mode_code,T,D)"
+      routingFilter: null
+      processingModeFilter: null
+  senders: []
+  receivers:
+    - name: "elr"
+      organizationName: "nv-phd"
+      topic: "covid-19"
+      customerStatus: "testing"
+      translation: !<HL7>
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "NVDOH"
+        receivingApplicationOID: null
+        receivingFacilityName: "NVODH"
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB:
+          ORC-12-2: ["":"Unknown"]
+          ORC-12-3: ["":"Unknown"]
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: PID-5-7, ORC-12-1, ORC-16-1
+        suppressAoe: true
+        defaultAoeToUnknown: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for NV standards
+            values:
+              - code: 2135-2
+                replaces: H
+                display: Hispanic or Latino
+                system: CDCREC
+              - code: 2186-5
+                replaces: N
+                display: Non Hispanic or Latino
+                system: CDCREC
+              - code: UNK
+                replaces: U
+                display: Unknown
+                system: NULLFL
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter: []
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:15"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<SFTP>
+        host: "sftp-west.inductivehealth.com"
+        port: "22"
+        filePath: "./staging/"
+        credentialName: null
+        type: "SFTP"
+      externalName: "Primary Feed"

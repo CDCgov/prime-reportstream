@@ -1,0 +1,179 @@
+# To submit this to localhost, run:
+# ./prime multiple-settings set --input ./settings/staging/0166-flexion-staging-results-handling.yml
+#
+# To submit this to staging, run:
+# ./prime login --env staging
+# ./prime multiple-settings set --env staging --input ./settings/staging/0166-flexion-staging-results-handling.yml
+#
+# Then add keys to it, as needed, like this:
+#  ./prime organization addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-hospital --doit
+#  ./prime organization addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.etor-service-sender --doit
+#  ./prime organization addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-lab --doit
+#
+#
+# This FHIR ndjson (aka 'FHIR all on one line') data submission curl works for me, with a valid token in `TOK` env var:
+#
+# curl -X POST -H "authorization:bearer $TOK" -H "client:flexion.etor-service-sender"  -H "content-type:application/fhir+ndjson" --data-binary "@../../src/testIntegration/resources/datatests/HL7_to_FHIR/test.ndjson" "https://staging.prime.cdc.gov/api/waters"
+#
+---
+- name: "flexion"
+  description: "Flexion, Inc."
+  jurisdiction: "FEDERAL"
+  senders:
+    # Orders Senders
+    # Hospital => RS
+    - name: "simulated-hospital"
+      externalName: "Simulated Hospital ETOR Sender - Sending HL7 orders"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
+      format: "HL7"
+    # TI => RS
+    - name: "etor-service-sender"
+      externalName: "ETOR Service Sender Channel to ReportStream - Sending FHIR orders and results"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
+      format: "FHIR"
+      schemaName: "classpath:/metadata/fhir_transforms/senders/Flexion/TILabOrder.yml"
+    # Results Senders
+    # PHL => RS
+    - name: "simulated-lab"
+      externalName: "Simulated State Public Health Lab ETOR Sender - Sending HL7 results"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
+      format: "HL7"
+  receivers:
+    # Orders Receivers
+    # RS => TI: translates ORM_O01 from HL7 to FHIR and sends the message to the TI service orders API
+    - name: "etor-service-receiver-orders"
+      externalName: "ETOR Service Receiver Channel from ReportStream - Receiving ORM_O01 and OML_O21 FHIR orders"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01') or (Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21')" # ORM_O01 or OML_O21
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.exists(system = 'http://localcodes.org/ETOR').not()"
+      qualityFilter:
+        - true
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440 # Every minute
+        initialTime: "00:00"
+      translation: !<FHIR>
+        type: "FHIR"
+        schemaName: "classpath:/metadata/fhir_transforms/receivers/fhir-transform-sample.yml"
+        useBatching: false
+      transport: !<REST>
+        type: "REST"
+        authType: "two-legged"
+        authTokenUrl: "https://cdcti-stg-api.azurewebsites.net/v1/auth/token"
+        reportUrl: "https://cdcti-stg-api.azurewebsites.net/v1/etor/orders"
+        # Uncomment below for local Trusted-Intermediary server
+        # authTokenUrl: "http://host.docker.internal:8080/v1/auth/token"
+        # reportUrl: "http://host.docker.internal:8080/v1/etor/orders"
+        tlsKeystore: null
+        parameters:
+          scope: "report-stream"
+          client_assertion: "client_secret"
+        headers:
+          Content-Type: "text/fhir+ndjson"
+          RecordId: "header.reportFile.reportId"
+          senderLabName: "CDC PRIME REPORTSTREAM" #name-of-the-lab-the-sending-user-belongs-to
+          sourceLabName: "CDC PRIME REPORTSTREAM" #name-of-the-lab-that-originally-sent-this-hl7-message-to-OSDH
+        authHeaders:
+          Content-Type: "application/x-www-form-urlencoded"
+          Host: "cdcti-stg-api.azurewebsites.net"
+    # RS => PHL: translates OML_O21 from FHIR to HL7 and uploads the message to the SFTP folder
+    - name: "simulated-lab"
+      externalName: "Simulated State Public Health Lab ETOR Receiver - Receiving OML_O21 HL7 orders"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
+      jurisdictionalFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'" # OML_O21
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"
+        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = 'simulated-lab-id').exists()"
+      qualityFilter:
+        - true
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440 # Every minute
+        initialTime: "00:00"
+      translation: !<HL7>
+        type: "HL7"
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/Flexion/TILabOrder.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+      transport:
+        type: "SFTP"
+        host: "172.17.6.20" # use "sftp" if running locally
+        port: 22
+        filePath: "./upload"
+        credentialName: null # use "DEFAULT-SFTP" if running locally
+    # Results Receivers
+    # RS => TI: translates ORU_R01 from HL7 to FHIR and uploads the message to the SFTP folder
+    - name: "etor-service-receiver-results"
+      externalName: "ETOR Service Receiver Channel from ReportStream for results - Receiving ORU_R01 FHIR results"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
+      jurisdictionalFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'" # ORU_R01
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.exists(system = 'http://localcodes.org/ETOR').not()"
+      qualityFilter:
+        - true
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440 # Every minute
+        initialTime: "00:00"
+      translation: !<FHIR>
+        type: "FHIR"
+        schemaName: "classpath:/metadata/fhir_transforms/receivers/fhir-transform-sample.yml"
+        useBatching: false
+      transport: !<REST>
+        type: "REST"
+        authType: "two-legged"
+        authTokenUrl: "https://cdcti-stg-api.azurewebsites.net/v1/auth/token"
+        reportUrl: "https://cdcti-stg-api.azurewebsites.net/v1/etor/results"
+        # Uncomment below for local Trusted-Intermediary server
+        # authTokenUrl: "http://host.docker.internal:8080/v1/auth/token"
+        # reportUrl: "http://host.docker.internal:8080/v1/etor/results"
+        tlsKeystore: null
+        parameters:
+          scope: "report-stream"
+          client_assertion: "client_secret"
+        headers:
+          Content-Type: "text/fhir+ndjson"
+          RecordId: "header.reportFile.reportId"
+        authHeaders:
+          Content-Type: "application/x-www-form-urlencoded"
+          Host: "cdcti-stg-api.azurewebsites.net"
+    # RS => Hospital: translates ORU_R01 from FHIR to HL7 and uploads the message to the SFTP folder
+    - name: "simulated-hospital"
+      externalName: "Simulated Hospital ETOR Receiver - Receiving ORU_R01 HL7 results"
+      organizationName: "flexion"
+      topic: "etor-ti"
+      customerStatus: "active"
+      jurisdictionalFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'" # ORU_R01
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"
+        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = 'simulated-hospital-id').exists()"
+      qualityFilter:
+        - true
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440 # Every minute
+        initialTime: "00:00"
+      translation: !<HL7>
+        type: "HL7"
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+      transport:
+        type: "SFTP"
+        host: "172.17.6.20" # use "sftp" if running locally
+        port: 22
+        filePath: "./upload"
+        credentialName: null # use "DEFAULT-SFTP" if running locally

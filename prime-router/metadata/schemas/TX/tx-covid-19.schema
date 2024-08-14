@@ -1,0 +1,265 @@
+---
+name: tx-covid-19
+description: TX NEDSS ELR for HL7 messages
+referenceUrl: https://www.dshs.state.tx.us/IDCU/investigation/ELR/Texas-HL7-2_5_1-ELR_Specification_-2016_Final-Draft-4-29-16.pdf
+topic: covid-19
+extends: covid-19
+trackingElement: message_id
+elements:
+  - name: sending_application
+
+  - name: receiving_application
+    default: NEDSS
+
+  - name: receiving_facility
+    default: TX-ELR
+
+  - name: comment
+
+  - name: comment_type
+
+  - name: comment_source
+
+  - name: device_id
+
+  - name: device_id_type
+
+  - name: equipment_model_id
+
+  - name: equipment_model_id_type
+
+  - name: equipment_model_name
+
+  - name: equipment_manufacture
+
+  - name: file_created_date
+
+  - name: filler_name
+
+  - name: filler_order_id
+
+  - name: filler_clia
+
+  - name: observation_result_status
+
+  - name: order_result_status
+
+  - name: order_test_date
+
+  - name: ordered_test_code
+
+  - name: ordered_test_name
+
+  - name: ordered_test_encoding_version
+
+  - name: ordering_facility_city
+
+  - name: ordering_facility_county
+
+  - name: ordering_facility_county_code
+
+  - name: ordering_facility_email
+
+  - name: ordering_facility_name
+
+  - name: ordering_facility_phone_number
+
+  - name: ordering_facility_state
+
+  - name: ordering_facility_street
+
+  - name: ordering_facility_street2
+
+  - name: ordering_facility_zip_code
+
+  - name: ordering_provider_city
+
+  - name: ordering_provider_county
+
+  - name: ordering_provider_county_code
+
+  - name: ordering_provider_first_name
+
+  - name: ordering_provider_id
+
+  - name: ordering_provider_id_authority
+
+  - name: ordering_provider_id_authority_type
+
+  - name: ordering_provider_last_name
+
+  - name: ordering_provider_middle_name
+
+  - name: ordering_provider_phone_number
+
+  - name: ordering_provider_state
+
+  - name: ordering_provider_street
+
+  - name: ordering_provider_street2
+
+  - name: ordering_provider_zip_code
+
+  - name: patient_city
+
+  - name: patient_county
+
+  - name: patient_county_code
+
+  - name: patient_email
+
+  - name: patient_death_date
+
+  - name: patient_died
+
+  - name: patient_dob
+
+  - name: patient_drivers_license
+
+  - name: patient_ethnicity
+
+  - name: patient_first_name
+
+  - name: patient_gender
+
+  - name: patient_id
+
+  - name: patient_id_assigner
+
+  - name: patient_id_type
+
+  - name: patient_last_name
+
+  - name: patient_name_type_code
+
+  - name: patient_middle_name
+
+  - name: patient_phone_number
+
+  - name: patient_race
+
+  - name: patient_state
+
+  - name: patient_street
+
+  - name: patient_street2
+
+  - name: patient_suffix
+
+  - name: patient_tribal_citizenship
+
+  - name: patient_zip_code
+
+  - name: placer_order_id
+
+  - name: placer_name
+
+  - name: placer_clia
+
+  - name: placer_order_group_id
+
+  - name: processing_mode_code
+
+  - name: message_id
+
+  - name: message_profile_id
+
+  - name: reference_range
+
+  - name: abnormal_flag
+
+  - name: reporting_facility_name
+
+  - name: reporting_facility_clia
+
+  - name: result_format
+
+  - name: specimen_collection_date_time
+
+  - name: specimen_collection_method
+
+  - name: specimen_collection_site
+
+  - name: specimen_description
+
+  - name: specimen_id
+
+  - name: specimen_role
+
+  - name: specimen_source_site_code
+
+  - name: specimen_type
+
+  - name: test_kit_name_id_cwe_version
+
+  - name: test_performed_code
+
+  - name: test_performed_name
+
+  - name: test_performed_system_abbr
+
+  - name: test_performed_system_version
+
+  - name: test_result
+
+  - name: test_result_date
+
+  - name: date_result_released
+
+  - name: test_result_status
+
+  - name: test_result_sub_id
+
+  - name: test_result_units
+
+  - name: testing_lab_accession_number
+
+  - name: testing_lab_city
+
+  - name: testing_lab_county
+
+  - name: testing_lab_county_code
+
+  - name: testing_lab_id
+
+  - name: testing_lab_id_assigner
+
+  - name: testing_lab_clia
+
+  - name: testing_lab_name
+
+  - name: testing_lab_specimen_id
+
+  - name: testing_lab_specimen_received_datetime
+
+  - name: testing_lab_state
+
+  - name: testing_lab_street
+
+  - name: testing_lab_street2
+
+  - name: testing_lab_zip_code
+
+  - name: testing_lab_phone_number
+
+  # AOE questions
+  - name: pregnant
+
+  - name: employed_in_healthcare
+
+  - name: first_test
+
+  - name: hospitalized
+
+  - name: icu
+
+  - name: illness_onset_date
+
+  - name: patient_age
+
+  - name: patient_age_units
+
+  - name: resident_congregate_setting
+
+  - name: symptomatic_for_disease
+

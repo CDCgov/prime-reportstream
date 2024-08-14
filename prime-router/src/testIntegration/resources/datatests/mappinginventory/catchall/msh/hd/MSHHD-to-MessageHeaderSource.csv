@@ -1,0 +1,11 @@
+HL7 v2,,,,,,Condition (IF True),,,HL7 FHIR,,,,,,,,,Comments
+Sort Order,Identifier,Name,Data Type,Cardinality - Min,Cardinality - Max,Computable ANTLR,Computable FHIRPath,Narrative,FHIR Attribute/ Data Type,,Data Type,Cardinality - Min,Cardinality - Max,Data Type Mapping,"Vocabulary Mapping
+(IS, ID, CE, CNE, CWE)",Assignment,,
+1,HD.1,Namespace ID,IS,0,1,"IF HD.2 NOT VALUED AND (HD-3 NOT IN (""ISO"", ""UUID"", ""DNS"", ""URI""))",,,name,,string,,,,,,,
+2,HD.2,Universal ID,ST,0,1,"IF HD-3 = ""ISO""",,,endpoint,,uri,1,1,,,"""urn:oid:""+HD.2",,
+2,HD.2,Universal ID,ST,0,1,"IF HD-3 = ""UUID""",,,endpoint,,uri,1,1,,,"""urn:uuid:""+HD.2",,
+2,HD.2,Universal ID,ST,0,1,"IF HD-3 = ""DNS""",,,endpoint,,uri,1,1,,,"""urn:dns:""+HD.2",,
+2,HD.2,Universal ID,ST,0,1,"IF HD-3 = ""URI""",,,endpoint,,uri,1,1,,,"""urn:uri:""+HD.2",,
+2,HD.2,Universal ID,ST,0,1,"IF HD-3 NOT IN (""ISO"", ""UUID"", ""DNS"", ""URI"")",,,name,,,,,, ,"HD.1+"" - ""+HD.3+"":""+HD.2",,
+3,HD.3,Univeral ID Type,ST,0,1,"IF NOT VALUED OR NOT IN (""ISO"", ""UUID"", ""DNS"", ""URI"")",,,endpoint.extension[1].url,,,,,,,"""http://hl7.org/fhir/R4/extension-data-absent-reason.html""",,
+3,HD.3,Univeral ID Type,ST,0,1,"IF NOT VALUED OR NOT IN (""ISO"", ""UUID"", ""DNS"", ""URI"")",,,endpoint.extension[1].valueCode,,,,,,,"""unknown""",,

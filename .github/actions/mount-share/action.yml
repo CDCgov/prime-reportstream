@@ -1,0 +1,74 @@
+name: mount-share
+description: Mount Azure file share to linux runner
+inputs:
+  storage-account-resource-group:
+    required: true
+  storage-account-name:
+    required: true
+  file-share-name:
+    require: true
+outputs:
+  mount-path:
+    value: ${{ steps.mount_share.outputs.mount_path }}
+
+runs:
+  using: "composite"
+  steps:
+
+    # Source:
+    # https://docs.microsoft.com/en-us/azure/storage/files/storage-how-to-use-files-linux?tabs=smb311#static-mount-with-etcfstab
+    - name: Mount file share
+      id: mount_share
+      shell: bash
+      run: |
+        mntRoot="/mount"
+        sudo mkdir -p $mntRoot
+
+        fileShareName="${{ inputs.file-share-name }}"
+
+        resourceGroupName="${{ inputs.storage-account-resource-group }}"
+        storageAccountName="${{ inputs.storage-account-name }}"
+
+        # Create a folder to store the credentials for this storage account and
+        # any other that you might set up.
+        credentialRoot="/etc/smbcredentials"
+        sudo mkdir -p "/etc/smbcredentials"
+
+        # Get the storage account key for the indicated storage account.
+        # You must be logged in with az login and your user identity must have 
+        # permissions to list the storage account keys for this command to work.
+        storageAccountKey=$(az storage account keys list \
+            --resource-group $resourceGroupName \
+            --account-name $storageAccountName \
+            --query "[0].value" --output tsv | tr -d '"')
+
+        # Create the credential file for this individual storage account
+        smbCredentialFile="$credentialRoot/$storageAccountName.cred"
+        if [ ! -f $smbCredentialFile ]; then
+            echo "username=$storageAccountName" | sudo tee $smbCredentialFile > /dev/null
+            echo "password=$storageAccountKey" | sudo tee -a $smbCredentialFile > /dev/null
+        else 
+            echo "The credential file $smbCredentialFile already exists, and was not modified."
+        fi
+
+        # Change permissions on the credential file so only root can read or modify the password file.
+        sudo chmod 600 $smbCredentialFile
+
+        mntPath="$mntRoot/$storageAccountName/$fileShareName"
+        sudo mkdir -p $mntPath
+
+        httpEndpoint=$(az storage account show \
+            --resource-group $resourceGroupName \
+            --name $storageAccountName \
+            --query "primaryEndpoints.file" --output tsv | tr -d '"')
+        smbPath=$(echo $httpEndpoint | cut -c7-$(expr length $httpEndpoint))$fileShareName
+
+        if [ -z "$(grep $smbPath\ $mntPath /etc/fstab)" ]; then
+            echo "$smbPath $mntPath cifs nofail,credentials=$smbCredentialFile,serverino" | sudo tee -a /etc/fstab > /dev/null
+        else
+            echo "/etc/fstab was not modified to avoid conflicting entries as this Azure file share was already present. You may want to double check /etc/fstab to ensure the configuration is as desired."
+        fi
+
+        sudo mount -a
+
+        echo "mount_path=$mntPath" >> $GITHUB_OUTPUT

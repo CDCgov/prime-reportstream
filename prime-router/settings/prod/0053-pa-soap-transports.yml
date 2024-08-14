@@ -1,0 +1,209 @@
+---
+- name: pa-phd
+  description: Pennsylvania Department of Health
+  jurisdiction: STATE
+  stateCode: PA
+  receivers:
+    - name: elr-chester-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: chester_hl7
+        reportingFacilityName: Chester County Health Department
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SOAP
+        endpoint: "https://www.erstest.health.pa.gov/ELRWCF/ELRService.svc/ELR"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: DEFAULT-SOAP
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 24
+        initialTime: 00:35
+        timeZone: EASTERN
+    - name: elr-montgomery-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: montgomery_hl7
+        reportingFacilityName: Montgomery County Office of Public Health
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SOAP
+        endpoint: "https://www.erstest.health.pa.gov/ELRWCF/ELRService.svc/ELR"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 24
+        initialTime: 00:35
+        timeZone: EASTERN
+    - name: elr-philadelphia-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Philadelphia)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: philadelphia_hl7
+        reportingFacilityName: Philadelphia Public Health Laboratory
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SOAP
+        endpoint: "https://www.erstest.health.pa.gov/ELRWCF/ELRService.svc/ELR"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 24
+        initialTime: 00:35
+        timeZone: EASTERN
+    - name: elr-bucks-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Bucks)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: bucks_hl7
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SOAP
+        endpoint: "https://www.erstest.health.pa.gov/ELRWCF/ELRService.svc/ELR"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 24
+        initialTime: 00:35
+        timeZone: EASTERN
+    - name: elr-allegheny-hl7
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Allegheny)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: allegheny_hl7
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SOAP
+        endpoint: "https://www.erstest.health.pa.gov/ELRWCF/ELRService.svc/ELR"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 24
+        initialTime: 00:39
+        timeZone: EASTERN

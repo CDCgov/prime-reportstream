@@ -1,0 +1,195 @@
+---
+name: az-covid-19
+description: AZ COVID-19 flat file
+topic: covid-19
+trackingElement: testing_lab_specimen_id
+basedOn: covid-19
+elements:
+  - name: sending_application
+    csvFields: 
+      - name: Sending_Application
+        format: $name
+      - name: Sending_Application_ID
+        format: $universalId
+
+  # Nonstandard.  Works from SimpleReport only.  Should be moved to covid-19.schema
+  - name: organization_name
+    maxLength:  50
+    type: TEXT
+    mapper: use(testing_lab_name)
+    csvFields:
+    - name: Lab_Name
+
+  - name: testing_lab_clia
+    csvFields:
+    - name: Lab_CLIA
+
+  - name: testing_lab_street
+    csvFields:
+    - name: Lab_Address
+
+  - name: testing_lab_city
+    csvFields:
+    - name: Lab_City
+
+  - name: testing_lab_state
+    csvFields:
+    - name: Lab_State
+
+  - name: testing_lab_zip_code
+    csvFields:
+    - name: Lab_Zip
+
+  - name: testing_lab_phone_number
+    csvFields:
+    - name: Lab_Phone
+
+  - name: patient_id
+    csvFields:
+    - name: Patient_ID
+
+  - name: patient_first_name
+    csvFields:
+    - name: Patient_First_Name
+
+  - name: patient_last_name
+    csvFields:
+    - name: Patient_Last_Name
+
+  - name: patient_dob
+    csvFields:
+    - name: Patient_Date_of_Birth
+
+  - name: patient_gender
+    csvFields:
+    - name: Patient_Sex
+
+  - name: patient_race
+    altValues:
+      - display: N      # Native
+        code: 1002-5
+      - display: A      # Asian
+        code: 2028-9
+      - display: B      # Black
+        code: 2054-5
+      - display: P      # Pacific Islander
+        code: 2076-8
+      - display: W      # White
+        code: 2106-3
+      - display: O      # Other
+        code: 2131-1
+      - display: O
+        code: UNK
+      - display: O      #  Asked, but unknown
+        code: ASKU
+    csvFields:
+    - name: Race
+      format: $alt
+
+  - name: patient_ethnicity
+    csvFields:
+    - name: Ethnicity
+
+  - name: patient_street
+    csvFields:
+    - name: Patient_Street_Address
+
+  - name: patient_city
+    csvFields:
+    - name: Patient_City
+
+  - name: patient_state
+    csvFields:
+    - name: Patient_State
+
+  - name: patient_zip_code
+    csvFields:
+    - name: Patient_Zip
+      format: $zip # Only a 5 digit zipcode
+
+  - name: patient_county
+    csvFields:
+    - name: Patient_County
+
+  - name: patient_phone_number
+    csvFields:
+    - name: Patient_Phone_Number
+
+  # Nonstandard
+  - name: organization_and_facility
+    type: TEXT
+    maxLength:  50
+    mapper: 'concat(organization_name, ordering_facility_name)'
+    csvFields: [{name: Ordering_facility_name}]
+
+  - name: ordering_facility_street
+    csvFields:
+    - name: Ordering_Facility_Address
+
+  - name: ordering_facility_city
+    csvFields:
+    - name: Ordering_Facility_City
+
+  - name: ordering_facility_state
+    csvFields:
+    - name: Ordering_Facility_State
+
+  - name: ordering_facility_zip_code
+    csvFields:
+    - name: Ordering_Facility_Zip
+
+  - name: ordering_provider_first_name
+    csvFields:
+    - name: Provider_First_Name
+
+  - name: ordering_provider_last_name
+    csvFields:
+    - name: Provider_Last_Name
+
+  - name: ordering_provider_phone_number
+    csvFields:
+    - name: Provider_Phone_Number
+
+  - name: specimen_id
+    csvFields:
+    - name: Specimen_ID
+
+  - name: specimen_collection_date_time
+    csvFields:
+    - name: Collection_Date
+      format: yyyyMMdd
+
+  - name: specimen_type
+    csvFields:
+    - name: Specimen_Type
+      format: $display
+
+  - name: specimen_source_site_code
+    csvFields:
+    - name: Specimen_Site
+      format: $display
+
+  - name: test_performed_code
+    csvFields:
+    - name: Test_Code
+
+  - name: test_performed_name
+    csvFields:
+    - name: Test_Name
+
+  - name: test_result
+    csvFields:
+    - name: Result
+      format: $display
+
+  - name: test_result_date
+    csvFields:
+    - name: Result_Date
+      format: yyyyMMdd
+
+  - name: comment
+    default: ""
+    csvFields:
+    - name: Notes
+
+

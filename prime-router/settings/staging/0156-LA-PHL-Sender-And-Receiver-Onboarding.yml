@@ -1,0 +1,110 @@
+# To submit this to Staging, run:
+# ./prime multiple-settings set --env staging --input ./settings/staging/0156-LA-PHL-Sender-And-Receiver-Onboarding.yml
+#
+# Description:
+#   These following setting are for Louisiana Public Health Lab (la-phl) sender and receivers
+#   LA-PHL Sender (etor-nbs-results) sends to ETOR-TI Receiver (etor-service-receiver)
+#   ETOR-TI Sender (etor-service-sender) sends to LA-PHL Receiver (etor-nbs-orders)
+---
+- name: "la-phl"
+  description: "Louisiana Public Health Lab"
+  jurisdiction: "STATE"
+  stateCode: null
+  countyName: null
+  filters: []
+  featureFlags: []
+  keys: null
+  senders:
+    - !<full-elr>
+      name: "etor-nbs-results"
+      organizationName: "la-phl"
+      format: "HL7"
+      customerStatus: "active"
+      schemaName: ""
+      processingType: "sync"
+      allowDuplicates: true
+      senderType: null
+      primarySubmissionMethod: null
+      topic: "etor-ti"
+      version: null
+      createdBy: null
+      createdAt: null
+  receivers:
+  - name: "etor-nbs-orders"
+    organizationName: "la-phl"
+    topic: "etor-ti"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "metadata/hl7_mapping/receivers/Flexion/TILabOrder"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "LA-PHL"
+      receivingApplicationOID: null
+      receivingFacilityName: "LA"
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB: {}
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "standard"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+    - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21')"
+    - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'LA') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'LA')"
+    qualityFilter:
+    - "true"
+    routingFilter: []
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<SFTP>
+      host: "sftp1.neometrics.com"
+      port: "2022"
+      filePath: "./Inbound"
+      credentialName: null
+      type: "SFTP"
+    externalName: "Louisiana State Public Health Lab ETOR Receiver"
+    timeZone: null
+    dateTimeFormat: "OFFSET"

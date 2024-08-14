@@ -1,0 +1,19 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+text:
+  type: STRING_ALL
+  valueOf: CWE
+  generateList: true
+  expressionType: HL7Spec
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: 'cwe-annotation'
+    valueCodeableConcept:
+      valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      specs: CWE

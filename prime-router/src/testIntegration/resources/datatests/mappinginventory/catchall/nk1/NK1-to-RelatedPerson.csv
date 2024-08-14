@@ -1,0 +1,49 @@
+HL7 v2,,,,,,Condition (IF True),,,HL7 FHIR,,,,,,,,,Comments
+Sort Order,Identifier,Name,Data Type,Cardinality - Min,Cardinality - Max,Computable ANTLR,Computable FHIRPath,Narrative,FHIR Attribute,,Data Type,Cardinality - Min,Cardinality - Max,Data Type Mapping,"Vocabulary Mapping
+(IS, ID, CE, CNE, CWE)",Assignment,,
+1,NK1-1,Set ID - NK1,SI,1,1,,,,,,,,,,,,,
+2,NK1-2,Name,XPN,0,-1,,,,name[1],,HumanName,0,-1,XPN[HumanName],,,,
+3,NK1-3,Relationship,CWE,0,1,,,,relationship[1],,CodeableConcept,0,-1,CWE[CodeableConcept],Relationship,,,"Note that the value sets between Patient.contact.relationship and RelatedPerson.relationship are quite different.
+See https://chat.fhir.org/#narrow/stream/179166-implementers/topic/relationship.20in.20Patient.2Econtact.20and.20RelatedPersonfor further discussion"
+4,NK1-4,Address,XAD,0,-1,,,,address[1],,Address,0,-1,XAD[Address],,,,
+5,NK1-5,Phone Number,XTN,0,-1,,,,telecom[1],,ContactPoint,0,-1,XTN[ContactPoint],,,,"ContactPoint.use would likely be ""home"" or ""mobile"", but picked up from XTN.2"
+6,NK1-6,Business Phone Number,XTN,0,-1,,,,telecom[2],,ContactPoint,0,-1,XTN[ContactPoint],,,,
+6,NK1-6,Business Phone Number,XTN,0,-1,,,,telecom[2].use,,,,,,,"""work""",,
+7,NK1-7,Contact Role,CWE,0,1,,,,relationship[2],,CodeableConcept,0,-1,CWE[CodeableConcept],Relationship,,,"Note that the value sets between Patient.contact.relationship and RelatedPerson.relationship are quite different.
+RelatedPerson.relationship is allowed to repeat and so can accept values from both NK1-3 and NK1-7
+See https://chat.fhir.org/#narrow/stream/179166-implementers/topic/relationship.20in.20Patient.2Econtact.20and.20RelatedPerson for further discussion"
+8,NK1-8,Start Date,DT,0,1,,,,period.start,,dateTime,0,1,,,,,
+9,NK1-9,End Date,DT,0,1,,,,period.end,,dateTime,0,1,,,,,
+10,NK1-10,Next of Kin / Associated Parties Job Title,ST,0,1,,,,,,,,,,,,,
+11,NK1-11,Next of Kin / Associated Parties Job Code/Class,JCC,0,1,,,,,,,,,,,,,
+12,NK1-12,Next of Kin / Associated Parties Employee Number,CX,0,1,,,,identifier[1]       ,,Identifier,0,-1,CX[Identifier],,,,
+13,NK1-13,Organization Name - NK1,XON,0,-1,,,,,,,,,,,,,Do we need to enhance the Organization resource to be able to serve as a next of kin or associated party?
+14,NK1-14,Marital Status,CWE,0,1,,,,,,,,,,,,,
+15,NK1-15,Administrative Sex,CWE,0,1,,,,gender,,code,0,1,CWE[Code],Gender,,,
+16,NK1-16,Date/Time of Birth,DTM,0,1,,,,birthDate,,date,0,1,,,,,
+17,NK1-17,Living Dependency,CWE,0,-1,,,,,,,,,,,,,
+18,NK1-18,Ambulatory Status,CWE,0,-1,,,,,,,,,,,,,
+19,NK1-19,Citizenship,CWE,0,-1,,,,,,,,,,,,,
+20,NK1-20,Primary Language,CWE,0,1,,,,communication.language,,CodeableConcept,0,-1,CWE[CodeableConcept],Language,,,
+21,NK1-21,Living Arrangement,CWE,0,1,,,,,,,,,,,,,
+22,NK1-22,Publicity Code,CWE,0,1,,,,,,,,,,,,,
+23,NK1-23,Protection Indicator,ID,0,1,,,,,,,,,,,,,
+24,NK1-24,Student Indicator,CWE,0,1,,,,,,,,,,,,,
+25,NK1-25,Religion,CWE,0,1,,,,,,,,,,,,,
+26,NK1-26,Mother's Maiden Name,XPN,0,-1,,,,,,,,,,,,,We could dupicate the patient-mothersmaidenname extension and add it to RelatedPerson if we need to
+27,NK1-27,Nationality,CWE,0,1,,,,,,,,,,,,,
+28,NK1-28,Ethnic Group,CWE,0,-1,,,,,,,,,,,,,
+29,NK1-29,Contact Reason,CWE,0,-1,,,,,,,,,,,,,
+30,NK1-30,Contact Person's Name,XPN,0,-1,,,,name[2],,HumanName,0,-1,XPN[HumanName],,,,"Do we need a way in RelatedPerson to distinguish between a ""next of kin"" and a ""contact Person""?"
+31,NK1-31,Contact Person's Telephone Number,XTN,0,-1,,,,telecom[3],,ContactPoint,0,-1,XTN[ContactPoint],,,,
+32,NK1-32,Contact Person's Address,XAD,0,-1,,,,address[2],,Address,0,-1,XAD[Address],,,,
+33,NK1-33,Next of Kin/Associated Party's Identifiers,CX,0,-1,,,,identifier[2]       ,,Identifier,0,-1,CX[Identifier],,,,
+34,NK1-34,Job Status,CWE,0,1,,,,,,,,,,,,,
+35,NK1-35,Race,CWE,0,-1,,,"Use your local extension, e.g., US = US Core Race Extension, AUS = indiginous extension.",,,,,,,,,,
+36,NK1-36,Handicap,CWE,0,1,,,,,,,,,,,,,
+37,NK1-37,Contact Person Social Security Number,ST,0,1,,,,identifier[3].value,,Identifier,0,-1,,,,,
+37,NK1-37,Contact Person Social Security Number,ST,0,1,,,,identifier[3].system,,uri,0,-1,,,"""http://hl7.org/fhir/sid/us-ssn""",,
+38,NK1-38,Next of Kin Birth Place,ST,0,1,,,,,,,,,,,,,
+39,NK1-39,VIP Indicator,CWE,0,1,,,,,,,,,,,,,
+40,NK1-40,Next of Kin Telecommunication Information,XTN,0,1,,,,telecom[4],,ContactPoint,0,-1,XTN[ContactPoint],,,,
+41,NK1-41,Contact Person's Telecommunication Information,XTN,0,1,,,,telecom[5],,ContactPoint,0,-1,XTN[ContactPoint],,,,

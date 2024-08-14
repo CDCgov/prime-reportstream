@@ -1,0 +1,92 @@
+[
+    {
+        "submissionId": 922,
+        "timestamp": "2022-05-05T18:04:26.534Z",
+        "sender": "simple_report",
+        "httpStatus": 201,
+        "id": "b9f63105-bbed-4b41-b1ad-002a90f07e62",
+        "topic": "covid-19",
+        "reportItemCount": 14
+    },
+    {
+        "submissionId": 915,
+        "timestamp": "2022-05-05T17:59:01.925Z",
+        "sender": "simple_report",
+        "httpStatus": 201,
+        "id": "dbe49a5b-c3a8-486d-8d7e-af94fe67948c",
+        "topic": "covid-19",
+        "reportItemCount": 14
+    },
+    {
+        "submissionId": 908,
+        "timestamp": "2022-05-05T17:57:37.462Z",
+        "sender": "simple_report",
+        "httpStatus": 201,
+        "id": "ee0e7f61-77de-41c1-be14-dc87547c3660",
+        "topic": "covid-19",
+        "reportItemCount": 14
+    },
+    {
+        "submissionId": 907,
+        "timestamp": "2022-05-05T17:57:14.637Z",
+        "sender": "simple_report",
+        "httpStatus": 201,
+        "id": "8cba0be6-34de-4aeb-9ed0-fb70ef17dff7",
+        "topic": "covid-19",
+        "reportItemCount": 14
+    },
+    {
+        "submissionId": 905,
+        "timestamp": "2022-05-05T17:57:03.801Z",
+        "sender": "simple_report",
+        "httpStatus": 201,
+        "id": "997239ba-0aa0-4b11-8ea6-5e5a625aeb56",
+        "topic": "covid-19",
+        "reportItemCount": 14
+    },
+    {
+        "submissionId": 892,
+        "timestamp": "2022-05-05T17:49:48.868Z",
+        "sender": "simple_report",
+        "httpStatus": 201,
+        "id": "f94ad68a-cdc1-467b-991d-6a73e6db2b79",
+        "topic": "covid-19",
+        "reportItemCount": 1
+    },
+    {
+        "submissionId": 874,
+        "timestamp": "2022-05-05T17:49:04.382Z",
+        "sender": "simple_report",
+        "httpStatus": 201,
+        "id": "46df9b45-b3c8-4d9e-82ef-d5ec0c9db659",
+        "topic": "covid-19",
+        "reportItemCount": 1
+    },
+    {
+        "submissionId": 753,
+        "timestamp": "2022-05-05T17:38:53.807Z",
+        "sender": "simple_report",
+        "httpStatus": 201,
+        "id": "1fd75c2d-8528-4e91-a3ef-faeb55359bd1",
+        "topic": "covid-19",
+        "reportItemCount": 1
+    },
+    {
+        "submissionId": 642,
+        "timestamp": "2022-05-05T16:44:40.837Z",
+        "sender": "simple_report",
+        "httpStatus": 201,
+        "id": "6428796f-44a2-45cc-b677-9ee043eb324d",
+        "topic": "covid-19",
+        "reportItemCount": 1
+    },
+    {
+        "submissionId": 474,
+        "timestamp": "2022-04-29T17:07:55.417Z",
+        "sender": "simple_report",
+        "httpStatus": 201,
+        "id": "a6089506-f534-41b1-b8dd-703c9762fa88",
+        "topic": "covid-19",
+        "reportItemCount": 1
+    }
+]

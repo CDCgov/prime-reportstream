@@ -1,0 +1,231 @@
+---
+name: tpca-covid-19
+description: A COVID-19 schema for TPCA working through A6
+trackingElement: specimen_id
+topic: covid-19
+basedOn: covid-19
+elements:
+  - name: patient_id
+    csvFields: [ { name: "Patient ID" } ]
+
+  # todo: needs a mapper to split
+  - name: patient_name
+    type: TEXT
+    csvFields: [ { name: Name } ]
+
+  - name: patient_dob
+    csvFields: [ { name: DOB, format: "M/d/yyyy" } ]
+
+  - name: patient_age_and_units
+    type: TEXT
+    csvFields: [ { name: Age } ]
+
+  - name: patient_age
+    mapper: stripNonNumeric(patient_age_and_units)
+
+  - name: patient_age_units
+    mapper: stripNumeric(patient_age_and_units)
+
+  - name: patient_race
+    csvFields: [{ name: Race, format: $alt }]
+    altValues:
+      - display: American Indian or Alaska Native
+        code: 1002-5
+        version: 2.5.1
+      - display: Asian
+        code: 2028-9
+        version: 2.5.1
+      - display: Black or African American
+        code: 2054-5
+        version: 2.5.1
+      - display: Black
+        code: 2054-5
+      - display: Native Hawaiian or Other Pacific Islander
+        code: 2076-8
+        version: 2.5.1
+      - display: White
+        code: 2106-3
+        version: 2.5.1
+      - display: Caucasian
+        code: 2016-3
+      - display: Other
+        code: 2131-1
+        version: 2.5.1
+      - display: Undefined
+        code: UNK
+        version: 2.5.1
+        system: NULLFL
+      - display: N/A
+        code: N/A
+      - display: Asked, but unknown
+        code: ASKU
+        version: 2.5.1
+        system: NULLFL
+
+  # todo: needs a mapper
+  - name: ordering_provider
+    type: TEXT
+    csvFields: [{ name: Provider }]
+
+  - name: patient_street
+    csvFields: [{ name: Address }]
+
+  - name: patient_city
+    csvFields: [{ name: City }]
+
+  - name: patient_state
+    csvFields: [{ name: State }]
+
+  - name: patient_zip_code
+    type: TABLE
+    table: zip-code-data
+    tableColumn: zipcode
+    csvFields: [{ name: Zip }]
+
+  - name: patient_phone_number_raw
+    type: TEXT
+    csvFields: [{ name: Phone }]
+
+  - name: patient_phone_number
+    mapper: stripPhoneFormatting(patient_phone_number_raw)
+    # csvFields: [{ name: Patient_phone }] # <-- if you uncomment this it will output to the CSV field. left as an example
+
+  # todo: needs a mapper
+  - name: test_result_description
+    type: TEXT
+    csvFields: [{ name: "Result Descr" }]
+
+  # todo: what should this map to?
+  - name: appr_date
+    type: DATE
+    csvFields: [{ name: "Appr Date", format: "M/d/yyyy" }]
+
+  - name: test_performed_code
+    csvFields: [{ name: LOINC }]
+
+  - name: test_performed_description
+    type: TEXT
+    csvFields: [{ name: "LOINC Test Descr" }]
+
+  - name: test_result
+    csvFields: [{ name: "SNOMED Rslt Code" }]
+
+  - name: specimen_id
+    csvFields: [{ name: "Sample ID" }]
+
+  - name: specimen_collection_date_time
+    csvFields: [{ name: "Draw Date", format: "M/d/yyyy" }]
+
+  # todo: needs a mapper
+  - name: sample_type
+    type: TEXT
+    csvFields: [{ name: "Sample Type" }]
+
+  - name: first_test
+    csvFields: [{ name: "1st Test?" }]
+
+  - name: employed_in_healthcare
+    csvFields: [{ name: "HCW?" }]
+
+  - name: symptomatic_for_disease
+    csvFields: [{ name: "Symptomatic" }]
+
+  - name: illness_onset_date
+    csvFields: [{ name: "Sympt Date", format: "M/d/yyyy" }]
+
+  - name: hospitalized
+    csvFields: [{ name: "Hosp?" }]
+
+  - name: icu
+    csvFields: [{ name: "ICU?" }]
+
+  # todo: what does this map to?
+  - name: resident_congregate_care_setting
+    type: TEXT
+    csvFields: [{ name: "Nsg Home?" }]
+
+  - name: pregnant
+    csvFields: [{ name: "Preg?", format: $alt }]
+    altValues:
+      - code: 77386006
+        display: Y
+      - code: 60001007
+        display: N
+      - code: 261665006
+        display: Unknown
+
+  - name: equipment_model_name
+
+  - name: sending_application
+
+  - name: message_profile_id
+
+  - name: patient_first_name
+    mapper: split(patient_name, 0)
+
+  - name: patient_last_name
+    mapper: split(patient_name, 1)
+
+  - name: ordering_provider_first_name
+    mapper: splitByComma(ordering_provider, 0)
+
+  - name: ordering_provider_last_name
+    mapper: splitByComma(ordering_provider, 2)
+
+  - name: testing_lab_name
+    default: TPCA Lab and Diagnostic Imaging Center
+
+  - name: testing_lab_city
+    default: Talahassee
+
+  - name: testing_lab_street
+    default: 1803 Miccosukee Commons Drive
+
+  - name: testing_lab_state
+    default: FL
+
+  - name: testing_lab_zip_code
+    default: 32308
+
+  - name: testing_lab_county
+    default: Leon
+
+  - name: testing_lab_phone_number
+    default: "8509426624:1:"
+
+  - name: testing_lab_clia
+    default: 10D0270039
+
+  - name: patient_county
+    type: TABLE
+    table: zip-code-data
+    tableColumn: county
+    mapper: zipCodeToCounty(patient_zip_code)
+    # csvFields: [{ name: Patient_county }] # <- uncomment this to see it show up in csv file
+
+  - name: ordering_facility_state
+    mapper: use(testing_lab_state)
+
+  - name: ordering_facility_street
+    mapper: use(testing_lab_street)
+
+  - name: ordering_facility_city
+    mapper: use(testing_lab_city)
+
+  - name: ordering_facility_zip_code
+    mapper: use(testing_lab_zip_code)
+
+  - name: ordering_facility_county
+    mapper: use(testing_lab_county)
+
+  - name: ordering_facility_phone_number
+    default: "8509426624:1:"
+
+  - name: message_id
+    mapper: use(specimen_id)
+
+  # These fields are calculated for filtering purposes
+  - name: test_authorized_for_otc
+  - name: test_authorized_for_home
+  - name: test_authorized_for_unproctored
+  - name: abnormal_flag

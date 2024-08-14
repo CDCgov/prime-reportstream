@@ -1,0 +1,28 @@
+# ./prime multiple-settings set --env prod --input ./settings/prod/0058-setup-clark-county-oh.yml
+---
+- name: oh-ccchd-doh
+  description: Ohio Department of Health - Clark County
+  jurisdiction: COUNTY
+  stateCode: OH
+  countyName: Clark
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter: [ "matches(ordering_facility_state, OH)", "matches(ordering_facility_county, Clark)" ]
+  receivers:
+    - name: elr-download
+      organizationName: oh-ccchd-doh
+      topic: covid-19
+      customerStatus: testing
+      reverseTheQualityFilter: false
+      translation:
+        type: "CUSTOM"
+        schemaName: oh/oh-clark-covid-19-csv
+        format: CSV
+        nameFormat: "ohio"
+      timing:
+        operation: MERGE
+        numberPerDay: 1 # Per day
+        initialTime: 00:05
+        timeZone: EASTERN
+      transport: null
+      externalName: null

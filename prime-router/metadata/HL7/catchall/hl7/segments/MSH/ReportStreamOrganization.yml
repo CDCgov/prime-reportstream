@@ -1,0 +1,32 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Organization
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+identifier_1:
+  expressionType: nested
+  generateList: true
+  expressionsMap:
+    value_1:
+      type: STRING
+      valueOf: "CDC PRIME - Atlanta"
+
+identifier_2:
+  expressionType: nested
+  generateList: true
+  expressionsMap:
+    value:
+      type: STRING
+      valueOf: "2.16.840.1.114222.4.1.237821"
+    type:
+      valueOf: datatypes/ID/CodeableConceptUniversalid
+      generateList: true
+      expressionType: resource
+      specs: "ISO"
+    system:
+      type: STRING
+      valueOf: "urn:ietf:rfc:3986"

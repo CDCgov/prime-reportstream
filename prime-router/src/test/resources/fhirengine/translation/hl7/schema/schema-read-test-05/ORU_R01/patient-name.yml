@@ -1,0 +1,5 @@
+elements:
+  - name: patient-last-name
+    condition: '%resource is Patient and %resource.name.family.exists()'
+    required: true
+    schema: classpath:/fhirengine/translation/hl7/schema/schema-read-test-05/ORU_R01/patient-last-name.yml

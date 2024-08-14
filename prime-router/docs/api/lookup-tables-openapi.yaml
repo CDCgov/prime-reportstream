@@ -1,0 +1,257 @@
+openapi: "3.0.2"
+info:
+  title: ReportStream Lookup Table Management API
+  description: Fetches and manipulates lookup tables in ReportStream
+  version: "1.0"
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://open.cdc.gov
+    email: usds@cdc.gov
+
+paths:
+  /api/lookuptables/list:
+    get:
+      description: Fetch the list lookup tables
+      security:
+        - OAuth2: [ user ]
+      parameters:
+        - name: showInactive
+          in: query
+          description: Set to true to include inactive tables
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: The list of tables with version information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableVersionArray'
+        '400':
+          description: if there was an error fetching the list of tables
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMsg'
+
+  /api/lookuptables/{tableName}:
+    post:
+      description: Create a new version of a lookup table.  First versions of a table
+        are automatically activated.
+      security:
+        - OAuth2: [ system_admin ]
+      parameters:
+        - name: tableName
+          in: path
+          description: Name of new lookup table
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: An array of objects that list the table's rows.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DynamicTableRows'
+      responses:
+        '200':
+          description: The table was created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableVersionInfo'
+        '400':
+          description: if there was an error creating the table
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMsg'
+
+  /api/lookuptables/{tableName}/{tableVersion}/content:
+    get:
+      description: Fetch the contents of a specific version of a table
+      security:
+        - OAuth2: [ user ]
+      parameters:
+        - name: tableName
+          in: path
+          description: Name of lookup table
+          required: true
+          schema:
+            type: string
+        - name: tableVersion
+          in: path
+          description: Version of specified table
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The table contents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DynamicTableRows'
+        '404':
+          description: The table name and/or version was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMsg'
+        '400':
+          description: if there was an error fetching the table data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMsg'
+
+  /api/lookuptables/{tableName}/content:
+    get:
+      description: Fetch the contents of the active version of a table
+      security:
+        - OAuth2: [ user ]
+      parameters:
+        - name: tableName
+          in: path
+          description: Name of lookup table
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The table contents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DynamicTableRows'
+        '404':
+          description: The table name was not found, or there was no active version of that table.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMsg'
+        '400':
+          description: if there was an error fetching the table data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMsg'
+
+  /api/lookuptables/{tableName}/{tableVersion}/info:
+    get:
+      description: Fetch the version information of a specific version of a table
+      security:
+        - OAuth2: [ user ]
+      parameters:
+        - name: tableName
+          in: path
+          description: Name of lookup table
+          required: true
+          schema:
+            type: string
+        - name: tableVersion
+          in: path
+          description: Version of specified table
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The table version information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableVersionInfo'
+        '404':
+          description: The table name and/or version was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMsg'
+        '400':
+          description: if there was an error fetching the table data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMsg'
+
+  /api/lookuptables/{tableName}/{tableVersion}/activate:
+    put:
+      description: Activate a specific version of a table.  This endpoint does not take a request body.
+      security:
+        - OAuth2: [ system_admin ]
+      parameters:
+        - name: tableName
+          in: path
+          description: Name of lookup table
+          required: true
+          schema:
+            type: string
+        - name: tableVersion
+          in: path
+          description: Version of specified table
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The table version information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableVersionInfo'
+        '404':
+          description: The table name and/or version was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMsg'
+        '400':
+          description: if there was an error fetching the table data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMsg'
+
+components:
+  schemas:
+    DynamicTableRows:
+      description: An ordered array with the table rows
+      type: array
+      items:
+        type: object
+        description: Dynamic JSON object with all columns of a table row
+        example: { "FIPS": "01001","County": "Autauga","State": "AL" }
+
+    TableVersionArray:
+      description: A table version information
+      type: array
+      items:
+        $ref: '#/components/schemas/TableVersionInfo'
+
+    TableVersionInfo:
+      description: A table version information
+      type: object
+      properties:
+        tableName:
+          type: string
+        tableVersion:
+          type: string
+        isActive:
+          type: boolean
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+
+    ErrorMsg:
+      description: The error message
+      type: object
+      properties:
+        error:
+          type: string
+
+  securitySchemes:
+    OAuth2:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'

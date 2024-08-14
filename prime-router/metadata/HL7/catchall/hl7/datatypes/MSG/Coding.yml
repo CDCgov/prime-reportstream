@@ -1,0 +1,24 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+display:
+  type: STRING
+  vars:
+    msg1: MSG.1
+    msg2: MSG.2
+    msg3: MSG.3
+    msgDisplay: MSG.1 + $caret + MSG.2 + $caret + MSG.3
+  constants:
+    caret: "^"
+  valueOf: $msgDisplay
+
+code:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: MSG.2
+
+system:
+  vars:
+    msg2: MSG.2
+  condition: $msg2 NOT_NULL
+  type: STRING
+  value: "http://terminology.hl7.org/CodeSystem/v2-0003"

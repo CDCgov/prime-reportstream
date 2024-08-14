@@ -1,0 +1,11 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0038-primary.yml --env staging
+---
+- name: primary
+  description: Primary.Health
+  jurisdiction: FEDERAL
+  senders:
+  - name: default
+    organizationName: primary
+    topic: covid-19
+    schemaName: direct/primary-covid-19
+    format: HL7

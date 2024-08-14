@@ -1,0 +1,150 @@
+# ./prime multiple-settings set --env staging --input ./settings/staging/0097-update-wa-phd-fixed-hl7-fields.yml
+---
+- name: "wa-phd"
+  description: "Washington Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "WA"
+  countyName: null
+  filters: null
+  senders: []
+  receivers:
+    - name: "elr"
+      organizationName: "wa-phd"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "WADOHPHRED"
+        receivingApplicationOID: "2.16.840.1.113883.3.237.4.2"
+        receivingFacilityName: "dn1fro00"
+        receivingFacilityOID: "1.3.6.1.4.1.38630.2.1.1.19"
+        messageProfileId: null
+        replaceValue: {}
+        reportingFacilityName: "7uycso49"
+        reportingFacilityId: "1.3.6.1.4.1.38630.2.1.1.519"
+        reportingFacilityIdType: "ISO"
+        suppressQstForAoe: true
+        suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3, OBR-25-2, OBR-25-3, OBX-2-2, OBX-2-3, OBX-11-2, OBX-11-3
+        replaceValueAwithB:
+          MSH-3: ["PHX.ProviderReportingService":
+                    "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO",
+              "Medasource^OID^ISO":
+                "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          ]
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "ONLY_DIGITS_IN_COMPONENT_ONE"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "ORGANIZATION_NAME"
+        valueSetOverrides: {}
+        nameFormat: "washington"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: true
+        stripInvalidCharsRegex: null
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "matches(abnormal_flag, A)"
+        - "orEquals(ordering_facility_state, WA, patient_state, WA)"
+      qualityFilter: []
+      routingFilter:
+        - "matches(test_result_status, F, S, P, C, X, I)"
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:15"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<AS2>
+        receiverUrl: "https://onehealthport-as2.axwaycloud.com/exchange/ZZOHP"
+        receiverId: "ZZOHP"
+        senderId: "7uycso49"
+        senderEmail: "reportstream@cdc.gov"
+        mimeType: "application/hl7-v2"
+        contentDescription: "SARS-CoV-2 Electronic Lab Results"
+        type: "AS2"
+      externalName: null
+    - name: "elr-neg"
+      organizationName: "wa-phd"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "WADOHPHRED"
+        receivingApplicationOID: "2.16.840.1.113883.3.237.4.2"
+        receivingFacilityName: "dn1fro00"
+        receivingFacilityOID: "1.3.6.1.4.1.38630.2.1.1.19"
+        messageProfileId: null
+        replaceValue: {}
+        reportingFacilityName: "7uycso49"
+        reportingFacilityId: "1.3.6.1.4.1.38630.2.1.1.519"
+        reportingFacilityIdType: "ISO"
+        suppressQstForAoe: true
+        suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3, OBR-25-2, OBR-25-3, OBX-2-2, OBX-2-3, OBX-11-2, OBX-11-3
+        replaceValueAwithB:
+          MSH-3: ["PHX.ProviderReportingService":
+                    "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO",
+              "Medasource^OID^ISO":
+                "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          ]
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "ONLY_DIGITS_IN_COMPONENT_ONE"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "ORGANIZATION_NAME"
+        valueSetOverrides: {}
+        nameFormat: "washington_negative"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: true
+        stripInvalidCharsRegex: null
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "doesNotMatch(abnormal_flag, A)"
+        - "orEquals(ordering_facility_state, WA, patient_state, WA)"
+      qualityFilter: []
+      routingFilter:
+        - "matches(test_result_status, F, S, P, C, X, I)"
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:16"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      externalName: null

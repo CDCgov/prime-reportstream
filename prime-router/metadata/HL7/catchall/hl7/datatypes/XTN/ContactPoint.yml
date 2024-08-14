@@ -1,0 +1,258 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+value_1:
+  condition: $telEquipType NOT_EQUALS Internet && $telEquipType NOT_EQUALS X.400 && $localNum NULL && $unformattedTelNum NULL && $telNum NOT_NULL
+  valueOf: $telNum
+  vars:
+    telNum: String, XTN.1
+    telEquipType: String, XTN.3
+    localNum: String, XTN.7
+    unformattedTelNum: String, XTN.12
+
+value_2:
+  condition: $telEquipType NULL && $localNum NULL && $unformattedTelNum NULL && $telNum NOT_NULL
+  valueOf: $telNum
+  vars:
+    telNum: String, XTN.1
+    telEquipType: String, XTN.3
+    localNum: String, XTN.7
+    unformattedTelNum: String, XTN.12
+
+value_3:
+  condition: $telEquipType EQUALS Internet || $telEquipType EQUALS X.400
+  valueOf: $commAddress
+  vars:
+    telEquipType: String, XTN.3
+    commAddress: String, XTN.4
+
+value_4:
+  condition: $telEquipType NOT_EQUALS Internet && $telEquipType NOT_EQUALS X.400 && $unformattedTelNum NOT_NULL
+  valueOf: $unformattedTelNum
+  vars:
+    telEquipType: String, XTN.3
+    unformattedTelNum: String, XTN.12
+
+value_5:
+  condition: $telEquipType NULL && $unformattedTelNum NOT_NULL
+  valueOf: $unformattedTelNum
+  vars:
+    telEquipType: String, XTN.3
+    unformattedTelNum: String, XTN.12
+
+#mapping from HL7 Concept Map: TelecomUseCode
+#https://docs.google.com/spreadsheets/d/1EE3a5UIGXLi8wMDr49fWTEVx8QS2GFqYgitE3vLOQTQ/edit#gid=0
+use_1:
+  condition: $xtnUse EQUALS PRN && $useCode NULL
+  type: STRING
+  value: "home"
+  vars:
+    xtnUse: String, XTN.2
+
+use_2:
+  condition: $xtnUse EQUALS WPN && $useCode NULL
+  type: STRING
+  value: "work"
+  vars:
+    xtnUse: String, XTN.2
+
+use_3:
+  condition: $xtnUse EQUALS BPN && $useCode NULL
+  type: STRING
+  value: "mobile"
+  vars:
+    xtnUse: String, XTN.2
+
+use_4:
+  condition: $useCode NOT_NULL
+  type: STRING
+  value: $useCode
+
+#mapping from HL7 Concept Map: TelecomEquipmentType
+#https://docs.google.com/spreadsheets/d/1FhoR5oxEWdHmpR5S0_wYPstdy1lwv7rL-JWJu_DE_Vs/edit#gid=0
+system_1:
+  # CP maps to "mobile" but that is not a valid option for system
+  condition: $equipType EQUALS PH || $equipType EQUALS CP
+  type: STRING
+  valueOf: "phone"
+  vars:
+    equipType: String, XTN.3
+
+system_2:
+  condition: $equipType EQUALS FX
+  type: STRING
+  valueOf: "fax"
+  vars:
+    equipType: String, XTN.3
+
+system_3:
+  condition: $equipType EQUALS Internet || $equipType EQUALS X.400
+  type: STRING
+  valueOf: "email"
+  vars:
+    equipType: String, XTN.3
+
+system_4:
+  condition: $equipType EQUALS BP
+  type: STRING
+  valueOf: "pager"
+  vars:
+    equipType: String, XTN.3
+
+system_5:
+  condition: $equipType EQUALS MD || $equipType EQUALS SAT || $equipType EQUALS TDD || $equipType EQUALS TTY
+  type: STRING
+  valueOf: "other"
+  vars:
+    equipType: String, XTN.3
+
+system_6:
+  condition: $telEquipType NULL && $commAddress NOT_NULL
+  valueOf: "email"
+  vars:
+    telEquipType: String, XTN.3
+    commAddress: String, XTN.4
+
+system_7:
+  condition: $telEquipType NULL && $commAddress NULL
+  expressionType: nested
+  vars:
+    telEquipType: String, XTN.3
+    commAddress: String, XTN.4
+  expressionsMap:
+    extension:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: "data-absent-reason"
+        valueCode:
+          value: unknown
+
+period:
+  vars:
+    startDate: XTN.13
+    endDate: XTN.14
+  condition: $startDate NOT_NULL || $endDate NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    start:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(startDate,ZONEID)"
+      expressionType: JEXL
+    _start:
+      expressionType: nested
+      condition: $startDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $startDate
+              expressionType: HL7Spec
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(endDate,ZONEID)"
+      expressionType: JEXL
+    _end:
+      expressionType: nested
+      condition: $endDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $endDate
+              expressionType: HL7Spec
+
+rank:
+  type: POSITIVEINT
+  valueOf: XTN.18
+  expressionType: HL7Spec
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - condition: $countryCode NOT_NULL
+      expressionType: nested
+      vars:
+        countryCode: String, XTN.5
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: contactpoint-country
+        valueString:
+          value: $countryCode
+    - condition: $areaCode NOT_NULL
+      expressionType: nested
+      vars:
+        areaCode: String, XTN.6
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: contactpoint-area
+        valueString:
+          value: $areaCode
+    - condition: $telEquipType NOT_EQUALS Internet && $telEquipType NOT_EQUALS X.400 && $contactPointLocal NOT_NULL
+      expressionType: nested
+      vars:
+        telEquipType: String, XTN.3
+        contactPointLocal: String, XTN.7
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: contactpoint-local
+        valueString:
+          value: $contactPointLocal
+    - condition: $telEquipType NULL && $contactPointLocal NOT_NULL
+      expressionType: nested
+      vars:
+        telEquipType: String, XTN.3
+        contactPointLocal: String, XTN.7
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: contactpoint-local
+        valueString:
+          value: $contactPointLocal
+    - condition: $numExt NOT_NULL
+      expressionType: nested
+      vars:
+        numExt: String, XTN.8
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: contactpoint-extension
+        valueString:
+          value: $numExt
+    - expressionType: resource
+      valueOf: datatypes/XTN/XTNExtension
+    - generateList: true
+      expressionType: nested
+      condition: $hl7v2Field NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Field
+    - generateList: true
+      expressionType: nested
+      condition: $hl7v2Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Component

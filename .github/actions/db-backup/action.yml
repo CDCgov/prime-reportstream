@@ -1,0 +1,29 @@
+name: db-backup
+description: Backup postgres database to file
+inputs:
+  pass:
+    required: true
+  host:
+    required: true
+  port:
+    required: true
+  user:
+    required: true
+  database:
+    required: true
+  file-path:
+    required: true
+  options:
+    description: 'Additional pg_dump options'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - run: |
+        sudo rm -rf ${{ inputs.file-path }}
+        sleep 5;
+        sudo PGPASSWORD=${{ inputs.pass }} \
+        PGSSLMODE=require \
+        pg_dump ${{ inputs.options }} --host=${{ inputs.host }} --username=${{ inputs.user }}@${{ inputs.host }} --dbname=${{ inputs.database }} -f ${{ inputs.file-path }}
+      shell: bash

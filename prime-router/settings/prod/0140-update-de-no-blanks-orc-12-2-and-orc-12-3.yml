@@ -1,0 +1,96 @@
+# ./prime multiple-settings set --env prod --input ./settings/prod/0140-update-de-no-blanks-orc-12-2-and-orc-12-3.yml
+
+---
+- name: "de-dph"
+  description: "Delaware Division of Public Health"
+  jurisdiction: "STATE"
+  stateCode: "DE"
+  countyName: null
+  filters:
+  - topic: "covid-19"
+    jurisdictionalFilter:
+    - "orEquals(ordering_facility_state, DE, patient_state, DE)"
+    qualityFilter:
+    - "doesNotMatch(processing_mode_code,T,D)"
+    - "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
+    - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
+    - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob,ordering_provider_id)"
+    - "isValidCLIA(testing_lab_clia)"
+    routingFilter: null
+    processingModeFilter: null
+  senders: []
+  receivers:
+  - name: "elr"
+    organizationName: "de-dph"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: null
+      receivingApplicationOID: null
+      receivingFacilityName: null
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB:
+        ORC-12-2:
+        - ' ': "Dr. Gregory"
+        ORC-12-3:
+        - ' ': "Warner"
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+    jurisdictionalFilter: []
+    qualityFilter: []
+    routingFilter: []
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "09:30"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<SFTP>
+      host: "mft.dhss.delaware.gov"
+      port: "22"
+      filePath: "./PR_PRIME"
+      credentialName: "DE-DPH--ELR-PROD"
+      type: "SFTP"
+    externalName: "Primary Feed"
+    timeZone: null
+    dateTimeFormat: "OFFSET"

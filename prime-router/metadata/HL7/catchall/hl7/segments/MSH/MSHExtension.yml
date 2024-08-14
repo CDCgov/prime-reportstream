@@ -1,0 +1,127 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: msh-message-header
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: nested
+      vars:
+        msh7: MSH.7
+      condition: $msh7 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: MSH.7
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: MSH.7
+    - expressionType: nested
+      vars:
+        msh13: MSH.13
+      condition: $msh13 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: MSH.13
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: MSH.13
+    - expressionType: nested
+      vars:
+        msh14: MSH.14
+      condition: $msh14 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: MSH.14
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: MSH.14
+    - condition: $msh15 NOT_NULL
+      expressionType: nested
+      vars:
+        msh15: MSH.15
+      expressionsMap:
+        url:
+          type: STRING
+          value: MSH.15
+        valueString:
+          valueOf: MSH.15
+          expressionType: HL7Spec
+          type: STRING
+    - condition: $msh16 NOT_NULL
+      expressionType: nested
+      vars:
+        msh16: MSH.16
+      expressionsMap:
+        url:
+          type: STRING
+          value: MSH.16
+        valueString:
+          type: STRING
+          valueOf: MSH.16
+          expressionType: HL7Spec
+    - vars:
+        msh19: STRING_ALL, MSH.19
+      condition: $msh19 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: MSH.19
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: MSH.19
+    - vars:
+        msh20: MSH.20
+      condition: $msh20 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: MSH.20
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: MSH.20
+    - expressionType: nested
+      vars:
+        $msh21: STRING_ALL, MSH.21
+      condition: $msh21 NOT_NULL
+      generateList: true
+      specs: MSH.21 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: MSH.21
+        valueIdentifier:
+          valueOf: datatypes/EI/Identifier
+          expressionType: resource
+    - vars:
+        msh3: STRING_ALL, MSH.3
+        msh24: STRING_ALL, MSH.24
+      constants:
+        extensionUrl: MSH.24
+        isStringUrl: true
+      condition: $msh3 NOT_NULL && $msh24 NOT_NULL
+      expressionType: resource
+      valueOf: datatypes/HD/ExtensionHD
+      specs: MSH.24
+    - vars:
+        msh5: STRING_ALL, MSH.5
+        msh25: STRING_ALL, MSH.25
+      constants:
+        extensionUrl: MSH.25
+        isStringUrl: true
+      condition: $msh5 EQUALS $msh25
+      expressionType: resource
+      valueOf: datatypes/HD/ExtensionHD
+      specs: MSH.25

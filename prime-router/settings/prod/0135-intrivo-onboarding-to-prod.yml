@@ -1,0 +1,25 @@
+# ./prime multiple-settings set --env prod --input ./settings/prod/0135-intrivo-onboarding-to-prod.yml
+---
+- name: "intrivo"
+  description: "Intrivo"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+  - !<covid-19>
+    name: "default"
+    organizationName: "intrivo"
+    format: "HL7"
+    customerStatus: "active"
+    schemaName: "hl7/hl7-ingest-covid-19-prod"
+    keys: null
+    processingType: "sync"
+    allowDuplicates: true
+    senderType: null
+    primarySubmissionMethod: null
+    topic: "covid-19"
+    version: null
+    createdBy: null
+    createdAt: null
+  receivers: []

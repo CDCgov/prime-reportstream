@@ -1,0 +1,12 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0111-xtrava.yml --env staging
+---
+- name: xtrava
+  description: Xtrava Health
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: xtrava
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/direct-otc-covid-19
+      format: CSV

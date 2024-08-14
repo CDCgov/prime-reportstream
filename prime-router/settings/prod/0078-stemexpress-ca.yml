@@ -1,0 +1,17 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0078-stemexpress-ca.yml --env prod
+---
+- name: "stemexpress-ca"
+  description: "Stemexpress in CA - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "stemexpress-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "active"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"

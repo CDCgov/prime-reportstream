@@ -1,0 +1,66 @@
+---
+- name: "tx-doh"
+  description: "Texas Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "TX"
+  countyName: null
+  filters: null
+  senders: []
+  receivers:
+    - name: "elr"
+      organizationName: "tx-doh"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "NEDSS"
+        receivingApplicationOID: null
+        receivingFacilityName: "TX-ELR"
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: {}
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: true
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "TEXAS"
+        receivingOrganization: null
+        type: "HL7"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, TX, patient_state, TX)"
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:15"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+      description: ""
+      transport: !<SFTP>
+        host: "sftp-edts.hhs.texas.gov"
+        port: "22"
+        filePath: "./"
+        credentialName: null
+        type: "SFTP"
+      externalName: null

@@ -1,0 +1,47 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Organization
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+identifier:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        value:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: EI.2
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2Field
+            valueString:
+              valueOf: EI.2
+    - expressionType: nested
+      expressionsMap:
+        value:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: EI.3
+        type:
+          expressionType: resource
+          specs: EI.4
+          valueOf: datatypes/ID/CodeableConcept
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2Field
+            valueString:
+              valueOf: "EI.3,EI.4"

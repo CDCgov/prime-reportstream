@@ -1,0 +1,122 @@
+# Schema for Reddy Family Medical Clinic Submitter
+# This schema is to be used to parse the standard lab report from iPatientCare
+# Created by Joel Biskie
+# Last Update: 07/28/2021
+# 
+name: reddyfmc-la-covid-19
+topic: covid-19
+trackingElement: message_id
+description: iPatientCare CSV lab report schema, Reddy Family Medical Clinic, LA
+extends: ipatientCare/ipatientcare-covid-19
+
+elements:
+
+    - name: processing_mode_code
+      default: P
+      
+    - name: sender_id
+      default: reddyfmc-la
+
+    - name: equipment_model_name
+      cardinality: ONE
+      type: CODE
+      csvFields: [{name: TestName, format: $alt}]
+      altValues:
+        - code: "BinaxNOW COVID-19 Ag Card"
+          display: "SARS-CoV-2 (COVID-19) Ag"
+        - code: "BinaxNOW COVID-19 Ag Card"
+          display: "     SARS-CoV-2 (COVID-19) Ag"
+          
+# Ordering provider
+    - name: ordering_provider_id
+      cardinality: ONE
+      type: CODE
+      csvFields: [{name: PhyName, format: $alt}]
+      altValues:
+        - code: 1275978678
+          display: Holly Delatte NP
+        - code: 1205306602
+          display: De Anna Dark FNP-C
+        - code: 1205306602
+          display: DeAnna Dark FNP-C
+        - code: 1770580508
+          display: Nagaratna Reddy MD.
+        - code: 1912515651
+          display: Cassandra Hill-Selders NP
+        - code: 1699120493
+          display: Crystal Rivet NP
+        - code: 1821458373
+          display: Darrell Davis NP
+        - code: 1518378009
+          display: Wanda Jefferson Wilson FNP-C
+        - code: 1518378009
+          display: Wanda Jefferson FNP-C
+        - code: 1215690334
+          display: Raveen Coon FNP-C
+
+    - name: ordering_provider_last_name
+      cardinality: ONE
+      type: CODE
+      csvFields: [{name: PhyName, format: $alt}]
+      altValues:
+        - code: Delatte NP
+          display: Holly Delatte NP
+        - code: Dark FNP-C
+          display: De Anna Dark FNP-C
+        - code: Dark FNP-C
+          display: DeAnna Dark FNP-C
+        - code: Reddy MD
+          display: Nagaratna Reddy MD.
+        - code: Hill-Selders NP
+          display: Cassandra Hill-Selders NP
+        - code: Rivet NP
+          display: Crystal Rivet NP
+        - code: Davis NP
+          display: Darrell Davis NP
+        - code: Jefferson Wilson FNP-C
+          display: Wanda Jefferson Wilson FNP-C
+        - code: Jefferson FNP-C
+          display: Wanda Jefferson FNP-C
+        - code: Coon FNP-C
+          display: Raveen Coon FNP-C
+
+    - name: ordering_provider_first_name
+      cardinality: ONE
+      type: CODE
+      csvFields: [{name: PhyName, format: $alt}]
+      altValues:
+        - code: Holly
+          display: Holly Delatte NP
+        - code: De Anna
+          display: De Anna Dark FNP-C
+        - code: DeAnna
+          display: DeAnna Dark FNP-C
+        - code: Nagaratna
+          display: Nagaratna Reddy MD.
+        - code: Cassandra
+          display: Cassandra Hill-Selders NP
+        - code: Crystal
+          display: Crystal Rivet NP
+        - code: Darrell
+          display: Darrell Davis NP
+        - code: Wanda
+          display: Wanda Jefferson Wilson FNP-C
+        - code: Wanda
+          display: Wanda Jefferson FNP-C
+        - code: Raveen
+          display: Raveen Coon FNP-C
+
+
+    - name: specimen_type
+      type: CODE
+      valueSet: sender-automation/specimen_type
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: Specimen_Type, format: $display}]
+      default: "445297001"
+
+    - name: specimen_source_site_code
+      type: CODE
+      valueSet: sender-automation/specimen_source_site_code
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: Specimen_Type, format: $display}]
+      default: "53342003"

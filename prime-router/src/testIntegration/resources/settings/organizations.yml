@@ -1,0 +1,781 @@
+---
+#
+# This file is used for TranslationTests. This can be used to mimic settings from staging/prod without impacting
+# developers' local instance settings. Changes to these organization settings may affect the passing/failing of those
+# tests.
+#
+- name: simple_report
+  description: PRIME's POC testing app
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: simple_report
+      topic: covid-19
+      customerStatus: active
+      schemaName: primedatainput/pdi-covid-19
+      format: CSV
+    - name: hl7test
+      organizationName: simple_report
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/test-covid-19
+      format: HL7
+    - name: csvuploader
+      organizationName: simple_report
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
+      format: CSV
+
+- name: nh-dphs
+  description: New Hampshire Division of Public Health Services
+  jurisdiction: STATE
+  stateCode: NH
+  receivers:
+    - name: elr
+      organizationName: nh-dphs
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, NH, patient_state, NH)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.11^ISO
+        receivingFacilityName: NH_DHHS
+        receivingFacilityOID: 2.16.840.1.114222.4.1.3669
+        suppressHl7Fields: ORC-23-1,ORC-14-1,OBR-17-1,OBX-18-1, OBX-18-2, OBX-18-3, PID-13-1
+        replaceValueAwithB:
+          FHS-3: [ "*": "CDC TESTING SENDING APP^12345^ISO" ]
+          FHS-5: [ "*": "CDC TESTING RECEIVING APP^12345^ISO" ]
+          FHS-6: [ "*": "CDC TESTING RECEIVING FACILITY" ]
+          MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO" ]
+          MSH-4: [ "*": "CDC PRIME^11D2030855^CLIA" ]
+          MSH-5: [ "*": "NH_ELR^2.16.840.1.114222.4.3.2.2.3.600.4^ISO" ]
+          MSH-6: [ "*": "NH_DHHS^2.16.840.1.114222.4.1.3669^ISO" ]
+          MSH-21: [ "*": "PHLabReport-Batch&&&^^2.16.840.1.113883.9.11^ISO" ]
+          OBX-17: [ "*": "DEVICE ID 1^^99ELR~DEVICE ID 2^^99ELR" ]
+          ORC-2: [ "": "CANNOTFILL" ]
+          ORC-4: [ "": "ORC4BLANKFILLER" ]
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 11D2030855
+        replaceDiiWithOid: true
+        usePid14ForPatientEmail: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+
+- name: ignore
+  description: FOR TESTING ONLY
+  jurisdiction: FEDERAL
+  filters:
+    - topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
+    - topic: monkeypox
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
+    - topic: full-elr
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'IG') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'IG')"
+      qualityFilter:
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code.exists() and Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01')"
+  senders:
+    - name: ignore-lifepoint
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      schemaName: hl7/lifepoint-covid-19
+      format: HL7
+    - name: ignore-monkeypox
+      organizationName: ignore
+      topic: monkeypox
+      customerStatus: inactive
+      schemaName: monkeypox
+      format: HL7
+
+- name: test
+  description: FOR DEVELOPMENT PURPOSES ONLY
+  jurisdiction: FEDERAL
+  senders:
+    - name: dev-elims
+      organizationName: test
+      topic: full-elr
+      customerStatus: active
+      format: HL7
+    - name: dev-hci
+      organizationName: test
+      topic: full-elr
+      customerStatus: active
+      schemaName: classpath:/metadata/fhir_transforms/senders/HCI/hci-sender-transform.yml
+      format: HL7
+  receivers:
+    - name: DEV_FULL_ELR
+      externalName: Ignore FULL_ELR Development
+      organizationName: test
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'CA') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'CA')" ]
+      qualityFilter:
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code.exists() and Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01')"
+        # Flu B Test Performed LOINCs 85478-6, 76080-1, 92141-1, 80383-3, 82170-2
+        # Flu A Test Performed LOINCs 85477-8, 76078-5, 77026-3, 77028-9, 77027-1, 92142-9, 80382-5, 82166-0, 82167-8, 82169-4, 82168-6, 92809-3, 92808-5
+        # Special Snowflake LOINC - 95423-0 (Snomed CT code determines if it was the flu A or flu B result)
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code.exists() and Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01')"
+        # Every order has at least an order-test-date (ORC-15), specimen_collection_date_time (SPM-17-1, OBR-7, OBR-8, OBX-14) or test-result-date (OBX-19)
+        - "Bundle.entry.resource.ofType(DiagnosticReport).where( basedOn.resolve().extension('https://reportstream.cdc.gov/fhir/StructureDefinition/effective-date').empty() and specimen.resolve().collection.collected.empty() and effective.empty() and issued.empty() and result.resolve().effective.empty()).count() = 0"
+        # Patient has at least a street address(PID-11-1), postal code (PID-11-5),phone(PID-13) or email(PID-13-4)
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
+        # Message id is not empty (MSH-10)
+        - "Bundle.identifier.value.empty().not()"
+        # Equipment model (OBX-17-2) and test result (OBX-5) are not empty
+        - "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve().where(method.empty() or value.coding.code.empty()).count() = 0"
+        #  Specimen type (SPM-4) is not empty
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        # Patient's last name (PID-5-1), first name (PID-5-2) and date of birth (PID-7)are not empty
+        - "Bundle.entry.resource.ofType(Patient).where(name.family.empty() or name.given.empty() or birthDate.empty()).count() = 0"
+        # Ordering provider (OBR-16-1) exists
+        - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.value.getIdType() = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.value.getIdType() = 'CLIA'"
+      mappedConditionFilter:
+        - type: codeString
+          value: 840539006,1234
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        type: "HL7"
+        receivingApplicationName: ""
+        receivingFacilityName: ""
+        convertPositiveDateTimeOffsetToNegative: false
+        useHighPrecisionHeaderDateTimeFormat: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+
+- name: "elims"
+  description: "Test settings for ELIMS"
+  jurisdiction: "FEDERAL"
+  senders:
+    - !<full-elr>
+      name: "default-sender"
+      organizationName: "elims"
+      format: "HL7"
+      customerStatus: "testing"
+      processingType: "sync"
+      allowDuplicates: true
+      topic: "elr-elims"
+  receivers:
+    - name: "default-receiver"
+      organizationName: "elims"
+      topic: "elr-elims"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+        suppressQstForAoe: false
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        truncateHDNamespaceIds: false
+        usePid14ForPatientEmail: false
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        nameFormat: "standard"
+        convertPositiveDateTimeOffsetToNegative: false
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: false
+          truncateHl7Fields: [ ]
+          customLengthHl7Fields: { }
+      jurisdictionalFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).source.software = 'STARLIMS'"
+      qualityFilter:
+        - "true"
+      routingFilter:
+        - "true"
+      processingModeFilter:
+        - "true"
+      reverseTheQualityFilter: false
+      conditionFilter: [ ]
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      externalName: "ELIMS ELR Loopback Receiver"
+      timeZone: null
+      dateTimeFormat: "OFFSET"
+
+- name: "ca-test"
+  description: "Test CA settings"
+  jurisdiction: "STATE"
+  stateCode: "CA"
+  receivers:
+    - name: "default-receiver"
+      organizationName: "ca-test"
+      topic: "full-elr"
+      customerStatus: "testing"
+      translation: !<HL7>
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: ""
+        receivingFacilityName: ""
+        suppressQstForAoe: false
+        suppressAoe: true
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        truncateHDNamespaceIds: true
+        usePid14ForPatientEmail: false
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        nameFormat: "STANDARD"
+        convertPositiveDateTimeOffsetToNegative: false
+        convertDateTimesToReceiverLocalTime: true
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'CA') or (Bundle.entry.resource.ofType(Patient).address.state.exists()\
+      \ and Bundle.entry.resource.ofType(Patient).address.state = 'CA')"
+      qualityFilter:
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code.exists() and Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01')"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve().where(method.empty()\
+      \ or value.coding.code.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).where( basedOn.resolve().extension('https://reportstream.cdc.gov/fhir/StructureDefinition/effective-date').empty()\
+      \ and specimen.resolve().collection.collected.empty() and effective.empty()\
+      \ and issued.empty() and result.resolve().effective.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty()\
+      \ and telecom.where(system = 'phone').value.empty() and telecom.where(system\
+      \ = 'email').value.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(name.family.empty() or name.given.empty()\
+      \ or birthDate.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.value.getIdType()\
+      \ = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.value.getIdType()\
+      \ = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count()\
+      \ = 0"
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        - "Bundle.identifier.value.empty().not()"
+      routingFilter: [ ]
+      processingModeFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P'"
+      reverseTheQualityFilter: false
+      conditionFilter:
+        - "%resource.where(code.coding.code in ('85478-6' | '76080-1' | '92141-1' | '80383-3'\
+      \ | '82170-2' | '85477-8' | '76078-5' | '77026-3' | '77028-9' | '77027-1' |\
+      \ '92142-9' | '80382-5' | '82166-0' | '82167-8' | '82169-4' | '82168-6' | '92809-3'\
+      \ | '92808-5' | '95423-0')).exists()"
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "06:30"
+        timeZone: "PACIFIC"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      externalName: ""
+      timeZone: "PACIFIC"
+      dateTimeFormat: "OFFSET"
+    - name: "alt-receiver"
+      organizationName: "ca-test"
+      topic: "full-elr"
+      customerStatus: "testing"
+      translation: !<HL7>
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: ""
+        receivingFacilityName: ""
+        suppressQstForAoe: false
+        suppressAoe: true
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        truncateHDNamespaceIds: true
+        usePid14ForPatientEmail: false
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        nameFormat: "STANDARD"
+        convertPositiveDateTimeOffsetToNegative: false
+        convertDateTimesToReceiverLocalTime: true
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'CA') or (Bundle.entry.resource.ofType(Patient).address.state.exists()\
+      \ and Bundle.entry.resource.ofType(Patient).address.state = 'CA')"
+      qualityFilter:
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code.exists() and Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01')"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve().where(method.empty()\
+      \ or value.coding.code.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).where( basedOn.resolve().extension('https://reportstream.cdc.gov/fhir/StructureDefinition/effective-date').empty()\
+      \ and specimen.resolve().collection.collected.empty() and effective.empty()\
+      \ and issued.empty() and result.resolve().effective.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty()\
+      \ and telecom.where(system = 'phone').value.empty() and telecom.where(system\
+      \ = 'email').value.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(name.family.empty() or name.given.empty()\
+      \ or birthDate.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.value.getIdType()\
+      \ = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.value.getIdType()\
+      \ = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count()\
+      \ = 0"
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        - "Bundle.identifier.value.empty().not()"
+      routingFilter: [ ]
+      processingModeFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'T'"
+      reverseTheQualityFilter: false
+      conditionFilter:
+        - "%resource.livdTableLookup('Component').contains('coronavirus').not()"
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "06:30"
+        timeZone: "PACIFIC"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      externalName: ""
+      timeZone: "PACIFIC"
+      dateTimeFormat: "OFFSET"
+    - name: "enrichment-receiver"
+      organizationName: "ca-test"
+      topic: "full-elr"
+      customerStatus: "testing"
+      enrichmentSchemaNames:
+        - "classpath:/enrichments/testing.yml,classpath:/enrichments/testing2.yml"
+      translation: !<HL7>
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: ""
+        receivingFacilityName: ""
+        suppressQstForAoe: false
+        suppressAoe: true
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        truncateHDNamespaceIds: true
+        usePid14ForPatientEmail: false
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        nameFormat: "STANDARD"
+        convertPositiveDateTimeOffsetToNegative: false
+        convertDateTimesToReceiverLocalTime: true
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'CA') or (Bundle.entry.resource.ofType(Patient).address.state.exists()\
+      \ and Bundle.entry.resource.ofType(Patient).address.state = 'CA')"
+      qualityFilter:
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code.exists() and Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01')"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve().where(method.empty()\
+      \ or value.coding.code.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).where( basedOn.resolve().extension('https://reportstream.cdc.gov/fhir/StructureDefinition/effective-date').empty()\
+      \ and specimen.resolve().collection.collected.empty() and effective.empty()\
+      \ and issued.empty() and result.resolve().effective.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty()\
+      \ and telecom.where(system = 'phone').value.empty() and telecom.where(system\
+      \ = 'email').value.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(name.family.empty() or name.given.empty()\
+      \ or birthDate.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.value.getIdType()\
+      \ = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.value.getIdType()\
+      \ = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count()\
+      \ = 0"
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        - "Bundle.identifier.value.empty().not()"
+      routingFilter: [ ]
+      processingModeFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'T'"
+      reverseTheQualityFilter: false
+      conditionFilter:
+        - "%resource.livdTableLookup('Component').contains('coronavirus').not()"
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "06:30"
+        timeZone: "PACIFIC"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      externalName: ""
+      timeZone: "PACIFIC"
+      dateTimeFormat: "OFFSET"
+- name: "vt-doh"
+  description: "Vermont Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "VT"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+    - name: "full-elr"
+      organizationName: "vt-doh"
+      topic: "full-elr"
+      customerStatus: "active"
+      translation:
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/VT/VT-receiver-transform.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "NBS^2.16.840.1.114222.4.1.185.1^ISO"
+        receivingApplicationOID: "2.16.840.1.114222.4.1.185.1"
+        receivingFacilityName: "VDH^2.16.840.1.114222.4.1.185^ISO"
+        receivingFacilityOID: "2.16.840.1.114222.4.1.185"
+        messageProfileId: null
+        replaceValue:
+          MSH-3-1: "CDC PRIME - Atlanta,"
+        replaceValueAwithB: null
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: "ORC-4-2, ORC-4-3, ORC-4-4, OBX-18-1, OBX-18-2, OBX-18-3,\
+        \ OBX-18-4, OBX-15-3, PID-15-1, PID-15-2, PID-15-3, MSH-19-1, MSH-19-2, MSH-19-3"
+        suppressAoe: true
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: "OBX-23-1"
+        usePid14ForPatientEmail: true
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: true
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: true
+          truncateHl7Fields:
+            - "OBX-23-1"
+          customLengthHl7Fields: {}
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'VT') or (Bundle.entry.resource.ofType(Patient).address.state = 'VT')"
+      qualityFilter:
+        - "Bundle.identifier.value.exists()"
+        - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
+        - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
+        - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
+        - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists())
+           or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
+      routingFilter:
+        - "Bundle.entry.resource.ofType(DiagnosticReport).where(status in 'final'|'corrected'|'preliminary'|'amended').exists()"
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      conditionFilter:
+        # Accept COVID only
+        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+      mappedConditionFilter: []
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:15"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: "ELR Primary for VT DOH"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      externalName: "VT ELR Primary"
+      enrichmentSchemaNames:
+        - "classpath:/metadata/fhir_transforms/common/suppress-non-npi.yml,classpath:/metadata/fhir_transforms/common/suppress-non-npi.yml"
+      timeZone: null
+      dateTimeFormat: "OFFSET"
+- name: "wa-phd"
+  description: "Washington Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "WA"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+    - name: "full-elr"
+      organizationName: "wa-phd"
+      topic: "full-elr"
+      customerStatus: "active"
+      translation:
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/WA/WA-receiver-transform.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "WADOHPHRED^2.16.840.1.113883.3.237.4.2^ISO"
+        receivingApplicationOID: "2.16.840.1.113883.3.237.4.2"
+        receivingFacilityName: "dn1fro00^1.3.6.1.4.1.38630.2.1.1.19^ISO"
+        receivingFacilityOID: "1.3.6.1.4.1.38630.2.1.1.19"
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB: null
+        reportingFacilityName: "7uycso49"
+        reportingFacilityId: "1.3.6.1.4.1.38630.2.1.1.519"
+        reportingFacilityIdType: "ISO"
+        suppressQstForAoe: true
+        suppressHl7Fields: "PID-39-1, PID-39-2, PID-39-3"
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "ONLY_DIGITS_IN_COMPONENT_ONE"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "ORGANIZATION_NAME"
+        valueSetOverrides: {}
+        nameFormat: "washington"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: true
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: true
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: false
+          truncateHl7Fields: []
+          customLengthHl7Fields: {}
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'WA') or (Bundle.entry.resource.ofType(Patient).address.state = 'WA')"
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      conditionFilter:
+        # Accept COVID only
+        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+      mappedConditionFilter: []
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        #        numberPerDay: 12
+        numberPerDay: 1440
+        initialTime: "01:35"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: "WA rest transport to OneHealthPort HIE"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      externalName: null
+      enrichmentSchemaNames: []
+      timeZone: "PACIFIC"
+      dateTimeFormat: "LOCAL"
+- name: "mo-phd"
+  description: "Missouri Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "MO"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+    - name: "full-elr"
+      organizationName: "mo-phd"
+      topic: "full-elr"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/MO/MO-receiver-transform.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "MOELR^2.16.840.1.114222.4.3.3.36^ISO"
+        receivingApplicationOID: "2.16.840.1.114222.4.3.3.36"
+        receivingFacilityName: "MODHSS^2.16.840.1.114222.4.3.2.2.1.163^ISO"
+        receivingFacilityOID: "2.16.840.1.114222.4.3.2.2.1.163"
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB: null
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        reportingFacilityIdType: null
+        suppressQstForAoe: true
+        suppressHl7Fields: "MSH-19-3, PID-15-3, ORC-14-1, OBR-17-1"
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: "MSH-3-1, PID-3-3, PID-3-6, ORC-2-2, ORC-7-10-5, OBR-2-2, OBR-3-2, SPM-2-1-2, SPM-2-2-2, ORC-21-1, OBX-23-1, OBX-15-1, OBX-23-10 "
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: true
+          truncateHl7Fields:
+            - "MSH-3-1"
+            - "PID-3-3"
+            - "PID-3-6"
+            - "ORC-2-2"
+            - "ORC-7-10-5"
+            - "OBR-2-2"
+            - "OBR-3-2"
+            - "SPM-2-1-2"
+            - "SPM-2-2-2"
+            - "ORC-21-1"
+            - "OBX-23-1"
+            - "OBX-15-1"
+            - "OBX-23-10"
+          customLengthHl7Fields: {}
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'MO') or (Bundle.entry.resource.ofType(Patient).address.state = 'MO')"
+      qualityFilter:
+        # Message id is not empty (MSH-10)
+        - "Bundle.identifier.value.exists()"
+        - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
+        - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
+        - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
+        #  Specimen type (SPM-4) is not empty
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        # Patient has at least a street address(PID-11-1), postal code (PID-11-5),phone(PID-13) or email(PID-13-4)
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
+        - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      conditionFilter:
+        # Accept COVID only
+        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+      mappedConditionFilter: []
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:20"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      enrichmentSchemaNames: []
+      timeZone: "CENTRAL"
+      dateTimeFormat: "LOCAL"

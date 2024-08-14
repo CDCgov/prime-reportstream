@@ -1,0 +1,13 @@
+constants:
+  rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
+
+elements:
+  #########################
+  # ReportStream specific #
+  #########################
+
+  - name: software-vendor-name
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).source.extension(%`rsext-software-vendor-org`).value.resolve()'
+    bundleProperty: '%resource.name'
+    value: [ '"Orange Software Vendor Name"' ]

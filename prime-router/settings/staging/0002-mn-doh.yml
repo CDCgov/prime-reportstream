@@ -1,0 +1,28 @@
+# MN DOH
+- name: mn-doh
+  description: Minnesota Department of Health
+  jurisdiction: STATE
+  stateCode: MN
+  receivers:
+    - name: elr
+      organizationName: mn-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, MN)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: MEDSS-ELR
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3.6.2.1
+        receivingFacilityName: MN DOH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.3661
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: CENTRAL
+      transport:
+        type: SFTP
+        host: 10.0.2.4
+        port: 22
+        filePath: ./upload

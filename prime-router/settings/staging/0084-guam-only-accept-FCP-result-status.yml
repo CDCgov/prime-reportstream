@@ -1,0 +1,68 @@
+---
+- name: "gu-doh"
+  description: "Guam Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "GU"
+  countyName: null
+  filters: null
+  senders: []
+  receivers:
+    - name: "elr"
+      organizationName: "gu-doh"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "GUDOH"
+        receivingApplicationOID: null
+        receivingFacilityName: "GUDOH"
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: {}
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, GU, patient_state, GU)"
+      qualityFilter: []
+      routingFilter:
+        - "matches(test_result_status, F, C, P)"
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:15"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: null
+      externalName: null

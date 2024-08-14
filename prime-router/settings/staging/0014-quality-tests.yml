@@ -1,0 +1,15 @@
+#  Run these
+# ./prime receiver set --input ./settings/staging/0014-quality-tests.yml 
+# ./prime receiver set --input ./settings/staging/0014-quality-tests2.yml 
+# ./prime receiver set --input ./settings/staging/0014-quality-tests3.yml 
+
+---
+name: QUALITY_PASS
+organizationName: ignore
+topic: covid-19
+jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_PASS)" ]
+qualityFilter: [ "hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)", "hasAtLeastOneOf(message_id,blankField)" ]
+translation:
+  type: CUSTOM
+  schemaName: empty
+  format: CSV

@@ -1,0 +1,17 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0106-desertoasishealthcare-ca.yml --env prod
+---
+- name: "desertoasishealthcare-ca"
+  description: "Oasis Healthcare in CA - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "desertoasishealthcare-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"

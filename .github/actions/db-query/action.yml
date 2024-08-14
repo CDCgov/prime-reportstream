@@ -1,0 +1,34 @@
+name: db-query
+description: Run postgres database query
+inputs:
+  pass:
+    required: true
+  host:
+    required: true
+  port:
+    required: true
+  user:
+    required: true
+  database:
+    required: true
+  query:
+    required: true
+  output-file:
+    required: true
+    default: 'db_query_output.csv'
+  options:
+    description: 'Additional psql options'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - run: |
+        cat > query_input.sql << EOF
+        ${{ inputs.query }}
+        EOF
+        sudo PGPASSWORD=${{ inputs.pass }} \
+        PGSSLMODE=require \
+        psql ${{ inputs.options }} -h ${{ inputs.host }}.postgres.database.azure.com -U ${{ inputs.user }}@${{ inputs.host }} \
+          -d ${{ inputs.database }} < query_input.sql > ${{ inputs.output-file }}
+      shell: bash

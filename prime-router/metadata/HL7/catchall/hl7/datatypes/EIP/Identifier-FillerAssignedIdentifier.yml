@@ -1,0 +1,81 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+value:
+  type: STRING
+  valueOf: EIP.2.1
+  expressionType: HL7Spec
+
+type:
+  expressionType: nested
+  expressionsMap:
+    coding:
+      generateList: true
+      expressionType: nested
+      expressions:
+        - expressionType: nested
+          expressionsMap:
+            code:
+              type: STRING
+              valueOf: "FGN"
+            system:
+              type: STRING
+              valueOf: "http://terminology.hl7.org/CodeSystem/v2-0203"
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: namespace-id
+        valueString:
+          expressionType: HL7Spec
+          type: STRING
+          valueOf: EIP.2.2
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: universal-id
+        valueString:
+          expressionType: HL7Spec
+          type: STRING
+          valueOf: EIP.2.3
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: universal-id-type
+        valueString:
+          expressionType: HL7Spec
+          type: STRING
+          valueOf: EIP.2.4
+    - vars:
+        eip1: STRING_ALL, EIP.1
+        extensionUrl: $backupExtension
+      condition: $eip1 NOT_NULL
+      expressionType: resource
+      valueOf: datatypes/EIP/EI/ExtensionEI
+      specs: EIP.1
+    - generateList: true
+      expressionType: nested
+      condition: $hl7v2Field NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Field
+    - generateList: true
+      expressionType: nested
+      condition: $hl7v2Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Component

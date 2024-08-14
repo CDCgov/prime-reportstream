@@ -1,0 +1,59 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: pv2-patient-visit-additional-information
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - vars:
+        pv215: STRING_ALL, PV2.15
+      condition: $pv215 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV2.15
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV2.15
+    - vars:
+        pv223: STRING_ALL, PV2.23
+      condition: $pv223 NOT_NULL
+      expressionType: nested
+      specs: PV2.23 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV2.23
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/XON/Organization
+    - vars:
+        pv226: STRING_ALL, PV2.26
+      condition: $pv226 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV2.26
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV2.26
+    - vars:
+        pv229: STRING_ALL, PV2.29
+      condition: $pv229 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: PV2.29
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PV2.29

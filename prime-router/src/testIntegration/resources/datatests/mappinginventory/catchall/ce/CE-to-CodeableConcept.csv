@@ -1,0 +1,9 @@
+HL7 v2,,,,,,Condition (IF True),,,HL7 FHIR,,,,,,,,,Comments
+Sort Order,Identifier,Name,Data Type,Cardinality - Min,Cardinality - Max,Computable ANTLR,Computable FHIRPath,Narrative,FHIR Attribute/ Data Type,,Data Type,Cardinality - Min,Cardinality - Max,Data Type Mapping,"Vocabulary Mapping
+(IS, ID, CE, CNE, CWE)",Assignment,,
+1,CE.1,Identifier,ST,0,1,,,"If mapped to FHIR, use Code System and Display",coding[1].code,,code,0,1,,,,,
+2,CE.2,Text,ST,0,1,,,,coding[1].display,,string,0,1,,,,,
+3,CE.3,Name of Coding System,ID,0,1,,,,coding[1].system,,uri,0,1,,,,,This is only an indirect mapping in that the vocabulary table will give the actual uri. 
+4,CE.4,Alternate Identifier,ST,0,1,,,,coding[2].code,,code,0,1,,,,,
+5,CE.5,Alternate Text,ST,0,1,,,,coding[2].display,,string,0,1,,,,,
+6,CE.6,Name of Alternate Coding System,ID,0,1,,,,coding[2].system,,uri,0,1,,,,,This is only an indirect mapping in that the vocabulary table will give the actual uri

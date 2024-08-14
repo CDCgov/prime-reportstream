@@ -1,0 +1,67 @@
+openapi: 3.0.2
+info:
+  title: Prime ReportStream
+  description: A router of public health data from multiple senders and receivers
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://reportstream.cdc.gov
+    email: reportstream@cdc.gov
+  version: 0.2.0-oas3
+tags:
+  - name: validate
+    description: ReportStream validation API
+
+paths:
+  # The validation endpoints are public endpoints for validating payloads of various formats.
+  /validate:
+    post:
+      tags:
+        - validate
+      summary: Validate a message using client information. Validation errors and warnings are reported in the response json.
+      parameters:
+        - in: header
+          name: client
+          description: The client.sender to validate against. If client is not known, use `schema` and `format` instead.
+          schema:
+            type: string
+          example: simple_report.default
+        - in: query
+          name: schema
+          description: >
+            The schema path to validate the message against. Must be use with `format`.
+            This parameter is incompatible with `client`.
+          schema:
+            type: string
+          example: hl7/hcintegrations-covid-19
+        - in: query
+          name: format
+          description: >
+            The format of the message. must be used with `schema`. 
+            This parameter is incompatible with `client`.
+          schema:
+            type: string
+            enum:
+              - CSV
+              - HL7
+              - HL7_BATCH
+          example: HL7
+      requestBody:
+        description: The message to validate
+        required: true
+        content:
+          text/csv:
+            schema:
+              type: string
+            example:
+              header1, header2
+
+              value1, value2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/reports.yml#/components/schemas/Report'
+        '400':
+          description: Bad Request

@@ -1,0 +1,34 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+value:
+  type: BIG_DECIMAL
+  expressionType: HL7Spec
+  valueOf: CQ.1
+
+unit:
+  expressionType: nested
+  vars:
+    cwe_originalText: STRING, CQ.2.9
+  expressions:
+    - condition: $cwe_originalText NULL
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: CQ.2.2
+    - condition: $cwe_originalText NOT_NULL
+      type: STRING
+      valueOf: $cwe_originalText
+
+extension:
+  condition: $cq2 NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    cq2: STRING_ALL, CQ.2
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: 'cq-units'
+    valueCodeableConcept:
+      valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      specs: CQ.2

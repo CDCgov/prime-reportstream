@@ -1,0 +1,46 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Provenance
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+activity:
+  expressionType: nested
+  expressionsMap:
+    coding:
+      expressionType: nested
+      expressionsMap:
+        code:
+          type: STRING
+          valueOf: "v2-FHIR transformation"
+
+recorded:
+  type: STRING
+  valueOf: "GeneralUtils.getCurrentDateTimeUsingZoneId(ZONEID)"
+  expressionType: JEXL
+
+policy:
+  type: SYSTEM_URL
+  valueOf: "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
+
+agent:
+  expressionType: nested
+  generateList: true
+  expressionsMap:
+    type:
+      expressionType: nested
+      expressionsMap:
+        coding:
+          expressionType: nested
+          expressionsMap:
+            code:
+              type: STRING
+              valueOf: "assembler"
+            system:
+              type: SYSTEM_URL
+              valueOf: "http://terminology.hl7.org/CodeSystem/provenance-participant-type"
+    who:
+      valueOf: segments/MSH/ReportStreamOrganization
+      expressionType: reference

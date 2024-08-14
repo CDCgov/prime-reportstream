@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CoConstraintContext ID="8d5e1b29-9fc0-405d-9d8f-0c8009d90b7717170786912851717078693086">
+   <ByMessage ID="661d3e028b87bc000604e71b">
+      <Context Name="ORU_R01" Path="."/>
+      <Context Name="PATIENT_RESULT.ORDER_OBSERVATION.OBSERVATION" Path="3[*].2[*].6[*]"/>
+   </ByMessage>
+</CoConstraintContext>

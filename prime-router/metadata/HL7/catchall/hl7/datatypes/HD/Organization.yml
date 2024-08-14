@@ -1,0 +1,92 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Organization
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+identifier_1:
+  condition: $hd1 NOT_NULL
+  vars:
+    hd1: String, HD.1
+  expressionType: nested
+  generateList: true
+  expressionsMap:
+    value_1:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: HD.1
+    extension_1-namespaceId:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          valueOf: HD.1
+
+identifier_2:
+  condition: $hd2 NOT_NULL
+  expressionType: nested
+  generateList: true
+  vars:
+    hd3: String, HD.3
+    hd2: String, HD.2
+  expressionsMap:
+    value:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: HD.2
+    type:
+      valueOf: datatypes/ID/CodeableConceptUniversalid
+      generateList: true
+      expressionType: resource
+      specs: HD.3
+    system:
+      condition: $hd3 EQUALS ISO || $hd3 EQUALS UUID
+      type: STRING
+      valueOf: "urn:ietf:rfc:3986"
+    extension_1-universalId:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          valueOf: "HD.2,HD.3"
+
+address:
+  condition: $organizationCountry NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    country:
+      type: STRING
+      valueOf: $organizationCountry
+      expressionType: HL7Spec
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      condition: $hdOrganizationHL7Field NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          type: STRING
+          valueOf: $hdOrganizationHL7Field
+    - expressionType: nested
+      condition: $hdOrganizationHL7Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $hdOrganizationHL7Component

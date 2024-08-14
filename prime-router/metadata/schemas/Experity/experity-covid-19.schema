@@ -1,0 +1,676 @@
+# Base schema for experity clients
+# This schema is to be used to parse the standard lab report from experity
+# Created by Herman Cordero
+# Last Update: 07/27/2021
+#
+name: experity-covid-19
+topic: covid-19
+trackingElement: message_id
+description: experity CSV lab report schema
+basedOn: covid-19
+
+elements:
+
+    - name: sender_id
+      csvFields: [{name: sender_id}]
+
+    - name: processing_mode_code
+      csvFields: [{name: processing_mode_code}]
+
+    - name: message_id
+      csvFields: [{name: Testing_lab_accession_number}]
+
+#demographics
+    - name: patient_id
+      csvFields: [{name: Patient_ID}]
+
+    - name: patient_id_assigner
+      csvFields: [{name: Ordering_facility_name}]
+
+    - name: patient_id_type
+      default: "PI"
+
+    - name: patient_last_name
+      cardinality: ONE
+      csvFields: [{name: Patient_last_name}]
+
+    - name: patient_middle_name
+      csvFields: [{name: Patient_middle_name}]
+
+    - name: patient_first_name
+      cardinality: ONE
+      csvFields: [{name: Patient_first_name}]
+
+    - name: patient_street
+      cardinality: ONE
+      csvFields: [{name: Patient_street}]
+
+    - name: patient_street2
+      csvFields: [{name: Patient_street2}]
+
+    - name: patient_city
+      cardinality: ONE
+      csvFields: [{name: Patient_city}]
+
+    - name: patient_state
+      cardinality: ONE
+      csvFields: [{name: Patient_state}]
+
+    - name: patient_zip_code
+      cardinality: ONE 
+      csvFields: [{name: Patient_zip_code}]
+
+    - name: patient_county
+      cardinality: ZERO_OR_ONE
+      type: TABLE
+      table: zip-code-data
+      tableColumn: county
+      mapper: zipCodeToCounty(patient_zip_code)
+
+    - name: patient_phone_number
+      csvFields: [{name: Patient_phone_number}]
+
+    - name: patient_dob
+      cardinality: ONE
+      csvFields: [{name: Patient_DOB, format: "M/d/yyyy"}]
+
+    - name: patient_gender
+      type: CODE
+      valueSet: sender-automation/gender
+      documentation: Translate multiple inbound Gender values to RS values
+      csvFields: [{ name: Patient_gender, format: $display}]
+      default: U
+
+    - name: patient_ethnicity
+      type: CODE
+      valueSet: sender-automation/ethnicity
+      documentation: Translate multiple inbound ethnicity values to RS / OMB values
+      csvFields: [{ name: Patient_ethnicity, format: $display}]
+      default: U
+
+    - name: patient_race
+      type: CODE
+      valueSet: sender-automation/race
+      documentation: Translate multiple inbound Race values to RS / OMB values
+      csvFields: [{ name: Patient_race, format: $display}]
+      default: UNK
+
+# Specimen/Order Info
+    - name: specimen_collection_date_time
+      cardinality: ONE
+      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy H:nn"}]
+
+    - name: order_test_date
+      cardinality: ONE
+      csvFields: [{name: Order_test_date, format: "M/d/yyyy"}]
+
+    - name: testing_lab_specimen_received_datetime
+      cardinality: ONE
+      csvFields: [{name: Specimen_collection_date_time, format: "M/d/yyyy H:nn"}]
+
+    - name: test_result_date
+      cardinality: ONE
+      csvFields: [{name: Date_result_released, format: "M/d/yyyy H:nn"}]
+
+    - name: date_result_released
+      cardinality: ONE
+      csvFields: [{name: Date_result_released, format: "M/d/yyyy H:nn"}]
+
+    - name: test_result
+      cardinality: ONE
+      type: CODE
+      valueSet: sender-automation/test_result
+      documentation: Translate multiple inbound Test Result values to RS values
+      csvFields: [{ name: Test_result_coded, format: $display}]
+
+    - name: test_result_status
+      csvFields: [{name: Test_result_status}]
+      default: F
+
+    - name: filler_order_id
+      mapper: use(message_id)
+
+    - name: placer_order_id
+      mapper: use(message_id)
+
+    - name: specimen_type
+      type: CODE
+      valueSet: sender-automation/specimen_type
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: Specimen_type_description, format: $display}]
+      default: "258500001"
+
+    - name: specimen_source_site_code
+      type: CODE
+      valueSet: sender-automation/specimen_source_site_code
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: Specimen_type_description, format: $display}]
+      default: "71836000"
+
+
+# Ordering provider
+    - name: ordering_provider_id
+      cardinality: ONE 
+      csvFields: [{name: Ordering_provider_ID}]
+
+    - name: ordering_provider_first_name
+      cardinality: ONE 
+      csvFields: [{name: Ordering_provider_first_name}]
+
+    - name: ordering_provider_last_name
+      cardinality: ONE 
+      csvFields: [{name: Ordering_provider_last_name}]
+
+    - name: ordering_provider_lastfirst_name
+      type: TEXT
+      mapper: concat(ordering_provider_last_name, ordering_provider_first_name )
+
+    - name: ordering_provider_street
+      cardinality: ONE 
+      csvFields: [{name: Ordering_provider_street}]
+
+    - name: ordering_provider_street2
+      csvFields: [{name: Ordering_provider_street2}]
+
+    - name: ordering_provider_city
+      cardinality: ONE 
+      csvFields: [{name: Ordering_provider_city}]
+
+    - name: ordering_provider_state
+      cardinality: ONE 
+      csvFields: [{name: Ordering_provider_state}]
+
+    - name: ordering_provider_zip_code
+      cardinality: ONE 
+      csvFields: [{name: Ordering_provider_zip_code}]
+
+    - name: ordering_provider_phone_number
+      csvFields: [{name: Ordering_provider_phone}]
+
+#ordering facility + reporting facility name
+    - name: testing_lab_name_temp
+      type: TEXT
+      csvFields: [{name: Testing_lab_name}]
+
+    - name: ordering_facility_name_temp
+      type: TEXT
+      csvFields: [{name: Ordering_facility_name}]
+
+    - name: reporting_facility_name
+      cardinality: ONE 
+      mapper: concat(testing_lab_name_temp, ordering_facility_name_temp)
+
+    - name: ordering_facility_name
+      cardinality: ONE 
+      mapper: concat(testing_lab_name_temp, ordering_facility_name_temp)
+
+    - name: ordering_facility_street
+      cardinality: ONE 
+      csvFields: [{name: Ordering_facility_street}]
+
+    - name: ordering_facility_city
+      cardinality: ONE 
+      csvFields: [{name: Ordering_facility_city}]
+
+    - name: ordering_facility_state
+      cardinality: ONE 
+      csvFields: [{name: Ordering_facility_state}]
+
+    - name: ordering_facility_zip_code
+      cardinality: ONE 
+      csvFields: [{name: Ordering_facility_zip_code}]
+
+    - name: ordering_facility_phone_number
+      csvFields: [{name: Ordering_facility_phone_number}]
+
+
+#testing lab
+    - name: testing_lab_name
+      cardinality: ONE 
+      mapper: concat(testing_lab_name_temp, ordering_facility_name_temp)
+
+    - name: testing_lab_street
+      cardinality: ONE 
+      csvFields: [{name: Testing_lab_street}]
+
+    - name: testing_lab_city
+      cardinality: ONE 
+      csvFields: [{name: Testing_lab_city}]
+
+    - name: testing_lab_state
+      cardinality: ONE 
+      csvFields: [{name: Testing_lab_state}]
+
+    - name: testing_lab_zip_code
+      cardinality: ONE 
+      csvFields: [{name: Testing_lab_zip_code}]
+
+    - name: testing_lab_phone_number
+      csvFields: [{name: Ordering_facility_phone_number}]
+
+
+#CLIA
+    - name: testing_lab_clia
+      csvFields: [{name: Testing_lab_ID}]
+
+    - name: testing_lab_id
+      mapper: use(testing_lab_clia)
+
+    - name: reporting_facility_clia
+      mapper: use(testing_lab_clia)
+
+    - name: filler_clia
+      mapper: use(testing_lab_clia)
+
+
+#AOE fields
+    - name: pregnant
+      type: CODE
+      valueSet: sender-automation/pregnant
+      documentation: Translate multiple inbound values into the Pregnancy SNOMED Codes
+      csvFields: [{ name: Pregnant, format: $display}]
+      default: ""
+
+    - name: first_test
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: First_test, format: $display}]
+      default: ""
+
+    - name: employed_in_healthcare
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: Employed_in_healthcare, format: $display}]
+      default: ""
+
+    - name: symptomatic_for_disease
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: Symptomatic_for_disease, format: $display}]
+      default: ""
+
+    - name: illness_onset_date
+      default: ""
+      csvFields: [{name: Illness_onset_date, format: "M/d/yyyy"}]
+      nullifyValue: true
+
+
+# Default Values
+    - name: hospitalized
+      default: N
+
+    - name: icu
+      default: N
+
+
+# Appears this RS field must be set even if it is not being used for the LIVD table lookup
+#    - name: equipment_model_name
+
+
+#unused fields - these are added here to suppress warnings.
+    - name: Patient_ID_assigner_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_ID_assigner}]
+      documentation: This field is ignored.
+
+    - name: Patient_ID_2_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_ID_2}]
+      documentation: This field is ignored.
+
+    - name: Patient_ID_2_assigner_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_ID_2_assigner}]
+      documentation: This field is ignored.
+
+    - name: Patient_suffix_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_suffix}]
+      documentation: This field is ignored.
+
+    - name: Patient_age_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_age}]
+      documentation: This field is ignored.
+
+    - name: Patient_age_units_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_age_units}]
+      documentation: This field is ignored.
+
+    - name: Patient_county_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_county}]
+      documentation: This field is ignored.
+
+    - name: Hospitalized_Ignore
+      type: TEXT
+      csvFields: [{name: Hospitalized}]
+      documentation: This field is ignored.
+
+    - name: ICU_Ignore
+      type: TEXT
+      csvFields: [{name: ICU}]
+      documentation: This field is ignored.
+
+    - name: Ordering_provider_county_Ignore
+      type: TEXT
+      csvFields: [{name: Ordering_provider_county}]
+      documentation: This field is ignored.
+
+    - name: Ordering_facility_street_2_Ignore
+      type: TEXT
+      csvFields: [{name: Ordering_facility_street_2}]
+      documentation: This field is ignored.
+
+    - name: Ordering_facility_county_Ignore
+      type: TEXT
+      csvFields: [{name: Ordering_facility_county}]
+      documentation: This field is ignored.
+
+    - name: Specimen_type_free_text_Ignore
+      type: TEXT
+      csvFields: [{name: Specimen_type_free_text}]
+      documentation: This field is ignored.
+
+    - name: Specimen_source_site_descrip_Ignore
+      type: TEXT
+      csvFields: [{name: Specimen_source_site_descrip}]
+      documentation: This field is ignored.
+
+    - name: Submitter_unique_sample_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Submitter_unique_sample_ID}]
+      documentation: This field is ignored.
+
+    - name: Specimen_received_date_time_Ignore
+      type: TEXT
+      csvFields: [{name: Specimen_received_date_time}]
+      documentation: This field is ignored.
+
+    - name: Test_date_Ignore
+      type: TEXT
+      csvFields: [{name: Test_date}]
+      documentation: This field is ignored.
+
+    - name: Testing_lab_specimen_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Testing_lab_specimen_ID}]
+      documentation: This field is ignored.
+
+    - name: Test_performed_number_Ignore
+      type: TEXT
+      csvFields: [{name: Test_performed_number}]
+      documentation: This field is ignored unless there is an antibody test.  Then this must be set in the Child Schema.
+
+    - name: Test_performed_description_Ignore
+      type: TEXT
+      csvFields: [{name: Test_performed_description}]
+      documentation: This field is ignored.
+
+    - name: Test_result_free_text_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_free_text}]
+      documentation: This field is ignored.
+
+    - name: Test_result_description_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_description}]
+      documentation: This field is ignored.
+
+    - name: Test_result_comparator_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_comparator}]
+      documentation: This field is ignored.
+
+    - name: Test_result_number_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_number}]
+      documentation: This field is ignored.
+
+    - name: Test_result_number_separator_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_number_separator}]
+      documentation: This field is ignored.
+
+    - name: Test_result_number2_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_number2}]
+      documentation: This field is ignored.
+
+    - name: Test_result_units_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_units}]
+      documentation: This field is ignored.
+
+    - name: Reference_range_Ignore
+      type: TEXT
+      csvFields: [{name: Reference_range}]
+      documentation: This field is ignored.
+
+    - name: Abnormal_flag_Ignore
+      type: TEXT
+      csvFields: [{name: Abnormal_flag}]
+      documentation: This field is ignored.
+
+    - name: Comments_Ignore
+      type: TEXT
+      csvFields: [{name: Comments}]
+      documentation: This field is ignored.
+
+    - name: Employed_in_high_risk_setting_Ignore
+      type: TEXT
+      csvFields: [{name: Employed_in_high_risk_setting}]
+      documentation: This field is ignored.
+
+    - name: Patient_occupation_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_occupation}]
+      documentation: This field is ignored.
+
+    - name: Disease_symptoms_Ignore
+      type: TEXT
+      csvFields: [{name: Disease_symptoms}]
+      documentation: This field is ignored.
+
+    - name: Patient_location_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_location}]
+      documentation: This field is ignored.
+
+    - name: Resident_congregate_setting_Ignore
+      type: TEXT
+      csvFields: [{name: Resident_congregate_setting}]
+      documentation: This field is ignored.
+
+    - name: Patient_residency_type_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_residency_type}]
+      documentation: This field is ignored.
+
+    - name: Patient_death_date_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_death_date}]
+      documentation: This field is ignored.
+
+    - name: Patient_died_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_died}]
+      documentation: This field is ignored.
+
+    - name: Public_health_case_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Public_health_case_ID}]
+      documentation: This field is ignored.
+
+    - name: Travel_history_Ignore
+      type: TEXT
+      csvFields: [{name: Travel_history}]
+      documentation: This field is ignored.
+
+    - name: Test_kit_EUA_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Test_kit_EUA_ID}]
+      documentation: This field is ignored.
+
+    - name: Test_kit_instance_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Test_kit_instance_ID}]
+      documentation: This field is ignored.
+
+    - name: Test_kit_model_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Test_kit_model_ID}]
+      documentation: This field is ignored.
+
+    - name: Test_kit_model_name_Ignore
+      type: TEXT
+      csvFields: [{name: Test_kit_model_name}]
+      documentation: This field is ignored.
+
+    - name: Instrument_instance_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Instrument_instance_ID}]
+      documentation: This field is ignored.
+
+    - name: Instrument_model_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Instrument_model_ID}]
+      documentation: This field is ignored.
+
+    - name: Instrument_model_name_Ignore
+      type: TEXT
+      csvFields: [{name: Instrument_model_name}]
+      documentation: This field is ignored.
+
+    - name: Order_result_status_Ignore
+      type: TEXT
+      csvFields: [{name: Order_result_status}]
+      documentation: This field is ignored.
+
+    - name: Link_test_to_parent_result_Ignore
+      type: TEXT
+      csvFields: [{name: Link_test_to_parent_result}]
+      documentation: This field is ignored.
+
+    - name: Link_test_to_parent_accession_Ignore
+      type: TEXT
+      csvFields: [{name: Link_test_to_parent_accession}]
+      documentation: This field is ignored.
+
+
+    - name: Ordered_test_code_Ignore
+      type: TEXT
+      csvFields: [{name: Ordered_test_code}]
+      documentation: This field is ignored.
+
+    - name: Ordered_test_code_system_Ignore
+      type: TEXT
+      csvFields: [{name: Ordered_test_code_system}]
+      documentation: This field is ignored.
+
+    - name: Specimen_source_site_code_Ignore
+      type: TEXT
+      csvFields: [{name: Specimen_source_site_code}]
+      documentation: This field is ignored.
+
+    - name: Specimen_source_site_code_sys_Ignore
+      type: TEXT
+      csvFields: [{name: Specimen_source_site_code_sys}]
+      documentation: This field is ignored.
+
+    - name: Specimen_type_code_Ignore
+      type: TEXT
+      csvFields: [{name: Specimen_type_code}]
+      documentation: This field is ignored.
+
+    - name: Specimen_type_code_system_Ignore
+      type: TEXT
+      csvFields: [{name: Specimen_type_code_system}]
+      documentation: This field is ignored.
+
+    - name: Test_method_description_Ignore
+      type: TEXT
+      csvFields: [{name: Test_method_description}]
+      documentation: This field is ignored.
+
+    - name: Test_result_code_system_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_code_system}]
+      documentation: This field is ignored.
+
+    - name: Test_performed_code_system_Ignore
+      type: TEXT
+      csvFields: [{name: Test_performed_code_system}]
+      documentation: This field is ignored.
+
+    - name: Test_performed_code_Ignore
+      type: TEXT
+      csvFields: [{name: Test_performed_code}]
+      documentation: This field is ignored.
+
+    - name: Result_format_Ignore
+      type: TEXT
+      csvFields: [{name: Result_format}]
+      documentation: This field is ignored.
+
+    - name: Test_result_sub_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Test_result_sub_ID}]
+      documentation: This field is ignored.
+
+    - name: Submitter_sample_ID_assigner_Ignore
+      type: TEXT
+      csvFields: [{name: Submitter_sample_ID_assigner}]
+      documentation: This field is ignored.
+
+    - name: Patient_ID_2_type_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_ID_2_type}]
+      documentation: This field is ignored.
+
+    - name: Patient_ID_type_Ignore
+      type: TEXT
+      csvFields: [{name: Patient_ID_type}]
+      documentation: This field is ignored.
+
+    - name: Testing_lab_street2_Ignore
+      type: TEXT
+      csvFields: [{name: Testing_lab_street2}]
+      documentation: This field is ignored.
+
+    - name: Testing_lab_county_Ignore
+      type: TEXT
+      csvFields: [{name: Testing_lab_county}]
+      documentation: This field is ignored.
+
+    - name: Reporting_facility_ID_Ignore
+      type: TEXT
+      csvFields: [{name: Reporting_facility_ID}]
+      documentation: This field is ignored.
+
+    - name: Reporting_facility_name_Ignore
+      type: TEXT
+      csvFields: [{name: Reporting_facility_name}]
+      documentation: This field is ignored.
+
+    - name: Report_facil_data_source_app_Ignore
+      type: TEXT
+      csvFields: [{name: Report_facil_data_source_app}]
+      documentation: This field is ignored.
+
+    - name: File_created_date_Ignore
+      type: TEXT
+      csvFields: [{name: File_created_date}]
+      documentation: This field is ignored.
+
+    - name: flatfile_version_no_Ignore
+      type: TEXT
+      csvFields: [{name: flatfile_version_no}]
+      documentation: This field is ignored.
+
+    - name: test_type
+    - name: abnormal_flag

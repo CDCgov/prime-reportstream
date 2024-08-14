@@ -1,0 +1,32 @@
+name: PostgresServer-stop
+description: stop postgres server on evenings and weekends
+inputs:
+  name:
+    required: true
+  subscription:
+    required: true
+  resource-group:
+    required: true
+  pass:
+    required: true
+  host:
+    required: true
+  creds:
+    required: true
+runs:
+  using: "composite"
+  steps:
+    # stop db server
+    - name: Stop Postgres DB
+      id: stop-db
+      shell: pwsh
+      run: |
+       $FnDetails = az postgres flexible-server show --name ${{ inputs.name }} --resource-group ${{ inputs.resource-group }} --subscription ${{ inputs.subscription }}
+        
+        $Json = $FnDetails | ConvertFrom-JSON
+        $State       = $Json.state
+        Write-Host $State
+        if ($State -contains "ready"){
+          az postgres flexible-server stop --name ${{ inputs.name }} --resource-group ${{ inputs.resource-group }} --subscription ${{ inputs.subscription }}
+          }
+          

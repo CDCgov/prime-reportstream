@@ -1,0 +1,31 @@
+---
+name: imagemover-covid-19
+description: ImageMover
+topic: covid-19
+trackingElement: specimen_id
+basedOn: covid-19
+extends: direct/direct-covid-19
+
+elements:
+  - name: sender_id
+    default: ImageMover
+
+  - name: processing_mode_code
+    default: P
+
+  - name: filler_order_id
+    csvFields: [ { name: specimenId } ]
+
+  - name: placer_order_id
+    csvFields: [ { name: specimenId } ]
+
+  # Force remove the value of the ordering provider name
+  - name: ordering_provider_first_name
+    default:
+    defaultOverridesValue: false
+
+  # Force remove the value of the ordering provider name
+  - name: ordering_provider_last_name
+    default:
+    defaultOverridesValue: false
+

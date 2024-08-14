@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<soapProject>
+    <created>2021-10-28T19:19:34.505Z</created>
+    <description>A mock server for the PA SOAP service</description>
+    <id>eUAvaN</id>
+    <name>pa-soap-mock-server</name>
+    <updated>2021-10-28T19:19:34.505Z</updated>
+</soapProject>

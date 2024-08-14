@@ -1,0 +1,52 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+elements:
+
+  - name: nv-sending-application-namespace-id
+    value: [ '"CDC PRIME - Atlanta"' ]
+    hl7Spec: [ 'MSH-3-1' ]
+
+  - name: nv-sending-application-universal-id
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+    hl7Spec: [ 'MSH-3-2' ]
+
+  - name: nv-sending-application-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-3-3' ]
+
+  - name: nv-sending-facility-namespace-id
+    value: [ '"CDC PRIME"' ]
+    hl7Spec: [ 'MSH-4-1' ]
+
+  - name: nv-sending-application-universal-id
+    value: [ '"11D2030855"' ]
+    hl7Spec: [ 'MSH-4-2' ]
+
+  - name: nv-sending-application-universal-id-type
+    value: [ '"CLIA"' ]
+    hl7Spec: [ 'MSH-4-3' ]
+
+  - name: nv-receiving-application
+    value: [ '"NVDOH"' ]
+    hl7Spec: [ 'MSH-5-1' ]
+
+  - name: nv-receiving-facility
+    value: [ '"NVDOH"' ]
+    hl7Spec: [ 'MSH-6-1' ]
+
+  - name: nv-patient-race-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+    condition: '%resource.code.exists()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
+
+  - name: observation-result-with-aoe
+    # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
+    resource: '%resource.result.resolve() | %resource.basedOn.resolve().supportingInfo.resolve().where(meta.tag.code != "AOE")'
+
+  - name: order-note
+    resource: '%resource.basedOn.resolve().note | %resource.basedOn.resolve().supportingInfo.resolve().where(meta.tag.code = "AOE")'
+    schema: classpath:/metadata/hl7_mapping/receivers/Common/observation-to-nte/aoe-note.yml

@@ -1,0 +1,106 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+low:
+  expressionType: nested
+  expressionsMap:
+    value:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: SN.2
+    code:
+      condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: CWERangeUnits.1
+      vars:
+        identifier: CWERangeUnits.1
+        nameOfCodingSystem: CWERangeUnits.3
+    unit:
+      expressionType: nested
+      vars:
+        identifier: CWERangeUnits.1
+        text: CWERangeUnits.2
+      expressions:
+        - condition: $text NULL && $identifier NOT_NULL
+          type: STRING
+          valueOf: CWERangeUnits.1
+          expressionType: HL7Spec
+        - condition: $text NOT_NULL
+          type: STRING
+          valueOf: CWERangeUnits.2
+          expressionType: HL7Spec
+    system:
+      condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: CWERangeUnits.3
+      vars:
+        identifier: CWERangeUnits.1
+        nameOfCodingSystem: CWERangeUnits.3
+
+high:
+  expressionType: nested
+  expressionsMap:
+    value:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: SN.4
+    code:
+      condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: CWERangeUnits.1
+      vars:
+        identifier: CWERangeUnits.1
+        nameOfCodingSystem: CWERangeUnits.3
+    unit:
+      expressionType: nested
+      vars:
+        identifier: CWERangeUnits.1
+        text: CWERangeUnits.2
+      expressions:
+        - condition: $text NULL && $identifier NOT_NULL
+          type: STRING
+          valueOf: CWERangeUnits.1
+          expressionType: HL7Spec
+        - condition: $text NOT_NULL
+          type: STRING
+          valueOf: CWERangeUnits.2
+          expressionType: HL7Spec
+    system:
+      condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: CWERangeUnits.3
+      vars:
+        identifier: CWERangeUnits.1
+        nameOfCodingSystem: CWERangeUnits.3
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - vars:
+        sn1: STRING, SN.1
+      condition: $sn1 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: SN.1
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: SN.1
+    - vars:
+        sn3: STRING, SN.3
+      condition: $sn3 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: SN.3
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: SN.3

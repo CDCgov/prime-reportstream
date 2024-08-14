@@ -1,0 +1,46 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: sad-address-line
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        sad1: STRING, SAD.1
+      condition: $sad1 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: SAD.1
+        valueString:
+          type: STRING
+          valueOf: SAD.1
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        sad2: STRING, SAD.2
+      condition: $sad2 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: SAD.2
+        valueString:
+          type: STRING
+          valueOf: SAD.2
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        sad3: STRING, SAD.3
+      condition: $sad3 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: SAD.3
+        valueString:
+          type: STRING
+          valueOf: SAD.3
+          expressionType: HL7Spec

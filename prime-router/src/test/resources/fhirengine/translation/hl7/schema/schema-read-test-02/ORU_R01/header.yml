@@ -1,0 +1,6 @@
+elements:
+  - name: message-identifier
+    resource: Bundle.id
+    required: true
+    hl7Spec:
+      - MSH-10

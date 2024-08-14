@@ -1,0 +1,29 @@
+name: AZFunction-start
+description: start Azure function on Monday in Test environment
+inputs:
+  resourceGroupName:
+    required: true
+  functionAppName:
+    required: true
+  functionName:
+    required: true
+  Subscription:
+    required: true
+  creds: 
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Start function app
+      id: StartAzFunction
+      shell: pwsh
+      run: |
+        $FnDetails = az functionapp show --name ${{ inputs.functionAppName }} --resource-group ${{ inputs.resourceGroupName }} --subscription  ${{ inputs.Subscription }}
+        $Json = $FnDetails | ConvertFrom-JSON
+        $State       = $Json.state
+        Write-Host $State
+        if ($State -contains "stop"){
+          az functionapp start --name ${{ inputs.functionAppName }} --resource-group ${{ inputs.resourceGroupName }} --subscription  ${{ inputs.Subscription }}
+          }
+       

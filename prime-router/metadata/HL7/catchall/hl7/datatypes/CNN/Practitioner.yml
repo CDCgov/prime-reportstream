@@ -1,0 +1,98 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Practitioner
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+identifier:
+  expressionType: nested
+  expressionsMap:
+    value:
+      type: STRING
+      valueOf: CNN.1
+      expressionType: HL7Spec
+    extension_assigningAuthority:
+      generateList: true
+      expressionType: nested
+      vars:
+        cnn9: CNN.9
+        cnn10: CNN.10
+        cnn11: CNN.11
+      condition: $cnn9 NOT_NULL || $cnn10 NOT_NULL || $cnn11 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: assigning-authority
+        extension:
+          generateList: true
+          expressionType: nested
+          expressions:
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  valueOf: namespace-id
+                valueString:
+                  type: STRING
+                  expressionType: HL7Spec
+                  valueOf: CNN.9
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  valueOf: universal-id
+                valueString:
+                  type: STRING
+                  expressionType: HL7Spec
+                  valueOf: CNN.10
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  valueOf: universal-id-type
+                valueCode:
+                  type: STRING
+                  expressionType: HL7Spec
+                  valueOf: CNN.11
+
+name:
+  expressionType: nested
+  expressionsMap:
+    family:
+      type: STRING
+      valueOf: CNN.2
+      expressionType: HL7Spec
+    given:
+      generateList: true
+      expressionType: nested
+      expressions:
+        - expressionType: HL7Spec
+          valueOf: CNN.3
+          type: STRING
+        - expressionType: HL7Spec
+          valueOf: CNN.4
+          type: STRING
+    suffix:
+      generateList: true
+      expressionType: nested
+      expressions:
+        - expressionType: HL7Spec
+          valueOf: CNN.5
+          type: STRING
+        - expressionType: HL7Spec
+          valueOf: CNN.7
+          type: STRING
+    prefix:
+      type: STRING
+      valueOf: CNN.6
+      expressionType: HL7Spec
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: resource
+      valueOf: datatypes/CNN/CNNExtension

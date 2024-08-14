@@ -1,0 +1,37 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+tag:
+  generateList: true
+  expressionType: nested
+  vars:
+    pt1: STRING, PT.1
+    pt2: STRING, PT.2
+  condition: $pt1 NOT_NULL || $pt2  NOT_NULL
+  expressions:
+    - expressionType: nested
+      condition: $pt1 NOT_NULL
+      expressionsMap:
+        code:
+          valueOf: PT.1
+          expressionType: HL7Spec
+          type: STRING
+        system:
+          value: "http://terminology.hl7.org/CodeSystem/v2-0103"
+    - expressionType: nested
+      condition: $pt2 NOT_NULL
+      expressionsMap:
+        code:
+          valueOf: PT.2
+          type: STRING
+          expressionType: HL7Spec
+        system:
+          value: "http://terminology.hl7.org/CodeSystem/v2-0207"
+
+# Currently used to capture MSH.8
+security:
+  expressionType: nested
+  generateList: true
+  expressionsMap:
+    code:
+      type: STRING
+      valueOf: $metaSecurity

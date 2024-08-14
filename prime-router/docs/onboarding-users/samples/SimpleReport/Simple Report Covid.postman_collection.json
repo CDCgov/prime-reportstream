@@ -1,0 +1,52 @@
+{
+	"info": {
+		"_postman_id": "dd6cd21e-a482-4e57-b247-5a5dd7d8638d",
+		"name": "Simple Report Covid",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24364494"
+	},
+	"item": [
+		{
+			"name": "SimpleReport Test Data",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "text/csv",
+						"type": "text"
+					},
+					{
+						"key": "client",
+						"value": "simple_report.default",
+						"type": "text"
+					},
+					{
+						"key": "x-functions-key",
+						"value": "{{apiKey}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "Resident_congregate_setting,Ordering_facility_county,Ordering_facility_street_2,Test_date,Patient_suffix,Patient_DOB,Patient_street_2,Patient_tribal_affiliation,Employed_in_healthcare,Corrected_result_ID,Order_result_status,Observation_result_status,Specimen_collection_date_time,Ordering_provider_ID,Patient_country,Patient_role,Result_ID,First_test,Testing_lab_CLIA,Testing_lab_street_2,Testing_lab_county,Processing_mode_code,Ordering_facility_email,Ordering_provider_street_2,Ordering_provider_county,Specimen_source_site_code,Specimen_type_code,Equipment_Model_ID,Ordered_test_code,Instrument_ID,Device_ID,Site_of_care,Patient_preferred_language,Patient_race,Testing_lab_street,Testing_lab_zip_code,Patient_county,Patient_street,Patient_city,Patient_state,Patient_zip_code,Testing_lab_city,Testing_lab_state,Order_test_date,Patient_email,Patient_ID,Patient_last_name,Patient_gender,Ordering_provider_street,Ordering_provider_city,Ordering_provider_state,Ordering_provider_zip_code,Date_result_released,Patient_phone_number,Patient_first_name,Patient_middle_name,Patient_ethnicity,Testing_lab_phone_number,Ordering_facility_street,Ordering_facility_city,Ordering_facility_state,Ordering_facility_zip_code,Testing_lab_name,Ordering_facility_name,Ordering_facility_phone_number,Ordering_provider_first_name,Ordering_provider_last_name,Ordering_provider_phone_number,Test_result_status,Symptomatic_for_disease,Test_Kit_Name_ID,Test_result_code,Illness_onset_date,Test_correction_reason,Organization_name\r\nN,,,20231122173358,,19400321,,,Y,,F,F,20231122171858,1245319599,USA,STAFF,0f9f79e4-f3b5-46f2-bde3-5d073305beb4,N,12D4567890,,,P,,,,53342003,258467004,,94500-6,fb07163f-5f5c-44be-9390-dd58ec9c0efb,1copy COVID-19 qPCR Multi Kit,nursing_home,,1002-5,123 Beach Way,99540,,743 Hillside street,New York,RI,02801,,AK,20231122173358,,02c61cc7-5f89-4805-9a54-7eaadf4be6aa,Dumbledore,M,,,,,20231122173358,(212) 652-5123,Albus,,H,(530) 867-5309,123 Beach Way,,AK,99540,Testing Lab,Testing Lab,(530) 867-5309,Phil,McTester,(530) 867-5309,F,N,1copy COVID-19 qPCR Multi Kit_1drop Inc.,260373001,,,ReportStream Testing",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/reports",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"reports"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

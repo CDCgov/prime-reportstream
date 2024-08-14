@@ -1,0 +1,183 @@
+openapi: '3.0.2'
+info:
+  title: Email Service - Prime Data Hub
+  description: A router of public health data from multiple senders and receivers
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://open.cdc.gov
+    email: usds@cdc.gov
+  version: 1.0.0
+components:
+  schemas:
+    
+    EmailSchedule:
+      allOf:
+        - description: An email schedule
+        - $ref: '#/components/schemas/EmailScheduleNew'
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+            template:
+              type: string
+            schedule:
+              type: string
+            organizations:
+              type: array
+              items: 
+                type: string
+            receivers:
+              type: array
+              items: 
+                type: string
+            exceptions:
+              type: array
+              items: 
+                type: string
+    
+    EmailScheduleId:
+      description: An email schedule id
+      type: object
+      required: 
+        - id
+      properties:
+        id:
+          type: string
+
+    EmailScheduleNew:
+      description: A new email schedule object
+      type: object
+      required: 
+        - template
+      properties:
+        template:
+          type: string
+        schedule:
+          type: string
+        organizations:
+          type: array
+          items: 
+            type: string
+        receivers:
+          type: array
+          items: 
+            type: string
+        exceptions:
+          type: array
+          items: 
+            type: string
+
+
+    EmailSchedules:
+      description: An email schedules list
+      type: array
+      items:
+        $ref: "#/components/schemas/EmailSchedule"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  
+paths:
+  /schedule/{emailScheduleId}:
+    put:
+      summary: Replace an email schedule
+      operationId: replaceEmailSchedule
+      requestBody:
+        description: EmailSchedule to replace
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailScheduleNew'   
+      parameters:
+        - name: emailScheduleId
+          in: path
+          required: true
+          description: The id of the email schedule to replace
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+
+    delete:
+      summary: Delete an email schedule
+      operationId: deleteEmailSchedule
+      parameters:
+        - name: emailScheduleId
+          in: path
+          required: true
+          description: The id of the email schedule to delete
+          schema:
+            type: string      
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: NOT FOUND
+
+    patch:
+      summary: Update an email schedule
+      operationId: updateEmailSchedule
+      requestBody:
+        description: EmailSchedule to patch
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailScheduleNew'   
+            example:
+              - template: daily.tmpl
+              - schedule: 0 0 ****
+              - organizations: [ DHpima_az_doh ]
+              - receivers: []
+              - exceptions: [ joe.jones@pima_az_doh.gov]      
+      parameters:
+        - name: emailScheduleId
+          in: path
+          required: true
+          description: The id of the email schedule to modify
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+
+  /schedule:
+    get:
+      summary: List all active email schedules
+      operationId: getEmailSchedules
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailSchedules'          
+    post:
+      summary: Create an email schedule
+      operationId: addEmailSchedule
+      requestBody:
+        description: EmailSchedule to add
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailScheduleNew'   
+            example:
+              - template: daily.tmpl
+              - schedule: 0 0 ****
+              - organizations: [ DHpima_az_doh ]
+              - receivers: []
+              - exceptions: [ joe.jones@pima_az_doh.gov]
+      responses:
+        '200':
+          description: OK
+security:
+  - bearerAuth: []
+

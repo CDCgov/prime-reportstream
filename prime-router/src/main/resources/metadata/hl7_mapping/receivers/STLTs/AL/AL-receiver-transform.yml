@@ -1,0 +1,50 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+
+constants:
+  hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX'
+
+elements:
+
+  - name: al-patient-race-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+    condition: '%resource.code.exists()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
+
+  - name: al-name-of-the-sender-application-Namespace-Id
+    value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
+    hl7Spec: [ 'MSH-3-1' ]
+
+  - name: al-sender-application-Universal-Id
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+    hl7Spec: [ 'MSH-3-2' ]
+
+  - name: al-sender-application-Universal-Id-Type
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-3-3' ]
+
+  - name: al-name-of-the-receiving-application
+    value: [ '"ALNBS"' ]
+    hl7Spec: [ 'MSH-5-1' ]
+
+  - name: al-receiving-application-universal-id
+    value: [ '"2.16.840.1.114222.4.5.1"' ]
+    hl7Spec: [ 'MSH-5-2' ]
+
+  - name: al-receiving-application-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-5-3' ]
+
+  - name: al-receiving-facility-namespace-ID
+    value: [ '"ALDOH"' ]
+    hl7Spec: [ 'MSH-6-1' ]
+
+  - name: al-receiving-facility-universal-id
+    value: [ '"2.16.840.1.114222.4.1.3636"' ]
+    hl7Spec: [ 'MSH-6-2' ]
+
+  - name: al-receiving-facility-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-6-3' ]

@@ -1,0 +1,36 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: resource
+      valueOf: datatypes/ED/EDExtension
+    - expressionType: nested
+      vars:
+        ed2: STRING_ALL, ED.2
+        ed3: STRING_ALL, ED.3
+      condition: $ed3 NULL && $ed2 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: alternate-codes
+        valueCodeableConcept:
+          valueOf: datatypes/ID/CodeableConcept
+          specs: ED.2
+          expressionType: resource
+
+
+contentType:
+  valueOf: ED.3
+  type: STRING
+  expressionType: HL7Spec
+
+data:
+  vars:
+    ed4: STRING, ED.4
+  condition: $ed4 EQUALS Base64
+  valueOf: ED.5
+  type: STRING
+  expressionType: HL7Spec
+

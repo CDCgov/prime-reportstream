@@ -1,0 +1,6 @@
+name: ignore-full-elr
+organizationName: ignore
+topic: full-elr
+customerStatus: active
+schemaName: classpath:/metadata/fhir_transforms/senders/original-pipeline-transforms.yml
+format: HL7

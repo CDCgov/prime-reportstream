@@ -1,0 +1,106 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+constants:
+  radxMarsPatient: 'Bundle.entry.resource.ofType(Patient)'
+  illnessOnsetAoeLoinc: '"65222-2"'
+  symptomaticAoeLoinc: '"95419-8"'
+  patientAgeAoeLoinc: '"35659-2"'
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+elements:
+  - name: patient-race-codeable-concept
+    condition: 'false'
+
+  - name: patient-race-identifier
+    condition: 'true'
+    value:
+      - '%radxMarsPatient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].code'
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-1 ]
+
+  - name: patient-race-text
+    condition: '%radxMarsPatient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.exists()'
+    value: [ '"https://www.hl7.org/fhir/v2/0005/"' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-2 ]
+
+  - name: patient-race-coding-system
+    condition: '%radxMarsPatient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").exists()'
+    value:
+      - '"HL70005"'
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-3 ]
+
+  - name: patient-race-alternate-identifier
+    value:
+      - '%radxMarsPatient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[1].code'
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-4 ]
+
+  - name: patient-race-alternate-text
+    value:
+      - '%radxMarsPatient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[1].display'
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-5 ]
+
+  - name: patient-race-alternate-system
+    value:
+      - '%radxMarsPatient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[1].system'
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-6 ]
+
+  - name: patient-race-coding-system-version
+    condition: '%radxMarsPatient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.exists()'
+    value: [ '"2.5.1"' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-7 ]
+
+  - name: radx-mars-patient-ethnicity-description
+    condition: '%radxMarsPatient.extension(%`rsext-ethnic-group`).value.exists()'
+    value: [ '"https://www.hl7.org/fhir/v2/0189/"' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-2 ]
+
+  - name: radx-mars-patient-ethnicity-code-system
+    condition: '%radxMarsPatient.extension(%`rsext-ethnic-group`).value.exists()'
+    value: [ '"HL70189"' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-3 ]
+
+  - name: patient-ethnicity-coding-system-version
+    condition: '%radxMarsPatient.extension(%`rsext-ethnic-group`).value.exists()'
+    value: [ '"2.5.1"' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-7 ]
+
+  - name: radx-mars-order-observations
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: '%resource.count() > 0'
+    schema: classpath:/metadata/hl7_mapping/RADx_MARS/RADx_MARS-order-observation.yml
+    resourceIndex: orderIndex
+
+  # RADx Format Requirement:
+  # The COVID-19 result should be the first OBX segment, followed by any other result OBX segments, and then the Age,
+  # Symptomatic, and Date of Onset OBX segments.
+  - name: observation-result-with-aoe
+    resource: >
+      %resource.result.resolve().where(livdTableLookup("Component").contains("coronavirus")) |
+      %resource.result.resolve().where(livdTableLookup("Component").contains("coronavirus").not()) |
+      %service.supportingInfo.resolve().where(code.coding.code = %patientAgeAoeLoinc) |
+      %service.supportingInfo.resolve().where(code.coding.code = %symptomaticAoeLoinc) |
+      %service.supportingInfo.resolve().where(code.coding.code = %illnessOnsetAoeLoinc)
+
+  - name: specimen-observation
+    condition: 'false'
+
+  # OBX-2
+  - name: result-value-type-ce
+    condition: '%resource is CodeableConcept'
+
+  - name: result-value-type-cwe
+    condition: '%resource is CodeableConcept and (%resource.coding[0].version.exists() or %resource.coding[1].version.exists() or %resource.text.exists())'
+
+    #OBX-3
+  - name: observation-identifier-code
+    condition: 'false'
+
+  # OBR-4
+  - name: universal-service-identifier
+    condition: 'false'
+
+  # XTN
+  - name: xtn-use-code-from-system
+    condition: '%resource.system = "email"'
+    value: [ '"NET"' ]
+    hl7Spec: [ '%{hl7TelecomPath}-2' ]

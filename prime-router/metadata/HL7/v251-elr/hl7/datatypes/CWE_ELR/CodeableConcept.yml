@@ -1,0 +1,192 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+coding:
+  generateList: true
+  expressionType: nested
+  vars:
+    code: String, CWE.1
+    display: String, CWE.2
+    system: SYSTEM_URL, CWE.3
+    version: String, CWE.7
+  expressionsMap:
+    code:
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.1
+    display:
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.2
+    system:
+      type: SYSTEM_URL
+      expressionType: HL7Spec
+      valueOf: CWE.3
+    version:
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.7
+    extension_cwe-coding:
+      condition: $code NOT_NULL || $display NOT_NULL || $system NOT_NULL || $version NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: cwe-coding
+        valueString:
+          value: coding
+    extension_cwe-coding-system:
+      condition: $coding-system NOT_NULL
+      generateList: true
+      expressionType: nested
+      vars:
+        coding-system: String, CWE.3
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: cwe-coding-system
+        valueString:
+          value: $coding-system
+
+coding_alt:
+  generateList: true
+  expressionType: nested
+  vars:
+    altCode: String, CWE.4
+    altDisplay: String, CWE.5
+    altSystem: SYSTEM_URL, CWE.6
+    altVersion: String, CWE.8
+  expressionsMap:
+    code:
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.4
+    display:
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.5
+    system:
+      type: SYSTEM_URL
+      expressionType: HL7Spec
+      valueOf: CWE.6
+    version:
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.8
+    extension_cwe-coding:
+      condition: $altCode NOT_NULL || $altDisplay NOT_NULL || $altSystem NOT_NULL || $altVersion NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: cwe-coding
+        valueString:
+          value: alt-coding
+    extension_cwe-coding-system:
+      condition: $coding-system NOT_NULL
+      generateList: true
+      expressionType: nested
+      vars:
+        coding-system: String, CWE.6
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: cwe-coding-system
+        valueString:
+          value: $coding-system
+
+coding_secondary-alt:
+  generateList: true
+  expressionType: nested
+  vars:
+    secondaryAltCode: String, CWE.10
+    secondaryAltDisplay: String, CWE.11
+    secondaryAltSystem: SYSTEM_URL, CWE.12
+    secondaryAltVersion: String, CWE.13
+  expressionsMap:
+    code:
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.10
+    display:
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.11
+    system:
+      type: SYSTEM_URL
+      expressionType: HL7Spec
+      valueOf: CWE.12
+    version:
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.13
+    extension_cwe-coding:
+      condition: $secondaryAltCode NOT_NULL || $secondaryAltDisplay NOT_NULL || $secondaryAltSystem NOT_NULL || $secondaryAltVersion NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: cwe-coding
+        valueString:
+          value: secondary-alt-coding
+    extension_cwe-coding-system:
+      condition: $coding-system NOT_NULL
+      generateList: true
+      expressionType: nested
+      vars:
+        coding-system: String, CWE.12
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: cwe-coding-system
+        valueString:
+          value: $coding-system
+
+text:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: CWE.9
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    # codingSystemOID
+    - generateList: true
+      expressionType: nested
+      condition: $codingSystemOID NOT_NULL
+      vars:
+        codingSystemOID: String, CWE.14
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: coding-system-oid
+        valueOid:
+          type: STRING
+          valueOf: $oidString
+          vars:
+            oidString: $oidUrlPrefix + $codingSystemOID
+          constants:
+            oidUrlPrefix: "urn:oid:"
+    - generateList: true
+      expressionType: nested
+      condition: $hl7v2Field NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Field
+    - generateList: true
+      expressionType: nested
+      condition: $hl7v2Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Component

@@ -1,0 +1,11 @@
+---
+- name: genabio
+  description: Genabio
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: genabio
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/genabio-covid-19
+      format: CSV

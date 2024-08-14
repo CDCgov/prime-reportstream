@@ -1,0 +1,250 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: spm-specimen
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        spm31: SPM.3.1
+      condition: $spm31 NOT_NULL
+      specs: SPM.3 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.3.1
+        valueIdentifier:
+          valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
+          expressionType: resource
+          constants:
+            hl7v2Field: SPM.3
+            backupExtension: "filler-assigned-identifier"
+    - expressionType: nested
+      vars:
+        spm32: SPM.3.2
+      condition: $spm32 NOT_NULL
+      specs: SPM.3 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.3.2
+        valueIdentifier:
+          valueOf: datatypes/EIP/Identifier-FillerAssignedIdentifier
+          expressionType: resource
+          constants:
+            hl7v2Field: SPM.3
+            backupExtension: "placer-assigned-identifier"
+    - expressionType: nested
+      vars:
+        spm5: SPM.5
+      condition: $spm5 NOT_NULL
+      specs: SPM.5 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.5
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm6: SPM.6
+      condition: $spm6 NOT_NULL
+      specs: SPM.6 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.6
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm10: SPM.10
+      condition: $spm10 NOT_NULL
+      specs: SPM.10
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.10
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm11: SPM.11
+      condition: $spm11 NOT_NULL
+      specs: SPM.11 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.11
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm13: SPM.13
+      condition: $spm13 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.13
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: SPM.13
+    - expressionType: nested
+      vars:
+        spm15: SPM.15
+      condition: $spm15 NOT_NULL
+      specs: SPM.15 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.15
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm16: SPM.16
+      condition: $spm16 NOT_NULL
+      specs: SPM.16 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.16
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm19: SPM.19
+      condition: $spm19 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.19
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: SPM.19
+    - expressionType: nested
+      vars:
+        spm20: SPM.20
+      condition: $spm20 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.20
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: SPM.20
+    - expressionType: nested
+      vars:
+        spm22: SPM.22
+      condition: $spm22 NOT_NULL
+      specs: SPM.22
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.22
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm23: SPM.23
+      condition: $spm23 NOT_NULL
+      specs: SPM.23
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.23
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm25: SPM.25
+      condition: $spm25 NOT_NULL
+      specs: SPM.25
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.25
+        valueQuantity:
+          expressionType: resource
+          valueOf: datatypes/CQ/Quantity
+    - expressionType: nested
+      vars:
+        spm26: SPM.26
+      condition: $spm26 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.26
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: SPM.26
+    - expressionType: nested
+      vars:
+        spm28: SPM.28
+      condition: $spm28 NOT_NULL
+      specs: SPM.28
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.28
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm29: SPM.29
+      condition: $spm29 NOT_NULL
+      specs: SPM.29
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: SPM.29
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        spm30: SPM.30
+      condition: $spm30 NOT_NULL
+      specs: SPM.30 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: spm-30-accession-id
+        valueIdentifier:
+          expressionType: resource
+          valueOf: datatypes/CX/Identifier

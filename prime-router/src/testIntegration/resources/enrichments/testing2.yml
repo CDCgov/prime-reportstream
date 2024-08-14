@@ -1,0 +1,23 @@
+constants:
+  rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
+
+elements:
+  - name: sft-3-software-name
+    resource: 'Bundle.entry.resource.ofType(Provenance).where(entity.exists()).entity.what.resolve().where(extension(%`rsext-software-vendor-org`).exists())'
+    bundleProperty: '%resource.deviceName.name'
+    value: [ '"Purple PRIME ReportStream"' ]
+
+  - name: sft-3-software-name-legacy
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.software'
+    value: [ '"Purple PRIME ReportStream"' ]
+
+  - name: sft-2-software-version
+    resource: 'Bundle.entry.resource.ofType(Provenance).where(entity.exists()).entity.what.resolve().where(extension(%`rsext-software-vendor-org`).exists())'
+    bundleProperty: '%resource.version.value'
+    value: [ '"0.2-YELLOW"' ]
+
+  - name: sft-2-software-version-legacy
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.version'
+    value: [ '"0.2-YELLOW"' ]

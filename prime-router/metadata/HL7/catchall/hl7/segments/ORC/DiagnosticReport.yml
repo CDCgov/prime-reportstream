@@ -1,0 +1,265 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: DiagnosticReport
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+identifier:
+  expressionType: nested
+  generateList: true
+  vars:
+    obr2: STRING_ALL, OBR.2
+    orc2: STRING_ALL, ORC.2
+    obr3: STRING_ALL, OBR.3
+    orc3: STRING_ALL, ORC.3
+    orc4: STRING_ALL, ORC.4
+    obr53: STRING_ALL, OBR.53
+  expressions:
+    - condition: $orc2 NOT_NULL
+      valueOf: datatypes/EI/Identifier
+      expressionType: resource
+      specs: ORC.2
+      constants:
+        code: "PLAC"
+        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+        hl7v2Field: ORC.2
+    - condition: $orc2 NULL && $obr2 NOT_NULL
+      valueOf: datatypes/EI/Identifier
+      expressionType: resource
+      specs: OBR.2
+      constants:
+        code: "PLAC"
+        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+        hl7v2Field: OBR.2
+    - condition: $orc3 NOT_NULL
+      valueOf: datatypes/EI/Identifier
+      expressionType: resource
+      specs: ORC.3
+      constants:
+        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+        code: "FILL"
+        display: "Filler Identifier"
+    - condition: $orc3 NULL && $obr3 NOT_NULL
+      valueOf: datatypes/EI/Identifier
+      expressionType: resource
+      specs: OBR.3
+      constants:
+        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+        code: "FILL"
+        display: "Filler Identifier"
+    - condition: $orc4 NOT_NULL
+      valueOf: datatypes/EI/Identifier
+      expressionType: resource
+      specs: ORC.4
+      constants:
+        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+        code: "PGN"
+    - condition: $orc4 NOT_NULL
+      valueOf: datatypes/EI/Identifier
+      expressionType: resource
+      specs: ORC.4
+      constants:
+        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+        code: "FGN"
+
+code:
+  valueOf: datatypes/CWE/CodeableConcept
+  expressionType: resource
+  specs: OBR.4
+
+effectiveDateTime:
+  condition: $start NOT_NULL && $end NULL
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: OBR.7
+    start: OBR.7
+    end: OBR.8
+_effectiveDateTime:
+  expressionType: nested
+  condition: $start NOT_NULL && $end NULL
+  vars:
+    dateTimeIn: OBR.7
+    start: OBR.7
+    end: OBR.8
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
+
+effectivePeriod:
+  condition: $startDate NOT_NULL && $endDate NOT_NULL
+  vars:
+    startDate: OBR.7
+    endDate: OBR.8
+  expressionType: nested
+  expressionsMap:
+    start:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(startDate,ZONEID)"
+      expressionType: JEXL
+    _start:
+      expressionType: nested
+      condition: $startDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $startDate
+              expressionType: HL7Spec
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(endDate,ZONEID)"
+      expressionType: JEXL
+    _end:
+      expressionType: nested
+      condition: $endDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $endDate
+              expressionType: HL7Spec
+
+issued:
+  type: STRING
+  valueOf: 'GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)'
+  expressionType: JEXL
+  vars:
+    dateTimeIn: OBR.22
+_issued:
+  expressionType: nested
+  condition: $obr22 NOT_NULL
+  vars:
+    obr22: OBR.22
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $obr22
+          expressionType: HL7Spec
+
+category:
+  expressionType: resource
+  valueOf: datatypes/ID/CodeableConcept
+  specs: OBR.24
+
+status:
+  type: DIAGNOSTIC_REPORT_STATUS
+  valueOf: OBR.25
+  expressionType: HL7Spec
+  required: true
+
+resultsInterpreter:
+  vars:
+    obr32: STRING_ALL, OBR.32
+  condition: $obr32 NOT_NULL
+  valueOf: datatypes/NDL/PractitionerRole
+  generateList: true
+  expressionType: reference
+  specs: OBR.32
+
+performer_1-technician:
+  valueOf: datatypes/NDL/PractitionerRole
+  condition: $obr34 NOT_NULL
+  generateList: true
+  expressionType: reference
+  specs: OBR.34
+  vars:
+    obr34: OBR.34
+  constants:
+    performerParticipationType: "SPRF"
+
+performer_2-transcriptionist:
+  valueOf: datatypes/NDL/PractitionerRole
+  condition: $obr35 NOT_NULL
+  generateList: true
+  expressionType: reference
+  specs: OBR.35
+  vars:
+    obr35: OBR.35
+  constants:
+    performerParticipationType: "TRANS"
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        orc16: ORC.16
+      condition: $orc16 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: "http://hl7.org/fhir/StructureDefinition/event-statusReason"
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: ORC.16
+
+encounter:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Encounter
+
+subject:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Patient
+
+basedOn:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $ServiceRequest
+  generateList: true
+  useGroup: true
+
+specimen:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - valueOf: datatype/Reference
+      generateList: true
+      expressionType: resource
+      specs: $Specimen
+      useGroup: true
+    - valueOf: datatype/Reference
+      expressionType: resource
+      specs: $SpecimenSource
+      useGroup: true
+
+result:
+  valueOf: datatype/Reference
+  generateList: true
+  expressionType: resource
+  specs: $Observation
+  useGroup: true

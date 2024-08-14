@@ -1,0 +1,220 @@
+{
+    "id": "3d75b87b-3ddb-4f19-b8ed-5021fa818d1c",
+    "timestamp": "2022-03-24T14:55:40.819Z",
+    "topic": "covid-19",
+    "reportItemCount": 14,
+    "sender": "simple_report.default",
+    "destinations": [
+        {
+            "organization": "Maryland Public Health Department",
+            "organization_id": "md-phd",
+            "service": "elr",
+            "sending_at": "2022-03-24T14:56:00.000Z",
+            "itemCount": 2
+        },
+        {
+            "organization": "Alaska Public Health Department",
+            "organization_id": "ak-phd",
+            "service": "elr",
+            "filteredReportRows": [
+                "For ak-phd.elr, filter hasValidDataFor[patient_dob] filtered out item Alaska1",
+                "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska1",
+                "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska2",
+                "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska4"
+            ],
+            "filteredReportItems": [
+                {
+                    "filteredIndex": 1,
+                    "originalCount": 5,
+                    "receiverName": "ak-phd.elr",
+                    "filterName": "hasValidDataFor",
+                    "filterType": "QUALITY_FILTER",
+                    "filteredTrackingElement": "Alaska1",
+                    "filteredArgs": [
+                        "patient_dob"
+                    ]
+                },
+                {
+                    "filteredIndex": 1,
+                    "originalCount": 5,
+                    "receiverName": "ak-phd.elr",
+                    "filterName": "isValidCLIA",
+                    "filterType": "QUALITY_FILTER",
+                    "filteredTrackingElement": "Alaska1",
+                    "filteredArgs": [
+                        "testing_lab_clia",
+                        "reporting_facility_clia"
+                    ]
+                },
+                {
+                    "filteredIndex": 2,
+                    "originalCount": 5,
+                    "receiverName": "ak-phd.elr",
+                    "filterName": "isValidCLIA",
+                    "filterType": "QUALITY_FILTER",
+                    "filteredTrackingElement": "Alaska2",
+                    "filteredArgs": [
+                        "testing_lab_clia",
+                        "reporting_facility_clia"
+                    ]
+                },
+                {
+                    "filteredIndex": 4,
+                    "originalCount": 5,
+                    "receiverName": "ak-phd.elr",
+                    "filterName": "isValidCLIA",
+                    "filterType": "QUALITY_FILTER",
+                    "filteredTrackingElement": "Alaska4",
+                    "filteredArgs": [
+                        "testing_lab_clia",
+                        "reporting_facility_clia"
+                    ]
+                }
+            ],
+            "sending_at": "2022-03-24T14:56:00.000Z",
+            "itemCount": 2
+        },
+        {
+            "organization": "Hawaii Public Health Department",
+            "organization_id": "hi-phd",
+            "service": "elr",
+            "filteredReportRows": [
+                "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii6",
+                "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii7",
+                "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii9"
+            ],
+            "filteredReportItems": [
+                {
+                    "filteredIndex": 1,
+                    "originalCount": 5,
+                    "receiverName": "hi-phd.elr",
+                    "filterName": "hasValidDataFor",
+                    "filterType": "QUALITY_FILTER",
+                    "filteredTrackingElement": "Hawaii6",
+                    "filteredArgs": [
+                        "specimen_type"
+                    ]
+                },
+                {
+                    "filteredIndex": 2,
+                    "originalCount": 5,
+                    "receiverName": "hi-phd.elr",
+                    "filterName": "hasValidDataFor",
+                    "filterType": "QUALITY_FILTER",
+                    "filteredTrackingElement": "Hawaii7",
+                    "filteredArgs": [
+                        "specimen_type"
+                    ]
+                },
+                {
+                    "filteredIndex": 4,
+                    "originalCount": 5,
+                    "receiverName": "hi-phd.elr",
+                    "filterName": "hasValidDataFor",
+                    "filterType": "QUALITY_FILTER",
+                    "filteredTrackingElement": "Hawaii9",
+                    "filteredArgs": [
+                        "specimen_type"
+                    ]
+                }
+            ],
+            "sending_at": "2022-03-24T14:56:00.000Z",
+            "itemCount": 2
+        },
+        {
+            "organization": "Ohio Department of Health",
+            "organization_id": "oh-doh",
+            "service": "elr",
+            "filteredReportRows": [
+                "For oh-doh.elr, filter hasValidDataFor[patient_dob] filtered out item Ohio11",
+                "For oh-doh.elr, filter hasValidDataFor[patient_dob] filtered out item Ohio12",
+                "For oh-doh.elr, filter hasAtLeastOneOf[order_test_date, specimen_collection_date_time, test_result_date] filtered out item Ohio11",
+                "For oh-doh.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Ohio11",
+                "For oh-doh.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Ohio12"
+            ],
+            "filteredReportItems": [
+                {
+                    "filteredIndex": 1,
+                    "originalCount": 2,
+                    "receiverName": "oh-doh.elr",
+                    "filterName": "hasValidDataFor",
+                    "filterType": "QUALITY_FILTER",
+                    "filteredTrackingElement": "Ohio11",
+                    "filteredArgs": [
+                        "patient_dob"
+                    ]
+                },
+                {
+                    "filteredIndex": 2,
+                    "originalCount": 2,
+                    "receiverName": "oh-doh.elr",
+                    "filterName": "hasValidDataFor",
+                    "filterType": "QUALITY_FILTER",
+                    "filteredTrackingElement": "Ohio12",
+                    "filteredArgs": [
+                        "patient_dob"
+                    ]
+                },
+                {
+                    "filteredIndex": 1,
+                    "originalCount": 2,
+                    "receiverName": "oh-doh.elr",
+                    "filterName": "hasAtLeastOneOf",
+                    "filterType": "QUALITY_FILTER",
+                    "filteredTrackingElement": "Ohio11",
+                    "filteredArgs": [
+                        "order_test_date",
+                        "specimen_collection_date_time",
+                        "test_result_date"
+                    ]
+                },
+                {
+                    "filteredIndex": 1,
+                    "originalCount": 2,
+                    "receiverName": "oh-doh.elr",
+                    "filterName": "isValidCLIA",
+                    "filterType": "QUALITY_FILTER",
+                    "filteredTrackingElement": "Ohio11",
+                    "filteredArgs": [
+                        "testing_lab_clia",
+                        "reporting_facility_clia"
+                    ]
+                },
+                {
+                    "filteredIndex": 2,
+                    "originalCount": 2,
+                    "receiverName": "oh-doh.elr",
+                    "filterName": "isValidCLIA",
+                    "filterType": "QUALITY_FILTER",
+                    "filteredTrackingElement": "Ohio12",
+                    "filteredArgs": [
+                        "testing_lab_clia",
+                        "reporting_facility_clia"
+                    ]
+                }
+            ],
+            "sending_at": "never - all items filtered out",
+            "itemCount": 0
+        }
+    ],
+    "destinationCount": 3,
+    "warningCount": 5,
+    "errorCount": 0,
+    "errors": [],
+    "warnings": [
+        {
+            "scope": "report",
+            "message": "Missing Ordering_facility_email (ordering_facility_email) header"
+        },
+        {
+            "scope": "item",
+            "message": "Invalid code: 'WRONG_specimen_type' is not a display value in altValues set for Specimen_type_code (specimen_type).",
+            "itemNums": "6 to 7, 9"
+        },
+        {
+            "scope": "item",
+            "message": "Invalid phone number 'WRONG_ordering_provider_phone_number' for Ordering_provider_phone_number (ordering_provider_phone_number). Reformat to a 10-digit phone number (e.g. (555) - 555-5555).",
+            "itemNums": "8"
+        }
+    ]
+}

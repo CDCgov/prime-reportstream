@@ -1,0 +1,98 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Provenance
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+target:
+  valueOf: datatype/Reference
+  generateList: true
+  expressionType: resource
+  specs: $MessageHeader
+
+agent:
+  expressionType: nested
+  generateList: true
+  vars:
+    msh22: STRING_ALL, MSH.22
+    msh4: STRING_ALL, MSH.4
+  expressions:
+    - condition: $msh22 NULL && $msh4 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        type:
+          expressionType: nested
+          expressionsMap:
+            coding:
+              expressionType: nested
+              expressionsMap:
+                code:
+                  type: STRING
+                  valueOf: "author"
+                system:
+                  type: SYSTEM_URL
+                  valueOf: "http://terminology.hl7.org/CodeSystem/provenance-participant-type"
+        who:
+          valueOf: datatypes/HD/Organization
+          expressionType: reference
+          specs: MSH.4
+    - condition: $msh22 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        type:
+          expressionType: nested
+          expressionsMap:
+            coding:
+              expressionType: nested
+              expressionsMap:
+                code:
+                  type: STRING
+                  valueOf: "author"
+                system:
+                  type: SYSTEM_URL
+                  valueOf: "http://terminology.hl7.org/CodeSystem/provenance-participant-type"
+        who:
+          valueOf: datatypes/XON/Organization
+          expressionType: reference
+          specs: MSH.22
+
+recorded:
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: MSH.7
+
+activity:
+  expressionType: nested
+  constants:
+    caret: "^"
+  vars:
+    msg1: String, MSH.9.1
+    msg2: String, MSH.9.2
+    msg3: String, MSH.9.3
+  expressionsMap:
+    coding:
+      expressionType: nested
+      vars:
+        displayValue: $msg1 + $caret + $msg2 + $caret + $msg3
+      expressionsMap:
+        display:
+          type: STRING
+          valueOf: $displayValue
+
+entity:
+  condition: $sft NOT_NULL
+  vars:
+    sft: SFT
+  expressionType: nested
+  expressionsMap:
+    what:
+      expressionType: reference
+      valueOf: segments/SFT/Device
+      specs: SFT
+    role:
+      type: STRING
+      value: "source"

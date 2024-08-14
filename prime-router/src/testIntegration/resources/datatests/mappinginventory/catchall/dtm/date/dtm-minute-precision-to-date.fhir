@@ -1,0 +1,123 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "1710798823260359000.cd7382b9-fff3-4b63-a857-c8c8e0bd7b17",
+  "meta" : {
+    "lastUpdated" : "2024-03-18T15:53:43.270-06:00"
+  },
+  "identifier" : {
+    "system" : "https://reportstream.cdc.gov/prime-router",
+    "value" : "20230816123358"
+  },
+  "type" : "message",
+  "timestamp" : "2023-08-16T11:33:58.000-06:00",
+  "entry" : [ {
+    "fullUrl" : "MessageHeader/bb504ecd-c2ab-3be3-91d8-6065e2bce435",
+    "resource" : {
+      "resourceType" : "MessageHeader",
+      "id" : "bb504ecd-c2ab-3be3-91d8-6065e2bce435",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+        "valueString" : "^~\\&#"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
+        "extension" : [ {
+          "url" : "MSH.7",
+          "valueString" : "20230816123358-0500"
+        } ]
+      } ],
+      "eventCoding" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+        "code" : "R01",
+        "display" : "ORU^R01^ORU_R01"
+      }
+    }
+  }, {
+    "fullUrl" : "Provenance/1710798823862658000.f21037f0-62f3-422d-b673-f8a4b492ca49",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1710798823862658000.f21037f0-62f3-422d-b673-f8a4b492ca49",
+      "target" : [ {
+        "reference" : "MessageHeader/bb504ecd-c2ab-3be3-91d8-6065e2bce435"
+      } ],
+      "recorded" : "2023-08-16T12:33:58-05:00",
+      "activity" : {
+        "coding" : [ {
+          "display" : "ORU^R01^ORU_R01"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Provenance/1710798823876338000.e52e747f-a1d2-42e7-a405-f8a0795dd5e4",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1710798823876338000.e52e747f-a1d2-42e7-a405-f8a0795dd5e4",
+      "recorded" : "2024-03-18T15:53:43Z",
+      "policy" : [ "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle" ],
+      "activity" : {
+        "coding" : [ {
+          "code" : "v2-FHIR transformation"
+        } ]
+      },
+      "agent" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+            "code" : "assembler"
+          } ]
+        },
+        "who" : {
+          "reference" : "Organization/1710798823874991000.5a38f9cc-267a-4839-834c-83a243bc0dc2"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/1710798823874991000.5a38f9cc-267a-4839-834c-83a243bc0dc2",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1710798823874991000.5a38f9cc-267a-4839-834c-83a243bc0dc2",
+      "identifier" : [ {
+        "value" : "CDC PRIME - Atlanta"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0301"
+          } ]
+        },
+        "system" : "urn:ietf:rfc:3986",
+        "value" : "2.16.840.1.114222.4.1.237821"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Patient/1710798823912956000.a364208a-6e02-466d-954c-089b3a5c723e",
+    "resource" : {
+      "resourceType" : "Patient",
+      "id" : "1710798823912956000.a364208a-6e02-466d-954c-089b3a5c723e",
+      "birthDate" : "1970-10-31",
+      "_birthDate" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+          "valueString" : "197010310304"
+        }, {
+          "url" : "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
+          "valueDateTime" : "1970-10-31T03:04:00Z"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Provenance/1710798823914411000.4b1782ef-1641-479a-bccb-d0c59f638a07",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1710798823914411000.4b1782ef-1641-479a-bccb-d0c59f638a07",
+      "target" : [ {
+        "reference" : "Patient/1710798823912956000.a364208a-6e02-466d-954c-089b3a5c723e"
+      } ],
+      "recorded" : "2024-03-18T15:53:43Z",
+      "activity" : {
+        "coding" : [ {
+          "system" : "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
+          "code" : "UPDATE"
+        } ]
+      }
+    }
+  } ]
+}

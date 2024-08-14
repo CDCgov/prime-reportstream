@@ -1,0 +1,1233 @@
+---
+# This is set of standard data elements for monkeypox topic
+#
+# Conventions:
+# - Sort by element name
+# - Use the HL7 message name with _ instead of space and lower cased
+# - Use ID instead of Identifier
+# - Avoid abbreviations. Use street1, phone_number, zip_code, ...
+#
+name: monkeypox
+topic: monkeypox
+trackingElement: message_id
+description: |
+  A collection of standard elements, not an actual schema. Based on specifications from several locations:
+  https://www.cdc.gov/poxvirus/monkeypox/lab-personnel/report-results.html
+  https://www.who.int/publications/i/item/WHO-MPX-laboratory-2022.1
+elements:
+  # TODO: add different values here and see how it maps per the valueset
+  - name: abnormal_flag
+    type: CODE
+    valueSet: hl70078
+    hl7Field: OBX-8
+    documentation: This field is generated based on the normalcy status of the result. A = abnormal; N = normal
+
+  - name: comment
+    type: TEXT
+    hl7Field: NTE-3
+
+  - name: comment_source
+    type: ID
+    hl7Field: NTE-2
+    valueSet: hl70105
+
+  - name: comment_type
+    type: CODE
+    hl7Field: NTE-4
+    valueSet: hl70364
+
+  - name: date_result_released
+    type: DATETIME
+    hl7Field: OBR-22
+
+  - name: device_id
+    type: TEXT
+    hl7Field: OBX-17-1
+    documentation: |
+      Device_id is a generated value for the OBX-17 field.
+
+  - name: device_id_type
+    type: TEXT
+    hl7Field: OBX-17-3
+    documentation: |
+      Device_id_type is a generated value for the OBX-17 field.
+
+  - name: equipment_instance_id
+    type: ID
+    hl7Field:
+
+  - name: equipment_model_id
+    type: TEXT
+    hl7Field: OBX-18-1
+
+  - name: equipment_model_id_type
+    type: TEXT
+    hl7Field: OBX-18-3
+
+  - name: equipment_model_name
+    type: TEXT
+    hl7Field: OBX-17-2
+
+  - name: equipment_manufacture
+    type: TEXT
+
+  - name: file_created_date
+    type: DATETIME
+    hl7Field: MSH-7
+    documentation: When was this file created. This is only used for HL7 generation.
+
+  - name: filler_name
+    type: TEXT
+    hl7Field: ORC-3-2
+
+  - name: filler_order_id
+    type: ID
+    hl7Field: ORC-3-1
+    documentation: Accession number
+
+  - name: filler_clia
+    type: ID_CLIA
+    hl7Field: OBR-3-3
+
+  - name: flatfile_version_no
+    type: NUMBER
+
+  - name: order_test_date
+    type: DATETIME
+    hl7Field: ORC-15
+
+  - name: ordered_test_code
+    type: TEXT
+    hl7Field: OBR-4-1
+
+  - name: ordered_test_name
+    type: TEXT
+    hl7Field: OBR-4-2
+
+  - name: ordered_test_name_system
+    type: TEXT
+    hl7Field: OBR-4-3
+
+  - name: ordered_test_alternate_code
+    type: TEXT
+    hl7Field: OBR-4-4
+
+  - name: ordered_test_alternate_name
+    type: TEXT
+    hl7Field: OBR-4-5
+
+  - name: ordered_test_alternate_code_system
+    type: TEXT
+    hl7Field: OBR-4-6
+
+  - name: ordered_test_encoding_version
+    type: TEXT
+    hl7Field: OBR-4-7
+
+  - name: ordering_facility_city
+    type: CITY
+    hl7Field: ORC-22-3
+    documentation: The city of the facility which the test was ordered from
+
+  - name: ordering_facility_county
+    type: TABLE
+    table: fips-county
+    tableColumn: County
+
+  - name: ordering_facility_county_code
+    type: TABLE
+    table: fips-county
+    tableColumn: FIPS
+    mapper: lookup(ordering_facility_state, $Column:State, ordering_facility_county, $Column:County)
+    hl7Field: ORC-22-9
+
+  - name: ordering_facility_country
+    type: TEXT
+    default: USA
+
+  - name: ordering_facility_email
+    type: EMAIL
+    hl7Field: ORC-23-4
+
+  - name: ordering_facility_name
+    type: TEXT
+    hl7Field: ORC-21-1
+    documentation: The name of the facility which the test was ordered from
+
+  - name: ordering_facility_name_assigning_authority
+    type: TEXT
+    hl7Field: ORC-21-6
+
+  - name: ordering_facility_name_identifier_type_code
+    type: TEXT
+    hl7Field: ORC-21-7
+
+  - name: ordering_facility_name_organization_identifier
+    type: TEXT
+    hl7Field: ORC-21-10
+
+  - name: ordering_facility_phone_number
+    type: TELEPHONE
+    cardinality: ZERO_OR_ONE
+    hl7Field: ORC-23
+    documentation: The phone number of the facility which the test was ordered from
+
+  - name: ordering_facility_state
+    type: TABLE
+    table: fips-county
+    tableColumn: State
+    cardinality: ONE
+    hl7Field: ORC-22-4
+    documentation: The state of the facility which the test was ordered from
+
+  - name: ordering_facility_street
+    type: STREET
+    hl7Field: ORC-22-1
+    documentation: The address of the facility which the test was ordered from
+
+  - name: ordering_facility_street2
+    type: STREET_OR_BLANK
+    hl7Field: ORC-22-2
+    documentation: The secondary address of the facility which the test was ordered from
+
+  - name: ordering_facility_zip_code
+    type: POSTAL_CODE
+    hl7Field: ORC-22-5
+    documentation: The zip code of the facility which the test was ordered from
+
+  - name: ordering_provider_city
+    type: CITY
+    pii: true
+    hl7Field: ORC-24-3
+    documentation: The city of the provider
+
+  - name: ordering_provider_county
+    type: TEXT
+    pii: false
+    table: fips-county
+    tableColumn: County
+
+  - name: ordering_provider_county_code
+    type: TEXT
+    pii: false
+    hl7Field: ORC-24-9
+    documentation: The FIPS code for the ordering provider
+
+  - name: ordering_provider_country
+    type: TEXT
+    pii: false
+    default: USA
+
+  - name: ordering_provider_first_name
+    type: PERSON_NAME
+    pii: false
+    hl7Field: ORC-12-3
+    hl7OutputFields: [ORC-12-3, OBR-16-3]
+    documentation: The first name of the provider who ordered the test
+
+  - name: ordering_provider_id
+    type: ID_NPI
+    pii: false
+    hl7Field: ORC-12-1
+    hl7OutputFields: [ ORC-12-1, OBR-16-1 ]
+    documentation: The ordering provider’s National Provider Identifier
+
+  - name: ordering_provider_id_authority
+    type: TEXT
+    pii: false
+    hl7Field: ORC-12-9-1
+    hl7OutputFields: [ORC-12-9-1, OBR-16-9-1]
+    documentation: Usually the OID for CMS
+
+  - name: ordering_provider_id_authority_oid
+    type: TEXT
+    pii: false
+    hl7Field: ORC-12-9-2
+    hl7OutputFields: [ ORC-12-9-2, OBR-16-9-2 ]
+
+  - name: ordering_provider_id_authority_oid_system
+    type: TEXT
+    pii: false
+    hl7Field: ORC-12-9-3
+    hl7OutputFields: [ ORC-12-9-3, OBR-16-9-3 ]
+
+  - name: ordering_provider_id_authority_type
+    type: TEXT
+    pii: false
+    # U is the table 203 unspecified value
+    mapper: ifNPI(ordering_provider_id, NPI, U)
+    hl7Field: ORC-12-13
+    hl7OutputFields: [ORC-12-13, OBR-16-13]
+    documentation: Usually NPI
+
+  - name: ordering_provider_last_name
+    type: PERSON_NAME
+    pii: false
+    hl7Field: ORC-12-2
+    hl7OutputFields: [ORC-12-2, OBR-16-2]
+    documentation: The last name of provider who ordered the test
+
+  - name: ordering_provider_middle_name
+    type: PERSON_NAME
+    pii: false
+    hl7Field: ORC-12-4
+    hl7OutputFields: [ORC-12-4, OBR-16-4]
+
+  - name: ordering_provider_middle_initial
+    type: PERSON_NAME
+    pii: false
+    hl7Field: ORC-12-4
+    hl7OutputFields: [ORC-12-4, OBR-16-4]
+
+  - name: ordering_provider_name_type_code
+    type: TEXT
+    hl7Field: ORC-12-10
+    hl7OutputFields: [ ORC-12-10, OBR-16-10 ]
+
+  - name: ordering_provider_phone_number
+    type: TELEPHONE
+    pii: true
+    hl7Field: ORC-14
+    hl7OutputFields: [ORC-14, OBR-17]
+    documentation: The phone number of the provider
+
+  - name: ordering_provider_professional_suffix
+    type: TEXT
+    hl7Field: OBR-16-21
+    hl7OutputFields: [ ORC-12-21, OBR-16-21 ]
+
+  - name: ordering_provider_state
+    type: TABLE
+    pii: false
+    table: fips-county
+    tableColumn: State
+    hl7Field: ORC-24-4
+    documentation: The state of the provider
+
+  - name: ordering_provider_street
+    type: STREET
+    pii: true
+    hl7Field: ORC-24-1
+    documentation: The street address of the provider
+
+  - name: ordering_provider_street2
+    type: STREET_OR_BLANK
+    pii: true
+    hl7Field: ORC-24-2
+    documentation: The street second address of the provider
+
+  - name: ordering_provider_zip_code
+    type: POSTAL_CODE
+    pii: false
+    hl7Field: ORC-24-5
+    documentation: The zip code of the provider
+
+  - name: organization_name
+    type: TEXT
+    documentation: |
+      The SimpleReport concept of organization. It refers to organization for the 
+      ordering & performing facility
+
+  - name: patient_account_number_id
+    type: TEXT
+    hl7Field: PID-18-1
+
+  - name: patient_account_number_check_digit
+    type: TEXT
+    hl7Field: PID-18-2
+
+  - name: patient_account_number_check_digit_scheme
+    type: TEXT
+    hl7Field: PID-18-3
+
+  - name: patient_account_number_assigning_authority
+    type: TEXT
+    hl7Field: PID-18-4
+
+  - name: patient_account_number_identifier_code
+    type: TEXT
+    hl7Field: PID-18-5
+
+  - name: patient_age_calculated
+    type: NUMBER
+    mapper: patientAge(patient_age, patient_dob, specimen_collection_date_time)
+    documentation: Patient age calculated from DOB and specimen collection datetime
+
+  - name: patient_age_aoe
+    type: NUMBER
+    cardinality: ZERO_OR_ONE
+    hl7Field: AOE
+    hl7AOEQuestion: 30525-0
+    documentation: Patient age from AOE field
+
+  - name: patient_age
+    type: NUMBER
+    mapper: use(patient_age_aoe, patient_age_calculated)
+
+  - name: patient_city
+    type: CITY
+    pii: true
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-11-3
+    documentation: The patient's city
+
+  - name: patient_citizenship
+    type: CODE
+    valueSet: iso3166
+    pii: false
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-26
+
+  - name: patient_county
+    type: TABLE_OR_BLANK
+    pii: false
+    table: fips-county
+    tableColumn: County
+    cardinality: ONE
+
+  - name: patient_county_code
+    type: TEXT
+    pii: false
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-11-9
+    documentation: The FIPS code for the patient's county
+
+  - name: patient_country
+    type: TEXT
+    pii: false
+    mapper: countryMapper(patient_zip_code)
+    hl7Field: PID-11-6
+
+  - name: patient_email
+    type: EMAIL
+    pii: true
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-13-4
+
+  - name: patient_death_date
+    type: DATE
+    pii: true
+    hl7Field: PID-29
+
+  - name: patient_died
+    type: CODE
+    pii: true
+    cardinality: ZERO_OR_ONE
+    default: N
+    valueSet: hl70136
+    hl7Field: PID-30-1
+
+  - name: patient_dob
+    type: DATE
+    pii: true
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-7
+    documentation: |
+      The patient's date of birth. Default format is yyyyMMdd.
+
+      Other states may choose to define their own formats.
+
+  - name: patient_drivers_license
+    type: ID_DLN
+    pii: true
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-20-1
+    documentation: The patient's drivers license number
+
+  - name: patient_ethnicity
+    type: TEXT
+    pii: false
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-22
+    documentation: |
+      The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+      consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+
+  - name: patient_first_name
+    type: PERSON_NAME
+    pii: true
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-5-2
+    documentation: The patient's first name
+
+  - name: patient_gender
+    type: CODE
+    pii: false
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-8-1
+    documentation: |
+      The patient's gender. There is a valueset defined based on the values in PID-8-1, 
+      but downstream consumers are free to define their own accepted values. Please refer to 
+      the consumer-specific schema if you have questions.
+
+  - name: patient_id
+    type: TEXT
+    pii: true
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-3-1
+    documentation: |
+      The ID for the patient within one of the reporting entities for this lab result. It could be the
+      the patient ID from the testing lab, the oder placer, the ordering provider, 
+      or even within the PRIME system itself.
+
+  - name: patient_id_assigner
+    type: TEXT
+    pii: false
+    hl7Field: PID-3-4-1
+    documentation: The name of the assigner of the patient_id field. Typically we use the name of the ordering facility
+
+  - name: patient_id_assigner_universal_id
+    type: TEXT
+    pii: false
+    hl7Field: PID-3-4-2
+
+  - name: patient_id_assigner_universal_id_type
+    type: TEXT
+    pii: false
+    hl7Field: PID-3-4-3
+
+  - name: patient_id_type
+    type: TEXT
+    pii: false
+    hl7Field: PID-3-5
+
+  - name: patient_last_name
+    type: PERSON_NAME
+    pii: true
+    cardinality: ONE
+    hl7Field: PID-5-1
+    documentation: The patient's last name
+
+  - name: patient_name_type_code
+    type: TEXT
+    pii: false
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-5-7
+    default: L # Legal
+
+  - name: patient_middle_initial
+    type: PERSON_NAME
+    pii: true
+    cardinality: ZERO_OR_ONE
+    mapper: middleInitial(patient_middle_name)
+    hl7Field: PID-5-3
+
+  - name: patient_middle_name
+    type: PERSON_NAME
+    pii: true
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-5-3
+
+  - name: patient_nationality
+    type: CODE
+    valueSet: iso3166
+    pii: false
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-28
+
+  - name: patient_phone_number
+    type: TELEPHONE
+    pii: true
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-13
+    documentation: The patient's phone number with area code
+
+  - name: patient_preferred_language
+    type: CODE
+    valueSet: iso639
+    pii: false
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-15
+    documentation: The patient's preferred language
+
+  - name: patient_race
+    type: CODE
+    pii: false
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-10
+    documentation: |
+      The patient's race. There is a common valueset defined for race values, but some states 
+      may choose to define different code/value combinations.
+
+  - name: patient_species
+    type: TEXT
+    hl7Field: PID-35-2
+
+  - name: patient_species_code
+    type: TEXT
+    hl7Field: PID-35-1
+
+  - name: patient_species_code_system
+    type: TEXT
+    hl7Field: PID-35-3
+
+  - name: patient_species_alternate_code
+    type: TEXT
+    hl7Field: PID-35-4
+
+  - name: patient_species_alternate_text
+    type: TEXT
+    hl7Field: PID-35-5
+
+  - name: patient_species_alternate_code_system
+    type: TEXT
+    hl7Field: PID-35-6
+
+  - name: patient_species_code_version
+    type: TEXT
+    hl7Field: PID-35-7
+
+  - name: patient_species_alternate_code_version
+    type: TEXT
+    hl7Field: PID-35-8
+
+  - name: patient_state
+    type: TABLE
+    pii: false
+    table: fips-county
+    tableColumn: State
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-11-4
+    documentation: The patient's state
+
+  - name: patient_street
+    type: STREET
+    pii: true
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-11-1
+    documentation: The patient's street address
+
+  - name: patient_street2
+    type: STREET_OR_BLANK
+    pii: true
+    hl7Field: PID-11-2
+    documentation: The patient's second address line
+
+  - name: patient_suffix
+    type: PERSON_NAME
+    pii: true
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-5-4
+    documentation: The suffix for the patient's name, (i.e. Jr, Sr, etc)
+
+  - name: patient_tribal_citizenship
+    type: CODE
+    pii: false
+    cardinality: ZERO_OR_ONE
+    valueSet: hl70171
+    hl7Field: PID-39
+    documentation: The tribal citizenship of the patient using the TribalEntityUS (OID 2.16.840.1.113883.5.140) table
+
+  - name: patient_zip_code
+    type: POSTAL_CODE
+    pii: true
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-11-5
+    documentation: The patient's zip code
+
+  - name: placer_order_id
+    type: ID
+    hl7Field: ORC-2-1
+    hl7OutputFields: [ORC-2-1, OBR-2-1]
+    documentation: The ID number of the lab order from the placer
+
+  - name: placer_name
+    type: TEXT
+    hl7Field: ORC-2-2
+    hl7OutputFields: [ORC-2-2, ORC-4-2, OBR-2-2]
+    documentation: The name of the placer of the lab order
+
+  - name: placer_clia
+    type: ID_CLIA
+    hl7Field: ORC-2-3
+    hl7OutputFields: [ORC-2-3, ORC-4-3, OBR-2-3]
+    documentation: The CLIA of the order placer
+
+  - name: placer_order_group_id
+    type: ID
+    hl7Field: ORC-4-1
+
+  - name: prime_patient_id
+    type: ID
+    pii: false
+
+  - name: prime_patient_id_assigner
+    type: HD
+    pii: false
+
+  - name: processing_mode_code
+    type: CODE
+    default: P
+    cardinality: ZERO_OR_ONE
+    valueSet: hl70103
+    hl7Field: MSH-11-1
+    documentation: P, D, or T for Production, Debugging, or Training
+
+  - name: message_id
+    type: ID
+    hl7Field: MSH-10
+    cardinality: ONE
+    documentation: unique id to track the usage of the message
+
+  - name: previous_message_id
+    type: ID
+    cardinality: ZERO_OR_ONE
+    documentation: |
+      pointer/link to the unique id of a previously submitted result.  
+      Usually blank. Or, if an item modifies/corrects a prior item, this field holds the message_id of the prior item.
+
+  - name: message_profile_id
+    type: EI
+    hl7Field: MSH-21-1
+    default: PHLabReport-NoAck
+    documentation: The message profile identifer
+
+  - name: message_profile_id_namespace_id
+    type: TEXT
+    hl7Field: MSH-21-2
+    default: ELR_Receiver
+    documentation: The message profile identifer namespace id
+
+  - name: message_profile_id_universal_id
+    type: TEXT
+    hl7Field: MSH-21-3
+    default: 2.16.840.1.113883.9.11
+    documentation: The message profile identifer universal id
+
+  - name: message_profile_id_universal_id_type
+    type: TEXT
+    hl7Field: MSH-21-4
+    default: ISO
+    documentation: The message profile identifier universal id type
+
+  - name: reason_for_study_id
+    type: TEXT
+    hl7Field: OBR-31-1
+
+  - name: reason_for_study_text
+    type: TEXT
+    hl7Field: OBR-31-2
+
+  - name: reason_for_study_coding_system
+    type: TEXT
+    hl7Field: OBR-31-3
+
+  - name: reason_for_study_alternate_id
+    type: TEXT
+    hl7Field: OBR-31-4
+
+  - name: reason_for_study_alternate_text
+    type: TEXT
+    hl7Field: OBR-31-5
+
+  - name: reason_for_study_alternate_coding_system
+    type: TEXT
+    hl7Field: OBR-31-6
+
+  - name: receiving_application_namespace_id
+    type: TEXT
+    hl7Field: MSH-5-1
+    documentation: The receiving application name for the message (specified by the receiver)
+
+  - name: receiving_application_universal_id
+    type: TEXT
+    hl7Field: MSH-5-2
+    documentation: The receiving application id for the message (specified by the receiver)
+
+  - name: receiving_application_universal_id_type
+    type: TEXT
+    hl7Field: MSH-5-3
+    documentation: The receiving application id type for the message (specified by the receiver)
+
+  - name: receiving_facility_namespace_id
+    type: TEXT
+    hl7Field: MSH-6-1
+    documentation: The receiving facility name for the message (specified by the receiver)
+
+  - name: receiving_facility_universal_id
+    type: TEXT
+    hl7Field: MSH-6-2
+    documentation: The receiving facility id for the message (specified by the receiver)
+
+  - name: receiving_facility_universal_id_type
+    type: TEXT
+    hl7Field: MSH-6-3
+    documentation: The receiving facility id type for the message (specified by the receiver)
+
+  - name: reference_range
+    type: TEXT
+    hl7Field: OBX-7
+    documentation: |
+      The reference range of the lab result, such as “Negative” or “Normal”. 
+      For IgG, IgM and CT results that provide a value you MUST fill out this filed.
+
+  - name: reporting_facility
+    type: HD
+    hl7Field: MSH-4
+    documentation: |
+      The reporting facility for the message, as specified by the receiver. This is typically used if PRIME is the
+      aggregator
+
+  - name: reporting_facility_name
+    type: TEXT
+    hl7Field: MSH-4-1
+    hl7OutputFields: [ MSH-4-1, PID-3-6-1 ]
+    documentation: The reporting facility's name
+
+  - name: reporting_facility_clia
+    type: ID_CLIA
+    hl7Field: MSH-4-2
+    hl7OutputFields: [ MSH-4-2, PID-3-6-2 ]
+    documentation: The reporting facility's CLIA
+
+  - name: result_format
+    type: TEXT
+    default: CWE
+    hl7Field: OBX-2
+
+  - name: security
+    type: TEXT
+    hl7Field: MSH-8
+
+  - name: sending_application_namespace_id
+    type: TEXT
+    default: CDC PRIME - Atlanta, Georgia (Dekalb)
+    hl7Field: MSH-3-1
+    documentation: |
+      The name for the application sending information to the receivers
+
+  - name: sending_application_universal_id
+    type: TEXT
+    default: 2.16.840.1.114222.4.1.237821
+    hl7Field: MSH-3-2
+    documentation: |
+      The ID for the application sending information to the receivers
+
+  - name: sending_application_universal_id_type
+    type: TEXT
+    default: ISO
+    hl7Field: MSH-3-3
+    documentation: |
+      The ID type for the application sending information to the receivers
+
+  - name: site_of_care
+    type: TEXT
+    documentation: |
+      The type of facility providing care (Hospital, Nursing Home, etc.).  
+      This is a CUSTOM internal field. DO NOT use this for an AOE residence_type.
+
+  - name: specimen_collection_date_time
+    type: DATETIME
+    hl7Field: SPM-17-1
+    hl7OutputFields: [SPM-17-1, OBR-7, OBR-8, OBX-14]
+    documentation: |
+      The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
+
+  - name: specimen_collection_method_code
+    type: TEXT
+    hl7Field: SPM-7-1
+
+  - name: specimen_collection_method_text
+    type: TEXT
+    hl7Field: SPM-7-2
+
+  - name: specimen_collection_site_code # collection location
+    type: TEXT # CWE without a defined table
+    hl7Field: SPM-10-1
+    referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10
+
+  - name: specimen_collection_site_text # collection location
+    type: TEXT # CWE without a defined table
+    hl7Field: SPM-10-2
+    referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10
+
+  - name: specimen_condition
+    type: TEXT
+    hl7Field: SPM-24
+    referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.24
+
+  - name: specimen_collector_id
+    type: TEXT
+    hl7Field: OBR-10-1
+
+  - name: specimen_collector_last_name
+    type: TEXT
+    hl7Field: OBR-10-2
+
+  - name: specimen_collector_first_name
+    type: TEXT
+    hl7Field: OBR-10-3
+
+  # should this also have a lookup into LIVD?
+  - name: specimen_description
+    type: TEXT
+    hl7Field: SPM-14
+    referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.8/Fields/SPM.14
+
+  # replaced by testing_lab_specimen_id?
+  - name: specimen_id
+    type: TEXT
+    hl7Field: SPM-2-1-1
+    referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2
+    documentation: A unique code for this specimen
+    hl7OutputFields: [ SPM-2-1-1, SPM-2-2-1 ]
+
+  - name: specimen_id_namespace_id
+    type: TEXT
+    hl7Field: SPM-2-1-2
+    hl7OutputFields: [ SPM-2-1-2, SPM-2-2-2 ]
+
+  - name: specimen_id_universal_id
+    type: TEXT
+    hl7Field: SPM-2-1-3
+    hl7OutputFields: [ SPM-2-1-3, SPM-2-2-3 ]
+
+  - name: specimen_id_universal_id_type
+    type: TEXT
+    hl7Field: SPM-2-1-4
+    hl7OutputFields: [ SPM-2-1-4, SPM-2-2-4 ]
+
+  - name: specimen_role_id
+    type: TEXT
+    hl7Field: SPM-11-1
+
+  - name: specimen_role_text
+    type: TEXT
+    hl7Field: SPM-11-2
+
+  - name: specimen_role_system
+    type: TEXT
+    hl7Field: SPM-11-3
+
+  - name: specimen_role_alternate_id
+    type: TEXT
+    hl7Field: SPM-11-4
+
+  - name: specimen_role_alternate_text
+    type: TEXT
+    hl7Field: SPM-11-5
+
+  - name: specimen_role_alternate_system
+    type: TEXT
+    hl7Field: SPM-11-6
+
+  - name: specimen_role_coding_system_version_id
+    type: TEXT
+    hl7Field: SPM-11-7
+
+  - name: specimen_role_alternate_system_version_id
+    type: TEXT
+    hl7Field: SPM-11-8
+
+  - name: specimen_source_site_code
+    type: TEXT
+    hl7Field: SPM-8-1
+    documentation: Refers back to the specimen source site, which is then encoded into the SPM-8 segment
+
+  - name: specimen_source_site_text
+    type: TEXT
+    hl7Field: SPM-8-2
+    documentation: The text for the specimen source site
+
+  - name: specimen_source_site_system
+    type: TEXT
+    hl7Field: SPM-8-3
+    documentation: The coding system the sender is using for the specimen source
+
+  - name: specimen_type_code
+    type: TEXT
+    hl7Field: SPM-4-1
+    documentation: The specimen source, such as Blood or Serum
+
+  - name: specimen_type_name
+    type: TEXT
+    hl7Field: SPM-4-2
+
+  - name: specimen_type_code_system
+    type: TEXT
+    hl7Field: SPM-4-3
+
+  - name: specimen_type_alternate_value
+    type: TEXT
+    hl7Field: SPM-4-4
+
+  - name: specimen_type_alternate_value_code
+    type: TEXT
+    hl7Field: SPM-4-5
+
+  - name: specimen_type_alternate_value_code_system
+    type: TEXT
+    hl7Field: SPM-4-6
+
+  - name: specimen_type_modifier_id
+    type: TEXT
+    hl7Field: SPM-5-1
+
+  - name: specimen_type_modifier_name
+    type: TEXT
+    hl7Field: SPM-5-2
+
+  - name: specimen_type_modifier_system
+    type: TEXT
+    hl7Field: SPM-5-3
+
+  - name: test_kit_name_id
+    type: TEXT
+    hl7Field: OBX-17-1
+    documentation: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+
+  - name: test_kit_name_id_type
+    type: TEXT
+    hl7Field: OBX-17-3
+
+  - name: test_kit_name_id_cwe_version
+    type: TEXT
+    hl7Field: OBX-17-7
+    documentation: Follows guidance for OBX-17-7 where the version of the CWE field is passed along
+
+  - name: test_method_description
+    type: TEXT
+    hl7Field:
+    documentation: A text field that allows the lab to provide more information aboout the test method
+
+  - name: test_performed_code
+    type: TEXT
+    hl7Field: OBX-3-1
+    documentation: The LOINC code of the test performed. This is a standardized coded value describing the test
+
+  - name: test_performed_name
+    type: TEXT
+    hl7Field: OBX-3-2
+    documentation: The LOINC description of the test performed as related to the LOINC code.
+
+  - name: test_performed_system
+    type: TEXT
+    default: LN
+    hl7Field: OBX-3-3
+
+  - name: test_performed_alternate_code
+    type: TEXT
+    hl7Field: OBX-3-4
+
+  - name: test_performed_alternate_name
+    type: TEXT
+    hl7Field: OBX-3-5
+
+  - name: test_performed_alternate_system
+    type: TEXT
+    hl7Field: OBX-3-6
+
+  - name: test_performed_system_version
+    type: TEXT
+    hl7Field: OBX-3-7
+
+  - name: test_performed_alternate_system_version
+    type: TEXT
+    hl7Field: OBX-3-8
+
+  - name: test_result_id
+    type: TEXT
+    hl7Field: OBX-5-1
+    documentation: |
+      The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
+
+  - name: test_result_text
+    type: TEXT
+    hl7Field: OBX-5-2
+
+  - name: test_result_coding_system
+    type: TEXT
+    hl7Field: OBX-5-3
+
+  - name: test_result_date
+    type: DATETIME
+    hl7Field: OBX-19
+
+  - name: test_result_status
+    type: CODE
+    cardinality: ZERO_OR_ONE
+    # Don't default.    default: F
+    valueSet: hl70085
+    hl7Field:
+    mapper: use(observation_result_status)
+    documentation: |
+      The test result status, which is different from the test result itself. Per the valueset, this indicates if
+      the test result is in some intermediate status, is a correction, or is the final result.
+
+  - name: observation_result_status
+    type: ID
+    default: F
+    hl7Field: OBX-11-1
+    valueSet: hl70085
+    mapper: use(test_result_status)
+
+  - name: order_result_status
+    type: ID
+    default: F
+    hl7Field: OBR-25-1
+    valueSet: hl70123
+    mapper: use(test_result_status)
+
+  - name: test_result_sub_id
+    type: ID
+    hl7Field: OBX-4
+
+  - name: test_result_units
+    type: TEXT
+    hl7Field: OBX-6
+    documentation: The units the test result is measured in.
+
+  - name: testing_lab_accession_number
+    type: ID
+    hl7Field: OBR-3-1
+    documentation: The accession number of the specimen collected
+
+  - name: testing_lab_accession_number_namespace_id
+    type: TEXT
+    hl7Field: OBR-3-2
+
+  - name: testing_lab_accession_number_universal_id
+    type: TEXT
+    hl7Field: OBR-3-3
+
+  - name: testing_lab_accession_number_universal_id_system
+    type: TEXT
+    hl7Field: OBR-3-4
+
+  - name: testing_lab_city
+    type: CITY
+    hl7Field: OBX-24-3
+    documentation: The city of the testing lab
+
+  - name: testing_lab_county
+    type: TABLE
+    table: fips-county
+    tableColumn: County
+    documentation: The text value for the testing lab county. This is used to do the lookup in the FIPS dataset.
+
+  - name: testing_lab_county_code
+    type: TEXT
+    hl7Field: OBX-24-9
+    documentation: |
+      The county code for the testing lab from the FIPS dataset. This is the standard code used in ELR reporting.
+
+  - name: testing_lab_country
+    type: TEXT
+    default: USA
+    hl7Field: OBX-24-6
+    documentation: The country for the testing lab. Currently defaults to USA
+
+  - name: testing_lab_address_type
+    type: TEXT
+    hl7Field: OBX-24-7
+
+  - name: testing_lab_id
+    type: ID
+    hl7Field: OBX-23-10
+    documentation: Typically this will be the same as the `testing_lab_clia`, but potentially could not be.
+
+  - name: testing_lab_id_assigner
+    type: HD
+    mapper: ifPresent(testing_lab_clia, CLIA)
+    hl7Field: OBX-23-6-1
+    documentation: |
+      This is the assigner of the CLIA for the testing lab. If the 
+      testing lab has a CLIA, this field will be filled in.
+
+  - name: testing_lab_id_universal_id
+    type: TEXT
+    mapper: ifPresent(testing_lab_clia, 2.16.840.1.113883.4.7)
+    hl7Field: OBX-23-6-2
+
+  - name: testing_lab_id_universal_id_type
+    type: TEXT
+    mapper: ifPresent(testing_lab_clia, ISO)
+    hl7Field: OBX-23-6-3
+
+  - name: testing_lab_clia
+    type: ID_CLIA
+    cardinality: ONE
+    hl7Field: OBX-23-10
+    hl7OutputFields: [ OBX-15-1, OBX-23-10, ORC-3-3, OBR-2-3, ORC-2-3 ]
+    documentation: |
+      CLIA Number from the laboratory that sends the message to DOH
+      
+      An example of the ID is 03D2159846
+
+  - name: testing_lab_name
+    type: TEXT
+    hl7Field: OBX-23-1
+    hl7OutputFields: [ ORC-2-2, OBR-2-2, ORC-3-2, OBX-23-1, OBX-15-2 ]
+    documentation: |
+      The name of the laboratory which performed the test, can be the same as the sending facility name
+
+  - name: testing_lab_name_type_code
+    type: TEXT
+    hl7Field: OBX-23-2
+
+  - name: testing_lab_specimen_id
+    type: ID
+    mapper: use(message_id)
+    documentation: The specimen-id from the testing lab
+
+  - name: testing_lab_specimen_received_datetime
+    type: DATETIME
+    hl7Field: SPM-18-1
+    documentation: |
+      The received date time for the specimen. This field is very important to many states for their HL7,
+      but for most of our senders, the received date time is the same as the collected date time. Unfortunately,
+      setting them to the same time breaks many validation rules. Most ELR systems apparently look for them to
+      be offset, so this field takes the `specimen_collection_date_time` field and offsets it by a small amount.
+
+  - name: testing_lab_state
+    type: TABLE
+    table: fips-county
+    tableColumn: State
+    hl7Field: OBX-24-4
+    documentation: The state for the testing lab
+
+  - name: testing_lab_street
+    type: STREET
+    hl7Field: OBX-24-1
+    documentation: The street address for the testing lab
+
+  - name: testing_lab_street2
+    type: STREET_OR_BLANK
+    hl7Field: OBX-24-2
+    documentation: Street 2 field for the testing lab
+
+  - name: testing_lab_zip_code
+    type: POSTAL_CODE
+    hl7Field: OBX-24-5
+    documentation: The postal code for the testing lab
+
+  - name: testing_lab_phone_number
+    type: TELEPHONE
+    hl7Field:
+    documentation: The phone number of the testing lab
+
+  - name: value_type
+    type: ID
+    hl7Field: OBX-2
+    valueSet: hl70125
+
+  - name: current_date
+    type: TEXT
+    mapper: use($currentDate)
+
+  - name: sender_id
+    type: TEXT
+    cardinality: ONE
+    mapper: useSenderSetting(organizationName)
+    documentation:  |
+      ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  
+      Not to be confused with sending_application, in which ReportStream acts as the 'sender' 
+      to the downstream jurisdiction.
+
+  - name: topic
+    type: TEXT
+    cardinality: ONE
+    mapper: useSenderSetting(topic)
+    documentation: |
+      The topic for the data. This way it can be interrogated at the row level for HL7 serialization and we can
+      branch out any disease-specific logic.

@@ -1,0 +1,46 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: STRING
+  valueOf: $mocExtensionName
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        moc1: STRING_ALL, MOC.1
+      condition: $moc1 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: moc-1-1-monetary-amount
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: MOC.1.1
+    - expressionType: nested
+      vars:
+        moc1: STRING_ALL, MOC.1
+      condition: $moc1 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: moc-1-2-monetary-denomination
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: MOC.1.2
+    - expressionType: nested
+      vars:
+        moc2: STRING_ALL, MOC.2
+      condition: $moc2 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: moc-2-charge-code
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: MOC.2

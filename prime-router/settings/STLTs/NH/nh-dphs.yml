@@ -1,0 +1,101 @@
+- name: "nh-dphs"
+  description: "New Hampshire Division of Public Health Services"
+  jurisdiction: "STATE"
+  stateCode: "NH"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+    - name: "full-elr"
+      organizationName: "nh-dphs"
+      topic: "full-elr"
+      customerStatus: "active"
+      translation:
+        schemaName: "azure:/hl7_mapping/receivers/STLTs/NH/NH-receiver-transform.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: null
+        receivingApplicationOID: null
+        receivingFacilityName: "NH_DHHS^2.16.840.1.114222.4.1.3669^ISO"
+        receivingFacilityOID: "2.16.840.1.114222.4.1.3669"
+        messageProfileId: "PHLabReport-Batch^^2.16.840.1.113883.9.11^ISO"
+        replaceValue: {}
+        replaceValueAwithB: null
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: "ORC-23-1,ORC-14-1,OBR-17-1,OBX-18-1, OBX-18-2, OBX-18-3,\
+        \ PID-13-1"
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: true
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: true
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: false
+          truncateHl7Fields: []
+          customLengthHl7Fields: {}
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'NH') or (Bundle.entry.resource.ofType(Patient).address.state = 'NH')"
+      qualityFilter:
+        - "Bundle.identifier.value.exists()"
+        - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
+        - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
+        - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
+        - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists())
+           or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
+      routingFilter: []
+      processingModeFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code != 'P'"
+      reverseTheQualityFilter: false
+      conditionFilter:
+        # Accept COVID only
+        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+      mappedConditionFilter: []
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1
+        initialTime: "09:50"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      externalName: null
+      enrichmentSchemaNames:
+        - "classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
+      timeZone: null
+      dateTimeFormat: "OFFSET"

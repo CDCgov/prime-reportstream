@@ -1,0 +1,39 @@
+---
+name: lifepoint-covid-19
+description: LifePoint (Ellume data)
+topic: covid-19
+trackingElement: specimen_id
+extends: hl7/hl7-ingest-covid-19
+
+elements:
+  - name: sender_id
+    cardinality: ONE
+    mapper: useSenderSetting(organizationName) 
+
+  - name: processing_mode_code
+    default: P
+
+  - name: patient_ethnicity
+    altValues:
+      - code: H
+        display: 2135-2
+      - code: N
+        display: 2186-5
+      - code: U
+        display: UNK
+      - code: U
+        display: ASKU
+
+  - name: ordering_facility_state
+    cardinality: ZERO_OR_ONE
+  
+  - name: patient_last_name
+    cardinality: ZERO_OR_ONE
+
+  - name: patient_state
+    cardinality: ZERO_OR_ONE
+    
+  - name: device_id
+    altValues:
+      - code: Ellume COVID-19 Home Test_Ellume Limited
+        display: Ellume COVID-19 Home Test

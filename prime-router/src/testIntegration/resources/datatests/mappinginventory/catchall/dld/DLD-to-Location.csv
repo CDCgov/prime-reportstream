@@ -1,0 +1,5 @@
+HL7 v2,,,,,,,Condition (IF True),,HL7 FHIR,,,,,,,,,Comments
+Display Sequence,Identifier,Name,Data Type,Cardinality - Min,Cardinality - Max,Computable ANTLR,Computable FHIRPath,Narrative,FHIR Attribute/ Data Type,,Data Type,Cardinality - Min,Cardinality - Max,Data Type Mapping,"Vocabulary Mapping
+(IS, ID, CE, CNE, CWE)",Derived Mapping,,
+1,DLD.1,Discharge to Location,CWE,1,1,,,,type,,CodeableConcept,,,CWE[CodeableConcept],DischargedToLocation,,,
+2,DLD.2,Effective Date,DTM,0,1,,,,,,,,,,,,,If a Discharge DateTime is available as a separate field (eg. PV1-45) use of that field is preferred pending any specific local requirements

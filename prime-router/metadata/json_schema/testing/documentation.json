@@ -1,0 +1,14 @@
+{
+  "$id": "https://reportstream.cdc.gov/schemas/documentation.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Documentation",
+  "type": "object",
+  "properties": {
+    "testField": {
+      "type": "string",
+      "description": "A testField for the documentation"
+    }
+  },
+  "required": ["testField"],
+  "additionalProperties": false
+}

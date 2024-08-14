@@ -1,0 +1,214 @@
+# $schema: ./../../../metadata/json_schema/organizations/organizations.json
+
+- name: "co-phd"
+  description: "Colorado Department of Public Health and Environment"
+  jurisdiction: "STATE"
+  stateCode: "CO"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+  - name: "full-elr-secondary"
+    organizationName: "co-phd"
+    topic: "full-elr"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CO/CO-receiver-transform.yml"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "CO-ELR"
+      receivingApplicationOID: null
+      receivingFacilityName: "CO"
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB: {}
+      reportingFacilityName: "CDC PRIME"
+      reportingFacilityId: "11D2030855"
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: true
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+      - "(Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state\
+      \ = 'CO') or (Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists()\
+      \ and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state\
+      \ = 'CO')"
+    qualityFilter:
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code.exists() and Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01')"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve().where(method.empty()\
+      \ or value.coding.code.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).where( basedOn.resolve().extension('https://reportstream.cdc.gov/fhir/StructureDefinition/effective-date').empty()\
+      \ and specimen.resolve().collection.collected.empty() and effective.empty()\
+      \ and issued.empty() and result.resolve().effective.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty()\
+      \ and telecom.where(system = 'phone').value.empty() and telecom.where(system\
+      \ = 'email').value.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(name.family.empty() or name.given.empty()\
+      \ or birthDate.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.where(type.coding.code\
+      \ = 'CLIA').value.getIdType() = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.where(type.coding.code\
+      \ = 'CLIA').value.getIdType() = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count()\
+      \ = 0"
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        - "Bundle.identifier.value.empty().not()"
+    routingFilter: []
+    processingModeFilter: []
+    reverseTheQualityFilter: true
+    conditionFilter: []
+    mappedConditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 4
+      initialTime: "09:30"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<SFTP>
+      host: "sftp"
+      port: "22"
+      filePath: "./upload"
+      credentialName: DEFAULT-SFTP
+      type: "SFTP"
+    externalName: "ELR-Secondary"
+    enrichmentSchemaNames:
+      - "classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
+    timeZone: null
+    dateTimeFormat: "OFFSET"
+  - name: "full-elr-hl7"
+    organizationName: "co-phd"
+    topic: "full-elr"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CO/CO-receiver-transform.yml"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "CO-ELR"
+      receivingApplicationOID: null
+      receivingFacilityName: "CO"
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB: {}
+      reportingFacilityName: "CDC PRIME"
+      reportingFacilityId: "11D2030855"
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: true
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: true
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+      - "(Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state\
+      \ = 'CO') or (Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists()\
+      \ and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state\
+      \ = 'CO')"
+    qualityFilter:
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code.exists() and Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01')"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve().where(method.empty()\
+    \ or value.coding.code.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).where( basedOn.resolve().extension('https://reportstream.cdc.gov/fhir/StructureDefinition/effective-date').empty()\
+    \ and specimen.resolve().collection.collected.empty() and effective.empty()\
+    \ and issued.empty() and result.resolve().effective.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty()\
+    \ and telecom.where(system = 'phone').value.empty() and telecom.where(system\
+    \ = 'email').value.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Patient).where(name.family.empty() or name.given.empty()\
+    \ or birthDate.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.where(type.coding.code\
+    \ = 'CLIA').value.getIdType() = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.where(type.coding.code\
+    \ = 'CLIA').value.getIdType() = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count()\
+    \ = 0"
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+        - "Bundle.identifier.value.empty().not()"
+    routingFilter: []
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    mappedConditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 4
+      initialTime: "09:30"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<SFTP>
+      host: "sftp"
+      port: "22"
+      filePath: "./upload"
+      credentialName: DEFAULT-SFTP
+      type: "SFTP"
+    externalName: "ELR-Prod"
+    enrichmentSchemaNames:
+      - "classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
+    timeZone: "MOUNTAIN"
+    dateTimeFormat: "LOCAL"

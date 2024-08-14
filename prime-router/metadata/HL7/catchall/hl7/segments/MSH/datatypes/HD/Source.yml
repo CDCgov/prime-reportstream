@@ -1,0 +1,139 @@
+# $schema: ./../../../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+# Only populate name if HD.2 is not populated or it is populated and
+# HD.3 is not ISO, UUID, DNS, URI
+name:
+  vars:
+    hd1: STRING, HD.1
+    hd2: STRING, HD.2
+    hd3: STRING, HD.3
+  constants:
+    dash: "-"
+    colon: ":"
+  expressionType: nested
+  expressions:
+    - condition: $hd2 NULL
+      type: STRING
+      valueOf: HD.1
+      expressionType: HL7Spec
+    - condition: $hd2 NOT_NULL
+      expressionType: nested
+      vars:
+        nameValue: $hd1 + $dash + $hd3 + $colon + $hd2
+      expressions:
+        - condition: $hd3 NOT_EQUALS ISO && $hd3 NOT_EQUALS UUID && $hd3 NOT_EQUALS DNS && $hd3 NOT_EQUALS URI
+          type: STRING
+          value: $nameValue
+
+endpoint:
+  vars:
+    hd2: STRING, HD.2
+    hd3: STRING, HD.3
+  constants:
+    oidUrlPrefix: "urn:oid:"
+    uuidUrlPrefix: "urn:uuid:"
+    dnsUrlPrefix: "urn:dns:"
+    uriUrlPrefix: "urn:uri:"
+  expressionType: nested
+  expressions:
+    - condition: $hd2 NOT_NULL && $hd3 EQUALS ISO
+      vars:
+        endpointValue: $oidUrlPrefix + $hd2
+      type: STRING
+      valueOf: $endpointValue
+    - condition: $hd2 NOT_NULL && $hd3 EQUALS UUID
+      vars:
+        endpointValue: $uuidUrlPrefix + $hd2
+      type: STRING
+      valueOf: $endpointValue
+    - condition: $hd2 NOT_NULL && $hd3 EQUALS DNS
+      vars:
+        endpointValue: $dnsUrlPrefix + $hd2
+      type: STRING
+      valueOf: $endpointValue
+    - condition: $hd2 NOT_NULL && $hd3 EQUALS URI
+      vars:
+        endpointValue: $uriUrlPrefix + $hd2
+      type: STRING
+      valueOf: $endpointValue
+
+_endpoint:
+  vars:
+    hd3: STRING, HD.3
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      condition: $hd3 NULL
+      expressionsMap:
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: data-absent-reason
+            valueCode:
+              value: "unknown"
+    - expressionType: nested
+      condition: $hd3 NOT_EQUALS ISO && $hd3 NOT_EQUALS UUID && $hd3 NOT_EQUALS DNS && $hd3 NOT_EQUALS URI
+      expressionsMap:
+        extension:
+          expressionType: nested
+          generateList: true
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: data-absent-reason
+            valueCode:
+              value: "unknown"
+
+
+software:
+  expressionType: HL7Spec
+  type: STRING
+  valueOf: SFT.3
+
+version:
+  expressionType: HL7Spec
+  type: STRING
+  valueOf: SFT.2
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: namespace-id
+        valueString:
+          type: STRING
+          valueOf: HD.1
+          expressionType: HL7Spec
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: universal-id
+        valueString:
+          type: STRING
+          valueOf: HD.2
+          expressionType: HL7Spec
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: universal-id-type
+        valueString:
+          type: STRING
+          valueOf: HD.3
+          expressionType: HL7Spec
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          valueOf: $messageHeaderSourceField
+          type: STRING

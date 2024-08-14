@@ -1,0 +1,10 @@
+---
+name: hcintegrations-covid-19
+description: Healthcare Integrations schema
+topic: covid-19
+trackingElement: specimen_id
+extends: hl7/hl7-ingest-covid-19
+
+elements:
+  - name: sender_id
+    mapper: useSenderSetting(organizationName)

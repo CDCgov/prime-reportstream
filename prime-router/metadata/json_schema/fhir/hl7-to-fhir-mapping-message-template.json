@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "resourceName": {
+            "type": "string"
+          },
+          "segment": {
+            "type": "string"
+          },
+          "resourcePath": {
+            "type": "string"
+          },
+          "repeats": {
+            "type": "boolean"
+          },
+          "group": {
+            "type": "string"
+          },
+          "isReferenced": {
+            "type": "boolean"
+          },
+          "additionalSegments": {
+            "type": "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "resourceName",
+          "segment",
+          "resourcePath"
+        ]
+      }
+      }
+  },
+  "additionalProperties": false,
+  "required": ["resources"]
+}

@@ -1,0 +1,44 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+constants:
+  hl7PD1Field: '%{hl7SegmentGroup}/PD1'
+
+elements:
+  - name: ordering-facility-name
+    resource: '%resource.generalPractitioner.resolve().ofType(Organization)'
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
+    resourceIndex: xonIndex
+    constants:
+      hl7XONField: '%{hl7PD1Field}-3(%{xonIndex})'
+
+  - name: student-indicator
+    condition: '%context.extension(%`rsext-studentStatus`).exists()'
+    resource: '%resource.extension(%`rsext-studentStatus`).value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PD1Field}-5'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+
+  - name: handicap
+    condition: '%context.extension(%`ext-patient-disability`).exists()'
+    resource: '%resource.extension(%`ext-patient-disability`).value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PD1Field}-6'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+
+  - name: living-will-code
+    condition: '%context.extension(%`rsext-livingWill`).exists()'
+    resource: '%resource.extension(%`rsext-livingWill`).value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PD1Field}-7'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+
+  - name: place-of-worship
+    condition: '%context.extension(%`ext-patient-congregation`).exists()'
+    resource: '%resource.extension(%`ext-patient-congregation`).value'
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PD1Field}-14(%{cweIndex})'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml

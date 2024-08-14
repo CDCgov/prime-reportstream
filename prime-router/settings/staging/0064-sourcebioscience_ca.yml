@@ -1,0 +1,12 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0064-sourcebioscience_ca.yml --env staging
+---
+- name: sourcebioscience_ca
+  description: Source BioScience CSV COVID schema, California
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: sourcebioscience_ca
+      topic: covid-19
+      customerStatus: active
+      schemaName: manualupload/sourcebioscience_ca-covid-19
+      format: CSV

@@ -1,0 +1,12 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+elements:
+  - name: patient-last-name
+    condition: true
+    value: [ 'DUMMY' ]
+
+  - name: order-observations
+    condition: false
+
+  - name: new-element
+    value: [ 'some value' ]
+    hl7Spec: [ 'MSH-9' ]

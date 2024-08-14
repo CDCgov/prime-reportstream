@@ -1,0 +1,24 @@
+---
+name: mns-covid-19
+description: Medical Network Solutions
+topic: covid-19
+trackingElement: specimen_id
+extends: hl7/hl7-ingest-covid-19
+
+elements:
+  - name: sender_id
+    default: mns
+
+  - name: processing_mode_code
+    default: T
+
+  - name: patient_ethnicity
+    altValues:
+      - code: H
+        display: 2135-2
+      - code: N
+        display: 2186-5
+      - code: U
+        display: UNK
+      - code: U
+        display: ASKU

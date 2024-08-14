@@ -1,0 +1,213 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: obx-observation
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        obx2: STRING_ALL, OBX.2
+      condition: $obx2 NOT_NULL
+      expressionsMap:
+        url:
+          value: OBX.2
+          type: STRING
+        valueId:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBX.2
+    - expressionType: nested
+      vars:
+        obx6: STRING_ALL, OBX.6
+      condition: $obx6 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.6
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: OBX.6
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        obx9: STRING_ALL, OBX.9
+      condition: $obx9 NOT_NULL
+      expressionsMap:
+        url:
+          value: OBX.9
+          type: STRING
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBX.9
+    - expressionType: nested
+      vars:
+        obx11: STRING_ALL, OBX.11
+      condition: $obx11 NOT_NULL
+      expressionsMap:
+        url:
+          value: OBX.11
+          type: STRING
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBX.11
+    - expressionType: nested
+      vars:
+        obx12: STRING_ALL, OBX.12
+      condition: $obx12 NOT_NULL
+      expressionsMap:
+        url:
+          value: OBX.12
+          type: STRING
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBX.12
+    - expressionType: nested
+      vars:
+        obx13: STRING_ALL, OBX.13
+      condition: $obx13 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.13
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          specs: OBX.13
+    - expressionType: nested
+      vars:
+        obx17: STRING_ALL, OBX.17
+      condition: $obx17 NOT_NULL
+      generateList: true
+      specs: OBX.17 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.17
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        obx18: STRING_ALL, OBX.18
+      condition: $obx18 NOT_NULL
+      generateList: true
+      specs: OBX.18 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.18
+        valueReference:
+          valueOf: segments/OBX/Device
+          expressionType: reference
+    - expressionType: nested
+      vars:
+        obx20: STRING_ALL, OBX.20
+      condition: $obx20 NOT_NULL
+      generateList: true
+      specs: OBX.20 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.20
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        obx26: STRING, OBX.26
+      condition: $obx26 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.26
+        valueId:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBX.26
+    - expressionType: nested
+      vars:
+        obx27: STRING_ALL, OBX.27
+      condition: $obx27 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.27
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: OBX.27
+    - expressionType: nested
+      vars:
+        obx28: STRING_ALL, OBX.28
+      condition: $obx28 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.28
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: OBX.28
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        obx29: STRING, OBX.29
+      condition: $obx29 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.29
+        valueId:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBX.29
+    - expressionType: nested
+      vars:
+        obx31: STRING, OBX.31
+      condition: $obx31 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.31
+        valueId:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBX.31
+    - expressionType: nested
+      vars:
+        obx32: STRING_ALL, OBX.32
+      condition: $obx32 NOT_NULL
+      generateList: true
+      specs: OBX.32 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.32
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        obx33: STRING_ALL, OBX.33
+      condition: $obx33 NOT_NULL
+      generateList: true
+      specs: OBX.33 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBX.33
+        valueIdentifier:
+          valueOf: datatypes/EIP/Identifier-PlacerAssignedIdentifier
+          expressionType: resource
+          constants:
+            backupExtension: "filler-assigned-identifier"
+
+
+
+

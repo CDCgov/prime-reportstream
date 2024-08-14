@@ -1,0 +1,334 @@
+// This file contains a GraphViz (https://en.wikipedia.org/wiki/Graphviz) dependency graph of the ./prime-router/build.gradle.kts file
+// This was created manually.
+// The clusterArtifacts sub-graph and any references to its nodes are commented out to keep the graph simple and focussed on tasks only
+//
+// Generate an SVG file from this by running:
+//      dot -Tsvg -odependencies.svg < dependencies.gv
+
+digraph "ReportStream" {
+    label = "ReportStream Gradle Build"
+    rankdir = TB
+
+    // subgraph "clusterArtifacts" {
+    //     label = "Artifacts"
+
+    //     node[
+    //         shape = "folder"
+    //     ]
+
+    //     dirBuild[
+    //         label = "./build/"
+    //     ]
+
+    //     dirAzureResourcesTmpDir[
+    //         label = "$azureFunctionsDir-resources/$azureAppName"
+    //     ]
+    //     dirAzureResourcesTmpDir -> dirBuild[
+    //         label = "inside"
+    //     ]
+
+    //     dirAzureResourcesFinalDir[
+    //         label = "$azureFunctionsDir/$azureAppName"
+    //     ]
+    //     dirAzureResourcesFinalDir -> dirBuild[
+    //         label = "inside"
+    //     ]
+
+    //     dirAzureScriptsTmpDir[
+    //         label = "$azureFunctionsDir-scripts/$azureAppName"
+    //     ]
+    //     dirAzureScriptsTmpDir -> dirBuild[
+    //         label = "inside"
+    //     ]
+
+    //     node[
+    //         shape = "note"
+    //     ]
+
+    //     fileSettingsYaml[
+    //         label = "./settings/**/*.yml"
+    //     ]
+
+    //     fileMetadata[
+    //         label = "./metadata/**/*"
+    //     ]
+
+    //     sourcesetTestIntegration[
+    //         label = "./src/testIntegration/kotlin"
+    //     ]
+
+    //     fileIntegrationDataTests[
+    //         label = "./src/testIntergation/resources/datatests/**/*"
+    //     ]
+
+    //     fileAzureGatheringMetadata[
+    //         label = "./metadata/**/*.{yml|schema|valuesets|csv}"
+    //     ]
+
+    //     fileAzureGatheringSettings[
+    //         label = "./settings/**/*.yml"
+    //     ]
+
+    //     fileAzureGatheringAssets[
+    //         label = "./assets/**/*.__inline.html"
+    //     ]
+
+    //     fileStartFunc[
+    //         label = "start_func.sh"
+    //     ]
+
+    //     filePrimeScript[
+    //         label = "prime"
+    //     ]
+    // }
+
+    subgraph "clusterTasks" {
+        label = "Tasks"
+
+        // Default shape: box
+        // JavaExec: component
+        // Test: Diamond
+        // Copy: doubleoctagon
+        node[
+            shape = "box"
+        ]
+
+        // CLEAN
+        taskClean[
+            label = "clean"
+        ]
+        // taskClean -> dirBuild[
+        //     label = "delete"
+        // ];
+
+
+        // TEST
+        taskTest[
+            label = "test"
+        ]
+        // {fileSettingsYaml, fileMetadata} -> taskTest[
+        //     label = "inputs"
+        // ]
+        taskTest -> taskCompileKotlin[
+            label = "depends"
+        ]
+
+
+        // COMPILEKOTLIN
+        taskCompileKotlin[
+            label = "compileKotlin"
+        ]
+
+
+        // COMPILETESTKOTLIN
+        taskCompileTestKotlin[
+            label = "compileTestKotlin"
+        ]
+
+
+        // JACOCOTESTREPORT
+        taskJacocoTestReport[
+            label = "jacocoTestReport"
+        ]
+        taskJacocoTestReport -> taskCompileKotlin[
+            label = "finalizes"
+        ]
+        taskJacocoTestReport -> taskTest[
+            label = "depends"
+        ]
+
+
+        // COMPILETESTINTEGRATIONKOTLIN
+        taskCompileTestIntegrationKotlin[
+            label = "compileTestIntegrationKotlin"
+        ]
+
+
+        // TESTINTEGRATIONIMPLEMENTATION
+        taskTestIntegrationImplementation[
+            label = "testIntegrationImplementation"
+        ]
+
+
+        // TESTINTEGRATION
+        taskTestIntegration[
+            label = "testIntegration"
+            shape = "diamond"
+        ]
+        taskTestIntegration -> { taskCompile, taskCompileTestIntegrationKotlin, taskCompileTestIntegrationJava }[
+            label = "depends"
+        ]
+        taskTestIntegration -> taskTest[
+            label = "runsAfter"
+        ]
+        // taskTestIntegration -> sourcesetTestIntegration[
+        //     label = "uses"
+        // ]
+        // { fileSettingsYaml, fileMetadata, fileIntegrationDataTests} -> taskTestIntegration[
+        //     label = "inputs"
+        // ]
+
+
+        // CHECK
+        taskCheck[
+            label = "check"
+        ]
+        taskCheck -> taskTestIntegration [
+            label = "depends"
+        ]
+
+
+        // JAR
+        taskJar[
+            label = "jar"
+        ]
+
+
+        // SHADOWJAR
+        taskShadowJar[
+            label = "shadowJar"
+        ]
+
+
+        // FATJAR
+        taskFatJar[
+            label = "fatJar"
+        ]
+        taskFatJar -> taskShadowJar[
+            label = "depends"
+        ]
+
+
+        // PRIMECLI
+        taskPrimeCli[
+            label = "primeCLI"
+            shape = "component"
+        ]
+
+
+        // TESTEND2END
+        taskTestE2E[
+            label = "testEnd2End"
+            shape = "component"
+        ]
+
+
+        // GENERATEDOCS
+        taskGenerateDocs[
+            label = "generateDocs"
+            shape = "component"
+        ]
+
+
+        // AZUREFUNCTIONSPACKAGE
+        taskAzureFunctionsPackage[
+            label = "azureFunctionsPackage"
+        ]
+        taskAzureFunctionsPackage -> taskTest[
+            label = "depends"
+        ]
+
+
+        // GATHERAZURERESOURCES
+        taskGatherAzureResources[
+            label = "gatherAzureResources"
+            shape = "doubleoctagon"
+        ]
+        // taskGatherAzureResources -> { dirAzureResourcesTmpDir }[
+        //     label = "into"
+        // ]
+        // taskGatherAzureResources -> { fileAzureGatheringMetadata, fileAzureGatheringSettings, fileAzureGatheringAssets }[
+        //     label = "uses"
+        // ]
+
+
+        // COPYAZURERESOURCES
+        taskCopyAzureResources[
+            label = "copyAzureResources"
+        ]
+        taskCopyAzureResources -> taskGatherAzureResources[
+            label = "depends"
+        ]
+
+
+        // GATHERAZURESCRIPTS
+        taskGatherAzureScripts[
+            label = "gatherAzureScripts"
+            shape = "doubleoctagon"
+        ]
+        // taskGatherAzureScripts -> dirAzureScriptsTmpDir[
+        //     label = "into"
+        // ]
+        // taskGatherAzureScripts -> { filePrimeScript, fileStartFunc } [
+        //     label = "uses"
+        // ]
+
+
+        // COPYAZURESCRIPTS
+        taskCopyAzureScripts[
+            label = "copyAzureScripts"
+        ]
+        taskCopyAzureScripts -> taskGatherAzureScripts[
+            label = "depends"
+        ]
+
+
+        // GENERATEJOOQ
+        taskGenerateJooq[
+            label = "generateJooq"
+        ]
+        taskGenerateJooq -> taskMigrate[
+            label = "depends"
+        ]
+
+
+        // COMPILE
+        taskCompile[
+            label = "compile"
+        ]
+        taskCompile -> taskCompileKotlin[
+            label = "depends"
+        ]
+
+
+        // MIGRATE
+        taskMigrate[
+            label = "migrate"
+        ]
+        taskMigrate -> taskFlywayMigrate[
+            label = "depends"
+        ]
+
+
+        // PACKAGE
+        taskPackage[
+            label = "package"
+        ]
+        taskPackage -> { taskAzureFunctionsPackage, taskCopyAzureResources, taskCopyAzureScripts, taskFatJar }[
+            label = "depends"
+        ]
+
+
+        // QUICKPACKAGE
+        taskQuickPackage[
+            label = "quickPackage"
+        ]
+        taskQuickPackage -> { taskAzureFunctionsPackage, taskCopyAzureResources, taskCopyAzureScripts }[
+            label = "depends"
+        ]
+        taskQuickPackage -> { taskTest, taskCompileTestKotlin, taskMigrate, taskFlywayMigrate }[
+            label = "enables"
+        ]
+
+
+
+        // tasks that you get through plugins and which do not need additional configuration
+        taskFlywayMigrate[
+            label = "flywayMigrate"
+        ]
+
+        taskCompileTestIntegrationJava[
+            label = "compileTestIntegrationJava"
+        ]
+    }
+}

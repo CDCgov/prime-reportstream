@@ -1,0 +1,26 @@
+---
+#
+# Organizations
+#
+
+- name: pa-philadelphia-phd
+  description: Philadelphia Department of Public Health
+  jurisdiction: COUNTY
+  stateCode: CO
+  countyName: Philadelphia
+  receivers:
+    - name: elr-philadelphia-download
+      organizationName: pa-philadelphia-phd
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Philadelphia)" ]
+      deidentify: false
+      translation:
+        type: CUSTOM
+        schemaName: strac/strac-covid-19
+        format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1 # Every day. Strac often submits at 7:30am ET
+        initialTime: 08:30
+        timeZone: EASTERN
+

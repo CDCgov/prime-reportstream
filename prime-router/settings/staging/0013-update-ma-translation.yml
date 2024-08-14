@@ -1,0 +1,44 @@
+---
+name: "elr"
+organizationName: "ma-phd"
+topic: "covid-19"
+translation: !<HL7>
+  useTestProcessingMode: false
+  useBatchHeaders: true
+  receivingApplicationName: "MA-MDPH"
+  receivingApplicationOID: "2.16.840.1.113883.19.3.2"
+  receivingFacilityName: "MA-MDPH"
+  receivingFacilityOID: "2.16.840.1.113883.19.3.2"
+  messageProfileId: null
+  reportingFacilityName: null
+  reportingFacilityId: null
+  suppressQstForAoe: false
+  suppressHl7Fields: null
+  suppressAoe: false
+  defaultAoeToUnknown: false
+  useBlankInsteadOfUnknown: null
+  truncateHDNamespaceIds: true
+  usePid14ForPatientEmail: false
+  convertTimestampToDateTime: null
+  nameFormat: "STANDARD"
+  receivingOrganization: null
+  type: "HL7"
+jurisdictionalFilter:
+  - "orEquals(ordering_facility_state, MA, patient_state, MA)"
+deidentify: false
+timing:
+  operation: "MERGE"
+  numberPerDay: 1440 # every minute
+  initialTime: "00:00"
+  timeZone: "EASTERN"
+  maxReportCount: 500
+description: ""
+transport: !<SFTP>
+  host: "10.0.2.4"
+  port: "22"
+  filePath: "./upload"
+  type: "SFTP"
+meta:
+  version: 1
+  createdBy: "qva8@cdc.gov"
+  createdAt: "2021-05-03T16:32:51.489652Z"

@@ -1,0 +1,147 @@
+# $schema: ./../../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: PractitionerRole
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+practitioner:
+  valueOf: datatypes/CNN/Practitioner
+  expressionType: reference
+  specs: NDL.1
+
+period:
+  vars:
+    startDate: NDL.2
+    endDate: NDL.3
+  condition: $startDate NOT_NULL || $endDate NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    start:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(startDate,ZONEID)"
+      expressionType: JEXL
+    _start:
+      expressionType: nested
+      condition: $startDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $startDate
+              expressionType: HL7Spec
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(endDate,ZONEID)"
+      expressionType: JEXL
+    _end:
+      expressionType: nested
+      condition: $endDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $endDate
+              expressionType: HL7Spec
+
+location:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - valueOf: datatypes/NDL/HD/Location
+      condition: $ndl7 NOT_NULL
+      expressionType: reference
+      specs: NDL.7
+      vars:
+        ndlLocationStatus: NDL.8
+        ndl7: NDL.7
+      constants:
+        physicalTypeCode: "si"
+    - valueOf: datatypes/NDL/IS/Location
+      condition: $ndl10 NOT_NULL
+      expressionType: reference
+      specs: NDL.10
+      vars:
+        refLocation: $BASE_VALUE, GeneralUtils.extractAttribute(refLocation,"$.identifier[0].value","String")
+        partOfId: NLD.7.1
+        ndlLocationStatus: NDL.8
+        ndl10: NDL.10
+      constants:
+        physicalTypeCode: "bu"
+    - valueOf: datatypes/NDL/IS/Location
+      condition: $ndl4 NOT_NULL
+      expressionType: reference
+      specs: NDL.4
+      vars:
+        refLocation: $BASE_VALUE, GeneralUtils.extractAttribute(refLocation,"$.identifier[0].value","String")
+        partOfId: NLD.10
+        ndlLocationStatus: NDL.8
+        ndl4: NDL.4
+      constants:
+        physicalTypeCode: "poc"
+    - valueOf: datatypes/NDL/IS/Location
+      condition: $ndl11 NOT_NULL
+      expressionType: reference
+      specs: NDL.11
+      vars:
+        refLocation: $BASE_VALUE, GeneralUtils.extractAttribute(refLocation,"$.identifier[0].value","String")
+        partOfId: NLD.4
+        ndlLocationStatus: NDL.8
+        ndl11: NDL.11
+      constants:
+        physicalTypeCode: "lvl"
+    - valueOf: datatypes/NDL/IS/Location
+      condition: $ndl5 NOT_NULL
+      expressionType: reference
+      specs: NDL.5
+      vars:
+        refLocation: $BASE_VALUE, GeneralUtils.extractAttribute(refLocation,"$.identifier[0].value","String")
+        partOfId: NLD.4
+        ndlLocationStatus: NDL.8
+        ndl5: NDL.5
+      constants:
+        physicalTypeCode: "ro"
+    - valueOf: datatypes/NDL/IS/Location
+      condition: $ndl6 NOT_NULL
+      expressionType: reference
+      specs: NDL.6
+      vars:
+        refLocation: $BASE_VALUE, GeneralUtils.extractAttribute(refLocation,"$.identifier[0].value","String")
+        partOfId: NLD.5
+        ndlLocationStatus: NDL.8
+        ndl6: NDL.6
+      constants:
+        physicalTypeCode: "bd"
+
+
+extension:
+  generateList: true
+  expressionType: nested
+  condition: $performerParticipationType NOT_NULL
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: event-performerFunction
+        valueCodeableConcept:
+          valueOf: datatype/CodeableConcept_var
+          expressionType: resource
+          vars:
+            code: $performerParticipationType
+          constants:
+            system: "http://terminology.hl7.org/CodeSystem/v3-ParticipationType"
+    - expressionType: resource
+      valueOf: datatypes/NDL/NDLExtension

@@ -1,0 +1,114 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: HumanName
+
+family:
+  type: STRING
+  valueOf: XPN.1.1
+  expressionType: HL7Spec
+_family:
+  expressionType: resource
+  valueOf: datatypes/FN/ExtensionHumanName-family
+  specs: XPN.1
+
+given:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: HL7Spec
+      valueOf: XPN.2
+      type: STRING
+    - expressionType: HL7Spec
+      valueOf: XPN.3
+      type: STRING
+suffix:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: HL7Spec
+      valueOf: XPN.4
+      type: STRING
+    - expressionType: HL7Spec
+      valueOf: XPN.6
+      type: STRING
+    - expressionType: HL7Spec
+      valueOf: XPN.14
+      type: STRING
+prefix:
+  type: STRING
+  valueOf: XPN.5
+  expressionType: HL7Spec
+use:
+  type: NAME_USE
+  valueOf: XPN.7
+  expressionType: HL7Spec
+
+# This needs to use variables because the message parses this field using NULLDT since it is deprecated which means that
+# the values do not get correctly loaded and will not be mapped over correctly using a spec.
+period_1:
+  vars:
+    xpn12: String, XPN.12
+    xpn13: String, XPN.13
+    start: String, XPN.10.1
+    end: String, XPN.10.2
+  condition: $xpn12 NULL && $xpn13 NULL
+  expressionType: resource
+  valueOf: datatypes/DR/Period
+
+extension_AssemblyOrder:
+  vars:
+    xpn11: String, XPN.11
+  condition: $xpn11 NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: humanname-assembly-order
+    valueCode:
+      type: STRING
+      valueOf: XPN.11
+      expressionType: HL7Spec
+
+# XPN.10 is deprecated so the schema favors using XPN.12/13 if either are populated
+period_2:
+  vars:
+    xpn12: String, XPN.12
+    xpn13: String, XPN.13
+  condition: $xpn12 NOT_NULL || $xpn13 NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    start:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(periodStart,ZONEID)"
+      expressionType: JEXL
+      vars:
+        periodStart: XPN.12
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(periodEnd,ZONEID)"
+      expressionType: JEXL
+      vars:
+        periodEnd: XPN.13
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      condition: $hl7v2Field NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Field
+    - expressionType: nested
+      condition: $hl7v2Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Component
+    - expressionType: resource
+      valueOf: datatypes/XPN/XPNExtension

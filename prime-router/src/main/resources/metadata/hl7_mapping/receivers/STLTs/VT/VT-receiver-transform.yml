@@ -1,0 +1,105 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+
+constants:
+  MSH: '/MSH'
+  PID: '/PATIENT_RESULT/PATIENT/PID'
+  OBX: '/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX'
+  ORC: '/PATIENT_RESULT/ORDER_OBSERVATION/ORC'
+  OBR: '/PATIENT_RESULT/ORDER_OBSERVATION/OBR'
+
+elements:
+  - name: observation-result-with-aoe
+    # VT does not want AOEs at all, so this is overridden to prevent identified AOEs from mapping to an HL7 segment
+    resource: '%resource.result.resolve()'
+
+  - name: vt-patient-race-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+    condition: '%resource.code.exists()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
+
+  - name: vt-unwanted-fields
+    value: [ '""' ]
+    hl7Spec: [ '%{ORC}-4-2', '%{ORC}-4-3', '%{ORC}-4-4', '%{OBX}-18-1', '%{OBX}-18-2', '%{OBX}-18-3', '%{OBX}-18-4', '%{OBX}-15-3', '%{PID}-15-1', '%{PID}-15-2', '%{PID}-15-3', '%{MSH}-19-1', '%{MSH}-19-2', '%{MSH}-19-3']
+
+  - name: vt-sending-application-namespace-id
+    value: [ '"CDC PRIME - Atlanta"' ]
+    hl7Spec: [ '%{MSH}-3-1']
+
+  - name: vt-sending-application-universal-id
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+    hl7Spec: [ '%{MSH}-3-2' ]
+
+  - name: vt-sending-application-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{MSH}-3-3' ]
+
+  - name: vt-receiving-application-namespace-id
+    value: [ '"NBS"' ]
+    hl7Spec: [ '%{MSH}-5-1' ]
+
+  - name: vt-receiving-application-universal-id
+    value: [ '"2.16.840.1.114222.4.1.185.1"' ]
+    hl7Spec: [ '%{MSH}-5-2' ]
+
+  - name: vt-receiving-application-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{MSH}-5-3' ]
+
+  - name: vt-receiving-facility-namespace-id
+    value: [ '"VDH"' ]
+    hl7Spec: [ '%{MSH}-6-1' ]
+
+  - name: vt-receiving-facility-universal-id
+    value: [ '"2.16.840.1.114222.4.1.185"' ]
+    hl7Spec: [ '%{MSH}-6-2' ]
+
+  - name: vt-receiving-facility-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{MSH}-6-3' ]
+
+  - name: vt-obr-assigning-authority-universal-id
+    condition: 'Bundle.entry.resource.ofType(Practitioner).identifier.type.coding.code = "NPI" and Bundle.entry.resource.ofType(Practitioner).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").empty'
+    value: [ '"2.16.840.1.113883.4.6"' ]
+    hl7Spec: [ '%{OBR}-16-9-2' ]
+
+  - name: vt-obr-assigning-authority-universal-id-type
+    condition: 'Bundle.entry.resource.ofType(Practitioner).identifier.type.coding.code = "NPI" and Bundle.entry.resource.ofType(Practitioner).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").empty'
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{OBR}-16-9-3' ]
+
+  - name: vt-orc-assigning-authority-universal-id
+    condition: 'Bundle.entry.resource.ofType(Practitioner).identifier.type.coding.code = "NPI" and Bundle.entry.resource.ofType(Practitioner).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").empty'
+    value: [ '"2.16.840.1.113883.4.6"' ]
+    hl7Spec: [ '%{ORC}-12-9-2' ]
+
+  - name: vt-orc-assigning-authority-universal-id-type
+    condition: 'Bundle.entry.resource.ofType(Practitioner).identifier.type.coding.code = "NPI" and Bundle.entry.resource.ofType(Practitioner).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").empty'
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{ORC}-12-9-3' ]
+
+  - name: vt-sender-facility-namespace-Id
+    value: [ '"NBS"' ]
+    hl7Spec: [ 'MSH-5-1' ]
+
+  - name: vt-sender-facility-universal-Id
+    value: [ '"2.16.840.1.114222.4.1.185.1"' ]
+    hl7Spec: [ 'MSH-5-2' ]
+
+  - name: vt-sender-facility-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-5-3' ]
+
+  - name: vt-receiving-application-namespace-Id
+    value: [ '"VDH"' ]
+    hl7Spec: [ 'MSH-6-1' ]
+
+  - name: vt-receiving-application-universal-Id
+    value: [ '"2.16.840.1.114222.4.1.185"' ]
+    hl7Spec: [ 'MSH-6-2' ]
+
+  - name: vt-receiving-application-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-6-3' ]

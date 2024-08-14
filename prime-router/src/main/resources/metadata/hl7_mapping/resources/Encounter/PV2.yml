@@ -1,0 +1,85 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: pv2-prior-pending-location
+    resource: '%resource.location.where(extension(%`rsext-hl7v2Field`).value = "PV2.1").location.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Location/PL/PL.yml
+    constants:
+      hl7PLField: '%{hl7PV2Field}-1'
+
+  - name: pv2-admit-reason
+    resource: '%resource.reasonCode.where(extension(%`rsext-hl7v2Field`).value = "PV2.3")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7PV2Field}-3'
+
+  - name: pv2-visit-user-code
+    resource: '%resource.extension(%`rsext-visit-user-code`).value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7PV2Field}-7(%{cweIndex})'
+
+  - name: pv2-expected-admit-datetime
+    value: [ '%resource.extension(%`rsext-planned-start-date`).value.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{hl7PV2Field}-8' ]
+
+  - name: pv2-expected-admit-datetime
+    value: [ '%resource.extension(%`rsext-planned-discharge-date`).value.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{hl7PV2Field}-9' ]
+
+  - name: pv2-estimated-length-of-inpatient-stay
+    value: [ '%resource.extension(%`rsext-estimated-length`).value.value' ]
+    hl7Spec: [ '%{hl7PV2Field}-10' ]
+
+  - name: pv2-actual-length-of-inpatient-stay
+    value: [ '%resource.length.value' ]
+    hl7Spec: [ '%{hl7PV2Field}-11' ]
+
+  - name: pv2-visit-description
+    value: [ '%resource.text.extension(%`rsext-pv2-visit-description`).value' ]
+    hl7Spec: [ '%{hl7PV2Field}-12' ]
+
+  - name: pv2-referral-source-code
+    resource: '%resource.participant.where(individual.resolve().extension(%`rsext-hl7v2Field`).value = "PV2.13").individual.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
+    resourceIndex: xcnIndex
+    constants:
+      hl7XCNField: '%{hl7PV2Field}-13(%{xcnIndex})'
+
+  - name: pv2-publicity-code
+    resource: '%resource.extension(%`rsext-publicity-code`).value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7PV2Field}-21'
+
+  - name: pv2-visit-protection-indicator
+    value: [ '%resource.meta.security.code' ]
+    hl7Spec: [ '%{hl7PV2Field}-22' ]
+    valueSet:
+      values:
+        true: Y
+        false: N
+
+  - name: pv2-priority
+    resource: '%resource.priority'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7PV2Field}-25'
+
+  - name: pv2-mode-of-arrival-code
+    resource: '%resource.extension("http://hl7.org/fhir/StructureDefinition/encounter-modeOfArrival").value.extension(%`rsext-cwe-coding`).value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7PV2Field}-38'
+
+  - name: pv2-admission-level-of-care-code
+    resource: '%resource.extension(%`rsext-admission-level-of-care`).value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7PV2Field}-40'
+
+  - name: pv2-extension-values
+    resource: '%resource.extension(%`rsext-pv2-patient-visit-additional-information`)'
+    schema: classpath:/metadata/hl7_mapping/resources/Encounter/PV2Extension.yml

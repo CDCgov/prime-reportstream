@@ -1,0 +1,40 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: PractitionerRole
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+
+practitioner:
+  expressionType: nested
+  vars:
+    orc12: STRING_ALL, ORC.12
+    obr16: STRING_ALL, OBR.16
+  expressions:
+    - expressionType: reference
+      condition: $orc12 NOT_NULL
+      valueOf: datatypes/XCN/Practitioner
+      specs: ORC.12
+      vars:
+        XADAddress: ORC.24
+      constants:
+        XCNHL7Field: ORC.12
+    - expressionType: reference
+      condition: $orc12 NULL && $obr16 NOT_NULL
+      valueOf: datatypes/XCN/Practitioner
+      specs: OBR.16
+      vars:
+        XADAddress: ORC.24
+      constants:
+        XCNHL7Field: OBR.16
+
+organization:
+  vars:
+    XADAddress: ORC.22
+    XTNTelecom: ORC.23 *
+  expressionType: reference
+  valueOf: datatypes/XON/Organization
+  specs: ORC.21

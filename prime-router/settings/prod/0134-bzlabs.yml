@@ -1,0 +1,12 @@
+# ./prime multiple-settings set --env prod --input ./settings/prod/0134-bzdlabs.yml
+---
+- name: bzdlabs
+  description: BZD labs
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: bzdlabs
+      topic: covid-19
+      customerStatus: testing
+      schemaName: upload-covid-19
+      format: CSV

@@ -1,0 +1,46 @@
+name: Destroy Demo Environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      env_name:
+        description: 'Demo Environment:'
+        required: true
+        options:
+        - demo1
+        - demo2
+        - demo3
+        type: choice
+
+jobs:
+  destroy_demo_environment:
+    name: "Destroy Environment: ${{ github.event.inputs.env_name }}"
+    if: github.event_name == 'workflow_dispatch'
+    environment: ${{ github.event.inputs.env_name }}
+    concurrency: ${{ github.event.inputs.env_name }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: operations/app/terraform/vars/demo
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Use specific version of Terraform
+        uses: hashicorp/setup-terraform@651471c36a6092792c552e8b1bef71e592b462d8
+        with:
+          terraform_version: 1.7.4
+          terraform_wrapper: false
+
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ github.event.inputs.env_name }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          tf-auth: true
+
+      - name: Destroy demo environment
+        uses: ./.github/actions/demo-env
+        with:
+          env-name: ${{ github.event.inputs.env_name }}
+          destroy: true

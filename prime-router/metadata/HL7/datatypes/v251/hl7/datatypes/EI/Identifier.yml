@@ -1,0 +1,92 @@
+# $schema: ./../../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+value:
+  type: STRING
+  valueOf: EI.1
+  expressionType: HL7Spec
+
+type:
+  condition: $code NOT_NULL || $system NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    coding:
+      generateList: true
+      expressionType: nested
+      expressions:
+        - expressionType: nested
+          expressionsMap:
+            code:
+              type: STRING
+              valueOf: $code
+            system:
+              type: STRING
+              valueOf: $system
+
+extension_1-assigning-authority:
+  generateList: true
+  expressionType: nested
+  vars:
+    ei2: EI.2
+    ei3: EI.3
+    ei4: EI.4
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      valueOf: assigning-authority
+    extension_url:
+      generateList: true
+      expressionType: nested
+      expressions:
+        - expressionType: nested
+          condition: $ei2 NOT_NULL
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              valueOf: namespace-id
+            valueString:
+              type: STRING
+              expressionType: HL7Spec
+              valueOf: $ei2
+        - expressionType: nested
+          condition: $ei3 NOT_NULL
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              valueOf: universal-id
+            valueString:
+              type: STRING
+              expressionType: HL7Spec
+              valueOf: $ei3
+        - expressionType: nested
+          condition: $ei4 NOT_NULL
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              valueOf: universal-id-type
+            valueCode:
+              type: STRING
+              expressionType: HL7Spec
+              valueOf: $ei4
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      condition: $hl7v2Field NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Field
+    - expressionType: nested
+      condition: $hl7v2Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Component

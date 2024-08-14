@@ -1,0 +1,110 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Device
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+manufacturer:
+  expressionType: nested
+  vars:
+    xon1: SFT.1.1
+    xon10: SFT.1.10
+  expressions:
+    - condition: $xon1 NOT_NULL
+      type: String
+      expressionType: HL7Spec
+      valueOf: $xon1
+    - condition: $xon1 NULL && $xon10 NOT_NULL
+      type: String
+      expressionType: HL7Spec
+      valueOf: $xon10
+
+version:
+  expressionType: nested
+  expressionsMap:
+    value:
+      condition: $sft2 NOT_NULL
+      vars:
+        sft2: SFT.2
+      type: String
+      expressionType: HL7Spec
+      valueOf: $sft2
+    extension:
+      generateList: true
+      expressionType: nested
+      condition: $dateTimeIn NOT_NULL
+      vars:
+        dateTimeIn: SFT.6, GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)
+        hl7Date: SFT.6
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: software-install-date
+        valueDateTime:
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
+        _valueDateTime:
+          expressionType: nested
+          expressionsMap:
+            extension:
+              generateList: true
+              expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  value: hl7v2-date-time
+                valueString:
+                  type: STRING
+                  valueOf: $hl7Date
+                  expressionType: HL7Spec
+
+deviceName:
+  expressionType: nested
+  condition: $sft3 NOT_NULL
+  vars:
+    sft3: SFT.3
+  expressionsMap:
+    name:
+      type: String
+      expressionType: HL7Spec
+      valueOf: $sft3
+    type:
+      type: String
+      value: "manufacturer-name"
+
+modelNumber:
+  condition: $sft4 NOT_NULL
+  vars:
+    sft4: SFT.4
+  type: String
+  expressionType: HL7Spec
+  valueOf: $sft4
+
+note:
+  expressionType: nested
+  condition: $sft5 NOT_NULL
+  vars:
+    sft5: SFT.5
+  expressionsMap:
+    text:
+      type: String
+      expressionType: HL7Spec
+      valueOf: $sft5
+
+extension:
+  expressionType: nested
+  vars:
+    sft1: STRING_ALL, SFT.1
+  condition: $sft1 NOT_NULL
+  generateList: true
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: software-vendor-org
+    valueReference:
+      valueOf: datatypes/XON/Organization
+      expressionType: reference
+      specs: SFT.1

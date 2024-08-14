@@ -1,0 +1,47 @@
+# deprecated
+# Schema for Compass Urgent Care in Alabama
+# This schema is to be used to parse the standard lab report from experity
+# Created by Rick Hood
+# Last Update: 08/19/2021
+# 
+name: cuc-al-covid-19
+topic: covid-19
+trackingElement: message_id
+description: Experity CSV lab report schema, Compass Urgent Care, AL
+extends: experity/experity-covid-19
+
+elements:
+
+    - name: sender_id
+      default: cuc-al
+
+    - name: processing_mode_code
+      default: P
+
+    - name: equipment_model_name
+      cardinality: ONE 
+      type: CODE
+      csvFields: [{name: Ordered_test_description, format: $alt}]
+      altValues:
+# Used with the test_performed_code to assign the LOINC: 95209-3 and set the Device ID on the outbound HL7
+        - code: "Sofia SARS Antigen FIA"
+          display: "Sofia SARS Antigen FIA"
+# Used with the test_performed_code to assign the LOINC: 94534-5 and set the Device ID on the outbound HL7
+        - code: "ID NOW"
+          display: "Abbott-ID NOW COVID-19 (Molecular)"
+# Used with the test_performed_code to assign the LOINC: 94508-9 or 94507-1 for IgM or IgG, and set the Device ID on the outbound HL7
+        - code: "RightSign COVID-19 IgG/IgM Rapid Test Cassette*"
+          display: "RightSign COVID-19 IgG/IgM Rapid Test Cassette"
+# Used with the test_performed_code to assign the LOINC: 94508-9 or 94507-1 for IgM or IgG, and set the Device ID on the outbound HL7
+        - code: "COVID-19 IgG/IgM Rapid Test Cassette (Whole Blood/Serum/Plasma)*"
+          display: "Healgen COVID-19 IgG IgM Rapid Test"
+# Used with the test_performed_code to assign the LOINC: 97097-0 for the Antigen result from this COVID Flu A&B Panel, and set the Device ID on the outbound HL7
+        - code: "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"
+          display: "BD Veritor Rapid SARS-CoV-2 nucleocapsid antigen"
+
+# The passed in LOINC Code along with the test_kit_name_id set in the Child Schema will force the appropriate LOINC & Device ID coding
+#      This entry should be made only if you have Antibody or any other Test that uses the same test_kit_name_id for multiple results
+    - name: test_performed_code
+      cardinality: ONE
+      type: TEXT
+      csvFields: [{name: Test_performed_number}]

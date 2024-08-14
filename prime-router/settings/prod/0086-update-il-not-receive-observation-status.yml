@@ -1,0 +1,137 @@
+# Changing IL doesn't need Observation Status
+# ./prime multiple-settings set --env prod --input ./settings/prod/0086-update-il-not-receive-observation-status.yml
+---
+- name: "il-phd"
+  description: "Illinois Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "IL"
+  countyName: null
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, IL, patient_state, IL)"
+      qualityFilter: []
+      routingFilter:
+        - matches(test_result_status, F, C, P)
+      processingModeFilter: null
+  senders: []
+  receivers:
+    - name: "elr-secondary"
+      organizationName: "il-phd"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: null
+        receivingApplicationOID: null
+        receivingFacilityName: null
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: {}
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: true
+        defaultAoeToUnknown: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: "OBX-23-1"
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: true
+        processingModeCode: null
+        replaceDiiWithOid: null
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD_SECONDARY"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: true
+        stripInvalidCharsRegex: null
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter: []
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: true
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:15"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: null
+      externalName: "Secondary Feed"
+    - name: "elr"
+      organizationName: "il-phd"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: null
+        receivingApplicationOID: null
+        receivingFacilityName: null
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: {}
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: true
+        defaultAoeToUnknown: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: "OBX-23-1"
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: true
+        processingModeCode: null
+        replaceDiiWithOid: null
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: true
+        stripInvalidCharsRegex: null
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter: []
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:15"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<SFTP>
+        host: "moveit.illinois.gov"
+        port: "22"
+        filePath: "/Distribution/DPH/LabData/HL7-251/"
+        credentialName: null
+        type: "SFTP"
+      externalName: "Primary Feed"

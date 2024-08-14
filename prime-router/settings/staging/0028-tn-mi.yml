@@ -1,0 +1,102 @@
+---
+- name: "tn-doh"
+  description: "Tennessee Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "TN"
+  countyName: null
+  senders: []
+  receivers:
+  - name: "elr-secondary"
+    organizationName: "tn-doh"
+    topic: "covid-19"
+    translation: !<HL7>
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "tdh-ELR"
+      receivingApplicationOID: "2.16.840.1.113883.3.773.1.1.3"
+      receivingFacilityName: "TDH"
+      receivingFacilityOID: "2.16.840.1.113883.3.773"
+      messageProfileId: null
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      processingModeCode: null
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "HL7"
+    jurisdictionalFilter:
+    - "orEquals(ordering_facility_state, TN, patient_state, TN)"
+    qualityFilter: []
+    reverseTheQualityFilter: true
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+    description: ""
+    transport: !<SFTP>
+      host: "10.0.2.4"
+      port: "22"
+      filePath: "./upload"
+      type: "SFTP"
+
+- name: "mi-phd"
+  description: "Michigan Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "MI"
+  countyName: null
+  senders: []
+  receivers:
+  - name: "elr-secondary"
+    organizationName: "mi-phd"
+    topic: "covid-19"
+    translation: !<HL7>
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "MDSS"
+      receivingApplicationOID: "2.16.840.1.114222.4.3.2.2.3.161.1.6377"
+      receivingFacilityName: "MDSS"
+      receivingFacilityOID: "2.16.840.1.114222.4.3.2.2.3.161.1.6377"
+      messageProfileId: null
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      processingModeCode: null
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "HL7"
+    jurisdictionalFilter:
+    - "orEquals(ordering_facility_state, MI, patient_state, MI)"
+    qualityFilter: []
+    reverseTheQualityFilter: true
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: ""
+    transport: !<SFTP>
+      host: "10.0.2.4"
+      port: "22"
+      filePath: "./upload"
+      type: "SFTP"

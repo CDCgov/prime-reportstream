@@ -1,0 +1,17 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0104-covidchecktoday-co.yml --env staging
+---
+- name: "covidchecktoday-co"
+  description: "Covid Check Today in CO - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "covidchecktoday-co"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"

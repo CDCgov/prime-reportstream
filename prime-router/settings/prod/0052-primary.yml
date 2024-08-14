@@ -1,0 +1,11 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0052-primary.yml --env prod
+---
+- name: primary
+  description: Primary.Health
+  jurisdiction: FEDERAL
+  senders:
+  - name: default
+    organizationName: primary
+    topic: covid-19
+    schemaName: hl7/primary-covid-19
+    format: HL7

@@ -1,0 +1,93 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: xtn-contact-point
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - condition: $telNum NOT_NULL
+      generateList: true
+      expressionType: nested
+      vars:
+        telNum: String, XTN.1
+      expressionsMap:
+        url:
+          type: STRING
+          value: XTN.1
+        valueString:
+          value: $telNum
+    - condition: $xtn2 NOT_NULL
+      expressionType: nested
+      vars:
+        xtn2: String, XTN.2
+      expressionsMap:
+        url:
+          type: STRING
+          value: XTN.2
+        valueString:
+          value: $xtn2
+    - condition: $xtn3 NOT_NULL
+      expressionType: nested
+      vars:
+        xtn3: String, XTN.3
+      expressionsMap:
+        url:
+          type: STRING
+          value: XTN.3
+        valueString:
+          value: $xtn3
+    - condition: $xtn4 NOT_NULL
+      expressionType: nested
+      vars:
+        xtn4: String, XTN.4
+      expressionsMap:
+        url:
+          type: STRING
+          value: XTN.4
+        valueString:
+          value: $xtn4
+    - condition: $xtn7 NOT_NULL
+      expressionType: nested
+      vars:
+        xtn7: String, XTN.7
+      expressionsMap:
+        url:
+          type: STRING
+          value: XTN.7
+        valueString:
+          value: $xtn7
+    - condition: $xtn9 NOT_NULL
+      expressionType: nested
+      vars:
+        xtn9: String, XTN.9
+      expressionsMap:
+        url:
+          type: STRING
+          value: XTN.9
+        valueString:
+          type: STRING
+          valueOf: $xtn9
+    - condition: $xtn11 NOT_NULL
+      expressionType: nested
+      vars:
+        xtn11: String, XTN.11
+      expressionsMap:
+        url:
+          type: STRING
+          value: XTN.11
+        valueString:
+          type: STRING
+          value: $xtn11
+    - condition: $xtn12 NOT_NULL
+      expressionType: nested
+      vars:
+        xtn12: String, XTN.12
+      expressionsMap:
+        url:
+          type: STRING
+          value: XTN.12
+        valueString:
+          value: $xtn12

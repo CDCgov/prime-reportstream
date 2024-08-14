@@ -1,0 +1,26 @@
+---
+name: "elr-prod"
+organizationName: "az-phd"
+topic: "covid-19"
+translation:
+  schemaName: "az/az-covid-19"
+  format: "CSV"
+  defaults: {}
+  nameFormat: "STANDARD"
+  receivingOrganization: null
+  type: "CUSTOM"
+jurisdictionalFilter:
+- "matches(ordering_facility_state,AZ)"
+deidentify: false
+timing:
+  operation: "MERGE"
+  numberPerDay: 1440
+  initialTime: "00:00"
+  timeZone: "ARIZONA"
+  maxReportCount: 100
+description: ""
+transport:
+  host: "10.0.2.4"
+  port: "22"
+  filePath: "./upload"
+  type: "SFTP"

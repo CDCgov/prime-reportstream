@@ -1,0 +1,170 @@
+{
+  "uuid": "",
+  "lastMigration": 13,
+  "name": "Tutorial - Generate mock data",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3001,
+  "routes": [
+    {
+      "uuid": "",
+      "documentation": "Create a token",
+      "method": "post",
+      "endpoint": "token",
+      "responses": [
+        {
+          "uuid": "",
+          "body": "{\r\n  \"access_token\": \"{{faker 'datatype.uuid'}}\",\r\n   \"refresh_token\": \"{{faker 'datatype.uuid'}}\",\r\n  \"token_type\": \"{{body 'Bearer'}}\",\r\n  \"expires_in\": {{faker 'datatype.number' 1000}}\r\n }",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Created",
+          "headers": [
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false
+    },
+    {
+      "uuid": "",
+      "documentation": "Create an id token",
+      "method": "post",
+      "endpoint": "idtoken",
+      "responses": [
+        {
+          "uuid": "",
+          "body": "{\r\n  \"email\": \"{{faker 'internet.email'}}\",\r\n  \"idToken\": \"{{faker 'datatype.uuid'}}\",\r\n  \"expiresIn\": {{faker 'datatype.number' 1000}},\r\n   \"refreshToken\": \"{{faker 'datatype.uuid'}}\"\r\n }",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Created",
+          "headers": [
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false
+    },    
+    {
+      "uuid": "",
+      "documentation": "Submit a report",
+      "method": "post",
+      "endpoint": "report",
+      "responses": [
+        {
+          "uuid": "",
+          "body": "{\r\n  \"status\": \"Success\",\r\n  \"statusDesc\": \"Received. LIN:4299844\",\r\n  \"respTrackingId\": \"UT-20211119-746000000-54\"\r\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Created",
+          "headers": [
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false
+      },    {
+        "uuid": "",
+      "documentation": "Submit an HL7 report",
+      "method": "post",
+      "endpoint": "hl7",
+      "responses": [
+        {
+          "uuid": "",
+          "body": "{\r\n \"fileName\": \"file-name-assigned-to-the-message-by-GCP-system\",\r\n \"status\": \"fileName received successfully. Processing in progress\"\r\n }",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Created",
+          "headers": [
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false
+    },    {
+      "uuid": "",
+    "documentation": "Submit an HL7 report as json",
+    "method": "post",
+    "endpoint": "elr",
+    "responses": [
+      {
+        "uuid": "",
+        "body": "Submitted item X-Ref-Id:12345678 has been accepted. Receipt:20220518183855647",
+        "latency": 0,
+        "statusCode": 202,
+        "label": "Created",
+        "headers": [
+          {
+            "key": "",
+            "value": ""
+          }
+        ],
+        "filePath": "",
+        "sendFileAsBody": false,
+        "rules": [],
+        "rulesOperator": "OR",
+        "disableTemplating": false
+      }
+    ],
+    "enabled": true,
+    "randomResponse": false
+  }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "https": false,
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ]
+}

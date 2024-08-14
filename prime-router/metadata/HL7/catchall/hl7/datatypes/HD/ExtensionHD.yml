@@ -1,0 +1,55 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  expressionType: nested
+  expressions:
+    - type: SYSTEM_URL
+      condition: $isStringUrl NULL
+      valueOf: $extensionUrl
+    - type: STRING
+      condition: $isStringUrl NOT_NULL
+      valueOf: $extensionUrl
+
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - vars:
+        hd1: STRING, HD.1
+      condition: $hd1 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: namespace-id
+        valueString:
+          type: STRING
+          valueOf: HD.1
+          expressionType: HL7Spec
+    - vars:
+        hd2: STRING, HD.2
+      condition: $hd2 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: universal-id
+        valueString:
+          type: STRING
+          valueOf: HD.2
+          expressionType: HL7Spec
+    - vars:
+        hd3: STRING, HD.3
+      condition: $hd3 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: universal-id-type
+        valueString:
+          type: STRING
+          valueOf: HD.3
+          expressionType: HL7Spec
+
+

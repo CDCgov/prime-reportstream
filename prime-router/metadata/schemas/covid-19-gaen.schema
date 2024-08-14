@@ -1,0 +1,28 @@
+---
+# The GAEN schema is used for messages to Google Apple Exposure Notification servers
+# These notifications only need the patients phone number and test time
+name: covid-19-gaen
+description: Schema for GAEN notification messages
+referenceUrl:
+topic: covid-19
+basedOn: covid-19
+trackingElement: message_id
+elements:
+  - name: abnormal_flag
+    csvFields:
+      - name: abnormal_flag
+  - name: message_id
+    csvFields:
+      - name: message_id
+  - name: illness_onset_date
+    csvFields:
+      - name: illness_onset_date
+        format: "yyyy-MM-dd"
+  - name: date_result_released
+    csvFields:
+      - name: date_result_released
+        format: "yyyy-MM-dd"
+  - name: patient_phone_number
+    csvFields:
+      - name: patient_phone_number
+        format: "$e164"

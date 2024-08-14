@@ -1,0 +1,195 @@
+openapi: 3.0.2
+info:
+  title: Prime ReportStream
+  description: A router of public health data from multiple senders and receivers
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://reportstream.cdc.gov
+    email: reportstream@cdc.gov
+  version: 0.2.0-oas3
+paths:
+
+  # The reports end-point handles data payload submissions to ReportStream.
+  #
+  /reports:
+    post:
+      summary: Post a report to the data hub
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: client
+          description: The client's name that matches the client name in metadata
+          schema:
+            type: string
+          required: true
+          example: simple_report
+        - in: query
+          name: option
+          description: Optional ways to process the request
+          required: false
+          schema:
+            type: string
+            enum:
+              - ValidatePayload # Validate the payload, but do not process. return 200 on OK or 400 on fail
+              - CheckConnections # Health check
+              - SendImmediately # Send the reports immediately, skip batching and timing
+              - SkipSend # Validate and route but do not send reports. Data is kept in the hub.
+          example: ValidatePayload
+        - in: query
+          name: default
+          description: Dynamic default values for an element. ':' or %3A is used to seperate element name and value
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+          example: processing_mode_code%3AD
+        - in: query
+          name: routeTo
+          description: A comma speparated list of receiver names. Limit the list of possible receivers to these receivers.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          example: fl-phd.elr,fl-phd.download
+        - in: query
+          name: processing
+          description: "'sync' or 'async'. defaults to 'sync'. Determines if the incoming message will follow the sync or async process"
+          required: false
+          schema:
+              type: string
+          example: async
+        - in: query
+          name: payloadName
+          description: Optional string name for the data payload submitted.   Typically a filename or other name useful to the sender's record-keeping.  Tracked, but not used, by ReportStream.  Must never include PII/PHI.
+          required: false
+          schema:
+            type: string
+          example: C:/foo/bar/baz/quux/myfile.hl7
+      requestBody:
+        description: The public health information being routed
+        required: true
+        content:
+          text/csv:
+            schema:
+              type: string
+            example:
+              header1, header2
+
+              value1, value2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '201':
+          description: Created. A report was created, but items may have been rejected.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '400':
+          description: Invalid request. No report created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '500':
+          description: Internal Server Error
+
+# Building
+components:
+  schemas:
+    Report:
+      type: object
+      required: ["id"]
+      properties:
+        id:
+          description: the id for the report assigned by the Hub
+          type: string
+        timestamp:
+          description: the timestamp for this report submission
+          type: string
+          format: date-time
+        topic:
+          description: the topic configured for the client organization sender
+          type: string
+        reportItemCount:
+          description: total number of individual reports sent to the Hub (in a csv, the number of data lines sent)
+          type: integer
+        destinations:
+          description: where the report is being sent to
+          type: array
+          items:
+            $ref: '#/components/schemas/Destination'
+        destinationCount:
+          description: total destinations recieving the report(s)
+          type: integer
+        errorCount:
+          description: total errors found during initial validation.  There may be multiple errors per item.
+          type: integer
+        warningCount:
+          description: total warnings found during initial validation.  There may be multiple warnings per item.
+          type: integer
+        errors:
+          description: a list of errors in the report
+          type: array
+          items:
+            $ref: '#/components/schemas/Detail'
+        warnings:
+          description: a list of warnings in the report
+          type: array
+          items:
+            $ref: '#/components/schemas/Detail'
+
+    Detail:
+      type: object
+      properties:
+        scope:
+          type: string
+          description: Does the error apply to one item
+          enum:
+            - Parameter
+            - Report
+            - Item
+        id:
+          type: string
+          description: Depends on scope, either the item's id (message_id) or the report's id
+        detail:
+          type: string
+          description: The details of the error
+
+    Destination:
+      type: object
+      properties:
+        organization:
+          type: string
+          description: The name of the organization reciving the report
+        organization_id:
+          type: string
+          description: The organization id (i.e. {state abbreviation}-phd)
+        service:
+          type: string
+          description: The service used for delivering the report
+        filteredReportRows:
+          type: array
+          description: "Information about the rows filtered from the report due to quality."
+          items:
+            type: string
+        sending_at:
+          type: string
+          format: date-time
+          description: The time at which the report will be sent
+        itemCount:
+          type: integer
+          description: The number of reports being sent to this destination
+
+  securitySchemes:
+    ApiKeyAuth:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/ApiKeyAuth'

@@ -1,0 +1,18 @@
+# DO NOT include azure-functions-worker in this file
+# The Python Worker is managed by Azure Functions platform
+# Manually managing azure-functions-worker may cause unexpected issues
+
+azure-functions
+azure-storage-blob
+azure-identity
+azure.keyvault.secrets
+psycopg2-binary
+ping3
+paramiko
+# pin due to Snyk findings
+idna>=3.7
+pyjwt>=2.4.0
+paramiko>=3.4.0
+urllib3>=1.26.18
+certifi>=2023.7.22
+cryptography>=42.0.6

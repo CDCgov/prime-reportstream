@@ -1,0 +1,20 @@
+---
+# Run ./prime receiver set --input ./settings/staging/0047-load-simulation-rcvr1.yml --env staging
+name: EVERY_5_MINS
+externalName: Batches and Sends every 5 minutes.  For Load testing.
+organizationName: ignore
+topic: covid-19
+customerStatus: active
+jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, EVERY_5_MINS)" ]
+timing:
+  operation: MERGE
+  numberPerDay: 288 # Every 5 minutes
+  initialTime: 00:00
+translation:
+  type: HL7
+  useBatchHeaders: true
+transport:
+  type: SFTP
+  host: 10.0.2.6
+  port: 22
+  filePath: ./upload

@@ -1,0 +1,46 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: cx-identifier
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      condition: $cx5 NOT_NULL
+      vars:
+        cx5: CX.5
+      expressionsMap:
+        url:
+          type: STRING
+          value: CX.5
+        valueString:
+          type: STRING
+          valueOf: $cx5
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        cx9: STRING_ALL, CX.9
+      condition: $cx9 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: CX.9
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: CX.9
+    - expressionType: nested
+      vars:
+        cx10: STRING_ALL, CX.10
+      condition: $cx10 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: CX.10
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: CX.10

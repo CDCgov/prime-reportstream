@@ -1,0 +1,117 @@
+# To submit this to localhost, run:
+#
+# ./prime multiple-settings set --env staging --input ./settings/staging/0162-la-phl-staging-new-rest-setting.yml
+---
+- name: "la-phl"
+  description: "Louisiana Public Health Lab"
+  jurisdiction: "STATE"
+  stateCode: "LA"
+  countyName: null
+  filters: []
+  featureFlags: []
+  keys: null
+  senders:
+    - !<full-elr>
+      name: "etor-nbs-results"
+      organizationName: "la-phl"
+      format: "HL7"
+      customerStatus: "active"
+      schemaName: ""
+      processingType: "sync"
+      allowDuplicates: true
+      senderType: null
+      primarySubmissionMethod: null
+      topic: "etor-ti"
+      version: null
+      createdBy: null
+      createdAt: null
+  receivers:
+  - name: "etor-nbs-orders"
+    organizationName: "la-phl"
+    topic: "etor-ti"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "metadata/hl7_mapping/receivers/Flexion/TILabOrder"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "LA-PHL"
+      receivingApplicationOID: null
+      receivingFacilityName: "LA"
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB: {}
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "standard"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+    - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'LA') or (Bundle.entry.resource.ofType(Patient).address.state.exists()\
+      \ and Bundle.entry.resource.ofType(Patient).address.state = 'LA')"
+    - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21')"
+    qualityFilter:
+    - "true"
+    routingFilter: []
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<REST>
+      reportUrl: "https://api.neometrics.com/natusAPI/api/v2/HL7"
+      authTokenUrl: "https://api.neometrics.com/natusAPI/api/v2/AUTH/Login"
+      headers:
+        Content-Length:  "<calculated when request is sent>"
+        Content-Type:  "multipart/form-data"  # Added for sending multipart/form-data or file format message content
+        Key: "files"    # Added for the key value as file.
+        Subscription: "23edf66e1fe14685bb9dfa2cbb14eb3b"  # Added the assigned subscription value.
+        Host: "api.neometrics.com"
+      authHeaders:
+        ExpectSuccess: true   # Added to auth header to expect success otherwise throw exception.
+        Content-Type: "application/json"  # Added for authentication body as json.
+        Subscription: "23edf66e1fe14685bb9dfa2cbb14eb3b" # Added the assigned subscription value.
+        Host: "api.neometrics.com"
+        Authorization-Type: "username/password" # Added for using username and password to authenticate and get token
+      type: "REST"
+    externalName: "Louisiana State Public Health Lab ETOR Receiver"
+    timeZone: null
+    dateTimeFormat: "OFFSET"

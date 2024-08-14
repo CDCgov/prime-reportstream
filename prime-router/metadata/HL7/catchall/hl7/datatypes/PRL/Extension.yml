@@ -1,0 +1,46 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: STRING
+  valueOf: $prlExtensionName
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - vars:
+        prl1: STRING_ALL, PRL.1
+      condition: $prl1 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: prl-1-parent-observation-identifier
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: PRL.1
+    - vars:
+        prl2: STRING, PRL.2
+      condition: $prl2 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: prl-2-parent-observation-sub-identifier
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PRL.2
+    - vars:
+        prl3: STRING, PRL.3
+      condition: $prl3 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: prl-3-parent-observation-descriptor
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PRL.3

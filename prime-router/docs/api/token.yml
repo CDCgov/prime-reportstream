@@ -1,0 +1,50 @@
+openapi: "3.0.3"
+info:
+  title: ReportStream Token API
+  version: "1.0"
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://open.cdc.gov
+    email: usds@cdc.gov
+paths:
+  /api/token:
+    post:
+      description: Generate and return a new token for the requested scope
+      security:
+        - OAuth2: [ user ]
+      requestBody:
+        description: Parameters should be sent in the request body.
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                scope:
+                  type: string
+                  description: Permission being requested. Format is orgName.senderName.desiredPermission. Example "strac.default.report"
+                grant_type:
+                  type: string
+                  description: The value should always be "client_credentials"
+                client_assertion_type:
+                  type: string
+                  description:   The value should always be "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+                client_assertion:
+                  type: string
+                  description: signed JWT from the sender. See https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/playbooks/how-to-use-token-auth.md
+      responses:
+        '200':
+          description: the token was created and returned
+          # content:
+          #   application/json:
+          #     schema:
+          #       $ref: '#/components/schemas/TableVersionInfo'
+        '400':
+          description: bad request
+        '401':
+          description: unauthorized
+
+components:
+  securitySchemes:
+    OAuth2:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'

@@ -1,0 +1,22 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+coding:
+  condition: $BASE_VALUE NOT_NULL
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        code:
+          expressionType: HL7Spec
+          type: STRING
+          valueOf: $BASE_VALUE
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: codeable-concept-id
+            valueBoolean:
+              valueOf: "true"

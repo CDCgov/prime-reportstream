@@ -1,0 +1,310 @@
+# These ValueSets are associated with covid-19 topic
+# ValueSets are used with CODE data elements and their display equivalents
+#
+# Name conventions
+#
+#  for SNOMED-CT use the standard element name
+#  for hl7 value sets use the HL7 name
+#  for LOINC value sets use TBD
+#  for LOCAL match the standard element
+#
+# sort alphabetically
+#
+---
+- name: covid-19/specimen_type
+  system: SNOMED_CT
+  version: 2.67
+  referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
+  values:
+    - code: 445297001
+      display: Swab of internal nose
+    - code: 258500001
+      display: Nasopharyngeal swab
+    - code: 871810001
+      display: Mid-turbinate nasal swab 
+    - code: 697989009
+      display: Anterior nares swab 
+    - code: 258411007
+      display: Nasopharyngeal aspirate 
+    - code: 429931000124105
+      display: Nasal aspirate 
+    - code: 258529004
+      display: Throat swab 
+    - code: 119334006
+      display: Sputum specimen 
+    - code: 119342007
+      display: Saliva specimen
+    - code: 258560004
+      display: Oral saliva sample 
+    - code: 258607008
+      display: Bronchoalveolar lavage fluid sample 
+    - code: 119364003
+      display: Serum specimen 
+    - code: 119361006
+      display: Plasma specimen 
+    - code: 440500007
+      display: Dried blood spot specimen 
+    - code: 258580003
+      display: Whole blood sample 
+    - code: 122555007
+      display: Venous blood specimen
+    - code: 119297000
+      display: Blood specimen
+    - code: 122554006
+      display: Capillary blood specimen
+    - code: 258467004
+      display: Nasopharyngeal washings
+    - code: 418932006
+      display: Oral swab specimen
+    - code: 433801000124107
+      display: Nasopharyngeal and oropharyngeal swab
+    - code: 309171007
+      display: Lower respiratory fluid sample
+    - code: 433871000124101
+      display: Nasal washings
+    - code: 441620008
+      display: Sputum specimen obtained by sputum induction
+    - code: 441903006
+      display: Coughed sputum specimen
+    - code: 119336008
+      display: Specimen from trachea obtained by aspiration
+    - code: 258610001
+      display: Oral fluid specimen
+    - code: 119335007
+      display: Specimen obtained by bronchial aspiration
+    - code: 1293160008
+      display: Swab from middle region of inferior nasal meatus
+    - code: 445447003
+      display: Exhaled air specimen
+
+- name: covid-19/test_result
+  system: SNOMED_CT
+  referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
+  # Note: if adding values here, please update the OBX-8 mapper
+  values:
+    - code: 260373001
+      display: Detected
+    - code: 260415000
+      display: Not detected
+    - code: 720735008
+      display: Presumptive positive
+    - code: 10828004
+      display: Positive
+    - code: 42425007
+      display: Equivocal
+    - code: 260385009
+      display: Negative
+    - code: 895231008
+      display: Not detected in pooled specimen
+    - code: 462371000124108
+      display: Detected in pooled specimen
+    - code: 419984006
+      display: Inconclusive
+    - code: 125154007
+      display: Specimen unsatisfactory for evaluation
+    - code: 455371000124106
+      display: Invalid result
+    - code: 840539006
+      display: Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
+      version: 20200309
+    - code: 840544004
+      display: Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+      version: 20200309
+    - code: 840546002
+      display: Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+      version: 20200309
+    - code: 840533007
+      display: Severe acute respiratory syndrome coronavirus 2 (organism)
+      version: 20200309
+    - code: 840536004
+      display: Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+      version: 20200309
+    - code: 840535000
+      display: Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+      version: 20200309
+    - code: 840534001
+      display: Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+      version: 20200309
+    - code: 373121007
+      display: Test not done
+    - code: 82334004
+      display: Indeterminate 
+
+- name: covid-19/order
+  system: LOINC
+  reference: Incomplete - Supports BD Veritor, Quidell Sofia, and Abbott ID Now
+  referenceUrl: https://www.cdc.gov/csels/dls/documents/livd_test_code_mapping/LIVD-SARS-CoV-2-2020-10-21.xlsx
+  values:
+    - code: 94563-4
+      display: SARS coronavirus 2 IgG Ab [Presence] in Serum or Plasma by Immunoassay
+    - code: 94500-6
+      display: SARS coronavirus 2 RNA [Presence] in Respiratory specimen by NAA with probe detection
+    - code: 94558-4
+      display: SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay
+    - code: 94534-5
+      display: SARS coronavirus 2 RdRp gene [Presence] in Respiratory specimen by NAA with probe detection
+    - code: 94564-2
+      display: SARS-CoV-2 (COVID-19) IgM Ab [Presence] in Serum or Plasma by Immunoassay
+    - code: 94531-1
+      display: SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection
+    - code: 94559-2
+      display: SARS coronavirus 2 ORF1ab region [Presence] in Respiratory specimen by NAA with probe detection
+    - code: 95209-3
+      display: SARS coronavirus+SARS coronavirus 2 Ag [Presence] in Respiratory specimen by Rapid immunoassay
+
+- name: covid-19/pregnant_aoe
+  system: SNOMED_CT
+  reference: HHS guidence and LOINC
+  referenceUrl: https://loinc.org/82810-3/
+  values:
+    - code: 77386006
+      display: Pregnant
+    - code: 60001007
+      display: Not Pregnant
+    - code: 261665006
+      display: Unknown
+
+- name: covid-19/residence_type
+  system: SNOMED_CT
+  reference: HHS guidence and LOINC
+  referenceUrl: https://loinc.org/75617-1/
+  values:
+    - code: 22232009
+      display: Hospital
+    - code: 2081004
+      display: Hospital Ship
+    - code: 32074000
+      display: Long Term Care Hospital
+    - code: 224929004
+      display: Secure Hospital
+    - code: 42665001
+      display: Nursing Home
+    - code: 30629002
+      display: Retirement Home
+    - code: 74056004
+      display: Orphanage
+    - code: 722173008
+      display: Prison-based Care Site
+    - code: 20078004
+      display: Substance Abuse Treatment Center
+    - code: 257573002
+      display: Boarding House
+    - code: 224683003
+      display: Military Accommodation
+    - code: 284546000
+      display: Hospice
+    - code: 257628001
+      display: Hostel
+    - code: 310207003
+      display: Sheltered Housing
+    - code: 57656006
+      display: Penal Institution
+    - code: 285113009
+      display: Religious Institutional Residence
+    - code: 285141008
+      display: Work (environment)
+    - code: 32911000
+      display: Homeless
+
+- name: covid-19/aoe
+  system: LOINC
+  reference: HHS guidence on the LOINC codes to use for ask-on-entry questions
+  referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages
+  values:
+    - code: 95417-2
+      display: First test for condition of interest
+      version: 2.69
+    - code: 95418-0
+      display: Whether patient is employed in a healthcare setting
+      version: 2.69
+    - code: 85658-3
+      display: Occupation [Type]
+      version: 2.68
+    - code: 95419-8
+      display: Has symptoms related to condition of interest
+      version: 2.69
+    - code: 65222-2
+      display: Date and time of symptom onset
+      version: 2.68
+    - code: 75325-1
+      display: Symptom
+      version: 2.68
+    - code: 77974-4
+      display: Patient was hospitalized because of this condition
+    - code: 95420-6
+      display: Admitted to intensive care unit for condition of interest
+      version: 2.69
+    - code: 95421-4
+      display: Resides in a congregate care setting
+      version: 2.69
+    - code: 75617-1
+      display: Residence type
+      version: 2.68
+    - code: 82810-3
+      display: Pregnancy status
+      version: 2.68
+    - code: 30525-0
+      display: Age
+      version: 2.68
+    - code: 77974-4
+      display: Whether patient was hospitalized because of this condition
+      version: 2.68
+
+- name: covid-19/specimen_source_site
+  system: SNOMED_CT
+  reference: Subset of the all body structure codes
+  referenceUrl: https://phinvads.cdc.gov/vads/ViewValueSet.action?id=9A2D4051-3AA6-42EB-AE88-541C9094B0FB
+  values:
+    - code: 119297000
+      display: Blood specimen (specimen)
+      version: 2020-09-01
+    - code: 71836000
+      display: Nasopharyngeal structure (body structure)
+      version: 2020-09-01
+    - code: 45206002
+      display: Nasal structure (body structure)
+      version: 2020-09-01
+    - code: 53342003
+      display: Internal nose structure (body structure)
+      version: 2020-09-01
+    - code: 29092000
+      display: Venous structure (body structure)
+      version: 2020-09-01
+    - code: 123851003
+      display: Mouth region structure (body structure)
+      version: 2020-09-01
+    - code: 31389004
+      display: Oropharyngeal structure (body structure)
+      version: 2020-09-01
+    - code: 39607008
+      display: Lung structure (body structure)
+      version: 2020-09-01
+    - code: 955009
+      display: Bronchial structure (body structure)
+      version: 2020-09-01
+    - code: 1797002
+      display: Structure of anterior nares (body structure)
+      version: 2002-01-31
+    - code: 87100004
+      display: Topography unknown (body structure)
+      version: 2020-09-01
+    - code: 442083009
+      display: Anatomical or acquired body structure (body structure)
+      version: 2020-09-01
+
+- name: covid-19/yesno
+  # See YES, NO, UNK in the reference URL.
+  reference: This maps (YES,NO,UNK) to the ReportStream internal hl70136 (Y,N,UNK)
+  system: LOCAL
+  referenceUrl: https://www.hhs.gov/sites/default/files/non-lab-based-covid19-test-reporting.pdf
+  values:
+    - code: Y
+      display: YES
+    - code: N
+      display: NO
+    - code: UNK
+      display: UNK
+
+
+
+

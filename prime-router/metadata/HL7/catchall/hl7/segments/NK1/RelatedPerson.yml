@@ -1,0 +1,299 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: RelatedPerson
+
+# Not implementing NK1.10: not in mapping, not in NIST
+# Not implementing NK1.11: not in mapping, not in NIST
+# Not implementing NK1.14: not in mapping, not in NIST
+# Not implementing NK1.17: not in mapping, not in NIST
+# Not implementing NK1.18: not in mapping, not in NIST
+# Not implementing NK1.19: not in mapping, not in NIST
+# Not implementing NK1.21: not in mapping, not in NIST
+# Not implementing NK1.22: not in mapping, not in NIST
+# Not implementing NK1.23: not in mapping, not in NIST
+# Not implementing NK1.24: not in mapping, not in NIST
+# Not implementing NK1.25: not in mapping, not in NIST
+# Not implementing NK1.26: not in mapping, not in NIST
+# Not implementing NK1.27: not in mapping, not in NIST
+# Not implementing NK1.28: not in mapping, not in NIST
+# Not implementing NK1.29: not in mapping, not in NIST
+# Not implementing NK1.34: not in mapping, not in NIST
+# Not implementing NK1.35: not in mapping, not in NIST
+# Not implementing NK1.36: not in mapping, not in NIST
+# Not implementing NK1.38: not in mapping, not in NIST
+# Not implementing NK1.39: not in mapping, not in NIST
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+patient:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Patient
+  useGroup: true
+
+name:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - valueOf: datatypes/XPN/HumanName
+      expressionType: resource
+      condition: $nk1-2 NOT_NULL
+      generateList: true
+      vars:
+        nk1-2: NK1.2
+      specs: NK1.2 *
+      constants:
+        hl7v2Field: "NK1.2"
+    - valueOf: datatypes/XPN/HumanName
+      expressionType: resource
+      condition: $nk1-30 NOT_NULL
+      generateList: true
+      vars:
+        nk1-30: NK1.30
+      specs: NK1.30 *
+      constants:
+        hl7v2Field: "NK1.30"
+
+relationship:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      condition: $nk1-3 NOT_NULL
+      vars:
+        nk1-3: NK1.3
+      specs: NK1.3
+      constants:
+        hl7v2Field: "NK1.3"
+    - valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      condition: $nk1-7 NOT_NULL
+      vars:
+        nk1-7: NK1.7
+      specs: NK1.7
+      constants:
+        hl7v2Field: "NK1.7"
+
+address:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - valueOf: datatypes/XAD/Address
+      generateList: true
+      expressionType: resource
+      condition: $nk1-4 NOT_NULL
+      vars:
+        nk1-4: NK1.4
+      specs: NK1.4 *
+      constants:
+        hl7v2Field: "NK1.4"
+    - valueOf: datatypes/XAD/Address
+      generateList: true
+      expressionType: resource
+      condition: $nk1-32 NOT_NULL
+      vars:
+        nk1-32: NK1.32
+      specs: NK1.32 *
+      constants:
+        hl7v2Field: "NK1.32"
+
+telecom:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - condition: $valueIn NOT_NULL
+      valueOf: datatypes/XTN/ContactPoint
+      generateList: true
+      expressionType: resource
+      specs: NK1.5 *
+      vars:
+        valueIn: NK1.5
+      constants:
+        hl7v2Field: "NK1.5"
+    - condition: $valueIn NOT_NULL
+      valueOf: datatypes/XTN/ContactPoint
+      generateList: true
+      expressionType: resource
+      specs: NK1.6 *
+      vars:
+        valueIn: NK1.6
+      constants:
+        useCode: work
+        hl7v2Field: "NK1.6"
+    - condition: $valueIn NOT_NULL
+      valueOf: datatypes/XTN/ContactPoint
+      generateList: true
+      expressionType: resource
+      specs: NK1.31 *
+      vars:
+        valueIn: NK1.31
+      constants:
+        hl7v2Field: "NK1.31"
+    - condition: $valueIn NOT_NULL
+      valueOf: datatypes/XTN/ContactPoint
+      generateList: true
+      expressionType: resource
+      specs: NK1.40
+      vars:
+        valueIn: NK1.40
+      constants:
+        hl7v2Field: "NK1.40"
+    - condition: $valueIn NOT_NULL
+      valueOf: datatypes/XTN/ContactPoint
+      generateList: true
+      expressionType: resource
+      specs: NK1.41
+      vars:
+        valueIn: NK1.41
+      constants:
+        hl7v2Field: "NK1.41"
+
+period:
+  vars:
+    startDate: NK1.8
+    endDate: NK1.9
+  condition: $startDate NOT_NULL || $endDate NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    start:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(startDate,ZONEID)"
+      expressionType: JEXL
+    _start:
+      expressionType: nested
+      condition: $startDate NOT_NULL
+      expressionsMap:
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $startDate
+              expressionType: HL7Spec
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(endDate,ZONEID)"
+      expressionType: JEXL
+    _end:
+      expressionType: nested
+      condition: $endDate NOT_NULL
+      expressionsMap:
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $endDate
+              expressionType: HL7Spec
+
+identifier:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - valueOf: datatypes/CX/Identifier
+      condition: $nk1-12 NOT_NULL
+      vars:
+        nk1-12: NK1.12
+      expressionType: resource
+      specs: NK1.12
+      constants:
+        CXIdentifierField: NK1.12
+    - valueOf: datatypes/CX/Identifier
+      condition: $nk1-33 NOT_NULL
+      vars:
+        nk1-33: NK1.33
+      generateList: true
+      expressionType: resource
+      specs: NK1.33 *
+      constants:
+        CXIdentifierField: NK1.33
+    - expressionType: nested
+      condition: $nk1-37 NOT_NULL
+      vars:
+        nk1-37: NK1.37
+      expressionsMap:
+        value:
+          type: STRING
+          valueOf: NK1.37
+          expressionType: HL7Spec
+        system:
+          type: SYSTEM_URL
+          value: "http://hl7.org/fhir/sid/us-ssn"
+
+gender:
+  expressionType: nested
+  expressions:
+    - condition: $adminSexID NOT_NULL
+      vars:
+        adminSexID: NK1.15.1
+      valueOf: NK1.15.1
+      type: ADMINISTRATIVE_GENDER
+      expressionType: HL7Spec
+    - condition: $adminSexID NULL
+      vars:
+        adminSexID: NK1.15.1
+        adminSexAltID: NK1.15.4
+      valueOf: NK1.15.4
+      type: ADMINISTRATIVE_GENDER
+      expressionType: HL7Spec
+
+_gender:
+  expressionType: nested
+  condition: $nk1-15 NOT_NULL
+  vars:
+    nk1-15: NK1.15
+  expressionsMap:
+    extension:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: nk1-15-administrative-sex
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: NK1.15
+
+birthDate:
+  type: DATE
+  valueOf: NK1.16
+  expressionType: HL7Spec
+
+communication:
+  expressionType: nested
+  vars:
+    nk1-20: STRING_ALL, NK1.20
+  condition: $nk1-20 NOT_NULL
+  expressionsMap:
+    language:
+      valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      specs: NK1.20
+
+extension:
+  expressionType: nested
+  generateList: true
+  vars:
+    nk1-13: STRING_ALL, NK1.13
+    nk1-16: STRING_ALL, NK1.16
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: hl7v2Segment
+        valueString:
+          valueOf: 'NK1'
+    - expressionType: resource
+      valueOf: segments/NK1/NK1Extension

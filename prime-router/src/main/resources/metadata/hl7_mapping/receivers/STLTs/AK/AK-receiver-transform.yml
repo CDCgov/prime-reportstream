@@ -1,0 +1,122 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+
+elements:
+
+  # XTN
+  - name: xtn-use-code-from-system
+    condition: '%resource.system = "email"'
+    value: [ '"NET"' ]
+    hl7Spec: [ '%{hl7TelecomPath}-2' ]
+
+  - name: ak-receiving-application
+    condition: 'true'
+    value: [ '"AKDOH"' ]
+    hl7Spec: [ 'MSH-5-1' ]
+
+  - name: ak-receiving-facility
+    condition: 'true'
+    value: [ '"AKDOH"' ]
+    hl7Spec: [ 'MSH-6-1' ]
+
+  - name: ak-patient-name-type-code
+    condition: 'true'
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-5-7 ]
+
+  - name: ak-patient-race-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+    condition: '%resource.code.exists()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
+
+  - name: ak-patient-county-codes
+    value: [ 'Bundle.entry.resource.ofType(Patient).address.district' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-11-6' ]
+    valueSet:
+      values:
+        Aleutians East: 2013
+        Aleutians West: 2016
+        Anchorage: 2020
+        Bethel: 2050
+        Bristol Bay: 2060
+        Denali: 2068
+        Dillingham: 2070
+        Fairbanks North Star: 2090
+        Haines: 2100
+        Juneau: 2110
+        Kenai Peninsula: 2122
+        Ketchikan Gateway: 2130
+        Kodiak Island: 2150
+        Lake and Peninsula: 2164
+        Matanuska-Susitna: 2170
+        Nome: 2180
+        North Slope: 2185
+        Northwest Arctic: 2188
+        Prince of Wales-Outer Ketchikan: 2201
+        Sitka: 2220
+        Skagway-Hoonah-Angoon: 2232
+        Southeast Fairbanks: 2240
+        Valdez-Cordova: 2261
+        Wade Hampton: 2270
+        Wrangell-Petersburg: 2280
+        Yakutat: 2282
+        Yukon-Koyukuk: 2290
+
+  - name: ak-patient-ethnicity-identifier-code
+    value:
+      - 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding[0].code'
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-22-1' ]
+    valueSet:
+      values:
+        H: 2135-2
+        N: 2186-5
+
+  - name: ak-patient-ethnicity-group-name-of-code-system
+    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.code = "U"'
+    value: [ '"NULLFL"' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-3 ]
+
+  - name: ak-patient-ethnicity-group-name-of-code-system
+    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding.code != "U"'
+    value: [ '"CDCREC"' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-3 ]
+
+  - name: ak-ordering-provider-person-identifier
+    condition: 'true'
+    value: [ '""' ]
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-1' ]
+
+  - name: ak-ordering-provider-address-city
+    condition: 'Bundle.entry.resource.ofType(Organization).address.city.exists().not()'
+    value: [ '"Unknown"' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-22-3 ]
+
+  - name: ak-ordering-provider-address-line
+    condition: 'Bundle.entry.resource.ofType(Practitioner).address.line.exists().not()'
+    value: [ '"Unknown"' ]
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-24-1' ]
+
+  - name: ak-ordering-provider-address-postal-code
+    condition: 'Bundle.entry.resource.ofType(Practitioner).address.postalCode.exists().not()'
+    value: [ '"Unknown"' ]
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-24-5' ]
+
+  - name: ak-ordering-provider-id-number
+    condition: 'true'
+    value: [ '""' ]
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/OBR-16-1' ]
+
+  # Needed to convert HL7 timestamp to HL7 date for OBX-5
+  - name: obx-value-dtm-dt
+    condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "OBX.2").value = "DT"'
+    value: [ '%resource.value.extension(%`rsext-hl7v2-date-time`).value.toString().replace("-","")' ]
+    hl7Spec: [ '%{hl7OBXField}-5' ]
+
+  - name: ak-specimen-source-site-text
+    condition: 'true'
+    value: [ 'Bundle.entry.resource.ofType(Specimen).collection.bodySite.text' ]
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-8-2' ]

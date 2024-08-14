@@ -1,0 +1,102 @@
+# $schema: ./../../../metadata/json_schema/organizations/organizations.json
+
+# To submit this to localhost, run:
+#
+# ./prime multiple-settings set --input ./metadata/hl7_mapping/receivers/STLTs/KS/ks-doh.yml
+---
+- name: "ks-doh"
+  description: "Kansas Department Of Health"
+  jurisdiction: "STATE"
+  stateCode: "KS"
+  countyName: null
+  filters: []
+  featureFlags: []
+  keys: []
+  senders: []
+  receivers:
+    - name: "full-elr"
+      organizationName: "ks-doh"
+      topic: "full-elr"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/KS/KS-receiver-transform.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "KSDOH"
+        receivingApplicationOID: "2.16.840.1.114222.4.3.3.36"
+        receivingFacilityName: "KDHE"
+        receivingFacilityOID: "2.16.840.1.114222.4.3.2.2.1.163"
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB: null
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        reportingFacilityIdType: null
+        suppressQstForAoe: true
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "standard"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: true
+          truncateHl7Fields: []
+          customLengthHl7Fields: {}
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'KS') or (Bundle.entry.resource.ofType(Patient).address.state = 'KS')"
+      qualityFilter: []
+      routingFilter:
+        - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or Bundle.entry.resource.ofType(serviceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists())"
+        - "(Bundle.entry.resource.ofType(Patient).address.line.exists() or Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or Bundle.entry.resource.ofType(Patient).telecom.exists())"
+        - "Bundle.entry.resource.ofType(MessageHeader).id.exists()"
+        - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
+        - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
+        - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
+        - "Bundle.entry.resource.ofType(Specimen).type.exists()"
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      conditionFilter:
+        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists()) or (Bundle.entry.resource.ofType(Practitioner).address.state = 'KS' and %resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('86406008')).exists())"
+      mappedConditionFilter: []
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "CENTRAL"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<SFTP>
+        host: "sftp.ksepitrax.org"
+        port: "22"
+        filePath: "/SFTP_ELR/ReportStream_Input_Folder_Prod"
+        credentialName: null
+        type: "SFTP"
+      externalName: null
+      enrichmentSchemaNames: []
+      timeZone: "CENTRAL"
+      dateTimeFormat: "LOCAL"

@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "resourceType": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": {
+    "$ref": "#/$defs/expression"
+  },
+  "$defs": {
+    "expression": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "specs": {
+          "type": "string"
+        },
+        "default": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "vars": {
+          "type": "object"
+        },
+        "condition": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "valueOf": {
+          "type": "string"
+        },
+        "expressionType": {
+          "type": "string",
+          "enum": [
+            "HL7Spec",
+            "resource",
+            "reference",
+            "simple",
+            "nested",
+            "JEXL"
+          ]
+        },
+        "generateList": {
+          "type": "boolean"
+        },
+        "constants": {
+          "type": "object"
+        },
+        "evaluateLater": {
+          "type": "boolean"
+        },
+        "useGroup": {
+          "type": "boolean"
+        },
+        "expressions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/expression"
+          }
+        },
+        "expressionsMap": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                },
+                "valueOf": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            "valueString": {
+              "$ref": "#/$defs/expression"
+            },
+            "valueAnnotation": {
+              "$ref": "#/$defs/expression"
+            },
+            "valueAddress": {
+              "$ref": "#/$defs/expression"
+            },
+            "valueAttachment": {
+              "$ref": "#/$defs/expression"
+            },
+            "valueId": {
+              "$ref": "#/$defs/expression"
+            },
+            "valueIdentifier": {
+              "$ref": "#/$defs/expression"
+            },
+            "valueBoolean": {
+              "$ref": "#/$defs/expression"
+            },
+            "valueCodeableConcept": {
+              "$ref": "#/$defs/expression"
+            },
+            "valueCode": {
+              "$ref": "#/$defs/expression"
+            },
+            "valueCoding": {
+              "$ref": "#/$defs/expression"
+            },
+            "valueDecimal": {
+              "$ref": "#/$defs/expression"
+            },
+            "valueDatetime": {
+              "$ref": "#/$defs/expression"
+            },
+            "valueHumanName": {
+              "$ref": "#/$defs/expression"
+            },
+            "valueQuantity": {
+              "$ref": "#/$defs/expression"
+            },
+            "valueReference": {
+              "$ref": "#/$defs/expression"
+            },
+            "valueRange": {
+              "$ref": "#/$defs/expression"
+            },
+            "valueRatio": {
+              "$ref": "#/$defs/expression"
+            }
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/expression"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

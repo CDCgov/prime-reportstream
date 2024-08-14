@@ -1,0 +1,34 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: xon-organization
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        xon3: STRING_ALL, XON.3
+      condition: $xon3 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: XON.3
+        valueString:
+          expressionType: HL7Spec
+          type: STRING
+          valueOf: XON.3
+    - expressionType: nested
+      vars:
+        xon10: STRING_ALL, XON.10
+      condition: $xon10 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: XON.10
+        valueString:
+          expressionType: HL7Spec
+          type: STRING
+          valueOf: XON.10

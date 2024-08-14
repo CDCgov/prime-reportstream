@@ -1,0 +1,83 @@
+<!doctype HTML>
+<html lang="en">
+<head>
+    <title>An Annotated HL7 Message</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>An Annotated HL7 Message</h1>
+        <div>
+            Below is a sample HL7 message that has been deanonymized. The goal for below is to show how data from our COVID-19 schema gets represented in the HL7 messages we create.
+        </div>
+        <div class="mt-4">
+            <pre>
+                <a href="#" data-segment-key="FHS" data-toggle="popover" class="popover-target">FHS</a>|^~\&|<a href="#" data-toggle="popover" class="popover-target"   data-segment-key="FHS-2">CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO</a>|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|MEDSS-ELR^2.16.840.1.114222.4.3.3.6.2.1^ISO|MN DOH^2.16.840.1.114222.4.1.3661^ISO|202108191554+0000
+                <a href="#" data-segment-key="BHS" data-toggle="popover" class="popover-target">BHS</a>|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|MEDSS-ELR^2.16.840.1.114222.4.3.3.6.2.1^ISO|MN DOH^2.16.840.1.114222.4.1.3661^ISO|202108191554+0000
+                <a href="#" data-segment-key="MSH" data-toggle="popover" class="popover-target">MSH</a>|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ocala^10D0724595^CLIA|MEDSS-ELR^2.16.840.1.114222.4.3.3.6.2.1^ISO|MN DOH^2.16.840.1.114222.4.1.3661^ISO|20210819155405.7848+0000||ORU^R01^ORU_R01|101523|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+                <a href="#" data-segment-key="SFT" data-toggle="popover" class="popover-target">SFT</a>|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210819
+                <a href="#" data-segment-key="PID" data-toggle="popover" class="popover-target">PID</a>|1||b044f9ba-7589-4ffd-b97f-a58a7cf5b1b1^^^Avante at Ocala&10D0724595&CLIA^PI^&10D0724595&CLIA||Gleason^Rico^Delmar^^^^L||19510623|F||2106-3^White^HL70005^^^^2.5.1|8414 Waters Shoal^^Finlayson^MN^55735^USA^^^27115||^NET^Internet^jess.schinner@email.com~(225)363-4787^PRN^PH^^1^225^3634787|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N
+                <a href="#" data-segment-key="ORC" data-toggle="popover" class="popover-target">ORC</a>|RE|101523^Avante at Ocala^10D0724595^CLIA|101523^Avante at Ocala^10D0724595^CLIA|||||||||1386986453^Lapuma^Robert^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(352)732-0042^WPN^PH^^1^352^7320042|20210714||||||Avante at Ocala|2021 SW 1st Ave^^Ocala^FL^34471^^^^12083|(321)288-3025^WPN^PH^^1^321^2883025|2021 SW 1st Ave^^^FL^34471
+                <a href="#" data-segment-key="OBR" data-toggle="popover" class="popover-target">OBR</a>|1|101523^Avante at Ocala^10D0724595^CLIA|101523^Avante at Ocala^10D0724595^CLIA|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||202107140000-0500|202107140000-0500||||||||1386986453^Lapuma^Robert^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(352)732-0042^WPN^PH^^1^352^7320042|||||202107140000-0500|||F
+                <a href="#" data-segment-key="OBX" data-toggle="popover" class="popover-target">OBX</a>|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||202107140000-0500|10D0724595^CLIA||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR^^^^2.68^^CareStart COVID-19 Antigen test_Access Bio, Inc._EUA||202107140000-0500||||Avante at Ocala^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^XX^^^10D0724595|2021 SW 1st Ave^^Ocala^FL^34471^^^^12083
+                <a href="#" data-segment-key="OBX-AOE" data-toggle="popover" class="popover-target">OBX</a>|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202107140000-0500|10D0724595||||202107140000-0500||||Avante at Ocala^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^XX^^^10D0724595|2021 SW 1st Ave^^Ocala^FL^34471^^^^12083|||||QST
+                <a href="#" data-segment-key="OBX-AOE" data-toggle="popover" class="popover-target">OBX</a>|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202107140000-0500|10D0724595||||202107140000-0500||||Avante at Ocala^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^XX^^^10D0724595|2021 SW 1st Ave^^Ocala^FL^34471^^^^12083|||||QST
+                <a href="#" data-segment-key="OBX-AOE" data-toggle="popover" class="popover-target">OBX</a>|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202107140000-0500|10D0724595||||202107140000-0500||||Avante at Ocala^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^XX^^^10D0724595|2021 SW 1st Ave^^Ocala^FL^34471^^^^12083|||||QST
+                <a href="#" data-segment-key="OBX-AOE" data-toggle="popover" class="popover-target">OBX</a>|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202107140000-0500|10D0724595||||202107140000-0500||||Avante at Ocala^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^XX^^^10D0724595|2021 SW 1st Ave^^Ocala^FL^34471^^^^12083|||||QST
+                <a href="#" data-segment-key="SPM" data-toggle="popover" class="popover-target">SPM</a>|1|101523&&10D0724595&CLIA^101523&&10D0724595&CLIA||258500001^Nasopharyngeal swab^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^SCT^^^^2020-09-01|||||||||202107140000-0500|20210714000006.0000-0500
+                <a href="#" data-segment-key="BTS" data-toggle="popover" class="popover-target">BTS</a>|1
+                <a href="#" data-segment-key="FTS" data-toggle="popover" class="popover-target">FTS</a>|1
+            </pre>
+        </div>
+    </div>
+    <script>
+        // our segment info
+        const segmentInfo = {
+            "": { title: "", contents: `` },
+            "FHS": { title: "FHS Segment", contents: `The is the file header` },
+            "BHS": { title: "BHS Segment", contents: `This is a batch header` },
+            "MSH": { title: "MSH Segment", contents: `The HL7 message header. There is one per message and includes metadata about the message.` },
+            "SFT": { title: "SFT Segment", contents: `The Software segment, which identifies CDC Prime as the software sending the data.` },
+            "PID": { title: "PID Segment", contents: `The segment of patient identifying information` },
+            "ORC": { title: "ORC Segment", contents: `` },
+            "OBR": { title: "OBR Segment", contents: `` },
+            "OBX": { title: "OBX Segment", contents: `` },
+            "SPM": { title: "SPM Segment", contents: `The SPM segment contains information about the specimen collected` },
+            "BTS": { title: "BTS Segment", contents: `This is a batch footer, indicating the end of a batches` },
+            "FTS": { title: "FTS Segment", contents: `This is the file footer, which closes out a file of batches` },
+            "OBX-AOE": { 
+                title: "An OBX AOE Segment",
+                contents: `This is an AOE segment. AOE stands for "Ask on Order Entry", and are a set of additional questions the facility can ask.` 
+            },
+            "FHS-2": { title: "FHS-2", contents: `I am Jack's magic content` },
+        };
+
+        const getPopoverContents = (key) => {
+            return segmentInfo[key].contents;
+        };
+
+        const getPopoverTitle = (key) => {
+            return segmentInfo[key].title;
+        }
+
+        $(document).ready(() => {
+            $('.popover-target').popover({
+                trigger: 'focus',
+                html: true,
+                container: 'body',
+                placement: 'top',
+                content: function() {
+                    return getPopoverContents($(this).data("segment-key"));
+                },
+                title: function() {
+                    return getPopoverTitle($(this).data("segment-key"));
+                },
+            });
+            $('[data-toggle="tooltip"]').tooltip();
+            $('[data-toggle="popover"]').popover();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Device
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+identifier:
+  valueOf: datatypes/EI/Identifier
+  expressionType: resource
+  specs: $BASE_VALUE

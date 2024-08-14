@@ -1,0 +1,21 @@
+@use "src/global-modules" as *;
+
+.legend {
+    list-style: none;
+
+    li {
+        @include u-float(left);
+        @include u-margin-right(1);
+    }
+
+    span {
+        @include u-border(0);
+        @include u-float(left);
+        @include u-width(2);
+        @include u-height(2);
+        @include u-margin-top(0.5);
+        @include u-margin-right(0.5);
+        @include u-margin-bottom(2px);
+        @include u-margin-left(2px);
+    }
+}

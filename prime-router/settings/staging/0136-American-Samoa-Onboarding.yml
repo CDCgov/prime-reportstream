@@ -1,0 +1,33 @@
+# ./prime multiple-settings set --env staging --input ./settings/staging-download/0136-American-Samoa-Onboarding.yml
+---
+- name: as-phd
+  description: "American Samoa Public Health Department"
+  jurisdiction: STATE
+  stateCode: AS
+  receivers:
+    - name: elr-download
+      organizationName: as-phd
+      topic: covid-19
+      customerStatus: testing
+      deidentify: false
+      translation:
+        schemaName: "upload-covid-19"
+        format: "CSV"
+        defaults: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        type: "CUSTOM"
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, AS, patient_state, AS)
+      qualityFilter:
+        - "doesNotMatch(processing_mode_code,T,D)"
+        - "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
+        - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
+        - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob)"
+      reverseTheQualityFilter: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1
+        initialTime: "00:00"
+        timeZone: "SAMOA"
+        maxReportCount: 10000

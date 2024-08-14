@@ -1,0 +1,265 @@
+---
+name: hhsprotect-covid-19
+description: Schema for Submission to HHSProtect
+topic: covid-19
+trackingElement: message_id
+basedOn: covid-19
+extends: direct/direct-covid-19
+elements:
+
+  # Not doing these metadata fields:
+  #  CHAINCODEID
+  #  KEY
+  #  BLOCKNO
+  #  TXNISVALID
+  #  TXNINITIATOR
+  #  DOCTYPE
+  #  SCHEMAVERSION
+  #  SUBMISSIONSTATUS
+  #  ATTRIBUTEERRORS
+  #  TNNNO
+  #  TXNID
+  #  TXNTIMESTAMP
+  #  TNSISDELETE
+
+  # Not doing these data fields
+  #  PATIENTDOB
+  #  PATIENTRACETEXT
+  #  PATIENTETHNICITYTEXT
+  #  TESTRESULTTEXT
+  #  PATIENTPHONEAREA
+  #  PREGNANTTEXT
+  #  ORDERINGPROVIDERPHONEAREA
+
+  # Two additional fields added:  testPerformed, orderingFacilityState
+
+  - name: sender_id
+    # Same as SUBMITTERUSERID from Waters
+    csvFields: [{ name: submitterId}]
+
+  - name: message_id
+    csvFields: [{ name: testId}]
+
+  - name: ordered_test_code
+    csvFields: [{ name: testOrdered}]
+
+  - name: ordered_test_name
+    csvFields: [{ name: testName}]
+
+  - name: test_result
+    csvFields: [{ name: testResult }]
+
+  - name: test_coding_system
+    csvFields: [{ name: testCodingSystem}]
+
+  - name: test_result_coding_system
+    csvFields: [{ name: testResultCodingSystem }]
+
+  - name: order_test_date
+    csvFields: [{ name: testOrderedDate, format: yyyyMMdd}]
+
+  - name: test_result_date
+    csvFields: [{ name: testResultDate, format: yyyyMMdd}]
+
+  - name: date_result_released
+    csvFields: [{ name: testReportDate, format: yyyyMMdd}]
+
+  - name: test_kit_name_id
+    csvFields: [{ name: deviceIdentifier}]
+
+  - name: equipment_model_name
+    csvFields: [{ name: deviceName}]
+
+  - name: patient_id_hash
+    csvFields: [{ name: patientUniqueId}]
+
+  - name: patient_age
+    # Not sure why this name doesn't follow pattern,eg, patientAge
+    csvFields: [{ name: patAge}]
+
+  - name: patient_age_units
+    # Should be 'yr' or 'mo'.
+    csvFields: [{ name: patAgeUnits}]
+
+  - name: patient_race
+    csvFields: [{ name: patientRace}]
+
+  - name: patient_ethnicity
+    # Want to display 2135-2, 2186-5, UNK (note loss of info with ASKU).  Fix by changing covid-19.schema to use (2135-2, etc)
+    altValues:
+      - code: H
+        display: 2135-2
+      - code: N
+        display: 2186-5
+      - code: U
+        display: UNK
+    csvFields: [{ name: patientEthnicity, format: $alt}]
+
+  - name: patient_gender
+    csvFields: [{ name: patientSex}]
+
+  - name: patient_zip_code 
+    # Again, doesn't follow naming pattern
+    csvFields: [{ name: patZip}]
+
+  - name: patient_county
+    csvFields: [{ name: patientCounty}]
+
+  - name: patient_city
+    csvFields: [{ name: patientCity}]
+
+  - name: patient_state
+    csvFields: [{ name: patientState}]
+
+  - name: patient_street
+    csvFields: [{ name: patientHomeAddress}]
+
+  - name: patient_street2
+    csvFields: [{ name: patientHomeAddress2}]
+
+  - name: patient_email
+    csvFields: [{ name: patientEmail}]
+
+  - name: patient_phone_number
+    csvFields: [{ name: patientPhone}]
+
+  - name: patient_last_name
+    csvFields: [{ name: patientNameLast}]
+
+  - name: patient_first_name
+    csvFields: [{ name: patientNameFirst}]
+
+  - name: patient_middle_name
+    csvFields: [{ name: patientNameMiddle}]
+
+  - name: specimen_type
+    csvFields: [{ name: specimenSource}]
+
+  - name: specimen_id
+    csvFields: [{ name: specimenId}]
+
+  - name: equipment_instance_id
+    csvFields: [{ name: serialNumber}]
+
+  - name: specimen_collection_date_time
+    csvFields: [{ name: specimenDate, format: yyyyMMdd}]
+
+  - name: first_test
+    type: CODE
+    valueSet: covid-19/yesno
+    csvFields: [{ name: firstTest, format: $display}]
+
+  - name: previous_test_date
+    csvFields: [{ name: previousTestDate, format: yyyyMMdd}]
+
+  - name: previous_test_result
+    csvFields: [{ name: previousTestResult}]
+
+  - name: previous_test_type
+    csvFields: [{ name: previousTestType}]
+
+  - name: employed_in_healthcare
+    type: CODE
+    valueSet: covid-19/yesno
+    csvFields: [{ name: healthcareEmployee, format: $display}]
+
+  - name: healthcare_employee_type
+    csvFields: [{ name: healthcareEmployeeType}]
+
+  - name: hospitalized
+    type: CODE
+    valueSet: covid-19/yesno
+    csvFields: [{ name: hospitalized, format: $display}]
+
+  - name: hospitalized_code
+    csvFields: [{ name: hospitalizedCode}]
+
+  - name: symptomatic_for_disease
+    type: CODE
+    valueSet: covid-19/yesno
+    csvFields: [{ name: symptomatic, format: $display}]
+
+  - name: symptoms_list
+    csvFields: [{ name: symptomsList}]
+
+  - name: icu
+    type: CODE
+    valueSet: covid-19/yesno
+    csvFields: [{ name: symptomsIcu, format: $display}]
+
+  - name: resident_congregate_setting
+    type: CODE
+    valueSet: covid-19/yesno
+    csvFields: [{ name: congregateResident, format: $display}]
+
+  - name: site_of_care
+    csvFields: [{ name: congregateResidentType}]
+
+  - name: pregnant
+    csvFields: [{ name: pregnant}]
+
+  - name: ordering_provider_id
+    csvFields: [{ name: orderingProviderNpi}]
+
+  - name: ordering_provider_last_name
+    csvFields: [{ name: orderingProviderLname}]
+
+  - name: ordering_provider_first_name
+    csvFields: [{ name: orderingProviderFname}]
+
+  - name: ordering_provider_zip_code
+    csvFields: [{ name: orderingProviderZip}]
+
+  - name: ordering_provider_street
+    csvFields: [{ name: orderingProviderAddress}]
+
+  - name: ordering_provider_street2
+    csvFields: [{ name: orderingProviderAddress2}]
+
+  - name: ordering_provider_city
+    csvFields: [{ name: orderingProviderCity}]
+
+  - name: ordering_provider_state
+    csvFields: [{ name: orderingProviderState}]
+
+  - name: ordering_provider_phone_number
+    csvFields: [{ name: orderingProviderPhone}]
+
+  - name: testing_lab_clia
+    csvFields: [{ name: performingFacility}]
+
+  - name: reporting_facility_name
+    csvFields: [{ name: reportingFacility}]
+
+  - name: testing_lab_zip_code
+    # Is 'performingFacilityZip' in waters.
+    csvFields: [{ name: facilityZip}]
+
+  # Not in what waters sends to hhs
+  - name: test_performed_code
+    csvFields: [{ name: testPerformed }]
+    
+  # Not in what waters sends to hhs
+  - name: ordering_facility_state
+    csvFields: [{ name: orderingFacilityState }]
+
+  # Force these fields, inherited from the parent, to not display, by not giving them csvFields values
+  - name: test_result_text
+    csvFields: []
+  - name: patient_dob
+    csvFields: []
+  - name: patient_race_text
+    csvFields: []
+  - name: patient_ethnicity_text
+    csvFields: []
+  - name: patient_id
+    csvFields: []
+  - name: patient_phone_number_area_code
+    csvFields: []
+  - name: ordering_provider_phone_number_area_code
+    csvFields: []
+  - name: pregnant_text
+    csvFields: []
+
+  - name: processing_mode_code
+    csvFields: [{name: processingModeCode}]

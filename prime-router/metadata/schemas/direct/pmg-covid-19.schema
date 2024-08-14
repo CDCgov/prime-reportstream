@@ -1,0 +1,16 @@
+---
+# deprecated
+name: pmg-covid-19
+description: Premier Medical Group USA
+topic: covid-19
+trackingElement: specimen_id
+basedOn: covid-19
+extends: direct/direct-covid-19
+
+elements:
+  - name: sender_id
+    default: pmg
+
+  - name: processing_mode_code
+    default: P
+

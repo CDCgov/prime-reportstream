@@ -1,0 +1,71 @@
+openapi: "3.0.3"
+info:
+  title: ReportStream Check API
+  description: "Commands to verify Receiver settings by connecting to the external server."
+  version: "1.0"
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://open.cdc.gov
+    email: usds@cdc.gov
+paths:
+  /api/check:
+    get:
+      description: checks a single remote connection
+      security:
+        - OAuth2: [ user ]
+      responses:
+        '200':
+          description: success call
+
+  /api/checkreceiver/org/{orgName}/receiver/{receiverName}:
+    post:
+      description: Load Receiver Settings and verifies connecting to the external server works.
+      security:
+        - OAuth2: [ org_admin, system_admin ]
+      parameters:
+        - name: orgName
+          in: path
+          description: Name of Organization.
+          required: true
+          schema:
+            type: string
+        - name: receiverName
+          in: path
+          description: Logical name of the Receiver Setting
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The table contents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckReceiverResponse'
+        '404':
+          description: The orgName or receiverName  was not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: User FAILED authorized for endpoint
+
+components:
+  securitySchemes:
+    OAuth2:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'
+
+  schemas:
+    CheckReceiverResponse:
+      description: A json object with a result and message field.
+      type: object
+      required: [ "result", "message" ]
+      properties:
+        result:
+          type: string
+          description: "'success' or 'fail' for connecting to receiver using these settings"
+          example: "success"
+        message:
+          type: string
+          description: Multi-line string with messages to debug issue. Will include \\n and \\t characters
+          example: "ignore.EVERY_5_MINS: SFTP Transport: SFTPTransportType(host=sftp, port=22, filePath=./upload, credentialName=DEFAULT-SFTP)\\n\\tignore.EVERY_5_MINS: sftp: No root cause\\njava.net.UnknownHostException"

@@ -1,0 +1,59 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: nte-annotation
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        nte2: NTE.2
+      condition: $nte2 NOT_NULL
+      expressionsMap:
+        url:
+          value: NTE.2
+          type: STRING
+        valueId:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: NTE.2
+    - expressionType: nested
+      vars:
+        nte7: NTE.7
+      condition: $nte7 NOT_NULL
+      expressionsMap:
+        url:
+          value: NTE.7
+          type: STRING
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: NTE.7
+    - expressionType: nested
+      vars:
+        nte8: NTE.8
+      condition: $nte8 NOT_NULL
+      expressionsMap:
+        url:
+          value: NTE.8
+          type: STRING
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: NTE.8
+    - expressionType: nested
+      vars:
+        nte9: STRING_ALL, NTE.9
+      condition: $nte9 NOT_NULL
+      generateList: true
+      specs: NTE.9 *
+      expressionsMap:
+        url:
+          value: NTE.9
+          type: STRING
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource

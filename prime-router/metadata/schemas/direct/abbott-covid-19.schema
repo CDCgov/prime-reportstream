@@ -1,0 +1,16 @@
+---
+name: abbott-covid-19
+description: Abbott
+topic: covid-19
+trackingElement: specimen_id
+basedOn: covid-19
+extends: direct/directlite-covid-19
+
+elements:
+  - name: sender_id
+    default: abbott
+
+  - name: processing_mode_code
+    default: P
+
+  - name: test_type

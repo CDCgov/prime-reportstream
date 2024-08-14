@@ -1,0 +1,148 @@
+# This docker compose file is intended to set up a developer environment
+services:
+  # This container runs our Azure function code.
+  prime_dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        INSECURE_SSL: "${PRIME_DATA_HUB_INSECURE_SSL:-true}"
+    volumes: # Attach the PWD into the image
+      - type: bind
+        source: ./build
+        target: /prime-data-hub-router
+    # start server regardless of apidocs setup
+    command: bash -c "/prime-data-hub-router/upload_swaggerui.sh ; /prime-data-hub-router/start_func.sh"
+    env_file:
+      # On first run of docker compose create this file, it will get populated, but docker compose doesn't allow optional env_file
+      # Example: touch .vault/env/.env.local
+      # https://github.com/docker/compose/pull/3955
+      - ./.vault/env/.env.local
+    environment:
+      # this storage account key is not a secret. It just looks like one.
+      - AzureWebJobsStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
+      - PartnerStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
+      - POSTGRES_USER=prime
+      - POSTGRES_PASSWORD=changeIT!
+      # postgresql comes from the build environment; it is accessible because we are connected to the build network (see "networks")
+      - POSTGRES_URL=jdbc:postgresql://postgresql:5432/prime_data_hub
+      - PRIME_ENVIRONMENT=local
+      - RS_OKTA_baseUrl=reportstream.oktapreview.com
+      - RS_OKTA_clientId=0oa8uvan2i07YXJLk1d7
+      - RS_OKTA_redirect=http://localhost:7071/api/download
+      - VAULT_API_ADDR=http://vault:8200
+      - FHIR_ENGINE_TEST_PIPELINE=enabled
+    depends_on:
+      - azurite
+      - vault
+    ports:
+      - "7071:7071" # default function port
+      - "5005:5005" # Java debug port
+      - "9090:9090" # Java JMX port
+    networks:
+      - prime-router_build
+
+  # Azurite is the Azure storage emulator for local development
+  azurite:
+    build:
+      context: ../.environment/docker/docker-compose/
+      dockerfile: Dockerfile.azurite
+    # uncomment the line below to skip x-ms-version checks
+    # command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
+    volumes:
+      # map to Azurite data objects to the build directory
+      - ./build/azurite:/data
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+    networks:
+      - prime-router_build
+
+  azurite-stage:
+    build:
+      context: ../.environment/docker/docker-compose/
+      dockerfile: Dockerfile.azurite
+    # uncomment the line below to skip x-ms-version checks
+    # command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
+    volumes:
+      # map to Azurite data objects to the build directory
+      - ./build/azurite-stage:/data
+    ports:
+      - "11000:10000"
+      - "11001:10001"
+    networks:
+      - prime-router_build
+
+  # local SFTP server as a receive point
+  sftp:
+    image: atmoz/sftp
+    ports:
+      - "2222:22"
+    volumes:
+      - ./build/sftp:/home/foo/upload
+      # add more users
+      - ../.environment/sftp-conf/users.conf:/etc/sftp/users.conf:ro
+      # add host keys so we're the same all the time and no MITM messages
+      # I removed the read-only flag from these two because we need to make sure
+      # that the files can get chmod'd on initialization, and they can't if they're RO
+      - ../.environment/sftp-conf/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key
+      - ../.environment/sftp-conf/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key
+      # add a key for the dev
+      - ../.environment/sftp-conf/ssh_dev_rsa_key.pem.pub:/home/bar/.ssh/keys/ssh_dev_rsa_key.pem.pub:ro
+      - ../.environment/sftp-conf/ignore-putty-file-old-openssh.pub:/home/fizz/.ssh/keys/ignore-putty-file-old-openssh.pub:ro
+      # add a script for init
+      - ../.environment/sftp-conf/init.sh:/etc/sftp.d/init.sh:ro
+    networks:
+      - prime-router_build
+
+  # a SOAP endpoint to test against
+  soap-webservice:
+    image: castlemock/castlemock
+    ports:
+      - "8087:8080"
+    volumes:
+      - ../.environment/soap_service:/root/.castlemock
+      - ../.environment/soap_service:/castlemock/castlemock
+    networks:
+      - prime-router_build
+
+  # a REST endpoint to test OAuth and report posting
+  rest-webservice:
+    image: mockoon/cli
+    command:
+      - --data=/root/data.json
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../.environment/rest_service:/root
+    networks:
+      - prime-router_build
+
+  # Secrets management
+  vault:
+    image: hashicorp/vault
+    cap_add:
+      # Allows protected memory
+      - IPC_LOCK
+    volumes:
+      # Contains script for bootstrapping the Docker container
+      - .vault/config:/vault/config
+      # Location to store the vault keys
+      - .vault/env:/vault/env
+      # Vault database persisted as a Docker volume
+      - vault:/vault/file
+    ports:
+      # Vault API
+      - 8200:8200
+    # Override the command with our custom init script
+    command: "/vault/config/init.sh"
+    networks:
+      - prime-router_build
+
+volumes:
+  # For storing a local encrypted secrets database
+  vault:
+
+networks:
+  prime-router_build:

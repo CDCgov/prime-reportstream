@@ -1,0 +1,17 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0103-kwokmandx-ca.yml --env staging
+---
+- name: "kwokmandx-ca"
+  description: "Kwokman Diagnostics in CA - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "kwokmandx-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"

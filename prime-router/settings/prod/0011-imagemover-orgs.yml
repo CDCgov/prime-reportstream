@@ -1,0 +1,128 @@
+- name: wi-dph
+  description: Wisconsin Department of Public Health
+  jurisdiction: STATE
+  stateCode: WI
+  receivers:
+    - name: elr
+      organizationName: wi-dph
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, WI, patient_state, WI)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      timing:
+        operation: MERGE
+        numberPerDay: 1
+        initialTime: 09:15
+        timeZone: EASTERN
+
+- name: tn-doh
+  description: Tennessee Department of Health
+  jurisdiction: STATE
+  stateCode: TN
+  receivers:
+    - name: elr
+      organizationName: tn-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, TN, patient_state, TN)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: tdh-ELR
+        receivingApplicationOID: 2.16.840.1.113883.3.773.1.1.3
+        receivingFacilityName: TDH
+        receivingFacilityOID: 2.16.840.1.113883.3.773
+      timing:
+        operation: MERGE
+        numberPerDay: 1
+        initialTime: 09:15
+        timeZone: EASTERN
+
+- name: ms-doh
+  description: Mississippi Department of Health
+  jurisdiction: STATE
+  stateCode: MS
+  receivers:
+    - name: elr
+      organizationName: ms-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, MS, patient_state, MS)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: MSDH-ELR
+        receivingFacilityName: MSDOH
+      timing:
+        operation: MERGE
+        numberPerDay: 1
+        initialTime: 09:15
+        timeZone: EASTERN
+
+- name: nc-dph
+  description: North Carolina Division of Public Health
+  jurisdiction: STATE
+  stateCode: NC
+  receivers:
+    - name: elr
+      organizationName: nc-dph
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, NC, patient_state, NC)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: NCDPH NCEDSS
+        receivingApplicationOID: 2.16.840.1.113883.3.591.3.1
+        receivingFacilityName: NCDPH EDS
+        receivingFacilityOID: 2.16.840.1.113883.3.591.1.1
+      timing:
+        operation: MERGE
+        numberPerDay: 1
+        initialTime: 09:15
+        timeZone: EASTERN
+
+- name: de-dph
+  description: Delaware Division of Public Health
+  jurisdiction: STATE
+  stateCode: DE
+  receivers:
+    - name: elr
+      organizationName: de-dph
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, DE, patient_state, DE)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      timing:
+        operation: MERGE
+        numberPerDay: 1
+        initialTime: 09:15
+        timeZone: EASTERN
+
+- name: ca-dph
+  description: California Department of Public Health
+  jurisdiction: STATE
+  stateCode: CA
+  receivers:
+    - name: elr
+      organizationName: ca-dph
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, CA, patient_state, CA)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      transport:
+        type: SFTP
+        host: ecgpe.healthtechnologygroup.com
+        port: 22
+        filePath: ./in/simple/HL7
+      timing:
+        operation: MERGE
+        numberPerDay: 1
+        initialTime: 09:15
+        timeZone: EASTERN

@@ -1,0 +1,25 @@
+---
+name: "elr-prod"
+organizationName: "az-phd"
+topic: "covid-19"
+translation:
+  schemaName: "az/az-covid-19"
+  format: "CSV"
+  defaults: {}
+  nameFormat: "STANDARD"
+  receivingOrganization: null
+  type: "CUSTOM"
+jurisdictionalFilter:
+- "matches(ordering_facility_state,AZ)"
+deidentify: false
+timing:
+  operation: "MERGE"
+  numberPerDay: 1
+  initialTime: "09:15"
+  timeZone: "EASTERN"
+description: ""
+transport: !<SFTP>
+  host: "hssftp.azdhs.gov"
+  port: "22"
+  filePath: "./PROD/IN"
+  type: "SFTP"

@@ -1,0 +1,11 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0046-all-in-one-health-ca.yml --env prod
+---
+- name: all-in-one-health-ca
+  description: All-In-One Health CSV lab report schema, California
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: all-in-one-health-ca
+      topic: covid-19
+      schemaName: non-standard/all-in-one-health-ca-covid-19
+      format: CSV

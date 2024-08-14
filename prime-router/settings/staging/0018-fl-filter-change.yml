@@ -1,0 +1,42 @@
+---
+name: "elr"
+organizationName: "fl-phd"
+topic: "covid-19"
+translation: !<HL7>
+  useTestProcessingMode: false
+  useBatchHeaders: true
+  receivingApplicationName: "FDOH-ELR"
+  receivingApplicationOID: "2.16.840.1.114222.4.3.3.8.1.3"
+  receivingFacilityName: "FDOH"
+  receivingFacilityOID: "2.16.840.1.114222.1.3645"
+  messageProfileId: null
+  reportingFacilityName: null
+  reportingFacilityId: null
+  suppressQstForAoe: false
+  suppressHl7Fields: null
+  suppressAoe: false
+  defaultAoeToUnknown: false
+  useBlankInsteadOfUnknown: null
+  truncateHDNamespaceIds: false
+  usePid14ForPatientEmail: false
+  convertTimestampToDateTime: null
+  nameFormat: "STANDARD"
+  receivingOrganization: null
+  type: "HL7"
+jurisdictionalFilter:
+  - "orEquals(ordering_facility_state, FL, patient_state, FL)"
+qualityFilter: []
+deidentify: false
+timing:
+  operation: "MERGE"
+  numberPerDay: 1440
+  initialTime: "00:00"
+  timeZone: "EASTERN"
+  maxReportCount: 100
+description: ""
+transport: !<SFTP>
+  host: "10.0.2.4"
+  port: "22"
+  filePath: "./upload"
+  type: "SFTP"
+

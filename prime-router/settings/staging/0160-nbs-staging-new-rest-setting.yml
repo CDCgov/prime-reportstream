@@ -1,0 +1,103 @@
+# To submit this to localhost, run:
+#
+# ./prime multiple-settings set --env staging --input ./settings/staging/0160-nbs-staging-new-rest-setting.yml
+---
+- name: "dataingestion"
+  description: "Data Ingestion CDC NBS"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  featureFlags: []
+  keys: []
+  senders: []
+  receivers:
+  - name: "datateam-cdc-nbs"
+    organizationName: "dataingestion"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: false
+      receivingApplicationName: null
+      receivingApplicationOID: null
+      receivingFacilityName: null
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB: {}
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+    - "allowAll()"
+    qualityFilter:
+    - "allowAll()"
+    routingFilter: []
+    processingModeFilter:
+    - "matches(processing_mode_code,T,D)"
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    deidentify: true
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:02"
+      timeZone: "EASTERN"
+      maxReportCount: 1000
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<REST>
+      reportUrl: "https://dataingestion.test.nbspreview.com/api/reports"
+      authTokenUrl: "https://dataingestion.test.nbspreview.com/token"
+      headers:
+        senderLabName: "CDC PRIME REPORTSTREAM"
+        Content-Type: "text/plain"  # Added for sending text/plain format message content
+        Content-Length:  "<calculated when request is sent>"  # Added for Calculate message length when sending the message
+        RecordId: "header.reportFile.reportId"
+        sourceLabName: "CDC PRIME REPORTSTREAM"
+        Host: "dataingestion.test.nbspreview.com"
+        msgType: "HL7"
+        validationActive: true
+      authHeaders:
+        Authorization-Type: "Basic Auth"   # Added for Basic Auth to authenticate with NBS
+        ExpectSuccess: true   # Added to auth header to expect success otherwise throw exception.
+        Host: "dataingestion.test.nbspreview.com"
+      type: "REST"
+    externalName: null
+    timeZone: null
+    dateTimeFormat: "OFFSET"

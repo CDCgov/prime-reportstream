@@ -1,0 +1,38 @@
+[
+    {
+      "sent": 1650390438000,
+      "via": "HL7_BATCH",
+      "total": 1,
+      "fileType": "HL7_BATCH",
+      "type": "ELR",
+      "reportId": "c6cf3ffe-6c36-4af5-a5b0-14788bc41a9b",
+      "expires": 1652982438000,
+      "sendingOrg": "",
+      "receivingOrg": "ca-dph",
+      "receivingOrgSvc": "elr-secondary",
+      "facilities": [],
+      "actions": [],
+      "displayName": "elr-secondary",
+      "content": "",
+      "fileName": "covid-19-c6cf3ffe-6c36-4af5-a5b0-14788bc41a9b-20220419134719.hl7",
+      "mimeType": "application/hl7-v2"
+    },
+    {
+      "sent": 1649783170000,
+      "via": "HL7_BATCH",
+      "total": 1,
+      "fileType": "HL7_BATCH",
+      "type": "ELR",
+      "reportId": "c3c8e304-8eff-4882-9000-3645054a30b7",
+      "expires": 1652375170000,
+      "sendingOrg": "",
+      "receivingOrg": "ca-dph",
+      "receivingOrgSvc": "elr-secondary",
+      "facilities": [],
+      "actions": [],
+      "displayName": "elr-secondary",
+      "content": "",
+      "fileName": "covid-19-c3c8e304-8eff-4882-9000-3645054a30b7-20220412130611.hl7",
+      "mimeType": "application/hl7-v2"
+    }
+  ]

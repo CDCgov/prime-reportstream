@@ -1,0 +1,4 @@
+MSH|^~\&#|||||20230501102531-0400||ORU^R01^ORU_R01|12345||2.5.1|||||USA|UNICODE UTF-8
+PID|1
+OBR|1|||68991-9^Epidemiologically Important Information^LN|||||||||||||||||||||F
+OBX|1|ST|8675-3^Fake^LN||Some value||||||||||||||||||Org^1234-5&TestText&LN&1234-5&TestAltText&LN&1&2&OriginalText^123^Check Digit^C1^Assigning Authority&2.1.4.1&ISO^MD^Hospital A&2.16.840.1.113883.9.11&ISO|4861&20TH AVE&1^Other Designation^THUNDER MOUNTAIN^IG^99999^USA^B^Other Geographic Designation^County^6059^A^^20220501102531-0400^20230501102531-0400^^^^^Adressee|1^BEETHOVEN&VAN&Medical Director&VAL&ROGER^LUDWIG^B^2ND^DR^MD^SRC^Namespace&AssigningSystem&UUID^B^A^NPI^DL^^A^NameContext^^G^20220501102531-0400^20230501102531-0400^MD^AssignJ^AssignA

@@ -1,0 +1,58 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: obx-5-value-sn
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - vars:
+        sn1: STRING, SN.1
+      condition: $sn1 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: SN.1
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: SN.1
+    - vars:
+        sn2: STRING, SN.2
+      condition: $sn2 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: SN.2
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: SN.2
+    - vars:
+        sn3: STRING, SN.3
+      condition: $sn3 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: SN.3
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: SN.3
+    - vars:
+        sn4: STRING, SN.4
+      condition: $sn4 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: SN.4
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: SN.4

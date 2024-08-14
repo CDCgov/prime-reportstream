@@ -1,0 +1,17 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0090-pcl-ca.yml --env prod
+---
+- name: "pcl-ca"
+  description: "Pacific Clinical Laboratory - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "pcl-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "active"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"

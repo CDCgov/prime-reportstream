@@ -1,0 +1,31 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: nk1-related-person
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      generateList: true
+      condition: $nk1-13 NOT_NULL
+      specs: NK1.13 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: NK1.13
+        valueReference:
+          valueOf: datatypes/XON/Organization
+          expressionType: reference
+    - expressionType: nested
+      condition: $nk1-16 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: NK1.16
+        valueString:
+          type: STRING
+          valueOf: NK1.16
+          expressionType: HL7Spec

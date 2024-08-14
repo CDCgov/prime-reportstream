@@ -1,0 +1,1 @@
+# Terraform plan validation directory

@@ -1,0 +1,48 @@
+# NM update
+- name: nm-doh
+  description: New Mexico Department of Health
+  jurisdiction: STATE
+  stateCode: NM
+  receivers:
+    - name: elr
+      organizationName: nm-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, NM)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingOrganization: elr
+        receivingApplicationName: NMDOH
+        receivingApplicationOID: 2.16.840.1.113883.3.5364
+        receivingFacilityName: NMDOH
+        receivingFacilityOID: 2.16.840.1.113883.3.5364
+        truncateHDNamespaceIds: true
+        nameFormat: APHL_LIGHT
+        # turn off UNK and ASKU for this field
+        useBlankInsteadOfUnknown: patient_race
+      transport:
+        type: SFTP
+        host: secure.lcfresearch.org
+        port: 22
+        filePath: ./
+      timing:
+        operation: MERGE
+        numberPerDay: 12
+        initialTime: 01:15
+        timeZone: EASTERN
+    - name: elr-csv
+      organizationName: nm-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, NM)
+      translation:
+        type: CUSTOM
+        format: CSV
+        schemaName: nm/nm-covid-19-csv
+      timing:
+        operation: MERGE
+        numberPerDay: 12
+        initialTime: 01:15
+        timeZone: EASTERN
+      # no transport. just csv to the download site

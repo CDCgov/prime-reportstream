@@ -1,0 +1,85 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+constants:
+  hl7SpecimenFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
+  performerOrganization: '%diagnostic.basedOn.resolve().performer.resolve()'
+elements:
+  #####################################
+  # Simple Report specific transforms #
+  #####################################
+  #  Simple report is not sending a unique Specimen identifier, grabbing it from Diagnostic Report
+  #  CA uses SPM identifier as their Accession number to uniquely identify reports sent to them
+  - name: ca-specimen-organization-identifier
+    resource: '%performerOrganization'
+    constants:
+      organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-1'
+      identifier: '%diagnostic.identifier[0].value'
+    schema: classpath:/metadata/hl7_mapping/common/organization-identifier.yml
+
+  # Same as above
+  - name: ca-specimen-organization-identifier-2
+    resource: '%performerOrganization'
+    constants:
+      organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-2'
+      identifier: '%diagnostic.identifier[0].value'
+    schema: classpath:/metadata/hl7_mapping/common/organization-identifier.yml
+
+  #####################################
+  # California    specific transforms #
+  #####################################
+  # SPM-2-1-2: Max length 20
+  - name: ca-specimen-organization-identifier-name
+    resource: '%performerOrganization'
+    value: [ '%resource.name.substring(0,20)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-2-1-2' ]
+
+  # SPM-2-2-2: Max length 20
+  - name: ca-specimen-organization-identifier-name-2
+    resource: '%performerOrganization'
+    value: [ '%resource.name.substring(0,20)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-2-2-2' ]
+
+  - name: ca-specimen-type-display
+    condition: '%resource.type.exists() and %resource.type.coding[0].display.exists().not()'
+    value: [ '%resource.type.text' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-4-2' ]
+
+  - name: ca-specimen-type-text
+    value: [ "" ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-4-9' ]
+
+  - name: ca-specimen-type-version
+    condition: '%resource.type.exists() and %resource.type.coding[0].version.exists().not()'
+    value: [ '2.67' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-4-7' ]
+
+  - name: ca-specimen-collection-time
+    condition: '%resource.collection.collected.exists() and %resource.collection.collected.is(dateTime)'
+    value: [ '%resource.collection.collected.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
+
+  - name: specimen-observation-date-time-start
+    condition: '%resource.collection.collected.exists() and %resource.collection.collected is Period'
+    value: [ '%resource.collection.collected.start.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
+
+  # Alternative to getting specimen collection time from DiagnosticReport instead
+  - name: specimen-collection-time-diagnostic
+    condition: '%resource.collection.collected.exists().not() and %diagnostic.effective.exists() and %diagnostic.effective is dateTime'
+    value: [ '%diagnostic.effective.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
+
+  - name: specimen-observation-date-time-end
+    condition: '%resource.collection.collected.exists() and %resource.collection.collected is Period'
+    value: [ '%resource.collection.collected.end.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-17-2' ]
+
+  - name: specimen-received-time
+    condition: '%resource.receivedTime.exists() and %resource.receivedTime is dateTime'
+    value: [ '%resource.receivedTime.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]
+
+  - name: specimen-received-time-diagnostic
+    condition: '%resource.receivedTime.exists().not() and %resource.collection.collected.is(dateTime)'
+    value: [ '%resource.collection.collected.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]

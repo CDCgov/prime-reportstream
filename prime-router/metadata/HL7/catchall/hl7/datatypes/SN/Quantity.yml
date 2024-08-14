@@ -1,0 +1,74 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+comparator:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: SN.1
+
+value:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: SN.2
+
+code:
+  condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: CWEQuantityUnits.1
+  vars:
+    identifier: CWEQuantityUnits.1
+    nameOfCodingSystem: CWEQuantityUnits.3
+
+unit:
+  expressionType: nested
+  vars:
+    identifier: CWEQuantityUnits.1
+    text: CWEQuantityUnits.2
+  expressions:
+    - condition: $text NULL && $identifier NOT_NULL
+      type: STRING
+      valueOf: CWEQuantityUnits.1
+      expressionType: HL7Spec
+    - condition: $text NOT_NULL
+      type: STRING
+      valueOf: CWEQuantityUnits.2
+      expressionType: HL7Spec
+
+system:
+  condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: CWEQuantityUnits.3
+  vars:
+    identifier: CWEQuantityUnits.1
+    nameOfCodingSystem: CWEQuantityUnits.3
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - vars:
+        sn3: STRING, SN.3
+      condition: $sn3 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: SN.3
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: SN.3
+    - vars:
+        sn4: STRING, SN.4
+      condition: $sn4 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: STRING
+          value: SN.4
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: SN.4
+

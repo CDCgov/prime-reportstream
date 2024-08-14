@@ -1,0 +1,13 @@
+name,code,display,version
+yesno,Y,YES,
+yesno,Y,Y,
+yesno,N,NO,
+yesno,N,N,
+yesno,UNK,Unknown,
+yesno,UNK,U,
+yesno,UNK,UNK,
+yesno,UNK,N/A,
+yesno,UNK,NA,
+yesno,UNK,NR,
+yesno,UNK,NP,
+yesno,UNK,maybe,

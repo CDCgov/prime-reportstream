@@ -1,0 +1,46 @@
+---
+name: "elr-secondary"
+organizationName: "ma-phd"
+topic: "covid-19"
+translation: !<HL7>
+  useTestProcessingMode: false
+  useBatchHeaders: true
+  receivingApplicationName: null
+  receivingApplicationOID: null
+  receivingFacilityName: null
+  receivingFacilityOID: null
+  messageProfileId: null
+  reportingFacilityName: null
+  reportingFacilityId: null
+  reportingFacilityIdType: null
+  suppressQstForAoe: false
+  suppressHl7Fields: null
+  suppressAoe: false
+  defaultAoeToUnknown: false
+  useBlankInsteadOfUnknown: null
+  truncateHDNamespaceIds: false
+  usePid14ForPatientEmail: false
+  convertTimestampToDateTime: null
+  phoneNumberFormatting: "STANDARD"
+  processingModeCode: null
+  nameFormat: "STANDARD"
+  receivingOrganization: null
+  type: "HL7"
+jurisdictionalFilter:
+- "orEquals(ordering_facility_state, MA, patient_state, MA)"
+qualityFilter: []
+reverseTheQualityFilter: true
+deidentify: false
+timing:
+  operation: "MERGE"
+  numberPerDay: 1440
+  initialTime: "00:00"
+  timeZone: "EASTERN"
+  maxReportCount: 500
+description: ""
+transport: !<SFTP>
+  host: "10.0.2.4"
+  port: "22"
+  filePath: "./upload"
+  credentialName: null
+  type: "SFTP"

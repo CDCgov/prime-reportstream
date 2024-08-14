@@ -1,0 +1,12 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0069-vivature-tx.yml --env staging
+---
+- name: vivature-tx
+  description: Vivature CSV COVID schema
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: vivature-tx
+      topic: covid-19
+      customerStatus: testing
+      schemaName: upload-covid-19
+      format: CSV
