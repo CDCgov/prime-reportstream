@@ -24,17 +24,17 @@ elements:
   - name: me-name-of-the-sender-facility-Namespace-Id
     condition: 'true'
     value: [ '"CDC-ReportStream"' ]
-    hl7Spec: [ 'MSH-3-1' ]
+    hl7Spec: [ 'MSH-4-1' ]
 
   - name: me-sender-facility-Universal-Id
     condition: 'true'
     value: [ '"11D2030855"' ]
-    hl7Spec: [ 'MSH-3-2' ]
+    hl7Spec: [ 'MSH-4-2' ]
 
   - name: me-sender-facility-Universal-Id-Type
     condition: 'true'
     value: [ '"CLIA"' ]
-    hl7Spec: [ 'MSH-3-3' ]
+    hl7Spec: [ 'MSH-4-3' ]
 
   - name: me-name-of-the-receiving-application
     condition: 'true'
