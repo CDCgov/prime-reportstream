@@ -254,3 +254,65 @@ customEvents
 | summarize count() by conditionDisplay
 | order by count_
 ```
+
+### List of items that were not routed where patient lived in state X
+```kql
+customEvents
+| where name == "ITEM_NOT_ROUTED"
+| extend params = parse_json(tostring(customDimensions.params))
+| where params.bundleDigest.patientState contains "X"
+```
+
+### List of items that failed a filter where patient lived in state X
+```kql
+customEvents
+| where name == "ITEM_FILTER_FAILED"
+| extend params = parse_json(tostring(customDimensions.params))
+| where params.bundleDigest.patientState contains "X"
+```
+
+### Find the original report ID for a report that failed a filter where patient lived in state X
+```kql
+customEvents
+| where name == "REPORT_RECEIVED"
+| extend reportId = tostring(customDimensions.childReportId)
+| join ( 
+    customEvents
+    | where name == "ITEM_FILTER_FAILED"
+    | extend params = parse_json(tostring(customDimensions.params))
+    | where params.bundleDigest.patientState contains "X"
+    | extend submittedReportIds = parse_json(tostring(customDimensions.submittedReportIds))
+    | mv-expand submittedReportIds
+    | project childReportId=tostring(submittedReportIds)) on $left.reportId == $right.childReportId
+```
+
+### List of items that were not routed where patient lived in state X
+```kql
+customEvents
+| where name == "ITEM_NOT_ROUTED"
+| extend params = parse_json(tostring(customDimensions.params))
+| where params.bundleDigest.patientState contains "X"
+```
+
+### List of items that failed a filter where patient lived in state X
+```kql
+customEvents
+| where name == "ITEM_FILTER_FAILED"
+| extend params = parse_json(tostring(customDimensions.params))
+| where params.bundleDigest.patientState contains "X"
+```
+
+### Find the original report ID for a report that failed a filter where patient lived in state X
+```kql
+customEvents
+| where name == "REPORT_RECEIVED"
+| extend reportId = tostring(customDimensions.childReportId)
+| join ( 
+    customEvents
+    | where name == "ITEM_FILTER_FAILED"
+    | extend params = parse_json(tostring(customDimensions.params))
+    | where params.bundleDigest.patientState contains "X"
+    | extend submittedReportIds = parse_json(tostring(customDimensions.submittedReportIds))
+    | mv-expand submittedReportIds
+    | project childReportId=tostring(submittedReportIds)) on $left.reportId == $right.childReportId
+```

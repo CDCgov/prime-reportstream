@@ -1,0 +1,22 @@
+elements:
+  - name: sr-reference-range
+    condition: '%resource.referenceRange.text.empty()'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.referenceRange.text'
+    value: [ '%resource.value.coding.code' ]
+    valueSet:
+      values:
+        260415000: Not detected
+        260385009: Negative
+        895231008: Not detected in pooled specimen
+        131194007: Non-Reactive
+        419984006: Not detected
+        42425007: Not detected
+        82334004: Not detected
+        373121007: Negative
+        455371000124106: Not detected
+        125154007: Not detected
+        260373001: Not detected
+        720735008: Negative
+        10828004: Negative
+        11214006: Non-Reactive

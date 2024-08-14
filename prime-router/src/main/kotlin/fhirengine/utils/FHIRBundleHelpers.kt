@@ -2,13 +2,12 @@ package gov.cdc.prime.router.fhirengine.utils
 
 import ca.uhn.hl7v2.model.Message
 import fhirengine.engine.CustomFhirPathFunctions
-import gov.cdc.prime.router.ActionLogDetail
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.ReportStreamFilter
-import gov.cdc.prime.router.UnmappableConditionMessage
-import gov.cdc.prime.router.cli.ObservationMappingConstants
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_CODE_IDENTIFIER
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_VALUE_IDENTIFIER
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
 import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -34,9 +33,8 @@ import java.util.stream.Stream
  */
 
 // Constant URLs
-const val conditionExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
-const val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
 const val bundleIdentifierURL = "https://reportstream.cdc.gov/prime-router"
+const val conditionExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
 
 /**
  * Retrieves loinc/snomed codes from [this] observation in known locations (code.coding and valueCodeableConcept.coding)
@@ -48,58 +46,14 @@ fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
     // This guards against the auto create behavior configuration getting changed. As currently, configured if code
     // is null, it will be auto created, but a configuration change would cause this to blow up.
     if (this.code != null) {
-        codeSourcesMap[ObservationMappingConstants.BUNDLE_CODE_IDENTIFIER] = this.code.coding
+        codeSourcesMap[BUNDLE_CODE_IDENTIFIER] = this.code.coding
     }
 
     if (this.value is CodeableConcept) {
-        codeSourcesMap[ObservationMappingConstants.BUNDLE_VALUE_IDENTIFIER] = this.valueCodeableConcept.coding
+        codeSourcesMap[BUNDLE_VALUE_IDENTIFIER] = this.valueCodeableConcept.coding
     }
 
     return codeSourcesMap
-}
-
-/**
- * For every snomed/loinc code in code or valueCodeableConcept, lookup condition codes and add them as extensions
- * @param metadata metadata containing an observation-mapping lookup table
- * @return a list of ActionLogDetail objects with information on any mapping failures
- */
-fun Observation.addMappedConditions(metadata: Metadata): List<ActionLogDetail> {
-    val codeSourcesMap = this.getCodeSourcesMap().filterValues { it.isNotEmpty() }
-    var mappedSomething = false
-    if (codeSourcesMap.values.flatten().isEmpty()) return listOf(UnmappableConditionMessage()) // no codes found
-    val mappingTable = metadata.findLookupTable("observation-mapping")
-        ?: throw IllegalStateException("Unable to load lookup table 'observation-mapping' for condition stamping")
-    val codes = codeSourcesMap.values.flatten().mapNotNull { it.code }
-
-    val conditionsToCode =
-        mappingTable.FilterBuilder().isIn(ObservationMappingConstants.TEST_CODE_KEY, codes)
-            .filter().caseSensitiveDataRowsMap.fold(mutableMapOf<String, List<Coding>>()) { acc, condition ->
-                val code = condition[ObservationMappingConstants.TEST_CODE_KEY]!!
-                val conditions = acc[code] ?: mutableListOf()
-                acc[code] = conditions.plus(
-                    Coding(
-                        condition[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY],
-                        condition[ObservationMappingConstants.CONDITION_CODE_KEY],
-                        condition[ObservationMappingConstants.CONDITION_NAME_KEY]
-                    )
-                )
-                acc
-            }
-    return codeSourcesMap.mapNotNull { codeSourceEntry ->
-        codeSourceEntry.value.mapNotNull { code ->
-            val conditions = conditionsToCode.getOrDefault(code.code ?: "", emptyList())
-            if (conditions.isEmpty()) { // no codes found, track this unmapped code
-                code.code
-            } else { // codes found; add extensions and return null to avoid mapping this as an error
-                conditions.forEach { code.addExtension(conditionCodeExtensionURL, it) }
-                mappedSomething = true
-                null
-            }
-        }.let {
-            // create log message for any unmapped codes
-            if (it.isEmpty() || mappedSomething) null else UnmappableConditionMessage(it, codeSourceEntry.key)
-        }
-    }
 }
 
 /**
@@ -200,7 +154,7 @@ fun Bundle.getDiagnosticReportNoObservations(): List<Base> {
  * If the [resource] being deleted is an [Observation] and that results in diagnostic reports having no
  * observations, the [DiagnosticReport] will be deleted
  */
-fun Bundle.deleteResource(resource: Base) {
+fun Bundle.deleteResource(resource: Base, removeOrphanedDiagnosticReport: Boolean = true) {
     val referencesToClean = mutableSetOf<String>()
 
     // build up all resources and their references in a map as a starting point
@@ -274,8 +228,14 @@ fun Bundle.deleteResource(resource: Base) {
     deleteResourceInternal(resource)
     cleanUpReferences()
 
-    // clean up empty Diagnostic Reports and references to them
-    cleanUpEmptyDiagnosticReports()
+    // The original use case of this function was just to remove Observations from a bundle
+    // but has since expanded so this behavior is opt-in
+    // TODO: Remove as part of https://github.com/CDCgov/prime-reportstream/issues/14568
+    if (removeOrphanedDiagnosticReport) {
+        // clean up empty Diagnostic Reports and references to them
+        cleanUpEmptyDiagnosticReports()
+    }
+
     cleanUpReferences()
 }
 

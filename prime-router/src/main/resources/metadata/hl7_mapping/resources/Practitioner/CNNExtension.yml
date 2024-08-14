@@ -17,3 +17,11 @@ elements:
   - name: cnn-7-degree
     value: [ '%resource.extension("CNN.7").value' ]
     hl7Spec: [ '%{hl7CNNField}-7' ]
+
+  - name: cnn-8-source-table
+    value: [ '%resource.extension("CNN.8").value' ]
+    hl7Spec: [ '%{hl7CNNField}-8' ]
+
+  - name: cnn-8-source-table
+    value: [ '%resource.extension("CNN.8").value' ]
+    hl7Spec: [ '%{hl7CNNField}-8' ]

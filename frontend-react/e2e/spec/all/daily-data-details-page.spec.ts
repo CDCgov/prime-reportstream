@@ -92,6 +92,10 @@ test.describe("Daily Data Details page", () => {
                 await dailyDataDetailsPage.page.getByRole("table").waitFor({ state: "visible" });
             });
 
+            test("has correct title", async ({ dailyDataDetailsPage }) => {
+                await expect(dailyDataDetailsPage.page).toHaveTitle(dailyDataDetailsPage.title);
+            });
+
             test.describe("table", () => {
                 test("has correct headers", async ({ dailyDataDetailsPage }) => {
                     await detailsTableHeaders(dailyDataDetailsPage.page);
@@ -219,10 +223,6 @@ test.describe("Daily Data Details page", () => {
 
     test.describe("sender user", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
-
-        // test.beforeEach(async ({ dailyDataDetailsPage }) => {
-        //     await reportDetails.goto(dailyDataDetailsPage.page, id);
-        // });
 
         test("has alert", async ({ dailyDataDetailsPage }) => {
             dailyDataDetailsPage.mockError = true;

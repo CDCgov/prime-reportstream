@@ -847,7 +847,7 @@ class DeliveryFunctionTests : Logging {
     }
 
     @Nested
-    inner class TestGetSubmitters() {
+    inner class TestGetSubmitters {
         var settings = MockSettings()
         private val organization1 = Organization(
             "simple_report",
@@ -1990,7 +1990,7 @@ class DeliveryFunctionTests : Logging {
     }
 
     @Nested
-    inner class TestGetReportItems() {
+    inner class TestGetReportItems {
 
         @BeforeEach
         fun setUp() {
