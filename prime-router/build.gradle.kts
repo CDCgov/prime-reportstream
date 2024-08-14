@@ -605,10 +605,19 @@ task<Exec>("uploadSwaggerUI") {
 }
 
 tasks.register("killFunc") {
-    exec {
-        workingDir = project.rootDir
+    doLast {
         val processName = "func"
-        commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
+        if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
+            exec {
+                workingDir = project.rootDir
+                commandLine = listOf("cmd", "/c", "taskkill /F /IM $processName.exe || exit 0")
+            }
+        } else {
+            exec {
+                workingDir = project.rootDir
+                commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
+            }
+        }
     }
 }
 
