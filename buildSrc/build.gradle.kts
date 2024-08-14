@@ -17,7 +17,7 @@ kotlin {
 }
 
 dependencies {
-    val kotlinVersion = System.getProperty("kotlinVersion") ?:"1.9.23"
+    val kotlinVersion = KotlinVersion.CURRENT.toString()
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
     implementation("org.jlleitschuh.gradle.ktlint:org.jlleitschuh.gradle.ktlint.gradle.plugin:12.1.1")
 }

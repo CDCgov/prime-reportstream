@@ -134,8 +134,8 @@ class ValidateYMLCommandTests {
             "--type organizations --dir src/test/resources/yaml_validation/failure/recursive",
             ansiLevel = AnsiLevel.TRUECOLOR
         )
-
         val outputNormalized = result.stdout.replace("\\", "/")
+
         assertThat(outputNormalized).contains(
             "src/test/resources/yaml_validation/failure/recursive contains no YAML files!"
         )
