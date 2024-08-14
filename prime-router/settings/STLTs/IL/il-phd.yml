@@ -72,14 +72,14 @@
         - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
         - "Bundle.entry.resource.ofType(Specimen).type.exists()"
       routingFilter:
-        # - "matches(test_result_status, F, C, P)"
-        - "Bundle.entry.resource.ofType(DiagnosticReport).where(status in 'final'|'corrected'|'preliminary'|'amended').exists()"
+        # - "matches(test_result_status, F, C)"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).where(status in 'final'|'corrected').exists()"
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
-        # Accept COVID only
-        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
-#        - "matches(test_type, Mol, Antigen, Breath)"
+        # "matches(test_type, Antigen, Mol), Positive results"
+        #  RSV:  	55735004, COVID:	840539006, FLU: 	6142004
+        - "%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006'|'55735004'|'6142004')).exists() and %resource.interpretation.coding.code = 'A'"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
