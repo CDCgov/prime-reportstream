@@ -54,8 +54,3 @@ elements:
 
   - name: observation-result-with-aoe
     resource: '%resource.result.resolve()'
-
-
-
-
-
