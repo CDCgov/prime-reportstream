@@ -1,5 +1,5 @@
 import site from "../../../../src/content/site.json" assert { type: "json" };
-import { scrollToFooter, scrollToTop } from "../../../helpers/utils";
+import { scrollToFooter, scrollToTop, testFooter } from "../../../helpers/utils";
 import { SupportPage } from "../../../pages/public/support.js";
 import { test as baseTest, expect } from "../../../test";
 
@@ -81,17 +81,8 @@ test.describe("Support page", () => {
     }
 
     test.describe("Footer", () => {
-        test("has footer", async ({ supportPage }) => {
-            await expect(supportPage.footer).toBeAttached();
-        });
-
-        test("explicit scroll to footer and then scroll to top", async ({ supportPage }) => {
-            await expect(supportPage.footer).not.toBeInViewport();
-            await scrollToFooter(supportPage.page);
-            await expect(supportPage.footer).toBeInViewport();
-            await expect(supportPage.page.getByTestId("govBanner")).not.toBeInViewport();
-            await scrollToTop(supportPage.page);
-            await expect(supportPage.page.getByTestId("govBanner")).toBeInViewport();
+        test("has footer and explicit scroll to footer and scroll to top", async ({ supportPage }) => {
+            await testFooter(supportPage);
         });
     });
 });
