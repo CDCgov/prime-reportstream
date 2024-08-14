@@ -1,3 +1,7 @@
+import { addDays } from "date-fns";
+
+const expiresDate = addDays(new Date(), 7);
+
 export const MOCK_GET_DELIVERIES_AK = {
     data: [
         {
@@ -118,12 +122,12 @@ export const MOCK_GET_DELIVERIES_AK = {
     },
 };
 
-export const MOCK_GET_DELIVERIES_AK_ELR = {
+export const MOCK_GET_DELIVERIES_AK_FULL_ELR = {
     data: [
         {
             deliveryId: 0,
             createdAt: "2024-04-11T21:40:10.194Z",
-            expiresAt: "2024-05-11T21:40:10.194Z",
+            expiresAt: addDays(new Date(), 8),
             receiver: "ak-phd.elr",
             receivingOrgSvcStatus: "active",
             reportId: "14ae9a00-75af-4061-a12c-e04a66cce97d",
@@ -274,7 +278,31 @@ export const MOCK_GET_DELIVERIES_AK_ELR = {
     },
 };
 
-export const MOCK_GET_DELIVERIES_AK_5 = {
+export const MOCK_GET_DELIVERIES_AK_REPORT_ID = {
+    data: [
+        {
+            deliveryId: 5,
+            createdAt: "2024-04-23T21:44:01.210Z",
+            expiresAt: "2024-05-23T21:44:01.210Z",
+            receiver: "ak-phd.full-elr-test",
+            receivingOrgSvcStatus: "active",
+            reportId: "f4155156-1230-4f0a-8a50-0a0cdec5aa0e",
+            topic: "full-elr",
+            reportItemCount: 5,
+            fileName: "ak-receiver-transform.yml-f4155156-1230-4f0a-8a50-0a0cdec5aa0e-20240423214401.hl7",
+            fileType: "HL7_BATCH",
+        },
+    ],
+    meta: {
+        type: "delivery_history",
+        totalCount: 104,
+        totalFilteredCount: 104,
+        totalPages: 11,
+        nextPage: 2,
+    },
+};
+
+export const MOCK_GET_DELIVERIES_AK_FILENAME = {
     data: [
         {
             deliveryId: 5,
@@ -303,7 +331,7 @@ export const MOCK_GET_DELIVERIES_IGNORE = {
         {
             deliveryId: 0,
             createdAt: "2024-04-26T20:42:35.817Z",
-            expiresAt: "2024-05-26T20:42:35.817Z",
+            expiresAt: addDays(new Date(), 8),
             receiver: "ignore.FULL_ELR_FHIR_B_E2E",
             receivingOrgSvcStatus: "active",
             reportId: "729158ce-4125-46fa-bea0-3c0f910f472c",
@@ -375,7 +403,7 @@ export const MOCK_GET_DELIVERIES_IGNORE = {
         {
             deliveryId: 6,
             createdAt: "2024-04-26T20:37:01.312Z",
-            expiresAt: "2024-05-26T20:37:01.312Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR",
             receivingOrgSvcStatus: "active",
             reportId: "c4e16135-45e9-4750-8230-d69549b9a792",
@@ -387,7 +415,7 @@ export const MOCK_GET_DELIVERIES_IGNORE = {
         {
             deliveryId: 7,
             createdAt: "2024-04-26T20:37:01.312Z",
-            expiresAt: "2024-05-26T20:37:01.312Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR_FHIR",
             receivingOrgSvcStatus: "active",
             reportId: "bbbe910a-e0b7-436d-a88c-d4adc241718b",
@@ -423,7 +451,7 @@ export const MOCK_GET_DELIVERIES_IGNORE = {
         {
             deliveryId: 10,
             createdAt: "2024-04-26T20:31:14.103Z",
-            expiresAt: "2024-05-26T20:31:14.103Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR",
             receivingOrgSvcStatus: "active",
             reportId: "d9e6f1bf-2e6f-4c28-be65-e607e381e375",
@@ -471,7 +499,7 @@ export const MOCK_GET_DELIVERIES_IGNORE = {
         {
             deliveryId: 14,
             createdAt: "2024-04-26T20:27:24.100Z",
-            expiresAt: "2024-05-26T20:27:24.100Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR_FHIR",
             receivingOrgSvcStatus: "active",
             reportId: "0d33d692-9752-4128-93fa-18d98bd3dd36",
@@ -483,7 +511,7 @@ export const MOCK_GET_DELIVERIES_IGNORE = {
         {
             deliveryId: 15,
             createdAt: "2024-04-26T20:27:24.100Z",
-            expiresAt: "2024-05-26T20:27:24.100Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR",
             receivingOrgSvcStatus: "active",
             reportId: "e6414fcd-917c-4783-a71c-f6da9b6eda0d",
@@ -495,7 +523,7 @@ export const MOCK_GET_DELIVERIES_IGNORE = {
         {
             deliveryId: 16,
             createdAt: "2024-04-26T20:24:10.112Z",
-            expiresAt: "2024-05-26T20:24:10.112Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR_E2E",
             receivingOrgSvcStatus: "active",
             reportId: "6f88d938-7ce0-4d66-8a16-63eee0e35785",
@@ -507,7 +535,7 @@ export const MOCK_GET_DELIVERIES_IGNORE = {
         {
             deliveryId: 17,
             createdAt: "2024-04-26T20:24:10.112Z",
-            expiresAt: "2024-05-26T20:24:10.112Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR",
             receivingOrgSvcStatus: "active",
             reportId: "34bc0475-58ee-46ac-b52d-448bdbca20a0",
@@ -519,7 +547,7 @@ export const MOCK_GET_DELIVERIES_IGNORE = {
         {
             deliveryId: 18,
             createdAt: "2024-04-26T20:24:10.112Z",
-            expiresAt: "2024-05-26T20:24:10.112Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR_FHIR",
             receivingOrgSvcStatus: "active",
             reportId: "505444a7-3473-4337-98fc-7d46272cb1ed",
@@ -531,7 +559,7 @@ export const MOCK_GET_DELIVERIES_IGNORE = {
         {
             deliveryId: 19,
             createdAt: "2024-04-26T20:24:10.112Z",
-            expiresAt: "2024-05-26T20:24:10.112Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR_FHIR_B_E2E",
             receivingOrgSvcStatus: "active",
             reportId: "8aa9addd-8045-47a8-9f09-8db111106670",
@@ -543,7 +571,7 @@ export const MOCK_GET_DELIVERIES_IGNORE = {
         {
             deliveryId: 20,
             createdAt: "2024-04-26T20:21:19.813Z",
-            expiresAt: "2024-05-26T20:21:19.813Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR",
             receivingOrgSvcStatus: "active",
             reportId: "e24571a0-03fe-4abe-850d-514afdf59ed1",
@@ -567,7 +595,7 @@ export const MOCK_GET_DELIVERIES_IGNORE_REPORT_ID = {
         {
             deliveryId: 0,
             createdAt: "2024-04-26T20:42:35.817Z",
-            expiresAt: "2024-05-26T20:42:35.817Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR_FHIR_B_E2E",
             receivingOrgSvcStatus: "active",
             reportId: "729158ce-4125-46fa-bea0-3c0f910f472c",
@@ -591,7 +619,7 @@ export const MOCK_GET_DELIVERIES_IGNORE_FILENAME = {
         {
             deliveryId: 2,
             createdAt: "2024-04-26T20:42:35.630Z",
-            expiresAt: "2024-05-26T20:42:35.630Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR_FHIR",
             receivingOrgSvcStatus: "active",
             reportId: "21c217a4-d098-494c-9364-f4dcf16b1d63",
@@ -615,19 +643,19 @@ export const MOCK_GET_DELIVERIES_IGNORE_FULL_ELR = {
         {
             deliveryId: 0,
             createdAt: "2024-04-26T20:42:35.755Z",
-            expiresAt: "2024-05-26T20:42:35.755Z",
+            expiresAt: addDays(new Date(), 8),
             receiver: "ignore.FULL_ELR",
             receivingOrgSvcStatus: "active",
-            reportId: "0e3cb853-c17c-4cbb-9bc2-d352c60db925",
+            reportId: "73e3cbc8-9920-4ab7-871f-843a1db4c074",
             topic: "full-elr",
             reportItemCount: 1,
-            fileName: "co.yml-0e3cb853-c17c-4cbb-9bc2-d352c60db925-20240426204235.hl7",
+            fileName: "co.yml-73e3cbc8-9920-4ab7-871f-843a1db4c074-20240426204235.hl7",
             fileType: "HL7",
         },
         {
             deliveryId: 1,
             createdAt: "2024-04-26T20:37:01.312Z",
-            expiresAt: "2024-05-26T20:37:01.312Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR",
             receivingOrgSvcStatus: "active",
             reportId: "c4e16135-45e9-4750-8230-d69549b9a792",
@@ -639,7 +667,7 @@ export const MOCK_GET_DELIVERIES_IGNORE_FULL_ELR = {
         {
             deliveryId: 2,
             createdAt: "2024-04-26T20:31:14.103Z",
-            expiresAt: "2024-05-26T20:31:14.103Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR",
             receivingOrgSvcStatus: "active",
             reportId: "d9e6f1bf-2e6f-4c28-be65-e607e381e375",
@@ -651,7 +679,7 @@ export const MOCK_GET_DELIVERIES_IGNORE_FULL_ELR = {
         {
             deliveryId: 3,
             createdAt: "2024-04-26T20:27:24.100Z",
-            expiresAt: "2024-05-26T20:27:24.100Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR",
             receivingOrgSvcStatus: "active",
             reportId: "e6414fcd-917c-4783-a71c-f6da9b6eda0d",
@@ -663,7 +691,7 @@ export const MOCK_GET_DELIVERIES_IGNORE_FULL_ELR = {
         {
             deliveryId: 4,
             createdAt: "2024-04-26T20:24:10.112Z",
-            expiresAt: "2024-05-26T20:24:10.112Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR",
             receivingOrgSvcStatus: "active",
             reportId: "34bc0475-58ee-46ac-b52d-448bdbca20a0",
@@ -675,7 +703,7 @@ export const MOCK_GET_DELIVERIES_IGNORE_FULL_ELR = {
         {
             deliveryId: 5,
             createdAt: "2024-04-26T20:21:19.813Z",
-            expiresAt: "2024-05-26T20:21:19.813Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR",
             receivingOrgSvcStatus: "active",
             reportId: "e24571a0-03fe-4abe-850d-514afdf59ed1",
@@ -699,7 +727,7 @@ export const MOCK_GET_DELIVERIES_IGNORE_FULL_ELR = {
         {
             deliveryId: 7,
             createdAt: "2024-04-26T20:12:17.507Z",
-            expiresAt: "2024-05-26T20:12:17.507Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR",
             receivingOrgSvcStatus: "active",
             reportId: "bc7d85ff-7d5c-4a93-acf9-fae84ad71efa",
@@ -711,7 +739,7 @@ export const MOCK_GET_DELIVERIES_IGNORE_FULL_ELR = {
         {
             deliveryId: 8,
             createdAt: "2024-04-26T20:02:10.654Z",
-            expiresAt: "2024-05-26T20:02:10.654Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR",
             receivingOrgSvcStatus: "active",
             reportId: "694a083b-28da-44e7-b873-0be70e875d6a",
@@ -723,7 +751,7 @@ export const MOCK_GET_DELIVERIES_IGNORE_FULL_ELR = {
         {
             deliveryId: 9,
             createdAt: "2024-04-26T19:58:06.978Z",
-            expiresAt: "2024-05-26T19:58:06.978Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR",
             receivingOrgSvcStatus: "active",
             reportId: "c7c084cb-21e9-4e44-a713-c8049d2d469c",
@@ -735,7 +763,7 @@ export const MOCK_GET_DELIVERIES_IGNORE_FULL_ELR = {
         {
             deliveryId: 10,
             createdAt: "2024-04-26T19:56:03.148Z",
-            expiresAt: "2024-05-26T19:56:03.148Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR",
             receivingOrgSvcStatus: "active",
             reportId: "012a9530-a900-47e2-86ab-c4f62cc5d8ba",
@@ -747,7 +775,7 @@ export const MOCK_GET_DELIVERIES_IGNORE_FULL_ELR = {
         {
             deliveryId: 11,
             createdAt: "2024-04-26T18:06:07.513Z",
-            expiresAt: "2024-05-26T18:06:07.513Z",
+            expiresAt: expiresDate,
             receiver: "ignore.FULL_ELR",
             receivingOrgSvcStatus: "active",
             reportId: "6f6448da-1527-412b-b3da-816aa64b7979",
