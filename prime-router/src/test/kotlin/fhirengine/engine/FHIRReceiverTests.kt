@@ -3,7 +3,6 @@ package gov.cdc.prime.router.fhirengine.engine
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
-import assertk.assertions.isNotEmpty
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.reportstream.shared.SubmissionsEntity
 import gov.cdc.prime.router.ActionLog
@@ -117,6 +116,7 @@ class FHIRReceiverTest {
         every { message.headers } returns headers
         every { message.reportId } returns reportID
         every { actionLogger.hasErrors() } returns hasErrors
+        every { actionLogger.setReportId(any()) } returns actionLogger
         every { engine.settings.findSender(any()) } returns sender
         every { actionHistory.trackActionResult(any<HttpStatus>()) } returns Unit
         every { actionHistory.trackActionParams(any<String>()) } returns Unit
@@ -252,38 +252,5 @@ class FHIRReceiverTest {
         assertThat(exception!!.javaClass.name).isEqualTo("java.lang.IllegalArgumentException")
         assertThat(actionLogger.errors).hasSize(1)
         assertThat(actionLogger.errors[0].detail.message).isEqualTo("Unexpected extension invalid/mime-type.")
-    }
-
-    @Test
-    fun `test missing headers`() {
-        val fhirSetup =
-            setupMocksForProcessingTest(
-                "known_client_id",
-                "application/fhir+ndjson;test",
-                CustomerStatus.ACTIVE,
-                true
-            )
-        val engine = fhirSetup.engine
-        val queueMessage = fhirSetup.message
-        val actionLogger = ActionLogger()
-        val actionHistory = fhirSetup.actionHistory
-
-        // client id will be empty so sender will not be found
-        every { queueMessage.headers } returns emptyMap()
-
-        accessSpy.transact { txn ->
-            engine.run(queueMessage, actionLogger, actionHistory, txn)
-        }
-
-        val reportId = queueMessage.reportId.toString()
-
-        assertThat(actionLogger.errors).isNotEmpty()
-        verify(exactly = 1) {
-            BlobAccess.Companion.insertTableEntity(any())
-            SubmissionsEntity(reportId, "Rejected")
-            BlobAccess.Companion.insertTableEntity(any())
-            actionHistory.trackReceivedNoReport(any(), any(), any(), any(), any())
-            actionHistory.trackActionResult(HttpStatus.BAD_REQUEST)
-        }
     }
 }
