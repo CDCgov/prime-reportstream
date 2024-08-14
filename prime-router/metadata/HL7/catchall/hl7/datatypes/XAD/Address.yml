@@ -56,14 +56,10 @@ use:
   valueOf: 'GeneralUtils.getFhirAddressUse(xad7)'
   expressionType: JEXL
 
-
-
 district:
   type: STRING
   valueOf: XAD.9
   expressionType: HL7Spec
-
-
 
 # This needs to use variables because the message parses this field using NULLDT since it is deprecated which means that
 # the values do not get correctly loaded and will not be mapped over correctly using a spec.
@@ -146,4 +142,3 @@ extension:
           valueOf: $hl7v2Component
     - expressionType: resource
       valueOf: datatypes/XAD/XADExtension
-
