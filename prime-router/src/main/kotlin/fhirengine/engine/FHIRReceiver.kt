@@ -12,7 +12,6 @@ import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.SenderNotFound
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
@@ -92,6 +91,7 @@ class FHIRReceiver(
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
+        actionLogger.setReportId(queueMessage.reportId)
         val contextMap = createLoggingContextMap(queueMessage, actionHistory)
         // Use the logging context for tracing
         withLoggingContext(contextMap) {
@@ -186,12 +186,18 @@ class FHIRReceiver(
             params(actionLogger.errors.associateBy { ReportStreamEventProperties.PROCESSING_ERROR })
         }
 
+        // Determine the mime format of the message
+        val mimeFormat =
+            MimeFormat.valueOfFromMimeType(
+                queueMessage.headers[contentTypeHeader]?.substringBefore(';') ?: ""
+            )
+
         // Track that a message was received and uploaded
         // Report is not created for absent or inactive sender
         actionHistory.trackReceivedNoReport(
             queueMessage.reportId,
             queueMessage.blobURL,
-            queueMessage.headers.toString(),
+            mimeFormat.toString(),
             TaskAction.none,
             queueMessage.headers["payloadname"]
         )
@@ -306,6 +312,8 @@ class FHIRReceiver(
     ) {
         // Track the action result and log the error
         actionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
-        actionLogger.error(SenderNotFound(queueMessage.headers[clientIdHeader].toString()))
+        actionLogger.error(
+            InvalidParamMessage("Sender has customer status INACTIVE: " + queueMessage.headers[clientIdHeader])
+        )
     }
 }

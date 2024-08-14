@@ -196,6 +196,12 @@ object UniversalPipelineTestUtils {
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
     )
+    val fhirSenderWithNoTransformInactive = UniversalPipelineSender(
+        "fhir-elr-no-transform-inactive",
+        "phd",
+        MimeFormat.FHIR,
+        topic = Topic.FULL_ELR,
+    )
     val fhirSenderWithSendOriginal = UniversalPipelineSender(
         "fhir-elr-send_original",
         "phd",
@@ -217,6 +223,7 @@ object UniversalPipelineTestUtils {
             fhirSender,
             hl7SenderWithNoTransform,
             fhirSenderWithNoTransform,
+            fhirSenderWithNoTransformInactive,
             senderWithValidation
         ),
         receivers = listOf(

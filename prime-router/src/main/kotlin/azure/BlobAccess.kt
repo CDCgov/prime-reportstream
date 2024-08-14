@@ -3,6 +3,8 @@ package gov.cdc.prime.router.azure
 import com.azure.core.util.BinaryData
 import com.azure.data.tables.TableClient
 import com.azure.data.tables.TableClientBuilder
+import com.azure.data.tables.TableServiceClient
+import com.azure.data.tables.TableServiceClientBuilder
 import com.azure.data.tables.models.TableEntity
 import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobClientBuilder
@@ -203,6 +205,16 @@ class BlobAccess() : Logging {
             tableName: String,
             blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
         ): TableClient {
+            val tableServiceClient: TableServiceClient = TableServiceClientBuilder()
+                .connectionString(blobConnInfo.connectionString)
+                .buildClient()
+
+            val tableExists = tableServiceClient.listTables().any { it.name == tableName }
+            if (!tableExists) {
+                tableServiceClient.createTable(tableName)
+            }
+
+            // Return the TableClient for the specific table
             return TableClientBuilder()
                 .connectionString(blobConnInfo.connectionString)
                 .tableName(tableName)
