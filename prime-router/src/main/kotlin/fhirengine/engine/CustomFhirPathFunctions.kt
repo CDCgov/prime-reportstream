@@ -266,7 +266,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                     GeoData.DataTypes.PROCESSING_MODE_CODE -> "P"
                     GeoData.DataTypes.VALUE_TYPE -> "CWE"
                     GeoData.DataTypes.TEST_RESULT -> randomChoice("260373001", "260415000", "419984006")
-                    GeoData.DataTypes.PATIENT_STREET_ADDRESS_2 -> randomChoice("Apt. 305", "Suite 22", "Building 2")
+                    GeoData.DataTypes.STREET_ADDRESS_2 -> randomChoice("Apt. 305", "Suite 22", "Building 2")
                     GeoData.DataTypes.ID_NUMBER -> randomChoice("ABC123", "123LKJ", "bjh098")
                     GeoData.DataTypes.SOURCE_OF_COMMENT -> randomChoice("L", "O", "P")
                 }
