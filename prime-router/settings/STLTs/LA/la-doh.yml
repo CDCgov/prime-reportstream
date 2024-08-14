@@ -99,6 +99,6 @@
         credentialName: null
         type: "SFTP"
       externalName: "elr"
-      enrichmentSchemaNames: ["classpath:/metadata/fhir_transforms/receivers/la-enrichment.yml"]
+      enrichmentSchemaNames: ["classpath:/metadata/fhir_transforms/receivers/reference-range-enrichment.yml"]
       timeZone: null
       dateTimeFormat: "OFFSET"
