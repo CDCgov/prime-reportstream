@@ -17,6 +17,7 @@ import * as dailyData from "../../pages/daily-data";
 import {
     applyButton,
     DailyDataPage,
+    detailsTableHeaders,
     endDate,
     endTime,
     endTimeClear,
@@ -1560,10 +1561,10 @@ test.describe("Daily Data page", () => {
                                 await dailyDataPage.page.waitForLoadState();
                                 await expect(dailyDataPage.page).toHaveURL(`${URL_REPORT_DETAILS}/${reportId}`);
                                 await expect(dailyDataPage.page).toHaveTitle(/Daily Data - ReportStream/);
-                                // await expect(dailyDataPage.page.locator("h1").getByText(reportId)).toBeVisible();
+                                await expect(dailyDataPage.page.locator("h1").getByText(reportId)).toBeVisible();
 
                                 // Facility table headers
-                                // await detailsTableHeaders(dailyDataPage.page);
+                                await detailsTableHeaders(dailyDataPage.page);
                             });
                         });
                     });
