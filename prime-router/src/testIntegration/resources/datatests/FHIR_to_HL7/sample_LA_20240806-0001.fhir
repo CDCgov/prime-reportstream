@@ -190,9 +190,10 @@
               "53 Buttonwood Ave"
             ],
             "city": "Brooklyn",
-            "state": "MO",
+            "state": "LA",
             "postalCode": "11224",
-            "country": "USA"
+            "country": "USA",
+            "district": "Beauregard"
           }
         ],
         "managingOrganization": {
@@ -219,7 +220,7 @@
             "value": "12D4567890"
           }
         ],
-        "name": "Testing Lab pakupyyazibjewjklzmadxbqaxgjholhovcgywxpamrkbqktramfvlryonijtkjcctefpztqwdxvjyijsnzagcnazrxmcdcnatpuvoifpektpywzlbbaylloiigvthhjzqhuntxwnmxsbhmzzzmhvdrszuotabmwxgjmysgkiokkkaevrtfctkxfzdxrueqzocptrfpeebbyyrswetzujmeglgdwrbycbbml",
+        "name": "Testing Lab",
         "telecom": [
           {
             "system": "phone",
@@ -233,7 +234,7 @@
               "123 Beach Way"
             ],
             "city": "Denver",
-            "state": "MO",
+            "state": "LA",
             "postalCode": "80210",
             "country": "USA"
           }
@@ -272,7 +273,7 @@
               "321 Ocean Drive"
             ],
             "city": "Denver",
-            "state": "MO",
+            "state": "LA",
             "postalCode": "80210",
             "country": "USA"
           }
