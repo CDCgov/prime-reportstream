@@ -14,6 +14,7 @@ extra["springCloudAzureVersion"] = "5.14.0"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework:spring-web:6.1.12")
     implementation("com.azure.spring:spring-cloud-azure-starter-storage")
     implementation("com.microsoft.azure:applicationinsights-runtime-attach:3.5.4")
     implementation("com.microsoft.azure:applicationinsights-web:3.5.4")
