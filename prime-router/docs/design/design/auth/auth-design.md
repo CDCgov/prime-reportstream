@@ -103,7 +103,7 @@ is retrieved.
 - **Okta**: A cloud-hosted identity and access management service
 - **Server2Server**: ReportStream's implementation JWT authn/authz
 - **VPC**: Virtual Private Cloud
-- **Resource Server**: A server that will require authn/authz to access. In our case ResportStream
+- **Resource Server**: A server that will require authn/authz to access. In our case ReportStream
 - **Authorization Server**: A server that handles authn/authz and issuing/revoking credentials
 - **JWT Claim**: A key/value pair in the json body of the JWT
 - **JWT Scopes**: A reserved claim in the [OAuth 2.0 spec](https://datatracker.ietf.org/doc/html/rfc8693#name-scope-scopes-claim)  containing a space-separated list of scopes associated with the token.
@@ -122,8 +122,8 @@ all requests to protected endpoints.
 
 A typical report request would look like this
 - Client makes request to authorization server (or us in the ReportStream implementation solution) to retrieve token with their own credentials
-- Client uses retrieved token with request to ResportStream
-- Request comes in and hits our auth microservice instead of ResportStream directly
+- Client uses retrieved token with request to ReportStream
+- Request comes in and hits our auth microservice instead of ReportStream directly
 - Depending on our implementation, we decide if that request is legitimate and allowed to access the designated endpoint
   - In cloud-based solutions, we would make calls out to an external authz server
     - We could also introspect the token locally if speed is a factor but its more code to write/maintain
@@ -207,7 +207,7 @@ Authz configuration file example:
 
 This approach would attempt to use existing libraries to annotate request mappings in our Spring app.
 
-We would have to write custom code in the shared project to handle configuration and authn/authz for ResportStream
+We would have to write custom code in the shared project to handle configuration and authn/authz for ReportStream
 endpoints that still live in our Azure Functions app.
 
 Pros
@@ -224,7 +224,7 @@ Cons
 
 A typical report request would look like this
 - Client makes request to authorization server (or us in the ReportStream implementation solution) to retrieve token with their own credentials
-- Client uses retrieved token with request to ResportStream
+- Client uses retrieved token with request to ReportStream
 - Request hits ReportStream resource directly
 - Depending on our implementation, we decide if that request is legitimate and allowed to access the designated endpoint
     - In cloud-based solutions, we would make calls out to an external authz server
@@ -281,7 +281,7 @@ Cons
 
 A typical report request would look like this
 - Client makes request to authorization server (or us in the ReportStream implementation solution) to retrieve token with their own credentials
-- Client uses retrieved token with request to ResportStream
+- Client uses retrieved token with request to ReportStream
 - Request hits authentication microservice
   - Microservice calls out to Okta (or other provider) to check the validity of the access token and passes request along to ReportStream
   - If the request is unauthenticated, short-circuit the request to a 401
@@ -356,6 +356,17 @@ Pros
 Cons
 - Authentication code must be called directly in ReportStream
 - Unable to take advantage of annotations
+
+A typical report request would look like this
+- Client makes request to authorization server (or us in the ReportStream implementation solution) to retrieve token with their own credentials
+- Client uses retrieved token with request to ReportStream
+- Reportstream calls out to Auth microservice
+    - Microservice calls out to Okta (or other provider) to check the validity of the access token
+    - If the request is unauthenticated, short-circuit the request to a 401
+- Use response from auth microservice to determine authentication status
+- If authenticated, we check the access token for authorization
+- If the request is unauthorized, short-circuit the request to a 401
+- If the request is authorized for the resource, continue to the business logic
 
 Code example:
 ```kotlin
