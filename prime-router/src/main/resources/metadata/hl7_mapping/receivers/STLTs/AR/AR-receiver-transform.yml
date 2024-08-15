@@ -33,32 +33,26 @@ elements:
     hl7Spec: [ 'MSH-4-3' ]
 
   - name: ar-receiving-application-namespace-id
-    condition: true
     value: [ '"AR.NBS"' ]
     hl7Spec: [ 'MSH-5-1' ]
 
   - name: ar-receiving-application-universal-id
-    condition: true
     value: [ '"2.16.840.1.114222.4.3.3.2.5.3"' ]
     hl7Spec: [ 'MSH-5-2' ]
 
   - name: ar-receiving-application-universal-id-type
-    condition: true
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-5-3' ]
 
   - name: ar-receiving-facility-namespace-id
-    condition: true
     value: [ '"AR DOH"' ]
     hl7Spec: [ 'MSH-6-1' ]
 
   - name: ar-receiving-facility-universal-ID
-    condition: true
     value: [ '"2.16.840.1.114222.4.1.141"' ]
     hl7Spec: [ 'MSH-6-2' ]
 
   - name: ar-receiving-facility-universal-ID-Type
-    condition: true
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-6-3' ]
 
