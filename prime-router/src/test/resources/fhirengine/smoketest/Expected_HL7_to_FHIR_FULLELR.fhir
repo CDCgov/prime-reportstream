@@ -2980,22 +2980,6 @@
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
                   "valueString" : "SCT"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding" : {
-                    "system" : "SNOMEDCT",
-                    "code" : "406575008",
-                    "display" : "Infection caused by vancomycin resistant enterococcus (disorder)"
-                  }
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding" : {
-                    "system" : "SNOMEDCT",
-                    "code" : "406575008",
-                    "display" : "Infection caused by vancomycin resistant enterococcus (disorder)"
-                  }
                 }
               ],
               "system" : "http://snomed.info/sct",
@@ -3344,14 +3328,6 @@
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
                   "valueString" : "SCT"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding" : {
-                    "system" : "SNOMEDCT",
-                    "code" : "45170000",
-                    "display" : "Encephalitis (disorder)"
-                  }
                 }
               ],
               "system" : "http://snomed.info/sct",
@@ -13646,14 +13622,6 @@
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
                   "valueString" : "LN"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding" : {
-                    "system" : "SNOMEDCT",
-                    "code" : "406604002",
-                    "display" : "Infection caused by vancomycin intermediate Staphylococcus aureus (disorder)"
-                  }
                 }
               ],
               "system" : "http://loinc.org",
@@ -15000,6 +14968,10 @@
               {
                 "url" : "OBR.22",
                 "valueString" : "20210810062500-0600"
+              },
+              {
+                "url" : "OBR.25",
+                "valueId" : "P"
               },
               {
                 "url" : "OBR.10",
@@ -16352,6 +16324,10 @@
                 "valueString" : "20210810062500-0600"
               },
               {
+                "url" : "OBR.25",
+                "valueId" : "P"
+              },
+              {
                 "url" : "OBR.10",
                 "valueReference" : {
                   "reference" : "Practitioner/1716965606872078000.76d35b49-e732-46ab-a833-11a347a99639"
@@ -17702,6 +17678,10 @@
                 "valueString" : "20210810062500-0600"
               },
               {
+                "url" : "OBR.25",
+                "valueId" : "P"
+              },
+              {
                 "url" : "OBR.10",
                 "valueReference" : {
                   "reference" : "Practitioner/1716965606889808000.0b1a0c7c-a36f-44e1-874f-77ff765d1314"
@@ -18889,6 +18869,10 @@
                 "valueString" : "20210810062500-0600"
               },
               {
+                "url" : "OBR.25",
+                "valueId" : "P"
+              },
+              {
                 "url" : "OBR.26",
                 "extension" : [
                   {
@@ -19364,6 +19348,10 @@
               {
                 "url" : "OBR.22",
                 "valueString" : "20210810062500-0600"
+              },
+              {
+                "url" : "OBR.25",
+                "valueId" : "P"
               },
               {
                 "url" : "OBR.26",
