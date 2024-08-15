@@ -1,6 +1,6 @@
 package gov.cdc.prime.router
 
-import gov.cdc.prime.router.cli.ObservationMappingConstants
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.MAPPING_CODES_IDENTIFIER
 
 /**
  * Possible error codes when parsing/processing messages. Includes Hl7, CSV, FHIR, et al.
@@ -82,7 +82,7 @@ class MissingFieldMessage(fieldMapping: String) : ItemActionLogDetail(fieldMappi
  */
 class UnmappableConditionMessage(
     unmappableCodes: List<String>? = null,
-    fieldMapping: String = ObservationMappingConstants.MAPPING_CODES_IDENTIFIER,
+    fieldMapping: String = MAPPING_CODES_IDENTIFIER,
 ) : ItemActionLogDetail(fieldMapping) {
     override val message = if (unmappableCodes.isNullOrEmpty()) {
         "Observation missing code"

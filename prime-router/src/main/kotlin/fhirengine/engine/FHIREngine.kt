@@ -26,7 +26,6 @@ import java.time.OffsetDateTime
 
 const val elrReceiveQueueName = "elr-fhir-receive"
 const val elrConvertQueueName = "elr-fhir-convert"
-const val elrRoutingQueueName = "elr-fhir-route"
 const val elrDestinationFilterQueueName = "elr-fhir-destination-filter"
 const val elrReceiverFilterQueueName = "elr-fhir-receiver-filter"
 const val elrTranslationQueueName = "elr-fhir-translate"
@@ -146,15 +145,6 @@ abstract class FHIREngine(
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
                     reportService ?: ReportService()
-                )
-                TaskAction.route -> FHIRRouter(
-                    metadata ?: Metadata.getInstance(),
-                    settingsProvider!!,
-                    databaseAccess ?: databaseAccessSingleton,
-                    blobAccess ?: BlobAccess(),
-                    azureEventService ?: AzureEventServiceImpl(),
-                    reportService ?: ReportService()
-
                 )
                 TaskAction.destination_filter -> FHIRDestinationFilter(
                     metadata ?: Metadata.getInstance(),

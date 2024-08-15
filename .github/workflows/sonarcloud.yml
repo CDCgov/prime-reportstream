@@ -62,15 +62,15 @@ jobs:
 
       - name: Set up JDK 17
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9
+        uses: actions/setup-java@6a0805fcefea3d4657a47ac4c165951e33482018
         with:
           java-version: "17"
           distribution: "temurin"
           cache: "gradle"
 
-      - name: Gradle Validation
+      - name: Gradle setup
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: gradle/actions/wrapper-validation@d9c87d481d55275bb5441eef3fe0e46805f9ef70
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582
 
       - name: Spin up build containers
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'

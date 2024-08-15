@@ -20,7 +20,6 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
     JsonSubTypes.Type(FhirConvertQueueMessage::class, name = "convert"),
-    JsonSubTypes.Type(FhirRouteQueueMessage::class, name = "route"),
     JsonSubTypes.Type(FhirDestinationFilterQueueMessage::class, name = "destination-filter"),
     JsonSubTypes.Type(FhirReceiverFilterQueueMessage::class, name = "receiver-filter"),
     JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "translate"),
@@ -51,15 +50,6 @@ data class FhirConvertQueueMessage(
     override val blobSubFolderName: String,
     var topic: Topic,
     var schemaName: String = "",
-) : ReportPipelineMessage()
-
-@JsonTypeName("route")
-data class FhirRouteQueueMessage(
-    override val reportId: ReportId,
-    override val blobURL: String,
-    override val digest: String,
-    override val blobSubFolderName: String,
-    val topic: Topic,
 ) : ReportPipelineMessage()
 
 @JsonTypeName("destination-filter")
@@ -125,7 +115,6 @@ data class ProcessEventQueueMessage(
 fun registerPrimeRouterQueueMessageSubtypes() {
     QueueMessage.ObjectMapperProvider.registerSubtypes(
         FhirConvertQueueMessage::class.java,
-        FhirRouteQueueMessage::class.java,
         FhirDestinationFilterQueueMessage::class.java,
         FhirReceiverFilterQueueMessage::class.java,
         FhirTranslateQueueMessage::class.java,
