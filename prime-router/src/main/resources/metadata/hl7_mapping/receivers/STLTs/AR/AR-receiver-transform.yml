@@ -133,7 +133,7 @@ elements:
 
     # removes equipment instance identifier from OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4
   - name: obx-equipment-instance-identifier
-    condition: false
+    condition: 'false'
 
   - name: observation-result-with-aoe
     resource: '%resource.result.resolve()'
