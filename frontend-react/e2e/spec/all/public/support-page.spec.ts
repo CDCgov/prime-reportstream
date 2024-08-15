@@ -1,5 +1,4 @@
 import site from "../../../../src/content/site.json" assert { type: "json" };
-import { scrollToFooter, scrollToTop, testFooter } from "../../../helpers/utils";
 import { SupportPage } from "../../../pages/public/support.js";
 import { test as baseTest, expect } from "../../../test";
 
@@ -82,7 +81,7 @@ test.describe("Support page", () => {
 
     test.describe("Footer", () => {
         test("has footer and explicit scroll to footer and scroll to top", async ({ supportPage }) => {
-            await testFooter(supportPage);
+            await supportPage.testFooter();
         });
     });
 });

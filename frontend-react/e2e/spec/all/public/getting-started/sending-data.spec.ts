@@ -1,5 +1,4 @@
 import site from "../../../../../src/content/site.json" assert { type: "json" };
-import { scrollToFooter, scrollToTop } from "../../../../helpers/utils";
 import { SendingDataPage } from "../../../../pages/public/getting-started/sending-data.js";
 import { test as baseTest, expect } from "../../../../test";
 
@@ -73,17 +72,8 @@ test.describe("Sending data page", () => {
     });
 
     test.describe("Footer", () => {
-        test("has footer", async ({ sendingDataPage }) => {
-            await expect(sendingDataPage.footer).toBeAttached();
-        });
-
-        test("explicit scroll to footer and then scroll to top", async ({ sendingDataPage }) => {
-            await expect(sendingDataPage.footer).not.toBeInViewport();
-            await scrollToFooter(sendingDataPage.page);
-            await expect(sendingDataPage.footer).toBeInViewport();
-            await expect(sendingDataPage.page.getByTestId("govBanner")).not.toBeInViewport();
-            await scrollToTop(sendingDataPage.page);
-            await expect(sendingDataPage.page.getByTestId("govBanner")).toBeInViewport();
+        test("has footer and explicit scroll to footer and scroll to top", async ({ sendingDataPage }) => {
+            await sendingDataPage.testFooter();
         });
     });
 });

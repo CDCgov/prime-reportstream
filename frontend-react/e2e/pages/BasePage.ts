@@ -1,6 +1,6 @@
 import { selectTestOrg } from "../helpers/utils";
 import appInsightsConfig from "../mocks/appInsightsConfig.json" assert { type: "json" };
-import { Locator, Page, Request, Response, Route, TestArgs } from "../test";
+import { expect, Locator, Page, Request, Response, Route, TestArgs } from "../test";
 
 export type RouteHandlers = Record<string, Parameters<Page["route"]>[1]>;
 export type MockRouteCache = Record<string, RouteFulfillOptions>;
@@ -12,25 +12,12 @@ export interface BasePageProps {
     heading?: Locator;
 }
 
-export type RouteFulfillOptions = Exclude<
-    Parameters<Route["fulfill"]>[0],
-    undefined
-> & { isMock?: boolean };
-export type RouteFulfillOptionsFn = (
-    request: Request,
-) => Promise<RouteFulfillOptions> | RouteFulfillOptions;
+export type RouteFulfillOptions = Exclude<Parameters<Route["fulfill"]>[0], undefined> & { isMock?: boolean };
+export type RouteFulfillOptionsFn = (request: Request) => Promise<RouteFulfillOptions> | RouteFulfillOptions;
 export type RouteHandlerFn = (route: Route, request: Request) => Promise<void>;
-export type RouteHandlerFulfillOptions =
-    | RouteFulfillOptions
-    | RouteFulfillOptionsFn;
-export type RouteHandlerFulfillEntry = [
-    url: string,
-    fulfillOptions: RouteHandlerFulfillOptions,
-];
-export type ResponseHandlerEntry = [
-    url: string,
-    handler: (response: Response) => Promise<void> | void,
-];
+export type RouteHandlerFulfillOptions = RouteFulfillOptions | RouteFulfillOptionsFn;
+export type RouteHandlerFulfillEntry = [url: string, fulfillOptions: RouteHandlerFulfillOptions];
+export type ResponseHandlerEntry = [url: string, handler: (response: Response) => Promise<void> | void];
 export type RouteHandlerEntry = [url: string, handler: RouteHandlerFn];
 
 export interface GotoRouteHandlerOptions {
@@ -70,10 +57,7 @@ export abstract class BasePage {
     readonly heading: Locator;
     readonly footer: Locator;
 
-    constructor(
-        { url, title, heading }: BasePageProps,
-        testArgs: BasePageTestArgs,
-    ) {
+    constructor({ url, title, heading }: BasePageProps, testArgs: BasePageTestArgs) {
         this.page = testArgs.page;
         this.url = url;
         this.title = title;
@@ -94,9 +78,7 @@ export abstract class BasePage {
         return this._mockError;
     }
 
-    set mockError(
-        err: boolean | number | RouteHandlerFulfillOptions | undefined,
-    ) {
+    set mockError(err: boolean | number | RouteHandlerFulfillOptions | undefined) {
         if (err == null || err === false) {
             this._mockError = undefined;
             return;
@@ -149,6 +131,16 @@ export abstract class BasePage {
                 ...opts,
             }),
         );
+    }
+
+    async testFooter() {
+        await expect(this.page.locator("footer")).toBeAttached();
+        await expect(this.page.locator("footer")).not.toBeInViewport();
+        await this.page.locator("footer").scrollIntoViewIfNeeded();
+        await expect(this.page.locator("footer")).toBeInViewport();
+        await expect(this.page.getByTestId("govBanner")).not.toBeInViewport();
+        await this.page.evaluate(() => window.scrollTo(0, 0));
+        await expect(this.page.getByTestId("govBanner")).toBeInViewport();
     }
 
     /**
@@ -210,19 +202,11 @@ export abstract class BasePage {
         const wrapped = items.map(([url, _fulfillOptions]) => {
             const fn = async (request: Request) => {
                 const fulfillOptions =
-                    typeof _fulfillOptions === "function"
-                        ? await _fulfillOptions(request)
-                        : _fulfillOptions;
+                    typeof _fulfillOptions === "function" ? await _fulfillOptions(request) : _fulfillOptions;
                 const mockErrorFulfillOptions =
-                    typeof this.mockError === "function"
-                        ? await this.mockError(request)
-                        : this.mockError;
-                const mockCacheFulfillOptions = this.getMockCacheFulfillOptions(
-                    url,
-                    fulfillOptions,
-                );
-                const mockOverrideFulfillOptions =
-                    mockErrorFulfillOptions ?? mockCacheFulfillOptions;
+                    typeof this.mockError === "function" ? await this.mockError(request) : this.mockError;
+                const mockCacheFulfillOptions = this.getMockCacheFulfillOptions(url, fulfillOptions);
+                const mockOverrideFulfillOptions = mockErrorFulfillOptions ?? mockCacheFulfillOptions;
 
                 return {
                     isMock: true,
@@ -233,9 +217,7 @@ export abstract class BasePage {
         });
 
         wrapped.forEach(([url, fn]) =>
-            this.mockRouteHandlers.set(url, async (route, req) =>
-                route.fulfill(await fn(req)),
-            ),
+            this.mockRouteHandlers.set(url, async (route, req) => route.fulfill(await fn(req))),
         );
 
         return wrapped;
@@ -244,15 +226,10 @@ export abstract class BasePage {
     /**
      * Helper function to convert RouteHandlerFulfillEntries to RouteHandlerEntries.
      */
-    createRouteHandlers(
-        items: RouteHandlerFulfillEntry[],
-    ): RouteHandlerEntry[] {
+    createRouteHandlers(items: RouteHandlerFulfillEntry[]): RouteHandlerEntry[] {
         return items.map(([url, _fulfill]) => {
             const handler = async (route: Route, request: Request) => {
-                const fulfill =
-                    typeof _fulfill === "function"
-                        ? await _fulfill(request)
-                        : _fulfill;
+                const fulfill = typeof _fulfill === "function" ? await _fulfill(request) : _fulfill;
 
                 return route.fulfill(fulfill);
             };
@@ -302,10 +279,7 @@ export abstract class BasePage {
      * Get or warm the cache for a particular mock URL's fulfillOptions. This
      * allows for dynamic options to persist across page reloads for consistency.
      */
-    getMockCacheFulfillOptions(
-        url: string,
-        fulfillOptions: RouteFulfillOptions,
-    ) {
+    getMockCacheFulfillOptions(url: string, fulfillOptions: RouteFulfillOptions) {
         const cache = this._mockRouteCache[url];
         if (!cache) {
             this._mockRouteCache[url] = fulfillOptions;

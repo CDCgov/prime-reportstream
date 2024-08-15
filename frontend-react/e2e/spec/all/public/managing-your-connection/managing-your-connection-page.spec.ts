@@ -1,4 +1,3 @@
-import { scrollToFooter, scrollToTop } from "../../../../helpers/utils";
 import { ManagingYourConnectionPage } from "../../../../pages/public/managing-your-connection/managing-your-connection";
 import { test as baseTest, expect } from "../../../../test";
 
@@ -80,17 +79,10 @@ test.describe(
         });
 
         test.describe("Footer", () => {
-            test("has footer", async ({ managingYourConnectionPage }) => {
-                await expect(managingYourConnectionPage.footer).toBeAttached();
-            });
-
-            test("explicit scroll to footer and then scroll to top", async ({ managingYourConnectionPage }) => {
-                await expect(managingYourConnectionPage.footer).not.toBeInViewport();
-                await scrollToFooter(managingYourConnectionPage.page);
-                await expect(managingYourConnectionPage.footer).toBeInViewport();
-                await expect(managingYourConnectionPage.page.getByTestId("govBanner")).not.toBeInViewport();
-                await scrollToTop(managingYourConnectionPage.page);
-                await expect(managingYourConnectionPage.page.getByTestId("govBanner")).toBeInViewport();
+            test("has footer and explicit scroll to footer and scroll to top", async ({
+                managingYourConnectionPage,
+            }) => {
+                await managingYourConnectionPage.testFooter();
             });
         });
     },

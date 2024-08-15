@@ -1,4 +1,3 @@
-import { scrollToFooter, scrollToTop } from "../../../../helpers/utils";
 import { AboutPage } from "../../../../pages/public/about/about";
 import { test as baseTest, expect } from "../../../../test";
 
@@ -156,17 +155,8 @@ test.describe("About page", () => {
     });
 
     test.describe("Footer", () => {
-        test("has footer", async ({ aboutPage }) => {
-            await expect(aboutPage.footer).toBeAttached();
-        });
-
-        test("explicit scroll to footer and then scroll to top", async ({ aboutPage }) => {
-            await expect(aboutPage.footer).not.toBeInViewport();
-            await scrollToFooter(aboutPage.page);
-            await expect(aboutPage.footer).toBeInViewport();
-            await expect(aboutPage.page.getByTestId("govBanner")).not.toBeInViewport();
-            await scrollToTop(aboutPage.page);
-            await expect(aboutPage.page.getByTestId("govBanner")).toBeInViewport();
+        test("has footer and explicit scroll to footer and scroll to top", async ({ aboutPage }) => {
+            await aboutPage.testFooter();
         });
     });
 });

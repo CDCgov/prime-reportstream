@@ -1,4 +1,3 @@
-import { scrollToFooter, scrollToTop } from "../../../../helpers/utils";
 import { SecurityPage } from "../../../../pages/public/about/security";
 import { test as baseTest, expect } from "../../../../test";
 
@@ -90,17 +89,8 @@ test.describe(
         });
 
         test.describe("Footer", () => {
-            test("has footer", async ({ securityPage }) => {
-                await expect(securityPage.footer).toBeAttached();
-            });
-
-            test("explicit scroll to footer and then scroll to top", async ({ securityPage }) => {
-                await expect(securityPage.footer).not.toBeInViewport();
-                await scrollToFooter(securityPage.page);
-                await expect(securityPage.footer).toBeInViewport();
-                await expect(securityPage.page.getByTestId("govBanner")).not.toBeInViewport();
-                await scrollToTop(securityPage.page);
-                await expect(securityPage.page.getByTestId("govBanner")).toBeInViewport();
+            test("has footer and explicit scroll to footer and scroll to top", async ({ securityPage }) => {
+                await securityPage.testFooter();
             });
         });
     },

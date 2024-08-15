@@ -1,4 +1,3 @@
-import { scrollToFooter, scrollToTop } from "../../../../helpers/utils";
 import { ReferHealthcarePage } from "../../../../pages/public/managing-your-connection/refer-healthcare";
 import { test as baseTest, expect } from "../../../../test";
 
@@ -68,17 +67,8 @@ test.describe(
         });
 
         test.describe("Footer", () => {
-            test("has footer", async ({ referHealthcarePage }) => {
-                await expect(referHealthcarePage.footer).toBeAttached();
-            });
-
-            test("explicit scroll to footer and then scroll to top", async ({ referHealthcarePage }) => {
-                await expect(referHealthcarePage.footer).not.toBeInViewport();
-                await scrollToFooter(referHealthcarePage.page);
-                await expect(referHealthcarePage.footer).toBeInViewport();
-                await expect(referHealthcarePage.page.getByTestId("govBanner")).not.toBeInViewport();
-                await scrollToTop(referHealthcarePage.page);
-                await expect(referHealthcarePage.page.getByTestId("govBanner")).toBeInViewport();
+            test("has footer and explicit scroll to footer and scroll to top", async ({ referHealthcarePage }) => {
+                await referHealthcarePage.testFooter();
             });
         });
     },

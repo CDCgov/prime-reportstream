@@ -1,78 +1,75 @@
+import { expect, Page } from "@playwright/test";
 import fs from "node:fs";
-import { BasePage } from "../pages/BasePage";
-import { expect } from "../test";
 
 export const TEST_ORG_IGNORE = "ignore";
 export const TEST_ORG_UP_RECEIVER_FULL_ELR = "FULL_ELR";
 export const TEST_ORG_AK_RECEIVER = "elr";
-export async function scrollToFooter(basePage: BasePage) {
+export async function scrollToFooter(page: Page) {
     // Scrolling to the bottom of the page
-    await basePage.page.locator("footer").scrollIntoViewIfNeeded();
+    await page.locator("footer").scrollIntoViewIfNeeded();
 }
 
-export async function scrollToTop(basePage: BasePage) {
+export async function scrollToTop(page: Page) {
     // Scroll to the top of the page
-    await basePage.page.evaluate(() => window.scrollTo(0, 0));
+    await page.evaluate(() => window.scrollTo(0, 0));
 }
 
-export async function waitForAPIResponse(basePage: BasePage, requestUrl: string) {
-    const response = await basePage.page.waitForResponse((response) => response.url().includes(requestUrl));
+export async function waitForAPIResponse(page: Page, requestUrl: string) {
+    const response = await page.waitForResponse((response) => response.url().includes(requestUrl));
     return response.status();
 }
 
-export function noData(basePage: BasePage) {
-    return basePage.page.getByText(/No available data/);
+export function noData(page: Page) {
+    return page.getByText(/No available data/);
 }
-export function tableRows(basePage: BasePage) {
-    return basePage.page.locator(".usa-table tbody").locator("tr");
+export function tableRows(page: Page) {
+    return page.locator(".usa-table tbody").locator("tr");
 }
 
-export async function fulfillGoogleAnalytics(basePage: BasePage) {
+export async function fulfillGoogleAnalytics(page: Page) {
     // fulfill GA request so that we don't log it and alter the metrics
-    await basePage.page.route("https://www.google-analytics.com/**", (route) =>
-        route.fulfill({ status: 204, body: "" }),
-    );
+    await page.route("https://www.google-analytics.com/**", (route) => route.fulfill({ status: 204, body: "" }));
 }
 
-export async function selectTestOrg(basePage: BasePage) {
-    await basePage.page.goto("/admin/settings", {
+export async function selectTestOrg(page: Page) {
+    await page.goto("/admin/settings", {
         waitUntil: "domcontentloaded",
     });
 
-    await waitForAPIResponse(basePage.page, "/api/settings/organizations");
+    await waitForAPIResponse(page, "/api/settings/organizations");
 
-    await basePage.page.getByTestId("gridContainer").waitFor({ state: "visible" });
-    await basePage.page.getByTestId("textInput").fill(TEST_ORG_IGNORE);
-    await basePage.page.getByTestId("ignore_set").click();
+    await page.getByTestId("gridContainer").waitFor({ state: "visible" });
+    await page.getByTestId("textInput").fill(TEST_ORG_IGNORE);
+    await page.getByTestId("ignore_set").click();
 }
 /**
  * Save session storage to file. Session storage is not handled in
  * playwright's storagestate.
  */
-export async function saveSessionStorage(userType: string, basePage: BasePage) {
-    const sessionJson = await basePage.page.evaluate(() => JSON.stringify(sessionStorage));
+export async function saveSessionStorage(userType: string, page: Page) {
+    const sessionJson = await page.evaluate(() => JSON.stringify(sessionStorage));
     fs.writeFileSync(`e2e/.auth/${userType}-session.json`, sessionJson, "utf-8");
 }
 
-export async function restoreSessionStorage(userType: string, basePage: BasePage) {
+export async function restoreSessionStorage(userType: string, page: Page) {
     const session = JSON.parse(fs.readFileSync(`e2e/.auth/${userType}-session.json`, "utf-8"));
-    await basePage.page.context().addInitScript((session) => {
+    await page.context().addInitScript((session) => {
         for (const [key, value] of Object.entries<any>(session)) window.sessionStorage.setItem(key, value);
     }, session);
 }
 
-export function tableDataCellValue(basePage: BasePage, row: number, column: number) {
-    return tableRows(basePage.page).nth(row).locator("td").nth(column).innerText();
+export function tableDataCellValue(page: Page, row: number, column: number) {
+    return tableRows(page).nth(row).locator("td").nth(column).innerText();
 }
 
 /**
  * This method loops through all the cells in a column to compare with expected value.
  */
-export async function expectTableColumnValues(basePage: BasePage, columnNumber: number, expectedValue: string) {
-    const rowCount = await tableRows(basePage.page).count();
+export async function expectTableColumnValues(page: Page, columnNumber: number, expectedValue: string) {
+    const rowCount = await tableRows(page).count();
 
     for (let i = 0; i < rowCount; i++) {
-        const columnValue = await tableRows(basePage.page).nth(i).locator("td").nth(columnNumber).innerText();
+        const columnValue = await tableRows(page).nth(i).locator("td").nth(columnNumber).innerText();
         expect(columnValue).toContain(expectedValue);
     }
 }
@@ -81,7 +78,7 @@ export async function expectTableColumnValues(basePage: BasePage, columnNumber: 
  * This method loops through all the cells in a date/time column to compare with a date value.
  */
 export async function tableColumnDateTimeInRange(
-    basePage: BasePage,
+    page: Page,
     columnNumber: number,
     fromDate: string,
     toDate: string,
@@ -89,12 +86,12 @@ export async function tableColumnDateTimeInRange(
     endTime: string,
 ) {
     let datesInRange = true;
-    const rowCount = await tableRows(basePage.page).count();
+    const rowCount = await tableRows(page).count();
 
     for (let i = 0; i < rowCount; i++) {
         const startDateTime = fromDateWithTime(fromDate, startTime);
         const endDateTime = toDateWithTime(toDate, endTime);
-        const columnValue = await tableRows(basePage.page).nth(i).locator("td").nth(columnNumber).innerText();
+        const columnValue = await tableRows(page).nth(i).locator("td").nth(columnNumber).innerText();
 
         const columnDate = new Date(columnValue);
 
@@ -138,14 +135,4 @@ export function toDateWithTime(date: string, time: string) {
         toDateTime.setHours(23, 59, 0);
     }
     return toDateTime;
-}
-
-export async function testFooter(basePage: BasePage) {
-    await expect(basePage.page.footer).toBeAttached();
-    await expect(basePage.page.footer).not.toBeInViewport();
-    await scrollToFooter(basePage.page);
-    await expect(basePage.page.footer).toBeInViewport();
-    await expect(basePage.page.getByTestId("govBanner")).not.toBeInViewport();
-    await scrollToTop(basePage.page);
-    await expect(basePage.page.getByTestId("govBanner")).toBeInViewport();
 }
