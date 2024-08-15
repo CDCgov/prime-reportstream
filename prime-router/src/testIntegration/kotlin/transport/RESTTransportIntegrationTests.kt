@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
@@ -42,6 +43,7 @@ import io.ktor.utils.io.core.ByteReadPacket
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
@@ -49,6 +51,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertDoesNotThrow
+import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
@@ -972,5 +975,59 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         // Then:
         //      getAuthTokenWithUserApiKey should be called with transport.parameters empty
         assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test post vs put http client`() {
+        val logger = mockkClass(Logger::class)
+        val mockedClient = mockk<HttpClient>(relaxed = true)
+        val mockRestTransport = spyk(RESTTransport(mockedClient))
+
+        val putHeaders = mapOf("method" to "PUT", "Content-Type" to "text/plain")
+        val postHeaders = mapOf("Content-Type" to "text/plain")
+        val now = OffsetDateTime.now()
+        val message = "test".toByteArray()
+        val testUrl = "https://api.example.com/data"
+        val fileName = "test"
+
+        every { logger.warning(any<String>()) } returns Unit
+        every { logger.info(any<String>()) } returns Unit
+
+        val putClient = HttpClient(MockEngine) {
+            engine {
+                addHandler { put ->
+                    when (put.url.toString()) {
+                        testUrl -> {
+                            respond("Put called", headers = headersOf("method", "PUT"))
+                        }
+                        else -> error("Unhandled ${put.url}")
+                    }
+                }
+            }
+        }
+
+        val postClient = HttpClient(MockEngine) {
+            engine {
+                addHandler { post ->
+                    when (post.url.toString()) {
+                        testUrl -> {
+                            respond("Post called", headers = headersOf("method", "POST"))
+                        }
+                        else -> error("Unhandled ${post.url}")
+                    }
+                }
+            }
+        }
+
+        val putResponse = runBlocking {
+            mockRestTransport.postReport(message, fileName, testUrl, putHeaders, logger, putClient, now)
+        }
+
+        val postResponse = runBlocking {
+            mockRestTransport.postReport(message, fileName, testUrl, postHeaders, logger, postClient, now)
+        }
+
+        assertThat(putResponse.headers.contains("method", "PUT")).isTrue()
+        assertThat(postResponse.headers.contains("method", "POST")).isTrue()
     }
 }
