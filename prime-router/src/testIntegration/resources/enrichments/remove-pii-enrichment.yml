@@ -133,10 +133,25 @@ elements:
     value: [ 'getFakeValueForElement("POSTAL_CODE", Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.city)' ]
     bundleProperty: '%resource.requester.resolve().practitioner.resolve().address.postalCode'
 
-  - name: pii-removal-filler-order-number-obr
+  - name: pii-removal-filler-order-number-obr-2
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
+    value: [ 'getFakeValueForElement("ID_NUMBER")' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("OBR.2").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value'
+
+  - name: pii-removal-filler-order-number-specimen
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    value: [ 'getFakeValueForElement("ID_NUMBER")' ]
+    bundleProperty: '%resource.identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value'
+
+  - name: pii-removal-filler-order-number-diagnostic-report
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
     value: [ 'getFakeValueForElement("ID_NUMBER")' ]
-    bundleProperty: '%resource.identifier.value'
+    bundleProperty: '%resource.identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id")'
+
+  - name: pii-removal-filler-order-number-obr-3
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
+    value: [ 'getFakeValueForElement("ID_NUMBER")' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("OBR.3").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value'
 
   - name: pii-removal-observation-result-date-issued
     resource: 'Bundle.entry.resource.ofType(Observation)'
