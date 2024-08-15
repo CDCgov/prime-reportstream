@@ -1,13 +1,13 @@
 # $schema: ../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
 elements:
-  - name: extension-nte-2-value
-    value: ['O']
-    bundleProperty: extension("https://reportstream.cdc.gov/fhir/StructureDefinition/nte-annotation").extension("NTE.2").value[x]
+  - name: note-text
+    bundleProperty: text
+    value: [ "((('OBX filtered for identifier' | (%resource.code.coding.code | %resource.code.coding.display).join(' - ')).join('=') | ('value' | (%resource.interpretation.coding.code | %resource.interpretation.coding.display).join(' - ')).join(' = ')).join(';') | 'OBX was removed due to your jurisdictional reporting rules indicating this result is not reportable.').join(' ')" ]
     appendToProperty: Bundle.entry.resource.ofType(ServiceRequest).note
     action: APPEND
 
-  - name: note-text
-    bundleProperty: text
-    value: [ "((('OBX filtered for identifier' | (%resource.code.coding.code | %resource.code.coding.display).join(' - ')).join('=') | ('value' | (%resource.interpretation.coding.code | %resource.interpretation.coding.display).join(' - ')).join(' = ')).join(';') | 'OBX was removed due to your jurisdictional reporting rules indicating this result is not reportable.').join(' ')"]
+  - name: extension-nte-2-value
+    value: [ '"L"' ]
+    bundleProperty: extension("https://reportstream.cdc.gov/fhir/StructureDefinition/nte-annotation").extension("NTE.2").value[x]
     appendToProperty: Bundle.entry.resource.ofType(ServiceRequest).note
     action: APPEND

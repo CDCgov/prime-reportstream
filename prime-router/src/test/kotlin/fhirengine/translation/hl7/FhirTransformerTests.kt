@@ -1241,6 +1241,7 @@ class FhirTransformerTests {
     }
 
     @Test
+    @Suppress("ktlint:standard:max-line-length")
     fun `test move Observation to ServiceRequest note`() {
         val bundle = Bundle()
         bundle.id = "abc123"
@@ -1284,7 +1285,16 @@ class FhirTransformerTests {
         val transformer = FhirTransformer(schema)
         transformer.process(bundle)
         assertThat(serviceRequest.note).hasSize(2)
-        @Suppress("ktlint:standard:max-line-length")
+        val notes = serviceRequest.note
+        notes.forEach { note ->
+            assertThat(
+                note
+                    .getExtensionByUrl("https://reportstream.cdc.gov/fhir/StructureDefinition/nte-annotation")
+                    .getExtensionByUrl("NTE.2")
+                    .value
+                    .toString()
+            ).isEqualTo("L")
+        }
         assertThat(serviceRequest.note)
             .transform { it.map { note -> note.text } }
             .containsOnly(
