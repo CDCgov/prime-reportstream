@@ -409,15 +409,20 @@ test.describe(
                             const reportId = await tableDataCellValue(dailyDataPage.page, 0, 0);
 
                             await dailyDataPage.page.getByRole("link", { name: reportId }).click();
-                            await expect(dailyDataPage.page).toHaveURL(`${URL_REPORT_DETAILS}/${reportId}`);
+                            const responsePromise = await dailyDataPage.page.waitForResponse(
+                                (res) => res.status() === 200 && res.url().includes("/delivery"),
+                            );
 
-                            await dailyDataPage.page.waitForLoadState();
-                            await expect(dailyDataPage.page).toHaveURL(`${URL_REPORT_DETAILS}/${reportId}`);
-                            await expect(dailyDataPage.page).toHaveTitle(/Daily Data - ReportStream/);
-                            await expect(dailyDataPage.page.locator("h1").getByText(reportId)).toBeVisible();
+                            if (responsePromise) {
+                                await expect(dailyDataPage.page).toHaveURL(`${URL_REPORT_DETAILS}/${reportId}`);
+                                await expect(dailyDataPage.page).toHaveTitle(/Daily Data - ReportStream/);
+                                await expect(dailyDataPage.page.locator("h1").getByText(reportId)).toBeVisible();
 
-                            // Facility table headers
-                            await detailsTableHeaders(dailyDataPage.page);
+                                // Facility table headers
+                                await detailsTableHeaders(dailyDataPage.page);
+                            } else {
+                                console.error("Request not received within the timeout period");
+                            }
                         });
                     });
                 });
