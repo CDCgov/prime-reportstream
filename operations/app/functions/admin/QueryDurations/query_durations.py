@@ -11,7 +11,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     if host and user and password:
         dbname = "postgres"
-        user = f"{user}@{host}"
         sslmode = "require"
 
         conn_string = "host={0} user={1} dbname={2} password={3} sslmode={4}".format(host, user, dbname, password, sslmode)
