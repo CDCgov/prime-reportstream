@@ -10,9 +10,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     password = os.getenv("POSTGRES_PASSWORD")
 
     if host and db and user and password:
-        user = f"{user}@{host}"
         sslmode = "require"
-
         conn_string = "host={0} user={1} dbname={2} password={3} sslmode={4}".format(host, user, db, password, sslmode)
         
         try:
