@@ -23,6 +23,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             conn.close()
             access = 1
         except Exception as e:
+            print(e)
             access = 0
 
         return func.HttpResponse(
