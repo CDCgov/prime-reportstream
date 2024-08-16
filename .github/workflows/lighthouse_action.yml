@@ -1,0 +1,34 @@
+name: Build project and Run Lighthouse CI
+on:
+ push:
+   branches:
+     - main
+     - feature/3053-508compliance
+jobs:
+ lhci:
+   name: Lighthouse
+   runs-on: ubuntu-latest
+   steps:
+     - uses: actions/checkout@v2
+     - name: Use Node.js 10.x
+       uses: actions/setup-node@v1
+       with:
+         node-version: 16.14.2
+     - name: npm install, build
+       run: |
+         npm install
+         npm run build
+     - name: Run Lighthouse CI
+       run: |
+           npm install -g @lhci/cli
+           lhci autorun --upload.target=temporary-public-storage || echo "LHCI.failed!"
+    #  - name: Upload Lighthouse Report
+    #    run: |
+    #      npm install -g @lhci/cli
+    #      lhci autorun --config=.github/config/lighthouserc-no-condition.json
+    #      lhci upload --serverBaseUrl=${{ secrets.LHCI_SERVER_URL }} --token=${{ secrets.LHCI_BUILD_TOKEN }}
+    #    env:
+    #      LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+    #  - name: Check Lighthouse Report
+    #    run: |
+    #      lhci autorun --config=.github/config/lighthouserc.json
