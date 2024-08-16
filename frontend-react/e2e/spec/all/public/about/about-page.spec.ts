@@ -37,6 +37,12 @@ const test = baseTest.extend<AboutPageFixtures>({
 });
 
 test.describe("About page", () => {
+    test.describe("Header", () => {
+        test("has correct title + heading", async ({ aboutPage }) => {
+            await aboutPage.testHeader();
+        });
+    });
+
     test("nav contains the 'About' dropdown with 'About Reportstream' option", async ({ aboutPage }) => {
         const navItems = aboutPage.page.locator(".usa-nav  li");
         await expect(navItems).toContainText(["About"]);
@@ -45,11 +51,6 @@ test.describe("About page", () => {
 
         await aboutPage.page.getByTestId("header").getByRole("link", { name: "About ReportStream" }).click();
         await expect(aboutPage.page).toHaveURL(URL_ABOUT);
-    });
-
-    test("has correct title", async ({ aboutPage }) => {
-        await expect(aboutPage.page).toHaveTitle(aboutPage.title);
-        await expect(aboutPage.heading).toBeVisible();
     });
 
     test.describe("In this section", () => {

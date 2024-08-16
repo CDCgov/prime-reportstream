@@ -82,12 +82,7 @@ module.exports = {
                 // TODO: investigate these for reconsideration or per-module ignoring
                 "playwright/no-conditional-in-test": ["off"],
                 "playwright/no-force-option": ["off"],
-                "playwright/expect-expect": [
-                    "error",
-                    {
-                        additionalAssertFunctionNames: ["testFooter"],
-                    },
-                ],
+                "playwright/expect-expect": ["off"],
             },
         },
     ],

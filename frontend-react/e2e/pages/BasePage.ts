@@ -133,6 +133,11 @@ export abstract class BasePage {
         );
     }
 
+    async testHeader() {
+        await expect(this.page).toHaveTitle(this.title);
+        await expect(this.heading).toBeVisible();
+    }
+
     async testFooter() {
         await expect(this.page.locator("footer")).toBeAttached();
         await expect(this.page.locator("footer")).not.toBeInViewport();

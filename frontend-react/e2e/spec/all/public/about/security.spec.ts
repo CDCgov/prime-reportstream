@@ -42,6 +42,12 @@ test.describe(
         tag: "@smoke",
     },
     () => {
+        test.describe("Header", () => {
+            test("has correct title + heading", async ({ securityPage }) => {
+                await securityPage.testHeader();
+            });
+        });
+
         test("nav contains the 'About' dropdown with 'Security Reportstream' option", async ({ securityPage }) => {
             const navItems = securityPage.page.locator(".usa-nav  li");
             await expect(navItems).toContainText(["About"]);
@@ -50,11 +56,6 @@ test.describe(
 
             await securityPage.page.getByTestId("header").getByRole("link", { name: "Security" }).click();
             await expect(securityPage.page).toHaveURL(URL_SECURITY);
-        });
-
-        test("has correct title", async ({ securityPage }) => {
-            await expect(securityPage.page).toHaveTitle(securityPage.title);
-            await expect(securityPage.heading).toBeVisible();
         });
 
         test.describe("Security section", () => {
@@ -89,7 +90,7 @@ test.describe(
         });
 
         test.describe("Footer", () => {
-            test("has footer and explicit scroll to footer and scroll to top", async ({ securityPage }) => {
+            test("has footer + test bottom-to-top page scroll", async ({ securityPage }) => {
                 await securityPage.testFooter();
             });
         });
