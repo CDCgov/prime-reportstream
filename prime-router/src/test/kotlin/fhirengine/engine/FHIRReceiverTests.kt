@@ -6,6 +6,7 @@ import assertk.assertions.isEqualTo
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.reportstream.shared.SubmissionsEntity
 import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
@@ -117,6 +118,7 @@ class FHIRReceiverTest {
         every { message.reportId } returns reportID
         every { actionLogger.hasErrors() } returns hasErrors
         every { actionLogger.setReportId(any()) } returns actionLogger
+        every { actionLogger.error(any<ActionLogDetail>()) } returns Unit
         every { engine.settings.findSender(any()) } returns sender
         every { actionHistory.trackActionResult(any<HttpStatus>()) } returns Unit
         every { actionHistory.trackActionParams(any<String>()) } returns Unit
