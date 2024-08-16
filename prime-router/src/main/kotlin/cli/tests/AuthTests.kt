@@ -1172,23 +1172,20 @@ class Server2ServerAuthTests : CoolTest() {
         )
         val orgEndpoint = "${environment.url}/api/settings/organizations"
 
-        val client = HttpClientUtils.createDefaultHttpClient(
-            userToken
-        )
+        val client = HttpClientUtils.getDefaultHttpClient()
 
-        val clientAdmin = HttpClientUtils.createDefaultHttpClient(
-            adminToken
-        )
+        val clientAdmin = HttpClientUtils.getDefaultHttpClient()
 
         // Case: GET All Org Settings (Admin-only endpoint)
         // Unhappy Path: user on admin-only endpoint
         val response = runBlocking {
-            client.get(orgEndpoint) {
+            client.get(orgEndpoint, userToken) {
                 timeout {
                     requestTimeoutMillis = 45000
                     // default timeout is 15s; raising higher due to slow Function startup issues
                 }
                 accept(ContentType.Application.Json)
+
             }
         }
 
