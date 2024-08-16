@@ -8,7 +8,6 @@ import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
@@ -24,8 +23,8 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiver
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import io.mockk.verify
@@ -97,13 +96,13 @@ class FHIRReceiverIntegrationTests {
 
     @BeforeEach
     fun beforeEach() {
+        clearAllMocks()
         mockkObject(QueueAccess)
         every { QueueAccess.sendMessage(any(), any()) } returns Unit
         mockkObject(BlobAccess)
         every { BlobAccess getProperty "defaultBlobMetadata" } returns getBlobContainerMetadata()
         mockkObject(BlobAccess.BlobContainerMetadata)
         every { BlobAccess.BlobContainerMetadata.build(any(), any()) } returns getBlobContainerMetadata()
-        mockkConstructor(DatabaseLookupTableAccess::class)
 
         tableServiceClient = TableServiceClientBuilder()
             .connectionString(getBlobContainerMetadata().connectionString)
