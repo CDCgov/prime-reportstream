@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import com.github.javafaker.Faker
 import com.github.javafaker.Name
+import gov.cdc.prime.router.FakeReport.Companion.getRandomSiteOfCare
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.common.NPIUtilities
@@ -208,11 +209,7 @@ class FakeDataService : Logging {
                 element.nameContains("patient_preferred_language") -> randomChoice("ENG", "FRE", "SPA", "CHI", "KOR")
                 element.nameContains("patient_country") -> "USA"
                 element.nameContains("site_of_care") -> if (context.facilitiesName.isNullOrEmpty()) {
-                    randomChoice(
-                        "airport", "assisted_living", "camp", "correctional_facility", "employer", "fqhc",
-                        "government_agency", "hospice", "hospital", "lab", "nursing_home", "other",
-                        "pharmacy", "primary_care", "shelter", "treatment_center", "university", "urgent_care"
-                    )
+                    getRandomSiteOfCare()
                 } else {
                     "k12"
                 }
@@ -347,7 +344,7 @@ class FakeDataService : Logging {
 
     // gives us the ability to pull a random choice from a
     // variadic array of strings passed in
-    private fun randomChoice(vararg choices: String): String {
+    fun randomChoice(vararg choices: String): String {
         val random = Random()
         return choices[random.nextInt(choices.size)]
     }
@@ -530,7 +527,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
     }
 
     companion object {
-        private fun randomChoice(vararg choices: String): String {
+        fun randomChoice(vararg choices: String): String {
             val random = Random()
             return choices[random.nextInt(choices.size)]
         }
@@ -566,6 +563,14 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
             val next = ((iteratorStore[list] ?: -1) + 1) % list.size
             iteratorStore[list] = next
             return list[next]
+        }
+
+        fun getRandomSiteOfCare(): String {
+            return randomChoice(
+                "airport", "assisted_living", "camp", "correctional_facility", "employer", "fqhc",
+                "government_agency", "hospice", "hospital", "lab", "nursing_home", "other",
+                "pharmacy", "primary_care", "shelter", "treatment_center", "university", "urgent_care"
+            )
         }
     }
 }
