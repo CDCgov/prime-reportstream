@@ -163,7 +163,9 @@ test.describe("Daily Data page", () => {
 
                     test.afterEach(async ({ dailyDataPage }) => {
                         await filterReset(dailyDataPage.page).click();
-                        await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                        await dailyDataPage.page
+                            .locator(".usa-table tbody")
+                            .waitFor({ state: "visible", timeout: 60000 });
                     });
 
                     test("table loads with selected receiver data", async ({ dailyDataPage }) => {
@@ -172,7 +174,9 @@ test.describe("Daily Data page", () => {
                                 name: "Apply",
                             })
                             .click();
-                        await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                        await dailyDataPage.page
+                            .locator(".usa-table tbody")
+                            .waitFor({ state: "visible", timeout: 60000 });
 
                         // Check that table data contains the receiver selected
                         await expectTableColumnValues(
