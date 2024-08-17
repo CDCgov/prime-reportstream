@@ -2,26 +2,26 @@ name: Build project and Run Lighthouse CI
 on:
  push:
    branches:
-     - main
      - feature/3053-508compliance
 jobs:
  lhci:
    name: Lighthouse
    runs-on: ubuntu-latest
    steps:
-     - uses: actions/checkout@v2
-     - name: Use Node.js 10.x
-       uses: actions/setup-node@v1
+     - name: Check out changes
+       uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+     - name: Use Node.js with yarn
+       uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
        with:
-         node-version: 16.14.2
-     - name: npm install, build
-       run: |
-         npm install
-         npm run build
-     - name: Run Lighthouse CI
-       run: |
-           npm install -g @lhci/cli
-           lhci autorun --upload.target=temporary-public-storage || echo "LHCI.failed!"
+        node-version-file: frontend-react/.nvmrc
+        cache: yarn
+        cache-dependency-path: frontend-react/yarn.lock
+     - name: Yarn install
+       run: yarn install --immutable
+     - name: Check build command
+       run: yarn run build
+     - name: Lighthouse Benchmark
+       run: yarn run lighthouse
     #  - name: Upload Lighthouse Report
     #    run: |
     #      npm install -g @lhci/cli
