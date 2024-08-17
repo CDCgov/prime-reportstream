@@ -18,10 +18,26 @@ jobs:
         cache-dependency-path: frontend-react/yarn.lock
      - name: Yarn install
        run: yarn install --immutable
-     - name: Check build command
-       run: yarn run build
-     - name: Lighthouse Benchmark
-       run: yarn run lighthouse
+    
+     - name: Build and run lighthouse
+       uses: ./.github/actions/retry
+       with:
+         timeout_minutes: 10
+         max_attempts: 1
+         retry_wait_seconds: 0
+         command: |
+           set -e pipefail
+           cd frontend-react
+           ENV="test"
+           if [[ $ENV != demo* && $ENV != "test" && $ENV != trialfrontend* ]]; then ENV="staging"; fi
+           echo "" >> .env.$ENV
+           echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
+           echo "::group::Build"
+           yarn build:$ENV
+           yarn run lighthouse
+           echo "::endgroup::"
+         shell: bash
+     
     #  - name: Upload Lighthouse Report
     #    run: |
     #      npm install -g @lhci/cli
