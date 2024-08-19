@@ -114,7 +114,7 @@ jobs:
         run: yarn run test:e2e --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
       - name: Upload blob report to GitHub Actions Artifacts
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b
+        uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a
         with:
           name: frontend-e2e-data--shard-${{ matrix.shardIndex }}
           path: frontend-react/e2e-data
@@ -170,7 +170,7 @@ jobs:
       - name: Merge folders
         run: mv ./playwright-report/* ./e2e-data/report && rmdir ./playwright-report && rm ./e2e-data/report/*.zip && rm -rf ./e2e-data/report/resources
       - name: Upload final e2e-data
-        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b
+        uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a
         with:
           name: frontend-e2e-data--attempt-${{ github.run_attempt }}
           path: frontend-react/e2e-data
@@ -247,7 +247,7 @@ jobs:
 
       - name: Run Chromatic
         id: chromatic
-        uses: chromaui/action@13180b77f984a874c7a7eca8b35027d6e613e8c2
+        uses: chromaui/action@b984808b772126a9f44b2b7737b131b68a2ede32
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}

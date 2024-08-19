@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.azure.observability.event
 
-import gov.cdc.prime.router.fhirengine.utils.conditionCodeExtensionURL
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
 import org.hl7.fhir.r4.model.Coding
 
 data class TestSummary(

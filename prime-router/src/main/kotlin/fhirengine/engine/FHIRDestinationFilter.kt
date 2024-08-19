@@ -169,15 +169,34 @@ class FHIRDestinationFilter(
                         queueMessage.blobSubFolderName,
                         nextEvent.eventAction
                     )
+                    report.bodyURL = blobInfo.blobUrl
                     // ensure tracking is set
                     actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
+                    val bundleDigestExtractor = BundleDigestExtractor(
+                        FhirPathBundleDigestLabResultExtractorStrategy(
+                            CustomContext(
+                                bundle,
+                                bundle,
+                                mutableMapOf(),
+                                CustomFhirPathFunctions()
+                            )
+                        )
+                    )
                     reportEventService.sendItemEvent(
                         eventName = ReportStreamEventName.ITEM_ROUTED,
                         childReport = report,
                         pipelineStepName = TaskAction.destination_filter
                     ) {
                         parentReportId(queueMessage.reportId)
+                        params(
+                            mapOf(
+                            ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
+                            ReportStreamEventProperties.BUNDLE_DIGEST
+                                to bundleDigestExtractor.generateDigest(bundle)
+                        )
+                        )
+                        trackingId(bundle)
                     }
 
                     listOf(
@@ -234,7 +253,14 @@ class FHIRDestinationFilter(
                 actionHistory.trackCreatedReport(nextEvent, report)
 
                 val bundleDigestExtractor = BundleDigestExtractor(
-                    FhirPathBundleDigestLabResultExtractorStrategy()
+                    FhirPathBundleDigestLabResultExtractorStrategy(
+                        CustomContext(
+                            bundle,
+                            bundle,
+                            mutableMapOf(),
+                            CustomFhirPathFunctions()
+                        )
+                    )
                 )
                 reportEventService.sendItemEvent(
                     eventName = ReportStreamEventName.ITEM_NOT_ROUTED,
@@ -242,6 +268,7 @@ class FHIRDestinationFilter(
                     pipelineStepName = TaskAction.destination_filter
                 ) {
                     parentReportId(queueMessage.reportId)
+                    trackingId(bundle)
                     params(
                         mapOf(
                             ReportStreamEventProperties.BUNDLE_DIGEST

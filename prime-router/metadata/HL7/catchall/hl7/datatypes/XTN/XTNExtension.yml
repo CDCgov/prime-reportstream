@@ -70,6 +70,17 @@ extension:
         valueString:
           type: STRING
           valueOf: $xtn9
+    - condition: $xtn11 NOT_NULL
+      expressionType: nested
+      vars:
+        xtn11: String, XTN.11
+      expressionsMap:
+        url:
+          type: STRING
+          value: XTN.11
+        valueString:
+          type: STRING
+          value: $xtn11
     - condition: $xtn12 NOT_NULL
       expressionType: nested
       vars:

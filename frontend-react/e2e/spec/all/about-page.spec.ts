@@ -38,22 +38,13 @@ const test = baseTest.extend<AboutPageFixtures>({
 });
 
 test.describe("About page", () => {
-    test("nav contains the 'About' dropdown with 'About Reportstream' option", async ({
-        aboutPage,
-    }) => {
+    test("nav contains the 'About' dropdown with 'About Reportstream' option", async ({ aboutPage }) => {
         const navItems = aboutPage.page.locator(".usa-nav  li");
         await expect(navItems).toContainText(["About"]);
 
-        await aboutPage.page
-            .getByTestId("header")
-            .getByTestId("navDropDownButton")
-            .getByText("About")
-            .click();
+        await aboutPage.page.getByTestId("header").getByTestId("navDropDownButton").getByText("About").click();
 
-        await aboutPage.page
-            .getByTestId("header")
-            .getByRole("link", { name: "About ReportStream" })
-            .click();
+        await aboutPage.page.getByTestId("header").getByRole("link", { name: "About ReportStream" }).click();
         await expect(aboutPage.page).toHaveURL(URL_ABOUT);
     });
 
@@ -64,9 +55,7 @@ test.describe("About page", () => {
 
     test.describe("In this section", () => {
         test("has 'Our network' link", async ({ aboutPage }) => {
-            await aboutPage.page
-                .getByRole("link", { name: /Our network/ })
-                .click();
+            await aboutPage.page.getByRole("link", { name: /Our network/ }).click();
             await expect(aboutPage.page).toHaveURL(/.*about\/our-network/);
         });
 
@@ -84,16 +73,12 @@ test.describe("About page", () => {
         });
 
         test("has 'Case studies' link", async ({ aboutPage }) => {
-            await aboutPage.page
-                .getByRole("link", { name: /Case studies/ })
-                .click();
+            await aboutPage.page.getByRole("link", { name: /Case studies/ }).click();
             await expect(aboutPage.page).toHaveURL(/.*about\/case-studies/);
         });
 
         test("has 'Security' link", async ({ aboutPage }) => {
-            await aboutPage.page
-                .getByRole("link", { name: /Security/ })
-                .click();
+            await aboutPage.page.getByRole("link", { name: /Security/ }).click();
             await expect(aboutPage.page).toHaveURL(/.*about\/security/);
         });
 
@@ -118,9 +103,7 @@ test.describe("About page", () => {
 
             for (let i = 0; i < accordionCol.length; i++) {
                 const accordionItem = `accordionItem_${i + 1}--content`;
-                await expect(
-                    aboutPage.page.getByTestId(accordionItem),
-                ).toBeHidden();
+                await expect(aboutPage.page.getByTestId(accordionItem)).toBeHidden();
 
                 await aboutPage.page
                     .getByRole("button", {
@@ -128,9 +111,7 @@ test.describe("About page", () => {
                     })
                     .click();
 
-                await expect(
-                    aboutPage.page.getByTestId(accordionItem),
-                ).toBeVisible();
+                await expect(aboutPage.page.getByTestId(accordionItem)).toBeVisible();
 
                 await aboutPage.page
                     .getByRole("button", {
@@ -138,9 +119,7 @@ test.describe("About page", () => {
                     })
                     .click();
 
-                await expect(
-                    aboutPage.page.getByTestId(accordionItem),
-                ).toBeHidden();
+                await expect(aboutPage.page.getByTestId(accordionItem)).toBeHidden();
             }
         });
     });
@@ -163,10 +142,7 @@ test.describe("About page", () => {
             ];
 
             for (const cardLink of cardLinks) {
-                await aboutPage.page
-                    .getByTestId("CardGroup")
-                    .getByRole("link", { name: cardLink.name })
-                    .click();
+                await aboutPage.page.getByTestId("CardGroup").getByRole("link", { name: cardLink.name }).click();
 
                 if (cardLink.url.length) {
                     await expect(aboutPage.page).toHaveURL(cardLink.url);
@@ -184,19 +160,13 @@ test.describe("About page", () => {
             await expect(aboutPage.footer).toBeAttached();
         });
 
-        test("explicit scroll to footer and then scroll to top", async ({
-            aboutPage,
-        }) => {
+        test("explicit scroll to footer and then scroll to top", async ({ aboutPage }) => {
             await expect(aboutPage.footer).not.toBeInViewport();
             await scrollToFooter(aboutPage.page);
             await expect(aboutPage.footer).toBeInViewport();
-            await expect(
-                aboutPage.page.getByTestId("govBanner"),
-            ).not.toBeInViewport();
+            await expect(aboutPage.page.getByTestId("govBanner")).not.toBeInViewport();
             await scrollToTop(aboutPage.page);
-            await expect(
-                aboutPage.page.getByTestId("govBanner"),
-            ).toBeInViewport();
+            await expect(aboutPage.page.getByTestId("govBanner")).toBeInViewport();
         });
     });
 });
