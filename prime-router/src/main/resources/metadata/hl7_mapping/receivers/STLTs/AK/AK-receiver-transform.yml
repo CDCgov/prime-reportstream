@@ -34,37 +34,9 @@ elements:
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
 
   - name: ak-patient-county-codes
-    value: [ 'Bundle.entry.resource.ofType(Patient).address.district' ]
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-11-6' ]
-    valueSet:
-      values:
-        Aleutians East: 2013
-        Aleutians West: 2016
-        Anchorage: 2020
-        Bethel: 2050
-        Bristol Bay: 2060
-        Denali: 2068
-        Dillingham: 2070
-        Fairbanks North Star: 2090
-        Haines: 2100
-        Juneau: 2110
-        Kenai Peninsula: 2122
-        Ketchikan Gateway: 2130
-        Kodiak Island: 2150
-        Lake and Peninsula: 2164
-        Matanuska-Susitna: 2170
-        Nome: 2180
-        North Slope: 2185
-        Northwest Arctic: 2188
-        Prince of Wales-Outer Ketchikan: 2201
-        Sitka: 2220
-        Skagway-Hoonah-Angoon: 2232
-        Southeast Fairbanks: 2240
-        Valdez-Cordova: 2261
-        Wade Hampton: 2270
-        Wrangell-Petersburg: 2280
-        Yakutat: 2282
-        Yukon-Koyukuk: 2290
+    condition: 'Bundle.entry.resource.ofType(Patient).address.district.empty().not() and Bundle.entry.resource.ofType(Patient).address.state.empty().not()'
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-11-9' ]
+    value: ["FIPSCountyLookup(Bundle.entry.resource.ofType(Patient).address.district,Bundle.entry.resource.ofType(Patient).address.state)[0]"]
 
   - name: ak-patient-ethnicity-identifier-code
     value:
