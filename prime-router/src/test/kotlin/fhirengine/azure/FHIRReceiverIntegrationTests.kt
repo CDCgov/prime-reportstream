@@ -271,7 +271,7 @@ class FHIRReceiverIntegrationTests {
             )
         } catch (e: Exception) {
             println(e.message)
-            println(e.stackTraceToString())
+            e.printStackTrace()
             println(e.cause)
             println(e)
         }
