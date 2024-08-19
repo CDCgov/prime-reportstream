@@ -108,7 +108,7 @@ data class BatchEventQueueMessage(
     val receiverName: String,
     val emptyBatch: Boolean,
     val at: String,
-) : WithEventAction()  {
+) : WithEventAction() {
     override val messageQueueName = ""
 }
 
