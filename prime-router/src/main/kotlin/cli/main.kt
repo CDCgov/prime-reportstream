@@ -299,6 +299,7 @@ fun main(args: Array<String>) = RouterCli()
         ProcessHl7Commands(),
         ValidateTranslationSchemaCommand(),
         SyncTranslationSchemaCommand(),
-        ValidateYAMLCommand()
+        ValidateYAMLCommand(),
+        TestMessageBankCommands()
     ).context { terminal = Terminal(ansiLevel = AnsiLevel.TRUECOLOR) }
     .main(args)

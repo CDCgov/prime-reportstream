@@ -203,7 +203,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                         metadata
                     )
                     GeoData.DataTypes.TESTING_LAB -> "Any lab USA"
-                    GeoData.DataTypes.SENDER_IDENTIFIER -> UUID.randomUUID().toString()
+                    GeoData.DataTypes.UUID -> UUID.randomUUID().toString()
                     GeoData.DataTypes.FACILITY_NAME -> "Any facility USA"
                     GeoData.DataTypes.NAME_OF_SCHOOL -> "Any Fake School"
                     GeoData.DataTypes.REFERENCE_RANGE -> randomChoice("", "Normal", "Abnormal", "Negative")

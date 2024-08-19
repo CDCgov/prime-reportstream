@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
+import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
@@ -58,7 +59,7 @@ class FhirTransformer(
         schema: FhirTransformSchema,
         bundle: Bundle,
         focusResource: Base,
-        context: CustomContext = CustomContext(bundle, focusResource),
+        context: CustomContext = CustomContext(bundle, focusResource, customFhirFunctions = CustomFhirPathFunctions()),
         debug: Boolean = false,
     ) {
         val logLevel = if (debug) Level.INFO else Level.DEBUG

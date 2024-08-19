@@ -1,18 +1,13 @@
 elements:
   - name: pii-removal-patient-id
     resource: 'Bundle.entry.resource.ofType(Patient)'
-    value: [ 'getFakeValueForElement("ID_NUMBER")' ]
+    value: [ 'getFakeValueForElement("UUID")' ]
     bundleProperty: '%resource.identifier.value'
 
   - name: pii-removal-patient-last-name
     resource: 'Bundle.entry.resource.ofType(Patient)'
     value: [ 'getFakeValueForElement("PERSON_FAMILY_NAME").substring(%resource.indexOf(" "),)' ]
     bundleProperty: '%resource.name.family'
-
-  - name: pii-removal-patient-last-name
-    resource: 'Bundle.entry.resource.ofType(Patient)'
-    value: [ 'getFakeValueForElement("PERSON_GIVEN_NAME")' ]
-    bundleProperty: '%resource.name.given'
 
   - name: pii-removal-patient-last-name
     resource: 'Bundle.entry.resource.ofType(Patient)'
@@ -163,6 +158,20 @@ elements:
     value: [ 'getFakeValueForElement("DATE")' ]
     bundleProperty: '%resource.effective'
 
+  - name: pii-removal-service-request-note
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
+    value: [ 'getFakeValueForElement("OTHER_TEXT")' ]
+    bundleProperty: '%resource.note.text'
+
+  - name: pii-removal-observation-note
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    value: [ 'getFakeValueForElement("OTHER_TEXT")' ]
+    bundleProperty: '%resource.note.text'
+
+  - name: pii-removal-specimen-note
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    value: [ 'getFakeValueForElement("OTHER_TEXT")' ]
+    bundleProperty: '%resource.note.text'
 
 
 

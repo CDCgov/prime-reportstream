@@ -47,7 +47,7 @@ object GeoData {
         CITY("city"),
         POSTAL_CODE("postal_code"),
         TESTING_LAB("testing_lab"),
-        SENDER_IDENTIFIER("sender_identifier"),
+        UUID("sender_identifier"),
         FACILITY_NAME("facility_name"),
         NAME_OF_SCHOOL("name_of_school"),
         REFERENCE_RANGE("reference_range"),
