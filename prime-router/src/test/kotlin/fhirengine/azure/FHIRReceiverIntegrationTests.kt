@@ -262,19 +262,12 @@ class FHIRReceiverIntegrationTests {
 
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        try {
-            fhirFunctions.process(
-                receiveQueueMessage,
-                1,
-                createFHIRReceiver(),
-                ActionHistory(TaskAction.receive)
-            )
-        } catch (e: Exception) {
-            println(e.message)
-            e.printStackTrace()
-            println(e.cause)
-            println(e)
-        }
+        fhirFunctions.process(
+            receiveQueueMessage,
+            1,
+            createFHIRReceiver(),
+            ActionHistory(TaskAction.receive)
+        )
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk())

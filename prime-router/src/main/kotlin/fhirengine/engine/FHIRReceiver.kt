@@ -230,7 +230,7 @@ class FHIRReceiver(
         val sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name))
 
         // Create a new report
-        val report = Report(mimeFormat, sources, TaskAction.convert, sender.topic)
+        val report = Report(mimeFormat, sources, TaskAction.convert, sender.topic, metadata)
         actionHistory.trackExternalInputReport(
             report,
             queueMessage.blobURL,
