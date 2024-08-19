@@ -11,6 +11,7 @@ import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.QueueAccess
@@ -25,7 +26,7 @@ import gov.cdc.prime.router.common.UniversalPipelineTestUtils
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
-import gov.cdc.prime.router.fhirengine.engine.elrSendQueueName
+import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
@@ -151,7 +152,7 @@ class FHIRTranslatorIntegrationTests : Logging {
             "SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210622\r" +
             "PID|1||||Steuber||20150707|O||^^^^^^^^Native Hawaiian or Other Pacific Islander|^^^IG^^s4fgh||~|||||||||^^^^^^^^Non Hispanic or Latino|||||||20210614\r" +
             "ORC|||||||||||||||||||||Any facility USA|^^^IG||^^^IG\r" +
-            "OBR|1|||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay|||||||||||||||||||||C\r" +
+            "OBR|1|||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay\r" +
             "OBX|1||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay|770814|^^^^^^^^Not detected||Abnormal|||||||||||LumiraDx Platform_LumiraDx\r" +
             "NTE|1|L|ciu1se|^^^^^^^^Remark\r" +
             "OBX|2||^^^^^^^^Whether patient is employed in a healthcare setting||^^^^^^^^Yes\r" +
@@ -173,7 +174,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // no queue messages should have been sent
         verify(exactly = 0) {
@@ -251,7 +252,7 @@ class FHIRTranslatorIntegrationTests : Logging {
             "SFT|Orange Software Vendor Name|0.2-YELLOW|Purple PRIME ReportStream|0.1-SNAPSHOT||20210622\r" +
             "PID|1||||Steuber||20150707|O||^^^^^^^^Native Hawaiian or Other Pacific Islander|^^^IG^^s4fgh||~|||||||||^^^^^^^^Non Hispanic or Latino|||||||20210614\r" +
             "ORC|||||||||||||||||||||Any facility USA|^^^IG||^^^IG\r" +
-            "OBR|1|||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay|||||||||||||||||||||C\r" +
+            "OBR|1|||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay\r" +
             "OBX|1||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay|770814|^^^^^^^^Not detected||Abnormal|||||||||||LumiraDx Platform_LumiraDx\r" +
             "NTE|1|L|ciu1se|^^^^^^^^Remark\r" +
             "OBX|2||^^^^^^^^Whether patient is employed in a healthcare setting||^^^^^^^^Yes\r" +
@@ -273,7 +274,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // no queue messages should have been sent
         verify(exactly = 0) {
@@ -350,7 +351,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // no queue messages should have been sent
         verify(exactly = 0) {
@@ -437,7 +438,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // no queue messages should have been sent
         verify(exactly = 0) {
@@ -524,11 +525,11 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // check that send queue was updated
         verify(exactly = 1) {
-            QueueAccess.sendMessage(elrSendQueueName, any())
+            QueueAccess.sendMessage(QueueMessage.elrSendQueueName, any())
         }
 
         // check action table
@@ -606,11 +607,11 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // check that send queue was updated
         verify(exactly = 1) {
-            QueueAccess.sendMessage(elrSendQueueName, any())
+            QueueAccess.sendMessage(QueueMessage.elrSendQueueName, any())
         }
 
         // check action table
@@ -688,11 +689,11 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // check that send queue was updated
         verify(exactly = 1) {
-            QueueAccess.sendMessage(elrSendQueueName, any())
+            QueueAccess.sendMessage(QueueMessage.elrSendQueueName, any())
         }
 
         // check action table

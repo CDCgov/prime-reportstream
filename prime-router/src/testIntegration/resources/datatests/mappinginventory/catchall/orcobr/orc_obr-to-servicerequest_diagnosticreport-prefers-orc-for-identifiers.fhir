@@ -168,6 +168,9 @@
             "value" : "OBRFiller Identifier"
           }
         }, {
+          "url" : "OBR.25",
+          "valueId" : "F"
+        }, {
           "url" : "OBR.53",
           "valueIdentifier" : {
             "extension" : [ {
@@ -304,7 +307,7 @@
       "basedOn" : [ {
         "reference" : "ServiceRequest/1710885246310613000.b1c544b5-1f39-4a90-9370-c921db23a80e"
       } ],
-      "status" : "unknown",
+      "status" : "final",
       "subject" : {
         "reference" : "Patient/1710885246032188000.83ff79b6-d78c-4bb7-a8f0-562bf0c5fe24"
       },
