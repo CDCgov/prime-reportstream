@@ -82,7 +82,7 @@ resource "azurerm_frontdoor" "front_door" {
     name               = "api"
     frontend_endpoints = local.frontend_endpoints
     accepted_protocols = ["Https"]
-    patterns_to_match  = ["/*", "/api/*"]
+    patterns_to_match  = ["/api/*"]
 
     forwarding_configuration {
       backend_pool_name   = "functions"
@@ -94,7 +94,7 @@ resource "azurerm_frontdoor" "front_door" {
     name               = "download"
     frontend_endpoints = local.frontend_endpoints
     accepted_protocols = ["Https"]
-    patterns_to_match  = ["/", "/download"]
+    patterns_to_match  = ["/download"]
 
     # Redirect to the new download site in environments with it deployed
     dynamic "redirect_configuration" {
@@ -129,7 +129,7 @@ resource "azurerm_frontdoor" "front_door" {
     name               = "HttpToHttpsRedirect"
     frontend_endpoints = local.frontend_endpoints
     accepted_protocols = ["Http"]
-    patterns_to_match  = ["/", "/*", "/api/*", "/download"]
+    patterns_to_match  = ["/api/*", "/download"]
 
     redirect_configuration {
       redirect_protocol = "HttpsOnly"
@@ -237,11 +237,9 @@ resource "azurerm_frontdoor" "front_door" {
     probe_method        = "HEAD"
   }
 
-  dynamic "routing_rule" {
-    for_each = local.static_env
-    content {
+    routing_rule {
       name               = "HttpToHttpsRedirectStatic"
-      frontend_endpoints = local.static_endpoints
+      frontend_endpoints = concat(["DefaultFrontendEndpoint"], local.static_endpoints)
       accepted_protocols = ["Http"]
       patterns_to_match  = ["/", "/*"]
 
@@ -249,14 +247,12 @@ resource "azurerm_frontdoor" "front_door" {
         redirect_protocol = "HttpsOnly"
         redirect_type     = "Moved"
       }
-    }
+
   }
 
-  dynamic "routing_rule" {
-    for_each = local.static_env
-    content {
+    routing_rule {
       name               = "Static"
-      frontend_endpoints = local.static_endpoints
+      frontend_endpoints = concat(["DefaultFrontendEndpoint"], local.static_endpoints)
       accepted_protocols = ["Https"]
       patterns_to_match  = ["/", "/*"]
 
@@ -264,7 +260,6 @@ resource "azurerm_frontdoor" "front_door" {
         backend_pool_name   = "static"
         forwarding_protocol = "HttpsOnly"
       }
-    }
   }
 }
 
@@ -310,4 +305,39 @@ resource "azurerm_key_vault_access_policy" "frontdoor_access_policy" {
     "Get",
     "List",
   ]
+}
+
+resource "azurerm_frontdoor_rules_engine" "react_rules_engine" {
+    name                = "${var.resource_prefix}react"
+    frontdoor_name      = azurerm_frontdoor.front_door.name
+    resource_group_name = azurerm_frontdoor.front_door.resource_group_name
+
+    rule {
+        name     = "HSTS"
+        priority = 1
+
+        match_condition {
+            variable = "RequestScheme"
+            operator = "Equal"
+            value    = ["HTTPS"]
+        }
+
+        action {
+            response_header {
+                header_action_type = "Append"
+                header_name        = "Strict-Transport-Security"
+                value              = "max-age=31536000"
+            }
+        }
+    }
+}
+
+resource "null_resource" "react_rules_engine_to_static" {
+    provisioner "local-exec" {
+        command = "az config set extension.use_dynamic_install=yes_without_prompt && az network front-door routing-rule update --front-door-name ${azurerm_frontdoor.front_door.name} --resource-group ${azurerm_frontdoor.front_door.resource_group_name} --name Static --rules-engine ${azurerm_frontdoor_rules_engine.react_rules_engine.name}"
+    }
+    # forces execution to go after front door
+    depends_on = [
+        azurerm_frontdoor.front_door
+    ]
 }
