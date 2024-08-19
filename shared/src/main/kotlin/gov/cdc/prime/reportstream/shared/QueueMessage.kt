@@ -22,6 +22,9 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
     JsonSubTypes.Type(QueueMessage.ReceiveQueueMessage::class, name = "receive"),
 )
 interface QueueMessage {
+
+    val messageQueueName: String
+
     fun serialize(): String {
         val bytes = mapper.writeValueAsBytes(this)
         check(bytes.size < MESSAGE_SIZE_LIMIT) { "Message is too big for the queue." }
@@ -38,6 +41,13 @@ interface QueueMessage {
         override fun toString(): String {
             return mapper.writeValueAsString(this)
         }
+
+        const val elrReceiveQueueName = "receive-fhir"
+        const val elrConvertQueueName = "elr-fhir-convert"
+        const val elrDestinationFilterQueueName = "elr-fhir-destination-filter"
+        const val elrReceiverFilterQueueName = "elr-fhir-receiver-filter"
+        const val elrTranslationQueueName = "elr-fhir-translate"
+        const val elrSendQueueName = "send"
     }
 
     interface ReportInformation {
@@ -58,7 +68,9 @@ interface QueueMessage {
         override val blobSubFolderName: String,
         override val reportId: UUID,
         override val headers: Map<String, String>,
-    ) : QueueMessage, ReportInformation, ReceiveInformation
+    ) : QueueMessage, ReportInformation, ReceiveInformation {
+        override val messageQueueName = elrReceiveQueueName
+    }
 
     object ObjectMapperProvider {
 

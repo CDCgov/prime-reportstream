@@ -24,13 +24,6 @@ import gov.cdc.prime.router.serializers.Hl7Serializer
 import org.jooq.Field
 import java.time.OffsetDateTime
 
-const val elrReceiveQueueName = "elr-fhir-receive"
-const val elrConvertQueueName = "elr-fhir-convert"
-const val elrDestinationFilterQueueName = "elr-fhir-destination-filter"
-const val elrReceiverFilterQueueName = "elr-fhir-receiver-filter"
-const val elrTranslationQueueName = "elr-fhir-translate"
-const val elrSendQueueName = "send"
-
 /**
  * All logical processing for full ELR / FHIR processing should be within this class.
  * [metadata] mockable metadata

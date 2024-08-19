@@ -12,6 +12,7 @@ import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.QueueAccess
@@ -26,7 +27,6 @@ import gov.cdc.prime.router.common.UniversalPipelineTestUtils
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
-import gov.cdc.prime.router.fhirengine.engine.elrSendQueueName
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
@@ -174,7 +174,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // no queue messages should have been sent
         verify(exactly = 0) {
@@ -274,7 +274,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // no queue messages should have been sent
         verify(exactly = 0) {
@@ -351,7 +351,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // no queue messages should have been sent
         verify(exactly = 0) {
@@ -438,7 +438,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // no queue messages should have been sent
         verify(exactly = 0) {
@@ -525,11 +525,11 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // check that send queue was updated
         verify(exactly = 1) {
-            QueueAccess.sendMessage(elrSendQueueName, any())
+            QueueAccess.sendMessage(QueueMessage.elrSendQueueName, any())
         }
 
         // check action table
@@ -607,11 +607,11 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // check that send queue was updated
         verify(exactly = 1) {
-            QueueAccess.sendMessage(elrSendQueueName, any())
+            QueueAccess.sendMessage(QueueMessage.elrSendQueueName, any())
         }
 
         // check action table
@@ -689,11 +689,11 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // check that send queue was updated
         verify(exactly = 1) {
-            QueueAccess.sendMessage(elrSendQueueName, any())
+            QueueAccess.sendMessage(QueueMessage.elrSendQueueName, any())
         }
 
         // check action table

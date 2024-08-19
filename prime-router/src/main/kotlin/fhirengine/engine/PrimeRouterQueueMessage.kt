@@ -8,6 +8,7 @@ import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.QueueAccess
 import java.util.UUID
 
 // This is a size limit dictated by our infrastructure in azure
@@ -27,7 +28,13 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
     JsonSubTypes.Type(ProcessEventQueueMessage::class, name = "process"),
     JsonSubTypes.Type(ReportEventQueueMessage::class, name = "report")
 )
-abstract class PrimeRouterQueueMessage : QueueMessage
+abstract class PrimeRouterQueueMessage : QueueMessage {
+    fun send(queueAccess: QueueAccess) {
+        if (this.messageQueueName.isNotEmpty()) {
+            queueAccess.sendMessage(this.messageQueueName, serialize())
+        }
+    }
+}
 
 abstract class ReportPipelineMessage :
     QueueMessage.ReportInformation,
@@ -40,7 +47,9 @@ data class FhirReceiveQueueMessage(
     override val digest: String,
     override val blobSubFolderName: String,
     override val headers: Map<String, String> = emptyMap(),
-) : ReportPipelineMessage(), QueueMessage.ReceiveInformation
+) : ReportPipelineMessage(), QueueMessage.ReceiveInformation {
+    override val messageQueueName = QueueMessage.Companion.elrReceiveQueueName
+}
 
 @JsonTypeName("convert")
 data class FhirConvertQueueMessage(
@@ -50,7 +59,9 @@ data class FhirConvertQueueMessage(
     override val blobSubFolderName: String,
     var topic: Topic,
     var schemaName: String = "",
-) : ReportPipelineMessage()
+) : ReportPipelineMessage() {
+    override val messageQueueName = QueueMessage.Companion.elrConvertQueueName
+}
 
 @JsonTypeName("destination-filter")
 data class FhirDestinationFilterQueueMessage(
@@ -59,7 +70,9 @@ data class FhirDestinationFilterQueueMessage(
     override val digest: String,
     override val blobSubFolderName: String,
     val topic: Topic,
-) : ReportPipelineMessage()
+) : ReportPipelineMessage() {
+    override val messageQueueName = QueueMessage.Companion.elrDestinationFilterQueueName
+}
 
 @JsonTypeName("receiver-filter")
 data class FhirReceiverFilterQueueMessage(
@@ -69,7 +82,9 @@ data class FhirReceiverFilterQueueMessage(
     override val blobSubFolderName: String,
     val topic: Topic,
     val receiverFullName: String,
-) : ReportPipelineMessage()
+) : ReportPipelineMessage() {
+    override val messageQueueName = QueueMessage.Companion.elrReceiverFilterQueueName
+}
 
 @JsonTypeName("translate")
 data class FhirTranslateQueueMessage(
@@ -79,7 +94,9 @@ data class FhirTranslateQueueMessage(
     override val blobSubFolderName: String,
     val topic: Topic,
     val receiverFullName: String,
-) : ReportPipelineMessage()
+) : ReportPipelineMessage() {
+    override val messageQueueName = QueueMessage.Companion.elrTranslationQueueName
+}
 
 abstract class WithEventAction : PrimeRouterQueueMessage() {
     abstract val eventAction: Event.EventAction
@@ -91,7 +108,9 @@ data class BatchEventQueueMessage(
     val receiverName: String,
     val emptyBatch: Boolean,
     val at: String,
-) : WithEventAction()
+) : WithEventAction()  {
+    override val messageQueueName = ""
+}
 
 @JsonTypeName("report")
 data class ReportEventQueueMessage(
@@ -99,7 +118,9 @@ data class ReportEventQueueMessage(
     val emptyBatch: Boolean,
     val reportId: UUID,
     val at: String,
-) : WithEventAction()
+) : WithEventAction() {
+    override val messageQueueName = QueueMessage.Companion.elrSendQueueName
+}
 
 @JsonTypeName("process")
 data class ProcessEventQueueMessage(
@@ -109,7 +130,9 @@ data class ProcessEventQueueMessage(
     val defaults: Map<String, String>,
     val routeTo: List<String>,
     val at: String,
-) : WithEventAction()
+) : WithEventAction() {
+    override val messageQueueName = ""
+}
 
 // Register submodule subtypes
 fun registerPrimeRouterQueueMessageSubtypes() {

@@ -15,6 +15,7 @@ import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
@@ -62,7 +63,6 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FhirDestinationFilterQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.metadata.LookupTable
@@ -251,7 +251,7 @@ class FHIRConverterIntegrationTests {
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7SenderWithNoTransform)
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val (routedReports, _) = fetchChildReports(
@@ -298,7 +298,7 @@ class FHIRConverterIntegrationTests {
 
             verify(exactly = 2) {
                 QueueAccess.sendMessage(
-                    elrDestinationFilterQueueName,
+                    QueueMessage.elrDestinationFilterQueueName,
                     match { expectedQueueMessages.contains(it) }
                 )
             }
@@ -416,7 +416,7 @@ class FHIRConverterIntegrationTests {
         )
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val (routedReports, _) = fetchChildReports(
@@ -444,7 +444,7 @@ class FHIRConverterIntegrationTests {
             }.map { it.serialize() }
             verify(exactly = 2) {
                 QueueAccess.sendMessage(
-                    elrDestinationFilterQueueName,
+                    QueueMessage.elrDestinationFilterQueueName,
                     match { expectedQueueMessages.contains(it) }
                 )
             }
@@ -540,7 +540,7 @@ class FHIRConverterIntegrationTests {
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, senderWithValidation)
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val (routedReports, notRouted) = fetchChildReports(
@@ -577,7 +577,7 @@ class FHIRConverterIntegrationTests {
             }.map { it.serialize() }
             verify(exactly = 1) {
                 QueueAccess.sendMessage(
-                    elrDestinationFilterQueueName,
+                    QueueMessage.elrDestinationFilterQueueName,
                     match { expectedQueueMessages.contains(it) }
                 )
             }
@@ -622,6 +622,7 @@ class FHIRConverterIntegrationTests {
                     "phd.marsotc-hl7-sender"
                 )
             )
+            @Suppress("ktlint:standard:max-line-length")
             assertThat(event.params).isEqualTo(
                 mapOf(
                     ReportStreamEventProperties.ITEM_FORMAT to MimeFormat.HL7,
@@ -648,7 +649,7 @@ class FHIRConverterIntegrationTests {
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7Sender)
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReports = fetchChildReports(receiveReport, txn, 2)
@@ -691,7 +692,7 @@ class FHIRConverterIntegrationTests {
 
             verify(exactly = 2) {
                 QueueAccess.sendMessage(
-                    elrDestinationFilterQueueName,
+                    QueueMessage.elrDestinationFilterQueueName,
                     match { expectedQueueMessages.contains(it) }
                 )
             }
@@ -720,7 +721,7 @@ class FHIRConverterIntegrationTests {
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7Sender)
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         verify(exactly = 0) {
             QueueAccess.sendMessage(any(), any())

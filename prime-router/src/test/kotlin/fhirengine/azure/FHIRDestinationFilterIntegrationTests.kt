@@ -16,6 +16,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
@@ -38,7 +39,6 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
 import gov.cdc.prime.router.fhirengine.engine.FhirReceiverFilterQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.elrReceiverFilterQueueName
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
@@ -186,7 +186,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         val destinationFilter = createDestinationFilter(azureEventsService, org)
 
         // execute
-        fhirFunctions.doDestinationFilter(queueMessage, 1, destinationFilter)
+        fhirFunctions.process(queueMessage, 1, destinationFilter, ActionHistory(TaskAction.destination_filter))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -227,7 +227,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
 
             verify(exactly = 2) {
                 QueueAccess.sendMessage(
-                    elrReceiverFilterQueueName,
+                    QueueMessage.elrReceiverFilterQueueName,
                     match {
                         expectedRouteQueueMessages.contains(it)
                     }
@@ -275,7 +275,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         val destinationFilter = createDestinationFilter(azureEventsService, org)
 
         // execute
-        fhirFunctions.doDestinationFilter(queueMessage, 1, destinationFilter)
+        fhirFunctions.process(queueMessage, 1, destinationFilter, ActionHistory(TaskAction.destination_filter))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -299,7 +299,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             // filter should permit message and should not mangle message
             verify(exactly = 1) {
                 QueueAccess.sendMessage(
-                    elrReceiverFilterQueueName,
+                    QueueMessage.elrReceiverFilterQueueName,
                     expectedQueueMessage.serialize()
                 )
             }
@@ -380,11 +380,11 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         val destinationFilter = createDestinationFilter(azureEventsService, org)
 
         // execute
-        fhirFunctions.doDestinationFilter(queueMessage, 1, destinationFilter)
+        fhirFunctions.process(queueMessage, 1, destinationFilter, ActionHistory(TaskAction.destination_filter))
 
         // no messages should have been routed due to filter
         verify(exactly = 0) {
-            QueueAccess.sendMessage(elrReceiverFilterQueueName, any())
+            QueueAccess.sendMessage(QueueMessage.elrReceiverFilterQueueName, any())
         }
 
         // check action table

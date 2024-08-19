@@ -7,11 +7,13 @@ import com.azure.data.tables.TableServiceClientBuilder
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.ActionLogType
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransform
@@ -146,7 +148,12 @@ class FHIRReceiverIntegrationTests {
 
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doReceive(receiveQueueMessage, 1, createFHIRReceiver())
+        fhirFunctions.process(
+            receiveQueueMessage,
+            1,
+            createFHIRReceiver(),
+            ActionHistory(TaskAction.receive)
+        )
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk())
@@ -198,7 +205,12 @@ class FHIRReceiverIntegrationTests {
 
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doReceive(receiveQueueMessage, 1, createFHIRReceiver())
+        fhirFunctions.process(
+            receiveQueueMessage,
+            1,
+            createFHIRReceiver(),
+            ActionHistory(TaskAction.receive)
+        )
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk())
@@ -250,7 +262,12 @@ class FHIRReceiverIntegrationTests {
 
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doReceive(receiveQueueMessage, 1, createFHIRReceiver())
+        fhirFunctions.process(
+            receiveQueueMessage,
+            1,
+            createFHIRReceiver(),
+            ActionHistory(TaskAction.receive)
+        )
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk())
