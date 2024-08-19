@@ -93,6 +93,7 @@
         credentialName: null
         type: "SFTP"
       externalName: "Primary Feed"
-      enrichmentSchemaNames: []
+      enrichmentSchemaNames:
+        - "azure:/fhir_transforms/common/handle-aoe-unknown-value/handle-aoe-unknown-value.yml"
       timeZone: null
       dateTimeFormat: "OFFSET"
