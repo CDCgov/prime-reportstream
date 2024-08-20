@@ -45,7 +45,7 @@ jobs:
      - name: Upload Lighthouse Report
        run: |
          yarn add -D @lhci/cli
-         lhci autorun --config=.github/config/lighthouserc-no-condition.json
+         lhci autorun --collect.numberOfRuns=5
        env:
          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
          
