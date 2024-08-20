@@ -13,6 +13,7 @@ import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.azure.SettingsFacade
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.common.ReportNodeBuilder
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
@@ -21,7 +22,11 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkAll
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -29,6 +34,11 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
 class DeliveryHistoryDatabaseAccessTests {
+
+    @AfterEach
+    fun afterEach() {
+        unmockkAll()
+    }
 
     @Test
     fun `test it should return the correct filename`() {
@@ -83,6 +93,9 @@ class DeliveryHistoryDatabaseAccessTests {
             ReceiverAPI::class.java,
             UniversalPipelineTestUtils.universalPipelineOrganization.name
         )
+        mockkObject(BaseEngine)
+        every { BaseEngine.settingsProviderSingleton } returns settings
+
         metadata.lookupTableStore += mapOf(
             "observation-mapping" to LookupTable("observation-mapping", emptyList())
         )

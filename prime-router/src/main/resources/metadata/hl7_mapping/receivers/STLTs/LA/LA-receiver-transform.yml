@@ -31,13 +31,38 @@ elements:
     value: [ '"LA-ELR"' ]
     hl7Spec: [ 'MSH-5-1' ]
 
+  - name: la-receiving-application-universal-id
+    condition: 'true'
+    value: [ '"LA-ELR"' ]
+    hl7Spec: [ 'MSH-5-2' ]
+
+  - name: la-receiving-application-universal-id-type
+    condition: 'true'
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-5-3' ]
+
   - name: la-receiving-facility-namespace-ID
     condition: 'true'
     value: [ '"LADOH"' ]
     hl7Spec: [ 'MSH-6-1' ]
+
+  - name: la-receiving-facility-universal-id
+    condition: 'true'
+    value: [ '"LADOH"' ]
+    hl7Spec: [ 'MSH-6-2' ]
+
+  - name: la-receiving-facility-universal-id-type
+    condition: 'true'
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-6-3' ]
 
   - name: la-patient-race-coding-system
     resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
     condition: '%resource.code.exists()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '%{PID}-10-3' ]
+
+  - name: la-patient-county-codes
+    condition: 'Bundle.entry.resource.ofType(Patient).address.district.empty().not() and Bundle.entry.resource.ofType(Patient).address.state.empty().not()' 
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-11-9' ]
+    value: ["FIPSCountyLookup(Bundle.entry.resource.ofType(Patient).address.district,Bundle.entry.resource.ofType(Patient).address.state)[0]"]
