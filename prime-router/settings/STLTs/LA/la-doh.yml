@@ -21,9 +21,9 @@
         schemaName: "azure:/hl7_mapping/receivers/STLTs/LA/LA-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
-        receivingApplicationName: "LA-ELR"
+        receivingApplicationName: "LA-ELR^LA-ELR^ISO"
         receivingApplicationOID: null
-        receivingFacilityName: "LADOH"
+        receivingFacilityName: "LADOH^LADOH^ISO"
         receivingFacilityOID: null
         messageProfileId: null
         replaceValue: {}
