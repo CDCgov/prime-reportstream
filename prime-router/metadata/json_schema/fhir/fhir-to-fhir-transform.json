@@ -21,6 +21,9 @@
           "bundleProperty": {
             "type": "string"
           },
+          "appendToProperty": {
+            "type": "string"
+          },
           "condition": {
             "type": "string"
           },
@@ -47,6 +50,10 @@
           },
           "schemaRef": {
             "type": "object"
+          },
+          "action": {
+            "type": "string",
+            "enum": ["SET", "APPEND", "DELETE", "APPLY_SCHEMA"]
           },
           "validationErrors": {
             "type": "array",

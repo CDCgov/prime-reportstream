@@ -1,0 +1,22 @@
+elements:
+  - name: obx-value-to-asku
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: "%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code = 'AOE').exists()"
+    bundleProperty: '%resource.value.coding.code'
+    value: [ '%resource.value.coding.code' ]
+    valueSet:
+      values:
+        asked-declined: ASKU
+        UNK: ASKU
+
+  - name: obx-asku-display
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.where(meta.tag.code = "AOE" and value.coding.code = "ASKU").exists()'
+    bundleProperty: '%resource.value.coding.display'
+    value: [ '"asked but unknown"' ]
+
+  - name: obx-value-null
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.where(meta.tag.code = "AOE" and value.coding.code = "ASKU").exists()'
+    bundleProperty: '%resource.value.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
+    value: [ '"NULLFL"' ]

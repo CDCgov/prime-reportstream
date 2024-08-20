@@ -1,0 +1,133 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+constants:
+  PID: '/PATIENT_RESULT/PATIENT/PID'
+  ORC: '/PATIENT_RESULT/ORDER_OBSERVATION/ORC'
+  OBR: '/PATIENT_RESULT/ORDER_OBSERVATION/OBR'
+
+elements:
+
+  - name: ar-sending-application-namespace-id
+    value: [ '"CDC PRIME - Atlanta"' ]
+    hl7Spec: [ 'MSH-3-1' ]
+
+  - name: ar-sending-application-universal-id
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+    hl7Spec: [ 'MSH-3-2' ]
+
+  - name: ar-sending-application-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-3-3' ]
+
+  - name: ar-sending-facility-namespace-id
+    value: [ '"CDC PRIME"' ]
+    hl7Spec: [ 'MSH-4-1' ]
+
+  - name: ar-sending-application-universal-id
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+    hl7Spec: [ 'MSH-4-2' ]
+
+  - name: ar-sending-application-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-4-3' ]
+
+  - name: ar-receiving-application-namespace-id
+    value: [ '"AR.NBS"' ]
+    hl7Spec: [ 'MSH-5-1' ]
+
+  - name: ar-receiving-application-universal-id
+    value: [ '"2.16.840.1.114222.4.3.3.2.5.3"' ]
+    hl7Spec: [ 'MSH-5-2' ]
+
+  - name: ar-receiving-application-universal-id-type
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-5-3' ]
+
+  - name: ar-receiving-facility-namespace-id
+    value: [ '"AR DOH"' ]
+    hl7Spec: [ 'MSH-6-1' ]
+
+  - name: ar-receiving-facility-universal-ID
+    value: [ '"2.16.840.1.114222.4.1.141"' ]
+    hl7Spec: [ 'MSH-6-2' ]
+
+  - name: ar-receiving-facility-universal-ID-Type
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-6-3' ]
+
+    # add coding system to PID-10-3 if missing
+  - name: ar-patient-race-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+    condition: '%resource.code.exists()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '%{PID}-10-3' ]
+
+    # removes PID-10-1, PID-10-2, PID-10-3, PID-10-4
+  - name: ar-patient-race
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+    condition: '%resource.where(code in ( "ASKU" | "UNK" )).exists()'
+    value: [ '""' ]
+    hl7Spec: [ '%{PID}-10-1' , '%{PID}-10-2' , '%{PID}-10-3' , '%{PID}-10-7' , '%{PID}-10-9' ]
+
+  - name: ar-patient-county-codes-out-of-state
+    value: [ '""' ]
+    hl7Spec: [ '%{PID}-11-9' ]
+
+  # converts value "PRS" to "PRN" for AR who uses table HL70201 from Ver 2.5.1. RS default is Ver 2.7
+  - name: ar-patient-telecommunication-use-code
+    resource: 'Bundle.entry.resource.ofType(Patient).telecom.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point").extension("XTN.2")'
+    condition: '%resource.value = "PRS"'
+    value: [ "'PRN'"]
+    hl7Spec: [ '%{PID}-13-2' ]
+
+    # add "NPI" to ORC-12-9-1, ORC-12-9-2, OBR-16-9-1 and OBR-16-9-2
+  - name: ar-ordering-provider-assigning-authority-id
+    condition: 'Bundle.entry.resource.ofType(Practitioner).identifier.system = "http://hl7.org/fhir/sid/us-npi"'
+    value: [ '"NPI"']
+    hl7Spec: [ '%{ORC}-12-9-1', '%{ORC}-12-9-2' , '%{OBR}-16-9-1' , '%{OBR}-16-9-2' ]
+
+    # add "ISO" to ORC-12-9-3 and OBR-16-9-3
+  - name: ar-ordering-provider-assigning-authority-namespace-universal-id-type
+    condition: 'Bundle.entry.resource.ofType(Practitioner).identifier.system = "http://hl7.org/fhir/sid/us-npi"'
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{ORC}-12-9-3' , '%{OBR}-16-9-3'  ]
+
+    # add "NPI" to ORC-12-13 and OBR-16-13
+  - name: ar-ordering-provider
+    condition: 'Bundle.entry.resource.ofType(Practitioner).identifier.system = "http://hl7.org/fhir/sid/us-npi"'
+    value: [ '"NPI"' ]
+    hl7Spec: [ '%{ORC}-12-13-1' , '%{OBR}-16-13-1' ]
+
+  # add assigning authority to ORC-12-6-1
+  - name: ar-ordering-facility-assigning-authority
+    condition: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.type.coding.code = "CLIA"'
+    value: [ '"CLIA"']
+    hl7Spec: [ '%{ORC}-21-6-1' ]
+
+  - name: ar-ordering-facility-assigning-authority-id
+    condition: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.type.coding.code = "CLIA"'
+    value: [ '"2.16.840.1.113883.4.7"' ]
+    hl7Spec: [ '%{ORC}-21-6-2' ]
+
+  - name: ar-ordering-facility-assigning-authority-id-type
+    condition: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.type.coding.code = "CLIA"'
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{ORC}-21-6-3' ]
+
+  - name: ar-ordering-facility-identifier-type-code
+    condition: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.type.coding.code = "CLIA"'
+    value: [ '"XX"']
+    hl7Spec: [ '%{ORC}-21-7']
+
+    # remove ORC-2-1, ORC-2-2, ORC-2-3, ORC-2-4, ORC-4-1, ORC-4-2, ORC-4-3, ORC-4-4, ORB-2-1, OBR-2-2, OBR-2-3, OBR-2-4
+  - name: remove-hl7-fields
+    value: [ '""' ]
+    hl7Spec: [ 'MSH-19-1' , 'MSH-19-2' , 'MSH-19-3' , '%{ORC}-2-1' , '%{ORC}-2-2' , '%{ORC}-2-3' , '%{ORC}-2-4' , '%{ORC}-4-1' , '%{ORC}-4-2' , '%{ORC}-4-3' , '%{ORC}-4-4' , '%{OBR}-2-1' , '%{OBR}-2-2' , '%{OBR}-2-3' , '%{OBR}-2-4' ]
+
+    # removes equipment instance identifier from OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4
+  - name: obx-equipment-instance-identifier
+    condition: 'false'
+
+  - name: observation-result-with-aoe
+    resource: '%resource.result.resolve()'
