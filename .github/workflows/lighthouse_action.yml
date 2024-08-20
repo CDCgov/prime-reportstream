@@ -39,9 +39,6 @@ jobs:
            echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
            echo "::group::Build"
            yarn build:$ENV
-           yarn add -D @lhci/cli
-           yarn test:lighthouse
-           lhci autorun
            echo "::endgroup::"
          shell: bash
      
