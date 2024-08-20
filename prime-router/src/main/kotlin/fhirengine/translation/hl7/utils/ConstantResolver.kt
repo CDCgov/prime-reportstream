@@ -20,6 +20,8 @@ import org.hl7.fhir.r4.utils.FHIRPathUtilityClasses.FunctionDetails
 import java.lang.IllegalArgumentException
 import java.lang.NumberFormatException
 
+private const val s = "appendToIndex"
+
 /**
  * Context used for resolving [constants] and custom FHIR functions. The class is for us to add our customer function
  * [customFhirFunctions], customer [config] object for us to pass any object to our custom translation function
@@ -34,19 +36,38 @@ data class CustomContext(
     val translationFunctions: TranslationFunctions? = Hl7TranslationFunctions(),
 ) {
     companion object {
-
+        val appendToIndexKey = "appendToIndex"
         private val reservedConstantNames =
-            listOf("loinc", "ucum", "resource", "rootResource", "context", "us-zip", "`vs-", "`cs-", "`ext")
+            listOf(
+                "loinc",
+                "ucum",
+                "resource",
+                "rootResource",
+                "context",
+                "us-zip",
+                "`vs-",
+                "`cs-",
+                "`ext",
+                appendToIndexKey
+            )
 
         /**
          * Add [constants] to a context.
          * @return a new context with the [constants] added or the existing context if no new constants are specified
          */
         fun addConstants(constants: Map<String, String>, previousContext: CustomContext): CustomContext {
+            return addConstants(constants, previousContext, true)
+        }
+
+        private fun addConstants(
+            constants: Map<String, String>,
+            previousContext: CustomContext,
+            checkReservedNames: Boolean,
+        ): CustomContext {
             return if (constants.isEmpty()) {
                 previousContext
             } else {
-                if (constants.keys.any { reservedConstantNames.contains(it) }) {
+                if (checkReservedNames && constants.keys.any { reservedConstantNames.contains(it) }) {
                     throw SchemaException(
                         """Constants contained reserved name,
                         reserved constants are: $reservedConstantNames
@@ -71,7 +92,15 @@ data class CustomContext(
          * @return a new context with the constant added or the existing context of no new constant is specified
          */
         fun addConstant(key: String, value: String, previousContext: CustomContext): CustomContext {
-            return addConstants(mapOf(key to value), previousContext)
+            return addConstants(mapOf(key to value), previousContext, true)
+        }
+
+        fun setAppendToIndex(index: Int, previousContext: CustomContext): CustomContext {
+            return addConstants(mapOf(appendToIndexKey to index.toString()), previousContext, false)
+        }
+
+        fun getAppendToIndex(context: CustomContext): Int? {
+            return context.constants[appendToIndexKey]?.toInt()
         }
     }
 }

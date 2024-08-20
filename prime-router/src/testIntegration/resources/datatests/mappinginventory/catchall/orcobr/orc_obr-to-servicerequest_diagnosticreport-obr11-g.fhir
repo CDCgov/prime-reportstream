@@ -129,6 +129,9 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
         "extension" : [ {
+          "url" : "OBR.25",
+          "valueId" : "F"
+        }, {
           "url" : "OBR.11",
           "valueString" : "G"
         } ]
@@ -147,7 +150,7 @@
       "basedOn" : [ {
         "reference" : "ServiceRequest/1710885144090395000.411a662a-f0c3-4a1a-b679-d2781a1f2d49"
       } ],
-      "status" : "unknown",
+      "status" : "final",
       "subject" : {
         "reference" : "Patient/1710885143822975000.defaf8a2-386b-4db0-9a06-09bbc5074bed"
       },

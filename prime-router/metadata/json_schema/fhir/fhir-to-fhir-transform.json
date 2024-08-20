@@ -21,6 +21,9 @@
           "bundleProperty": {
             "type": "string"
           },
+          "appendToProperty": {
+            "type": "string"
+          },
           "condition": {
             "type": "string"
           },

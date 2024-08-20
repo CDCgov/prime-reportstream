@@ -1,0 +1,16 @@
+@startuml
+participant Client
+participant ReportStream
+participant Microservice
+participant Okta
+
+Client -> Okta: Request access token
+Okta --> Client: Receive access token
+Client -> ReportStream: Make request with access token
+ReportStream -> Microservice: Make authentication request with access token
+Microservice -> Okta: Check validity of access token
+Okta --> Microservice: Valid access token
+Microservice --> ReportStream: Successful authentication
+ReportStream -> ReportStream: Check authorization to access resource
+ReportStream --> Client: 200 response
+@enduml
