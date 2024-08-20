@@ -16,9 +16,14 @@ jobs:
         node-version-file: frontend-react/.nvmrc
         cache: yarn
         cache-dependency-path: frontend-react/yarn.lock
+
      - name: Yarn install
        run: yarn install --immutable
-    
+
+     -  run: yarn install
+        working-directory: frontend-react
+        shell: bash
+ 
      - name: Build and run lighthouse
        uses: ./.github/actions/retry
        with:
