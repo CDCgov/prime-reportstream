@@ -72,3 +72,7 @@ elements:
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-11-9' ]
     value: ["FIPSCountyLookup(Bundle.entry.resource.ofType(Patient).address.district,Bundle.entry.resource.ofType(Patient).address.state)[0]"]
 
+  - name: observation-result-with-aoe
+    # LA does not want AOEs at all, so this is overridden to prevent identified AOEs from mapping to an HL7 segment
+    resource: '%resource.result.resolve()'
+
