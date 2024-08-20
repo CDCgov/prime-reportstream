@@ -78,8 +78,8 @@ jobs:
     name: E2E tests
     needs: lint
     runs-on: ubuntu-latest
-    # Keep shards under 6 minutes (1 minute dedicated to playwright install, 5 to tests)
-    timeout-minutes: 7
+    # Keep shards under 7 minutes (1 minute dedicated to playwright install, 6 to tests)
+    timeout-minutes: 8
     strategy:
       fail-fast: false
       matrix:
