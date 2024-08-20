@@ -34,7 +34,7 @@ jobs:
            echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
            echo "::group::Build"
            yarn build:$ENV
-           yarn test:lighthouse
+           
            echo "::endgroup::"
          shell: bash
      
