@@ -39,17 +39,16 @@ jobs:
            echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
            echo "::group::Build"
            yarn build:$ENV
+           yarn add -D @lhci/cli
            yarn test:lighthouse
+           lhci autorun
            echo "::endgroup::"
          shell: bash
      
-    #  - name: Upload Lighthouse Report
-    #    run: |
-    #      npm install -g @lhci/cli
-    #      lhci autorun --config=.github/config/lighthouserc-no-condition.json
-    #      lhci upload --serverBaseUrl=${{ secrets.LHCI_SERVER_URL }} --token=${{ secrets.LHCI_BUILD_TOKEN }}
-    #    env:
-    #      LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
-    #  - name: Check Lighthouse Report
-    #    run: |
-    #      lhci autorun --config=.github/config/lighthouserc.json
+     - name: Upload Lighthouse Report
+       run: |
+         yarn add -D @lhci/cli
+         lhci autorun --config=.github/config/lighthouserc-no-condition.json
+       env:
+         LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+         
