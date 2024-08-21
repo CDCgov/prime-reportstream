@@ -114,11 +114,12 @@ class FHIRConverter(
         val contextMap = mapOf(
             MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
             MDCUtils.MDCProperty.REPORT_ID to queueMessage.reportId,
+            MDCUtils.MDCProperty.TOPIC to queueMessage.topic,
             MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobURL
         )
         withLoggingContext(contextMap) {
-            actionHistory.trackExistingInputReport(queueMessage.reportId)
             actionLogger.setReportId(queueMessage.reportId)
+            actionHistory.trackExistingInputReport(queueMessage.reportId)
             val format = Report.getFormatFromBlobURL(queueMessage.blobURL)
             logger.info("Starting FHIR Convert step")
 

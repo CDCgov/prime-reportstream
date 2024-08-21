@@ -369,7 +369,7 @@ class Report : Logging {
 
     /**
      * Full ELR Report constructor for ingest
-     * [bodyFormat] is the format for this report. Should be HL7
+     * [bodyFormat] is the format for this report.
      * [sources] is the ClientSource or TestSource, where this data came from
      * [numberOfMessages] how many incoming messages does this Report represent
      * [metadata] is the metadata to use, mocked meta is passed in for testing

@@ -299,9 +299,3 @@ class PrunedObservationsLogMessage(override val message: String) : GenericAction
             filteredIdMap.map { "${it.key}: ${it.value.joinToString(", ")}" }.joinToString("\n")
     )
 }
-
-class SenderNotFound(clientId: String) : ActionLogDetail {
-    override val scope = ActionLogScope.parameter
-    override val message = "Inactive sender: $clientId"
-    override val errorCode = ErrorCode.SETTINGS_NOT_FOUND
-}

@@ -124,11 +124,10 @@ class SubmissionControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
                 .content(requestBody)
-//                .contentType(MediaType.valueOf("application/hl7-v2"))
+                .contentType(MediaType.valueOf("application/hl7-v2"))
                 .header("client_id", "testClient")
                 .header("payloadname", "testPayload")
                 .header("x-azure-clientip", "127.0.0.1")
-                .header("Content-Type", "application/hl7-v2")
         )
             .andExpect(MockMvcResultMatchers.status().isCreated)
 

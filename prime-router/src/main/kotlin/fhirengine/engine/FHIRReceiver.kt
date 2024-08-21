@@ -144,13 +144,20 @@ class FHIRReceiver(
 
         // Handle case where sender is not found
         if (sender == null) {
-            handleSenderNotFound(queueMessage, actionLogger, actionHistory)
+            actionHistory.trackActionResult(HttpStatus.BAD_REQUEST)
+            actionLogger.error(
+                InvalidParamMessage("Sender not found matching client_id: " + queueMessage.headers[clientIdHeader])
+            )
             return null
         }
 
         // Handle case where sender is inactive
         if (sender.customerStatus == CustomerStatus.INACTIVE) {
-            handleInactiveSender(queueMessage, actionLogger, actionHistory)
+            // Track the action result and log the error
+            actionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
+            actionLogger.error(
+                InvalidParamMessage("Sender has customer status INACTIVE: " + queueMessage.headers[clientIdHeader])
+            )
         }
 
         // Track sender information
@@ -276,44 +283,6 @@ class FHIRReceiver(
                     sender.schemaName
                 )
             )
-        )
-    }
-
-    /**
-     * Handles cases where the sender is not found.
-     *
-     * @param queueMessage The queue message containing details about the report.
-     * @param actionLogger The logger used to track actions and errors.
-     * @param actionHistory The action history related to receiving the report.
-     */
-    private fun handleSenderNotFound(
-        queueMessage: FhirReceiveQueueMessage,
-        actionLogger: ActionLogger,
-        actionHistory: ActionHistory,
-    ) {
-        // Track the action result and log the error
-        actionHistory.trackActionResult(HttpStatus.BAD_REQUEST)
-        actionLogger.error(
-            InvalidParamMessage("Sender not found matching client_id: " + queueMessage.headers[clientIdHeader])
-        )
-    }
-
-    /**
-     * Handles cases where the sender is inactive.
-     *
-     * @param queueMessage The queue message containing details about the report.
-     * @param actionLogger The logger used to track actions and errors.
-     * @param actionHistory The action history related to receiving the report.
-     */
-    private fun handleInactiveSender(
-        queueMessage: FhirReceiveQueueMessage,
-        actionLogger: ActionLogger,
-        actionHistory: ActionHistory,
-    ) {
-        // Track the action result and log the error
-        actionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
-        actionLogger.error(
-            InvalidParamMessage("Sender has customer status INACTIVE: " + queueMessage.headers[clientIdHeader])
         )
     }
 }

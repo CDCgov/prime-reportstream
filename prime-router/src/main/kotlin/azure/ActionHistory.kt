@@ -385,13 +385,16 @@ class ActionHistory(
      */
     fun trackExistingInputReport(reportId: ReportId) {
         if (isReportAlreadyTracked(reportId)) {
-            error("Bug:  attempt to track history of a report ($reportId) we've already associated with this action")
+            error("Bug: attempt to track history of a report ($reportId) we've already associated with this action")
         }
         val reportFile = ReportFile()
         reportFile.reportId = reportId
         reportsIn[reportId] = reportFile
     }
 
+    /**
+     * track that a message was received though a full report could not be created
+     */
     fun trackReceivedNoReport(
         reportId: UUID,
         blobUrl: String,
@@ -400,7 +403,7 @@ class ActionHistory(
         payloadName: String? = null,
     ) {
         if (isReportAlreadyTracked(reportId)) {
-            error("Bug:  attempt to track history of a report ($reportId) we've already associated with this action")
+            error("Bug: attempt to track history of a report ($reportId) we've already associated with this action")
         }
 
         val reportFile = ReportFile()
