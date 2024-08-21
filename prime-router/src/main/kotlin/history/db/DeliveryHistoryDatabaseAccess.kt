@@ -248,7 +248,8 @@ class DeliveryHistoryDatabaseAccess(
             )
             .from(
                 Tables.ACTION.join(Tables.REPORT_FILE).on(
-                    Tables.REPORT_FILE.ACTION_ID.eq(Tables.ACTION.ACTION_ID))
+                    Tables.REPORT_FILE.ACTION_ID.eq(Tables.ACTION.ACTION_ID)
+                )
                     .and(Tables.ACTION.RECEIVING_ORG.eq(Tables.REPORT_FILE.RECEIVING_ORG))
                     .and(Tables.ACTION.RECEIVING_ORG_SVC.eq(Tables.REPORT_FILE.RECEIVING_ORG_SVC))
                     .join(Tables.SETTING)
