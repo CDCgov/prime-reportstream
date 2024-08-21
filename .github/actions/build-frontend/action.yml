@@ -113,7 +113,7 @@ runs:
       shell: bash
 
     - name: Store E2E Results
-      uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029
+      uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a
       if: always() && ${{ !startsWith(inputs.env-name, 'trialfrontend') }}
       with:
         name: e2e-data
@@ -182,7 +182,7 @@ runs:
       run: tar -czf static-website-react.tar.gz build
 
     - name: Upload frontend artifact
-      uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029
+      uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a
       with:
         name: static-website-react-${{ inputs.version }}
         path: frontend-react/static-website-react.tar.gz
