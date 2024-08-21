@@ -66,3 +66,6 @@ elements:
     condition: 'true'
     value: [ '""' ]
     hl7Spec: [ '%{PID}-20' ]
+
+  - name: observation-result-with-aoe
+    resource: '%resource.result.resolve() | %resource.basedOn.resolve().supportingInfo.resolve().where(code.coding.code.exclude("SR0001"|"76691-5"))'
