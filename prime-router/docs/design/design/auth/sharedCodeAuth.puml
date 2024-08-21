@@ -1,0 +1,9 @@
+@startuml
+Client -> Okta: Request access token
+Okta --> Client: Receive access token
+Client -> ReportStream: Make request with access token
+ReportStream -> Okta: Check validity of access token
+Okta --> ReportStream: Valid access token
+ReportStream -> ReportStream: Check authorization to access resource
+ReportStream --> Client: 200 response
+@enduml

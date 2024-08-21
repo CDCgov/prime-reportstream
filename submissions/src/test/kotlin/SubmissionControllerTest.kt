@@ -8,7 +8,6 @@ import com.azure.storage.queue.models.SendMessageResult
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.microsoft.applicationinsights.TelemetryClient
 import gov.cdc.prime.reportstream.submissions.TelemetryService
 import gov.cdc.prime.reportstream.submissions.config.AzureConfig
 import org.junit.jupiter.api.AfterEach
@@ -18,7 +17,6 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.anyMap
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.ArgumentMatchers.isNull
 import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.doThrow
 import org.mockito.Mockito.mock

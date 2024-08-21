@@ -158,7 +158,7 @@ class CustomTranslationFunctionsTest {
             config = HL7TranslationConfig(
                 hl7Configuration = UnitTestUtils.createConfig(
                     truncateHDNamespaceIds = true,
-                    truncateHl7Fields = "MSH-4-1, ORC-12-1, OBX-15-2",
+                    truncateHl7Fields = "MSH-4-1, ORC-12-1, OBX-15-2, SPM-2-2-2",
                 ),
                 null
             )
@@ -183,6 +183,11 @@ class CustomTranslationFunctionsTest {
             "Test value test value longer Test value test value longer Test value test value longer" +
                 "Test value test value longer Test value test value longer Test value test value longer" +
                 "Test value test value Test"
+        )
+
+        val spm2InputAndExpected = mapOf(
+            "short" to "short",
+            "Test value test testTRUNCATE" to "Test value test test",
         )
 
         msh4InputAndExpected.forEach { (input, expected) ->
@@ -229,6 +234,16 @@ class CustomTranslationFunctionsTest {
             val actual = translationFunctions.maybeTruncateHL7Field(
                 input,
                 "/PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/OBSERVATION(0)/OBX-15-2",
+                emptyTerser,
+                customContext
+            )
+            assertThat(actual).isEqualTo(expected)
+        }
+
+        spm2InputAndExpected.forEach { (input, expected) ->
+            val actual = translationFunctions.maybeTruncateHL7Field(
+                input,
+                "/PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/SPECIMEN/SPM-2-2-2",
                 emptyTerser,
                 customContext
             )
