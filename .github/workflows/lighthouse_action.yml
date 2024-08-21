@@ -45,7 +45,7 @@ jobs:
      - name: Upload Lighthouse Report
        run: |
          yarn add -D @lhci/cli
-         yarn lhci autorun --upload.target=temporary-public-storage || echo "LHCI failed!"        
+         yarn lhci autorun --upload.target=temporary-public-storage --collect.url=https://reportstream.cdc.gov/|| echo "LHCI failed!"        
        env:
          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
          
