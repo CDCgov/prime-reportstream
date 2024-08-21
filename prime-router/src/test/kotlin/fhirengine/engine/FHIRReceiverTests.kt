@@ -18,7 +18,6 @@ import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.SenderNotFound
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
@@ -190,9 +189,11 @@ class FHIRReceiverTest {
 
         assertThat(
             actionLogger.errors[0].equals(
-                SenderNotFound("test_client_id")
+                actionLogger.errors[0].equals(
+                    InvalidParamMessage("Sender has customer status INACTIVE: unknown_client_id")
+                )
             )
-            )
+        )
 
         verify(exactly = 1) {
             BlobAccess.Companion.insertTableEntity(any())
