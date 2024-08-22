@@ -84,22 +84,12 @@ class ActionLogDetailBinding : JsonBinding<ActionLogDetail>(ActionLogDetail::cla
 class TopicConverter : Converter<String, Topic> {
     private val mapper = JacksonMapperUtilities.defaultMapper
 
-    override fun from(dbObject: String?): Topic? {
-        // Handle the case where dbObject is null or empty
-        if (dbObject.isNullOrBlank()) {
-            return null
+    override fun from(dbObject: String?): Topic? =
+        dbObject?.takeIf { it.isNotBlank() }?.let {
+            mapper.convertValue(TextNode(it), Topic::class.java)
         }
-        // Can't use Topic.valueOf, since string form and enum name are different
-        // i.e. `full-elr` vs `FULL_ELR`
-        return mapper.convertValue(TextNode(dbObject), Topic::class.java)
-    }
 
-    override fun to(topic: Topic?): String? {
-        if (topic == null) {
-            return null
-        }
-        return topic.jsonVal
-    }
+    override fun to(topic: Topic?): String? = topic?.jsonVal
 
     override fun fromType(): Class<String> {
         return String::class.java

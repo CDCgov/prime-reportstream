@@ -371,9 +371,11 @@ class Report : Logging {
      * Full ELR Report constructor for ingest
      * [bodyFormat] is the format for this report.
      * [sources] is the ClientSource or TestSource, where this data came from
-     * [numberOfMessages] how many incoming messages does this Report represent
+     * [nextAction] is the next action to be performed on this report
+     * [topic] is the pipeline topic for the report
      * [metadata] is the metadata to use, mocked meta is passed in for testing
      * [itemLineage] itemlineages for this report to track parent/child reports
+     * [destination] is the intended destination service for this report
      */
     constructor(
         bodyFormat: MimeFormat,

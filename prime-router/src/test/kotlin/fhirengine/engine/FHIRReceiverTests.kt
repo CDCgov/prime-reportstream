@@ -124,7 +124,7 @@ class FHIRReceiverTest {
         every { actionHistory.trackActionSenderInfo(any(), any()) } returns Unit
         every { actionHistory.trackExternalInputReport(any(), any(), any(), any()) } returns Unit
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
-        every { BlobAccess.insertTableEntity(any()) } returns Unit
+        every { BlobAccess.insertTableEntity(any(), any()) } returns Unit
         every { actionHistory.trackReceivedNoReport(any(), any(), any(), any(), any()) } returns Unit
         every { actionHistory.action } returns action
 
@@ -161,7 +161,7 @@ class FHIRReceiverTest {
         val reportId = queueMessage.reportId.toString()
         verify(exactly = 1) {
             SubmissionsEntity(reportId, "Rejected")
-            BlobAccess.Companion.insertTableEntity(any())
+            BlobAccess.Companion.insertTableEntity(any(), any())
             actionHistory.trackReceivedNoReport(any(), any(), any(), any(), any())
             actionHistory.trackActionResult(HttpStatus.BAD_REQUEST)
         }
@@ -196,7 +196,7 @@ class FHIRReceiverTest {
         )
 
         verify(exactly = 1) {
-            BlobAccess.Companion.insertTableEntity(any())
+            BlobAccess.Companion.insertTableEntity(any(), any())
             actionHistory.trackReceivedNoReport(any(), any(), any(), any(), any())
             actionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
             actionHistory.trackActionSenderInfo("test.Test Sender", "test_message")
@@ -225,7 +225,7 @@ class FHIRReceiverTest {
             actionHistory.trackActionResult(HttpStatus.CREATED)
             actionHistory.trackActionSenderInfo("test.Test Sender", "test_message")
             actionHistory.trackExternalInputReport(any(), any(), any(), any())
-            BlobAccess.Companion.insertTableEntity(any())
+            BlobAccess.Companion.insertTableEntity(any(), any())
         }
     }
 

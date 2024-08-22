@@ -142,6 +142,8 @@ class FHIRReceiver(
         val clientId = queueMessage.headers[clientIdHeader]
         val sender = clientId?.takeIf { it.isNotBlank() }?.let { settings.findSender(it) }
 
+        actionHistory.trackActionParams(queueMessage.headers.toString())
+
         // Handle case where sender is not found
         if (sender == null) {
             actionHistory.trackActionResult(HttpStatus.BAD_REQUEST)
@@ -163,7 +165,6 @@ class FHIRReceiver(
         // Track sender information
         actionHistory.trackActionSenderInfo(sender.fullName, queueMessage.headers["payloadname"])
         actionHistory.trackActionResult(HttpStatus.CREATED)
-        actionHistory.trackActionParams(queueMessage.headers.toString())
         return sender
     }
 
@@ -212,7 +213,7 @@ class FHIRReceiver(
         // Insert the rejection into the submissions table
         val tableEntity =
             SubmissionsEntity(queueMessage.reportId.toString(), "Rejected").toTableEntity()
-        BlobAccess.insertTableEntity(tableEntity)
+        BlobAccess.insertTableEntity("submissions", tableEntity)
     }
 
     /**
@@ -263,7 +264,7 @@ class FHIRReceiver(
 
         // Insert the acceptance into the submissions table
         val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Accepted").toTableEntity()
-        BlobAccess.insertTableEntity(tableEntity)
+        BlobAccess.insertTableEntity("submissions", tableEntity)
 
         // Create a route event
         val routeEvent = ProcessEvent(Event.EventAction.CONVERT, report.id, Options.None, emptyMap(), emptyList())

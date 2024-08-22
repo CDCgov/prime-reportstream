@@ -232,35 +232,6 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Updates multiple fields of an existing entity in the Azure Table.
-         *
-         * This method retrieves the entity identified by the given partitionKey and rowKey,
-         * updates the specified fields with the new values, and saves the entity back to the table.
-         *
-         * @param partitionKey The PartitionKey of the entity to update.
-         * @param rowKey The RowKey of the entity to update.
-         * @param updates A map of field names to their new values.
-         */
-        fun updateMultipleTableFields(partitionKey: String, rowKey: String, updates: Map<String, Any>) {
-            try {
-                // Retrieve the entity
-                val entity = getTableClient("submissions").getEntity(partitionKey, rowKey)
-
-                // Update the desired fields
-                updates.forEach { (fieldName, fieldValue) ->
-                    entity.properties[fieldName] = fieldValue
-                }
-
-                // Save the updated entity back to the table
-                getTableClient("submissions").updateEntity(entity)
-
-                logger.info("Fields updated successfully for entity: $rowKey")
-            } catch (e: Exception) {
-                logger.error("Failed to update fields for entity: $rowKey", e)
-            }
-        }
-
-        /**
          * Inserts a new entity into the Azure Table.
          *
          * This method creates a new entity in the specified table. The entity must have a unique
@@ -269,9 +240,9 @@ class BlobAccess() : Logging {
          * @param entity The TableEntity to insert. It must include the PartitionKey and RowKey
          * identifying the entity to insert.
          */
-        fun insertTableEntity(entity: TableEntity) {
+        fun insertTableEntity(tableName: String, entity: TableEntity) {
             try {
-                getTableClient("submissions").createEntity(entity)
+                getTableClient(tableName).createEntity(entity)
                 logger.info("Entity inserted successfully: ${entity.partitionKey} is ${entity.rowKey}")
             } catch (e: Exception) {
                 logger.error("Failed to insert entity: ${entity.partitionKey} with ${entity.rowKey}", e)

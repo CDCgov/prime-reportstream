@@ -499,7 +499,7 @@ class ProcessData(
                 val (reports, byReceiverWarnings) = translator
                     .filterAndTranslateByReceiver(inputReport, getDefaultValues(), emptyList())
                 warnings += byReceiverWarnings
-                reports.filter { it.report.itemCount!! > 0 }
+                reports.filter { it.report.itemCount?.let { count -> count > 0 } ?: true }
                     .map { it.report to getOutputFormat(it.receiver.format) }
             }
 

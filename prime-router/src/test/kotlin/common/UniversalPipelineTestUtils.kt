@@ -267,6 +267,7 @@ object UniversalPipelineTestUtils {
             assertThat(itemLineages).hasSize(expected)
             assertThat(itemLineages.map { it.childIndex }).isEqualTo(MutableList(expected) { 1 })
 
+            // itemCount is on the report created by the test. It will not be null.
             if (parent.itemCount!! > 1) {
                 assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expected).toList())
             } else {
