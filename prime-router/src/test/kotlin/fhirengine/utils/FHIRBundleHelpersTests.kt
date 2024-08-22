@@ -25,14 +25,16 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.UnmappableConditionMessage
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.ConditionStamper
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.LookupTableConditionMapper
 import gov.cdc.prime.router.azure.QueueAccess
-import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.mockkClass
@@ -648,7 +650,7 @@ class FHIRBundleHelpersTests {
 
         bundle.enhanceBundleMetadata(hl7Messages[0])
 
-        var expectedDate = Date(1612994857000) // Wednesday, February 10, 2021 10:07:37 PM GMT
+        val expectedDate = Date(1612994857000) // Wednesday, February 10, 2021 10:07:37 PM GMT
         assertThat(bundle.timestamp).isEqualTo(expectedDate)
         assertThat(bundle.identifier.value).isEqualTo("371784")
         assertThat(bundle.identifier.system).isEqualTo("https://reportstream.cdc.gov/prime-router")
@@ -673,7 +675,7 @@ class FHIRBundleHelpersTests {
 
         bundle.enhanceBundleMetadata(hl7Messages[0])
 
-        var expectedDate = Date(1612994857000) // Wednesday, February 10, 2021 10:07:37 PM GMT
+        val expectedDate = Date(1612994857000) // Wednesday, February 10, 2021 10:07:37 PM GMT
         assertThat(bundle.timestamp).isEqualTo(expectedDate)
         assertThat(bundle.identifier.value).isEqualTo("371785")
         assertThat(bundle.identifier.system).isEqualTo("https://reportstream.cdc.gov/prime-router")
@@ -733,16 +735,22 @@ class FHIRBundleHelpersTests {
                 )
             )
         )
+        val stamper = ConditionStamper(LookupTableConditionMapper(metadata))
 
         val entry = Observation()
         val code = CodeableConcept()
-        code.addCoding(Coding("system", "some-unmapped-code", "display"))
+        val coding = Coding("system", "some-unmapped-code", "display")
+        code.addCoding(coding)
         entry.setCode(code)
 
-        val logs = entry.addMappedConditions(metadata)
-        assertThat(logs.size).isEqualTo(1)
-        assertThat(logs[0].message).isEqualTo("Missing mapping for code(s): some-unmapped-code")
-        assertThat((logs[0] as UnmappableConditionMessage).fieldMapping).isEqualTo("observation.code.coding.code")
+        val result = stamper.stampObservation(entry)
+        assertThat(result.success).isFalse()
+        assertThat(result.failures).hasSize(1)
+
+        val failure = result.failures.first()
+        assertThat(failure.source).isEqualTo("observation.code.coding.code")
+        assertThat(failure.failures).hasSize(1)
+        assertThat(failure.failures.first()).isEqualTo(coding)
     }
 
     @Test
@@ -774,6 +782,7 @@ class FHIRBundleHelpersTests {
                 )
             )
         )
+        val stamper = ConditionStamper(LookupTableConditionMapper(metadata))
 
         val entry = Observation()
         val code = CodeableConcept()
@@ -781,8 +790,14 @@ class FHIRBundleHelpersTests {
         code.addCoding(Coding("system", "some-unmapped-code", "display"))
         entry.setCode(code)
 
-        val logs = entry.addMappedConditions(metadata)
-        assertThat(logs.size).isEqualTo(0)
+        val result = stamper.stampObservation(entry)
+        assertThat(result.success).isTrue()
+        assertThat(result.failures).hasSize(1)
+
+        val failure = result.failures.first()
+        assertThat(failure.source).isEqualTo("observation.code.coding.code")
+        assertThat(failure.failures).hasSize(1)
+        assertThat(failure.failures.first().code).isEqualTo("some-unmapped-code")
 
         val extension = code.coding.first().extension.first()
         assertThat(extension.url).isEqualTo(conditionCodeExtensionURL)
@@ -818,14 +833,16 @@ class FHIRBundleHelpersTests {
                 )
             )
         )
+        val stamper = ConditionStamper(LookupTableConditionMapper(metadata))
 
         val entry = Observation()
         val code = CodeableConcept()
         code.addCoding(Coding("system", "80382-5", "display"))
         entry.setCode(code)
 
-        val logs = entry.addMappedConditions(metadata)
-        assertThat(logs.size).isEqualTo(0)
+        val result = stamper.stampObservation(entry)
+        assertThat(result.success).isTrue()
+        assertThat(result.failures).isEmpty()
 
         val conditions = entry.getMappedConditions()
         assertThat(conditions).hasSize(2)
@@ -868,6 +885,7 @@ class FHIRBundleHelpersTests {
                 )
             )
         )
+        val stamper = ConditionStamper(LookupTableConditionMapper(metadata))
 
         val entry = Observation()
         val code = CodeableConcept()
@@ -876,7 +894,9 @@ class FHIRBundleHelpersTests {
 
         entry.setValue(StringType("A string value"))
 
-        entry.addMappedConditions(metadata)
+        val result = stamper.stampObservation(entry)
+        assertThat(result.success).isTrue()
+        assertThat(result.failures).isEmpty()
 
         val extension = code.coding.first().extension.first()
         assertThat(extension.url).isEqualTo(conditionCodeExtensionURL)
@@ -915,13 +935,16 @@ class FHIRBundleHelpersTests {
                 )
             )
         )
+        val stamper = ConditionStamper(LookupTableConditionMapper(metadata))
 
         val entry = Observation()
         val code = CodeableConcept()
         code.addCoding(Coding("system", "80382-5", "display"))
         entry.setValue(code)
 
-        entry.addMappedConditions(metadata)
+        val result = stamper.stampObservation(entry)
+        assertThat(result.success).isTrue()
+        assertThat(result.failures).isEmpty()
 
         val extension = code.coding.first().extension.first()
         assertThat(extension.url).isEqualTo(conditionCodeExtensionURL)

@@ -35,6 +35,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
     enum class CustomFhirPathFunctionNames {
         LivdTableLookup,
         GetFakeValueForElement,
+        FIPSCountyLookup,
         ;
 
         companion object {
@@ -75,6 +76,13 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                     2
                 )
             }
+            CustomFhirPathFunctionNames.FIPSCountyLookup -> {
+                FunctionDetails(
+                    "looks up data in the fipps county table that match the information provided",
+                    2,
+                    2
+                )
+            }
 
             else -> null
         }
@@ -99,7 +107,9 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                 CustomFhirPathFunctionNames.GetFakeValueForElement -> {
                     getFakeValueForElement(parameters)
                 }
-
+                CustomFhirPathFunctionNames.FIPSCountyLookup -> {
+                    fipsCountyLookup(parameters)
+                }
                 else -> error(IllegalStateException("Tried to execute invalid FHIR Path function $functionName"))
             }
             )
@@ -186,7 +196,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
             if (parameters.size != 2) {
                 throw SchemaException(
                     "Must call the getFakeValueForElement function for city or postal code with" +
-                    " a state specified."
+                        " a state specified."
                 )
             }
         }
@@ -220,9 +230,9 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                         metadata
                     )
                     GeoData.DataTypes.EQUIPMENT_MODEL_NAME -> randomChoice(
-                            "LumiraDx SARS-CoV-2 Ag Test",
-                            "BD Veritor System for Rapid Detection of SARS-CoV-2"
-                        )
+                        "LumiraDx SARS-CoV-2 Ag Test",
+                        "BD Veritor System for Rapid Detection of SARS-CoV-2"
+                    )
                     GeoData.DataTypes.TEST_PERFORMED_CODE -> randomChoice(
                         "95209-3",
                         "94558-4"
@@ -256,8 +266,8 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                     GeoData.DataTypes.ID_NPI -> NPIUtilities.generateRandomNPI(Faker())
                     GeoData.DataTypes.STREET -> Faker().address().streetAddress()
                     GeoData.DataTypes.PERSON_GIVEN_NAME -> {
-                      val fullName = Faker().name().fullName()
-                      fullName.substring(0, fullName.indexOf(" "))
+                        val fullName = Faker().name().fullName()
+                        fullName.substring(0, fullName.indexOf(" "))
                     }
                     GeoData.DataTypes.PERSON_FAMILY_NAME -> {
                         val fullName = Faker().name().fullName()
@@ -309,5 +319,38 @@ class CustomFhirPathFunctions : FhirPathFunctions {
 
         // Construct a date`
         return Date(ms)
+    }
+
+    /**
+     * Get the FIPS Code from the FIPS County table based on the county name and state
+     * @return a String with the FIPS Code
+     */
+    fun fipsCountyLookup(
+        parameters: MutableList<MutableList<Base>>?,
+        metadata: Metadata = Metadata.getInstance(),
+    ): MutableList<Base> {
+        val lookupTable = metadata.findLookupTable(name = "fips-county")
+        var filters = lookupTable?.FilterBuilder() ?: error("Could not find table fips-county")
+
+        // it says it cannot be null, but it can
+        if (parameters == null || parameters.first().isNullOrEmpty()) {
+            return mutableListOf(StringType(""))
+        }
+
+        val county = parameters.first().first().primitiveValue() ?: return mutableListOf(StringType(""))
+        filters = filters.equalsIgnoreCase("County", county)
+
+        // it says it cannot be null, but it can
+        if (parameters[1].isNullOrEmpty()) {
+            return mutableListOf(StringType(county))
+        }
+        val state = parameters[1].first().primitiveValue() ?: return mutableListOf(StringType(county))
+        filters = filters.equalsIgnoreCase("State", state.uppercase())
+        val result = filters.findSingleResult("FIPS")
+        return if (!result.isNullOrBlank()) {
+            mutableListOf(StringType(result))
+        } else {
+            mutableListOf(StringType(parameters.first().first().primitiveValue()))
+        }
     }
 }

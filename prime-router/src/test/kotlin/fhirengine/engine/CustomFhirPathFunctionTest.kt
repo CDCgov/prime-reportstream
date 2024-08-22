@@ -9,8 +9,10 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.metadata.GeoData
 import gov.cdc.prime.router.metadata.LivdLookup
+import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
+import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import org.hl7.fhir.r4.model.Base
@@ -23,12 +25,15 @@ import org.hl7.fhir.r4.model.StringType
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
+import tech.tablesaw.api.StringColumn
+import tech.tablesaw.api.Table
 import kotlin.test.Test
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CustomFhirPathFunctionTest {
     private val loincCode = "906-1"
     private val city = "Portland"
+    private val fipsCode = "41051"
 
     @BeforeEach
     fun setupMocks() {
@@ -156,7 +161,7 @@ class CustomFhirPathFunctionTest {
 
     @Test
     fun `test get fake value for element function`() {
-         // Fails if city, county, or postal code and no state
+        // Fails if city, county, or postal code and no state
         assertFailure {
             CustomFhirPathFunctions().getFakeValueForElement(
                 mutableListOf(mutableListOf(StringType("CITY"))),
@@ -187,5 +192,135 @@ class CustomFhirPathFunctionTest {
         assertThat(
             (result[0] as StringType).value
         ).isEqualTo(city)
+    }
+
+    @Test
+    fun `test getting the fips code for a county and state`() {
+        val testTable = Table.create(
+            "fips-county",
+            StringColumn.create("state", "OR", "OR"),
+            StringColumn.create("county", "multnomah", "clackamas"),
+            StringColumn.create("FIPS", "41051", "41005")
+        )
+        val testLookupTable = LookupTable(name = "fips-county", table = testTable)
+
+        mockkConstructor(Metadata::class)
+        every { anyConstructed<Metadata>().findLookupTable("fips-county") } returns testLookupTable
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+
+        // Test getting city
+        val result = CustomFhirPathFunctions().fipsCountyLookup(
+            mutableListOf(mutableListOf(StringType("Multnomah")), mutableListOf(StringType("OR"))),
+
+            )
+
+        assertThat(
+            (result[0] as StringType).value
+        ).isEqualTo("41051")
+    }
+
+    @Test
+    fun `test getting the fips code for a county and state - value not found`() {
+        val testTable = Table.create(
+            "fips-county",
+            StringColumn.create("state", "OR", "OR"),
+            StringColumn.create("county", "multnomah", "clackamas"),
+            StringColumn.create("FIPS", "41051", "41005")
+        )
+        val testLookupTable = LookupTable(name = "fips-county", table = testTable)
+
+        mockkConstructor(Metadata::class)
+        every { anyConstructed<Metadata>().findLookupTable("fips-county") } returns testLookupTable
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+
+        // Test getting city
+        val result = CustomFhirPathFunctions().fipsCountyLookup(
+            mutableListOf(mutableListOf(StringType("Shasta")), mutableListOf(StringType("OR"))),
+
+            )
+
+        assertThat(
+            (result[0] as StringType).value
+        ).isEqualTo("Shasta")
+    }
+
+    @Test
+    fun `test getting the fips code for a county and state - null county passed`() {
+        val testTable = Table.create(
+            "fips-county",
+            StringColumn.create("state", "OR", "OR"),
+            StringColumn.create("county", "multnomah", "clackamas"),
+            StringColumn.create("FIPS", "41051", "41005")
+        )
+        val testLookupTable = LookupTable(name = "fips-county", table = testTable)
+
+        mockkConstructor(Metadata::class)
+        every { anyConstructed<Metadata>().findLookupTable("fips-county") } returns testLookupTable
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+
+        // Test getting city
+        val result = CustomFhirPathFunctions().fipsCountyLookup(
+            mutableListOf(mutableListOf(StringType(null)), mutableListOf(StringType("OR"))),
+
+            )
+
+        assertThat(
+            (result[0] as StringType).value
+        ).isEqualTo("")
+    }
+
+    @Test
+    fun `test getting the fips code for a county and state - state null`() {
+        val testTable = Table.create(
+            "fips-county",
+            StringColumn.create("state", "OR", "OR"),
+            StringColumn.create("county", "multnomah", "clackamas"),
+            StringColumn.create("FIPS", "41051", "41005")
+        )
+        val testLookupTable = LookupTable(name = "fips-county", table = testTable)
+
+        mockkConstructor(Metadata::class)
+        every { anyConstructed<Metadata>().findLookupTable("fips-county") } returns testLookupTable
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+
+        // Test getting city
+        val result = CustomFhirPathFunctions().fipsCountyLookup(
+            mutableListOf(mutableListOf(StringType("Shasta")), mutableListOf(StringType(null))),
+
+            )
+
+        assertThat(
+            (result[0] as StringType).value
+        ).isEqualTo("Shasta")
+    }
+
+    @Test
+    fun `test getting the fips code for a county and state - proof lowercase works`() {
+        val testTable = Table.create(
+            "fips-county",
+            StringColumn.create("state", "OR", "OR"),
+            StringColumn.create("county", "multnomah", "clackamas"),
+            StringColumn.create("FIPS", "41051", "41005")
+        )
+        val testLookupTable = LookupTable(name = "fips-county", table = testTable)
+
+        mockkConstructor(Metadata::class)
+        every { anyConstructed<Metadata>().findLookupTable("fips-county") } returns testLookupTable
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+
+        // Test getting city
+        val result = CustomFhirPathFunctions().fipsCountyLookup(
+            mutableListOf(mutableListOf(StringType("Shasta")), mutableListOf(StringType("ca"))),
+
+            )
+
+        assertThat(
+            (result[0] as StringType).value
+        ).isEqualTo("Shasta")
     }
 }
