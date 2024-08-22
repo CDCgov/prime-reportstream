@@ -43,7 +43,7 @@ runs:
 
     - name: Lint
       if: inputs.run-integration-tests == 'true'
-      run: ./gradlew :submissions:ktlintCheck
+      run: ./gradlew :submissions:ktlintCheck -x test
       shell: bash
 
     - name: Spin up build containers
