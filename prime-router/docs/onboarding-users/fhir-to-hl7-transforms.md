@@ -3,20 +3,19 @@ This file documents the types of transforms currently being used by Engagement. 
 ## Types of FHIR->HL7 transforms currently used
 
 Default value in field - Default a static value into a single field or subfield
-
 ```yaml
   - name: ak-receiving-application
     value: [ '"AKDOH"' ]
     hl7Spec: [ 'MSH-5-1' ]
 ```
-Removing single field - Remove any value in a single field or subfield
 
-Example:
+Removing single field - Remove any value in a single field or subfield
 ```yaml
   - name: ak-ordering-provider-id-number
     value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/OBR-16-1' ]
 ```
+
 Remove multiple fields - Remove all values from multiple fields or subfields
 ```yaml
   - name: remove-hl7-fields
