@@ -1,7 +1,13 @@
-import { Page } from "@playwright/test";
+import { BasePage, BasePageTestArgs } from "./BasePage";
 
-export async function publicPageGoto(page: Page, path: string) {
-    await page.goto(path, {
-        waitUntil: "networkidle",
-    });
+export class PublicPageLinkChecker extends BasePage {
+    constructor(testArgs: BasePageTestArgs) {
+        super(
+            {
+                url: "/",
+                title: "ReportStream - CDC's free, interoperable data transfer platform",
+            },
+            testArgs,
+        );
+    }
 }
