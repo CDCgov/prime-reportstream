@@ -1,0 +1,13 @@
+elements:
+  - name: pii-removal-last-name
+    value: [ 'getFakeValueForElement("PERSON_FAMILY_NAME").substring(%resource.indexOf(" "),)' ]
+    bundleProperty: '%resource.family'
+
+  - name: pii-removal-given-name
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    value: [ 'getFakeValueForElement("PERSON_GIVEN_NAME")' ]
+    bundleProperty: '%resource.given'
+
+  - name: pii-removal-middle-name
+    value: [ 'getFakeValueForElement("PERSON_GIVEN_NAME")' ]
+    bundleProperty: '%resource.extension(%`rsext-xpn-human-name`).extension.where(url="XPN.3").value'

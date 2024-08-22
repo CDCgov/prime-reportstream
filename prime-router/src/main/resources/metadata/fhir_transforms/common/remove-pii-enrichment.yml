@@ -1,162 +1,53 @@
 elements:
-  - name: pii-removal-patient-id
-    resource: 'Bundle.entry.resource.ofType(Patient)'
-    value: [ 'getFakeValueForElement("UUID")' ]
-    bundleProperty: '%resource.identifier.value'
-
-  - name: pii-removal-patient-last-name
-    resource: 'Bundle.entry.resource.ofType(Patient)'
-    value: [ 'getFakeValueForElement("PERSON_FAMILY_NAME").substring(%resource.indexOf(" "),)' ]
-    bundleProperty: '%resource.name.family'
-
-  - name: pii-removal-patient-last-name
-    resource: 'Bundle.entry.resource.ofType(Patient)'
-    value: [ 'getFakeValueForElement("PERSON_GIVEN_NAME")' ]
-    bundleProperty: '%resource.name.given'
-
-  - name: pii-removal-patient-middle-name
-    resource: 'Bundle.entry.resource.ofType(Patient)'
-    value: [ 'getFakeValueForElement("PERSON_GIVEN_NAME")' ]
-    bundleProperty: '%resource.name[0].extension(%`rsext-xpn-human-name`).extension.where(url="XPN.3").value'
+  - name: pii-removal-patient-name
+    resource: 'Bundle.entry.resource.ofType(Patient).name'
+    resourceIndex: nameIndex
+    schema: classpath:/metadata/fhir_transforms/common/remove-pii-name.yml
 
   - name: pii-removal-patient-dob
     resource: 'Bundle.entry.resource.ofType(Patient)'
     value: [ 'getFakeValueForElement("BIRTHDAY")' ]
     bundleProperty: '%resource.birthDate'
 
-  - name: pii-removal-patient-street-address
-    resource: 'Bundle.entry.resource.ofType(Patient)'
-    value: [ 'getFakeValueForElement("STREET")' ]
-    bundleProperty: '%resource.address.line'
+  - name: pii-removal-patient-address
+    resource: 'Bundle.entry.resource.ofType(Patient).address'
+    resourceIndex: addressIndex
+    schema: classpath:/metadata/fhir_transforms/common/remove-pii-address.yml
 
-  - name: pii-removal-patient-street-address2
-    resource: 'Bundle.entry.resource.ofType(Patient)'
-    value: [ 'getFakeValueForElement("PATIENT_STREET_ADDRESS_2")' ]
-    bundleProperty: '%resource.address.extension(%`rsext-xad-address`).extension.where(url = "XAD.2").value'
+  - name: pii-removal-patient-telecom
+    resource: 'Bundle.entry.resource.ofType(Patient).telecom'
+    resourceIndex: telecomIndex
+    schema: classpath:/metadata/fhir_transforms/common/remove-pii-telecom.yml
 
-  - name: pii-removal-patient-city
-    resource: 'Bundle.entry.resource.ofType(Patient)'
-    value: [ 'getFakeValueForElement("CITY",%resource.address.state)' ]
-    bundleProperty: '%resource.address.city'
+  - name: pii-removal-ordering-provider-name
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().name'
+    resourceIndex: nameIndex
+    schema: classpath:/metadata/fhir_transforms/common/remove-pii-name.yml
 
-  - name: pii-removal-patient-email
-    condition: 'Bundle.entry.resource.ofType(Patient).telecom.where(system = "email")'
-    resource: 'Bundle.entry.resource.ofType(Patient)'
-    value: [ 'getFakeValueForElement("EMAIL")' ]
-    bundleProperty: '%resource.telecom.value'
+  - name: pii-removal-ordering-facility-address
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address'
+    resourceIndex: addressIndex
+    schema: classpath:/metadata/fhir_transforms/common/remove-pii-address.yml
 
-  - name: pii-removal-patient-phone-area-code
-    condition: "Bundle.entry.resource.ofType(Patient).telecom[0].where((use = 'home' or use = 'mobile'))"
-    resource: 'Bundle.entry.resource.ofType(Patient)'
-    value: [ 'getFakeValueForElement("TELEPHONE").substring(0,3)' ]
-    bundleProperty: '%resource.telecom.extension(%`ext-contactpoint-area`).value'
+  - name: pii-removal-requester-telecom
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().telecom'
+    resourceIndex: telecomIndex
+    schema: classpath:/metadata/fhir_transforms/common/remove-pii-telecom.yml
 
-  - name: pii-removal-patient-local-phone
-    condition: "Bundle.entry.resource.ofType(Patient).telecom[0].where((use = 'home' or use = 'mobile'))"
-    resource: 'Bundle.entry.resource.ofType(Patient)'
-    value: [ 'getFakeValueForElement("TELEPHONE")' ]
-    bundleProperty: '%resource.telecom.value'
-
-  - name: pii-removal-filler-order-number
-    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
-    value: [ 'getFakeValueForElement("ID_NUMBER")' ]
-    bundleProperty: '%resource.identifier.value'
-
-  - name: pii-removal-ordering-provider-id
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
-    value: [ 'getFakeValueForElement("ID_NUMBER")' ]
-    bundleProperty: '%resource.requester.resolve().practitioner.resolve().identifier.value'
-
-  - name: pii-removal-ordering-provider-last-name
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
-    value: [ 'getFakeValueForElement("PERSON_FAMILY_NAME")' ]
-    bundleProperty: '%resource.requester.resolve().practitioner.resolve().name.family'
-
-  - name: pii-removal-ordering-provider-first-name
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
-    value: [ 'getFakeValueForElement("PERSON_GIVEN_NAME")' ]
-    bundleProperty: '%resource.requester.resolve().practitioner.resolve().name.given'
-
-  - name: pii-removal-ordering-facility-street
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
-    value: [ 'getFakeValueForElement("STREET")' ]
-    bundleProperty: '%resource.requester.resolve().organization.resolve().address.line'
-
-  - name: pii-removal-ordering-facility-street-2
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
-    value: [ 'getFakeValueForElement("STREET_ADDRESS_2")' ]
-    bundleProperty: '%resource.requester.resolve().organization.resolve().address.line'
-
-  - name: pii-removal-ordering-facility-city
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
-    value: [ 'getFakeValueForElement("CITY", Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.state)' ]
-    bundleProperty: '%resource.requester.resolve().organization.resolve().address.city'
-
-  - name: pii-removal-ordering-facility-zip
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
-    value: [ 'getFakeValueForElement("POSTAL_CODE", Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.state)' ]
-    bundleProperty: '%resource.requester.resolve().organization.resolve().address.postalCode'
-
-  - name: pii-removal-ordering-facility-zip
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
-    value: [ 'getFakeValueForElement("COUNTY", Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.state)' ]
-    bundleProperty: '%resource.requester.resolve().organization.resolve().address.district'
-
-  - name: pii-removal-ordering-facility-zip
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
-    value: [ 'getFakeValueForElement("COUNTY", Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.state)' ]
-    bundleProperty: '%resource.requester.resolve().organization.resolve().address.district'
-
-  - name: pii-removal-ordering-phone
-    condition: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().telecom.where((use = 'home' or use = 'mobile'))"
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
-    value: [ 'getFakeValueForElement("TELEPHONE").substring(0,3)' ]
-    bundleProperty: '%resource.requester.resolve().organization.resolve().telecom.value'
-
-  - name: pii-removal-ordering-provider-street
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
-    value: [ 'getFakeValueForElement("STREET")' ]
-    bundleProperty: '%resource.requester.resolve().practitioner.resolve().address.line'
-
-  - name: pii-removal-ordering-provider-city
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
-    value: [ 'getFakeValueForElement("CITY", Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.city)' ]
-    bundleProperty: '%resource.requester.resolve().practitioner.resolve().address.city'
-
-  - name: pii-removal-ordering-provider-zip
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
-    value: [ 'getFakeValueForElement("POSTAL_CODE", Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.city)' ]
-    bundleProperty: '%resource.requester.resolve().practitioner.resolve().address.postalCode'
-
-  - name: pii-removal-filler-order-number-obr-2
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
-    value: [ 'getFakeValueForElement("ID_NUMBER")' ]
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("OBR.2").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value'
-
-  - name: pii-removal-filler-order-number-specimen
-    resource: 'Bundle.entry.resource.ofType(Specimen)'
-    value: [ 'getFakeValueForElement("ID_NUMBER")' ]
-    bundleProperty: '%resource.identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value'
-
-  - name: pii-removal-filler-order-number-diagnostic-report
-    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
-    value: [ 'getFakeValueForElement("ID_NUMBER")' ]
-    bundleProperty: '%resource.identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id")'
-
-  - name: pii-removal-filler-order-number-obr-3
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
-    value: [ 'getFakeValueForElement("ID_NUMBER")' ]
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("OBR.3").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value'
+  - name: pii-removal-ordering-provider-address
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address'
+    resourceIndex: addressIndex
+    schema: classpath:/metadata/fhir_transforms/common/remove-pii-address.yml
 
   - name: pii-removal-observation-result-date-issued
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    value: [ 'getFakeValueForElement("DATE")' ]
+    value: [ 'getFakeValueForElement("DATETIME")' ]
     bundleProperty: '%resource.issued'
 
   - name: pii-removal-observation-result-date-effective
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    value: [ 'getFakeValueForElement("DATE")' ]
-    bundleProperty: '%resource.effective'
+    value: [ 'getFakeValueForElement("DATETIME")' ]
+    bundleProperty: '%resource.effective[x]'
 
   - name: pii-removal-service-request-note
     resource: 'Bundle.entry.resource.ofType(ServiceRequest)'

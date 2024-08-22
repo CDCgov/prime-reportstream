@@ -28,6 +28,17 @@ object GeoData {
         var filters = tableRef?.FilterBuilder() ?: error("Could not find table '$tableRef'\"")
         filters = filters.equalsIgnoreCase(ColumnNames.STATE_ABBR.columnName, state)
         val uniqueValues = filters.findAllUnique(column.columnName)
+        if (uniqueValues.isEmpty()) {
+            // bad data passed, just return default
+            return when (column) {
+                ColumnNames.STATE_FIPS -> "12345"
+                ColumnNames.STATE -> state
+                ColumnNames.STATE_ABBR -> state
+                ColumnNames.ZIP_CODE -> "98765"
+                ColumnNames.COUNTY -> "Multnomah"
+                ColumnNames.CITY -> "Portland"
+            }
+        }
         return uniqueValues[Random().nextInt(uniqueValues.size)]
     }
 

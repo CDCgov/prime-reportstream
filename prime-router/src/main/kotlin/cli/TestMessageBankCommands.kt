@@ -10,8 +10,6 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.ContactPoint
-import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.StringType
 
 class TestMessageBankCommands : CliktCommand(
@@ -41,78 +39,10 @@ class TestMessageBankCommands : CliktCommand(
         }
         val bundle = FhirTranscoder.decode(contents)
 
-        bundle.entry.map { it.resource }.filterIsInstance<Patient>()
-            .forEach { patient ->
-                val state = FhirPathUtils.evaluate(
-                    null,
-                    bundle,
-                    bundle,
-                    "Bundle.entry.resource.ofType(Patient).address.state"
-                ).first().primitiveValue()
-
-                patient.name.forEach { name ->
-                    name.given = mutableListOf(StringType(getFakeValueForElementCall("PERSON_GIVEN_NAME")))
-                    name.family = getFakeValueForElementCall("PERSON_FAMILY_NAME")
-                }
-                patient.address.forEach { address ->
-                    address.line = mutableListOf(StringType(getFakeValueForElementCall("STREET")))
-                    address.city = getFakeValueForElementCallUsingGeoData("CITY", state)
-                    address.postalCode = getFakeValueForElementCallUsingGeoData("POSTAL_CODE", state)
-                    address.district = getFakeValueForElementCallUsingGeoData("COUNTY", state)
-                }
-                patient.telecom.forEach { telecom ->
-                    if (telecom.system == ContactPoint.ContactPointSystem.EMAIL) {
-                        telecom.value = getFakeValueForElementCall("EMAIL")
-                    } else if (telecom.system == ContactPoint.ContactPointSystem.PHONE ||
-                        telecom.system == ContactPoint.ContactPointSystem.FAX
-                    ) {
-                        telecom.value = getFakeValueForElementCall("TELEPHONE")
-                    }
-                }
-//                patient.birthDate = SimpleDateFormat("yyyy-MM-ddThh:mm:ss.SSSZ").parse(getFakeValueForElementCall("BIRTHDAY"))
-                patient.contact.forEach { contact ->
-                    contact.name.given = mutableListOf(StringType(getFakeValueForElementCall("PERSON_GIVEN_NAME")))
-                    contact.name.family = getFakeValueForElementCall("PERSON_FAMILY_NAME")
-                    contact.address.line = mutableListOf(StringType(getFakeValueForElementCall("STREET")))
-                    contact.address.city = getFakeValueForElementCallUsingGeoData("CITY", state)
-                    contact.address.postalCode = getFakeValueForElementCallUsingGeoData("POSTAL_CODE", state)
-                    contact.address.district = getFakeValueForElementCallUsingGeoData("COUNTY", state)
-                    contact.telecom.forEach { telecom ->
-                        telecom.value = getFakeValueForElementCall("TELEPHONE")
-                    }
-                    contact.organization.identifier.value = getFakeValueForElementCall("ID_NUMBER")
-                }
-//                patient.managingOrganization.
-            }
-
-//        bundle.entry.map { it.resource }.filterIsInstance<ServiceRequest>()
-//            .forEach { serviceRequest ->
-//                serviceRequest.subject.resource.
-//                serviceRequest.requester =
-//                patient.name.forEach { name ->
-//                    name.given =
-//                        name.family =
-//                }
-//                patient.address.forEach {
-//                    it.line = null
-//                    it.city = null
-//                    it.postalCode =
-//                        it.district =
-//                }
-//                patient.telecom.forEach { telecom ->
-//                    telecom.value =
-//                }
-//                patient.birthDate = null
-//                patient.deceased = null
-//                patient.identifier = null
-//                patient.contact = null
-//            }
-
         val jsonObject = JacksonMapperUtilities.defaultMapper
             .readValue(FhirTranscoder.encode(bundle), Any::class.java)
         var prettyText = JacksonMapperUtilities.defaultMapper.writeValueAsString(jsonObject)
         prettyText = replaceIds(bundle, prettyText)
-        prettyText = replaceNeededExtensions(bundle, prettyText)
 
         // Write the output to the screen or a file.
         if (outputFile != null) {
@@ -130,9 +60,39 @@ class TestMessageBankCommands : CliktCommand(
         )
         updatedBundle = replaceId(
             bundle,
+            "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().identifier.value",
+            updatedBundle
+        )
+        updatedBundle = replaceId(
+            bundle,
             "Bundle.entry.resource.ofType(ServiceRequest)" +
-                ".requester.resolve().practitioner.resolve().identifier.value",
+                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request\")" +
+                ".extension(\"OBR.3\").value" +
+                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority\")" +
+                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\").value",
                     updatedBundle
+        )
+        updatedBundle = replaceId(
+            bundle,
+            "Bundle.entry.resource.ofType(DiagnosticReport).identifier" +
+                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority\")" +
+                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\")",
+            updatedBundle
+        )
+        updatedBundle = replaceId(
+            bundle,
+            "Bundle.entry.resource.ofType(Specimen)" +
+                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\").value",
+            updatedBundle
+        )
+        updatedBundle = replaceId(
+            bundle,
+            "Bundle.entry.resource.ofType(ServiceRequest)" +
+                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request\")" +
+                ".extension(\"OBR.2\").value" +
+                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority\")" +
+                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\").value",
+            updatedBundle
         )
         return updatedBundle
     }
@@ -147,34 +107,6 @@ class TestMessageBankCommands : CliktCommand(
             val newIdentifier = getFakeValueForElementCall("ID_NUMBER")
             return prettyText.replace(resourceId.primitiveValue(), newIdentifier, true)
         }
-        return prettyText
-    }
-
-    private fun replaceNeededExtensions(bundle: Bundle, prettyText: String): String {
-        // middle name
-        FhirPathUtils.evaluate(
-            null,
-            bundle,
-            bundle,
-            "Bundle.entry.resource.ofType(Patient).name[0]" +
-                ".extension(%`rsext-xpn-human-name`).extension.where(url=\"XPN.3\").value"
-        ).forEach { middleName ->
-            val newMiddleName = getFakeValueForElementCall("PERSON_GIVEN_NAME")
-            return prettyText.replace(middleName.primitiveValue(), newMiddleName, true)
-        }
-
-        // patient address 2
-        FhirPathUtils.evaluate(
-            null,
-            bundle,
-            bundle,
-            "Bundle.entry.resource.ofType(Patient).address" +
-                ".extension(%`rsext-xad-address`).extension.where(url = \"XAD.2\").value"
-        ).forEach { middleName ->
-            val newMiddleName = getFakeValueForElementCall("PATIENT_STREET_ADDRESS_2")
-            return prettyText.replace(middleName.primitiveValue(), newMiddleName, true)
-        }
-
         return prettyText
     }
 

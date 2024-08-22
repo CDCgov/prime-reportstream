@@ -15,8 +15,10 @@ import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathUtilityClasses.FunctionDetails
+import java.time.LocalDate
 import java.util.Date
 import java.util.UUID
+import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -229,14 +231,18 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                     GeoData.DataTypes.BLANK -> ""
                     GeoData.DataTypes.TEXT_OR_BLANK -> randomChoice("I am some random text", "")
                     GeoData.DataTypes.NUMBER -> Random.nextInt().toString().replace("-", "")
-                    GeoData.DataTypes.DATE -> DateUtilities.getDateAsFormattedString(
-                        getRandomDate().toInstant(),
-                        DateUtilities.datePattern
-                    )
-                    GeoData.DataTypes.BIRTHDAY -> DateUtilities.getDateAsFormattedString(
-                        getRandomDate().toInstant(),
-                        DateUtilities.datePattern
-                    )
+                    GeoData.DataTypes.DATE -> {
+                        val minDay: Long = LocalDate.of(2000, 1, 1).toEpochDay()
+                        val maxDay: Long = LocalDate.of(2023, 12, 31).toEpochDay()
+                        val randomDay = ThreadLocalRandom.current().nextLong(minDay, maxDay)
+                        LocalDate.ofEpochDay(randomDay).toString()
+                    }
+                    GeoData.DataTypes.BIRTHDAY -> {
+                        val minDay: Long = LocalDate.of(1950, 1, 1).toEpochDay()
+                        val maxDay: Long = LocalDate.of(2023, 12, 31).toEpochDay()
+                        val randomDay = ThreadLocalRandom.current().nextLong(minDay, maxDay)
+                        LocalDate.ofEpochDay(randomDay).toString()
+                    }
                     GeoData.DataTypes.DATETIME -> DateUtilities.getDateAsFormattedString(
                         getRandomDate().toInstant(),
                         DateUtilities.datetimePattern
