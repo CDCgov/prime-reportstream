@@ -17,9 +17,7 @@ import org.hl7.fhir.exceptions.FHIRException
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Extension
-import org.hl7.fhir.r4.model.HumanName
 import org.hl7.fhir.r4.model.Property
-import org.hl7.fhir.r4.model.StringType
 
 /**
  * Transform a FHIR bundle based on the [schemaRef].
@@ -368,26 +366,11 @@ class FhirTransformer(
         value: Base,
     ) {
         elementsToUpdate.forEach { penultimateElement ->
-            val property = penultimateElement.getNamedProperty(propertyName.replace(Regex("\\[.*?\\]"), ""))
+            val property = penultimateElement.getNamedProperty(propertyName)
             val newValue = FhirBundleUtils.convertFhirType(value, value.fhirType(), property.typeCode, logger)
-            if(propertyName.contains("[")){
-                val index : Int?= Regex("\\[(.*?)\\]").find(propertyName)?.groupValues?.get(1)?.toInt()
-                penultimateElement.setPropertyIndex(property.toString(),index,newValue.copy())
-            } else {
                 penultimateElement.setProperty(propertyName, newValue.copy())
             }
         }
-    }
-
-    private fun Base.setPropertyIndex(propertyName: String, index: Int?, value: Base) {
-        when(this) {
-            is HumanName -> {
-                when(propertyName) {
-                    "given" -> index?.let { this.given[index] = value as StringType}
-                }
-            }
-        }
-    }
 
     private fun createMissingElementsInBundleProperty(
         fhirPath: String,

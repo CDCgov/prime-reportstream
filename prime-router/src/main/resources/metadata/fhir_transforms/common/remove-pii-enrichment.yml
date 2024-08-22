@@ -1,4 +1,5 @@
 elements:
+#  telecoms will be removed via code since they are lists and this is more complicated
   - name: pii-removal-patient-name
     resource: 'Bundle.entry.resource.ofType(Patient).name'
     resourceIndex: nameIndex
@@ -14,11 +15,6 @@ elements:
     resourceIndex: addressIndex
     schema: classpath:/metadata/fhir_transforms/common/remove-pii-address.yml
 
-  - name: pii-removal-patient-telecom
-    resource: 'Bundle.entry.resource.ofType(Patient).telecom'
-    resourceIndex: telecomIndex
-    schema: classpath:/metadata/fhir_transforms/common/remove-pii-telecom.yml
-
   - name: pii-removal-ordering-provider-name
     resource: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().name'
     resourceIndex: nameIndex
@@ -26,16 +22,6 @@ elements:
 
   - name: pii-removal-ordering-facility-address
     resource: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address'
-    resourceIndex: addressIndex
-    schema: classpath:/metadata/fhir_transforms/common/remove-pii-address.yml
-
-  - name: pii-removal-requester-telecom
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().telecom'
-    resourceIndex: telecomIndex
-    schema: classpath:/metadata/fhir_transforms/common/remove-pii-telecom.yml
-
-  - name: pii-removal-ordering-provider-address
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address'
     resourceIndex: addressIndex
     schema: classpath:/metadata/fhir_transforms/common/remove-pii-address.yml
 

@@ -1,12 +1,9 @@
 elements:
   - name: pii-removal-last-name
-    value: [ 'getFakeValueForElement("PERSON_FAMILY_NAME").substring(%resource.indexOf(" "),)' ]
+    value: [ 'getFakeValueForElement("PERSON_FAMILY_NAME")' ]
     bundleProperty: '%resource.family'
 
-  - name: pii-removal-given-name
-    resource: 'Bundle.entry.resource.ofType(Patient)'
-    value: [ 'getFakeValueForElement("PERSON_GIVEN_NAME")' ]
-    bundleProperty: '%resource.given'
+  #  removing a given name is more complicated because it is a list so we will do this in code
 
   - name: pii-removal-middle-name
     value: [ 'getFakeValueForElement("PERSON_GIVEN_NAME")' ]

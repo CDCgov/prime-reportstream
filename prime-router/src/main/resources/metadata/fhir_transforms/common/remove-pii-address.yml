@@ -1,7 +1,5 @@
 elements:
-  - name: pii-removal-street-address
-    value: [ 'getFakeValueForElement("STREET")' ]
-    bundleProperty: '%resource.line[0]'
+  # removing the street address is more complicated because it is a list so we will do this in code
 
   - name: pii-removal-street-address2
     value: [ 'getFakeValueForElement("STREET_ADDRESS_2")' ]

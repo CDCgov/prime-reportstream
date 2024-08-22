@@ -1,11 +1,11 @@
 elements:
   - name: pii-removal-phone-area-code
-    condition: "%resource.where((use = 'home' or use = 'mobile'))"
+    condition: "%resource.where(system = 'phone')"
     value: [ 'getFakeValueForElement("TELEPHONE").substring(0,3)' ]
     bundleProperty: '%resource.extension(%`ext-contactpoint-area`).value'
 
   - name: pii-removal-local-phone
-    condition: "%resource.where((use = 'home' or use = 'mobile'))"
+    condition: "%resource.where(system = 'phone')"
     value: [ 'getFakeValueForElement("TELEPHONE")' ]
     bundleProperty: '%resource.value'
 
