@@ -1,0 +1,70 @@
+# action.yml
+name: "Build Submissions"
+description: "Build submissions microservice"
+inputs:
+  version:
+    description: "Version tag"
+    required: true
+  upload-build:
+    default: true
+  run-integration-tests:
+    default: false
+  run-qc:
+    default: false
+  github-token:
+    default: false
+  sp-creds:
+    description: "Azure Service Principal creds"
+
+runs:
+  using: "composite"
+  steps:
+    # These are for CI and not credentials of any system
+    - name: Set Environment Variables
+      working-directory: prime-router
+      shell: bash
+      run: |
+        echo >> $GITHUB_ENV DB_USER='prime'
+        echo >> $GITHUB_ENV DB_PASSWORD='changeIT!'
+
+    - name: Remove unnecessary software
+      shell: bash
+      run: |
+        sudo rm -rf /usr/local/lib/android
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@6a0805fcefea3d4657a47ac4c165951e33482018
+      with:
+        java-version: "17"
+        distribution: "temurin"
+        cache: "gradle"
+
+    - uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582
+
+    - name: Lint
+      if: inputs.run-integration-tests == 'true'
+      run: ./gradlew :submissions:ktlintCheck
+      shell: bash
+
+    - name: Spin up build containers
+      working-directory: prime-router
+      shell: bash
+      run: docker compose -f docker-compose.postgres.yml up -d
+
+    - name: Build Submissions Package
+      uses: ./.github/actions/retry
+      with:
+        timeout_minutes: 10
+        max_attempts: 2
+        retry_wait_seconds: 30
+        command: |
+          ./gradlew :submissions:build -Pshowtests
+        shell: bash
+
+    - name: Cleanup Gradle Cache
+      if: inputs.run-integration-tests == 'true'
+      working-directory: prime-router
+      run: |
+        rm -f .gradle/caches/modules-2/modules-2.lock
+        rm -f .gradle/caches/modules-2/gc.properties
+      shell: bash
