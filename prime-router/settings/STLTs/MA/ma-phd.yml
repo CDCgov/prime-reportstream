@@ -18,7 +18,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation: !<HL7>
-        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/MA/MA-receiver-transform.yml"
+        schemaName: "azure:/hl7_mapping/receivers/STLTs/MA/MA-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: "MA-MDPH"
@@ -75,9 +75,8 @@
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
-        # Accept COVID only
-        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
-      mappedConditionFilter: []
+        # If positive send COVID antigen,antibody, molecular/FLU/HIV, if negative send COVID molecular
+        - "%resource.where(interpretation.coding.code = 'A').code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('6142004'|'541131000124102'|'895448002'|'86406008')).exists() or %resource.code.coding.where(code.exclude('95209-3' |'94558-4'|'96119-3'|'97097-0'|'101928-0')).extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists() or %resource.where(interpretation.coding.code = 'A').code.coding.where(code in('95209-3' |'94558-4'|'96119-3'|'97097-0'|'101928-0')).exists()"
       deidentify: false
       deidentifiedValue: ""
       timing:

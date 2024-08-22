@@ -101,6 +101,10 @@
 - id: "cnn-practitioner"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cnn-practitioner"
 
+# NDL -> PractitionerRole
+- id: "ndl-practitioner-role"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ndl-practitioner-role"
+
 # XAD -> Address
 - id: "xad-address"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address"

@@ -26,7 +26,10 @@ elements:
     value: [ '%resource.extension("XTN.9").value' ]
     hl7Spec: [ '%{hl7TelecomPath}-9' ]
 
+  - name: xtn-11-speed-dial-code
+    value: [ '%resource.extension("XTN.11").value' ]
+    hl7Spec: [ '%{hl7TelecomPath}-11' ]
+
   - name: xtn-12-unformatted-telephone-number
     value: [ '%resource.extension("XTN.12").value' ]
     hl7Spec: [ '%{hl7TelecomPath}-12' ]
-

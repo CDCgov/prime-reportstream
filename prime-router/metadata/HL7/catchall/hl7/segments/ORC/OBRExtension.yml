@@ -192,6 +192,18 @@ extension:
           type: STRING
           expressionType: HL7Spec
           valueOf: OBR.24
+    - expressionType: nested
+      vars:
+        obr25: OBR.25
+      condition: $obr25 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.25
+        valueId:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBR.25
     - expressionType: resource
       vars:
         obr26: STRING_ALL, OBR.26
