@@ -1,11 +1,39 @@
-import { expect, test } from "@playwright/test";
+import site from "../../../../src/content/site.json" assert { type: "json" };
+import { HomePage } from "../../../pages/public/homepage";
+import { test as baseTest, expect } from "../../../test";
 
-import { scrollToFooter, scrollToTop } from "../../../helpers/utils";
-import * as ourNetwork from "../../../pages/public/about/our-network";
-import * as security from "../../../pages/public/about/security";
-import * as header from "../../../pages/public/header";
-import * as homepage from "../../../pages/public/homepage";
-import * as managingYourConnection from "../../../pages/public/managing-your-connection/managing-your-connection";
+export interface HomePageFixtures {
+    homePage: HomePage;
+}
+
+const test = baseTest.extend<HomePageFixtures>({
+    homePage: async (
+        {
+            page: _page,
+            isMockDisabled,
+            adminLogin,
+            senderLogin,
+            receiverLogin,
+            storageState,
+            isFrontendWarningsLog,
+            frontendWarningsLogPath,
+        },
+        use,
+    ) => {
+        const page = new HomePage({
+            page: _page,
+            isMockDisabled,
+            adminLogin,
+            senderLogin,
+            receiverLogin,
+            storageState,
+            isFrontendWarningsLog,
+            frontendWarningsLogPath,
+        });
+        await page.goto();
+        await use(page);
+    },
+});
 
 test.describe(
     "Homepage",
@@ -13,57 +41,26 @@ test.describe(
         tag: "@smoke",
     },
     () => {
-        test.beforeEach(async ({ page }) => {
-            await homepage.goto(page);
+        test.describe("Header", () => {
+            test("has correct title + heading", async ({ homePage }) => {
+                await homePage.testHeader();
+            });
         });
 
-        test("has correct title", async ({ page }) => {
-            await expect(page).toHaveTitle(/ReportStream - CDC's free, interoperable data transfer platform/);
+        test.describe("CTA", () => {
+            test("has 'Contact us' button", async ({ homePage }) => {
+                const heroLocator = homePage.page.locator('[class*="hero-wrapper"]');
+                const ctaURL = site.forms.connectWithRS.url;
+                const ctaLink = heroLocator.locator(`a[href="${ctaURL}"]`).first();
+
+                await expect(ctaLink).toBeVisible();
+            });
         });
 
-        test("opens the Security page on 'security of your data' click", async ({ page }) => {
-            await page.getByRole("link", { name: "security of your data" }).click();
-            await security.onLoad(page);
-            // Go back to the homepage
-            await header.clickOnHome(page);
-
-            expect(true).toBe(true);
-        });
-
-        test("opens the managing-your-connection page on 'our tools' click", async ({ page }) => {
-            await page.getByRole("link", { name: "our tools" }).click();
-            await managingYourConnection.onLoad(page);
-            // Go back to the homepage
-            await header.clickOnHome(page);
-
-            expect(true).toBe(true);
-        });
-
-        test("opens Our Network page on 'See our full network' click", async ({ page }) => {
-            await page.getByRole("link", { name: "See our full network" }).click();
-            await ourNetwork.onLoad(page);
-            // Go back to the homepage
-            await header.clickOnHome(page);
-
-            expect(true).toBe(true);
-        });
-
-        test("is clickable Where were live map", async ({ page }) => {
-            // Trigger map click and go to our network page
-            await ourNetwork.clickOnLiveMap(page);
-            // Go back to the homepage
-            await header.clickOnHome(page);
-
-            expect(true).toBe(true);
-        });
-
-        test("explicit scroll to footer and then scroll to top", async ({ page }) => {
-            await expect(page.locator("footer")).not.toBeInViewport();
-            await scrollToFooter(page);
-            await expect(page.locator("footer")).toBeInViewport();
-            await expect(page.getByTestId("govBanner")).not.toBeInViewport();
-            await scrollToTop(page);
-            await expect(page.getByTestId("govBanner")).toBeInViewport();
+        test.describe("Footer", () => {
+            test("has footer and explicit scroll to footer and scroll to top", async ({ homePage }) => {
+                await homePage.testFooter();
+            });
         });
     },
 );
