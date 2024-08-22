@@ -31,13 +31,6 @@ Modify value - Change the format of a value in a single field or subfield
   value: [ '%resource.value.extension(%`rsext-hl7v2-date-time`).value.toString().replace("-","")' ]
   hl7Spec: [ '%{hl7OBXField}-5' ]
 ```
-Modify value - Change the format of a value in a single field or subfield
-```yaml
-- name: obx-value-dtm-dt
-  condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "OBX.2").value = "DT"'
-  value: [ '%resource.value.extension(%`rsext-hl7v2-date-time`).value.toString().replace("-","")' ]
-  hl7Spec: [ '%{hl7OBXField}-5' ]
-```
 
 Modify value based on valueset - Correlate a set of values to another set of values
 ```yaml
