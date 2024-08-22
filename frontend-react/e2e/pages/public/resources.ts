@@ -1,7 +1,17 @@
-import { Page } from "@playwright/test";
+import { BasePage, BasePageTestArgs } from "../BasePage";
 
-export async function goto(page: Page) {
-    await page.goto("/developer-resources", {
-        waitUntil: "domcontentloaded",
-    });
+export class DeveloperResourcesPage extends BasePage {
+    constructor(testArgs: BasePageTestArgs) {
+        super(
+            {
+                url: "/developer-resources",
+                title: "ReportStream developer resources",
+                heading: testArgs.page.getByRole("heading", {
+                    name: "Developer resources",
+                    exact: true,
+                }),
+            },
+            testArgs,
+        );
+    }
 }

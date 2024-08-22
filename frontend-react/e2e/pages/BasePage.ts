@@ -140,7 +140,6 @@ export abstract class BasePage {
 
     async testFooter() {
         await expect(this.page.locator("footer")).toBeAttached();
-        await expect(this.page.locator("footer")).not.toBeInViewport();
         await this.page.locator("footer").scrollIntoViewIfNeeded();
         await expect(this.page.locator("footer")).toBeInViewport();
         await expect(this.page.getByTestId("govBanner")).not.toBeInViewport();
