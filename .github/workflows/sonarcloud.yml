@@ -93,6 +93,10 @@ jobs:
           command: ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" :prime-router:package -x fatjar
           shell: bash
 
+      - name: Build Submissions Package
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        uses: ./.github/actions/build-submissions
+
       - name: Perform Java CodeQL Analysis
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         uses: github/codeql-action/analyze@v3
