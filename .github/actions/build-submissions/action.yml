@@ -43,7 +43,7 @@ runs:
 
     - name: Lint
       if: inputs.run-integration-tests == 'true'
-      run: ./gradlew :submissions:ktlintCheck -x test
+      run: ./gradlew :submissions:ktlintCheck
       shell: bash
 
     - name: Spin up build containers
@@ -58,7 +58,7 @@ runs:
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
-          ./gradlew :submissions:build -Pshowtests
+          ./gradlew :submissions:build -x test
         shell: bash
 
     - name: Cleanup Gradle Cache
