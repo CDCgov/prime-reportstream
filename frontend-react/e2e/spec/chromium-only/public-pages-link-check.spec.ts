@@ -1,41 +1,9 @@
 /* eslint-disable playwright/no-conditional-in-test */
 import axios, { AxiosError } from "axios";
 import * as fs from "fs";
-import { PublicPageLinkChecker } from "../../pages/public-pages-link-check";
 import { test as baseTest, expect } from "../../test";
 
-export interface PublicPageLinkCheckerFixtures {
-    publicPageLinkChecker: PublicPageLinkChecker;
-}
-
-const test = baseTest.extend<PublicPageLinkCheckerFixtures>({
-    publicPageLinkChecker: async (
-        {
-            page: _page,
-            isMockDisabled,
-            adminLogin,
-            senderLogin,
-            receiverLogin,
-            storageState,
-            isFrontendWarningsLog,
-            frontendWarningsLogPath,
-        },
-        use,
-    ) => {
-        const page = new PublicPageLinkChecker({
-            page: _page,
-            isMockDisabled,
-            adminLogin,
-            senderLogin,
-            receiverLogin,
-            storageState,
-            isFrontendWarningsLog,
-            frontendWarningsLogPath,
-        });
-        await page.goto();
-        await use(page);
-    },
-});
+const test = baseTest.extend({});
 
 // To save bandwidth, this test is within the /spec/chromium-only/ folder
 // Since we're just checking link validity. This is specified within our
@@ -79,7 +47,7 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
     });
 
     test("Check all public-facing URLs and their links for a valid 200 response", async ({
-        publicPageLinkChecker,
+        page,
         frontendWarningsLogPath,
         isFrontendWarningsLog,
     }) => {
@@ -87,12 +55,10 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
         // Set test timeout to be 1 minute instead of 30 seconds
         test.setTimeout(60000);
         for (const path of urlPaths) {
-            await publicPageLinkChecker.page.goto(path);
-            const baseUrl = new URL(publicPageLinkChecker.page.url()).origin;
+            await page.goto(path);
+            const baseUrl = new URL(page.url()).origin;
 
-            const allATags = await publicPageLinkChecker.page
-                .getByRole("link", { includeHidden: true })
-                .elementHandles();
+            const allATags = await page.getByRole("link", { includeHidden: true }).elementHandles();
 
             for (const aTag of allATags) {
                 const href = await aTag.getAttribute("href");
