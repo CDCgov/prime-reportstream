@@ -196,6 +196,11 @@ elements:
     bundleProperty: 'Bundle.entry.resource.ofType(Patient).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
     value: [ '"PID.3"' ]
 
+  - name: sr-patient-identifier-not-provided
+    condition: 'Bundle.entry.resource.ofType(Patient).identifier[0].value.exists().not()'
+    bundleProperty: 'Bundle.entry.resource.ofType(Patient).identifier[0].value'
+    value: [ 'Bundle.entry.resource.ofType(DiagnosticReport).id.substring(0,15)']
+
   - name: sr-patient-identifier-assigner
     bundleProperty: 'Bundle.entry.resource.ofType(Patient).identifier[0].assigner'
     value: [ 'Bundle.entry.resource.ofType(Patient).managingOrganization' ]
