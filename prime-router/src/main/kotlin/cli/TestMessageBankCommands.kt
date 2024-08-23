@@ -30,7 +30,7 @@ class TestMessageBankCommands : CliktCommand(
         .file(true, canBeDir = false, mustBeReadable = true).required()
 
     /**
-     * Optional output file.  if no output file is specified then the output is printed to the screen.
+     * The output file to send the data to
      */
     private val outputFile by option("-o", "--output-file", help = "output file")
         .file()
@@ -44,8 +44,16 @@ class TestMessageBankCommands : CliktCommand(
         if (inputFile.extension.uppercase() != "FHIR") {
             throw CliktError("File ${inputFile.absolutePath} is not a FHIR file.")
         }
-        var bundle = FhirTranscoder.decode(contents)
+        val bundle = FhirTranscoder.decode(contents)
 
+        // Write the output to the screen or a file.
+        if (outputFile != null) {
+            outputFile!!.writeText(removePii(bundle), Charsets.UTF_8)
+        }
+        echo("Wrote output to ${outputFile!!.absolutePath}")
+    }
+
+    fun removePii(bundle: Bundle): String {
         bundle.entry.map { it.resource }.filterIsInstance<Patient>()
             .forEach { patient ->
                 patient.name.forEach { name ->
@@ -64,16 +72,16 @@ class TestMessageBankCommands : CliktCommand(
 
         bundle.entry.map { it.resource }.filterIsInstance<Organization>()
             .forEach { organization ->
-            organization.address.forEach { address ->
-                address.line = mutableListOf(StringType(getFakeValueForElementCall("STREET")))
+                organization.address.forEach { address ->
+                    address.line = mutableListOf(StringType(getFakeValueForElementCall("STREET")))
+                }
+                organization.telecom.forEach { telecom ->
+                    handleTelecom(telecom)
+                }
+                organization.contact.forEach { contact ->
+                    handleOrganizationalContact(contact)
+                }
             }
-            organization.telecom.forEach { telecom ->
-                handleTelecom(telecom)
-            }
-            organization.contact.forEach { contact ->
-               handleOrganizationalContact(contact)
-            }
-        }
 
         bundle.entry.map { it.resource }.filterIsInstance<Practitioner>()
             .forEach { practitioner ->
@@ -88,18 +96,14 @@ class TestMessageBankCommands : CliktCommand(
                 }
             }
 
-        bundle = FhirTransformer("classpath:/metadata/fhir_transforms/common/remove-pii-enrichment.yml").process(bundle)
+        val bundleAfterTransform = FhirTransformer(
+            "classpath:/metadata/fhir_transforms/common/remove-pii-enrichment.yml"
+        ).process(bundle)
 
         val jsonObject = JacksonMapperUtilities.defaultMapper
-            .readValue(FhirTranscoder.encode(bundle), Any::class.java)
-        var prettyText = JacksonMapperUtilities.defaultMapper.writeValueAsString(jsonObject)
-        prettyText = replaceIds(bundle, prettyText)
-
-        // Write the output to the screen or a file.
-        if (outputFile != null) {
-            outputFile!!.writeText(prettyText, Charsets.UTF_8)
-        }
-        echo("Wrote output to ${outputFile!!.absolutePath}")
+            .readValue(FhirTranscoder.encode(bundleAfterTransform), Any::class.java)
+        val prettyText = JacksonMapperUtilities.defaultMapper.writeValueAsString(jsonObject)
+        return replaceIds(bundleAfterTransform, prettyText)
     }
 
     private fun handlePatientContact(contact: ContactComponent): ContactComponent {
@@ -193,8 +197,10 @@ class TestMessageBankCommands : CliktCommand(
             bundle,
             path
         ).forEach { resourceId ->
-            val newIdentifier = getFakeValueForElementCall("UUID")
-            return prettyText.replace(resourceId.primitiveValue(), newIdentifier, true)
+            if (resourceId.primitiveValue() != null) {
+                val newIdentifier = getFakeValueForElementCall("UUID")
+                return prettyText.replace(resourceId.primitiveValue(), newIdentifier, true)
+            }
         }
         return prettyText
     }
