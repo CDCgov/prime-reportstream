@@ -9,3 +9,15 @@ elements:
     condition: '%resource.code.exists()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
+
+  - name: id-sending-facility-namespace-id
+    value: [ '"SimpleReport"' ]
+    hl7Spec: [ 'MSH-4-1' ]
+
+  - name: id-sending-application-universal-id
+    value: [ '"99ID00047"' ]
+    hl7Spec: [ 'MSH-4-2' ]
+
+  - name: id-sending-application-universal-id-type
+    value: [ '"CLIA"' ]
+    hl7Spec: [ 'MSH-4-3' ]
