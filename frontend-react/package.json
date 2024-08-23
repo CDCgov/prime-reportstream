@@ -165,7 +165,7 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
     "eslint-plugin-storybook": "^0.8.0",
-    "eslint-plugin-testing-library": "^6.2.2",
+    "eslint-plugin-testing-library": "^6.3.0",
     "eslint-plugin-vitest": "^0.5.4",
     "husky": "^9.1.5",
     "jsdom": "^24.1.1",
