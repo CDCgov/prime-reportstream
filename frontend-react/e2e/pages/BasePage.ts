@@ -1,3 +1,4 @@
+import { SideNavItem } from "../helpers/internal-links";
 import { selectTestOrg } from "../helpers/utils";
 import appInsightsConfig from "../mocks/appInsightsConfig.json" assert { type: "json" };
 import { expect, Locator, Page, Request, Response, Route, TestArgs } from "../test";
@@ -136,6 +137,17 @@ export abstract class BasePage {
     async testHeader() {
         await expect(this.page).toHaveTitle(this.title);
         await expect(this.heading).toBeVisible();
+    }
+
+    async testSidenav(navItems: SideNavItem[]) {
+        const sideNav = this.page.getByTestId("sidenav");
+
+        for (const navItem of navItems) {
+            const link = sideNav.locator(`a`, { hasText: navItem.name });
+
+            await expect(link).toBeVisible();
+            await expect(link).toHaveAttribute("href", navItem.path);
+        }
     }
 
     async testFooter() {
