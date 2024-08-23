@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.fhirengine.engine
 
-import QueueMessage
 import ca.uhn.fhir.parser.DataFormatException
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
@@ -13,6 +12,7 @@ import fhirengine.engine.IProcessedItem
 import fhirengine.engine.ProcessedFHIRItem
 import fhirengine.engine.ProcessedHL7Item
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger

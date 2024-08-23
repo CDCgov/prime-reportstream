@@ -1,9 +1,9 @@
 package gov.cdc.prime.router.fhirengine.engine
 
-import QueueMessage
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
@@ -34,6 +34,18 @@ abstract class PrimeRouterQueueMessage : QueueMessage {
             queueAccess.sendMessage(this.messageQueueName, serialize())
         }
     }
+
+//    init {
+//        QueueMessage.ObjectMapperProvider.registerSubtypes(
+//            FhirConvertQueueMessage::class.java,
+//            FhirDestinationFilterQueueMessage::class.java,
+//            FhirReceiverFilterQueueMessage::class.java,
+//            FhirTranslateQueueMessage::class.java,
+//            BatchEventQueueMessage::class.java,
+//            ProcessEventQueueMessage::class.java,
+//            ReportEventQueueMessage::class.java
+//        )
+//    }
 }
 
 abstract class ReportPipelineMessage :

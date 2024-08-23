@@ -6,6 +6,7 @@ import com.azure.storage.queue.QueueClient
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.reportstream.shared.SubmissionsEntity
 import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
 import gov.cdc.prime.reportstream.submissions.TelemetryService

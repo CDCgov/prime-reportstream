@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.fhirengine.engine
 
-import QueueMessage
 import ca.uhn.hl7v2.model.Message
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.reportstream.shared.SubmissionsEntity
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ClientSource

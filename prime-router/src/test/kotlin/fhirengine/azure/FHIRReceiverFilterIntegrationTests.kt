@@ -10,6 +10,7 @@ import assertk.assertions.isNull
 import assertk.assertions.isZero
 import assertk.assertions.matchesPredicate
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
