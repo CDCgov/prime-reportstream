@@ -18,7 +18,7 @@
     topic: "full-elr"
     customerStatus: "active"
     translation: !<HL7>
-      schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/ND/ND-receiver-transform.yml"
+      schemaName: "azure:/hl7_mapping/receivers/STLTs/ND/ND-receiver-transform.yml"
       useTestProcessingMode: false
       useBatchHeaders: true
       receivingApplicationName: "Maven"
@@ -64,25 +64,27 @@
     jurisdictionalFilter:
       - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'ND') or (Bundle.entry.resource.ofType(Patient).address.state = 'ND')"
     qualityFilter:
-      - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or Bundle.entry.resource.ofType(serviceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists())"
+      - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists())"
       - "(Bundle.entry.resource.ofType(Patient).address.line.exists() or Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or Bundle.entry.resource.ofType(Patient).telecom.exists())"
       - "Bundle.entry.resource.ofType(MessageHeader).id.exists()"
       - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
       - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
       - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
       - "Bundle.entry.resource.ofType(Specimen).type.exists()"
-    routingFilter: []
+    routingFilter:
+      # marches(test_result_status, F, C, P)
+      - "Bundle.entry.resource.ofType(DiagnosticReport).where(status in 'final'|'corrected'|'preliminary'|'amended').exists()"
     processingModeFilter: []
     reverseTheQualityFilter: false
     conditionFilter:
-      # Accept COVID only
-      - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+      #  RSV: 55735004 (+), COVID: 840539006 (+), FLU (A or B by Antigen): 6142004 (+), FLU (A or B by Culture and Identification Method),: 541131000124102, They also want MPOX but, we are not ready to send MPOX yet.
+      - "%resource.where(interpretation.coding.code = 'A').code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('55735004'|'840539006'|'6142004'|'541131000124102')).exists()"
     mappedConditionFilter: []
     deidentify: false
     deidentifiedValue: ""
     timing:
       operation: "MERGE"
-      numberPerDay: 12
+      numberPerDay: 1440
       initialTime: "01:25"
       timeZone: "EASTERN"
       maxReportCount: 100
@@ -93,11 +95,10 @@
     transport: !<SFTP>
       host: "mft.nd.gov"
       port: "22"
-      filePath: "/Home/dohdcmsg/nddoh_elr/hl7"
+      filePath: "/Home/dohdcmsg/nddoh_elr/hl7_test"
       credentialName: null
       type: "SFTP"
     externalName: null
     enrichmentSchemaNames: []
     timeZone: null
     dateTimeFormat: "OFFSET"
-
