@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.reportstream.shared.SubmissionsEntity
+import gov.cdc.prime.reportstream.shared.SubmissionEntity
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
@@ -160,9 +160,13 @@ class FHIRReceiverTest {
 
         val reportId = queueMessage.reportId.toString()
         verify(exactly = 1) {
-            SubmissionsEntity(reportId, "Rejected")
+            SubmissionEntity(
+                reportId,
+                "Rejected",
+                queueMessage.blobURL,
+                "Sender not found matching client_id: unknown_client_id"
+            )
             BlobAccess.Companion.insertTableEntity(any(), any())
-            actionHistory.trackReceivedNoReport(any(), any(), any(), any(), any())
             actionHistory.trackActionResult(HttpStatus.BAD_REQUEST)
         }
     }

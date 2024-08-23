@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import com.azure.data.tables.TableServiceClient
 import com.azure.data.tables.TableServiceClientBuilder
@@ -178,9 +179,12 @@ class FHIRReceiverIntegrationTests {
 
         val tableRow = tableServiceClient
             .getTableClient("submissions")
-            .getEntity(reportId.toString(), "Rejected")
+            .getEntity(reportId.toString(), "Accepted")
 
         assertNotNull(tableRow)
+        assertThat(tableRow.getProperty("detail")).isEqualTo(
+        "Sender has customer status INACTIVE: phd.fhir-elr-no-transform-inactive"
+        )
     }
 
     @Test
@@ -215,18 +219,16 @@ class FHIRReceiverIntegrationTests {
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk())
                 .from(Tables.ACTION_LOG)
-                .where(Tables.ACTION_LOG.REPORT_ID.eq(reportId))
-                .and(Tables.ACTION_LOG.TYPE.eq(ActionLogType.error))
+                .where(Tables.ACTION_LOG.TYPE.eq(ActionLogType.error))
                 .fetchInto(DetailedActionLog::class.java)
 
-            assertThat(actionLogs.first()).transform { it.detail.message }
-                .isEqualTo("Sender not found matching client_id: unknown_sender")
+            assertThat(actionLogs).isEmpty()
 
             val reportFile = DSL.using(txn).select(Tables.REPORT_FILE.asterisk())
                 .from(Tables.REPORT_FILE)
                 .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
 
-            assertNotNull(reportFile)
+            assertThat(reportFile).isEmpty()
         }
 
         verify(exactly = 0) {
@@ -234,10 +236,11 @@ class FHIRReceiverIntegrationTests {
         }
 
         val tableRow = tableServiceClient
-            .getTableClient("submissions")
+            .getTableClient("submission")
             .getEntity(reportId.toString(), "Rejected")
 
         assertNotNull(tableRow)
+        assertThat(tableRow.getProperty("detail")).isEqualTo("Sender not found matching client_id: unknown_sender")
     }
 
     @Test

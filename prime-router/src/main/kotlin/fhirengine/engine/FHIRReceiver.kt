@@ -3,7 +3,7 @@ package gov.cdc.prime.router.fhirengine.engine
 import ca.uhn.hl7v2.model.Message
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.reportstream.shared.QueueMessage
-import gov.cdc.prime.reportstream.shared.SubmissionsEntity
+import gov.cdc.prime.reportstream.shared.SubmissionEntity
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
@@ -93,17 +93,11 @@ class FHIRReceiver(
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
-        actionLogger.setReportId(queueMessage.reportId)
         val contextMap = createLoggingContextMap(queueMessage, actionHistory)
         // Use the logging context for tracing
         withLoggingContext(contextMap) {
-            val sender = getSender(queueMessage, actionLogger, actionHistory)
-
-            // Handle errors if any
-            if (sender == null) {
-                handleSenderNotFound(queueMessage, actionLogger, actionHistory)
-                return emptyList()
-            }
+            actionLogger.setReportId(queueMessage.reportId)
+            val sender = getSender(queueMessage, actionLogger, actionHistory) ?: return emptyList()
 
             // Process the message if no errors occurred
             return handleSuccessfulProcessing(queueMessage, sender, actionLogger, actionHistory)
@@ -146,10 +140,25 @@ class FHIRReceiver(
 
         // Handle case where sender is not found
         if (sender == null) {
-            actionHistory.trackActionResult(HttpStatus.BAD_REQUEST)
-            actionLogger.error(
-                InvalidParamMessage("Sender not found matching client_id: " + queueMessage.headers[clientIdHeader])
-            )
+            // Send an error event
+            reportEventService.sendReceiveProcessingError(
+                ReportStreamEventName.REPORT_NOT_RECEIVABLE,
+                TaskAction.convert,
+                "Unable to create report from received message.",
+                queueMessage.reportId,
+                queueMessage.blobURL
+            ) {
+                params(actionLogger.errors.associateBy { ReportStreamEventProperties.PROCESSING_ERROR })
+            }
+
+            // Insert the rejection into the submissions table
+            val tableEntity =
+                SubmissionEntity(
+                    queueMessage.reportId.toString(), "Rejected",
+                    queueMessage.blobURL,
+                    "Sender not found matching client_id: " + queueMessage.headers[clientIdHeader]
+                ).toTableEntity()
+            BlobAccess.insertTableEntity("submission", tableEntity)
             return null
         }
 
@@ -166,38 +175,6 @@ class FHIRReceiver(
         actionHistory.trackActionSenderInfo(sender.fullName, queueMessage.headers["payloadname"])
         actionHistory.trackActionResult(HttpStatus.CREATED)
         return sender
-    }
-
-    /**
-     * Handles cases where processing errors occurred.
-     *
-     * @param queueMessage The queue message containing details about the report.
-     * @param actionLogger The logger used to track actions and errors.
-     * @param actionHistory The action history related to receiving the report.
-     */
-    private fun handleSenderNotFound(
-        queueMessage: FhirReceiveQueueMessage,
-        actionLogger: ActionLogger,
-        actionHistory: ActionHistory,
-    ) {
-        // Track the logs and errors
-        actionHistory.trackLogs(actionLogger.logs)
-
-        // Send an error event
-        reportEventService.sendReceiveProcessingError(
-            ReportStreamEventName.REPORT_NOT_RECEIVABLE,
-            TaskAction.convert,
-            "Unable to create report from received message.",
-            queueMessage.reportId,
-            queueMessage.blobURL
-        ) {
-            params(actionLogger.errors.associateBy { ReportStreamEventProperties.PROCESSING_ERROR })
-        }
-
-        // Insert the rejection into the submissions table
-        val tableEntity =
-            SubmissionsEntity(queueMessage.reportId.toString(), "Rejected").toTableEntity()
-        BlobAccess.insertTableEntity("submissions", tableEntity)
     }
 
     /**
@@ -247,8 +224,13 @@ class FHIRReceiver(
         }
 
         // Insert the acceptance into the submissions table
-        val tableEntity = SubmissionsEntity(queueMessage.reportId.toString(), "Accepted").toTableEntity()
-        BlobAccess.insertTableEntity("submissions", tableEntity)
+        val tableEntity = SubmissionEntity(
+            queueMessage.reportId.toString(),
+            "Accepted",
+            queueMessage.blobURL,
+            actionLogger.errors.toString()
+        ).toTableEntity()
+        BlobAccess.insertTableEntity("submission", tableEntity)
 
         // Create a route event
         val routeEvent = ProcessEvent(Event.EventAction.CONVERT, report.id, Options.None, emptyMap(), emptyList())
