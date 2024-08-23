@@ -78,7 +78,7 @@ class ConvertFileCommands(
         checkNotNull(report.itemCount) { "Input file has no items" }
         val fields = fieldNames.split(",")
         val rows = mutableListOf<Array<String>>()
-        for (i in 0 until report.itemCount!!) {
+        for (i in 0 until report.itemCount) {
             fields.map {
                 report.getString(i, it) ?: ""
             }.toTypedArray().let { rows.add(it) }

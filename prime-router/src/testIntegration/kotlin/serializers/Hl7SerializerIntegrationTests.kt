@@ -698,7 +698,7 @@ SPM|1|PH-388002^221010003714&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasoph
         assertThat(report.getString(0, "patient_city")).isEqualTo("South Rodneychester")
         assertThat(report.getString(1, "patient_city")).isEqualTo("North Taylor")
         assertThat(report.itemCount == 2).isTrue()
-        val hospitalized = (0 until report.itemCount!!).map { report.getString(it, "hospitalized") }
+        val hospitalized = (0 until report.itemCount).map { report.getString(it, "hospitalized") }
         assertThat(hospitalized.toSet()).isEqualTo(setOf(""))
     }
 

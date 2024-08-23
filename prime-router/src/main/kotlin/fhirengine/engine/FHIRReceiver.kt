@@ -1,12 +1,14 @@
 package gov.cdc.prime.router.fhirengine.engine
 
 import QueueMessage
+import ca.uhn.hl7v2.model.Message
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.reportstream.shared.SubmissionsEntity
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.InvalidParamMessage
+import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
@@ -27,6 +29,8 @@ import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.report.ReportService
 import org.jooq.Field
 import java.time.OffsetDateTime
@@ -71,12 +75,10 @@ class FHIRReceiver(
         message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
-    ): List<FHIREngineRunResult> {
-        return when (message) {
+    ): List<FHIREngineRunResult> = when (message) {
             is FhirReceiveQueueMessage -> processFhirReceiveQueueMessage(message, actionLogger, actionHistory)
             else -> throw RuntimeException("Message was not a FhirReceive and cannot be processed: $message")
         }
-    }
 
     /**
      * Processes the FHIR receive queue message.
@@ -98,13 +100,13 @@ class FHIRReceiver(
             val sender = getSender(queueMessage, actionLogger, actionHistory)
 
             // Handle errors if any
-            if (actionLogger.hasErrors()) {
-                handleProcessingErrors(queueMessage, actionLogger, actionHistory)
+            if (sender == null) {
+                handleSenderNotFound(queueMessage, actionLogger, actionHistory)
                 return emptyList()
             }
 
             // Process the message if no errors occurred
-            return handleSuccessfulProcessing(queueMessage, sender!!, actionHistory)
+            return handleSuccessfulProcessing(queueMessage, sender, actionLogger, actionHistory)
         }
     }
 
@@ -118,13 +120,11 @@ class FHIRReceiver(
     private fun createLoggingContextMap(
         queueMessage: FhirReceiveQueueMessage,
         actionHistory: ActionHistory,
-    ): Map<MDCUtils.MDCProperty, Any> {
-        return mapOf(
+    ): Map<MDCUtils.MDCProperty, Any> = mapOf(
             MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
             MDCUtils.MDCProperty.REPORT_ID to queueMessage.reportId,
             MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobURL,
         )
-    }
 
     /**
      * Retrieves the sender based on the queue message and logs any relevant errors.
@@ -175,7 +175,7 @@ class FHIRReceiver(
      * @param actionLogger The logger used to track actions and errors.
      * @param actionHistory The action history related to receiving the report.
      */
-    private fun handleProcessingErrors(
+    private fun handleSenderNotFound(
         queueMessage: FhirReceiveQueueMessage,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
@@ -194,22 +194,6 @@ class FHIRReceiver(
             params(actionLogger.errors.associateBy { ReportStreamEventProperties.PROCESSING_ERROR })
         }
 
-        // Determine the mime format of the message
-        val mimeFormat =
-            MimeFormat.valueOfFromMimeType(
-                queueMessage.headers[contentTypeHeader]?.substringBefore(';') ?: ""
-            )
-
-        // Track that a message was received and uploaded
-        // Report is not created for absent or inactive sender
-        actionHistory.trackReceivedNoReport(
-            queueMessage.reportId,
-            queueMessage.blobURL,
-            mimeFormat.toString(),
-            TaskAction.none,
-            queueMessage.headers["payloadname"]
-        )
-
         // Insert the rejection into the submissions table
         val tableEntity =
             SubmissionsEntity(queueMessage.reportId.toString(), "Rejected").toTableEntity()
@@ -227,18 +211,18 @@ class FHIRReceiver(
     private fun handleSuccessfulProcessing(
         queueMessage: FhirReceiveQueueMessage,
         sender: Sender,
+        actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
+        // Get content from blob storage and create report
+        val report = validateSubmissionMessage(sender, actionLogger, queueMessage) ?: return emptyList()
+
         // Determine the mime format of the message
         val mimeFormat =
             MimeFormat.valueOfFromMimeType(
                 queueMessage.headers[contentTypeHeader]?.substringBefore(';') ?: ""
             )
-        // Create a list of sources
-        val sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name))
 
-        // Create a new report
-        val report = Report(mimeFormat, sources, TaskAction.convert, sender.topic, metadata)
         actionHistory.trackExternalInputReport(
             report,
             queueMessage.blobURL,
@@ -285,5 +269,73 @@ class FHIRReceiver(
                 )
             )
         )
+    }
+
+    private fun validateSubmissionMessage(
+        sender: Sender,
+        actionLogger: ActionLogger,
+        queueMessage: FhirReceiveQueueMessage,
+    ): Report? {
+        val rawReport = BlobAccess.downloadContent(queueMessage.blobURL, queueMessage.digest)
+        return if (rawReport.isBlank()) {
+            actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
+            null
+        } else {
+            val report: Report
+            val sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name))
+
+            when (sender.format) {
+                MimeFormat.HL7 -> {
+                    val messages: List<Message> = HL7Reader(actionLogger).getMessages(rawReport)
+                    val isBatch: Boolean = HL7Reader(actionLogger).isBatch(rawReport, messages.size)
+                    // create a Report for this incoming HL7 message to use for tracking in the database
+
+                    report = Report(
+                        if (isBatch) MimeFormat.HL7_BATCH else MimeFormat.HL7,
+                        sources,
+                        messages.size,
+                        metadata = metadata,
+                        nextAction = TaskAction.convert,
+                        topic = sender.topic,
+                    )
+
+                    // TODO fix and re-enable https://github.com/CDCgov/prime-reportstream/issues/14103
+                    // dupe detection if needed, and if we have not already produced an error
+    //                if (!allowDuplicates && !actionLogs.hasErrors()) {
+    //                    doDuplicateDetection(
+    //                        workflowEngine,
+    //                        report,
+    //                        actionLogs
+    //                    )
+    //                }
+
+                    // check for valid message type
+                    messages.forEachIndexed { idx, element ->
+                        MessageType.validateMessageType(element, actionLogger, idx + 1)
+                    }
+                }
+
+                MimeFormat.FHIR -> {
+                    val bundles = FhirTranscoder.getBundles(rawReport, actionLogger)
+                    report = Report(
+                        MimeFormat.FHIR,
+                        sources,
+                        bundles.size,
+                        metadata = metadata,
+                        nextAction = TaskAction.convert,
+                        topic = sender.topic,
+                    )
+                }
+
+                MimeFormat.CSV -> {
+                    TODO()
+                }
+
+                else -> {
+                    throw IllegalStateException("Unexpected sender format ${sender.format}")
+                }
+            }
+            report
+        }
     }
 }
