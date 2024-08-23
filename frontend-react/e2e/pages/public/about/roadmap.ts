@@ -1,8 +1,16 @@
-import { Page } from "@playwright/test";
+import { BasePage, BasePageTestArgs } from "../../BasePage";
 
-export const URL_ROADMAP = "/about/roadmap";
-export async function goto(page: Page) {
-    await page.goto(URL_ROADMAP, {
-        waitUntil: "domcontentloaded",
-    });
+export class RoadmapPage extends BasePage {
+    constructor(testArgs: BasePageTestArgs) {
+        super(
+            {
+                url: "/about/roadmap",
+                title: "Product roadmap",
+                heading: testArgs.page.getByRole("heading", {
+                    name: "Product roadmap",
+                }),
+            },
+            testArgs,
+        );
+    }
 }

@@ -139,6 +139,14 @@ export abstract class BasePage {
         await expect(this.heading).toBeVisible();
     }
 
+    async testCard(card: { name: string }) {
+        const cardHeader = this.page.locator(".usa-card__header", {
+            hasText: card.name,
+        });
+
+        await expect(cardHeader).toBeVisible();
+    }
+
     async testSidenav(navItems: SideNavItem[]) {
         const sideNav = this.page.getByTestId("sidenav");
 

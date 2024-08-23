@@ -1,9 +1,51 @@
-import { expect, test } from "@playwright/test";
+import { aboutSideNav } from "../../../../helpers/internal-links";
+import { RoadmapPage } from "../../../../pages/public/about/roadmap";
+import { test as baseTest } from "../../../../test";
 
-import * as internalLinks from "../../../../helpers/internal-links";
-import * as roadmap from "../../../../pages/public/about/roadmap";
-import { URL_ROADMAP } from "../../../../pages/public/about/roadmap";
-import * as sideNav from "../../../../pages/public/about-side-navigation";
+export interface RoadmapPageFixtures {
+    roadmapPage: RoadmapPage;
+}
+
+const test = baseTest.extend<RoadmapPageFixtures>({
+    roadmapPage: async (
+        {
+            page: _page,
+            isMockDisabled,
+            adminLogin,
+            senderLogin,
+            receiverLogin,
+            storageState,
+            isFrontendWarningsLog,
+            frontendWarningsLogPath,
+        },
+        use,
+    ) => {
+        const page = new RoadmapPage({
+            page: _page,
+            isMockDisabled,
+            adminLogin,
+            senderLogin,
+            receiverLogin,
+            storageState,
+            isFrontendWarningsLog,
+            frontendWarningsLogPath,
+        });
+        await page.goto();
+        await use(page);
+    },
+});
+
+const cards = [
+    {
+        name: "News",
+    },
+    {
+        name: "Release notes",
+    },
+    {
+        name: "Developer resources",
+    },
+];
 
 test.describe(
     "Product roadmap page",
@@ -11,61 +53,29 @@ test.describe(
         tag: "@smoke",
     },
     () => {
-        test.beforeEach(async ({ page }) => {
-            await roadmap.goto(page);
-        });
-
-        test("has correct title", async ({ page }) => {
-            await expect(page).toHaveURL(URL_ROADMAP);
-            await expect(page).toHaveTitle(/Product roadmap/);
+        test.describe("Header", () => {
+            test("has correct title + heading", async ({ roadmapPage }) => {
+                await roadmapPage.testHeader();
+            });
         });
 
         test.describe("Side navigation", () => {
-            test("has Our network link", async ({ page }) => {
-                await sideNav.clickNetwork(page);
-                await expect(page).toHaveURL(/.*about\/our-network/);
-            });
-
-            test("has Product roadmap link", async ({ page }) => {
-                await sideNav.clickRoadmap(page);
-                await expect(page).toHaveURL(/.*about\/roadmap/);
-            });
-
-            test("has News link", async ({ page }) => {
-                await sideNav.clickNews(page);
-                await expect(page).toHaveURL(/.*about\/news/);
-            });
-
-            test("has Case studies link", async ({ page }) => {
-                await sideNav.clickCaseStudies(page);
-                await expect(page).toHaveURL(/.*about\/case-studies/);
-            });
-
-            test("has Security link", async ({ page }) => {
-                await sideNav.clickSecurity(page);
-                await expect(page).toHaveURL(/.*about\/security/);
-            });
-
-            test("has Release notes link", async ({ page }) => {
-                await sideNav.clickReleaseNotes(page);
-                await expect(page).toHaveURL(/.*about\/release-notes/);
+            test("has correct About sidenav items", async ({ roadmapPage }) => {
+                await roadmapPage.testSidenav(aboutSideNav);
             });
         });
 
-        test.describe("Additional resources Links", () => {
-            test("has News", async ({ page }) => {
-                await internalLinks.clickOnInternalLink("div", "CardGroup", "News", page);
-                await expect(page).toHaveURL(/.*about\/news/);
-            });
+        test.describe("CTA", () => {
+            for (const card of cards) {
+                test(`should have ${card.name}`, async ({ roadmapPage }) => {
+                    await roadmapPage.testCard(card);
+                });
+            }
+        });
 
-            test("has Release notes", async ({ page }) => {
-                await internalLinks.clickOnInternalLink("div", "CardGroup", "Release notes", page);
-                await expect(page).toHaveURL(/.*about\/release-notes/);
-            });
-
-            test("has Developer resources", async ({ page }) => {
-                await internalLinks.clickOnInternalLink("div", "CardGroup", "Developer resources", page);
-                await expect(page).toHaveURL(/.*developer-resources/);
+        test.describe("Footer", () => {
+            test("has footer and explicit scroll to footer and scroll to top", async ({ roadmapPage }) => {
+                await roadmapPage.testFooter();
             });
         });
     },

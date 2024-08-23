@@ -1,21 +1,9 @@
 import { DeveloperResourcesPage } from "../../../pages/public/resources";
-import { test as baseTest, expect } from "../../../test";
+import { test as baseTest } from "../../../test";
 
 export interface DeveloperResourcesPageFixtures {
     developerResourcesPage: DeveloperResourcesPage;
 }
-
-const cards = [
-    {
-        name: "API guide",
-    },
-    {
-        name: "GitHub",
-    },
-    {
-        name: "Release notes",
-    },
-];
 
 const test = baseTest.extend<DeveloperResourcesPageFixtures>({
     developerResourcesPage: async (
@@ -46,6 +34,18 @@ const test = baseTest.extend<DeveloperResourcesPageFixtures>({
     },
 });
 
+const cards = [
+    {
+        name: "API guide",
+    },
+    {
+        name: "GitHub",
+    },
+    {
+        name: "Release notes",
+    },
+];
+
 test.describe("Developer Resources page", () => {
     test.describe("Header", () => {
         test("has correct title + heading", async ({ developerResourcesPage }) => {
@@ -56,11 +56,7 @@ test.describe("Developer Resources page", () => {
     test.describe("CTA", () => {
         for (const card of cards) {
             test(`should have ${card.name}`, async ({ developerResourcesPage }) => {
-                const cardHeader = developerResourcesPage.page.locator(".usa-card__header", {
-                    hasText: card.name,
-                });
-
-                await expect(cardHeader).toBeVisible();
+                await developerResourcesPage.testCard(card);
             });
         }
     });
