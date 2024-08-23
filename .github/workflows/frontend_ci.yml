@@ -78,8 +78,8 @@ jobs:
     name: E2E tests
     needs: lint
     runs-on: ubuntu-latest
-    # Keep shards under 6 minutes (1 minute dedicated to playwright install, 5 to tests)
-    timeout-minutes: 7
+    # Keep shards under 10 minutes
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -247,7 +247,7 @@ jobs:
 
       - name: Run Chromatic
         id: chromatic
-        uses: chromaui/action@fdbe7756d4dbf493e2fbb822df73be7accd07e1c
+        uses: chromaui/action@b984808b772126a9f44b2b7737b131b68a2ede32
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}

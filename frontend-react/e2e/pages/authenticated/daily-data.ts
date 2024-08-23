@@ -1,15 +1,21 @@
 import { expect, Page } from "@playwright/test";
 import { format } from "date-fns";
+import { DailyDataDetailsPage } from "./daily-data-details";
 import { API_WATERS_ORG } from "./report-details";
 import { RSReceiver } from "../../../src/config/endpoints/settings";
-import { TEST_ORG_UP_RECEIVER_FULL_ELR } from "../../helpers/utils";
+import { TEST_ORG_AK, TEST_ORG_AK_RECEIVER, TEST_ORG_IGNORE, TEST_ORG_UP_RECEIVER_UP } from "../../helpers/utils";
 import {
+    MOCK_GET_DELIVERIES_AK,
+    MOCK_GET_DELIVERIES_AK_FILENAME,
+    MOCK_GET_DELIVERIES_AK_FULL_ELR,
+    MOCK_GET_DELIVERIES_AK_REPORT_ID,
     MOCK_GET_DELIVERIES_IGNORE,
     MOCK_GET_DELIVERIES_IGNORE_FILENAME,
     MOCK_GET_DELIVERIES_IGNORE_FULL_ELR,
     MOCK_GET_DELIVERIES_IGNORE_REPORT_ID,
 } from "../../mocks/deliveries";
-import { MOCK_GET_RECEIVERS_AK, MOCK_GET_RECEIVERS_IGNORE } from "../../mocks/organizations";
+import { MOCK_GET_DELIVERY } from "../../mocks/delivery";
+import { MOCK_GET_FACILITIES } from "../../mocks/facilities";
 import { BasePage, BasePageTestArgs, type RouteHandlerFulfillEntry } from "../BasePage";
 
 export class DailyDataPage extends BasePage {
@@ -21,7 +27,7 @@ export class DailyDataPage extends BasePage {
         super(
             {
                 url: DailyDataPage.URL_DAILY_DATA,
-                title: "ReportStream - CDC's free, interoperable data transfer platform",
+                title: "Daily Data - ReportStream",
                 heading: testArgs.page.getByRole("heading", {
                     name: "Daily Data",
                 }),
@@ -34,11 +40,29 @@ export class DailyDataPage extends BasePage {
             [DailyDataPage.API_ORGANIZATIONS, async (res) => (this._rsReceiver = await res.json())],
         ]);
         this.addMockRouteHandlers([
-            this.createMockOrgIgnoreReceiversHandler(),
-            this.createMockGetDeliveriesForOrgIgnoreHandler(),
-            this.createMockGetDeliveriesForOrgIgnoreHandler(true),
-            this.createMockGetDeliveriesForOrgIgnoreHandler(false, true),
-            this.createMockGetDeliveriesForOrgIgnoreHandler(false, false, TEST_ORG_UP_RECEIVER_FULL_ELR),
+            // Ignore Org
+            this.createMockOrgReceiversHandler("IGNORE"),
+            this.createMockGetDeliveriesForOrgHandler(TEST_ORG_IGNORE, MOCK_GET_DELIVERIES_IGNORE),
+            this.createMockGetDeliveriesForOrgHandler(TEST_ORG_IGNORE, MOCK_GET_DELIVERIES_IGNORE_REPORT_ID),
+            this.createMockGetDeliveriesForOrgHandler(TEST_ORG_IGNORE, MOCK_GET_DELIVERIES_IGNORE_FILENAME),
+            this.createMockGetDeliveriesForOrgHandler(
+                TEST_ORG_IGNORE,
+                MOCK_GET_DELIVERIES_IGNORE_FULL_ELR,
+                TEST_ORG_UP_RECEIVER_UP,
+            ),
+
+            // Alaska Org
+            this.createMockOrgReceiversHandler("AK"),
+            this.createMockGetDeliveriesForOrgHandler(TEST_ORG_AK, MOCK_GET_DELIVERIES_AK),
+            this.createMockGetDeliveriesForOrgHandler(TEST_ORG_AK, MOCK_GET_DELIVERIES_AK_REPORT_ID),
+            this.createMockGetDeliveriesForOrgHandler(TEST_ORG_AK, MOCK_GET_DELIVERIES_AK_FILENAME),
+            this.createMockGetDeliveriesForOrgHandler(
+                TEST_ORG_AK,
+                MOCK_GET_DELIVERIES_AK_FULL_ELR,
+                TEST_ORG_AK_RECEIVER,
+            ),
+            this.createMockDeliveryHandler(),
+            this.createMockFacilitiesHandler(),
         ]);
     }
 
@@ -46,83 +70,70 @@ export class DailyDataPage extends BasePage {
         return super.isPageLoadExpected && this.testArgs.storageState === this.testArgs.adminLogin.path;
     }
 
-    createMockOrgIgnoreReceiversHandler(): RouteHandlerFulfillEntry {
+    createMockOrgReceiversHandler(organization: string): RouteHandlerFulfillEntry {
         return [
-            `${DailyDataPage.API_ORGANIZATIONS}/ignore/receivers`,
+            `${DailyDataPage.API_ORGANIZATIONS}/${organization}/receivers`,
             () => {
                 return {
-                    json: MOCK_GET_RECEIVERS_IGNORE,
+                    json: `MOCK_GET_RECEIVERS_${organization}`,
                 };
             },
         ];
     }
 
-    createMockGetDeliveriesForOrgIgnoreHandler(
-        byReportId?: boolean,
-        byFileName?: boolean,
+    createMockGetDeliveriesForOrgHandler(
+        organization: string,
+        mockFileName: any,
         receiver?: string,
         responseStatus = 200,
     ): RouteHandlerFulfillEntry {
         if (receiver) {
             return [
-                `${API_WATERS_ORG}/ignore.${receiver}/deliveries?*`,
+                `${API_WATERS_ORG}/${organization}.${receiver}/deliveries?*`,
                 () => {
                     return {
-                        json: MOCK_GET_DELIVERIES_IGNORE_FULL_ELR,
-                        status: responseStatus,
-                    };
-                },
-            ];
-        } else if (byReportId) {
-            return [
-                `${API_WATERS_ORG}/ignore/deliveries?sortdir=DESC&cursor=3000-01-01T00:00:00.000Z&since=2000-01-01T00:00:00.000Z&until=3000-01-01T00:00:00.000Z&pageSize=61&receivingOrgSvcStatus=ACTIVE,TESTING&reportId=729158ce-4125-46fa-bea0-3c0f910f472c`,
-                () => {
-                    return {
-                        json: MOCK_GET_DELIVERIES_IGNORE_REPORT_ID,
-                        status: responseStatus,
-                    };
-                },
-            ];
-        } else if (byFileName) {
-            return [
-                `${API_WATERS_ORG}/ignore/deliveries?sortdir=DESC&cursor=3000-01-01T00:00:00.000Z&since=2000-01-01T00:00:00.000Z&until=3000-01-01T00:00:00.000Z&pageSize=61&receivingOrgSvcStatus=ACTIVE,TESTING&fileName=21c217a4-d098-494c-9364-f4dcf16b1d63-20240426204235.fhir`,
-                () => {
-                    return {
-                        json: MOCK_GET_DELIVERIES_IGNORE_FILENAME,
+                        json: mockFileName,
                         status: responseStatus,
                     };
                 },
             ];
         } else {
             return [
-                `${API_WATERS_ORG}/ignore/deliveries?*`,
+                `${API_WATERS_ORG}/${organization}/deliveries?*`,
                 () => {
                     return {
-                        json: MOCK_GET_DELIVERIES_IGNORE,
+                        json: mockFileName,
                         status: responseStatus,
                     };
                 },
             ];
         }
     }
+
+    createMockDeliveryHandler(): RouteHandlerFulfillEntry {
+        return [
+            DailyDataDetailsPage.API_DELIVERY,
+            () => {
+                return {
+                    json: MOCK_GET_DELIVERY,
+                };
+            },
+        ];
+    }
+
+    createMockFacilitiesHandler(): RouteHandlerFulfillEntry {
+        return [
+            DailyDataDetailsPage.API_FACILITIES,
+            () => {
+                return {
+                    json: MOCK_GET_FACILITIES,
+                };
+            },
+        ];
+    }
 }
 
 const URL_DAILY_DATA = "/daily-data";
-const API_ORGANIZATIONS = "**/api/settings/organizations";
-
-export async function mockGetOrgAlaskaReceiversResponse(page: Page, responseStatus = 200) {
-    await page.route(`${API_ORGANIZATIONS}/ak-phd/receivers`, async (route) => {
-        const json = MOCK_GET_RECEIVERS_AK;
-        await route.fulfill({ json, status: responseStatus });
-    });
-}
-
-export async function mockGetOrgIgnoreReceiversResponse(page: Page, responseStatus = 200) {
-    await page.route(`${API_ORGANIZATIONS}/ignore/receivers`, async (route) => {
-        const json = MOCK_GET_RECEIVERS_IGNORE;
-        await route.fulfill({ json, status: responseStatus });
-    });
-}
 
 export async function goto(page: Page) {
     await page.goto(URL_DAILY_DATA, {
@@ -212,9 +223,9 @@ export async function setTime(page: Page, locator: string, time: string) {
     await page.keyboard.press("Tab");
 }
 
-export function filterStatus(page: Page, filters: (string | undefined)[]) {
+export function filterStatus(filters: (string | undefined)[]) {
     // RowCount is not attainable with live data since it is returned from the API
-    let filterStatus = ` for: `;
+    let filterStatus = ` Showing all data for: `;
 
     for (let i = 0; i < filters.length; i++) {
         filterStatus += filters[i];
