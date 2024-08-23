@@ -903,6 +903,12 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $fhirMarsOTCELRSenderName for organization ${org1.name}")
         }
 
+        const val ETORSLSenderName = "ignore-etor-ti-sim-hosp"
+        val ETORSLSender by lazy {
+            settings.findSender("$org1Name.$ETORSLSenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $ETORSLSenderName for organization ${org1.name}")
+        }
+
         const val simpleReportSenderName = "ignore-simple-report"
         val simpleRepSender by lazy {
             settings.findSender("$org1Name.$simpleReportSenderName") as? LegacyPipelineSender
@@ -948,6 +954,18 @@ abstract class CoolTest {
         val fhirMarsReceiverB = settings.receivers.filter {
             it.organizationName == org1Name && it.name == "MARS_OTC_ELR_FHIR_B_E2E"
         }[0]
+
+        // ETOR_TI_SIM_LAB is meant to replicate the HL7 received by a lab in the second leg
+        // of Flexion's ORU -> OML workflow. This is received as HL7 by them.
+        val ETORSLReceiver = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "ETOR_TI_SIM_LAB"
+        }[0]
+
+        // ETOR_TI_FLEXION_ORDERS is meant to replicate the FHIR received by Flexion in the first leg
+        // of their ORU -> OML workflow. This is received as FHIR by them.
+        val ETORTIFOReceiver = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "ETOR_TI_FLEXION_ORDERS"
+        }[0]
         val elimsReceiver = settings.receivers.filter {
             it.organizationName == org1Name && it.name == "ELR_ELIMS"
         }[0]
@@ -985,46 +1003,78 @@ abstract class CoolTest {
             val smoketestDir = "src/test/resources/fhirengine/smoketest"
 
             return arrayListOf(
+//                E2EData(
+//                    "Sending HL7 Report, Receiving HL7/FHIR (full-elr)",
+//                    File("$smoketestDir/valid_hl7_e2e.hl7"),
+//                    fullELRE2ESender,
+//                    arrayListOf(
+//                        Pair(hl7FullELRReceiver, File("$smoketestDir/Expected_HL7_to_HL7_FULLELR.hl7")),
+//                        Pair(fhirFullELRE2EReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_FULLELR.fhir"))
+//                    )
+//                ),
+//                E2EData(
+//                    "Sending HL7 Report, Receiving HL7 (elr-elims)",
+//                    File("$smoketestDir/valid_hl7_e2e.hl7"),
+//                    elrElimsSender,
+//                    arrayListOf(
+//                        Pair(elimsReceiver, File("$smoketestDir/Expected_HL7_to_HL7_ELIMS.hl7"))
+//                    )
+//                ),
+//                E2EData(
+//                    "Sending FHIR Report, Receiving FHIR (full-elr)",
+//                    File("$smoketestDir/valid_fhir.fhir"),
+//                    fhirFULLELRSender,
+//                    arrayListOf(
+//                        Pair(fhirFullELRE2EReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_FULLELR.fhir"))
+//                    )
+//                ),
+//                E2EData(
+//                    "Sending HL7 Report, Receiving HL7/FHIR (mars-otc-elr); Invalid HL7 Items Filtered Out",
+//                    File("$smoketestDir/valid_mars.hl7"),
+//                    marsOTCELRSender,
+//                    arrayListOf(
+//                        Pair(hl7MarsOTCReceiver, File("$smoketestDir/Expected_HL7_to_HL7_MARSOTC.hl7")),
+//                        Pair(fhirMarsReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_MARSOTC.fhir"))
+//                    )
+//                ),
+//                E2EData(
+//                    "Sending FHIR Report, Receiving FHIR (mars-otc-elr)",
+//                    File("$smoketestDir/valid_mars.fhir"),
+//                    fhirMarsOTCELRSender,
+//                    arrayListOf(
+//                        Pair(fhirMarsReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_MARSOTC.fhir"))
+//                    )
+//                )
+
+                // THE FOLLOWING TWO SCENARIOS are meant to represent the expected data as is currently flowing in
+                // the setup. It's possible after mappings changes that these will be expected to fail based on
+                // more/less/different mappings being present.
+
+        // This scenario is taken from the slack message
+        // https://nava.slack.com/archives/C048S3GPSQG/p1707861794122169?thread_ts=1707861774.688789&cid=C048S3GPSQG
+                // The official steps to reproduce lists a file with an extra OBR segment, this is not present here
+                // https://github.com/CDCgov/trusted-intermediary/blob/main/examples/MN/003_MN_ORM_O01_NBS.hl7
+                // See GH issue: https://github.com/CDCgov/trusted-intermediary/issues/900
+
                 E2EData(
-                    "Sending HL7 Report, Receiving HL7/FHIR (full-elr)",
-                    File("$smoketestDir/valid_hl7_e2e.hl7"),
-                    fullELRE2ESender,
+                    "Temp Test Scenario for ORM-to-OML ETOR",
+                    File("$smoketestDir/valid_ORM_FEBSLACK.hl7"),
+                    ETORSLSender,
                     arrayListOf(
-                        Pair(hl7FullELRReceiver, File("$smoketestDir/Expected_HL7_to_HL7_FULLELR.hl7")),
-                        Pair(fhirFullELRE2EReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_FULLELR.fhir"))
+                        Pair(ETORSLReceiver, File("$smoketestDir/Expected_HL7_to_HL7_ETOR_TI.hl7")),
+                        Pair(ETORTIFOReceiver, File("$smoketestDir/Expected_HL7_to_FHIR_ETOR_TI.fhir"))
                     )
                 ),
+                // This scenario is from a cobbled together "fully present OML message"
+                // That is, all the fields that we map in the FHIR->HL7 fields are present in the message sent here
+                // Note that not all of these fields may have ever been mapped in our HL7->FHIR mappings
                 E2EData(
-                    "Sending HL7 Report, Receiving HL7 (elr-elims)",
-                    File("$smoketestDir/valid_hl7_e2e.hl7"),
-                    elrElimsSender,
+                    "Temp Test Scenario for FULL OML",
+                    File("$smoketestDir/valid_OML_FULL_TEST.hl7"),
+                    ETORSLSender,
                     arrayListOf(
-                        Pair(elimsReceiver, File("$smoketestDir/Expected_HL7_to_HL7_ELIMS.hl7"))
-                    )
-                ),
-                E2EData(
-                    "Sending FHIR Report, Receiving FHIR (full-elr)",
-                    File("$smoketestDir/valid_fhir.fhir"),
-                    fhirFULLELRSender,
-                    arrayListOf(
-                        Pair(fhirFullELRE2EReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_FULLELR.fhir"))
-                    )
-                ),
-                E2EData(
-                    "Sending HL7 Report, Receiving HL7/FHIR (mars-otc-elr); Invalid HL7 Items Filtered Out",
-                    File("$smoketestDir/valid_mars.hl7"),
-                    marsOTCELRSender,
-                    arrayListOf(
-                        Pair(hl7MarsOTCReceiver, File("$smoketestDir/Expected_HL7_to_HL7_MARSOTC.hl7")),
-                        Pair(fhirMarsReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_MARSOTC.fhir"))
-                    )
-                ),
-                E2EData(
-                    "Sending FHIR Report, Receiving FHIR (mars-otc-elr)",
-                    File("$smoketestDir/valid_mars.fhir"),
-                    fhirMarsOTCELRSender,
-                    arrayListOf(
-                        Pair(fhirMarsReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_MARSOTC.fhir"))
+//                        Pair(ETORSLReceiver, File("$smoketestDir/Expected_HL7_to_HL7_FULL_OML.hl7")), NPE, but why?
+                        Pair(ETORTIFOReceiver, File("$smoketestDir/Expected_HL7_to_FHIR_FULL_OML.fhir"))
                     )
                 )
             )

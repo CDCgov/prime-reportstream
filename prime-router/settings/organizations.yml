@@ -132,6 +132,11 @@
       customerStatus: active
       schemaName: classpath:/metadata/fhir_transforms/senders/original-pipeline-transforms.yml
       format: HL7
+    - name: ignore-etor-ti-sim-hosp
+      organizationName: ignore
+      topic: etor-ti
+      customerStatus: active
+      format: HL7
     - name: ignore-elr-elims      # Use this to test elr-elims
       organizationName: ignore
       topic: elr-elims
@@ -356,6 +361,57 @@
         type: "HL7"
         receivingApplicationName: "CO-ETOR"
         receivingFacilityName: "CO"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: ETOR_TI_SIM_LAB
+      externalName: Ignore ETOR_TI_SIM_LAB
+      organizationName: ignore
+      topic: etor-ti
+      customerStatus: active
+      qualityFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).id.exists()"
+      processingModeFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P'"
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'IG') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'IG')"
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01') or (Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21')"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/Flexion/etor-oml-receiver-transform.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+        type: "HL7"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: ETOR_TI_FLEXION_ORDERS
+      externalName: Ignore ETOR_TI_FLEXION_ORDERS
+      organizationName: ignore
+      topic: etor-ti
+      customerStatus: active
+      qualityFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).id.exists()"
+      processingModeFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P'"
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'IG') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'IG')"
+        - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01') or (Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21')"
+      timing:
+        operation: NONE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<FHIR>
+        type: "FHIR"
       transport:
         type: SFTP
         host: sftp
