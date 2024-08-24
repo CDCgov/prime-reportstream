@@ -1,0 +1,36 @@
+# $schema: ./../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+# this is the new OML FHIR->HL7 Mappings file. Eventually the old base should be deleted and this renamed.
+# In general the contents within these mappings should be correct, except where todos are documented otherwise.
+
+hl7Class: ca.uhn.hl7v2.model.v27.message.OML_O21
+
+constants:
+  # Prefix for RS custom extension URLs
+  rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
+
+elements:
+  - name: message-headers
+    condition: >
+      Bundle.entry.resource.ofType(MessageHeader).exists() and
+      Bundle.entry.resource.ofType(MessageHeader).event is Coding and
+      Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    required: true
+    schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/MSH.yml
+
+  # r01 is looking at provenance and pulling this from a Device/SFT schema
+  # todo, verify in mapping inventory that this do diverge
+  - name: software-segment
+    condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/SFT.yml
+
+  - name: patient # need to worry about name collision?
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    schema: classpath:/metadata/hl7_mapping/OML_O21/base/patient/patient-base.yml
+
+  - name: order # need to worry about name collision?
+    resource: 'Bundle.entry.resource.ofType(Observation)' # prolly remove
+    required: true
+    schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/order-base.yml

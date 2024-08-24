@@ -1,0 +1,44 @@
+# $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+constants:
+  hl7SegmentGroup: '/PATIENT'
+
+elements:
+
+  - name: patient-identification
+    required: true
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/PID.yml
+
+  - name: patient-identification-extensions
+#    required: true # should this be put on extension? i feel like yes
+    resource: '%res ource.extension(%`rsext-pid-patient`)'
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/PIDExtension.yml
+
+  - name: additional-demographics
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/PD1.yml
+
+  - name: additional-demographics-extensions
+    resource: '%resource.extension(%`rsext-pd1-patient-additional-demographic`)'
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/PD1Extension.yml
+
+# Device/PRT.yml relies on an OBX path, OML PRT does not get paired with OBX, may need to modify/fork PRT.yml
+  # or maybe if obxx is not present those fields will just be empty. will have to see if blows up
+  - name: patient-participation-information
+    resource: 'Bundle.entry.resource.ofType(Device).where(udiCarrier.exists())' # correct?
+    constants:
+      hl7SegmentGroup: '/PATIENT'
+    schema: classpath:/metadata/hl7_mapping/resources/Device/PRT.yml
+#    resourceIndex: prtDeviceIndex # needed?
+
+  - name: patient-note
+    resource: '%resource.extension(%`rsext-patient-notes`).value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
+    resourceIndex: noteIndex
+    constants:
+      hl7NotePath: '%{hl7SegmentGroup}'
+
+  - name: related-person-nk1
+    resource: 'Bundle.entry.resource.ofType(RelatedPerson).where(extension(%`rsext-hl7v2Segment`).value = "NK1")' # rest not necessary bc just one PID # and patient.resolve().id = %resource.id)'
+    condition: '%resource.patient.exists()'
+    schema: classpath:/metadata/hl7_mapping/resources/RelatedPerson/NK1.yml
+    resourceIndex: relatedPersonIndex

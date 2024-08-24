@@ -1,0 +1,29 @@
+# $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: specimen
+    resource: '%resource'
+    resourceIndex: specimenIndex
+    # important question: When  https://hl7-definition.caristix.com/v2/HL7v2.7.1/TriggerEvents/OML_O21 lists a required
+    # field, is that required in all messages of this type, or only ifyou're going to populate that given path?
+    required: true
+    schema: classpath:/metadata/hl7_mapping/resources/Specimen/SPM.yml
+  #    constants:
+  #      performerOrganization: '%resource.basedOn.resolve().performer.resolve()'
+
+  - name: observation-result-with-aoe
+    resource: '%resource.result.resolve() | %resource.basedOn.resolve().supportingInfo.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Observation/OBX.yml
+    resourceIndex: resultIndex
+    required: true
+    constants:
+      hl7OBXField: '/ORDER/OBSERVATION_REQUEST/SPECIMEN/SPECIMEN_OBSERVATION(%{resultIndex})/OBX'
+      hl7ObservationPath: '/ORDER/OBSERVATION_REQUEST/SPECIMEN/SPECIMEN_OBSERVATION' # why both of these?
+
+  - name: specimen-participation-information
+    resource: 'Bundle.entry.resource.ofType(Device).where(udiCarrier.exists())' # correct?
+    constants:
+      hl7SegmentGroup: '/ORDER/OBSERVATION_REQUEST/SPECIMEN/SPECIMEN_OBSERVATION'
+    schema: classpath:/metadata/hl7_mapping/resources/Device/PRT.yml
+    #    resourceIndex: prtDeviceIndex # needed?

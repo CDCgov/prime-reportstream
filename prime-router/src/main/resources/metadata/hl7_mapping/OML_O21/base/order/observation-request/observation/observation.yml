@@ -1,0 +1,28 @@
+# $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: observation-result-with-aoe
+    resource: '%resource.result.resolve() | %resource.basedOn.resolve().supportingInfo.resolve()'
+    required: true
+    schema: classpath:/metadata/hl7_mapping/resources/Observation/OBX.yml
+    resourceIndex: resultIndex
+    constants:
+      hl7OBXField: '/ORDER/OBSERVATION_REQUEST/OBSERVATION(%{resultIndex})/OBX'
+      hl7ObservationPath: '/ORDER/OBSERVATION_REQUEST/OBSERVATION'
+
+# multiple allowed
+  - name: observation-participation-information
+    resource: 'Bundle.entry.resource.ofType(Device).where(udiCarrier.exists())' # correct?
+    constants:
+      hl7SegmentGroup: '/ORDER/OBSERVATION_REQUEST/OBSERVATION'
+    schema: classpath:/metadata/hl7_mapping/resources/Device/PRT.yml
+    #    resourceIndex: prtDeviceIndex # needed?
+
+  # multiple allowed
+  - name: observation-note
+    resource: '%resource.extension(%`rsext-patient-notes`).value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
+    resourceIndex: noteIndex
+    constants:
+      hl7NotePath: '%{hl7SegmentGroup}'
