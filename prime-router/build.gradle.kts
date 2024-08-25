@@ -887,7 +887,7 @@ dependencies {
     implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.2")
     implementation("org.apache.poi:poi:5.3.0")
     implementation("org.apache.poi:poi-ooxml:5.3.0")
-    implementation("org.apache.commons:commons-compress:1.26.2")
+    implementation("org.apache.commons:commons-compress:1.27.1")
     implementation("commons-io:commons-io:2.16.1")
     implementation("com.anyascii:anyascii:0.3.2")
     // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
