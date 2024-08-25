@@ -15,7 +15,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.15.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.28.1")
-    testImplementation("org.apache.commons:commons-compress:1.26.2")
+    testImplementation("org.apache.commons:commons-compress:1.27.1")
 }
 
 tasks.test {
