@@ -117,16 +117,15 @@ class SubmissionController(
         val message = QueueMessage.ReceiveQueueMessage(
             blobClient.blobUrl,
             BlobUtils.digestToString(digest),
-            "",
+            clientId.lowercase(),
             reportId,
-            filterHeaders(headers),
-        )
-        val messageString = objectMapper.writeValueAsString(message)
+            filterHeaders(headers).toMap(),
+        ).serialize()
         logger.debug("Created message for queue")
 
         // Upload to Queue
         queueClient.createIfNotExists()
-        queueClient.sendMessage(messageString)
+        queueClient.sendMessage(message)
         logger.info("Sent message to queue: queueName=${queueClient.queueName}")
 
         val response =
