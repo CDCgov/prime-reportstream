@@ -6,6 +6,7 @@ import { BasePage, BasePageTestArgs, type RouteHandlerFulfillEntry } from "../Ba
 
 export const URL_SUBMISSION_HISTORY = "/submissions";
 export const API_GET_REPORT_HISTORY = `**/api/waters/report/**`;
+export const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
 
 export class SubmissionHistoryPage extends BasePage {
     static readonly URL_SUBMISSION_HISTORY = "/submissions";
@@ -62,16 +63,23 @@ export class SubmissionHistoryPage extends BasePage {
             name: "Filter",
         });
     }
+
+    get clearButton() {
+        return this.page.getByRole("button", {
+            name: "Clear",
+        });
+    }
+
+    /**
+     * Error expected additionally if user context isn't admin
+     */
+    get isPageLoadExpected() {
+        return super.isPageLoadExpected && this.testArgs.storageState === this.testArgs.adminLogin.path;
+    }
 }
 
 export async function goto(page: Page) {
     await page.goto(URL_SUBMISSION_HISTORY, {
-        waitUntil: "domcontentloaded",
-    });
-}
-
-export async function gotoDetails(page: Page, id: string) {
-    await page.goto(`${URL_SUBMISSION_HISTORY}/${id}`, {
         waitUntil: "domcontentloaded",
     });
 }

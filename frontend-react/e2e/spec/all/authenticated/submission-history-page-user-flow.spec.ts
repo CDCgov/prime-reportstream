@@ -4,14 +4,8 @@ import {
     FALLBACK_FROM_DATE_STRING,
     FALLBACK_TO_DATE_STRING,
 } from "../../../../src/hooks/filters/UseDateRange/UseDateRange";
-import {
-    tableColumnDateTimeInRange,
-    tableDataCellValue,
-    TEST_ORG_ELIMS_RECEIVER_ELIMS,
-    TEST_ORG_IGNORE,
-    TEST_ORG_UP_RECEIVER_UP,
-} from "../../../helpers/utils";
-import { endDate, setDate, startDate } from "../../../pages/authenticated/daily-data";
+import { tableColumnDateTimeInRange, tableDataCellValue, TEST_ORG_IGNORE } from "../../../helpers/utils";
+import { applyButton, endDate, setDate, startDate } from "../../../pages/authenticated/daily-data";
 import * as submissionHistory from "../../../pages/authenticated/submission-history";
 import { openReportIdDetailPage, SubmissionHistoryPage } from "../../../pages/authenticated/submission-history";
 import { test as baseTest } from "../../../test";
@@ -49,7 +43,6 @@ const test = baseTest.extend<SubmissionHistoryPageFixtures>({
         await use(page);
     },
 });
-// const SMOKE_RECEIVERS = [TEST_ORG_UP_RECEIVER_UP, TEST_ORG_ELIMS_RECEIVER_ELIMS];
 
 test.describe(
     "Submission history page - user flow smoke tests",
@@ -125,10 +118,8 @@ test.describe(
                         });
                     });
 
-                    test.describe("on 'Apply'", () => {
-                        test("with 'From' date, 'To' date, 'Start time', 'End time'", async ({
-                            submissionHistoryPage,
-                        }) => {
+                    test.describe("on 'Filter'", () => {
+                        test("with 'From' date, 'To' date", async ({ submissionHistoryPage }) => {
                             const fromDate = await setDate(submissionHistoryPage.page, "#start-date", 180);
                             const toDate = await setDate(submissionHistoryPage.page, "#end-date", 0);
 
@@ -144,6 +135,19 @@ test.describe(
                                 toDate,
                             );
                             expect(areDatesInRange).toBe(true);
+                        });
+
+                        test("on 'clear' resets the dates", async ({ submissionHistoryPage }) => {
+                            await expect(startDate(submissionHistoryPage.page)).toHaveValue(FALLBACK_FROM_DATE_STRING);
+                            await expect(endDate(submissionHistoryPage.page)).toHaveValue(FALLBACK_TO_DATE_STRING);
+
+                            await setDate(submissionHistoryPage.page, "#start-date", 14);
+                            await setDate(submissionHistoryPage.page, "#end-date", 14);
+
+                            await submissionHistoryPage.clearButton.click();
+
+                            await expect(startDate(submissionHistoryPage.page)).toHaveValue(FALLBACK_FROM_DATE_STRING);
+                            await expect(endDate(submissionHistoryPage.page)).toHaveValue(FALLBACK_TO_DATE_STRING);
                         });
                     });
                 });

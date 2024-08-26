@@ -2,8 +2,8 @@ import { expect } from "@playwright/test";
 
 import { noData, tableDataCellValue, tableRows } from "../../../helpers/utils";
 import * as submissionHistory from "../../../pages/authenticated/submission-history";
-import { openReportIdDetailPage, SubmissionHistoryPage } from "../../../pages/authenticated/submission-history";
-import { test as baseTest } from "../../../test";
+import { id, openReportIdDetailPage, SubmissionHistoryPage } from "../../../pages/authenticated/submission-history";
+import { test as baseTest, logins } from "../../../test";
 
 export interface SubmissionHistoryPageFixtures {
     submissionHistoryPage: SubmissionHistoryPage;
@@ -39,7 +39,6 @@ const test = baseTest.extend<SubmissionHistoryPageFixtures>({
     },
 });
 
-const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
 test.describe("Submission history page", () => {
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ submissionHistoryPage }) => {
@@ -122,7 +121,7 @@ test.describe("Submission history page", () => {
     });
 
     test.describe("receiver user", () => {
-        test.use({ storageState: "e2e/.auth/receiver.json" });
+        test.use({ storageState: logins.receiver.path });
 
         test("nav does not contain the Submissions option", async ({ submissionHistoryPage }) => {
             const navItems = submissionHistoryPage.page.locator(".usa-nav  li");
@@ -143,7 +142,7 @@ test.describe("Submission history page", () => {
     });
 
     test.describe("sender user", () => {
-        test.use({ storageState: "e2e/.auth/sender.json" });
+        test.use({ storageState: logins.sender.path });
 
         test("nav contains the Submission History option", async ({ submissionHistoryPage }) => {
             const navItems = submissionHistoryPage.page.locator(".usa-nav  li");
