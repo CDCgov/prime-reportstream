@@ -4,10 +4,10 @@ export class SamplePayloadsAndOutputs extends BasePage {
     constructor(testArgs: BasePageTestArgs) {
         super(
             {
-                url: "/developer-resources/api/documentation/sample-payloads-and-outputs",
-                title: "ReportStream API sample payloads and outputs",
+                url: "/developer-resources/api/documentation/sample-payloads-and-output",
+                title: "ReportStream API sample payloads and output",
                 heading: testArgs.page.getByRole("heading", {
-                    name: "Sample payloads and outputs",
+                    name: "Sample payloads and output",
                     exact: true,
                 }),
             },
