@@ -3,7 +3,7 @@ import { parseFileLocation } from "../../../../src/utils/misc";
 import { tableRows } from "../../../helpers/utils";
 import { MOCK_GET_MESSAGE } from "../../../mocks/messages";
 import { MessageDetailsPage } from "../../../pages/authenticated/message-details";
-import { MESSAGE_ID } from "../../../pages/authenticated/message-id-search";
+import { MessageIDSearchPage } from "../../../pages/authenticated/message-id-search";
 import { mockGetHistoryReportResponse } from "../../../pages/authenticated/report-details";
 
 import { test as baseTest, expect } from "../../../test";
@@ -59,7 +59,7 @@ test.describe("Message Details Page", () => {
 
         test("has message id section", async ({ messageDetailsPage }) => {
             await expect(messageDetailsPage.page.getByText("Message ID", { exact: true })).toBeVisible();
-            await expect(messageDetailsPage.page.getByText(MESSAGE_ID)).toBeVisible();
+            await expect(messageDetailsPage.page.getByText(MessageIDSearchPage.MESSAGE_ID)).toBeVisible();
         });
 
         test("has sender section", async ({ messageDetailsPage }) => {

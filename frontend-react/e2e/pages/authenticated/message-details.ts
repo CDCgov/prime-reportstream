@@ -1,11 +1,10 @@
+import { MessageIDSearchPage } from "./message-id-search";
 import { MOCK_GET_MESSAGE } from "../../mocks/messages";
-import { MESSAGE_ID } from "../../pages/authenticated/message-id-search";
-import * as messageIdSearch from "../../pages/authenticated/message-id-search";
 
 import { BasePage, BasePageTestArgs, RouteHandlerFulfillEntry } from "../BasePage";
 
 export class MessageDetailsPage extends BasePage {
-    static readonly URL_MESSAGE_DETAILS = `/message-details/${MESSAGE_ID}`;
+    static readonly URL_MESSAGE_DETAILS = `/message-details/${MessageIDSearchPage.MESSAGE_ID}`;
 
     constructor(testArgs: BasePageTestArgs) {
         super(
@@ -24,7 +23,7 @@ export class MessageDetailsPage extends BasePage {
 
     createMessageIDSearchAPIHandler(): RouteHandlerFulfillEntry {
         return [
-            messageIdSearch.API_MESSAGE,
+            MessageIDSearchPage.API_MESSAGE,
             () => {
                 return {
                     json: MOCK_GET_MESSAGE,
