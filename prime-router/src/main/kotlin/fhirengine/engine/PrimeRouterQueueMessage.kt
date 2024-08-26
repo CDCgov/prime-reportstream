@@ -34,18 +34,6 @@ abstract class PrimeRouterQueueMessage : QueueMessage {
             queueAccess.sendMessage(this.messageQueueName, serialize())
         }
     }
-
-//    init {
-//        QueueMessage.ObjectMapperProvider.registerSubtypes(
-//            FhirConvertQueueMessage::class.java,
-//            FhirDestinationFilterQueueMessage::class.java,
-//            FhirReceiverFilterQueueMessage::class.java,
-//            FhirTranslateQueueMessage::class.java,
-//            BatchEventQueueMessage::class.java,
-//            ProcessEventQueueMessage::class.java,
-//            ReportEventQueueMessage::class.java
-//        )
-//    }
 }
 
 abstract class ReportPipelineMessage :
