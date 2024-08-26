@@ -1,6 +1,6 @@
-import { scrollToFooter, scrollToTop } from "../../../helpers/utils";
-import { DeveloperResourcesApiPage } from "../../../pages/developer-resources/api.js";
-import { test as baseTest, expect } from "../../../test";
+import { scrollToFooter, scrollToTop } from "../../../../helpers/utils.js";
+import { DeveloperResourcesApiPage } from "../../../../pages/developer-resources/api/api.js";
+import { test as baseTest, expect } from "../../../../test.js";
 
 export interface Fixtures {
     developerResourcesApiPage: DeveloperResourcesApiPage;
