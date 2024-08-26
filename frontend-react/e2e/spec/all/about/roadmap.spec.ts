@@ -1,67 +1,71 @@
-import { scrollToFooter, scrollToTop } from "../../../helpers/utils";
-import { AboutRoadmapPage } from "../../../pages/about/roadmap";
-import { test as baseTest, expect } from "../../../test";
+import { expect, test } from "@playwright/test";
 
-export interface Fixtures {
-    aboutRoadmapPage: AboutRoadmapPage;
-}
-
-const test = baseTest.extend<Fixtures>({
-    aboutRoadmapPage: async (
-        {
-            page: _page,
-            isMockDisabled,
-            adminLogin,
-            senderLogin,
-            receiverLogin,
-            storageState,
-            isFrontendWarningsLog,
-            frontendWarningsLogPath,
-        },
-        use,
-    ) => {
-        const page = new AboutRoadmapPage({
-            page: _page,
-            isMockDisabled,
-            adminLogin,
-            senderLogin,
-            receiverLogin,
-            storageState,
-            isFrontendWarningsLog,
-            frontendWarningsLogPath,
-        });
-        await page.goto();
-        await use(page);
-    },
-});
+import * as internalLinks from "../../../helpers/internal-links";
+import * as sideNav from "../../../pages/about/about-side-navigation";
+import * as roadmap from "../../../pages/about/roadmap";
+import { URL_ROADMAP } from "../../../pages/about/roadmap";
 
 test.describe(
-    "About / Release Notes page",
+    "Product roadmap page",
     {
         tag: "@smoke",
     },
     () => {
-        test("has correct title", async ({ aboutRoadmapPage }) => {
-            await expect(aboutRoadmapPage.page).toHaveTitle(aboutRoadmapPage.title);
-            await expect(aboutRoadmapPage.heading).toBeVisible();
+        test.beforeEach(async ({ page }) => {
+            await roadmap.goto(page);
         });
 
-        test("has side nav", async ({ aboutRoadmapPage }) => {
-            await expect(aboutRoadmapPage.page.getByRole("navigation", { name: "side-navigation " })).toBeVisible();
+        test("has correct title", async ({ page }) => {
+            await expect(page).toHaveURL(URL_ROADMAP);
+            await expect(page).toHaveTitle(/Product roadmap/);
         });
 
-        test.describe("Footer", () => {
-            test("has footer", async ({ aboutRoadmapPage }) => {
-                await expect(aboutRoadmapPage.footer).toBeAttached();
+        test.describe("Side navigation", () => {
+            test("has Our network link", async ({ page }) => {
+                await sideNav.clickNetwork(page);
+                await expect(page).toHaveURL(/.*about\/our-network/);
             });
 
-            test("explicit scroll to footer and then scroll to top", async ({ aboutRoadmapPage }) => {
-                await expect(aboutRoadmapPage.footer).not.toBeInViewport();
-                await scrollToFooter(aboutRoadmapPage.page);
-                await expect(aboutRoadmapPage.footer).toBeInViewport();
-                await expect(aboutRoadmapPage.page.getByTestId("govBanner")).not.toBeInViewport();
-                await scrollToTop(aboutRoadmapPage.page);
-                await expect(aboutRoadmapPage.page.getByTestId("govBanner")).toBeInViewport();
+            test("has Product roadmap link", async ({ page }) => {
+                await sideNav.clickRoadmap(page);
+                await expect(page).toHaveURL(/.*about\/roadmap/);
+            });
+
+            test("has News link", async ({ page }) => {
+                await sideNav.clickNews(page);
+                await expect(page).toHaveURL(/.*about\/news/);
+            });
+
+            test("has Case studies link", async ({ page }) => {
+                await sideNav.clickCaseStudies(page);
+                await expect(page).toHaveURL(/.*about\/case-studies/);
+            });
+
+            test("has Security link", async ({ page }) => {
+                await sideNav.clickSecurity(page);
+                await expect(page).toHaveURL(/.*about\/security/);
+            });
+
+            test("has Release notes link", async ({ page }) => {
+                await sideNav.clickReleaseNotes(page);
+                await expect(page).toHaveURL(/.*about\/release-notes/);
+            });
+        });
+
+        test.describe("Additional resources Links", () => {
+            test("has News", async ({ page }) => {
+                await internalLinks.clickOnInternalLink("div", "CardGroup", "News", page);
+                await expect(page).toHaveURL(/.*about\/news/);
+            });
+
+            test("has Release notes", async ({ page }) => {
+                await internalLinks.clickOnInternalLink("div", "CardGroup", "Release notes", page);
+                await expect(page).toHaveURL(/.*about\/release-notes/);
+            });
+
+            test("has Developer resources", async ({ page }) => {
+                await internalLinks.clickOnInternalLink("div", "CardGroup", "Developer resources", page);
+                await expect(page).toHaveURL(/.*developer-resources/);
             });
         });
     },

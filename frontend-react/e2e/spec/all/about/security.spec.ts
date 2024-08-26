@@ -1,6 +1,6 @@
-import { scrollToFooter, scrollToTop } from "../../helpers/utils";
-import { SecurityPage } from "../../pages/security";
-import { test as baseTest, expect } from "../../test";
+import { scrollToFooter, scrollToTop } from "../../../helpers/utils";
+import { SecurityPage } from "../../../pages/security";
+import { test as baseTest, expect } from "../../../test";
 
 const URL_SECURITY = "/about/security";
 

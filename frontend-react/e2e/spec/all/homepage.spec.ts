@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test";
 
 import { scrollToFooter, scrollToTop } from "../../helpers/utils";
+import * as ourNetwork from "../../pages/about/our-network";
 import * as header from "../../pages/header";
 import * as homepage from "../../pages/homepage";
 import * as managingYourConnection from "../../pages/managing-your-connection";
-import * as ourNetwork from "../../pages/our-network";
 import * as security from "../../pages/security";
 
 test.describe(
@@ -18,17 +18,11 @@ test.describe(
         });
 
         test("has correct title", async ({ page }) => {
-            await expect(page).toHaveTitle(
-                /ReportStream - CDC's free, interoperable data transfer platform/,
-            );
+            await expect(page).toHaveTitle(/ReportStream - CDC's free, interoperable data transfer platform/);
         });
 
-        test("opens the Security page on 'security of your data' click", async ({
-            page,
-        }) => {
-            await page
-                .getByRole("link", { name: "security of your data" })
-                .click();
+        test("opens the Security page on 'security of your data' click", async ({ page }) => {
+            await page.getByRole("link", { name: "security of your data" }).click();
             await security.onLoad(page);
             // Go back to the homepage
             await header.clickOnHome(page);
@@ -36,9 +30,7 @@ test.describe(
             expect(true).toBe(true);
         });
 
-        test("opens the managing-your-connection page on 'our tools' click", async ({
-            page,
-        }) => {
+        test("opens the managing-your-connection page on 'our tools' click", async ({ page }) => {
             await page.getByRole("link", { name: "our tools" }).click();
             await managingYourConnection.onLoad(page);
             // Go back to the homepage
@@ -47,12 +39,8 @@ test.describe(
             expect(true).toBe(true);
         });
 
-        test("opens Our Network page on 'See our full network' click", async ({
-            page,
-        }) => {
-            await page
-                .getByRole("link", { name: "See our full network" })
-                .click();
+        test("opens Our Network page on 'See our full network' click", async ({ page }) => {
+            await page.getByRole("link", { name: "See our full network" }).click();
             await ourNetwork.onLoad(page);
             // Go back to the homepage
             await header.clickOnHome(page);
@@ -69,9 +57,7 @@ test.describe(
             expect(true).toBe(true);
         });
 
-        test("explicit scroll to footer and then scroll to top", async ({
-            page,
-        }) => {
+        test("explicit scroll to footer and then scroll to top", async ({ page }) => {
             await expect(page.locator("footer")).not.toBeInViewport();
             await scrollToFooter(page);
             await expect(page.locator("footer")).toBeInViewport();
