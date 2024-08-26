@@ -42,18 +42,6 @@ const test = baseTest.extend<OrganizationPageFixtures>({
 });
 
 test.describe("Admin Organization Settings Page", () => {
-    test.describe("Header", () => {
-        test("has correct title + heading", async ({ organizationPage }) => {
-            await organizationPage.testHeader();
-        });
-    });
-
-    test.describe("Footer", () => {
-        test("has footer and explicit scroll to footer and scroll to top", async ({ organizationPage }) => {
-            await organizationPage.testFooter();
-        });
-    });
-
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ organizationPage }) => {
             await expect(organizationPage.page).toHaveURL("/login");
@@ -76,6 +64,12 @@ test.describe("Admin Organization Settings Page", () => {
 
     test.describe("authenticated admin", () => {
         test.use({ storageState: "e2e/.auth/admin.json" });
+
+        test.describe("Header", () => {
+            test("has correct title + heading", async ({ organizationPage }) => {
+                await organizationPage.testHeader();
+            });
+        });
 
         test("If there is an error, the error is shown on the page", async ({ organizationPage }) => {
             organizationPage.mockError = true;
@@ -239,6 +233,12 @@ test.describe("Admin Organization Settings Page", () => {
 
                 expect(organizationPage.page.url()).toContain(expectedUrl);
             });
+        });
+    });
+
+    test.describe("Footer", () => {
+        test("has footer and explicit scroll to footer and scroll to top", async ({ organizationPage }) => {
+            await organizationPage.testFooter();
         });
     });
 });
