@@ -350,8 +350,9 @@ class Report : Logging {
         destination: Receiver? = null,
         nextAction: TaskAction = TaskAction.process,
         topic: Topic,
+        id: UUID = UUID.randomUUID(),
     ) {
-        this.id = UUID.randomUUID()
+        this.id = id
         // UP submissions do not need a schema, but it is required by the database to maintain legacy functionality
         this.schema = Schema("None", topic)
         this.sources = sources

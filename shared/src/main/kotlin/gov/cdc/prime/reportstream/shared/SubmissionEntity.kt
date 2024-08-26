@@ -16,7 +16,12 @@ data class SubmissionEntity(
      * submissionId identifies the partition. Within that partition status should unique
      */
     private val tableEntity = TableEntity(submissionId, status)
-        .setProperties(mapOf("body_url" to body_url, "detail" to detail))
+        .setProperties(
+            mapOf(
+                "body_url" to body_url,
+                "detail" to detail.takeIf { it != null }
+            )
+        )
 
     /**
      *

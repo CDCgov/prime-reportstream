@@ -39,11 +39,14 @@ class FHIRFunctions(
     @FunctionName("receive-fhir")
     @StorageAccount("AzureWebJobsStorage")
     fun receive(
-        @QueueTrigger(name = "message", queueName = QueueMessage.elrReceiveQueueName)
+        @QueueTrigger(name = "message", queueName = "elr-fhir-receive")
         message: String,
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
+        logger.info(
+            "message consumed from elr-fhir-receive queue"
+        )
         process(message, dequeueCount, FHIRReceiver(), ActionHistory(TaskAction.receive))
     }
 

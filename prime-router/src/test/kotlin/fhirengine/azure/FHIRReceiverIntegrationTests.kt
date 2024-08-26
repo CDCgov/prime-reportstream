@@ -3,6 +3,8 @@ package gov.cdc.prime.router.fhirengine.azure
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
+import assertk.assertions.isNull
 import com.azure.data.tables.TableServiceClient
 import com.azure.data.tables.TableServiceClientBuilder
 import gov.cdc.prime.reportstream.shared.BlobUtils
@@ -19,12 +21,15 @@ import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransform
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransformInactive
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils.hl7SenderWithNoTransform
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.universalPipelineOrganization
+import gov.cdc.prime.router.common.cleanHL7Record
 import gov.cdc.prime.router.common.validFHIRRecord1
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiver
 import gov.cdc.prime.router.history.DetailedActionLog
+import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -129,15 +134,21 @@ class FHIRReceiverIntegrationTests {
 
     @Test
     fun `should handle inactive sender gracefully`() {
-        val submissionMessageContents = validFHIRRecord1
-        val submissionBlobUrl = "http://anyblob.com"
+        val receivedReportContents =
+            listOf(validFHIRRecord1)
+                .joinToString("\n")
+        val receiveBlobUrl = BlobAccess.uploadBlob(
+            "receive/happy-path.fhir",
+            receivedReportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
 
         val reportId = UUID.randomUUID()
 
         val receiveQueueMessage = generateReceiveQueueMessage(
             reportId.toString(),
-            submissionBlobUrl,
-            submissionMessageContents,
+            receiveBlobUrl,
+            receivedReportContents,
             fhirSenderWithNoTransformInactive,
             headers = mapOf(
                 "content-type" to "application/fhir+ndjson;test",
@@ -169,8 +180,10 @@ class FHIRReceiverIntegrationTests {
             val reportFile = DSL.using(txn).select(Tables.REPORT_FILE.asterisk())
                 .from(Tables.REPORT_FILE)
                 .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
+                .fetchInto(DetailedReport::class.java)
 
-            assertNotNull(reportFile)
+            assertThat(actionLogs.count()).isEqualTo(1)
+            assertThat(reportFile.count()).isEqualTo(1)
         }
 
         verify(exactly = 0) {
@@ -178,13 +191,14 @@ class FHIRReceiverIntegrationTests {
         }
 
         val tableRow = tableServiceClient
-            .getTableClient("submissions")
+            .getTableClient("submission")
             .getEntity(reportId.toString(), "Accepted")
 
         assertNotNull(tableRow)
         assertThat(tableRow.getProperty("detail")).isEqualTo(
-        "Sender has customer status INACTIVE: phd.fhir-elr-no-transform-inactive"
+        "[Sender has customer status INACTIVE: phd.fhir-elr-no-transform-inactive]"
         )
+        assertThat(tableRow.getProperty("body_url")).isEqualTo(receiveBlobUrl)
     }
 
     @Test
@@ -227,6 +241,7 @@ class FHIRReceiverIntegrationTests {
             val reportFile = DSL.using(txn).select(Tables.REPORT_FILE.asterisk())
                 .from(Tables.REPORT_FILE)
                 .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
+                .fetchInto(DetailedReport::class.java)
 
             assertThat(reportFile).isEmpty()
         }
@@ -241,19 +256,26 @@ class FHIRReceiverIntegrationTests {
 
         assertNotNull(tableRow)
         assertThat(tableRow.getProperty("detail")).isEqualTo("Sender not found matching client_id: unknown_sender")
+        assertThat(tableRow.getProperty("body_url")).isEqualTo(submissionBlobUrl)
     }
 
     @Test
-    fun `should successfully process valid message`() {
-        val submissionMessageContents = validFHIRRecord1
-        val submissionBlobUrl = "http://anyblob.com"
+    fun `should successfully process valid FHIR message`() {
+        val receivedReportContents =
+            listOf(validFHIRRecord1)
+                .joinToString("\n")
+        val receiveBlobUrl = BlobAccess.uploadBlob(
+            "receive/happy-path.fhir",
+            receivedReportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
 
         val reportId = UUID.randomUUID()
 
         val receiveQueueMessage = generateReceiveQueueMessage(
             reportId.toString(),
-            submissionBlobUrl,
-            submissionMessageContents,
+            receiveBlobUrl,
+            receivedReportContents,
             fhirSenderWithNoTransform,
             headers = mapOf(
                 "content-type" to "application/fhir+ndjson;test",
@@ -279,13 +301,14 @@ class FHIRReceiverIntegrationTests {
                 .and(Tables.ACTION_LOG.TYPE.eq(ActionLogType.error))
                 .fetchInto(DetailedActionLog::class.java)
 
-            assertNotNull(actionLogs)
+            assertThat(actionLogs).isEmpty()
 
             val reportFile = DSL.using(txn).select(Tables.REPORT_FILE.asterisk())
                 .from(Tables.REPORT_FILE)
                 .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
+                .fetchInto(DetailedReport::class.java)
 
-            assertNotNull(reportFile)
+            assertThat(reportFile).isNotEmpty()
         }
 
         verify(exactly = 1) {
@@ -293,9 +316,76 @@ class FHIRReceiverIntegrationTests {
         }
 
         val tableRow = tableServiceClient
-            .getTableClient("submissions")
+            .getTableClient("submission")
             .getEntity(reportId.toString(), "Accepted")
 
         assertNotNull(tableRow)
+        assertThat(tableRow.getProperty("body_url")).isEqualTo(receiveBlobUrl)
+        assertThat(tableRow.getProperty("detail")).isNull()
+    }
+
+    @Test
+    fun `should successfully process valid HL7 message`() {
+        val receivedReportContents =
+            listOf(cleanHL7Record)
+                .joinToString("\n")
+        val receiveBlobUrl = BlobAccess.uploadBlob(
+            "receive/happy-path.hl7",
+            receivedReportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
+
+        val reportId = UUID.randomUUID()
+
+        val receiveQueueMessage = generateReceiveQueueMessage(
+            reportId.toString(),
+            receiveBlobUrl,
+            receivedReportContents,
+            hl7SenderWithNoTransform,
+            headers = mapOf(
+                "content-type" to "application/hl7-v2;test",
+                "x-azure-clientip" to "0.0.0.0",
+                "payloadname" to "test_message",
+                "client_id" to hl7SenderWithNoTransform.fullName,
+            )
+        )
+
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        fhirFunctions.process(
+            receiveQueueMessage,
+            1,
+            createFHIRReceiver(),
+            ActionHistory(TaskAction.receive)
+        )
+
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk())
+                .from(Tables.ACTION_LOG)
+                .where(Tables.ACTION_LOG.REPORT_ID.eq(reportId))
+                .and(Tables.ACTION_LOG.TYPE.eq(ActionLogType.error))
+                .fetchInto(DetailedActionLog::class.java)
+
+            assertThat(actionLogs).isEmpty()
+
+            val reportFile = DSL.using(txn).select(Tables.REPORT_FILE.asterisk())
+                .from(Tables.REPORT_FILE)
+                .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
+                .fetchInto(DetailedReport::class.java)
+
+            assertThat(reportFile).isNotEmpty()
+        }
+
+        verify(exactly = 1) {
+            QueueAccess.sendMessage(any(), any())
+        }
+
+        val tableRow = tableServiceClient
+            .getTableClient("submission")
+            .getEntity(reportId.toString(), "Accepted")
+
+        assertNotNull(tableRow)
+        assertThat(tableRow.getProperty("body_url")).isEqualTo(receiveBlobUrl)
+        assertThat(tableRow.getProperty("detail")).isNull()
     }
 }

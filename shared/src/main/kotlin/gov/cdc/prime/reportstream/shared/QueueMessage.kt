@@ -68,7 +68,7 @@ interface QueueMessage {
         /**
          * Constant for receive queue on UP
          */
-        const val elrReceiveQueueName = "receive-fhir"
+        const val elrReceiveQueueName = "elr-fhir-receive"
 
         /**
          * Constant for convert queue on UP

@@ -228,29 +228,33 @@ class FHIRReceiver(
             queueMessage.reportId.toString(),
             "Accepted",
             queueMessage.blobURL,
-            actionLogger.errors.toString()
+            actionLogger.errors.takeIf { it.isNotEmpty() }?.map { it.detail.message }?.toString()
         ).toTableEntity()
         BlobAccess.insertTableEntity("submission", tableEntity)
 
-        // Create a route event
-        val routeEvent = ProcessEvent(Event.EventAction.CONVERT, report.id, Options.None, emptyMap(), emptyList())
+        return if (actionLogger.errors.isNotEmpty()) {
+            emptyList()
+        } else {
+            // Create a route event
+            val routeEvent = ProcessEvent(Event.EventAction.CONVERT, report.id, Options.None, emptyMap(), emptyList())
 
-        // Return the result of the FHIR engine run
-        return listOf(
-            FHIREngineRunResult(
-                routeEvent,
-                report,
-                queueMessage.blobURL,
-                FhirConvertQueueMessage(
-                    report.id,
+            // Return the result of the FHIR engine run
+            listOf(
+                FHIREngineRunResult(
+                    routeEvent,
+                    report,
                     queueMessage.blobURL,
-                    queueMessage.digest,
-                    queueMessage.blobSubFolderName,
-                    sender.topic,
-                    sender.schemaName
+                    FhirConvertQueueMessage(
+                        report.id,
+                        queueMessage.blobURL,
+                        queueMessage.digest,
+                        queueMessage.blobSubFolderName,
+                        sender.topic,
+                        sender.schemaName
+                    )
                 )
             )
-        )
+        }
     }
 
     private fun validateSubmissionMessage(
@@ -279,6 +283,7 @@ class FHIRReceiver(
                         metadata = metadata,
                         nextAction = TaskAction.convert,
                         topic = sender.topic,
+                        id = queueMessage.reportId
                     )
 
                     // TODO fix and re-enable https://github.com/CDCgov/prime-reportstream/issues/14103
@@ -306,6 +311,7 @@ class FHIRReceiver(
                         metadata = metadata,
                         nextAction = TaskAction.convert,
                         topic = sender.topic,
+                        id = queueMessage.reportId
                     )
                 }
 
