@@ -9,7 +9,7 @@ import {
     TEST_ORG_IGNORE,
     TEST_ORG_UP_RECEIVER_UP,
 } from "../../../helpers/utils";
-import * as dailyData from "../../../pages/authenticated/daily-data";
+import * as dailyData from "../../../pages/authenticated/daily-data.js";
 import {
     applyButton,
     DailyDataPage,
@@ -28,7 +28,7 @@ import {
     startTime,
     startTimeClear,
     tableHeaders,
-} from "../../../pages/authenticated/daily-data";
+} from "../../../pages/authenticated/daily-data.js";
 import { test as baseTest } from "../../../test";
 
 const defaultStartTime = "9:00am";

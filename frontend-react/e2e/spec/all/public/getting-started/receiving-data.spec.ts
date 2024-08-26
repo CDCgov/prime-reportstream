@@ -36,9 +36,10 @@ const test = baseTest.extend<ReceivingDataPageFixtures>({
 });
 
 test.describe("Receiving data page", () => {
-    test("has correct title", async ({ receivingDataPage }) => {
-        await expect(receivingDataPage.page).toHaveTitle(receivingDataPage.title);
-        await expect(receivingDataPage.heading).toBeVisible();
+    test.describe("Header", () => {
+        test("has correct title + heading", async ({ receivingDataPage }) => {
+            await receivingDataPage.testHeader();
+        });
     });
 
     test("has link to onboarding form", async ({ receivingDataPage }) => {

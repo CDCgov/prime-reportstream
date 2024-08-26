@@ -9,7 +9,7 @@ export class OrganizationPage extends BasePage {
         super(
             {
                 url: "/admin/settings",
-                title: "Organizations",
+                title: "Admin-Organizations",
                 heading: testArgs.page.getByRole("heading", {
                     name: "Organizations",
                 }),

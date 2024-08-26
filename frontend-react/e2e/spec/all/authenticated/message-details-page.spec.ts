@@ -1,71 +1,92 @@
-import { expect, test } from "@playwright/test";
 import fs from "node:fs";
 import { parseFileLocation } from "../../../../src/utils/misc";
 import { tableRows } from "../../../helpers/utils";
 import { MOCK_GET_MESSAGE } from "../../../mocks/messages";
-import * as messageDetails from "../../../pages/authenticated/message-details";
-import { URL_MESSAGE_DETAILS } from "../../../pages/authenticated/message-details";
-import * as messageIdSearch from "../../../pages/authenticated/message-id-search";
-import { MESSAGE_ID } from "../../../pages/authenticated/message-id-search";
+import { MessageDetailsPage } from "../../../pages/authenticated/message-details";
+import { MessageIDSearchPage } from "../../../pages/authenticated/message-id-search";
 import { mockGetHistoryReportResponse } from "../../../pages/authenticated/report-details";
+
+import { test as baseTest, expect } from "../../../test";
+
+export interface MessageDetailsPageFixtures {
+    messageDetailsPage: MessageDetailsPage;
+}
+
+const test = baseTest.extend<MessageDetailsPageFixtures>({
+    messageDetailsPage: async (
+        {
+            page: _page,
+            isMockDisabled,
+            adminLogin,
+            senderLogin,
+            receiverLogin,
+            storageState,
+            frontendWarningsLogPath,
+            isFrontendWarningsLog,
+        },
+        use,
+    ) => {
+        const page = new MessageDetailsPage({
+            page: _page,
+            isMockDisabled,
+            adminLogin,
+            senderLogin,
+            receiverLogin,
+            storageState,
+            frontendWarningsLogPath,
+            isFrontendWarningsLog,
+        });
+        await page.goto();
+        await use(page);
+    },
+});
+
 test.describe("Message Details Page", () => {
     test.describe("not authenticated", () => {
-        test("redirects to login", async ({ page }) => {
-            await messageDetails.goto(page);
-            await expect(page).toHaveURL("/login");
+        test("redirects to login", async ({ messageDetailsPage }) => {
+            await expect(messageDetailsPage.page).toHaveURL("/login");
         });
     });
 
     test.describe("authenticated admin", () => {
         test.use({ storageState: "e2e/.auth/admin.json" });
 
-        test.beforeEach(async ({ page }) => {
-            await page.route(messageIdSearch.API_MESSAGE, (route) =>
-                route.fulfill({
-                    status: 200,
-                    json: MOCK_GET_MESSAGE,
-                }),
-            );
-            await messageDetails.goto(page);
+        test.describe("Header", () => {
+            test("has correct title + heading", async ({ messageDetailsPage }) => {
+                await messageDetailsPage.testHeader();
+            });
         });
 
-        test("has correct title", async ({ page }) => {
-            await expect(page).toHaveURL(URL_MESSAGE_DETAILS);
-            await expect(page).toHaveTitle(/ReportStream - CDC's free, interoperable data transfer platform/);
+        test("has message id section", async ({ messageDetailsPage }) => {
+            await expect(messageDetailsPage.page.getByText("Message ID", { exact: true })).toBeVisible();
+            await expect(messageDetailsPage.page.getByText(MessageIDSearchPage.MESSAGE_ID)).toBeVisible();
         });
 
-        test("has message id section", async ({ page }) => {
-            await expect(page.getByText("Message ID", { exact: true })).toBeVisible();
-            await expect(page.getByText(MESSAGE_ID)).toBeVisible();
-        });
-
-        test("has sender section", async ({ page }) => {
+        test("has sender section", async ({ messageDetailsPage }) => {
             const { sender, reportId, submittedDate } = MOCK_GET_MESSAGE;
 
-            await expect(page.getByText("Sender:")).toBeVisible();
-            await expect(page.getByText(sender)).toBeVisible();
-            await expect(page.getByText("Incoming Report ID")).toBeVisible();
-            await expect(page.getByText(reportId, { exact: true })).toBeVisible();
-            await expect(page.getByText("Date/Time Submitted")).toBeVisible();
-            await expect(page.getByText(new Date(submittedDate).toLocaleString())).toBeVisible();
-            await expect(page.getByText("File Location")).toBeVisible();
-            await expect(page.getByText("RECEIVE", { exact: true })).toBeVisible();
-            await expect(page.getByText("ignore.ignore-simple-report")).toBeVisible();
-            await expect(page.getByText("Incoming File Name")).toBeVisible();
+            await expect(messageDetailsPage.page.getByText("Sender:")).toBeVisible();
+            await expect(messageDetailsPage.page.getByText(sender)).toBeVisible();
+            await expect(messageDetailsPage.page.getByText("Incoming Report ID")).toBeVisible();
+            await expect(messageDetailsPage.page.getByText(reportId, { exact: true })).toBeVisible();
+            await expect(messageDetailsPage.page.getByText("Date/Time Submitted")).toBeVisible();
+            await expect(messageDetailsPage.page.getByText(new Date(submittedDate).toLocaleString())).toBeVisible();
+            await expect(messageDetailsPage.page.getByText("File Location")).toBeVisible();
+            await expect(messageDetailsPage.page.getByText("RECEIVE", { exact: true })).toBeVisible();
+            await expect(messageDetailsPage.page.getByText("ignore.ignore-simple-report")).toBeVisible();
+            await expect(messageDetailsPage.page.getByText("Incoming File Name")).toBeVisible();
             await expect(
-                page.getByText("pdi-covid-19-d9a57df0-2702-4e28-9d80-ff8c9ec51816-20240514142655.csv"),
+                messageDetailsPage.page.getByText(
+                    "pdi-covid-19-d9a57df0-2702-4e28-9d80-ff8c9ec51816-20240514142655.csv",
+                ),
             ).toBeVisible();
         });
 
         test.describe("authenticated admin", () => {
-            test("has receiver title", async ({ page }) => {
-                await expect(page.getByText("Receivers:")).toBeVisible();
-            });
-
-            test("displays expected table headers and data", async ({ page }) => {
+            test("displays expected table headers and data", async ({ messageDetailsPage }) => {
                 // include header row
                 const rowCount = MOCK_GET_MESSAGE.receiverData.length + 1;
-                const table = page.getByRole("table");
+                const table = messageDetailsPage.page.getByRole("table");
                 await expect(table).toBeVisible();
                 const rows = await table.getByRole("row").all();
                 expect(rows).toHaveLength(rowCount);
@@ -112,11 +133,11 @@ test.describe("Message Details Page", () => {
                 }
             });
 
-            test("table column 'FileName' will download file", async ({ page }) => {
-                const downloadProm = page.waitForEvent("download");
-                await mockGetHistoryReportResponse(page, "*");
+            test("table column 'FileName' will download file", async ({ messageDetailsPage }) => {
+                const downloadProm = messageDetailsPage.page.waitForEvent("download");
+                await mockGetHistoryReportResponse(messageDetailsPage.page, "*");
 
-                await tableRows(page).nth(0).locator("td").nth(6).getByRole("button").click();
+                await tableRows(messageDetailsPage.page).nth(0).locator("td").nth(6).getByRole("button").click();
 
                 const download = await downloadProm;
 
@@ -129,42 +150,38 @@ test.describe("Message Details Page", () => {
             });
         });
 
-        test("has footer", async ({ page }) => {
-            await expect(page.locator("footer")).toBeAttached();
+        test.describe("Footer", () => {
+            test("has footer and explicit scroll to footer and scroll to top", async ({ messageDetailsPage }) => {
+                await messageDetailsPage.testFooter();
+            });
         });
     });
 
     test.describe("receiver user", () => {
         test.use({ storageState: "e2e/.auth/receiver.json" });
 
-        test.beforeEach(async ({ page }) => {
-            await messageDetails.goto(page);
-        });
+        test("has alert", async ({ messageDetailsPage }) => {
+            messageDetailsPage.mockError = true;
+            await messageDetailsPage.reload();
 
-        test("has alert", async ({ page }) => {
-            await expect(page.getByTestId("alert")).toBeAttached();
-            await expect(page.getByText(/Our apologies, there was an error loading this content./)).toBeAttached();
-        });
-
-        test("has footer", async ({ page }) => {
-            await expect(page.locator("footer")).toBeAttached();
+            await expect(messageDetailsPage.page.getByTestId("alert")).toBeAttached();
+            await expect(
+                messageDetailsPage.page.getByText(/Our apologies, there was an error loading this content./),
+            ).toBeAttached();
         });
     });
 
     test.describe("sender user", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
 
-        test.beforeEach(async ({ page }) => {
-            await messageDetails.goto(page);
-        });
+        test("has alert", async ({ messageDetailsPage }) => {
+            messageDetailsPage.mockError = true;
+            await messageDetailsPage.reload();
 
-        test("has alert", async ({ page }) => {
-            await expect(page.getByTestId("alert")).toBeAttached();
-            await expect(page.getByText(/Our apologies, there was an error loading this content./)).toBeAttached();
-        });
-
-        test("has footer", async ({ page }) => {
-            await expect(page.locator("footer")).toBeAttached();
+            await expect(messageDetailsPage.page.getByTestId("alert")).toBeAttached();
+            await expect(
+                messageDetailsPage.page.getByText(/Our apologies, there was an error loading this content./),
+            ).toBeAttached();
         });
     });
 });

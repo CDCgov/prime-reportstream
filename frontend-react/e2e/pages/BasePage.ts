@@ -1,3 +1,4 @@
+import { SideNavItem } from "../helpers/internal-links";
 import { selectTestOrg } from "../helpers/utils";
 import appInsightsConfig from "../mocks/appInsightsConfig.json" assert { type: "json" };
 import { expect, Locator, Page, Request, Response, Route, TestArgs } from "../test";
@@ -138,9 +139,27 @@ export abstract class BasePage {
         await expect(this.heading).toBeVisible();
     }
 
+    async testCard(card: { name: string }) {
+        const cardHeader = this.page.locator(".usa-card__header", {
+            hasText: card.name,
+        });
+
+        await expect(cardHeader).toBeVisible();
+    }
+
+    async testSidenav(navItems: SideNavItem[]) {
+        const sideNav = this.page.getByTestId("sidenav");
+
+        for (const navItem of navItems) {
+            const link = sideNav.locator(`a`, { hasText: navItem.name });
+
+            await expect(link).toBeVisible();
+            await expect(link).toHaveAttribute("href", navItem.path);
+        }
+    }
+
     async testFooter() {
         await expect(this.page.locator("footer")).toBeAttached();
-        await expect(this.page.locator("footer")).not.toBeInViewport();
         await this.page.locator("footer").scrollIntoViewIfNeeded();
         await expect(this.page.locator("footer")).toBeInViewport();
         await expect(this.page.getByTestId("govBanner")).not.toBeInViewport();

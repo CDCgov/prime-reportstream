@@ -71,23 +71,20 @@ test.describe("Admin Receiver Status Page", () => {
             await expect(adminReceiverStatusPage.page.getByText("there was an error")).toBeVisible();
         });
 
-        test(
-            "Has correct title",
-            {
-                tag: "@smoke",
-            },
-            async ({ adminReceiverStatusPage }) => {
-                await expect(adminReceiverStatusPage.page).toHaveURL(adminReceiverStatusPage.url);
-                await expect(adminReceiverStatusPage.page).toHaveTitle(adminReceiverStatusPage.title);
-            },
-        );
+        test.describe("Header", () => {
+            test(
+                "has correct title + heading",
+                {
+                    tag: "@smoke",
+                },
+                async ({ adminReceiverStatusPage }) => {
+                    await adminReceiverStatusPage.testHeader();
+                },
+            );
+        });
 
         test.describe("When there is no error", () => {
             test.describe("Displays correctly", () => {
-                test("header", async ({ adminReceiverStatusPage }) => {
-                    await expect(adminReceiverStatusPage.heading).toBeVisible();
-                });
-
                 test.describe(
                     "filters",
                     {
@@ -150,6 +147,14 @@ test.describe("Admin Receiver Status Page", () => {
                         const result = await adminReceiverStatusPage.testReceiverStatusDisplay();
                         expect(result).toBe(true);
                     });
+                });
+            });
+
+            test.describe("Footer", () => {
+                test("has footer and explicit scroll to footer and scroll to top", async ({
+                    adminReceiverStatusPage,
+                }) => {
+                    await adminReceiverStatusPage.testFooter();
                 });
             });
 

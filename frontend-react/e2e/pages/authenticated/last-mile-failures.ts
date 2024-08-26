@@ -1,26 +1,45 @@
-import { Page } from "@playwright/test";
 import { MOCK_GET_RESEND, MOCK_GET_SEND_FAILURES } from "../../mocks/lastMilefailures";
+import { BasePage, BasePageTestArgs, RouteHandlerFulfillEntry } from "../BasePage";
 
-const URL_LAST_MILE = "/admin/lastmile";
-const API_GET_RESEND = "/api/adm/getresend?days_to_show=15";
-export const API_GET_SEND_FAILURES = "/api/adm/getsendfailures?days_to_show=15";
+export class LastMileFailuresPage extends BasePage {
+    static readonly URL_LAST_MILE = "/admin/lastmile";
+    static readonly API_GET_SEND_FAILURES = "/api/adm/getsendfailures?days_to_show=15";
+    static readonly API_GET_RESEND = "/api/adm/getresend?days_to_show=15";
 
-export async function goto(page: Page) {
-    await page.goto(URL_LAST_MILE, {
-        waitUntil: "domcontentloaded",
-    });
-}
+    constructor(testArgs: BasePageTestArgs) {
+        super(
+            {
+                url: LastMileFailuresPage.URL_LAST_MILE,
+                title: "Last Mile Failures",
+                heading: testArgs.page.getByRole("heading", {
+                    name: "Last Mile Failures",
+                }),
+            },
+            testArgs,
+        );
 
-export async function mockGetSendFailuresResponse(page: Page, responseStatus = 200) {
-    await page.route(API_GET_SEND_FAILURES, async (route) => {
-        const json = MOCK_GET_SEND_FAILURES;
-        await route.fulfill({ json, status: responseStatus });
-    });
-}
+        this.addMockRouteHandlers([this.createMockGetSendFailuresHandler(), this.createMockGetResendHandler()]);
+    }
 
-export async function mockGetResendResponse(page: Page) {
-    await page.route(API_GET_RESEND, async (route) => {
-        const json = MOCK_GET_RESEND;
-        await route.fulfill({ json });
-    });
+    createMockGetSendFailuresHandler(): RouteHandlerFulfillEntry {
+        return [
+            LastMileFailuresPage.API_GET_SEND_FAILURES,
+            () => {
+                return {
+                    json: MOCK_GET_SEND_FAILURES,
+                };
+            },
+        ];
+    }
+
+    createMockGetResendHandler(): RouteHandlerFulfillEntry {
+        return [
+            LastMileFailuresPage.API_GET_RESEND,
+            () => {
+                return {
+                    json: MOCK_GET_RESEND,
+                };
+            },
+        ];
+    }
 }

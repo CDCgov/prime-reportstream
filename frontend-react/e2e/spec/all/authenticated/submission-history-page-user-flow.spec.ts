@@ -5,7 +5,7 @@ import {
     FALLBACK_TO_DATE_STRING,
 } from "../../../../src/hooks/filters/UseDateRange/UseDateRange";
 import { tableColumnDateTimeInRange, tableDataCellValue, TEST_ORG_IGNORE } from "../../../helpers/utils";
-import { applyButton, endDate, setDate, startDate } from "../../../pages/authenticated/daily-data";
+import { endDate, setDate, startDate } from "../../../pages/authenticated/daily-data";
 import * as submissionHistory from "../../../pages/authenticated/submission-history";
 import { openReportIdDetailPage, SubmissionHistoryPage } from "../../../pages/authenticated/submission-history";
 import { test as baseTest } from "../../../test";

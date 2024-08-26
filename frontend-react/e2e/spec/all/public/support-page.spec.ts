@@ -51,9 +51,10 @@ const test = baseTest.extend<SupportPageFixtures>({
 });
 
 test.describe("Support page", () => {
-    test("has correct title", async ({ supportPage }) => {
-        await expect(supportPage.page).toHaveTitle(supportPage.title);
-        await expect(supportPage.heading).toBeVisible();
+    test.describe("Header", () => {
+        test("has correct title + heading", async ({ supportPage }) => {
+            await supportPage.testHeader();
+        });
     });
 
     test("Should have a way of contacting support", async ({ supportPage }) => {
