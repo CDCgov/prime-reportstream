@@ -20,6 +20,7 @@ import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.ConditionStamper
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
@@ -45,7 +46,7 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
+import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.getObservations
@@ -266,7 +267,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
+        fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -303,7 +304,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             ).serialize()
 
             verify(exactly = 1) {
-                QueueAccess.sendMessage(elrTranslationQueueName, expectedRouteQueueMessage)
+                QueueAccess.sendMessage(QueueMessage.elrTranslationQueueName, expectedRouteQueueMessage)
             }
 
             // check events
@@ -347,7 +348,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
+        fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -444,7 +445,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
+        fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -470,7 +471,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
 
             verify(exactly = 1) {
                 QueueAccess.sendMessage(
-                    elrTranslationQueueName,
+                    QueueMessage.elrTranslationQueueName,
                     expectedQueueMessage
                 )
             }
@@ -515,7 +516,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
+        fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -616,7 +617,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
+        fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -652,7 +653,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             ).serialize()
 
             verify(exactly = 1) {
-                QueueAccess.sendMessage(elrTranslationQueueName, expectedRouteQueueMessage)
+                QueueAccess.sendMessage(QueueMessage.elrTranslationQueueName, expectedRouteQueueMessage)
             }
 
             // check events
@@ -696,7 +697,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
+        fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -791,11 +792,11 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
+        fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check queue message
         verify(exactly = 0) {
-            QueueAccess.sendMessage(elrTranslationQueueName, any())
+            QueueAccess.sendMessage(QueueMessage.elrTranslationQueueName, any())
         }
 
         // check action table
@@ -907,7 +908,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
+        fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -932,7 +933,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
 
             verify(exactly = 1) {
                 QueueAccess.sendMessage(
-                    elrTranslationQueueName,
+                    QueueMessage.elrTranslationQueueName,
                     expectedRouteQueueMessage
                 )
             }
@@ -977,7 +978,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
+        fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -999,7 +1000,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             ).serialize()
 
             verify(exactly = 1) {
-                QueueAccess.sendMessage(elrTranslationQueueName, expectedRouteQueueMessage)
+                QueueAccess.sendMessage(QueueMessage.elrTranslationQueueName, expectedRouteQueueMessage)
             }
 
             // check events
@@ -1043,11 +1044,11 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doReceiverFilter(queueMessage, 1, receiverFilter)
+        fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
 
         // check queue
         verify(exactly = 0) {
-            QueueAccess.sendMessage(elrTranslationQueueName, any())
+            QueueAccess.sendMessage(QueueMessage.elrTranslationQueueName, any())
         }
 
         // check action table
