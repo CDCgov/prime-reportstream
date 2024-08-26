@@ -36,9 +36,10 @@ const test = baseTest.extend<SendingDataPageFixtures>({
 });
 
 test.describe("Sending data page", () => {
-    test("has correct title", async ({ sendingDataPage }) => {
-        await expect(sendingDataPage.page).toHaveTitle(sendingDataPage.title);
-        await expect(sendingDataPage.heading).toBeVisible();
+    test.describe("Header", () => {
+        test("has correct title + heading", async ({ sendingDataPage }) => {
+            await sendingDataPage.testHeader();
+        });
     });
 
     test("has link to get started with ReportStream", async ({ sendingDataPage }) => {

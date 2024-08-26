@@ -40,9 +40,10 @@ test.describe(
         tag: "@smoke",
     },
     () => {
-        test("has correct title", async ({ referHealthcarePage }) => {
-            await expect(referHealthcarePage.page).toHaveTitle(referHealthcarePage.title);
-            await expect(referHealthcarePage.heading).toBeVisible();
+        test.describe("Header", () => {
+            test("has correct title + heading", async ({ referHealthcarePage }) => {
+                await referHealthcarePage.testHeader();
+            });
         });
 
         test("has correct sidenav items", async ({ referHealthcarePage }) => {

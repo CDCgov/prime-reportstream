@@ -42,6 +42,18 @@ const test = baseTest.extend<OrganizationPageFixtures>({
 });
 
 test.describe("Admin Organization Settings Page", () => {
+    test.describe("Header", () => {
+        test("has correct title + heading", async ({ organizationPage }) => {
+            await organizationPage.testHeader();
+        });
+    });
+
+    test.describe("Footer", () => {
+        test("has footer and explicit scroll to footer and scroll to top", async ({ organizationPage }) => {
+            await organizationPage.testFooter();
+        });
+    });
+
     test.describe("not authenticated", () => {
         test("redirects to login", async ({ organizationPage }) => {
             await expect(organizationPage.page).toHaveURL("/login");

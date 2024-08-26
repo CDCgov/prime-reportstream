@@ -51,9 +51,10 @@ test.describe(
         tag: "@smoke",
     },
     () => {
-        test("has correct title", async ({ managingYourConnectionPage }) => {
-            await expect(managingYourConnectionPage.page).toHaveTitle(managingYourConnectionPage.title);
-            await expect(managingYourConnectionPage.heading).toBeVisible();
+        test.describe("Header", () => {
+            test("has correct title + heading", async ({ managingYourConnectionPage }) => {
+                await managingYourConnectionPage.testHeader();
+            });
         });
 
         test.describe("Quick links", () => {
