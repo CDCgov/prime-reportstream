@@ -1,5 +1,7 @@
-import { expect, test } from "@playwright/test";
 import { endOfDay, startOfDay } from "date-fns";
+import { test as baseTest, expect } from "../../test";
+
+const test = baseTest.extend({});
 
 test("playwright/browser timezone parity", async ({ page }) => {
     const now = new Date();
@@ -7,9 +9,7 @@ test("playwright/browser timezone parity", async ({ page }) => {
     const browserNow = new Date(browserNowIso);
 
     const timezoneId = Intl.DateTimeFormat().resolvedOptions().timeZoneName;
-    const browserTimezoneId = await page.evaluate(
-        () => Intl.DateTimeFormat().resolvedOptions().timeZoneName,
-    );
+    const browserTimezoneId = await page.evaluate(() => Intl.DateTimeFormat().resolvedOptions().timeZoneName);
 
     const nowStart = startOfDay(now);
     const browserStartIso = await page.evaluate(() => {
