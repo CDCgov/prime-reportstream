@@ -1,8 +1,9 @@
 /* eslint-disable playwright/no-conditional-in-test */
 import axios, { AxiosError } from "axios";
 import * as fs from "fs";
-import * as publicPagesLinkCheck from "../../pages/public-pages-link-check";
-import { expect, test } from "../../test";
+import { test as baseTest, expect } from "../../test";
+
+const test = baseTest.extend({});
 
 // To save bandwidth, this test is within the /spec/chromium-only/ folder
 // Since we're just checking link validity. This is specified within our
@@ -18,6 +19,8 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
     const normalizeUrl = (href: string, baseUrl: string) => new URL(href, baseUrl).toString();
 
     // Using our sitemap.xml, we'll create a pathnames array
+    // We cannot use our POM, we must
+    // create context manually with browser.newContext()
     test.beforeAll(async ({ browser }) => {
         const page = await browser.newPage();
         const response = await page.goto("/sitemap.xml");
@@ -52,7 +55,7 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
         // Set test timeout to be 1 minute instead of 30 seconds
         test.setTimeout(60000);
         for (const path of urlPaths) {
-            await publicPagesLinkCheck.publicPageGoto(page, path);
+            await page.goto(path);
             const baseUrl = new URL(page.url()).origin;
 
             const allATags = await page.getByRole("link", { includeHidden: true }).elementHandles();
