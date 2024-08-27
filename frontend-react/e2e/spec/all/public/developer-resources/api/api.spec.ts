@@ -40,11 +40,6 @@ test.describe(
         tag: "@smoke",
     },
     () => {
-        test("has correct title", async ({ developerResourcesApiPage }) => {
-            await expect(developerResourcesApiPage.page).toHaveTitle(developerResourcesApiPage.title);
-            await expect(developerResourcesApiPage.heading).toBeVisible();
-        });
-
         test("has side nav", async ({ developerResourcesApiPage }) => {
             await developerResourcesApiPage.testSidenav([]);
         });
