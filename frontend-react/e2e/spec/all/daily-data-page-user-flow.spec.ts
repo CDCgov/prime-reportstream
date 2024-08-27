@@ -28,8 +28,8 @@ import {
     setTime,
     startDate,
     startTime,
-} from "../../pages/daily-data";
-import { URL_REPORT_DETAILS } from "../../pages/report-details";
+} from "../../pages/authenticated/daily-data.js";
+import { URL_REPORT_DETAILS } from "../../pages/authenticated/report-details.js";
 import { test as baseTest } from "../../test";
 
 const defaultStartTime = "9:00am";
