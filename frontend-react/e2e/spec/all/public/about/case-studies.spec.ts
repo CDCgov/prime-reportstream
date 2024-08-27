@@ -1,6 +1,6 @@
-import { scrollToFooter, scrollToTop } from "../../../helpers/utils";
-import { AboutCaseStudiesPage } from "../../../pages/about/case-studies";
-import { test as baseTest, expect } from "../../../test";
+import { scrollToFooter, scrollToTop } from "../../../../helpers/utils";
+import { AboutCaseStudiesPage } from "../../../../pages/about/case-studies";
+import { test as baseTest, expect } from "../../../../test";
 
 export interface Fixtures {
     aboutCaseStudiesPage: AboutCaseStudiesPage;

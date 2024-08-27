@@ -1,6 +1,6 @@
-import { scrollToFooter, scrollToTop } from "../../../helpers/utils";
-import { AboutReleaseNotesPage } from "../../../pages/about/release-notes";
-import { test as baseTest, expect } from "../../../test";
+import { scrollToFooter, scrollToTop } from "../../../../helpers/utils";
+import { AboutReleaseNotesPage } from "../../../../pages/about/release-notes";
+import { test as baseTest, expect } from "../../../../test";
 
 export interface Fixtures {
     aboutReleaseNotesPage: AboutReleaseNotesPage;
