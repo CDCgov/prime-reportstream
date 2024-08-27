@@ -1,3 +1,4 @@
+import { developerResourcesApiSideNav } from "../../../../../helpers/internal-links";
 import { DeveloperResourcesApiPage } from "../../../../../pages/public/developer-resources/api/api";
 import { test as baseTest, expect } from "../../../../../test.js";
 
@@ -41,7 +42,7 @@ test.describe(
     },
     () => {
         test("has side nav", async ({ developerResourcesApiPage }) => {
-            await developerResourcesApiPage.testSidenav([]);
+            await developerResourcesApiPage.testSidenav(developerResourcesApiSideNav);
         });
 
         test("pdf file download works", async ({ developerResourcesApiPage }) => {
