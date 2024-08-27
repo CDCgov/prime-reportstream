@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
 import process from "node:process";
 
-import { OrganizationPage } from "../../pages/organization";
+import { OrganizationPage } from "../../pages/authenticated/organization";
 import { test as baseTest } from "../../test";
 
 const timeout = parseInt(process.env.VITE_IDLE_TIMEOUT ?? "20000");
@@ -35,7 +35,7 @@ const test = baseTest.extend<OrganizationPageFixtures>({
             receiverLogin,
             storageState,
             frontendWarningsLogPath,
-            isFrontendWarningsLog
+            isFrontendWarningsLog,
         });
         await page.goto();
         await use(page);
@@ -45,19 +45,14 @@ const test = baseTest.extend<OrganizationPageFixtures>({
 test.use({ storageState: "e2e/.auth/admin.json" });
 
 test.skip("Does not trigger early", async ({ organizationPage }) => {
-    await expect(
-        organizationPage.page.getByRole("banner").first(),
-    ).toBeVisible();
+    await expect(organizationPage.page.getByRole("banner").first()).toBeVisible();
     await organizationPage.page.keyboard.down("Tab");
 
     const start = new Date();
 
-    await organizationPage.page.waitForRequest(
-        /\/oauth2\/default\/v1\/revoke/,
-        {
-            timeout: timeoutHigh,
-        },
-    );
+    await organizationPage.page.waitForRequest(/\/oauth2\/default\/v1\/revoke/, {
+        timeout: timeoutHigh,
+    });
 
     const end = new Date();
 
