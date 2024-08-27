@@ -1,5 +1,5 @@
 import { SamplePayloadsAndOutputs } from "../../../../../../pages/public/developer-resources/api/documentation/sample-payloads-and-output";
-import { test as baseTest, expect } from "../../../../../../test";
+import { test as baseTest } from "../../../../../../test";
 
 export interface SecurityPageFixtures {
     samplePayloadsAndOutputs: SamplePayloadsAndOutputs;
@@ -40,15 +40,8 @@ test.describe(
         tag: "@smoke",
     },
     () => {
-        test("has correct title", async ({ samplePayloadsAndOutputs }) => {
-            await expect(samplePayloadsAndOutputs.page).toHaveTitle(samplePayloadsAndOutputs.title);
-            await expect(samplePayloadsAndOutputs.heading).toBeVisible();
-        });
-
         test("has side nav", async ({ samplePayloadsAndOutputs }) => {
-            await expect(
-                samplePayloadsAndOutputs.page.getByRole("navigation", { name: "side-navigation" }),
-            ).toBeVisible();
+            await samplePayloadsAndOutputs.testSidenav([]);
         });
 
         test("has correct title + heading", async ({ samplePayloadsAndOutputs }) => {

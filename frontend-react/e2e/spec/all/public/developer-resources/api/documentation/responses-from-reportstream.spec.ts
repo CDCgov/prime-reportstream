@@ -1,5 +1,5 @@
 import { ResponsesFromReportStreamPage } from "../../../../../../pages/public/developer-resources/api/documentation/responses-from-reportstream";
-import { test as baseTest, expect } from "../../../../../../test";
+import { test as baseTest } from "../../../../../../test";
 
 export interface SecurityPageFixtures {
     responsesFromReportStreamPage: ResponsesFromReportStreamPage;
@@ -40,15 +40,8 @@ test.describe(
         tag: "@smoke",
     },
     () => {
-        test("has correct title", async ({ responsesFromReportStreamPage }) => {
-            await expect(responsesFromReportStreamPage.page).toHaveTitle(responsesFromReportStreamPage.title);
-            await expect(responsesFromReportStreamPage.heading).toBeVisible();
-        });
-
         test("has side nav", async ({ responsesFromReportStreamPage }) => {
-            await expect(
-                responsesFromReportStreamPage.page.getByRole("navigation", { name: "side-navigation" }),
-            ).toBeVisible();
+            await responsesFromReportStreamPage.testSidenav([]);
         });
 
         test("has correct title + heading", async ({ responsesFromReportStreamPage }) => {

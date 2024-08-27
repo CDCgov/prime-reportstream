@@ -1,5 +1,5 @@
 import { DeveloperResourcesApiDocumentationPage } from "../../../../../../pages/public/developer-resources/api/documentation/index";
-import { test as baseTest, expect } from "../../../../../../test";
+import { test as baseTest } from "../../../../../../test";
 
 export interface SecurityPageFixtures {
     developerResourcesApiDocumentationPage: DeveloperResourcesApiDocumentationPage;
@@ -40,17 +40,8 @@ test.describe(
         tag: "@smoke",
     },
     () => {
-        test("has correct title", async ({ developerResourcesApiDocumentationPage }) => {
-            await expect(developerResourcesApiDocumentationPage.page).toHaveTitle(
-                developerResourcesApiDocumentationPage.title,
-            );
-            await expect(developerResourcesApiDocumentationPage.heading).toBeVisible();
-        });
-
         test("has side nav", async ({ developerResourcesApiDocumentationPage }) => {
-            await expect(
-                developerResourcesApiDocumentationPage.page.getByRole("navigation", { name: "side-navigation" }),
-            ).toBeVisible();
+            await developerResourcesApiDocumentationPage.testSidenav([]);
         });
 
         test("has correct title + heading", async ({ developerResourcesApiDocumentationPage }) => {

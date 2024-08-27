@@ -1,5 +1,5 @@
 import { DeveloperResourcesApiGettingStartedPage } from "../../../../../pages/public/developer-resources/api/getting-started";
-import { test as baseTest, expect } from "../../../../../test";
+import { test as baseTest } from "../../../../../test";
 
 export interface SecurityPageFixtures {
     developerResourcesApiGettingStartedPage: DeveloperResourcesApiGettingStartedPage;
@@ -40,17 +40,8 @@ test.describe(
         tag: "@smoke",
     },
     () => {
-        test("has correct title", async ({ developerResourcesApiGettingStartedPage }) => {
-            await expect(developerResourcesApiGettingStartedPage.page).toHaveTitle(
-                developerResourcesApiGettingStartedPage.title,
-            );
-            await expect(developerResourcesApiGettingStartedPage.heading).toBeVisible();
-        });
-
         test("has side nav", async ({ developerResourcesApiGettingStartedPage }) => {
-            await expect(
-                developerResourcesApiGettingStartedPage.page.getByRole("navigation", { name: "side-navigation" }),
-            ).toBeVisible();
+            await developerResourcesApiGettingStartedPage.testSidenav([]);
         });
 
         test("has correct title + heading", async ({ developerResourcesApiGettingStartedPage }) => {
