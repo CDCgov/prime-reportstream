@@ -33,6 +33,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventPropertie
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils.verifyLineageAndFetchCreatedReportFiles
 import gov.cdc.prime.router.common.validFHIRRecord1
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
@@ -356,15 +357,28 @@ class FHIRDestinationFilterIntegrationTests : Logging {
     fun `should respect jurisdictional filter and not send message`() {
         // set up
         val reportContents = File(VALID_FHIR_URL).readText()
-        val report = UniversalPipelineTestUtils.createReport(
+
+        val convertReport = UniversalPipelineTestUtils.createReport(
+            reportContents,
+            TaskAction.convert,
+            Event.EventAction.DESTINATION_FILTER,
+            azuriteContainer,
+            TaskAction.receive,
+            fileName = "convert.fhir"
+        )
+
+        val destinationFilterReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.destination_filter,
             Event.EventAction.DESTINATION_FILTER,
-            azuriteContainer
+            azuriteContainer,
+            TaskAction.convert,
+            convertReport
         )
+
         val queueMessage = generateQueueMessage(
             TaskAction.destination_filter,
-            report,
+            destinationFilterReport,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithNoTransform
         )
@@ -388,7 +402,9 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         }
 
         // check action table
-        UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.destination_filter))
+        UniversalPipelineTestUtils.checkActionTable(
+            listOf(TaskAction.receive, TaskAction.convert, TaskAction.destination_filter)
+        )
 
         // we don't log applications of jurisdictional filter to ACTION_LOG at this time
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
@@ -397,6 +413,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 .from(Tables.ACTION_LOG)
                 .fetchInto(ActionLog::class.java)
             assertThat(actionLogRecords).isEmpty()
+
+            verifyLineageAndFetchCreatedReportFiles(destinationFilterReport, convertReport, txn, 1)
         }
 
         // check events
@@ -409,8 +427,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
             ReportEventData(
                 UUID.randomUUID(),
-                report.id,
-                listOf(report.id),
+                destinationFilterReport.id,
+                listOf(convertReport.id),
                 Topic.FULL_ELR,
                 "",
                 TaskAction.destination_filter,
