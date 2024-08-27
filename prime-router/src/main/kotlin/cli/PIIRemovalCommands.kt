@@ -19,7 +19,7 @@ import org.hl7.fhir.r4.model.Patient.ContactComponent
 import org.hl7.fhir.r4.model.Practitioner
 import org.hl7.fhir.r4.model.StringType
 
-class TestMessageBankCommands : CliktCommand(
+class PIIRemovalCommands : CliktCommand(
     name = "piiRemoval",
     help = "Remove PII"
 ) {
@@ -30,11 +30,23 @@ class TestMessageBankCommands : CliktCommand(
         .file(true, canBeDir = false, mustBeReadable = true).required()
 
     /**
-     * The output file to send the data to
+     * Output file to write the data with PII removed.
      */
     private val outputFile by option("-o", "--output-file", help = "output file")
         .file()
 
+    /**
+     * FHIR paths for ids to remove
+     */
+    val idPaths = arrayListOf(
+        "Bundle.entry.resource.ofType(Patient).identifier.value",
+        "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().identifier.value",
+        "Bundle.entry.resource.ofType(DiagnosticReport).identifier.value"
+    )
+
+    /**
+     * Method called when the command is run
+     */
     override fun run() {
         // Read the contents of the file
         val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
@@ -87,6 +99,9 @@ class TestMessageBankCommands : CliktCommand(
             .forEach { practitioner ->
                 practitioner.address.forEach { address ->
                     address.line = mutableListOf(StringType(getFakeValueForElementCall("STREET")))
+                    address.city = getFakeValueForElementCallUsingGeoData("CITY", address.state)
+                    address.postalCode = getFakeValueForElementCallUsingGeoData("POSTAL_CODE", address.state)
+                    address.district = getFakeValueForElementCallUsingGeoData("COUNTY", address.state)
                 }
                 practitioner.telecom.forEach { telecom ->
                     handleTelecom(telecom)
@@ -106,6 +121,9 @@ class TestMessageBankCommands : CliktCommand(
         return replaceIds(bundleAfterTransform, prettyText)
     }
 
+    /**
+     * Replaces the patient contact PII data
+     */
     private fun handlePatientContact(contact: ContactComponent): ContactComponent {
         contact.name.given = mutableListOf(StringType(getFakeValueForElementCall("PERSON_GIVEN_NAME")))
         contact.name.family = getFakeValueForElementCall("PERSON_FAMILY_NAME")
@@ -119,7 +137,10 @@ class TestMessageBankCommands : CliktCommand(
         return contact
     }
 
-    // unfortunately needs to be repeated because thye do not share a common ancestor
+    /**
+     * Replaces the organizational contact PII. Unfortunately needs to be repeated because they do not share a common
+     * ancestor
+     */
     private fun handleOrganizationalContact(contact: OrganizationContactComponent): OrganizationContactComponent {
         contact.name.given = mutableListOf(StringType(getFakeValueForElementCall("PERSON_GIVEN_NAME")))
         contact.name.family = getFakeValueForElementCall("PERSON_FAMILY_NAME")
@@ -133,6 +154,9 @@ class TestMessageBankCommands : CliktCommand(
         return contact
     }
 
+    /**
+     * Replaces PII in a telecom
+     */
     private fun handleTelecom(telecom: ContactPoint): ContactPoint {
         if (telecom.system == ContactPoint.ContactPointSystem.EMAIL) {
             telecom.value = getFakeValueForElementCall("EMAIL")
@@ -144,52 +168,20 @@ class TestMessageBankCommands : CliktCommand(
         return telecom
     }
 
+    /**
+     * Replaces the required IDs in the bundle
+     */
     private fun replaceIds(bundle: Bundle, prettyText: String): String {
         var updatedBundle = prettyText
-        updatedBundle = replaceId(bundle, "Bundle.entry.resource.ofType(Patient).identifier.value", updatedBundle)
-        updatedBundle = replaceId(
-            bundle,
-            "Bundle.entry.resource.ofType(DiagnosticReport).identifier.value", updatedBundle
-        )
-        updatedBundle = replaceId(
-            bundle,
-            "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().identifier.value",
-            updatedBundle
-        )
-        updatedBundle = replaceId(
-            bundle,
-            "Bundle.entry.resource.ofType(ServiceRequest)" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request\")" +
-                ".extension(\"OBR.3\").value" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority\")" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\").value",
-                    updatedBundle
-        )
-        updatedBundle = replaceId(
-            bundle,
-            "Bundle.entry.resource.ofType(DiagnosticReport).identifier" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority\")" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\")",
-            updatedBundle
-        )
-        updatedBundle = replaceId(
-            bundle,
-            "Bundle.entry.resource.ofType(Specimen)" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\").value",
-            updatedBundle
-        )
-        updatedBundle = replaceId(
-            bundle,
-            "Bundle.entry.resource.ofType(ServiceRequest)" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request\")" +
-                ".extension(\"OBR.2\").value" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority\")" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\").value",
-            updatedBundle
-        )
+        idPaths.forEach { path ->
+            updatedBundle = replaceId(bundle, path, updatedBundle)
+        }
         return updatedBundle
     }
 
+    /**
+     * Replaces the ID for a specific ID
+     */
     private fun replaceId(bundle: Bundle, path: String, prettyText: String): String {
         FhirPathUtils.evaluate(
             null,
@@ -205,12 +197,18 @@ class TestMessageBankCommands : CliktCommand(
         return prettyText
     }
 
+    /**
+     * Gets a fake value for a given type
+     */
     private fun getFakeValueForElementCall(dataType: String): String {
         return CustomFhirPathFunctions().getFakeValueForElement(
             mutableListOf(mutableListOf(StringType(dataType)))
         )[0].primitiveValue()
     }
 
+    /**
+     * Gets a fake value for a given type that requires geo data
+     */
     private fun getFakeValueForElementCallUsingGeoData(dataType: String, state: String): String {
         return CustomFhirPathFunctions().getFakeValueForElement(
             mutableListOf(mutableListOf(StringType(dataType)), mutableListOf(StringType(state)))
