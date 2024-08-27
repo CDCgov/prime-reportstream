@@ -1,4 +1,3 @@
-import { scrollToFooter, scrollToTop } from "../../../../../../helpers/utils";
 import { ResponsesFromReportStreamPage } from "../../../../../../pages/public/developer-resources/api/documentation/responses-from-reportstream";
 import { test as baseTest, expect } from "../../../../../../test";
 
@@ -52,19 +51,12 @@ test.describe(
             ).toBeVisible();
         });
 
-        test.describe("Footer", () => {
-            test("has footer", async ({ responsesFromReportStreamPage }) => {
-                await expect(responsesFromReportStreamPage.footer).toBeAttached();
-            });
+        test("has correct title + heading", async ({ responsesFromReportStreamPage }) => {
+            await responsesFromReportStreamPage.testHeader();
+        });
 
-            test("explicit scroll to footer and then scroll to top", async ({ responsesFromReportStreamPage }) => {
-                await expect(responsesFromReportStreamPage.footer).not.toBeInViewport();
-                await scrollToFooter(responsesFromReportStreamPage.page);
-                await expect(responsesFromReportStreamPage.footer).toBeInViewport();
-                await expect(responsesFromReportStreamPage.page.getByTestId("govBanner")).not.toBeInViewport();
-                await scrollToTop(responsesFromReportStreamPage.page);
-                await expect(responsesFromReportStreamPage.page.getByTestId("govBanner")).toBeInViewport();
-            });
+        test("footer", async ({ responsesFromReportStreamPage }) => {
+            await responsesFromReportStreamPage.testFooter();
         });
     },
 );

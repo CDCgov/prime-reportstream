@@ -1,4 +1,3 @@
-import { scrollToFooter, scrollToTop } from "../../../../../../helpers/utils";
 import { DeveloperResourcesApiDocumentationPage } from "../../../../../../pages/public/developer-resources/api/documentation/index";
 import { test as baseTest, expect } from "../../../../../../test";
 
@@ -54,21 +53,12 @@ test.describe(
             ).toBeVisible();
         });
 
-        test.describe("Footer", () => {
-            test("has footer", async ({ developerResourcesApiDocumentationPage }) => {
-                await expect(developerResourcesApiDocumentationPage.footer).toBeAttached();
-            });
+        test("has correct title + heading", async ({ developerResourcesApiDocumentationPage }) => {
+            await developerResourcesApiDocumentationPage.testHeader();
+        });
 
-            test("explicit scroll to footer and then scroll to top", async ({
-                developerResourcesApiDocumentationPage,
-            }) => {
-                await expect(developerResourcesApiDocumentationPage.footer).not.toBeInViewport();
-                await scrollToFooter(developerResourcesApiDocumentationPage.page);
-                await expect(developerResourcesApiDocumentationPage.footer).toBeInViewport();
-                await expect(developerResourcesApiDocumentationPage.page.getByTestId("govBanner")).not.toBeInViewport();
-                await scrollToTop(developerResourcesApiDocumentationPage.page);
-                await expect(developerResourcesApiDocumentationPage.page.getByTestId("govBanner")).toBeInViewport();
-            });
+        test("footer", async ({ developerResourcesApiDocumentationPage }) => {
+            await developerResourcesApiDocumentationPage.testFooter();
         });
     },
 );

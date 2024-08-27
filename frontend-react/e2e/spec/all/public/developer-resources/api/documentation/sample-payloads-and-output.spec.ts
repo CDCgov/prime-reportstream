@@ -1,4 +1,3 @@
-import { scrollToFooter, scrollToTop } from "../../../../../../helpers/utils";
 import { SamplePayloadsAndOutputs } from "../../../../../../pages/public/developer-resources/api/documentation/sample-payloads-and-output";
 import { test as baseTest, expect } from "../../../../../../test";
 
@@ -52,19 +51,12 @@ test.describe(
             ).toBeVisible();
         });
 
-        test.describe("Footer", () => {
-            test("has footer", async ({ samplePayloadsAndOutputs }) => {
-                await expect(samplePayloadsAndOutputs.footer).toBeAttached();
-            });
+        test("has correct title + heading", async ({ samplePayloadsAndOutputs }) => {
+            await samplePayloadsAndOutputs.testHeader();
+        });
 
-            test("explicit scroll to footer and then scroll to top", async ({ samplePayloadsAndOutputs }) => {
-                await expect(samplePayloadsAndOutputs.footer).not.toBeInViewport();
-                await scrollToFooter(samplePayloadsAndOutputs.page);
-                await expect(samplePayloadsAndOutputs.footer).toBeInViewport();
-                await expect(samplePayloadsAndOutputs.page.getByTestId("govBanner")).not.toBeInViewport();
-                await scrollToTop(samplePayloadsAndOutputs.page);
-                await expect(samplePayloadsAndOutputs.page.getByTestId("govBanner")).toBeInViewport();
-            });
+        test("footer", async ({ samplePayloadsAndOutputs }) => {
+            await samplePayloadsAndOutputs.testFooter();
         });
     },
 );
