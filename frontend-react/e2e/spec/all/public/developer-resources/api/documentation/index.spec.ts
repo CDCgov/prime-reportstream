@@ -1,3 +1,4 @@
+import { developerResourcesApiSideNav } from "../../../../../../helpers/internal-links";
 import { DeveloperResourcesApiDocumentationPage } from "../../../../../../pages/public/developer-resources/api/documentation/index";
 import { test as baseTest } from "../../../../../../test";
 
@@ -41,7 +42,7 @@ test.describe(
     },
     () => {
         test("has side nav", async ({ developerResourcesApiDocumentationPage }) => {
-            await developerResourcesApiDocumentationPage.testSidenav([]);
+            await developerResourcesApiDocumentationPage.testSidenav(developerResourcesApiSideNav);
         });
 
         test("has correct title + heading", async ({ developerResourcesApiDocumentationPage }) => {

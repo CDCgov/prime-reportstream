@@ -1,3 +1,4 @@
+import { developerResourcesApiSideNav } from "../../../../../../helpers/internal-links";
 import { SamplePayloadsAndOutputs } from "../../../../../../pages/public/developer-resources/api/documentation/sample-payloads-and-output";
 import { test as baseTest } from "../../../../../../test";
 
@@ -41,7 +42,7 @@ test.describe(
     },
     () => {
         test("has side nav", async ({ samplePayloadsAndOutputs }) => {
-            await samplePayloadsAndOutputs.testSidenav([]);
+            await samplePayloadsAndOutputs.testSidenav(developerResourcesApiSideNav);
         });
 
         test("has correct title + heading", async ({ samplePayloadsAndOutputs }) => {

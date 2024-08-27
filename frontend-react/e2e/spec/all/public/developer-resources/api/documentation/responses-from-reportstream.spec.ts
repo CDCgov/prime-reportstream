@@ -1,3 +1,4 @@
+import { developerResourcesApiSideNav } from "../../../../../../helpers/internal-links";
 import { ResponsesFromReportStreamPage } from "../../../../../../pages/public/developer-resources/api/documentation/responses-from-reportstream";
 import { test as baseTest } from "../../../../../../test";
 
@@ -41,7 +42,7 @@ test.describe(
     },
     () => {
         test("has side nav", async ({ responsesFromReportStreamPage }) => {
-            await responsesFromReportStreamPage.testSidenav([]);
+            await responsesFromReportStreamPage.testSidenav(developerResourcesApiSideNav);
         });
 
         test("has correct title + heading", async ({ responsesFromReportStreamPage }) => {
