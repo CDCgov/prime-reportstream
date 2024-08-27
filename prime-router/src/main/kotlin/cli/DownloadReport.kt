@@ -12,7 +12,7 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 
-class DownloadMessage : CliktCommand(
+class DownloadReport : CliktCommand(
     name = "downloadMessage",
     help = "Download a message from a given environment with PII removed."
 ) {
@@ -37,7 +37,7 @@ class DownloadMessage : CliktCommand(
             val contents = BlobAccess.downloadBlobAsByteArray(requestedReport.bodyUrl)
 
             val content = if (removePII == null || removePII.toBoolean()) {
-                TestMessageBankCommands().removePii(FhirTranscoder.decode(contents.toString(Charsets.UTF_8)))
+                PIIRemovalCommands().removePii(FhirTranscoder.decode(contents.toString(Charsets.UTF_8)))
             } else {
                 if (env == "prod") {
                     abort("Must remove PII for messages from prod.")
@@ -48,7 +48,13 @@ class DownloadMessage : CliktCommand(
                 JacksonMapperUtilities.defaultMapper.writeValueAsString(jsonObject)
             }
 
-            outputFile!!.writeText(content, Charsets.UTF_8)
+            if (outputFile != null) {
+                outputFile!!.writeText(content, Charsets.UTF_8)
+            } else {
+                echo("-- MESSAGE OUTPUT ------------------------------------------")
+                echo(content)
+                echo("-- END MESSAGE OUTPUT --------------------------------------")
+            }
         } else if (requestedReport.bodyUrl == null) {
             abort("The requested report does not exist.")
         } else {

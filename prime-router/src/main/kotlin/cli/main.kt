@@ -301,6 +301,6 @@ fun main(args: Array<String>) = RouterCli()
         SyncTranslationSchemaCommand(),
         ValidateYAMLCommand(),
         PIIRemovalCommands(),
-        DownloadMessage()
+        DownloadReport()
     ).context { terminal = Terminal(ansiLevel = AnsiLevel.TRUECOLOR) }
     .main(args)
