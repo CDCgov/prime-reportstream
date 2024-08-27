@@ -1,5 +1,6 @@
+import { aboutSideNav } from "../../../../helpers/internal-links";
 import { AboutReleaseNotesPage } from "../../../../pages/public/about/release-notes";
-import { test as baseTest, expect } from "../../../../test";
+import { test as baseTest } from "../../../../test";
 
 export interface Fixtures {
     aboutReleaseNotesPage: AboutReleaseNotesPage;
@@ -40,15 +41,8 @@ test.describe(
         tag: "@smoke",
     },
     () => {
-        test("has correct title", async ({ aboutReleaseNotesPage }) => {
-            await expect(aboutReleaseNotesPage.page).toHaveTitle(aboutReleaseNotesPage.title);
-            await expect(aboutReleaseNotesPage.heading).toBeVisible();
-        });
-
         test("has side nav", async ({ aboutReleaseNotesPage }) => {
-            await expect(
-                aboutReleaseNotesPage.page.getByRole("navigation", { name: "side-navigation " }),
-            ).toBeVisible();
+            await aboutReleaseNotesPage.testSidenav(aboutSideNav);
         });
 
         test("has correct title + heading", async ({ aboutReleaseNotesPage }) => {

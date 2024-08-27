@@ -1,5 +1,6 @@
+import { aboutSideNav } from "../../../../helpers/internal-links";
 import { AboutCaseStudiesPage } from "../../../../pages/public/about/case-studies";
-import { test as baseTest, expect } from "../../../../test";
+import { test as baseTest } from "../../../../test";
 
 export interface Fixtures {
     aboutCaseStudiesPage: AboutCaseStudiesPage;
@@ -40,13 +41,8 @@ test.describe(
         tag: "@smoke",
     },
     () => {
-        test("has correct title", async ({ aboutCaseStudiesPage }) => {
-            await expect(aboutCaseStudiesPage.page).toHaveTitle(aboutCaseStudiesPage.title);
-            await expect(aboutCaseStudiesPage.heading).toBeVisible();
-        });
-
         test("has side nav", async ({ aboutCaseStudiesPage }) => {
-            await expect(aboutCaseStudiesPage.page.getByRole("navigation", { name: "side-navigation " })).toBeVisible();
+            await aboutCaseStudiesPage.testSidenav(aboutSideNav);
         });
 
         test("has correct title + heading", async ({ aboutCaseStudiesPage }) => {
