@@ -46,9 +46,7 @@ test.describe(
         });
 
         test("has side nav", async ({ developerResourcesApiPage }) => {
-            await expect(
-                developerResourcesApiPage.page.getByRole("navigation", { name: "side-navigation " }),
-            ).toBeVisible();
+            await developerResourcesApiPage.testSidenav([]);
         });
 
         test("pdf file download works", async ({ developerResourcesApiPage }) => {
