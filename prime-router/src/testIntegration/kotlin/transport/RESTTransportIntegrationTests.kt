@@ -981,7 +981,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
     private val oracleRlNRestTransport = RESTTransportType(
         "https://sendURL",
         "",
-        authType = "api key",
+        authType = "Api Key",
         headers = mapOf(
             "Content-Type" to "text/plain",
             "shared-api-key" to "From Vault"
