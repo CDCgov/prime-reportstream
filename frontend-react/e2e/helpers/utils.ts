@@ -85,8 +85,8 @@ export async function tableColumnDateTimeInRange(
     columnNumber: number,
     fromDate: string,
     toDate: string,
-    startTime: string,
-    endTime: string,
+    startTime?: string,
+    endTime?: string,
 ) {
     let datesInRange = true;
     const rowCount = await tableRows(page).count();
@@ -106,7 +106,7 @@ export async function tableColumnDateTimeInRange(
     return datesInRange;
 }
 
-export function fromDateWithTime(date: string, time: string) {
+export function fromDateWithTime(date: string, time?: string) {
     const fromDateTime = new Date(date);
 
     if (time) {
@@ -123,7 +123,7 @@ export function fromDateWithTime(date: string, time: string) {
     return fromDateTime;
 }
 
-export function toDateWithTime(date: string, time: string) {
+export function toDateWithTime(date: string, time?: string) {
     const toDateTime = new Date(date);
 
     if (time) {
