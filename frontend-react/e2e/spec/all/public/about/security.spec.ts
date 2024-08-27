@@ -1,5 +1,5 @@
-import { SecurityPage } from "../../../pages/public/about/security";
-import { test as baseTest, expect } from "../../../test";
+import { SecurityPage } from "../../../../pages/public/about/security";
+import { test as baseTest, expect } from "../../../../test";
 
 const URL_SECURITY = "/about/security";
 

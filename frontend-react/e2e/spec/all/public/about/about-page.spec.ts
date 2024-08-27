@@ -1,5 +1,5 @@
-import { AboutPage } from "../../../pages/about/about";
-import { test as baseTest, expect } from "../../../test";
+import { AboutPage } from "../../../../pages/public/about/about";
+import { test as baseTest, expect } from "../../../../test";
 
 const URL_ABOUT = "/about";
 
