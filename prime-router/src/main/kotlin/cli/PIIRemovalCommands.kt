@@ -19,7 +19,7 @@ import org.hl7.fhir.r4.model.Patient.ContactComponent
 import org.hl7.fhir.r4.model.Practitioner
 import org.hl7.fhir.r4.model.StringType
 
-class TestMessageBankCommands : CliktCommand(
+class PIIRemovalCommands : CliktCommand(
     name = "piiRemoval",
     help = "Remove PII"
 ) {
@@ -34,6 +34,27 @@ class TestMessageBankCommands : CliktCommand(
      */
     private val outputFile by option("-o", "--output-file", help = "output file")
         .file()
+
+    val idPaths = arrayListOf(
+        "Bundle.entry.resource.ofType(Patient).identifier.value",
+        "Bundle.entry.resource.ofType(DiagnosticReport).identifier.value",
+        "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().identifier.value",
+        "Bundle.entry.resource.ofType(ServiceRequest)" +
+            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request\")" +
+            ".extension(\"OBR.3\").value" +
+            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority\")" +
+            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\").value",
+        "Bundle.entry.resource.ofType(DiagnosticReport).identifier" +
+            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority\")" +
+            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\")",
+        "Bundle.entry.resource.ofType(Specimen)" +
+            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\").value",
+        "Bundle.entry.resource.ofType(ServiceRequest)" +
+            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request\")" +
+            ".extension(\"OBR.2\").value" +
+            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority\")" +
+            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\").value"
+    )
 
     override fun run() {
         // Read the contents of the file
@@ -79,6 +100,9 @@ class TestMessageBankCommands : CliktCommand(
             .forEach { practitioner ->
                 practitioner.address.forEach { address ->
                     address.line = mutableListOf(StringType(getFakeValueForElementCall("STREET")))
+                    address.city = getFakeValueForElementCallUsingGeoData("CITY", address.state)
+                    address.postalCode = getFakeValueForElementCallUsingGeoData("POSTAL_CODE", address.state)
+                    address.district = getFakeValueForElementCallUsingGeoData("COUNTY", address.state)
                 }
                 practitioner.telecom.forEach { telecom ->
                     handleTelecom(telecom)
@@ -142,47 +166,9 @@ class TestMessageBankCommands : CliktCommand(
 
     private fun replaceIds(bundle: Bundle, prettyText: String): String {
         var updatedBundle = prettyText
-        updatedBundle = replaceId(bundle, "Bundle.entry.resource.ofType(Patient).identifier.value", updatedBundle)
-        updatedBundle = replaceId(
-            bundle,
-            "Bundle.entry.resource.ofType(DiagnosticReport).identifier.value", updatedBundle
-        )
-        updatedBundle = replaceId(
-            bundle,
-            "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().identifier.value",
-            updatedBundle
-        )
-        updatedBundle = replaceId(
-            bundle,
-            "Bundle.entry.resource.ofType(ServiceRequest)" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request\")" +
-                ".extension(\"OBR.3\").value" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority\")" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\").value",
-                    updatedBundle
-        )
-        updatedBundle = replaceId(
-            bundle,
-            "Bundle.entry.resource.ofType(DiagnosticReport).identifier" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority\")" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\")",
-            updatedBundle
-        )
-        updatedBundle = replaceId(
-            bundle,
-            "Bundle.entry.resource.ofType(Specimen)" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\").value",
-            updatedBundle
-        )
-        updatedBundle = replaceId(
-            bundle,
-            "Bundle.entry.resource.ofType(ServiceRequest)" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request\")" +
-                ".extension(\"OBR.2\").value" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority\")" +
-                ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\").value",
-            updatedBundle
-        )
+        idPaths.forEach { path ->
+            updatedBundle = replaceId(bundle, path, updatedBundle)
+        }
         return updatedBundle
     }
 
