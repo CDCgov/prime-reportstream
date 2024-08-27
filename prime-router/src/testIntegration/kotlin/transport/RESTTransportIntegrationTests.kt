@@ -977,6 +977,49 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         assertThat(retryItems).isNull()
     }
 
+    // Epic localhost end-to-end testing
+    private val oracleRlNRestTransport = RESTTransportType(
+        "https://sendURL",
+        "",
+        authType = "api key",
+        headers = mapOf(
+            "Content-Type" to "text/plain",
+            "shared-api-key" to "From Vault"
+        )
+    )
+
+    @Test
+    fun `test transport postReport with valid message to oracle-rln--etor-nbs-results`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientAuthOk()))
+
+        // Given:
+        //      lookupDefaultCredential returns mock UserApiKeyCredential object to allow
+        //      the getAuthTokenWIthUserApiKey() to be called.
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserApiKeyCredential(
+                "test-user",
+                "oracle123"
+            )
+        )
+
+        // When:
+        //      RESTTransport is called WITH flexionRestTransportType which has transport.parameters
+        val retryItems = mockRestTransport.send(
+            oracleRlNRestTransport, header, reportId, "test", null,
+            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true)
+        )
+
+        // Then:
+        //      getAuthTokenWithUserApiKey should be called with transport.parameters NOT empty
+        verify {
+            runBlocking {
+                mockRestTransport.getAuthTokenWithUserApiKey(flexionRestTransportType, any(), any(), any())
+            }
+        }
+        assertThat(retryItems).isNull()
+    }
+
     @Test
     fun `test post vs put http client`() {
         val logger = mockkClass(Logger::class)

@@ -113,6 +113,9 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
 
                         if (restTransportInfo.authType == "apiKey") {
                             val apiKeyCredential = credential as UserApiKeyCredential
+                            if (httpHeaders["shared-api-key"] == "From Vault") {
+                                httpHeaders["shared-api-key"] = apiKeyCredential.apiKey
+                            }
                             httpHeaders["System_ID"] = apiKeyCredential.user
                             httpHeaders["Key"] = apiKeyCredential.apiKey
                             accessToken = apiKeyCredential.apiKey

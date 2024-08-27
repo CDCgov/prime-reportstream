@@ -45,9 +45,21 @@
         initialTime: "00:00"
         timeZone: "EASTERN"
         maxReportCount: 100
+      description: ""
       transport:
-        type: "SFTP"
-        host: "172.17.6.20"
-        port: 22
-        filePath: "./upload"
-        credentialName: null
+        reportUrl: "https://spaces.erxhubdevcert.cerner.com/etor"
+        authTokenUrl: ""
+        encryptionKeyUrl: ""
+        authType: "api key"
+        tlsKeystore: null
+        parameters: {}
+        jwtParams: {}
+        headers:
+          Content-Type: "text/plain"
+          shared-api-key: "From Vault"
+        authHeaders: {}
+        type: "REST"
+      externalName: null
+      enrichmentSchemaNames: []
+      timeZone: null
+      dateTimeFormat: "OFFSET"
