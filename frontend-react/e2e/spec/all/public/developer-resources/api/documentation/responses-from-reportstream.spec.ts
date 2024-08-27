@@ -1,6 +1,6 @@
-import { scrollToFooter, scrollToTop } from "../../../../../helpers/utils";
-import { ResponsesFromReportStreamPage } from "../../../../../pages/developer-resources/api/documentation/responses-from-reportstream";
-import { test as baseTest, expect } from "../../../../../test";
+import { scrollToFooter, scrollToTop } from "../../../../../../helpers/utils";
+import { ResponsesFromReportStreamPage } from "../../../../../../pages/public/developer-resources/api/documentation/responses-from-reportstream";
+import { test as baseTest, expect } from "../../../../../../test";
 
 export interface SecurityPageFixtures {
     responsesFromReportStreamPage: ResponsesFromReportStreamPage;

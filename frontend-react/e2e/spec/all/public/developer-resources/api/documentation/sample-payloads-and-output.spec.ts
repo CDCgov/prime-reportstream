@@ -1,6 +1,6 @@
-import { scrollToFooter, scrollToTop } from "../../../../../helpers/utils";
-import { SamplePayloadsAndOutputs } from "../../../../../pages/developer-resources/api/documentation/sample-payloads-and-output";
-import { test as baseTest, expect } from "../../../../../test";
+import { scrollToFooter, scrollToTop } from "../../../../../../helpers/utils";
+import { SamplePayloadsAndOutputs } from "../../../../../../pages/public/developer-resources/api/documentation/sample-payloads-and-output";
+import { test as baseTest, expect } from "../../../../../../test";
 
 export interface SecurityPageFixtures {
     samplePayloadsAndOutputs: SamplePayloadsAndOutputs;

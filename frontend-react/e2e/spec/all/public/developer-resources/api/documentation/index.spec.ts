@@ -1,6 +1,6 @@
-import { scrollToFooter, scrollToTop } from "../../../../../helpers/utils";
-import { DeveloperResourcesApiDocumentationPage } from "../../../../../pages/developer-resources/api/documentation/index";
-import { test as baseTest, expect } from "../../../../../test";
+import { scrollToFooter, scrollToTop } from "../../../../../../helpers/utils";
+import { DeveloperResourcesApiDocumentationPage } from "../../../../../../pages/public/developer-resources/api/documentation/index";
+import { test as baseTest, expect } from "../../../../../../test";
 
 export interface SecurityPageFixtures {
     developerResourcesApiDocumentationPage: DeveloperResourcesApiDocumentationPage;

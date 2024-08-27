@@ -1,6 +1,6 @@
-import { scrollToFooter, scrollToTop } from "../../../../helpers/utils";
-import { DeveloperResourcesApiGettingStartedPage } from "../../../../pages/developer-resources/api/getting-started";
-import { test as baseTest, expect } from "../../../../test";
+import { scrollToFooter, scrollToTop } from "../../../../../helpers/utils";
+import { DeveloperResourcesApiGettingStartedPage } from "../../../../../pages/public/developer-resources/api/getting-started";
+import { test as baseTest, expect } from "../../../../../test";
 
 export interface SecurityPageFixtures {
     developerResourcesApiGettingStartedPage: DeveloperResourcesApiGettingStartedPage;
