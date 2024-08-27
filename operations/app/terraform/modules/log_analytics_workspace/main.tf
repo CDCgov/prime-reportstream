@@ -5,6 +5,12 @@ resource "azurerm_log_analytics_workspace" "law" {
   sku                 = "PerGB2018"
   retention_in_days   = var.law_retention_period
 
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
+
   tags = {
     environment = var.environment
   }

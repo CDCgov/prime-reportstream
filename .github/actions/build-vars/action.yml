@@ -100,6 +100,14 @@ runs:
       shell: bash
       run: echo "env_name=test" >> $GITHUB_OUTPUT
 
+    - name: Set Build Environment - TST
+      id: build_tst
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'dkrylov/bcr') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'dkrylov/bcr')
+      shell: bash
+      run: echo "env_name=tst" >> $GITHUB_OUTPUT
+
     - name: Set Build Environment - STAGING
       id: build_staging
       if: |
@@ -131,6 +139,7 @@ runs:
         ${{ steps.build_demo2.outputs.env_name }}\
         ${{ steps.build_demo3.outputs.env_name }}\
         ${{ steps.build_test.outputs.env_name }}\
+        ${{ steps.build_tst.outputs.env_name }}\
         ${{ steps.build_staging.outputs.env_name }}\
         ${{ steps.build_trialfrontend01.outputs.env_name }}\
         ${{ steps.build_trialfrontend02.outputs.env_name }}\
@@ -207,6 +216,7 @@ runs:
         if [[ \
         '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
         '${{ steps.build_result.outputs.env_name }}' == 'test' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'tst' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo1' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo2' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo3' \
@@ -225,6 +235,7 @@ runs:
         if [[ \
         '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
         '${{ steps.build_result.outputs.env_name }}' == 'test' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'tst' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo1' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo2' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo3' \
@@ -244,6 +255,12 @@ runs:
       id: fetch_vpn_ip
       shell: bash
       run: |
-        DNS_IP=$(az container show -g prime-data-hub-${{ steps.build_result.outputs.env_name }} \
-        --name pdh${{ steps.build_result.outputs.env_name }}-dns --query 'ipAddress.ip' -o tsv)
+        if [[ \
+        '${{ steps.build_result.outputs.env_name }}' == 'tst' \
+        ]]; then
+          DNS_IP="172.17.0.135"
+        else
+          DNS_IP=$(az container show -g prime-data-hub-${{ steps.build_result.outputs.env_name }} \
+          --name pdh${{ steps.build_result.outputs.env_name }}-dns --query 'ipAddress.ip' -o tsv)
+        fi        
         echo "dns_ip=$DNS_IP" >> $GITHUB_OUTPUT

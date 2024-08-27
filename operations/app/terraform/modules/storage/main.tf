@@ -10,11 +10,15 @@ resource "azurerm_storage_account" "storage_account" {
   allow_nested_items_to_be_public = false
   enable_https_traffic_only       = true
 
-  network_rules {
-    default_action = var.is_temp_env == true ? "Allow" : "Deny"
-    bypass         = ["AzureServices"]
+  blob_properties {
+    last_access_time_enabled = true
+  }
 
-    virtual_network_subnet_ids = var.subnets.primary_subnets
+  network_rules {
+    default_action             = var.is_temp_env == true ? "Allow" : "Deny"
+    bypass                     = ["AzureServices"]
+    ip_rules                   = var.terraform_caller_ip_address
+    virtual_network_subnet_ids = var.subnets.all_subnets
   }
 
   # Required for customer-managed encryption
@@ -28,7 +32,8 @@ resource "azurerm_storage_account" "storage_account" {
       # validated 5/29/2024
       network_rules[0].ip_rules,
       customer_managed_key,
-      network_rules[0].private_link_access
+      network_rules[0].private_link_access,
+      tags
     ]
   }
 
@@ -43,69 +48,6 @@ resource "azurerm_storage_queue" "storage_queue" {
   storage_account_name = azurerm_storage_account.storage_account.name
 }
 
-module "storageaccount_blob_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_account.id
-  name           = azurerm_storage_account.storage_account.name
-  type           = "storage_account_blob"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["blob"].name
-}
-
-module "storageaccountpartner_blob_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_partner.id
-  name           = azurerm_storage_account.storage_partner.name
-  type           = "storage_account_blob"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["blob"].name
-}
-
-module "storageaccount_file_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_account.id
-  name           = azurerm_storage_account.storage_account.name
-  type           = "storage_account_file"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["file"].name
-}
-
-module "storageaccount_queue_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_account.id
-  name           = azurerm_storage_account.storage_account.name
-  type           = "storage_account_queue"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["queue"].name
-}
 
 # Point-in-time restore, soft delete, versioning, and change feed were
 # enabled in the portal as terraform does not currently support this.
@@ -123,7 +65,7 @@ resource "azurerm_storage_management_policy" "retention_policy" {
 
     filters {
       prefix_match = ["reports/"]
-      blob_types   = ["blockBlob", "appendBlob"]
+      blob_types   = ["blockBlob"]
     }
 
     actions {
@@ -182,6 +124,9 @@ resource "azurerm_storage_account" "storage_public" {
 
   lifecycle {
     prevent_destroy = false
+    ignore_changes = [
+      tags, network_rules
+    ]
   }
 
   tags = {
@@ -209,6 +154,10 @@ resource "azurerm_storage_account" "storage_partner" {
   allow_nested_items_to_be_public = false
   enable_https_traffic_only       = true
 
+  blob_properties {
+    last_access_time_enabled = true
+  }
+
   network_rules {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
     bypass         = ["None"]
@@ -220,7 +169,7 @@ resource "azurerm_storage_account" "storage_partner" {
       var.terraform_caller_ip_address
     ))
 
-    virtual_network_subnet_ids = var.subnets.primary_public_endpoint_subnets
+    virtual_network_subnet_ids = var.subnets.app_subnets
   }
 
   # Required for customer-managed encryption
@@ -232,6 +181,7 @@ resource "azurerm_storage_account" "storage_partner" {
     prevent_destroy = false
     ignore_changes = [
       # validated 5/29/2024
+      tags,
       customer_managed_key,
       network_rules[0].ip_rules,
       network_rules[0].private_link_access
@@ -265,7 +215,7 @@ resource "azurerm_storage_management_policy" "storage_partner_retention_policy" 
 
     filters {
       prefix_match = ["hhsprotect/"]
-      blob_types   = ["blockBlob", "appendBlob"]
+      blob_types   = ["blockBlob"]
     }
 
     actions {

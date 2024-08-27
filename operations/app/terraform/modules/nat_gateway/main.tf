@@ -8,6 +8,9 @@ resource "azurerm_public_ip" "nat_gateway_ip" {
 
   lifecycle {
     prevent_destroy = false
+    ignore_changes = [
+      tags
+    ]
   }
 
   tags = {
@@ -22,6 +25,12 @@ resource "azurerm_nat_gateway" "nat_gateway" {
   sku_name                = "Standard"
   idle_timeout_in_minutes = 10
 
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
+
   tags = {
     environment = var.environment
   }
@@ -32,7 +41,12 @@ resource "azurerm_nat_gateway_public_ip_association" "nat_gateway_ip_association
   public_ip_address_id = azurerm_public_ip.nat_gateway_ip.id
 }
 
-resource "azurerm_subnet_nat_gateway_association" "nat_gateway_public_subnet_association" {
-  subnet_id      = var.subnets.public_subnets[2]
+resource "azurerm_subnet_nat_gateway_association" "nat_gateway_app_subnet_association" {
+  subnet_id      = var.subnets.app_subnets[0]
   nat_gateway_id = azurerm_nat_gateway.nat_gateway.id
+}
+
+resource "azurerm_subnet_nat_gateway_association" "nat_gateway_container_subnet_association" {
+    subnet_id      = var.subnets.container_subnets[0]
+    nat_gateway_id = azurerm_nat_gateway.nat_gateway.id
 }

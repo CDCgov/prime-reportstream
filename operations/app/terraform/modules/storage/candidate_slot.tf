@@ -10,13 +10,17 @@ resource "azurerm_storage_account" "storage_account_candidate" {
   allow_nested_items_to_be_public = false
   enable_https_traffic_only       = true
 
+  blob_properties {
+    last_access_time_enabled = true
+  }
+
   network_rules {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
     bypass         = ["None"]
 
     ip_rules = var.terraform_caller_ip_address
 
-    virtual_network_subnet_ids = var.subnets.vnet_public_container_endpoint_subnets
+    virtual_network_subnet_ids = var.subnets.app_subnets
   }
 
   # Required for customer-managed encryption
@@ -30,7 +34,7 @@ resource "azurerm_storage_account" "storage_account_candidate" {
       # validated 5/29/2024
       customer_managed_key,
       network_rules[0].ip_rules,
-      network_rules[0].private_link_access
+      network_rules[0].private_link_access, tags
     ]
   }
 
@@ -39,69 +43,6 @@ resource "azurerm_storage_account" "storage_account_candidate" {
   }
 }
 
-module "storageaccount_candidate_blob_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_account_candidate.id
-  name           = azurerm_storage_account.storage_account_candidate.name
-  type           = "storage_account_blob"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["blob"].name
-}
-
-module "storageaccountcandidatepartner_blob_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_partner_candidate.id
-  name           = azurerm_storage_account.storage_partner_candidate.name
-  type           = "storage_account_blob"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["blob"].name
-}
-
-module "storageaccount_candidate_file_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_account_candidate.id
-  name           = azurerm_storage_account.storage_account_candidate.name
-  type           = "storage_account_file"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["file"].name
-}
-
-module "storageaccount_candidate_queue_private_endpoint" {
-  for_each = var.subnets.primary_endpoint_subnets
-
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_account_candidate.id
-  name           = azurerm_storage_account.storage_account_candidate.name
-  type           = "storage_account_queue"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids = each.value
-  dns_vnet            = var.dns_vnet
-  resource_prefix     = var.resource_prefix
-  dns_zone            = var.dns_zones["queue"].name
-}
 
 resource "azurerm_storage_management_policy" "retention_policy_candidate" {
   storage_account_id = azurerm_storage_account.storage_account_candidate.id
@@ -112,14 +53,15 @@ resource "azurerm_storage_management_policy" "retention_policy_candidate" {
 
     filters {
       prefix_match = ["reports/"]
-      blob_types   = ["blockBlob", "appendBlob"]
+      blob_types   = ["blockBlob"]
     }
 
     actions {
       dynamic "base_blob" {
         for_each = var.is_temp_env == false ? ["enabled"] : []
         content {
-          delete_after_days_since_modification_greater_than = var.delete_pii_storage_after_days
+          delete_after_days_since_modification_greater_than              = var.delete_pii_storage_after_days
+          tier_to_archive_after_days_since_last_access_time_greater_than = null
         }
       }
       snapshot {
@@ -156,6 +98,10 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
   allow_nested_items_to_be_public = false
   enable_https_traffic_only       = true
 
+  blob_properties {
+    last_access_time_enabled = true
+  }
+
   network_rules {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
     bypass         = ["None"]
@@ -168,7 +114,7 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
 
     ip_rules = var.terraform_caller_ip_address
 
-    virtual_network_subnet_ids = var.subnets.primary_public_endpoint_subnets
+    virtual_network_subnet_ids = var.subnets.app_subnets
   }
 
   # Required for customer-managed encryption
@@ -182,7 +128,7 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
       # validated 5/29/2024
       customer_managed_key,
       network_rules[0].ip_rules,
-      network_rules[0].private_link_access
+      network_rules[0].private_link_access, tags
     ]
   }
 
@@ -218,7 +164,7 @@ resource "azurerm_storage_management_policy" "storage_candidate_partner_retentio
 
     filters {
       prefix_match = ["hhsprotect/"]
-      blob_types   = ["blockBlob", "appendBlob"]
+      blob_types   = ["blockBlob"]
     }
 
     actions {

@@ -1,0 +1,6 @@
+.terraform
+.terraform.lock.hcl
+.infracost
+*.tfstate*
+/tf.plan
+/tfplan.txt

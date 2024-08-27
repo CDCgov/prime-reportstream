@@ -22,14 +22,14 @@ resource "azurerm_linux_web_app" "metabase" {
       action                    = "Allow"
       name                      = "AllowVNetTraffic"
       priority                  = 100
-      virtual_network_subnet_id = var.subnets.public_subnets[2]
+      virtual_network_subnet_id = var.subnets.app_subnets[0]
     }
 
     ip_restriction {
       action                    = "Allow"
       name                      = "AllowVNetEastTraffic"
       priority                  = 100
-      virtual_network_subnet_id = var.subnets.public_subnets[0]
+      virtual_network_subnet_id = var.subnets.app_subnets[0]
     }
 
     ip_restriction {
@@ -121,12 +121,12 @@ resource "azurerm_linux_web_app" "metabase" {
       # You cannot use both methods simultaneously.
       # If the virtual network is set via the resource app_service_virtual_network_swift_connection
       # then ignore_changes should be used in the web app configuration.
-      virtual_network_subnet_id,
+      virtual_network_subnet_id, tags
     ]
   }
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "metabase_vnet_integration" {
   app_service_id = azurerm_linux_web_app.metabase.id
-  subnet_id      = var.use_cdc_managed_vnet ? var.subnets.public_subnets[0] : var.subnets.public_subnets[2]
+  subnet_id      = var.subnets.public_subnets[0]
 }
