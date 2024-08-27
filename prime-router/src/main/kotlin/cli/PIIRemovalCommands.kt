@@ -30,32 +30,23 @@ class PIIRemovalCommands : CliktCommand(
         .file(true, canBeDir = false, mustBeReadable = true).required()
 
     /**
-     * Optional output file.  if no output file is specified then the output is printed to the screen.
+     * Output file to write the data with PII removed.
      */
     private val outputFile by option("-o", "--output-file", help = "output file")
         .file()
 
+    /**
+     * FHIR paths for ids to remove
+     */
     val idPaths = arrayListOf(
         "Bundle.entry.resource.ofType(Patient).identifier.value",
-        "Bundle.entry.resource.ofType(DiagnosticReport).identifier.value",
         "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().identifier.value",
-        "Bundle.entry.resource.ofType(ServiceRequest)" +
-            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request\")" +
-            ".extension(\"OBR.3\").value" +
-            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority\")" +
-            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\").value",
-        "Bundle.entry.resource.ofType(DiagnosticReport).identifier" +
-            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority\")" +
-            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\")",
-        "Bundle.entry.resource.ofType(Specimen)" +
-            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\").value",
-        "Bundle.entry.resource.ofType(ServiceRequest)" +
-            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request\")" +
-            ".extension(\"OBR.2\").value" +
-            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority\")" +
-            ".extension(\"https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id\").value"
+        "Bundle.entry.resource.ofType(DiagnosticReport).identifier.value"
     )
 
+    /**
+     * Method called when the command is run
+     */
     override fun run() {
         // Read the contents of the file
         val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
@@ -126,6 +117,9 @@ class PIIRemovalCommands : CliktCommand(
         echo("Wrote output to ${outputFile!!.absolutePath}")
     }
 
+    /**
+     * Replaces the patient contact PII data
+     */
     private fun handlePatientContact(contact: ContactComponent): ContactComponent {
         contact.name.given = mutableListOf(StringType(getFakeValueForElementCall("PERSON_GIVEN_NAME")))
         contact.name.family = getFakeValueForElementCall("PERSON_FAMILY_NAME")
@@ -139,7 +133,10 @@ class PIIRemovalCommands : CliktCommand(
         return contact
     }
 
-    // unfortunately needs to be repeated because thye do not share a common ancestor
+    /**
+     * Replaces the organizational contact PII. Unfortunately needs to be repeated because they do not share a common
+     * ancestor
+     */
     private fun handleOrganizationalContact(contact: OrganizationContactComponent): OrganizationContactComponent {
         contact.name.given = mutableListOf(StringType(getFakeValueForElementCall("PERSON_GIVEN_NAME")))
         contact.name.family = getFakeValueForElementCall("PERSON_FAMILY_NAME")
@@ -153,6 +150,9 @@ class PIIRemovalCommands : CliktCommand(
         return contact
     }
 
+    /**
+     * Replaces PII in a telecom
+     */
     private fun handleTelecom(telecom: ContactPoint): ContactPoint {
         if (telecom.system == ContactPoint.ContactPointSystem.EMAIL) {
             telecom.value = getFakeValueForElementCall("EMAIL")
@@ -164,6 +164,9 @@ class PIIRemovalCommands : CliktCommand(
         return telecom
     }
 
+    /**
+     * Replaces the required IDs in the bundle
+     */
     private fun replaceIds(bundle: Bundle, prettyText: String): String {
         var updatedBundle = prettyText
         idPaths.forEach { path ->
@@ -172,6 +175,9 @@ class PIIRemovalCommands : CliktCommand(
         return updatedBundle
     }
 
+    /**
+     * Replaces the ID for a specific ID
+     */
     private fun replaceId(bundle: Bundle, path: String, prettyText: String): String {
         FhirPathUtils.evaluate(
             null,
@@ -185,12 +191,18 @@ class PIIRemovalCommands : CliktCommand(
         return prettyText
     }
 
+    /**
+     * Gets a fake value for a given type
+     */
     private fun getFakeValueForElementCall(dataType: String): String {
         return CustomFhirPathFunctions().getFakeValueForElement(
             mutableListOf(mutableListOf(StringType(dataType)))
         )[0].primitiveValue()
     }
 
+    /**
+     * Gets a fake value for a given type that requires geo data
+     */
     private fun getFakeValueForElementCallUsingGeoData(dataType: String, state: String): String {
         return CustomFhirPathFunctions().getFakeValueForElement(
             mutableListOf(mutableListOf(StringType(dataType)), mutableListOf(StringType(state)))

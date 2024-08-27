@@ -18,13 +18,27 @@ import java.io.File
 import java.nio.file.Paths
 
 class RemovePIITest : CoolTest() {
+    /**
+     * The name of the call
+     */
     override val name: String
         get() = "removepiicheck"
+
+    /**
+     * Description of the call
+     */
     override val description: String
         get() = "Tests that all pii is removed from a message"
+
+    /**
+     * Type of test
+     */
     override val status: TestStatus
         get() = TestStatus.SMOKE
 
+    /**
+     * Function that is run when this command is called
+     */
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting remove PII test")
         val inputFilePath = Paths.get("").toAbsolutePath().toString() + "/src/main/kotlin/cli/tests/fakePII.fhir"
@@ -79,6 +93,9 @@ class RemovePIITest : CoolTest() {
         return true
     }
 
+    /**
+     * Tests patient PII is replaced
+     */
     private fun testPatientPIIRemoved(inputBundle: Bundle, outputBundle: Bundle): Boolean {
         var patientIndex = 0
         val outputPatients = outputBundle.entry.map { it.resource }.filterIsInstance<Patient>()
@@ -135,6 +152,9 @@ class RemovePIITest : CoolTest() {
         return true
     }
 
+    /**
+     * Tests name PII is replaced
+     */
     private fun testName(inputName: HumanName, outputName: HumanName): Boolean {
         var givenNameIndex = 0
         inputName.given.forEach { givenName ->
@@ -151,6 +171,9 @@ class RemovePIITest : CoolTest() {
         return true
     }
 
+    /**
+     * Tests address PII is replaced
+     */
     private fun testAddress(inputAddress: Address, outputAddress: Address): Boolean {
         var addressLineIndex = 0
         inputAddress.line.forEach { addressLine ->
@@ -180,6 +203,9 @@ class RemovePIITest : CoolTest() {
         return true
     }
 
+    /**
+     * Tests service request PII is replaced
+     */
     private fun testServiceRequestPIIRemoved(inputBundle: Bundle, outputBundle: Bundle): Boolean {
         var serviceRequestIndex = 0
         val outputServiceRequests = outputBundle.entry.map { it.resource }.filterIsInstance<ServiceRequest>()
@@ -189,7 +215,8 @@ class RemovePIITest : CoolTest() {
                 var noteIndex = 0
                 inputServiceRequest.note.forEach { inputNote ->
                     if (!inputNote.text.isNullOrBlank() &&
-                        inputNote.text == outputServiceRequest.note[noteIndex].text) {
+                        inputNote.text == outputServiceRequest.note[noteIndex].text
+                    ) {
                         return false
                     }
                     noteIndex++
@@ -199,6 +226,9 @@ class RemovePIITest : CoolTest() {
         return true
     }
 
+    /**
+     * Tests observation PII is replaced
+     */
     private fun testObservationPIIRemoved(inputBundle: Bundle, outputBundle: Bundle): Boolean {
         var observationIndex = 0
         val outputObservations = outputBundle.entry.map { it.resource }.filterIsInstance<Observation>()
@@ -224,6 +254,9 @@ class RemovePIITest : CoolTest() {
         return true
     }
 
+    /**
+     * Tests specimen PII is replaced
+     */
     private fun testSpecimenPIIRemoved(inputBundle: Bundle, outputBundle: Bundle): Boolean {
         var specimenIndex = 0
         val outputSpecimens = outputBundle.entry.map { it.resource }.filterIsInstance<Specimen>()
@@ -242,6 +275,9 @@ class RemovePIITest : CoolTest() {
         return true
     }
 
+    /**
+     * Tests organization PII is replaced
+     */
     private fun testOrganizationPIIRemoved(inputBundle: Bundle, outputBundle: Bundle): Boolean {
         var organizationIndex = 0
         val outputOrganizations = outputBundle.entry.map { it.resource }.filterIsInstance<Organization>()
@@ -262,7 +298,8 @@ class RemovePIITest : CoolTest() {
                 var telecomIndex = 0
                 inputOrganization.telecom.forEach { telecom ->
                     if (!telecom.value.isNullOrBlank() &&
-                        telecom.value == outputOrganization.telecom[telecomIndex].value) {
+                        telecom.value == outputOrganization.telecom[telecomIndex].value
+                    ) {
                         return false
                     }
                     telecomIndex++
@@ -280,7 +317,8 @@ class RemovePIITest : CoolTest() {
                     telecomIndex = 0
                     contact.telecom.forEach { telecom ->
                         if (!telecom.value.isNullOrBlank() &&
-                            telecom.value == outputOrganization.telecom[telecomIndex].value) {
+                            telecom.value == outputOrganization.telecom[telecomIndex].value
+                        ) {
                             return false
                         }
                         telecomIndex++
@@ -293,6 +331,9 @@ class RemovePIITest : CoolTest() {
         return true
     }
 
+    /**
+     * Tests practitioner PII is replaced
+     */
     private fun testPractitionerPIIRemoved(inputBundle: Bundle, outputBundle: Bundle): Boolean {
         var practitionerIndex = 0
         val outputPractitioners = outputBundle.entry.map { it.resource }.filterIsInstance<Practitioner>()
@@ -319,7 +360,8 @@ class RemovePIITest : CoolTest() {
                 var telecomIndex = 0
                 inputPractitioner.telecom.forEach { telecom ->
                     if (!telecom.value.isNullOrBlank() &&
-                        telecom.value == outputPractitioner.telecom[telecomIndex].value) {
+                        telecom.value == outputPractitioner.telecom[telecomIndex].value
+                    ) {
                         return false
                     }
                     telecomIndex++
@@ -329,6 +371,9 @@ class RemovePIITest : CoolTest() {
         return true
     }
 
+    /**
+     * Tests PII IDs replaced
+     */
     private fun testIdsRemoved(inputBundle: Bundle, outputContent: String): Boolean {
         PIIRemovalCommands().idPaths.forEach { path ->
             if (!testIdRemoved(path, inputBundle, outputContent)) {
@@ -338,6 +383,9 @@ class RemovePIITest : CoolTest() {
         return true
     }
 
+    /**
+     * Tests specific PII id is replaced
+     */
     fun testIdRemoved(path: String, inputBundle: Bundle, outputcontent: String): Boolean {
         FhirPathUtils.evaluate(
             null,
