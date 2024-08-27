@@ -1,4 +1,3 @@
-import { scrollToFooter, scrollToTop } from "../../../../helpers/utils";
 import { AboutReleaseNotesPage } from "../../../../pages/public/about/release-notes";
 import { test as baseTest, expect } from "../../../../test";
 
@@ -52,19 +51,12 @@ test.describe(
             ).toBeVisible();
         });
 
-        test.describe("Footer", () => {
-            test("has footer", async ({ aboutReleaseNotesPage }) => {
-                await expect(aboutReleaseNotesPage.footer).toBeAttached();
-            });
+        test("has correct title + heading", async ({ aboutReleaseNotesPage }) => {
+            await aboutReleaseNotesPage.testHeader();
+        });
 
-            test("explicit scroll to footer and then scroll to top", async ({ aboutReleaseNotesPage }) => {
-                await expect(aboutReleaseNotesPage.footer).not.toBeInViewport();
-                await scrollToFooter(aboutReleaseNotesPage.page);
-                await expect(aboutReleaseNotesPage.footer).toBeInViewport();
-                await expect(aboutReleaseNotesPage.page.getByTestId("govBanner")).not.toBeInViewport();
-                await scrollToTop(aboutReleaseNotesPage.page);
-                await expect(aboutReleaseNotesPage.page.getByTestId("govBanner")).toBeInViewport();
-            });
+        test("footer", async ({ aboutReleaseNotesPage }) => {
+            await aboutReleaseNotesPage.testFooter();
         });
     },
 );

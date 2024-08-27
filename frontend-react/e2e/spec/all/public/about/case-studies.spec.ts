@@ -1,4 +1,3 @@
-import { scrollToFooter, scrollToTop } from "../../../../helpers/utils";
 import { AboutCaseStudiesPage } from "../../../../pages/public/about/case-studies";
 import { test as baseTest, expect } from "../../../../test";
 
@@ -50,19 +49,12 @@ test.describe(
             await expect(aboutCaseStudiesPage.page.getByRole("navigation", { name: "side-navigation " })).toBeVisible();
         });
 
-        test.describe("Footer", () => {
-            test("has footer", async ({ aboutCaseStudiesPage }) => {
-                await expect(aboutCaseStudiesPage.footer).toBeAttached();
-            });
+        test("has correct title + heading", async ({ aboutCaseStudiesPage }) => {
+            await aboutCaseStudiesPage.testHeader();
+        });
 
-            test("explicit scroll to footer and then scroll to top", async ({ aboutCaseStudiesPage }) => {
-                await expect(aboutCaseStudiesPage.footer).not.toBeInViewport();
-                await scrollToFooter(aboutCaseStudiesPage.page);
-                await expect(aboutCaseStudiesPage.footer).toBeInViewport();
-                await expect(aboutCaseStudiesPage.page.getByTestId("govBanner")).not.toBeInViewport();
-                await scrollToTop(aboutCaseStudiesPage.page);
-                await expect(aboutCaseStudiesPage.page.getByTestId("govBanner")).toBeInViewport();
-            });
+        test("footer", async ({ aboutCaseStudiesPage }) => {
+            await aboutCaseStudiesPage.testFooter();
         });
     },
 );
