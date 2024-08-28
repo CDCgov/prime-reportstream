@@ -351,6 +351,7 @@ class Report : Logging {
         nextAction: TaskAction = TaskAction.process,
         topic: Topic,
         id: UUID = UUID.randomUUID(),
+        bodyURL: String = "",
     ) {
         this.id = id
         // UP submissions do not need a schema, but it is required by the database to maintain legacy functionality
@@ -366,6 +367,7 @@ class Report : Logging {
         this.metadata = metadata ?: Metadata.getInstance()
         this.itemCountBeforeQualFilter = numberOfMessages
         this.nextAction = nextAction
+        this.bodyURL = bodyURL
     }
 
     data class ParentItemLineageData(val parentReportId: UUID, val parentReportIndex: Int)

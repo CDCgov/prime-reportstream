@@ -1,15 +1,19 @@
 package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
+import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNull
 import com.azure.data.tables.TableServiceClient
 import com.azure.data.tables.TableServiceClientBuilder
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.QueueAccess
@@ -18,12 +22,18 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.ActionLogType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.ReportEventData
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.azure.observability.event.ReportStreamReportEvent
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransform
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransformInactive
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.hl7SenderWithNoTransform
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.universalPipelineOrganization
 import gov.cdc.prime.router.common.cleanHL7Record
+import gov.cdc.prime.router.common.invalidMalformedFHIRRecord
+import gov.cdc.prime.router.common.unparseableHL7Record
 import gov.cdc.prime.router.common.validFHIRRecord1
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
@@ -43,6 +53,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.assertNotNull
 
@@ -144,18 +155,20 @@ class FHIRReceiverIntegrationTests {
         )
 
         val reportId = UUID.randomUUID()
+        val headers = mapOf(
+            "content-type" to "application/fhir+ndjson;test",
+            "x-azure-clientip" to "0.0.0.0",
+            "payloadname" to "test_message",
+            "client_id" to fhirSenderWithNoTransformInactive.fullName,
+            "content-length" to "100"
+        )
 
         val receiveQueueMessage = generateReceiveQueueMessage(
             reportId.toString(),
             receiveBlobUrl,
             receivedReportContents,
             fhirSenderWithNoTransformInactive,
-            headers = mapOf(
-                "content-type" to "application/fhir+ndjson;test",
-                "x-azure-clientip" to "0.0.0.0",
-                "payloadname" to "test_message",
-                "client_id" to fhirSenderWithNoTransformInactive.fullName,
-            )
+            headers = headers
         )
 
         val fhirFunctions = createFHIRFunctionsInstance()
@@ -199,6 +212,32 @@ class FHIRReceiverIntegrationTests {
         "[Sender has customer status INACTIVE: phd.fhir-elr-no-transform-inactive]"
         )
         assertThat(tableRow.getProperty("body_url")).isEqualTo(receiveBlobUrl)
+
+        assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.REPORT_RECEIVED]!!).hasSize(1)
+        val event =
+            azureEventService
+                .reportStreamEvents[ReportStreamEventName.REPORT_RECEIVED]!!.last() as ReportStreamReportEvent
+        assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+            ReportEventData(
+                reportId,
+                null,
+                emptyList(),
+                Topic.FULL_ELR,
+                receiveBlobUrl,
+                TaskAction.receive,
+                OffsetDateTime.now()
+            ),
+            ReportEventData::timestamp
+        )
+        assertThat(event.params).isEqualTo(
+            mapOf(
+                ReportStreamEventProperties.ITEM_FORMAT to MimeFormat.FHIR,
+                ReportStreamEventProperties.SENDER_NAME to fhirSenderWithNoTransformInactive.fullName,
+                ReportStreamEventProperties.FILE_LENGTH to headers["content-length"],
+                ReportStreamEventProperties.SENDER_IP to headers["x-azure-clientip"],
+                ReportStreamEventProperties.REQUEST_PARAMETERS to headers.toString()
+            )
+        )
     }
 
     @Test
@@ -207,18 +246,20 @@ class FHIRReceiverIntegrationTests {
         val submissionBlobUrl = "http://anyblob.com"
 
         val reportId = UUID.randomUUID()
+        val headers = mapOf(
+            "content-type" to "application/fhir+ndjson;test",
+            "x-azure-clientip" to "0.0.0.0",
+            "payloadname" to "test_message",
+            "client_id" to "unknown_sender",
+            "content-length" to "100"
+        )
 
         val receiveQueueMessage = generateReceiveQueueMessage(
             reportId.toString(),
             submissionBlobUrl,
             submissionMessageContents,
             fhirSenderWithNoTransformInactive,
-            headers = mapOf(
-                "content-type" to "application/fhir+ndjson;test",
-                "x-azure-clientip" to "0.0.0.0",
-                "payloadname" to "test_message",
-                "client_id" to "unknown_sender",
-            )
+            headers = headers
         )
 
         val fhirFunctions = createFHIRFunctionsInstance()
@@ -257,6 +298,29 @@ class FHIRReceiverIntegrationTests {
         assertNotNull(tableRow)
         assertThat(tableRow.getProperty("detail")).isEqualTo("Sender not found matching client_id: unknown_sender")
         assertThat(tableRow.getProperty("body_url")).isEqualTo(submissionBlobUrl)
+
+        assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.REPORT_NOT_RECEIVABLE]!!).hasSize(1)
+        val event =
+            azureEventService
+                .reportStreamEvents[ReportStreamEventName.REPORT_NOT_RECEIVABLE]!!.last() as ReportStreamReportEvent
+        assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+            ReportEventData(
+                reportId,
+                null,
+                emptyList(),
+                null,
+                submissionBlobUrl,
+                TaskAction.receive,
+                OffsetDateTime.now()
+            ),
+            ReportEventData::timestamp
+        )
+        assertThat(event.params).isEqualTo(
+            mapOf(
+                ReportStreamEventProperties.PROCESSING_ERROR to "Unable to create report from received message.",
+                ReportStreamEventProperties.REQUEST_PARAMETERS to headers.toString()
+            )
+        )
     }
 
     @Test
@@ -271,18 +335,20 @@ class FHIRReceiverIntegrationTests {
         )
 
         val reportId = UUID.randomUUID()
+        val headers = mapOf(
+            "content-type" to "application/fhir+ndjson;test",
+            "x-azure-clientip" to "0.0.0.0",
+            "payloadname" to "test_message",
+            "client_id" to fhirSenderWithNoTransform.fullName,
+            "content-length" to "100"
+        )
 
         val receiveQueueMessage = generateReceiveQueueMessage(
             reportId.toString(),
             receiveBlobUrl,
             receivedReportContents,
             fhirSenderWithNoTransform,
-            headers = mapOf(
-                "content-type" to "application/fhir+ndjson;test",
-                "x-azure-clientip" to "0.0.0.0",
-                "payloadname" to "test_message",
-                "client_id" to fhirSenderWithNoTransform.fullName,
-            )
+            headers = headers
         )
 
         val fhirFunctions = createFHIRFunctionsInstance()
@@ -322,6 +388,32 @@ class FHIRReceiverIntegrationTests {
         assertNotNull(tableRow)
         assertThat(tableRow.getProperty("body_url")).isEqualTo(receiveBlobUrl)
         assertThat(tableRow.getProperty("detail")).isNull()
+
+        assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.REPORT_RECEIVED]!!).hasSize(1)
+        val event =
+            azureEventService
+                .reportStreamEvents[ReportStreamEventName.REPORT_RECEIVED]!!.last() as ReportStreamReportEvent
+        assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+            ReportEventData(
+                reportId,
+                null,
+                emptyList(),
+                Topic.FULL_ELR,
+                receiveBlobUrl,
+                TaskAction.receive,
+                OffsetDateTime.now()
+            ),
+            ReportEventData::timestamp
+        )
+        assertThat(event.params).isEqualTo(
+            mapOf(
+                ReportStreamEventProperties.ITEM_FORMAT to MimeFormat.FHIR,
+                ReportStreamEventProperties.SENDER_NAME to fhirSenderWithNoTransform.fullName,
+                ReportStreamEventProperties.FILE_LENGTH to headers["content-length"],
+                ReportStreamEventProperties.SENDER_IP to headers["x-azure-clientip"],
+                ReportStreamEventProperties.REQUEST_PARAMETERS to headers.toString()
+            )
+        )
     }
 
     @Test
@@ -336,18 +428,19 @@ class FHIRReceiverIntegrationTests {
         )
 
         val reportId = UUID.randomUUID()
-
+        val headers = mapOf(
+            "content-type" to "application/hl7-v2;test",
+            "x-azure-clientip" to "0.0.0.0",
+            "payloadname" to "test_message",
+            "client_id" to hl7SenderWithNoTransform.fullName,
+            "content-length" to "100"
+        )
         val receiveQueueMessage = generateReceiveQueueMessage(
             reportId.toString(),
             receiveBlobUrl,
             receivedReportContents,
             hl7SenderWithNoTransform,
-            headers = mapOf(
-                "content-type" to "application/hl7-v2;test",
-                "x-azure-clientip" to "0.0.0.0",
-                "payloadname" to "test_message",
-                "client_id" to hl7SenderWithNoTransform.fullName,
-            )
+            headers
         )
 
         val fhirFunctions = createFHIRFunctionsInstance()
@@ -387,5 +480,218 @@ class FHIRReceiverIntegrationTests {
         assertNotNull(tableRow)
         assertThat(tableRow.getProperty("body_url")).isEqualTo(receiveBlobUrl)
         assertThat(tableRow.getProperty("detail")).isNull()
+
+        assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.REPORT_RECEIVED]!!).hasSize(1)
+        val event =
+            azureEventService
+                .reportStreamEvents[ReportStreamEventName.REPORT_RECEIVED]!!.last() as ReportStreamReportEvent
+        assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+            ReportEventData(
+                reportId,
+                null,
+                emptyList(),
+                Topic.FULL_ELR,
+                receiveBlobUrl,
+                TaskAction.receive,
+                OffsetDateTime.now()
+            ),
+            ReportEventData::timestamp
+        )
+        assertThat(event.params).isEqualTo(
+            mapOf(
+                ReportStreamEventProperties.ITEM_FORMAT to MimeFormat.HL7,
+                ReportStreamEventProperties.SENDER_NAME to hl7SenderWithNoTransform.fullName,
+                ReportStreamEventProperties.FILE_LENGTH to headers["content-length"],
+                ReportStreamEventProperties.SENDER_IP to headers["x-azure-clientip"],
+                ReportStreamEventProperties.REQUEST_PARAMETERS to headers.toString()
+            )
+        )
+    }
+
+    @Test
+    fun `test process invalid FHIR message`() {
+        val invalidReceivedReportContents =
+            listOf(invalidMalformedFHIRRecord)
+                .joinToString("\n")
+        val receiveBlobUrl = BlobAccess.uploadBlob(
+            "receive/fail-path.fhir",
+            invalidReceivedReportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
+
+        val reportId = UUID.randomUUID()
+        val headers = mapOf(
+            "content-type" to "application/fhir+ndjson;test",
+            "x-azure-clientip" to "0.0.0.0",
+            "payloadname" to "test_message",
+            "client_id" to fhirSenderWithNoTransform.fullName,
+            "content-length" to "100"
+        )
+
+        val receiveQueueMessage = generateReceiveQueueMessage(
+            reportId.toString(),
+            receiveBlobUrl,
+            invalidReceivedReportContents,
+            fhirSenderWithNoTransform,
+            headers = headers
+        )
+
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        fhirFunctions.process(
+            receiveQueueMessage,
+            1,
+            createFHIRReceiver(),
+            ActionHistory(TaskAction.receive)
+        )
+
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk())
+                .from(Tables.ACTION_LOG)
+                .where(Tables.ACTION_LOG.REPORT_ID.eq(reportId))
+                .and(Tables.ACTION_LOG.TYPE.eq(ActionLogType.error))
+                .fetchInto(DetailedActionLog::class.java)
+
+            assertThat(actionLogs.count()).isEqualTo(1)
+            assertThat(actionLogs.first().detail.message).isEqualTo("1: Unable to parse FHIR data.")
+
+            val reportFile = DSL.using(txn).select(Tables.REPORT_FILE.asterisk())
+                .from(Tables.REPORT_FILE)
+                .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
+                .fetchInto(DetailedReport::class.java)
+
+            assertThat(reportFile).isNotEmpty()
+        }
+
+        verify(exactly = 0) {
+            QueueAccess.sendMessage(any(), any())
+        }
+
+        val tableRow = tableServiceClient
+            .getTableClient("submission")
+            .getEntity(reportId.toString(), "Accepted")
+
+        assertNotNull(tableRow)
+        assertThat(tableRow.getProperty("body_url")).isEqualTo(receiveBlobUrl)
+        assertThat(tableRow.getProperty("detail")).isEqualTo("[1: Unable to parse FHIR data.]")
+
+        assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.REPORT_RECEIVED]!!).hasSize(1)
+        val event =
+            azureEventService
+                .reportStreamEvents[ReportStreamEventName.REPORT_RECEIVED]!!.last() as ReportStreamReportEvent
+        assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+            ReportEventData(
+                reportId,
+                null,
+                emptyList(),
+                Topic.FULL_ELR,
+                receiveBlobUrl,
+                TaskAction.receive,
+                OffsetDateTime.now()
+            ),
+            ReportEventData::timestamp
+        )
+        assertThat(event.params).isEqualTo(
+            mapOf(
+                ReportStreamEventProperties.ITEM_FORMAT to MimeFormat.FHIR,
+                ReportStreamEventProperties.SENDER_NAME to fhirSenderWithNoTransform.fullName,
+                ReportStreamEventProperties.FILE_LENGTH to headers["content-length"],
+                ReportStreamEventProperties.SENDER_IP to headers["x-azure-clientip"],
+                ReportStreamEventProperties.REQUEST_PARAMETERS to headers.toString()
+            )
+        )
+    }
+
+    @Test
+    fun `test process invalid HL7 message`() {
+        val invalidReceivedReportContents =
+            listOf(unparseableHL7Record)
+                .joinToString("\n")
+        val receiveBlobUrl = BlobAccess.uploadBlob(
+            "receive/fail-path.hl7",
+            invalidReceivedReportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
+
+        val reportId = UUID.randomUUID()
+        val headers = mapOf(
+            "content-type" to "application/hl7-v2;test",
+            "x-azure-clientip" to "0.0.0.0",
+            "payloadname" to "test_message",
+            "client_id" to hl7SenderWithNoTransform.fullName,
+            "content-length" to "100"
+        )
+
+        val receiveQueueMessage = generateReceiveQueueMessage(
+            reportId.toString(),
+            receiveBlobUrl,
+            invalidReceivedReportContents,
+            hl7SenderWithNoTransform,
+            headers = headers
+        )
+
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        fhirFunctions.process(
+            receiveQueueMessage,
+            1,
+            createFHIRReceiver(),
+            ActionHistory(TaskAction.receive)
+        )
+
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk())
+                .from(Tables.ACTION_LOG)
+                .where(Tables.ACTION_LOG.REPORT_ID.eq(reportId))
+                .and(Tables.ACTION_LOG.TYPE.eq(ActionLogType.error))
+                .fetchInto(DetailedActionLog::class.java)
+
+            assertThat(actionLogs.count()).isEqualTo(2)
+
+            val reportFile = DSL.using(txn).select(Tables.REPORT_FILE.asterisk())
+                .from(Tables.REPORT_FILE)
+                .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
+                .fetchInto(DetailedReport::class.java)
+
+            assertThat(reportFile).isNotEmpty()
+        }
+
+        verify(exactly = 0) {
+            QueueAccess.sendMessage(any(), any())
+        }
+
+        val tableRow = tableServiceClient
+            .getTableClient("submission")
+            .getEntity(reportId.toString(), "Accepted")
+
+        assertNotNull(tableRow)
+        assertThat(tableRow.getProperty("body_url")).isEqualTo(receiveBlobUrl)
+        assertThat(tableRow.getProperty("detail")).isEqualTo("[Failed to parse message, Failed to parse message]")
+
+        assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.REPORT_RECEIVED]!!).hasSize(1)
+        val event =
+            azureEventService
+                .reportStreamEvents[ReportStreamEventName.REPORT_RECEIVED]!!.last() as ReportStreamReportEvent
+        assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+            ReportEventData(
+                reportId,
+                null,
+                emptyList(),
+                Topic.FULL_ELR,
+                receiveBlobUrl,
+                TaskAction.receive,
+                OffsetDateTime.now()
+            ),
+            ReportEventData::timestamp
+        )
+        assertThat(event.params).isEqualTo(
+            mapOf(
+                ReportStreamEventProperties.ITEM_FORMAT to MimeFormat.HL7,
+                ReportStreamEventProperties.SENDER_NAME to hl7SenderWithNoTransform.fullName,
+                ReportStreamEventProperties.FILE_LENGTH to headers["content-length"],
+                ReportStreamEventProperties.SENDER_IP to headers["x-azure-clientip"],
+                ReportStreamEventProperties.REQUEST_PARAMETERS to headers.toString()
+            )
+        )
     }
 }

@@ -143,12 +143,20 @@ class FHIRReceiver(
             // Send an error event
             reportEventService.sendReceiveProcessingError(
                 ReportStreamEventName.REPORT_NOT_RECEIVABLE,
-                TaskAction.convert,
+                TaskAction.receive,
                 "Unable to create report from received message.",
                 queueMessage.reportId,
                 queueMessage.blobURL
             ) {
-                params(actionLogger.errors.associateBy { ReportStreamEventProperties.PROCESSING_ERROR })
+                params(
+                    actionLogger.errors.associateBy { ReportStreamEventProperties.PROCESSING_ERROR }
+                        .plus(
+                            mapOf(
+                                ReportStreamEventProperties.REQUEST_PARAMETERS to queueMessage.headers.toString(),
+                            )
+                        )
+
+                )
             }
 
             // Insert the rejection into the submissions table
@@ -218,7 +226,8 @@ class FHIRReceiver(
                     ReportStreamEventProperties.REQUEST_PARAMETERS to queueMessage.headers.toString(),
                     ReportStreamEventProperties.SENDER_NAME to sender.fullName,
                     ReportStreamEventProperties.FILE_LENGTH to queueMessage.headers["content-length"].toString(),
-                    getSenderIP(queueMessage.headers)?.let { ReportStreamEventProperties.SENDER_IP to it }
+                    getSenderIP(queueMessage.headers)?.let { ReportStreamEventProperties.SENDER_IP to it },
+                    ReportStreamEventProperties.ITEM_FORMAT to mimeFormat
                 ).toMap()
             )
         }
@@ -283,7 +292,8 @@ class FHIRReceiver(
                         metadata = metadata,
                         nextAction = TaskAction.convert,
                         topic = sender.topic,
-                        id = queueMessage.reportId
+                        id = queueMessage.reportId,
+                        bodyURL = queueMessage.blobURL
                     )
 
                     // TODO fix and re-enable https://github.com/CDCgov/prime-reportstream/issues/14103
@@ -311,7 +321,8 @@ class FHIRReceiver(
                         metadata = metadata,
                         nextAction = TaskAction.convert,
                         topic = sender.topic,
-                        id = queueMessage.reportId
+                        id = queueMessage.reportId,
+                        bodyURL = queueMessage.blobURL
                     )
                 }
 

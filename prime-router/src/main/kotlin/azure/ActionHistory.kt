@@ -36,7 +36,6 @@ import org.jooq.impl.SQLDataType
 import java.net.URI
 import java.net.URISyntaxException
 import java.time.LocalDateTime
-import java.util.UUID
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -390,30 +389,6 @@ class ActionHistory(
         val reportFile = ReportFile()
         reportFile.reportId = reportId
         reportsIn[reportId] = reportFile
-    }
-
-    /**
-     * track that a message was received though a full report could not be created
-     */
-    fun trackReceivedNoReport(
-        reportId: UUID,
-        blobUrl: String,
-        blobFormat: String,
-        nextAction: TaskAction,
-        payloadName: String? = null,
-    ) {
-        if (isReportAlreadyTracked(reportId)) {
-            error("Bug: attempt to track history of a report ($reportId) we've already associated with this action")
-        }
-
-        val reportFile = ReportFile()
-        reportFile.reportId = reportId
-        reportFile.nextAction = nextAction
-        reportFile.bodyUrl = blobUrl
-        reportFile.bodyFormat = blobFormat
-        reportFile.externalName = payloadName
-        action.externalName = payloadName
-        reportsReceived[reportFile.reportId] = reportFile
     }
 
     /**

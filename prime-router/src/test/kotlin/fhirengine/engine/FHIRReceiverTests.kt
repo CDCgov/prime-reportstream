@@ -25,6 +25,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.common.cleanHL7Record
 import gov.cdc.prime.router.report.ReportService
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -87,6 +88,8 @@ class FHIRReceiverTest {
         contentType: String,
         customerStatus: CustomerStatus,
         hasErrors: Boolean,
+        reportID: UUID = UUID.randomUUID(),
+
     ): FHIRTestSetup {
         mockkObject(BlobAccess)
         val actionHistory = mockk<ActionHistory>()
@@ -94,7 +97,7 @@ class FHIRReceiverTest {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            MimeFormat.CSV,
+            MimeFormat.HL7,
             schemaName = "one",
             customerStatus = customerStatus
         )
@@ -103,8 +106,6 @@ class FHIRReceiverTest {
         val message = mockk<FhirReceiveQueueMessage>(relaxed = true)
         val action = Action()
         action.actionName = TaskAction.receive
-
-        val reportID = UUID.randomUUID()
 
         val headers = mapOf(
             "x-azure-clientip" to "0.0.0.0",
@@ -125,8 +126,8 @@ class FHIRReceiverTest {
         every { actionHistory.trackExternalInputReport(any(), any(), any(), any()) } returns Unit
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
         every { BlobAccess.insertTableEntity(any(), any()) } returns Unit
-        every { actionHistory.trackReceivedNoReport(any(), any(), any(), any(), any()) } returns Unit
         every { actionHistory.action } returns action
+        every { BlobAccess.downloadContent(any(), any()) }.returns(cleanHL7Record)
 
         return FHIRTestSetup(engine, actionLogger, actionHistory, message)
     }
@@ -136,7 +137,7 @@ class FHIRReceiverTest {
         val fhirSetup =
             setupMocksForProcessingTest(
                 "unknown_client_id",
-                "application/fhir+ndjson;test",
+                "application/hl7-v2;test",
                 CustomerStatus.ACTIVE,
                 true
             )
@@ -151,23 +152,18 @@ class FHIRReceiverTest {
             engine.run(queueMessage, actionLogger, actionHistory, txn)
         }
 
-        assertThat(actionLogger.errors).hasSize(1)
-        assertThat(
-            actionLogger.errors[0].equals(
-                InvalidParamMessage("Sender not found matching client_id: unknown_client_id")
-            )
-        )
+        assertThat(actionLogger.errors).hasSize(0)
 
         val reportId = queueMessage.reportId.toString()
+        val blobURL = queueMessage.blobURL
         verify(exactly = 1) {
             SubmissionEntity(
                 reportId,
                 "Rejected",
-                queueMessage.blobURL,
+                blobURL,
                 "Sender not found matching client_id: unknown_client_id"
             )
             BlobAccess.Companion.insertTableEntity(any(), any())
-            actionHistory.trackActionResult(HttpStatus.BAD_REQUEST)
         }
     }
 
@@ -176,7 +172,7 @@ class FHIRReceiverTest {
         val fhirSetup =
             setupMocksForProcessingTest(
                 "known_client_id",
-                "application/fhir+ndjson;test",
+                "application/hl7-v2;test",
                 CustomerStatus.INACTIVE,
                 true
             )
@@ -201,7 +197,6 @@ class FHIRReceiverTest {
 
         verify(exactly = 1) {
             BlobAccess.Companion.insertTableEntity(any(), any())
-            actionHistory.trackReceivedNoReport(any(), any(), any(), any(), any())
             actionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
             actionHistory.trackActionSenderInfo("test.Test Sender", "test_message")
         }
@@ -209,17 +204,20 @@ class FHIRReceiverTest {
 
     @Test
     fun `test successful processing`() {
+        val reportID = UUID.randomUUID()
         val fhirSetup =
             setupMocksForProcessingTest(
                 "known_client_id",
-                "application/fhir+ndjson;test",
+                "application/hl7-v2;test",
                 CustomerStatus.ACTIVE,
-                false
+                false,
+                reportID
             )
         val engine = fhirSetup.engine
         val queueMessage = fhirSetup.message
         val actionLogger = fhirSetup.actionLogger
         val actionHistory = fhirSetup.actionHistory
+        every { actionLogger.errors } returns emptyList()
 
         accessSpy.transact { txn ->
             engine.run(queueMessage, actionLogger, actionHistory, txn)
