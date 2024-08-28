@@ -198,8 +198,6 @@
         useTestProcessingMode: false
         useBatchHeaders: false
       transport:
-        type: "SFTP"
-        host: "172.17.6.20"
-        port: 22
-        filePath: "./upload"
-        credentialName: null
+        type: "BLOBSTORE"
+        storageName: "cdctiautomatedstg"
+        containerName: "final"
