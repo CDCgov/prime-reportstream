@@ -14,8 +14,8 @@ resource "azurerm_linux_web_app" "metabase" {
   site_config {
 
     application_stack {
-      docker_image_name   = "metabase/metabase:latest"
-      docker_registry_url = "https://index.docker.io"
+      docker_image_name   = "metabase/metabase:v0.50.7"
+      docker_registry_url = "https://index.docker.io/v1"
     }
 
     ip_restriction {
@@ -122,6 +122,8 @@ resource "azurerm_linux_web_app" "metabase" {
       # If the virtual network is set via the resource app_service_virtual_network_swift_connection
       # then ignore_changes should be used in the web app configuration.
       virtual_network_subnet_id,
+      # Ignore auto-generated hidden-links
+      tags
     ]
   }
 }
