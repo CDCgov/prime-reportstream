@@ -17,6 +17,8 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.azure.SubmissionTableService
+import gov.cdc.prime.router.azure.TableAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.ActionLogType
@@ -92,6 +94,7 @@ class FHIRReceiverIntegrationTests {
             settings,
             ReportStreamTestDatabaseContainer.testDatabaseAccess,
             azureEventService = azureEventService,
+            submissionTableService = SubmissionTableService()
         )
     }
 
@@ -123,8 +126,11 @@ class FHIRReceiverIntegrationTests {
         mockkObject(BlobAccess.BlobContainerMetadata)
         every { BlobAccess.BlobContainerMetadata.build(any(), any()) } returns getBlobContainerMetadata()
 
+        mockkObject(TableAccess)
+        every { TableAccess.getConnectionString() } returns getConnString()
+
         tableServiceClient = TableServiceClientBuilder()
-            .connectionString(getBlobContainerMetadata().connectionString)
+            .connectionString(getConnString())
             .buildClient()
     }
 
@@ -133,14 +139,14 @@ class FHIRReceiverIntegrationTests {
         unmockkAll()
     }
 
-    @Suppress("ktlint:standard:max-line-length")
-    private fun getBlobContainerMetadata(): BlobAccess.BlobContainerMetadata {
-        val blobConnectionString =
-            """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer.host}:${azuriteContainer.getMappedPort(10000)}/devstoreaccount1;QueueEndpoint=http://${azuriteContainer.host}:${azuriteContainer.getMappedPort(10001)}/devstoreaccount1;TableEndpoint=http://${azuriteContainer.host}:${azuriteContainer.getMappedPort(10002)}/devstoreaccount1;"""
-        return BlobAccess.BlobContainerMetadata(
+    private fun getBlobContainerMetadata(): BlobAccess.BlobContainerMetadata = BlobAccess.BlobContainerMetadata(
             "container1",
-            blobConnectionString
+        getConnString()
         )
+
+    private fun getConnString(): String {
+        @Suppress("ktlint:standard:max-line-length")
+        return """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer.host}:${azuriteContainer.getMappedPort(10000)}/devstoreaccount1;QueueEndpoint=http://${azuriteContainer.host}:${azuriteContainer.getMappedPort(10001)}/devstoreaccount1;TableEndpoint=http://${azuriteContainer.host}:${azuriteContainer.getMappedPort(10002)}/devstoreaccount1;"""
     }
 
     @Test

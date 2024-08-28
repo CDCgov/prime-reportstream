@@ -23,6 +23,7 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.cleanHL7Record
@@ -51,6 +52,7 @@ class FHIRReceiverTest {
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
     val reportService: ReportService = mockk<ReportService>()
+    val submissionTableService: SubmissionTableService = mockk<SubmissionTableService>()
     val oneOrganization = DeepOrganization(
         "co-phd",
         "test",
@@ -61,9 +63,18 @@ class FHIRReceiverTest {
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
     val metadata = Metadata(schema = one)
 
-    private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
-        return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .reportService(reportService).blobAccess(blobMock).build(taskAction)
+    private fun makeFhirReceiver(metadata: Metadata, settings: SettingsProvider): FHIRReceiver {
+        return FHIRReceiver(
+            metadata,
+            settings,
+            accessSpy,
+            blobMock,
+            reportService = reportService,
+            submissionTableService = submissionTableService
+        )
+
+//        FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
+//            .reportService(reportService).blobAccess(blobMock).build(taskAction)
     }
 
     @BeforeEach
@@ -102,7 +113,7 @@ class FHIRReceiverTest {
             customerStatus = customerStatus
         )
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.receive) as FHIRReceiver)
+        val engine = spyk(makeFhirReceiver(metadata, settings))
         val message = mockk<FhirReceiveQueueMessage>(relaxed = true)
         val action = Action()
         action.actionName = TaskAction.receive
@@ -125,7 +136,7 @@ class FHIRReceiverTest {
         every { actionHistory.trackActionSenderInfo(any(), any()) } returns Unit
         every { actionHistory.trackExternalInputReport(any(), any(), any(), any()) } returns Unit
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
-        every { BlobAccess.insertTableEntity(any(), any()) } returns Unit
+        every { submissionTableService.insertTableEntity(any()) } returns Unit
         every { actionHistory.action } returns action
         every { BlobAccess.downloadContent(any(), any()) }.returns(cleanHL7Record)
 
@@ -163,7 +174,7 @@ class FHIRReceiverTest {
                 blobURL,
                 "Sender not found matching client_id: unknown_client_id"
             )
-            BlobAccess.Companion.insertTableEntity(any(), any())
+            submissionTableService.insertTableEntity(any())
         }
     }
 
@@ -196,7 +207,7 @@ class FHIRReceiverTest {
         )
 
         verify(exactly = 1) {
-            BlobAccess.Companion.insertTableEntity(any(), any())
+            submissionTableService.insertTableEntity(any())
             actionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
             actionHistory.trackActionSenderInfo("test.Test Sender", "test_message")
         }
@@ -227,7 +238,7 @@ class FHIRReceiverTest {
             actionHistory.trackActionResult(HttpStatus.CREATED)
             actionHistory.trackActionSenderInfo("test.Test Sender", "test_message")
             actionHistory.trackExternalInputReport(any(), any(), any(), any())
-            BlobAccess.Companion.insertTableEntity(any(), any())
+            submissionTableService.insertTableEntity(any())
         }
     }
 
@@ -256,6 +267,6 @@ class FHIRReceiverTest {
 
         assertThat(exception!!.javaClass.name).isEqualTo("java.lang.IllegalArgumentException")
         assertThat(actionLogger.errors).hasSize(1)
-        assertThat(actionLogger.errors[0].detail.message).isEqualTo("Unexpected extension invalid/mime-type.")
+        assertThat(actionLogger.errors[0].detail.message).isEqualTo("Unexpected MIME type invalid/mime-type.")
     }
 }

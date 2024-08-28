@@ -11,6 +11,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
@@ -129,7 +130,8 @@ abstract class FHIREngine(
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
-                    reportService ?: ReportService()
+                    reportService ?: ReportService(),
+                    SubmissionTableService()
                 )
                 TaskAction.process -> FHIRConverter(
                     metadata ?: Metadata.getInstance(),

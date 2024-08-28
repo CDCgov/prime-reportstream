@@ -140,7 +140,7 @@ class BlobAccess() : Logging {
 
     companion object : Logging {
         private const val defaultBlobDownloadRetryVar = "AzureBlobDownloadRetryCount"
-        private val defaultEnvVar = Environment.get().blobEnvVar
+        private val defaultEnvVar = Environment.get().storageEnvVar
         val defaultBlobMetadata by lazy {
             BlobContainerMetadata.build(
                 defaultBlobContainerName,

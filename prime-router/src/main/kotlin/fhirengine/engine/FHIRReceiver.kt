@@ -20,6 +20,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
+import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
@@ -45,6 +46,7 @@ import java.time.OffsetDateTime
  * @param blob Mockable blob storage access.
  * @param azureEventService Service for handling Azure events.
  * @param reportService Service for handling report-related operations.
+ * @param submissionTableService Service for inserting to the submission azure storage table.
  */
 class FHIRReceiver(
     metadata: Metadata = Metadata.getInstance(),
@@ -53,6 +55,7 @@ class FHIRReceiver(
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
     reportService: ReportService = ReportService(),
+    private val submissionTableService: SubmissionTableService = SubmissionTableService(),
 ) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
@@ -166,7 +169,7 @@ class FHIRReceiver(
                     queueMessage.blobURL,
                     "Sender not found matching client_id: " + queueMessage.headers[clientIdHeader]
                 ).toTableEntity()
-            BlobAccess.insertTableEntity("submission", tableEntity)
+            submissionTableService.insertTableEntity(tableEntity)
             return null
         }
 
@@ -239,7 +242,7 @@ class FHIRReceiver(
             queueMessage.blobURL,
             actionLogger.errors.takeIf { it.isNotEmpty() }?.map { it.detail.message }?.toString()
         ).toTableEntity()
-        BlobAccess.insertTableEntity("submission", tableEntity)
+        submissionTableService.insertTableEntity(tableEntity)
 
         return if (actionLogger.errors.isNotEmpty()) {
             emptyList()

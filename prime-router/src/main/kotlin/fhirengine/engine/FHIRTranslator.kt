@@ -222,7 +222,7 @@ class FHIRTranslator(
 
         val converter = FhirToHl7Converter(
             receiver.schemaName,
-            BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().blobEnvVar),
+            BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
             context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions())
         )
         val hl7Message = converter.process(bundle)

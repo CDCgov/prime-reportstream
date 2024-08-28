@@ -778,7 +778,7 @@ class BlobAccessTests {
 
     @Test
     fun `test build container metadata`() {
-        val defaultEnvVar = Environment.get().blobEnvVar
+        val defaultEnvVar = Environment.get().storageEnvVar
         val testEnvVar = "testenv"
         val testContainer = "testcontainer"
 
