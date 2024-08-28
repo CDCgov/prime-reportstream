@@ -1,133 +1,143 @@
-import { expect, test } from "@playwright/test";
-import { selectTestOrg } from "../../../helpers/utils";
-import * as reportDetails from "../../../pages/authenticated/report-details";
+import { expect } from "@playwright/test";
 import * as submissionDetails from "../../../pages/authenticated/submission-history";
 import { URL_SUBMISSION_HISTORY } from "../../../pages/authenticated/submission-history";
+import { id, SubmissionsDetailsPage } from "../../../pages/authenticated/submissions-details";
+import { test as baseTest, logins } from "../../../test";
 
-const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
+export interface SubmissionsDetailsPageFixtures {
+    submissionsDetailsPage: SubmissionsDetailsPage;
+}
+
+const test = baseTest.extend<SubmissionsDetailsPageFixtures>({
+    submissionsDetailsPage: async (
+        {
+            page: _page,
+            isMockDisabled,
+            adminLogin,
+            senderLogin,
+            receiverLogin,
+            storageState,
+            frontendWarningsLogPath,
+            isFrontendWarningsLog,
+        },
+        use,
+    ) => {
+        const page = new SubmissionsDetailsPage({
+            page: _page,
+            isMockDisabled,
+            adminLogin,
+            senderLogin,
+            receiverLogin,
+            storageState,
+            frontendWarningsLogPath,
+            isFrontendWarningsLog,
+            isTestOrg: true,
+        });
+        await page.goto();
+        await use(page);
+    },
+});
+
 test.describe("Submissions Details page", () => {
     test.describe("not authenticated", () => {
-        test("redirects to login", async ({ page }) => {
-            await submissionDetails.gotoDetails(page, id);
-            await expect(page).toHaveURL("/login");
+        test("redirects to login", async ({ submissionsDetailsPage }) => {
+            await expect(submissionsDetailsPage.page).toHaveURL("/login");
         });
     });
 
     test.describe("admin user - happy path", () => {
-        test.use({ storageState: "e2e/.auth/admin.json" });
+        test.use({ storageState: logins.admin.path });
 
         test.describe("without org selected", () => {
-            test.beforeEach(async ({ page }) => {
-                await reportDetails.mockGetSubmissionHistoryResponse(page, id);
-                await submissionDetails.gotoDetails(page, id);
+            test("has correct title", async ({ submissionsDetailsPage }) => {
+                await expect(submissionsDetailsPage.page).toHaveTitle(submissionsDetailsPage.title);
             });
 
-            test("has correct title", async ({ page }) => {
-                await submissionDetails.title(page);
+            test("has reportId in breadcrumb", async ({ submissionsDetailsPage }) => {
+                await expect(submissionsDetailsPage.page.locator(".usa-breadcrumb ol li").nth(1)).toHaveText(
+                    `Details: ${id}`,
+                );
             });
 
-            test("has reportId in breadcrumb", async ({ page }) => {
-                await expect(page.locator(".usa-breadcrumb ol li").nth(1)).toHaveText(`Details: ${id}`);
-            });
-
-            test("has footer", async ({ page }) => {
-                await expect(page.locator("footer")).toBeAttached();
+            test("has footer", async ({ submissionsDetailsPage }) => {
+                await expect(submissionsDetailsPage.page.locator("footer")).toBeAttached();
             });
         });
 
         test.describe("with org selected", () => {
-            test.beforeEach(async ({ page }) => {
-                await selectTestOrg(page);
-                await reportDetails.mockGetSubmissionHistoryResponse(page, id);
-                await submissionDetails.gotoDetails(page, id);
+            test("breadcrumb navigates to Submission History page", async ({ submissionsDetailsPage }) => {
+                await submissionDetails.breadcrumbLink(
+                    submissionsDetailsPage.page,
+                    0,
+                    "Submissions",
+                    URL_SUBMISSION_HISTORY,
+                );
             });
 
-            test("has correct title", async ({ page }) => {
-                await submissionDetails.title(page);
-            });
-
-            test("breadcrumb navigates to Submission History page", async ({ page }) => {
-                await submissionDetails.breadcrumbLink(page, 0, "Submissions", URL_SUBMISSION_HISTORY);
-            });
-
-            test("has footer", async ({ page }) => {
-                await expect(page.locator("footer")).toBeAttached();
+            test("has footer", async ({ submissionsDetailsPage }) => {
+                await expect(submissionsDetailsPage.page.locator("footer")).toBeAttached();
             });
         });
     });
 
     test.describe("admin user - server error", () => {
-        test.use({ storageState: "e2e/.auth/admin.json" });
+        test.use({ storageState: logins.admin.path });
 
-        test.beforeEach(async ({ page }) => {
-            await reportDetails.mockGetSubmissionHistoryResponse(page, id, 500);
-            await submissionDetails.gotoDetails(page, id);
-        });
+        test("error is shown on the page", async ({ submissionsDetailsPage }) => {
+            submissionsDetailsPage.mockError = true;
+            await submissionsDetailsPage.reload();
 
-        test("has error message", async ({ page }) => {
-            await expect(page.getByText(/An error has occurred./)).toBeAttached();
-        });
-
-        test("has footer", async ({ page }) => {
-            await expect(page.locator("footer")).toBeAttached();
+            await expect(submissionsDetailsPage.page.getByText(/An error has occurred./)).toBeAttached();
+            await expect(submissionsDetailsPage.page.locator("footer")).toBeAttached();
         });
     });
 
     test.describe("sender user - happy path", () => {
-        test.use({ storageState: "e2e/.auth/sender.json" });
+        test.use({ storageState: logins.sender.path });
 
-        test.beforeEach(async ({ page }) => {
-            await reportDetails.mockGetSubmissionHistoryResponse(page, id);
-            await submissionDetails.gotoDetails(page, id);
+        test("has correct title", async ({ submissionsDetailsPage }) => {
+            await expect(submissionsDetailsPage.page).toHaveTitle(submissionsDetailsPage.title);
         });
 
-        test("has correct title", async ({ page }) => {
-            await submissionDetails.title(page);
+        test("has reportId in breadcrumb", async ({ submissionsDetailsPage }) => {
+            await expect(submissionsDetailsPage.page.locator(".usa-breadcrumb ol li").nth(1)).toHaveText(
+                `Details: ${id}`,
+            );
         });
 
-        test("has reportId in breadcrumb", async ({ page }) => {
-            await expect(page.locator(".usa-breadcrumb ol li").nth(1)).toHaveText(`Details: ${id}`);
+        test("breadcrumb navigates to Submission History page", async ({ submissionsDetailsPage }) => {
+            await submissionDetails.breadcrumbLink(
+                submissionsDetailsPage.page,
+                0,
+                "Submissions",
+                URL_SUBMISSION_HISTORY,
+            );
         });
 
-        test("breadcrumb navigates to Submission History page", async ({ page }) => {
-            await submissionDetails.breadcrumbLink(page, 0, "Submissions", URL_SUBMISSION_HISTORY);
-        });
-
-        test("has footer", async ({ page }) => {
-            await expect(page.locator("footer")).toBeAttached();
+        test("has footer", async ({ submissionsDetailsPage }) => {
+            await expect(submissionsDetailsPage.page.locator("footer")).toBeAttached();
         });
     });
 
     test.describe("sender user - server error", () => {
-        test.use({ storageState: "e2e/.auth/sender.json" });
+        test.use({ storageState: logins.sender.path });
 
-        test.beforeEach(async ({ page }) => {
-            await reportDetails.mockGetSubmissionHistoryResponse(page, id, 500);
-            await submissionDetails.gotoDetails(page, id);
-        });
-
-        test("has error message", async ({ page }) => {
-            await expect(page.getByText(/An error has occurred./)).toBeAttached();
-        });
-
-        test("has footer", async ({ page }) => {
-            await expect(page.locator("footer")).toBeAttached();
+        test("has error message", async ({ submissionsDetailsPage }) => {
+            submissionsDetailsPage.mockError = true;
+            await submissionsDetailsPage.reload();
+            await expect(submissionsDetailsPage.page.getByText(/An error has occurred./)).toBeAttached();
+            await expect(submissionsDetailsPage.page.locator("footer")).toBeAttached();
         });
     });
 
     test.describe("receiver user", () => {
-        test.use({ storageState: "e2e/.auth/receiver.json" });
+        test.use({ storageState: logins.receiver.path });
 
-        test.beforeEach(async ({ page }) => {
-            await submissionDetails.gotoDetails(page, id);
-        });
-
-        test("has error message", async ({ page }) => {
-            await expect(page.getByText(/An error has occurred./)).toBeAttached();
-        });
-
-        test("has footer", async ({ page }) => {
-            await expect(page.locator("footer")).toBeAttached();
+        test("has error message", async ({ submissionsDetailsPage }) => {
+            submissionsDetailsPage.mockError = true;
+            await submissionsDetailsPage.reload();
+            await expect(submissionsDetailsPage.page.getByText(/An error has occurred./)).toBeAttached();
+            await expect(submissionsDetailsPage.page.locator("footer")).toBeAttached();
         });
     });
 });
