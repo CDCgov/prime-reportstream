@@ -55,7 +55,9 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
         // Set test timeout to be 1 minute instead of 30 seconds
         test.setTimeout(60000);
         for (const path of urlPaths) {
-            await page.goto(path);
+            await page.goto(path, {
+                waitUntil: "networkidle",
+            });
             const baseUrl = new URL(page.url()).origin;
 
             const allATags = await page.getByRole("link", { includeHidden: true }).elementHandles();
