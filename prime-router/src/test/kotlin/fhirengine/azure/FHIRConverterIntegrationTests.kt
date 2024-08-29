@@ -244,9 +244,27 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val (routedReports, _) = fetchChildReports(
+            val (routedReports, unroutedReports) = fetchChildReports(
                 receiveReport, txn, 4
             ).partition { it.nextAction != TaskAction.none }
+            assertThat(routedReports).hasSize(2)
+            routedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.destination_filter)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
+            assertThat(unroutedReports).hasSize(2)
+            unroutedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.none)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -409,9 +427,27 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val (routedReports, _) = fetchChildReports(
+            val (routedReports, unroutedReports) = fetchChildReports(
                 receiveReport, txn, 4
             ).partition { it.nextAction != TaskAction.none }
+            assertThat(routedReports).hasSize(2)
+            routedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.destination_filter)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
+            assertThat(unroutedReports).hasSize(2)
+            unroutedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.none)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -536,6 +572,24 @@ class FHIRConverterIntegrationTests {
             val (routedReports, notRouted) = fetchChildReports(
                 receiveReport, txn, 2
             ).partition { it.nextAction != TaskAction.none }
+
+            with(routedReports.single()) {
+                assertThat(this.nextAction).isEqualTo(TaskAction.destination_filter)
+                assertThat(this.receivingOrg).isEqualTo(null)
+                assertThat(this.receivingOrgSvc).isEqualTo(null)
+                assertThat(this.schemaName).isEqualTo("None")
+                assertThat(this.schemaTopic).isEqualTo(Topic.MARS_OTC_ELR)
+                assertThat(this.bodyFormat).isEqualTo("FHIR")
+            }
+            with(notRouted.single()) {
+                assertThat(this.nextAction).isEqualTo(TaskAction.none)
+                assertThat(this.receivingOrg).isEqualTo(null)
+                assertThat(this.receivingOrgSvc).isEqualTo(null)
+                assertThat(this.schemaName).isEqualTo("None")
+                assertThat(this.schemaTopic).isEqualTo(Topic.MARS_OTC_ELR)
+                assertThat(this.bodyFormat).isEqualTo("FHIR")
+            }
+
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -593,7 +647,7 @@ class FHIRConverterIntegrationTests {
                 .reportStreamEvents[ReportStreamEventName.ITEM_FAILED_VALIDATION]!!.last() as ReportStreamItemEvent
             assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
                 ReportEventData(
-                    notRouted[0].reportId,
+                    notRouted.first().reportId,
                     receiveReport.id,
                     listOf(receiveReport.id),
                     Topic.MARS_OTC_ELR,
@@ -642,6 +696,15 @@ class FHIRConverterIntegrationTests {
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReports = fetchChildReports(receiveReport, txn, 2)
+            routedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.destination_filter)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
+
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -716,7 +779,13 @@ class FHIRConverterIntegrationTests {
             QueueAccess.sendMessage(any(), any())
         }
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            fetchChildReports(receiveReport, txn, 1)
+            val report = fetchChildReports(receiveReport, txn, 1).single()
+            assertThat(report.nextAction).isEqualTo(TaskAction.none)
+            assertThat(report.receivingOrg).isEqualTo(null)
+            assertThat(report.receivingOrgSvc).isEqualTo(null)
+            assertThat(report.schemaName).isEqualTo("None")
+            assertThat(report.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(report.bodyFormat).isEqualTo("FHIR")
         }
     }
 }
