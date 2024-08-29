@@ -8,8 +8,11 @@ import com.azure.storage.queue.models.SendMessageResult
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import gov.cdc.prime.reportstream.shared.QueueMessage
+import gov.cdc.prime.reportstream.shared.QueueMessage.ObjectMapperProvider
 import gov.cdc.prime.reportstream.submissions.TelemetryService
 import gov.cdc.prime.reportstream.submissions.config.AzureConfig
+import io.mockk.clearAllMocks
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -36,6 +39,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.io.ByteArrayInputStream
 import java.io.InputStream
+import java.util.Base64
 import java.util.UUID
 
 @WebMvcTest(SubmissionController::class)
@@ -136,11 +140,10 @@ class SubmissionControllerTest {
 
         // Assert the captured arguments
         assert(blobSizeCaptor.firstValue == requestBody.length.toLong())
-        val capturedMessage = objectMapper.readValue(messageCaptor.firstValue, Map::class.java)
-        assert(capturedMessage["reportId"] == reportId.toString())
-        assert(capturedMessage["blobURL"] == expectedBlobUrl)
-        assert(capturedMessage["headers"] != null)
-        val headers = capturedMessage["headers"] as Map<*, *>
+        val capturedMessage = deserialize(messageCaptor.firstValue, QueueMessage.ReceiveQueueMessage::class.java)
+        assert(capturedMessage.reportId == reportId)
+        assert(capturedMessage.blobURL == expectedBlobUrl)
+        val headers = capturedMessage.headers as Map<*, *>
         assert(headers["client_id"] == "testClient")
         assert(headers["Content-Type"] == "application/hl7-v2;charset=UTF-8")
         assert(headers["payloadname"] == "testPayload")
@@ -183,11 +186,10 @@ class SubmissionControllerTest {
 
         // Assert the captured arguments
         assert(blobSizeCaptor.firstValue == requestBody.length.toLong())
-        val capturedMessage = objectMapper.readValue(messageCaptor.firstValue, Map::class.java)
-        assert(capturedMessage["reportId"] == reportId.toString())
-        assert(capturedMessage["blobURL"] == expectedBlobUrl)
-        assert(capturedMessage["headers"] != null)
-        val headers = capturedMessage["headers"] as Map<*, *>
+        val capturedMessage = deserialize(messageCaptor.firstValue, QueueMessage.ReceiveQueueMessage::class.java)
+        assert(capturedMessage.reportId == reportId)
+        assert(capturedMessage.blobURL == expectedBlobUrl)
+        val headers = capturedMessage.headers as Map<*, *>
         assert(headers["client_id"] == "testClient")
         assert(headers["Content-Type"] == "application/fhir+ndjson;charset=UTF-8")
         assert(headers["payloadname"] == "testPayload")
@@ -328,5 +330,10 @@ class SubmissionControllerTest {
         assert(headers["x-azure-clientip"] == "127.0.0.1")
 
         uuidMockedStatic.close()
+    }
+
+    fun <T> deserialize(serializedString: String, valueType: Class<T>): T {
+        val bytes = Base64.getDecoder().decode(serializedString)
+        return ObjectMapperProvider.mapper.readValue(bytes, valueType)
     }
 }
