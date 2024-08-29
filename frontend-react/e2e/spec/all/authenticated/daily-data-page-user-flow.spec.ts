@@ -11,7 +11,7 @@ import {
     TEST_ORG_ELIMS_RECEIVER_ELIMS,
     TEST_ORG_IGNORE,
     TEST_ORG_UP_RECEIVER_UP,
-} from "../../helpers/utils";
+} from "../../../helpers/utils";
 import {
     applyButton,
     DailyDataPage,
@@ -28,9 +28,9 @@ import {
     setTime,
     startDate,
     startTime,
-} from "../../pages/authenticated/daily-data.js";
-import { URL_REPORT_DETAILS } from "../../pages/authenticated/report-details.js";
-import { test as baseTest } from "../../test";
+} from "../../../pages/authenticated/daily-data.js";
+import { URL_REPORT_DETAILS } from "../../../pages/authenticated/report-details.js";
+import { test as baseTest } from "../../../test";
 
 const defaultStartTime = "9:00am";
 const defaultEndTime = "11:00pm";
