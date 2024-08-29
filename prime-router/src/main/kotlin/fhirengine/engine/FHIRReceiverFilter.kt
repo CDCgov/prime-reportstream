@@ -359,6 +359,7 @@ class FHIRReceiverFilter(
                         ),
                         metadata = this.metadata,
                         topic = queueMessage.topic,
+                        destination = receiver,
                         nextAction = TaskAction.translate
                     )
 

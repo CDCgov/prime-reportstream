@@ -273,6 +273,13 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1).single()
+            assertThat(routedReport.nextAction).isEqualTo(TaskAction.translate)
+            assertThat(routedReport.receivingOrg).isEqualTo("phd")
+            assertThat(routedReport.receivingOrgSvc).isEqualTo("x")
+            assertThat(routedReport.schemaName).isEqualTo("None")
+            assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
+
             val routedContents = String(
                 BlobAccess.downloadBlobAsByteArray(
                 routedReport.bodyUrl,
@@ -450,8 +457,14 @@ class FHIRReceiverFilterIntegrationTests : Logging {
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1)
-                .single()
+            val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1).single()
+            assertThat(routedReport.nextAction).isEqualTo(TaskAction.translate)
+            assertThat(routedReport.receivingOrg).isEqualTo("phd")
+            assertThat(routedReport.receivingOrgSvc).isEqualTo("y")
+            assertThat(routedReport.schemaName).isEqualTo("None")
+            assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
+
             val routedContents = String(
                 BlobAccess.downloadBlobAsByteArray(
                 routedReport.bodyUrl,
@@ -623,6 +636,13 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1).single()
+            assertThat(routedReport.nextAction).isEqualTo(TaskAction.translate)
+            assertThat(routedReport.receivingOrg).isEqualTo("phd")
+            assertThat(routedReport.receivingOrgSvc).isEqualTo("x")
+            assertThat(routedReport.schemaName).isEqualTo("None")
+            assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
+
             val routedContents = String(
                 BlobAccess.downloadBlobAsByteArray(
                 routedReport.bodyUrl,
@@ -914,6 +934,13 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1).single()
+            assertThat(routedReport.nextAction).isEqualTo(TaskAction.translate)
+            assertThat(routedReport.receivingOrg).isEqualTo("phd")
+            assertThat(routedReport.receivingOrgSvc).isEqualTo("x")
+            assertThat(routedReport.schemaName).isEqualTo("None")
+            assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
+
             val routedContents = String(
                 BlobAccess.downloadBlobAsByteArray(
                 routedReport.bodyUrl,
@@ -984,6 +1011,13 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1).single()
+            assertThat(routedReport.nextAction).isEqualTo(TaskAction.translate)
+            assertThat(routedReport.receivingOrg).isEqualTo("phd")
+            assertThat(routedReport.receivingOrgSvc).isEqualTo("x")
+            assertThat(routedReport.schemaName).isEqualTo("None")
+            assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
+
             val routedBundle = BlobAccess.downloadBlobAsByteArray(
                 routedReport.bodyUrl,
                 UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
