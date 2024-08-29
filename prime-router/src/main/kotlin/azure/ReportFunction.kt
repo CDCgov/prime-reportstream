@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -19,6 +20,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
+import gov.cdc.prime.router.azure.BlobAccess.Companion.getBlobContainer
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
@@ -28,9 +30,12 @@ import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.OktaAuthentication
+import gov.cdc.prime.router.tokens.PrincipalLevel
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
+import java.time.OffsetDateTime
 
 private const val PROCESSING_TYPE_PARAMETER = "processing"
 
@@ -84,6 +89,51 @@ class ReportFunction(
             HttpUtilities.internalErrorResponse(request)
         }
     }
+
+    /**
+     * GET messages from test bank
+     *
+     * @see ../../../docs/api/reports.yml
+     */
+    @FunctionName("reports/testing")
+    fun getMessagesFromTestBank(
+        @HttpTrigger(
+            name = "testBankMessages",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ADMIN
+        ) request: HttpRequestMessage<String?>,
+    ): HttpResponseMessage {
+        OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
+            try {
+                val results = BlobAccess.listBlobs("test-bank")
+                val reports = mutableListOf<TestReportInfo>()
+                val sourceContainer = getBlobContainer(BlobAccess.defaultBlobMetadata)
+                results.forEach { currentResult ->
+                    val sourceBlobClient = sourceContainer.getBlobClient(currentResult.currentBlobItem.name)
+                    val data = sourceBlobClient.downloadContent()
+
+                    val currentTestReportInfo = TestReportInfo(
+                        currentResult.currentBlobItem.properties.creationTime,
+                        currentResult.currentBlobItem.name,
+                        data.toString()
+                    )
+                    reports.add(currentTestReportInfo)
+                }
+                val mapper = jacksonObjectMapper()
+                HttpUtilities.okResponse(request, mapper.writeValueAsString(results) ?: "[]")
+            } catch (e: Exception) {
+                logger.error("Unable to fetch messages from test bank", e)
+                HttpUtilities.internalErrorResponse(request)
+            }
+        }
+        return HttpUtilities.unauthorizedResponse(request)
+    }
+
+    class TestReportInfo(
+        var dateCreated: OffsetDateTime,
+        var fileName: String,
+        var reportBody: String,
+    )
 
     /**
      * The Waters API, in memory of Dr. Michael Waters
