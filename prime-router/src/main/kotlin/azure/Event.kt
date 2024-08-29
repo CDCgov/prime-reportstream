@@ -102,9 +102,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
 
     companion object {
         fun parsePrimeRouterQueueMessage(event: String): Event {
-            val message = JacksonMapperUtilities.defaultMapper.readValue<PrimeRouterQueueMessage>(event)
-
-            return when (message) {
+            return when (val message = JacksonMapperUtilities.defaultMapper.readValue<PrimeRouterQueueMessage>(event)) {
                 is ReportEventQueueMessage -> {
                     val at = if (message.at.isNotEmpty()) {
                         OffsetDateTime.parse(message.at)

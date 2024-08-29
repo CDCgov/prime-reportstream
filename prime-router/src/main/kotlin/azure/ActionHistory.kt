@@ -402,7 +402,7 @@ class ActionHistory(
         payloadName: String? = null,
     ) {
         if (isReportAlreadyTracked(report.id)) {
-            error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
+            error("Bug: attempt to track history of a report ($report.id) we've already associated with this action")
         }
 
         val reportFile = ReportFile()

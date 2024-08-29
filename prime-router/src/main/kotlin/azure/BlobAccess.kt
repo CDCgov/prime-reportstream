@@ -1,11 +1,6 @@
 package gov.cdc.prime.router.azure
 
 import com.azure.core.util.BinaryData
-import com.azure.data.tables.TableClient
-import com.azure.data.tables.TableClientBuilder
-import com.azure.data.tables.TableServiceClient
-import com.azure.data.tables.TableServiceClientBuilder
-import com.azure.data.tables.models.TableEntity
 import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobClientBuilder
 import com.azure.storage.blob.BlobContainerClient
@@ -209,44 +204,6 @@ class BlobAccess() : Logging {
             blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
         ): BlobClient {
             return BlobClientBuilder().connectionString(blobConnInfo.connectionString).endpoint(blobUrl).buildClient()
-        }
-
-        private fun getTableClient(
-            tableName: String,
-            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
-        ): TableClient {
-            val tableServiceClient: TableServiceClient = TableServiceClientBuilder()
-                .connectionString(blobConnInfo.connectionString)
-                .buildClient()
-
-            val tableExists = tableServiceClient.listTables().any { it.name == tableName }
-            if (!tableExists) {
-                tableServiceClient.createTable(tableName)
-            }
-
-            // Return the TableClient for the specific table
-            return TableClientBuilder()
-                .connectionString(blobConnInfo.connectionString)
-                .tableName(tableName)
-                .buildClient()
-        }
-
-        /**
-         * Inserts a new entity into the Azure Table.
-         *
-         * This method creates a new entity in the specified table. The entity must have a unique
-         * PartitionKey and RowKey.
-         *
-         * @param entity The TableEntity to insert. It must include the PartitionKey and RowKey
-         * identifying the entity to insert.
-         */
-        fun insertTableEntity(tableName: String, entity: TableEntity) {
-            try {
-                getTableClient(tableName).createEntity(entity)
-                logger.info("Entity inserted successfully: ${entity.partitionKey} is ${entity.rowKey}")
-            } catch (e: Exception) {
-                logger.error("Failed to insert entity: ${entity.partitionKey} with ${entity.rowKey}", e)
-            }
         }
 
         /**

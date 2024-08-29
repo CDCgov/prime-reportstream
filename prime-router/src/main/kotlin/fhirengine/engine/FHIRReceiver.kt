@@ -37,7 +37,7 @@ import org.jooq.Field
 import java.time.OffsetDateTime
 
 /**
- * FHIRReceiver is responsible for processing messages from the raw-elr Azure queue, converting them to FHIR format,
+ * FHIRReceiver is responsible for processing messages from the elr-fhir-receive azure queue
  * and storing them for the next step in the pipeline.
  *
  * @param metadata Mockable metadata instance.

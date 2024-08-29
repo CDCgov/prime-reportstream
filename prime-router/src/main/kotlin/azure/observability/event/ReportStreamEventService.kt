@@ -91,7 +91,7 @@ interface IReportStreamEventService {
      * @param eventName the business event value from [ReportStreamEventName]
      * @param pipelineStepName the pipeline step that is emitting the event
      * @param error the error description
-     * @param reportId the report id for the incoming report
+     * @param submissionId the report id for the incoming report
      * @param bodyUrl the blob url for the incoming report
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
      */
@@ -99,7 +99,7 @@ interface IReportStreamEventService {
         eventName: ReportStreamEventName,
         pipelineStepName: TaskAction,
         error: String,
-        reportId: ReportId,
+        submissionId: ReportId,
         bodyUrl: String,
         initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
     )
@@ -172,7 +172,7 @@ interface IReportStreamEventService {
      * Retrieves data about the input and output report for a particular pipeline step
      *
      * @param childReportId the id of the ReportFile
-     * @param childBodyUrl the blob URL for the ouput report
+     * @param childBodyUrl the blob URL for the output report
      * @param parentReportId the optional parent report id.  A report outputted from the ReportFunction will not have a parent
      * @param pipelineStepName the pipeline step that is generated the child report
      * @param topic the [Topic] that the report is in
@@ -299,7 +299,7 @@ class ReportStreamEventService(
         eventName: ReportStreamEventName,
         pipelineStepName: TaskAction,
         error: String,
-        reportId: ReportId,
+        submissionId: ReportId,
         bodyUrl: String,
         initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
     ) {
@@ -307,7 +307,7 @@ class ReportStreamEventService(
             this,
             azureEventService,
             eventName,
-            reportId,
+            submissionId,
             bodyUrl,
             theTopic = null,
             pipelineStepName,
