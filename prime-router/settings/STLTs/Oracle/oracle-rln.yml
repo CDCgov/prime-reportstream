@@ -50,7 +50,7 @@
         reportUrl: "https://spaces.erxhubdevcert.cerner.com/etor"
         authTokenUrl: ""
         encryptionKeyUrl: ""
-        authType: "Api Key"
+        authType: "apiKey"
         tlsKeystore: null
         parameters: {}
         jwtParams: {}
