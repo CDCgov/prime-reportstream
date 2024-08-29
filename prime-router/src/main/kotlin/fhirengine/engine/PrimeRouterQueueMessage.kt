@@ -1,7 +1,5 @@
 package gov.cdc.prime.router.fhirengine.engine
 
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.Options
@@ -11,23 +9,9 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.QueueAccess
 import java.util.UUID
 
-// This is a size limit dictated by our infrastructure in azure
-// https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-azure-and-service-bus-queues-compared-contrasted
-private const val MESSAGE_SIZE_LIMIT = 64 * 1000
-
 /**
  * An interface for Messages to be put on an Azure Queue
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes(
-    JsonSubTypes.Type(FhirConvertQueueMessage::class, name = "convert"),
-    JsonSubTypes.Type(FhirDestinationFilterQueueMessage::class, name = "destination-filter"),
-    JsonSubTypes.Type(FhirReceiverFilterQueueMessage::class, name = "receiver-filter"),
-    JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "translate"),
-    JsonSubTypes.Type(BatchEventQueueMessage::class, name = "batch"),
-    JsonSubTypes.Type(ProcessEventQueueMessage::class, name = "process"),
-    JsonSubTypes.Type(ReportEventQueueMessage::class, name = "report")
-)
 abstract class PrimeRouterQueueMessage : QueueMessage {
     fun send(queueAccess: QueueAccess) {
         if (this.messageQueueName.isNotEmpty()) {
