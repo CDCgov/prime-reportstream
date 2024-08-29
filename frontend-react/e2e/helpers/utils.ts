@@ -139,3 +139,18 @@ export function toDateWithTime(date: string, time?: string) {
     }
     return toDateTime;
 }
+
+export function removeTimestamp(filename: string) {
+    // Example string: "co.yml-beb0c9d9-ca1f-4af3-853e-0aba61541f66-20240829191221.hl7"
+    // Find the last hyphen and the last dot in the string
+    const lastHyphenIndex = filename.lastIndexOf("-");
+    const lastDotIndex = filename.lastIndexOf(".");
+
+    // If both indices are found, implying a properly formatted file extension,
+    // remove the timestamp
+    if (lastHyphenIndex !== -1 && lastDotIndex !== -1 && lastHyphenIndex < lastDotIndex) {
+        return filename.slice(0, lastHyphenIndex);
+    }
+
+    return filename;
+}
