@@ -1,0 +1,10 @@
+elements:
+  - name: pii-removal-last-name
+    value: [ 'getFakeValueForElement("PERSON_FAMILY_NAME")' ]
+    bundleProperty: '%resource.family'
+
+  #  removing a given name is more complicated because it is a list so we will do this in code
+
+  - name: pii-removal-middle-name
+    value: [ 'getFakeValueForElement("PERSON_GIVEN_NAME")' ]
+    bundleProperty: '%resource.extension(%`rsext-xpn-human-name`).extension.where(url="XPN.3").value'
