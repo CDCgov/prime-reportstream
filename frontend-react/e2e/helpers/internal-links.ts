@@ -56,3 +56,26 @@ export const gettingStartedSideNav = [
         path: "/getting-started/receiving-data",
     },
 ];
+
+export const developerResourcesApiSideNav = [
+    {
+        name: "ReportStream API",
+        path: "/developer-resources/api",
+    },
+    {
+        name: "Getting started",
+        path: "/developer-resources/api/getting-started",
+    },
+    {
+        name: "Documentation",
+        path: "/developer-resources/api/documentation",
+    },
+    {
+        name: "Responses from ReportStream",
+        path: "/developer-resources/api/documentation/responses-from-reportstream",
+    },
+    {
+        name: "Sample payloads and output",
+        path: "/developer-resources/api/documentation/sample-payloads-and-output",
+    },
+];

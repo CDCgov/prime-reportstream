@@ -161,7 +161,7 @@ class CustomFhirPathFunctionTest {
 
     @Test
     fun `test get fake value for element function`() {
-         // Fails if city, county, or postal code and no state
+        // Fails if city, county, or postal code and no state
         assertFailure {
             CustomFhirPathFunctions().getFakeValueForElement(
                 mutableListOf(mutableListOf(StringType("CITY"))),
