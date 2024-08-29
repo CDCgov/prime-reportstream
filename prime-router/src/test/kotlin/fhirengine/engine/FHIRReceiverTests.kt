@@ -52,7 +52,7 @@ class FHIRReceiverTest {
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
     val reportService: ReportService = mockk<ReportService>()
-    val submissionTableService: SubmissionTableService = mockk<SubmissionTableService>()
+    private val submissionTableService: SubmissionTableService = mockk<SubmissionTableService>()
     val oneOrganization = DeepOrganization(
         "co-phd",
         "test",

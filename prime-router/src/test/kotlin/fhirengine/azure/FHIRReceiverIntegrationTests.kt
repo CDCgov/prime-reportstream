@@ -244,6 +244,30 @@ class FHIRReceiverIntegrationTests {
                 ReportStreamEventProperties.REQUEST_PARAMETERS to headers.toString()
             )
         )
+
+        assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.REPORT_NOT_PROCESSABLE]!!).hasSize(1)
+        val notProcessableEvent =
+            azureEventService
+                .reportStreamEvents[ReportStreamEventName.REPORT_NOT_PROCESSABLE]!!.last() as ReportStreamReportEvent
+        assertThat(notProcessableEvent.reportEventData).isEqualToIgnoringGivenProperties(
+            ReportEventData(
+                reportId,
+                null,
+                emptyList(),
+                Topic.FULL_ELR,
+                receiveBlobUrl,
+                TaskAction.receive,
+                OffsetDateTime.now()
+            ),
+            ReportEventData::timestamp
+        )
+        assertThat(notProcessableEvent.params).isEqualTo(
+            mapOf(
+                ReportStreamEventProperties.PROCESSING_ERROR to
+                    "Submitted report was either empty or could not be parsed into HL7.",
+                ReportStreamEventProperties.REQUEST_PARAMETERS to headers.toString()
+            )
+        )
     }
 
     @Test
@@ -323,7 +347,8 @@ class FHIRReceiverIntegrationTests {
         )
         assertThat(event.params).isEqualTo(
             mapOf(
-                ReportStreamEventProperties.PROCESSING_ERROR to "Unable to create report from received message.",
+                ReportStreamEventProperties.PROCESSING_ERROR to
+                    "Sender is not found in matching client id: unknown_sender.",
                 ReportStreamEventProperties.REQUEST_PARAMETERS to headers.toString()
             )
         )

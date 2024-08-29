@@ -147,18 +147,17 @@ class FHIRReceiver(
             reportEventService.sendReceiveProcessingError(
                 ReportStreamEventName.REPORT_NOT_RECEIVABLE,
                 TaskAction.receive,
-                "Unable to create report from received message.",
+                "Sender is not found in matching client id: ${queueMessage.headers[clientIdHeader]}.",
                 queueMessage.reportId,
                 queueMessage.blobURL
             ) {
                 params(
                     actionLogger.errors.associateBy { ReportStreamEventProperties.PROCESSING_ERROR }
-                        .plus(
-                            mapOf(
-                                ReportStreamEventProperties.REQUEST_PARAMETERS to queueMessage.headers.toString(),
-                            )
+                    .plus(
+                        mapOf(
+                            ReportStreamEventProperties.REQUEST_PARAMETERS to queueMessage.headers.toString(),
                         )
-
+                    )
                 )
             }
 
@@ -167,7 +166,7 @@ class FHIRReceiver(
                 SubmissionEntity(
                     queueMessage.reportId.toString(), "Rejected",
                     queueMessage.blobURL,
-                    "Sender not found matching client_id: " + queueMessage.headers[clientIdHeader]
+                    "Sender not found matching client_id: ${queueMessage.headers[clientIdHeader]}"
                 ).toTableEntity()
             submissionTableService.insertTableEntity(tableEntity)
             return null
@@ -245,6 +244,22 @@ class FHIRReceiver(
         submissionTableService.insertTableEntity(tableEntity)
 
         return if (actionLogger.errors.isNotEmpty()) {
+            // Send an event indicating the report was received
+            reportEventService.sendReportProcessingError(
+                ReportStreamEventName.REPORT_NOT_PROCESSABLE,
+                report,
+                TaskAction.receive,
+                "Submitted report was either empty or could not be parsed into HL7."
+            ) {
+                params(
+                    actionLogger.errors.associateBy { ReportStreamEventProperties.PROCESSING_ERROR }
+                        .plus(
+                            mapOf(
+                                ReportStreamEventProperties.REQUEST_PARAMETERS to queueMessage.headers.toString(),
+                            )
+                        )
+                )
+            }
             emptyList()
         } else {
             // Create a route event
