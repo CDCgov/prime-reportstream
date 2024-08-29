@@ -6,7 +6,7 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.abort
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
@@ -25,13 +25,16 @@ class DownloadReport : CliktCommand(
 
     private val removePII by option("--remove-pii", help = "True or false value. Must be true or not set for prod.")
 
+    // Used to make the tests work
+    var databaseAccess = DatabaseAccess()
+
     override fun run() {
         if (!CommandUtilities.isApiAvailable(Environment.get(env))) {
             abort("The $env environment's API is not available or you have an invalid access token.")
         }
 
         val reportId = ReportId.fromString(reportId)
-        val requestedReport = WorkflowEngine().db.fetchReportFile(reportId)
+        val requestedReport = databaseAccess.fetchReportFile(reportId)
 
         if (requestedReport.bodyUrl != null && requestedReport.bodyUrl.toString().lowercase().endsWith("fhir")) {
             val contents = BlobAccess.downloadBlobAsByteArray(requestedReport.bodyUrl)

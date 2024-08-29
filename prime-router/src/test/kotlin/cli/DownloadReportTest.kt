@@ -31,9 +31,12 @@ class DownloadReportTest {
 
     @Test
     fun `invalid access token`() {
+        val mockDb = mockk<DatabaseAccess>()
+        val downloadReport = DownloadReport()
+        downloadReport.databaseAccess = mockDb
         assertFailsWith<IllegalStateException>(
             block = {
-                DownloadReport().test(
+                downloadReport.test(
                     "-r ${UUID.randomUUID()} -e staging --remove-pii true",
                     ansiLevel = AnsiLevel.TRUECOLOR
                 )
@@ -59,17 +62,17 @@ class DownloadReportTest {
         reportFile.bodyUrl = "fakeurl.fhir"
         mockkObject(AuthenticatedClaims)
         val mockDb = mockk<DatabaseAccess>()
-        mockkConstructor(WorkflowEngine::class)
-        every { anyConstructed<WorkflowEngine>().db } returns mockDb
+        every { mockDb.fetchReportFile(any()) } returns reportFile
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
         val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
         every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
         every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns report.toByteArray(Charsets.UTF_8)
-        every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
+        val downloadReport = DownloadReport()
+        downloadReport.databaseAccess = mockDb
 
-        val result = DownloadReport().test(
+        val result = downloadReport.test(
             "-r ${UUID.randomUUID()} -e local --remove-pii true",
             ansiLevel = AnsiLevel.TRUECOLOR
         )
@@ -83,8 +86,7 @@ class DownloadReportTest {
         reportFile.bodyUrl = "fakeurl.fhir"
         mockkObject(AuthenticatedClaims)
         val mockDb = mockk<DatabaseAccess>()
-        mockkConstructor(WorkflowEngine::class)
-        every { anyConstructed<WorkflowEngine>().db } returns mockDb
+        every { mockDb.fetchReportFile(any()) } returns reportFile
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
@@ -94,8 +96,10 @@ class DownloadReportTest {
         every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
         mockkObject(CommandUtilities)
         every { CommandUtilities.isApiAvailable(any(), any()) } returns true
+        val downloadReport = DownloadReport()
+        downloadReport.databaseAccess = mockDb
 
-        val result = DownloadReport().test(
+        val result = downloadReport.test(
             "-r ${UUID.randomUUID()} -e prod --remove-pii false",
             ansiLevel = AnsiLevel.TRUECOLOR
         )
@@ -109,8 +113,7 @@ class DownloadReportTest {
         reportFile.bodyUrl = "fakeurl.fhir"
         mockkObject(AuthenticatedClaims)
         val mockDb = mockk<DatabaseAccess>()
-        mockkConstructor(WorkflowEngine::class)
-        every { anyConstructed<WorkflowEngine>().db } returns mockDb
+        every { mockDb.fetchReportFile(any()) } returns reportFile
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
@@ -118,8 +121,10 @@ class DownloadReportTest {
         every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
         every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns report.toByteArray(Charsets.UTF_8)
         every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
+        val downloadReport = DownloadReport()
+        downloadReport.databaseAccess = mockDb
 
-        val result = DownloadReport().test(
+        val result = downloadReport.test(
             "-r ${UUID.randomUUID()} -e local --remove-pii false",
             ansiLevel = AnsiLevel.TRUECOLOR
         )
@@ -133,11 +138,14 @@ class DownloadReportTest {
         reportFile.bodyUrl = "fakeurl.hl7"
         mockkObject(AuthenticatedClaims)
         val mockDb = mockk<DatabaseAccess>()
+        every { mockDb.fetchReportFile(any()) } returns reportFile
         mockkConstructor(WorkflowEngine::class)
         every { anyConstructed<WorkflowEngine>().db } returns mockDb
         every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
+        val downloadReport = DownloadReport()
+        downloadReport.databaseAccess = mockDb
 
-        val result = DownloadReport().test(
+        val result = downloadReport.test(
             "-r ${UUID.randomUUID()} -e local --remove-pii true",
             ansiLevel = AnsiLevel.TRUECOLOR
         )
