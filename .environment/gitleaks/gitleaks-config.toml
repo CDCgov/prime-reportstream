@@ -203,6 +203,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'authority\", \"extension\"',                                                  # FHIR extension URL also shows up in normal FHIR test data
             'ApiKeyCredential\(\"flexion\"',
             'authType: \"two-legged\"',
+            '\"apiKey\"',
             'Authorization-Type: \"username/password\"',
         ]
         paths = [
