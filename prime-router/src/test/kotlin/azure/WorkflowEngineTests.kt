@@ -221,13 +221,13 @@ class WorkflowEngineTests {
                 Event.EventAction.RECEIVE
             )
         }.returns(BlobAccess.BlobInfo(MimeFormat.CSV, "http://anyblob.com", "".toByteArray()))
-        every { actionHistory.trackExternalInputReport(any(), any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackExternalInputReport(any(), any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
         engine.recordReceivedReport(report1, "body".toByteArray(), sender, actionHistory)
 
         verify(exactly = 1) {
-            actionHistory.trackExternalInputReport(any(), any(), any(), any())
+            actionHistory.trackExternalInputReport(any(), any(), any())
             BlobAccess.Companion.uploadBody(any(), any(), any(), any(), any())
         }
         confirmVerified(blobMock)

@@ -134,7 +134,7 @@ class FHIRReceiverTest {
         every { actionHistory.trackActionResult(any<HttpStatus>()) } returns Unit
         every { actionHistory.trackActionParams(any<String>()) } returns Unit
         every { actionHistory.trackActionSenderInfo(any(), any()) } returns Unit
-        every { actionHistory.trackExternalInputReport(any(), any(), any(), any()) } returns Unit
+        every { actionHistory.trackExternalInputReport(any(), any()) } returns Unit
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
         every { submissionTableService.insertTableEntity(any()) } returns Unit
         every { actionHistory.action } returns action
@@ -237,7 +237,7 @@ class FHIRReceiverTest {
         verify(exactly = 1) {
             actionHistory.trackActionResult(HttpStatus.CREATED)
             actionHistory.trackActionSenderInfo("test.Test Sender", "test_message")
-            actionHistory.trackExternalInputReport(any(), any(), any(), any())
+            actionHistory.trackExternalInputReport(any(), any())
             submissionTableService.insertTableEntity(any())
         }
     }

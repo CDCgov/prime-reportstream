@@ -132,9 +132,7 @@ class ActionHistoryTests {
         val payloadName = "quux"
         actionHistory1.trackExternalInputReport(
             report1,
-            blobInfo1.blobUrl,
-            blobInfo1.format.toString(),
-            blobInfo1.digest,
+            blobInfo1,
             payloadName
         )
         assertNotNull(actionHistory1.reportsReceived[report1.id])
@@ -153,9 +151,7 @@ class ActionHistoryTests {
         assertFailure {
             actionHistory1.trackExternalInputReport(
                 report1,
-                blobInfo1.blobUrl,
-                blobInfo1.format.toString(),
-                blobInfo1.digest
+                blobInfo1
             )
         }
     }
