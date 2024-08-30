@@ -988,6 +988,13 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
     )
 
+    val expectedHttpHeaders = mapOf(
+        "Content-Type" to "text/plain",
+        "shared-api-key" to "oracle123",
+        "System_ID" to "test-user",
+        "Key" to "oracle123"
+    )
+
     @Test
     fun `test transport postReport with valid message to oracle-rln--etor-nbs-results`() {
         val header = makeHeader()
@@ -1011,10 +1018,18 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
 
         // Then:
-        //      getAuthTokenWithUserApiKey should be called with transport.parameters NOT empty
+        //      postReport should be called with correct httpheaders' values as given.
         verify {
             runBlocking {
-                mockRestTransport.getAuthTokenWithUserApiKey(flexionRestTransportType, any(), any(), any())
+                mockRestTransport.postReport(
+                    any(),
+                    any(),
+                    any(),
+                    expectedHttpHeaders,
+                    any(),
+                    any(),
+                    any()
+                )
             }
         }
         assertThat(retryItems).isNull()
