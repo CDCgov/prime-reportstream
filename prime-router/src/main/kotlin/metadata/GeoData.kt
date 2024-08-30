@@ -28,6 +28,17 @@ object GeoData {
         var filters = tableRef?.FilterBuilder() ?: error("Could not find table '$tableRef'\"")
         filters = filters.equalsIgnoreCase(ColumnNames.STATE_ABBR.columnName, state)
         val uniqueValues = filters.findAllUnique(column.columnName)
+        if (uniqueValues.isEmpty()) {
+            // bad data passed, just return default
+            return when (column) {
+                ColumnNames.STATE_FIPS -> "12345"
+                ColumnNames.STATE -> state
+                ColumnNames.STATE_ABBR -> state
+                ColumnNames.ZIP_CODE -> "98765"
+                ColumnNames.COUNTY -> "Multnomah"
+                ColumnNames.CITY -> "Portland"
+            }
+        }
         return uniqueValues[Random().nextInt(uniqueValues.size)]
     }
 
@@ -47,7 +58,7 @@ object GeoData {
         CITY("city"),
         POSTAL_CODE("postal_code"),
         TESTING_LAB("testing_lab"),
-        SENDER_IDENTIFIER("sender_identifier"),
+        UUID("sender_identifier"),
         FACILITY_NAME("facility_name"),
         NAME_OF_SCHOOL("name_of_school"),
         REFERENCE_RANGE("reference_range"),
@@ -78,12 +89,13 @@ object GeoData {
         ID_SSN("id_ssn"),
         ID_NPI("id_npi"),
         STREET("street"),
-        PERSON_NAME("person_name"),
+        PERSON_GIVEN_NAME("person_given_name"),
+        PERSON_FAMILY_NAME("person_family_name"),
         TELEPHONE("telephone"),
         EMAIL("email"),
         BIRTHDAY("birthday"),
         ID_NUMBER("id_number"),
-        PATIENT_STREET_ADDRESS_2("patient_street_address_2"),
+        STREET_ADDRESS_2("patient_street_address_2"),
         SOURCE_OF_COMMENT("source_of_comment"),
     }
 }
