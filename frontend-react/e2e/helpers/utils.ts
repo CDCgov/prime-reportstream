@@ -140,7 +140,7 @@ export function toDateWithTime(date: string, time?: string) {
     return toDateTime;
 }
 
-export function removeTimestamp(filename: string) {
+export function removeDateTime(filename: string) {
     // Example string: "co.yml-beb0c9d9-ca1f-4af3-853e-0aba61541f66-20240829191221.hl7"
     // Find the last hyphen and the last dot in the string
     const lastHyphenIndex = filename.lastIndexOf("-");

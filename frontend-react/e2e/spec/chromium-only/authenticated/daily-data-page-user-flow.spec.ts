@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import fs from "node:fs";
 import {
     expectTableColumnValues,
-    removeTimestamp,
+    removeDateTime,
     tableColumnDateTimeInRange,
     tableDataCellValue,
     tableRows,
@@ -294,7 +294,7 @@ test.describe(
                         // Filename search is currently broken and being tracked
                         // in ticket #15644
                         const fileName = await tableDataCellValue(dailyDataPage.page, 0, 4);
-                        await searchInput(dailyDataPage.page).fill(removeTimestamp(fileName));
+                        await searchInput(dailyDataPage.page).fill(removeDateTime(fileName));
                         await searchButton(dailyDataPage.page).click();
                         await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
@@ -387,7 +387,7 @@ test.describe(
                         const download = await downloadProm;
 
                         // assert filename
-                        expect(removeTimestamp(download.suggestedFilename())).toEqual(removeTimestamp(fileName));
+                        expect(removeDateTime(download.suggestedFilename())).toEqual(removeDateTime(fileName));
 
                         // get and assert stats
                         expect((await fs.promises.stat(await download.path())).size).toBeGreaterThan(200);
