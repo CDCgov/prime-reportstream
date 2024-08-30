@@ -33,8 +33,7 @@ import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.OktaAuthentication
-import gov.cdc.prime.router.tokens.PrincipalLevel
+import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
@@ -102,13 +101,15 @@ class ReportFunction(
         @HttpTrigger(
             name = "getMessagesFromTestBank",
             methods = [HttpMethod.GET],
-            authLevel = AuthorizationLevel.ADMIN,
+            authLevel = AuthorizationLevel.ANONYMOUS,
             route = "reports/testing"
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
-        return OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
-            return@checkAccess processGetMessageFromTestBankRequest(request)
+        val claims = AuthenticatedClaims.authenticate(request)
+        if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
+            return processGetMessageFromTestBankRequest(request)
         }
+        return HttpUtilities.unauthorizedResponse(request)
     }
 
     /**
