@@ -29,8 +29,21 @@ jobs:
         run: |
           echo "${{ steps.az-cost.outputs.result }}" > costs_raw.csv
           touch costs.csv
-          sed 's/\r//' costs_raw.csv > costs.csv
-          cat ./costs.csv
+          sed 's/\r//' costs_raw.csv > costs_total.csv
+          cat ./costs_total.csv
+      - name: Run Az Cost CLI By Resource
+        id: az-cost-by-resource
+        uses: ./.github/actions/az-cost
+        with:
+          rg: prime-data-hub-prod
+          days_ago: 180
+          total_format: dailyByResource
+      - name: Get Az Cost Result By Resource
+        run: |
+          echo "${{ steps.az-cost-by-resource.outputs.result }}" > costs_by_res_raw.csv
+          touch costs_by_res.csv
+          sed 's/\r//' costs_by_res_raw.csv > costs_by_res.csv
+          cat ./costs_by_res.csv
       - name: Get runner ip
         id: runner_ip
         uses: ./.github/actions/runner-ip
@@ -60,7 +73,19 @@ jobs:
               Currency   varchar(3)
             );
             TRUNCATE Azure_Costs;
-            \copy Azure_Costs (Date, Cost, CostUsd, Currency) FROM './costs.csv' WITH DELIMITER ',' CSV HEADER;
+            \copy Azure_Costs (Date, Cost, CostUsd, Currency) FROM './costs_total.csv' WITH DELIMITER ',' CSV HEADER;
+
+            CREATE TABLE IF NOT EXISTS Azure_Resource_Costs (
+              Date       date,
+              Name       varchar(128),
+              Cost       NUMERIC(13, 8),
+              CostUsd    NUMERIC(13, 8),
+              Currency   varchar(3),
+              Tags       varchar(256)
+            );
+            TRUNCATE Azure_Resource_Costs;
+            \copy Azure_Resource_Costs (Date, Name, Cost, CostUsd, Currency, Tags) FROM './costs_by_res.csv' WITH DELIMITER ',' CSV HEADER;
+
       # Remove runner db access
       - name: Remove DB access
         if: always() && steps.add-db-access.outcome == 'success'

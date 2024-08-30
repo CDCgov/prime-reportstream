@@ -38,6 +38,16 @@ runs:
         dotnet azure-cost accumulatedCost -g ${{ inputs.rg }} -t custom --from $(date --date='${{ inputs.days_ago }} days ago' '+%m/%d/%Y') --to $(date --date='1 days ago' '+%m/%d/%Y') -o csv >> $GITHUB_OUTPUT
         echo "$EOF" >> $GITHUB_OUTPUT
 
+    - name: Run azure-cost-cli for daily totals by resource
+      if: inputs.total_format == 'dailyByResource'
+      id: run_azure_cost_daily_by_resource
+      shell: bash
+      run: |
+        EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+        echo "RESULT<<$EOF" >> $GITHUB_OUTPUT
+        dotnet azure-cost dailyCosts -g ${{ inputs.rg }} -t custom --from $(date --date='${{ inputs.days_ago }} days ago' '+%m/%d/%Y') --to $(date --date='1 days ago' '+%m/%d/%Y') -o csv --exclude-meter-details --dimension ConsumedService >> $GITHUB_OUTPUT
+        echo "$EOF" >> $GITHUB_OUTPUT
+
     - name: Run azure-cost-cli for total
       if: inputs.total_format == 'summary'
       id: run_azure_cost_summary
@@ -52,5 +62,5 @@ runs:
       run: |
         EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
         echo "RESULT<<$EOF" >> $GITHUB_OUTPUT
-        echo -e "${{ steps.run_azure_cost_daily.outputs.RESULT }}${{ steps.run_azure_cost_summary.outputs.RESULT }}" >> $GITHUB_OUTPUT
+        echo -e "${{ steps.run_azure_cost_daily.outputs.RESULT }}${{ steps.run_azure_cost_daily_by_resource.outputs.RESULT }}${{ steps.run_azure_cost_summary.outputs.RESULT }}" >> $GITHUB_OUTPUT
         echo "$EOF" >> $GITHUB_OUTPUT
