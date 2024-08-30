@@ -396,9 +396,7 @@ class ActionHistory(
      */
     fun trackExternalInputReport(
         report: Report,
-        blobUrl: String,
-        blobFormat: String,
-        blobDigest: ByteArray,
+        blobInfo: BlobAccess.BlobInfo,
         payloadName: String? = null,
     ) {
         if (isReportAlreadyTracked(report.id)) {
@@ -420,9 +418,9 @@ class ActionHistory(
         reportFile.sendingOrgClient = source.client
         reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
         reportFile.schemaTopic = report.schema.topic
-        reportFile.bodyUrl = blobUrl
-        reportFile.bodyFormat = blobFormat
-        reportFile.blobDigest = blobDigest
+        reportFile.bodyUrl = blobInfo.blobUrl
+        reportFile.bodyFormat = blobInfo.format.toString()
+        reportFile.blobDigest = blobInfo.digest
         reportFile.externalName = payloadName
         action.externalName = payloadName
         reportFile.itemCount = report.itemCount

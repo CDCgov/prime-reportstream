@@ -210,11 +210,15 @@ class FHIRReceiver(
                 queueMessage.headers[contentTypeHeader]?.substringBefore(';') ?: ""
             )
 
+        val blobInfo = BlobAccess.BlobInfo(
+            mimeFormat,
+            queueMessage.blobURL,
+            queueMessage.digest.toByteArray()
+        )
+
         actionHistory.trackExternalInputReport(
             report,
-            queueMessage.blobURL,
-            mimeFormat.toString(),
-            queueMessage.digest.toByteArray()
+            blobInfo
         )
 
         // Send an event indicating the report was received

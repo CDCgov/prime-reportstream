@@ -200,9 +200,7 @@ class WorkflowEngine(
 
         actionHistory.trackExternalInputReport(
             report,
-            blobInfo.blobUrl,
-            blobInfo.format.toString(),
-            blobInfo.digest,
+            blobInfo,
             payloadName
         )
         return blobInfo
