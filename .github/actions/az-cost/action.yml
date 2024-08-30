@@ -25,7 +25,7 @@ runs:
     - name: Install azure-cost-cli
       shell: bash
       run: |
-        dotnet new tool-manifest
+        dotnet new tool-manifest --force
         dotnet tool install azure-cost-cli
 
     - name: Run azure-cost-cli for daily totals
