@@ -107,33 +107,44 @@ class ReportFunction(
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         return OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
-            return@checkAccess try {
-                val updatedBlobMetadata = defaultBlobMetadata.copy(containerName = "test-bank")
-                val results = BlobAccess.listBlobs("", updatedBlobMetadata)
-                val reports = mutableListOf<TestReportInfo>()
-                val sourceContainer = getBlobContainer(updatedBlobMetadata)
-                results.forEach { currentResult ->
-                    if (currentResult.currentBlobItem.name.endsWith(".fhir")) {
-                        val sourceBlobClient = sourceContainer.getBlobClient(currentResult.currentBlobItem.name)
-                        val data = sourceBlobClient.downloadContent()
+            return@checkAccess processGetMessageFromTestBankRequest(request)
+        }
+    }
 
-                        val currentTestReportInfo = TestReportInfo(
-                            currentResult.currentBlobItem.properties.creationTime.toString(),
-                            currentResult.currentBlobItem.name,
-                            data.toString()
-                        )
-                        reports.add(currentTestReportInfo)
-                    }
+    /**
+     * Moved the logic to a separate function for testing purposes
+     */
+    fun processGetMessageFromTestBankRequest(
+        request: HttpRequestMessage<String?>,
+        blobAccess: BlobAccess.Companion = BlobAccess,
+        defaultBlobMetadata: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
+    ): HttpResponseMessage {
+        return try {
+            val updatedBlobMetadata = defaultBlobMetadata.copy(containerName = "test-bank")
+            val results = blobAccess.listBlobs("", updatedBlobMetadata)
+            val reports = mutableListOf<TestReportInfo>()
+            val sourceContainer = getBlobContainer(updatedBlobMetadata)
+            results.forEach { currentResult ->
+                if (currentResult.currentBlobItem.name.endsWith(".fhir")) {
+                    val sourceBlobClient = sourceContainer.getBlobClient(currentResult.currentBlobItem.name)
+                    val data = sourceBlobClient.downloadContent()
+
+                    val currentTestReportInfo = TestReportInfo(
+                        currentResult.currentBlobItem.properties.creationTime.toString(),
+                        currentResult.currentBlobItem.name,
+                        data.toString()
+                    )
+                    reports.add(currentTestReportInfo)
                 }
-
-                val mapper: ObjectMapper = JsonMapper.builder()
-                    .addModule(JavaTimeModule())
-                    .build()
-                HttpUtilities.okResponse(request, mapper.writeValueAsString(reports) ?: "[]")
-            } catch (e: Exception) {
-                logger.error("Unable to fetch messages from test bank", e)
-                HttpUtilities.internalErrorResponse(request)
             }
+
+            val mapper: ObjectMapper = JsonMapper.builder()
+                .addModule(JavaTimeModule())
+                .build()
+            HttpUtilities.okResponse(request, mapper.writeValueAsString(reports) ?: "[]")
+        } catch (e: Exception) {
+            logger.error("Unable to fetch messages from test bank", e)
+            HttpUtilities.internalErrorResponse(request)
         }
     }
 
