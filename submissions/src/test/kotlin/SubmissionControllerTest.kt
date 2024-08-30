@@ -12,7 +12,6 @@ import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.reportstream.shared.QueueMessage.ObjectMapperProvider
 import gov.cdc.prime.reportstream.submissions.TelemetryService
 import gov.cdc.prime.reportstream.submissions.config.AzureConfig
-import io.mockk.clearAllMocks
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
