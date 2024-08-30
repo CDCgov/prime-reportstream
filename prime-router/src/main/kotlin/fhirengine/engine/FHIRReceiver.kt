@@ -55,7 +55,7 @@ class FHIRReceiver(
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
     reportService: ReportService = ReportService(),
-    private val submissionTableService: SubmissionTableService = SubmissionTableService(),
+    private val submissionTableService: SubmissionTableService = SubmissionTableService.instance,
 ) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
@@ -144,7 +144,7 @@ class FHIRReceiver(
         // Handle case where sender is not found
         if (sender == null) {
             // Send an error event
-            reportEventService.sendReceiveProcessingError(
+            reportEventService.sendProcessingError(
                 ReportStreamEventName.REPORT_NOT_RECEIVABLE,
                 TaskAction.receive,
                 "Sender is not found in matching client id: ${queueMessage.headers[clientIdHeader]}.",
@@ -167,8 +167,8 @@ class FHIRReceiver(
                     queueMessage.reportId.toString(), "Rejected",
                     queueMessage.blobURL,
                     "Sender not found matching client_id: ${queueMessage.headers[clientIdHeader]}"
-                ).toTableEntity()
-            submissionTableService.insertTableEntity(tableEntity)
+                )
+            submissionTableService.insertSubmission(tableEntity)
             return null
         }
 
@@ -244,8 +244,8 @@ class FHIRReceiver(
             "Accepted",
             queueMessage.blobURL,
             actionLogger.errors.takeIf { it.isNotEmpty() }?.map { it.detail.message }?.toString()
-        ).toTableEntity()
-        submissionTableService.insertTableEntity(tableEntity)
+        )
+        submissionTableService.insertSubmission(tableEntity)
 
         return if (actionLogger.errors.isNotEmpty()) {
             // Send an event indicating the report was received
@@ -253,7 +253,7 @@ class FHIRReceiver(
                 ReportStreamEventName.REPORT_NOT_PROCESSABLE,
                 report,
                 TaskAction.receive,
-                "Submitted report was either empty or could not be parsed into HL7."
+                "Submitted report was either empty or could not be parsed."
             ) {
                 params(
                     actionLogger.errors.associateBy { ReportStreamEventProperties.PROCESSING_ERROR }
@@ -348,12 +348,8 @@ class FHIRReceiver(
                     )
                 }
 
-                MimeFormat.CSV -> {
-                    TODO()
-                }
-
                 else -> {
-                    throw IllegalStateException("Unexpected sender format ${sender.format}")
+                    throw IllegalStateException("Unsupported sender format ${sender.format}")
                 }
             }
             report

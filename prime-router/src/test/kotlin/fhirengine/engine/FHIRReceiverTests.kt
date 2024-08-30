@@ -136,7 +136,7 @@ class FHIRReceiverTest {
         every { actionHistory.trackActionSenderInfo(any(), any()) } returns Unit
         every { actionHistory.trackExternalInputReport(any(), any()) } returns Unit
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
-        every { submissionTableService.insertTableEntity(any()) } returns Unit
+        every { submissionTableService.insertSubmission(any()) } returns Unit
         every { actionHistory.action } returns action
         every { BlobAccess.downloadContent(any(), any()) }.returns(cleanHL7Record)
 
@@ -174,7 +174,7 @@ class FHIRReceiverTest {
                 blobURL,
                 "Sender not found matching client_id: unknown_client_id"
             )
-            submissionTableService.insertTableEntity(any())
+            submissionTableService.insertSubmission(any())
         }
     }
 
@@ -207,7 +207,7 @@ class FHIRReceiverTest {
         )
 
         verify(exactly = 1) {
-            submissionTableService.insertTableEntity(any())
+            submissionTableService.insertSubmission(any())
             actionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
             actionHistory.trackActionSenderInfo("test.Test Sender", "test_message")
         }
@@ -238,7 +238,7 @@ class FHIRReceiverTest {
             actionHistory.trackActionResult(HttpStatus.CREATED)
             actionHistory.trackActionSenderInfo("test.Test Sender", "test_message")
             actionHistory.trackExternalInputReport(any(), any())
-            submissionTableService.insertTableEntity(any())
+            submissionTableService.insertSubmission(any())
         }
     }
 

@@ -95,7 +95,7 @@ interface IReportStreamEventService {
      * @param bodyUrl the blob url for the incoming report
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
      */
-    fun sendReceiveProcessingError(
+    fun sendProcessingError(
         eventName: ReportStreamEventName,
         pipelineStepName: TaskAction,
         error: String,
@@ -295,7 +295,7 @@ class ReportStreamEventService(
         ).send()
     }
 
-    override fun sendReceiveProcessingError(
+    override fun sendProcessingError(
         eventName: ReportStreamEventName,
         pipelineStepName: TaskAction,
         error: String,

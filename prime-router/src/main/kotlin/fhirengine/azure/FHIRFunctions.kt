@@ -34,7 +34,7 @@ class FHIRFunctions(
 ) : Logging {
 
     /**
-     * An azure function for ingesting full-ELR data and creating report lineage
+     * An azure function for ingesting and recording submissions
      */
     @FunctionName("receive-fhir")
     @StorageAccount("AzureWebJobsStorage")
@@ -139,7 +139,6 @@ class FHIRFunctions(
         fhirEngine: FHIREngine,
         actionHistory: ActionHistory,
     ): List<QueueMessage> {
-        initializeQueueMessages()
         val messageContent = readMessage(fhirEngine.engineType, message, dequeueCount)
 
         val newMessages = databaseAccess.transactReturning { txn ->
@@ -159,6 +158,8 @@ class FHIRFunctions(
         logger.debug(
             "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
         )
+        // initialize the json types in PrimeRouterQueueMessage
+        initializeQueueMessages()
 
         return when (val queueMessage = QueueMessage.deserialize(message)) {
             is QueueMessage.ReceiveQueueMessage -> {
