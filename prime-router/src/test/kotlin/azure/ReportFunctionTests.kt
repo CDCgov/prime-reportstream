@@ -730,4 +730,10 @@ class ReportFunctionTests {
             reportFunc.extractPayloadName(mockHttpRequest)
         }
     }
+
+    @Test
+    fun `Test Bank Message Retrieval - Unauthorized `() {
+        val result = ReportFunction().getMessagesFromTestBank(MockHttpRequestMessage())
+        assert(result.status == HttpStatus.UNAUTHORIZED)
+    }
 }

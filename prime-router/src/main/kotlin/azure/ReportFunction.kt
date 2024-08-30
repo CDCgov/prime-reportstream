@@ -1,6 +1,8 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -20,6 +22,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
+import gov.cdc.prime.router.azure.BlobAccess.Companion.defaultBlobMetadata
 import gov.cdc.prime.router.azure.BlobAccess.Companion.getBlobContainer
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
@@ -35,7 +38,6 @@ import gov.cdc.prime.router.tokens.PrincipalLevel
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
-import java.time.OffsetDateTime
 
 private const val PROCESSING_TYPE_PARAMETER = "processing"
 
@@ -95,42 +97,48 @@ class ReportFunction(
      *
      * @see ../../../docs/api/reports.yml
      */
-    @FunctionName("reports/testing")
+    @FunctionName("getMessagesFromTestBank")
     fun getMessagesFromTestBank(
         @HttpTrigger(
-            name = "testBankMessages",
+            name = "getMessagesFromTestBank",
             methods = [HttpMethod.GET],
-            authLevel = AuthorizationLevel.ADMIN
+            authLevel = AuthorizationLevel.ADMIN,
+            route = "reports/testing"
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
-        OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
-            try {
-                val results = BlobAccess.listBlobs("test-bank")
+        return OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
+            return@checkAccess try {
+                val updatedBlobMetadata = defaultBlobMetadata.copy(containerName = "test-bank")
+                val results = BlobAccess.listBlobs("", updatedBlobMetadata)
                 val reports = mutableListOf<TestReportInfo>()
-                val sourceContainer = getBlobContainer(BlobAccess.defaultBlobMetadata)
+                val sourceContainer = getBlobContainer(updatedBlobMetadata)
                 results.forEach { currentResult ->
-                    val sourceBlobClient = sourceContainer.getBlobClient(currentResult.currentBlobItem.name)
-                    val data = sourceBlobClient.downloadContent()
+                    if (currentResult.currentBlobItem.name.endsWith(".fhir")) {
+                        val sourceBlobClient = sourceContainer.getBlobClient(currentResult.currentBlobItem.name)
+                        val data = sourceBlobClient.downloadContent()
 
-                    val currentTestReportInfo = TestReportInfo(
-                        currentResult.currentBlobItem.properties.creationTime,
-                        currentResult.currentBlobItem.name,
-                        data.toString()
-                    )
-                    reports.add(currentTestReportInfo)
+                        val currentTestReportInfo = TestReportInfo(
+                            currentResult.currentBlobItem.properties.creationTime.toString(),
+                            currentResult.currentBlobItem.name,
+                            data.toString()
+                        )
+                        reports.add(currentTestReportInfo)
+                    }
                 }
-                val mapper = jacksonObjectMapper()
-                HttpUtilities.okResponse(request, mapper.writeValueAsString(results) ?: "[]")
+
+                val mapper: ObjectMapper = JsonMapper.builder()
+                    .addModule(JavaTimeModule())
+                    .build()
+                HttpUtilities.okResponse(request, mapper.writeValueAsString(reports) ?: "[]")
             } catch (e: Exception) {
                 logger.error("Unable to fetch messages from test bank", e)
                 HttpUtilities.internalErrorResponse(request)
             }
         }
-        return HttpUtilities.unauthorizedResponse(request)
     }
 
     class TestReportInfo(
-        var dateCreated: OffsetDateTime,
+        var dateCreated: String,
         var fileName: String,
         var reportBody: String,
     )
