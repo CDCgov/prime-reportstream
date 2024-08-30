@@ -1,10 +1,9 @@
 name: Export Cost Data
 
 on:
-  schedule:
-    # The workflow runs every day at 3PM
-    - cron: "0 19 * * *"  #UTC-5
-
+  push:
+    branches:
+      - dkrylov/azure_resource_costs
 jobs:
   export_cost_data:
     name: Export Azure Cost Data to Storage
