@@ -1,4 +1,4 @@
-/* eslint-disable playwright/no-conditional-in-test */
+/* eslint-disable playwright/no-networkidle */
 import axios, { AxiosError } from "axios";
 import * as fs from "fs";
 import { test as baseTest, expect } from "../../test";
