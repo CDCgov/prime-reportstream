@@ -11760,14 +11760,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.41":
-  version: 8.4.41
-  resolution: "postcss@npm:8.4.41"
+"postcss@npm:^8.4.42":
+  version: 8.4.42
+  resolution: "postcss@npm:8.4.42"
   dependencies:
     nanoid: ^3.3.7
     picocolors: ^1.0.1
     source-map-js: ^1.2.0
-  checksum: f865894929eb0f7fc2263811cc853c13b1c75103028b3f4f26df777e27b201f1abe21cb4aa4c2e901c80a04f6fb325ee22979688fe55a70e2ea82b0a517d3b6f
+  checksum: 78a6ea96611b3c7affbd2e1a9a736ba24084f1f5b6f4fc688621e60ca407612472232af008d478b9e5992329f2dfa00eea4425a727fd46fa1eeabe682545d9dd
   languageName: node
   linkType: hard
 
@@ -12142,7 +12142,7 @@ __metadata:
     npm-run-all: ^4.1.5
     otpauth: ^9.3.2
     patch-package: ^8.0.0
-    postcss: ^8.4.41
+    postcss: ^8.4.42
     prettier: ^3.3.3
     react: ^18.3.1
     react-dom: ^18.3.1
