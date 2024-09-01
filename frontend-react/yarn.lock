@@ -8256,13 +8256,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:^16.8.1":
-  version: 16.8.1
-  resolution: "graphql@npm:16.8.1"
-  checksum: 8d304b7b6f708c8c5cc164b06e92467dfe36aff6d4f2cf31dd19c4c2905a0e7b89edac4b7e225871131fd24e21460836b369de0c06532644d15b461d55b1ccc0
-  languageName: node
-  linkType: hard
-
 "handlebars@npm:^4.7.7":
   version: 4.7.8
   resolution: "handlebars@npm:4.7.8"
@@ -10816,9 +10809,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"msw@npm:^2.3.5":
-  version: 2.3.5
-  resolution: "msw@npm:2.3.5"
+"msw@npm:^2.4.1":
+  version: 2.4.1
+  resolution: "msw@npm:2.4.1"
   dependencies:
     "@bundled-es-modules/cookie": ^2.0.0
     "@bundled-es-modules/statuses": ^1.0.1
@@ -10829,7 +10822,6 @@ __metadata:
     "@types/cookie": ^0.6.0
     "@types/statuses": ^2.0.4
     chalk: ^4.1.2
-    graphql: ^16.8.1
     headers-polyfill: ^4.0.2
     is-node-process: ^1.2.0
     outvariant: ^1.4.2
@@ -10838,13 +10830,16 @@ __metadata:
     type-fest: ^4.9.0
     yargs: ^17.7.2
   peerDependencies:
+    graphql: ">= 16.8.x"
     typescript: ">= 4.7.x"
   peerDependenciesMeta:
+    graphql:
+      optional: true
     typescript:
       optional: true
   bin:
     msw: cli/index.js
-  checksum: 0867b11ad26cf54d6b4a01a416524ce56ee62c165ce753cb82cc404882e24dc96ecf81c1900348d96afce8f17da32ec640953c9b4c1319c3d84f97a75f4c735a
+  checksum: dc4d20bf856dfaed88c5ac438d4ee003ad8b56af2ca6e16ccd5e22b4f7fecb60a8df47d575bfd5d34c9bfc676263caa0426e1a9b7a539664b1a3427624ee1ffe
   languageName: node
   linkType: hard
 
@@ -12137,7 +12132,7 @@ __metadata:
     lint-staged: ^15.2.9
     lodash: ^4.17.21
     mockdate: ^3.0.5
-    msw: ^2.3.5
+    msw: ^2.4.1
     msw-storybook-addon: beta
     npm-run-all: ^4.1.5
     otpauth: ^9.3.2
