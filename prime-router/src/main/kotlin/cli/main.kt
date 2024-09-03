@@ -300,7 +300,6 @@ fun main(args: Array<String>) = RouterCli()
         ValidateTranslationSchemaCommand(),
         SyncTranslationSchemaCommand(),
         ValidateYAMLCommand(),
-        PIIRemovalCommands(),
-        DownloadReport()
+        PIIRemovalCommands()
     ).context { terminal = Terminal(ansiLevel = AnsiLevel.TRUECOLOR) }
     .main(args)

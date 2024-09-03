@@ -15,6 +15,7 @@ import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
@@ -24,13 +25,19 @@ import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
+import gov.cdc.prime.router.cli.CommandUtilities.Companion.abort
+import gov.cdc.prime.router.cli.PIIRemovalCommands
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
+import java.util.UUID
 
 private const val PROCESSING_TYPE_PARAMETER = "processing"
 
@@ -82,6 +89,71 @@ class ReportFunction(
                 logger.error(ex)
             }
             HttpUtilities.internalErrorResponse(request)
+        }
+    }
+
+    /**
+     * GET report to download
+     *
+     * @see ../../../docs/api/reports.yml
+     */
+    @FunctionName("getMessagesFromTestBank")
+    fun downloadReport(
+        @HttpTrigger(
+            name = "downloadReport",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "reports/download"
+        ) request: HttpRequestMessage<String?>,
+    ): HttpResponseMessage {
+        val claims = AuthenticatedClaims.authenticate(request)
+        if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
+            val reportId = request.queryParameters[REPORT_ID_PARAMETER]
+            val removePIIRaw = request.queryParameters[REMOVE_PII]
+            var removePII = false
+            if (removePIIRaw.isNullOrBlank() || removePIIRaw.toBoolean()) {
+                removePII = true
+            }
+            if (reportId.isNullOrBlank()) {
+                return HttpUtilities.badRequestResponse(request, "Must provide a reportId.")
+            }
+            return processDownloadReport(
+                request,
+                ReportId.fromString(reportId),
+                removePII
+            )
+        }
+        return HttpUtilities.unauthorizedResponse(request)
+    }
+
+    fun processDownloadReport(
+        request: HttpRequestMessage<String?>,
+        reportId: UUID,
+        removePII: Boolean?,
+        databaseAccess: DatabaseAccess = DatabaseAccess(),
+    ): HttpResponseMessage {
+        val requestedReport = databaseAccess.fetchReportFile(reportId)
+
+        return if (requestedReport.bodyUrl != null && requestedReport.bodyUrl.toString().lowercase().endsWith("fhir")) {
+            val contents = BlobAccess.downloadBlobAsByteArray(requestedReport.bodyUrl)
+
+            val content = if (removePII == null || removePII) {
+                PIIRemovalCommands().removePii(FhirTranscoder.decode(contents.toString(Charsets.UTF_8)))
+            } else {
+                if (Environment.get().envName == "prod") {
+                    abort("Must remove PII for messages from prod.")
+                }
+
+                val jsonObject = JacksonMapperUtilities.defaultMapper
+                    .readValue(contents.toString(Charsets.UTF_8), Any::class.java)
+                JacksonMapperUtilities.defaultMapper.writeValueAsString(jsonObject)
+            }
+
+            HttpUtilities.okJSONResponse(request, content)
+        } else if (requestedReport.bodyUrl == null) {
+            HttpUtilities.badRequestResponse(request, "The requested report does not exist.")
+        } else {
+            HttpUtilities.badRequestResponse(request, "The requested report is not fhir.")
         }
     }
 
