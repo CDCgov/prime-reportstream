@@ -21,26 +21,24 @@ class TableAccess : Logging {
          * Ensures that the instance is created only when it is first accessed.
          */
         val instance: TableAccess by lazy { TableAccess() }
+
+        private val defaultEnvVar = Environment.get().storageEnvVar
+
+        /**
+         * Retrieves the Azure Storage connection string from environment variables.
+         *
+         * @return The connection string for Azure Storage.
+         */
+        fun getConnectionString(): String = System.getenv(defaultEnvVar)
     }
 
-    private val defaultEnvVar = Environment.get().storageEnvVar
-
     /**
-     * Retrieves the Azure Storage connection string from environment variables.
-     *
-     * @return The connection string for Azure Storage.
+     * Eagerly initialized TableServiceClient to interact with Azure Table Storage.
+     * The client is created once during the instantiation of the TableAccess singleton and reused for all operations.
      */
-    fun getConnectionString(): String = System.getenv(defaultEnvVar)
-
-    /**
-     * Lazily initialized TableServiceClient to interact with Azure Table Storage.
-     * The client is created once and reused for all operations across different tables.
-     */
-    private val tableServiceClient: TableServiceClient by lazy {
-        TableServiceClientBuilder()
-            .connectionString(getConnectionString())
-            .buildClient()
-    }
+    private fun tableServiceClient(): TableServiceClient = TableServiceClientBuilder()
+        .connectionString(getConnectionString())
+        .buildClient()
 
     /**
      * Inserts a TableEntity into the specified table.
@@ -92,9 +90,9 @@ class TableAccess : Logging {
      * @return A TableClient for interacting with the specified table, or null if the table does not exist.
      */
     private fun getTableClient(tableName: String): TableClient? {
-        val tableExists = tableServiceClient.listTables().any { it.name == tableName }
+        val tableExists = tableServiceClient().listTables().any { it.name == tableName }
         return if (tableExists) {
-            tableServiceClient.getTableClient(tableName)
+            tableServiceClient().getTableClient(tableName)
         } else {
             null
         }
@@ -111,8 +109,8 @@ class TableAccess : Logging {
     private fun getOrCreateTableClient(tableName: String): TableClient {
         val tableClient = getTableClient(tableName)
         return tableClient ?: run {
-            tableServiceClient.createTable(tableName)
-            tableServiceClient.getTableClient(tableName)
+            tableServiceClient().createTable(tableName)
+            tableServiceClient().getTableClient(tableName)
         }
     }
 }
