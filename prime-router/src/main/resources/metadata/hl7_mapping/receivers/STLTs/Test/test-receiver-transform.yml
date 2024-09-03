@@ -1,0 +1,16 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+
+elements:
+
+  - name: observation-result-with-aoe
+    resource:
+      - "%resource.result.resolve().where(code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('55735004' | '840539006'))) | %resource.basedOn.resolve().supportingInfo.resolve()"
+
+  - name: order-note
+    resource: "%resource.basedOn.resolve().note | %resource.result.resolve().where(code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('55735004' | '840539006')).exists().not())"
+    schema: classpath:/metadata/hl7_mapping/receivers/Common/observation-to-nte/unwanted-conditions-to-notes.yml
+
+
+
