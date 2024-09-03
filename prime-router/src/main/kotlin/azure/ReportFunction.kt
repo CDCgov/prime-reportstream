@@ -25,7 +25,6 @@ import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
-import gov.cdc.prime.router.cli.CommandUtilities.Companion.abort
 import gov.cdc.prime.router.cli.PIIRemovalCommands
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.Environment
@@ -120,7 +119,8 @@ class ReportFunction(
             return processDownloadReport(
                 request,
                 ReportId.fromString(reportId),
-                removePII
+                removePII,
+                Environment.get().envName
             )
         }
         return HttpUtilities.unauthorizedResponse(request)
@@ -130,6 +130,7 @@ class ReportFunction(
         request: HttpRequestMessage<String?>,
         reportId: UUID,
         removePII: Boolean?,
+        envName: String,
         databaseAccess: DatabaseAccess = DatabaseAccess(),
     ): HttpResponseMessage {
         val requestedReport = databaseAccess.fetchReportFile(reportId)
@@ -140,8 +141,8 @@ class ReportFunction(
             val content = if (removePII == null || removePII) {
                 PIIRemovalCommands().removePii(FhirTranscoder.decode(contents.toString(Charsets.UTF_8)))
             } else {
-                if (Environment.get().envName == "prod") {
-                    abort("Must remove PII for messages from prod.")
+                if (envName == "prod") {
+                    return HttpUtilities.badRequestResponse(request, "Must remove PII for messages from prod.")
                 }
 
                 val jsonObject = JacksonMapperUtilities.defaultMapper

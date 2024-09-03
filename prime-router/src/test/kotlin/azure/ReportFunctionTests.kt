@@ -742,110 +742,104 @@ class ReportFunctionTests {
     fun `No report`() {
         val mockDb = mockk<DatabaseAccess>()
         val reportId = UUID.randomUUID()
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-        every { mockDb.fetchReportFile(reportId, null, null) } returns ReportFile()
-//        every { mockDb.fetchReportFile(reportId, null, null) } returns error("Could not find $reportId in REPORT_FILE")
+        every { mockDb.fetchReportFile(reportId, null, null) } throws (IllegalStateException())
         assertFailsWith<IllegalStateException>(
             block = {
-                ReportFunction().processDownloadReport(MockHttpRequestMessage(), reportId, true, mockDb)
+                ReportFunction().processDownloadReport(MockHttpRequestMessage(), reportId, true, "local", mockDb)
             }
         )
     }
-//
-//    @Test
-//    fun `valid access token, report found, PII removal`() {
-//        val reportFile = ReportFile()
-//        reportFile.bodyUrl = "fakeurl.fhir"
-//        mockkObject(AuthenticatedClaims)
-//        val mockDb = mockk<DatabaseAccess>()
-//        every { mockDb.fetchReportFile(any()) } returns reportFile
-//        mockkClass(BlobAccess::class)
-//        mockkObject(BlobAccess.Companion)
-//        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
-//        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
-//        every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
-//        every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns report.toByteArray(Charsets.UTF_8)
-//        val downloadReport = DownloadReport()
-//        downloadReport.databaseAccess = mockDb
-//
-//        val result = downloadReport.test(
-//            "-r ${UUID.randomUUID()} -e local --remove-pii true",
-//            ansiLevel = AnsiLevel.TRUECOLOR
-//        )
-//
-//        assert(result.output.contains("MESSAGE OUTPUT"))
-//    }
-//
-//    @Test
-//    fun `valid access token, report found, asked for no removal on prod`() {
-//        val reportFile = ReportFile()
-//        reportFile.bodyUrl = "fakeurl.fhir"
-//        mockkObject(AuthenticatedClaims)
-//        val mockDb = mockk<DatabaseAccess>()
-//        every { mockDb.fetchReportFile(any()) } returns reportFile
-//        mockkClass(BlobAccess::class)
-//        mockkObject(BlobAccess.Companion)
-//        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
-//        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
-//        every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
-//        every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns report.toByteArray(Charsets.UTF_8)
-//        every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
-//        mockkObject(CommandUtilities)
-//        every { CommandUtilities.isApiAvailable(any(), any()) } returns true
-//        val downloadReport = DownloadReport()
-//        downloadReport.databaseAccess = mockDb
-//
-//        val result = downloadReport.test(
-//            "-r ${UUID.randomUUID()} -e prod --remove-pii false",
-//            ansiLevel = AnsiLevel.TRUECOLOR
-//        )
-//
-//        assert(result.stderr.isNotBlank())
-//    }
-//
-//    @Test
-//    fun `valid access token, report found, no PII removal`() {
-//        val reportFile = ReportFile()
-//        reportFile.bodyUrl = "fakeurl.fhir"
-//        mockkObject(AuthenticatedClaims)
-//        val mockDb = mockk<DatabaseAccess>()
-//        every { mockDb.fetchReportFile(any()) } returns reportFile
-//        mockkClass(BlobAccess::class)
-//        mockkObject(BlobAccess.Companion)
-//        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
-//        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
-//        every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
-//        every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns report.toByteArray(Charsets.UTF_8)
-//        every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
-//        val downloadReport = DownloadReport()
-//        downloadReport.databaseAccess = mockDb
-//
-//        val result = downloadReport.test(
-//            "-r ${UUID.randomUUID()} -e local --remove-pii false",
-//            ansiLevel = AnsiLevel.TRUECOLOR
-//        )
-//
-//        assert(result.output.contains("MESSAGE OUTPUT"))
-//    }
-//
-//    @Test
-//    fun `valid access token, report found, body URL not FHIR`() {
-//        val reportFile = ReportFile()
-//        reportFile.bodyUrl = "fakeurl.hl7"
-//        mockkObject(AuthenticatedClaims)
-//        val mockDb = mockk<DatabaseAccess>()
-//        every { mockDb.fetchReportFile(any()) } returns reportFile
-//        mockkConstructor(WorkflowEngine::class)
-//        every { anyConstructed<WorkflowEngine>().db } returns mockDb
-//        every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
-//        val downloadReport = DownloadReport()
-//        downloadReport.databaseAccess = mockDb
-//
-//        val result = downloadReport.test(
-//            "-r ${UUID.randomUUID()} -e local --remove-pii true",
-//            ansiLevel = AnsiLevel.TRUECOLOR
-//        )
-//
-//        assert(result.stderr.contains("not fhir"))
-//    }
+
+    @Test
+    fun `Report found, PII removal`() {
+        val reportFile = ReportFile()
+        reportFile.bodyUrl = "fakeurl.fhir"
+        mockkObject(AuthenticatedClaims)
+        val mockDb = mockk<DatabaseAccess>()
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
+        every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
+
+        val result = ReportFunction().processDownloadReport(
+            MockHttpRequestMessage(),
+            UUID.randomUUID(),
+            true,
+            "local",
+            mockDb
+        )
+
+        assert(result.body.toString().contains("1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347"))
+    }
+
+    @Test
+    fun `Report found, asked for no removal on prod`() {
+        val reportFile = ReportFile()
+        reportFile.bodyUrl = "fakeurl.fhir"
+        mockkObject(AuthenticatedClaims)
+        val mockDb = mockk<DatabaseAccess>()
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
+        every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
+        every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
+
+        val result = ReportFunction().processDownloadReport(
+            MockHttpRequestMessage(),
+            UUID.randomUUID(),
+            false,
+            "prod",
+            mockDb
+        )
+
+        assert(result.status.equals(HttpStatus.BAD_REQUEST))
+    }
+
+    @Test
+    fun `valid access token, report found, no PII removal`() {
+        val reportFile = ReportFile()
+        reportFile.bodyUrl = "fakeurl.fhir"
+        mockkObject(AuthenticatedClaims)
+        val mockDb = mockk<DatabaseAccess>()
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
+        every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
+        every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
+
+        val result = ReportFunction().processDownloadReport(
+            MockHttpRequestMessage(),
+            UUID.randomUUID(),
+            false,
+            "local",
+            mockDb
+        )
+
+        assert(result.body.toString().contains("1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347"))
+    }
+
+    @Test
+    fun `valid access token, report found, body URL not FHIR`() {
+        val reportFile = ReportFile()
+        reportFile.bodyUrl = "fakeurl.hl7"
+        mockkObject(AuthenticatedClaims)
+        val mockDb = mockk<DatabaseAccess>()
+        every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
+
+        val result = ReportFunction().processDownloadReport(
+            MockHttpRequestMessage(),
+            UUID.randomUUID(),
+            false,
+            "local",
+            mockDb
+        )
+
+        assert(result.status.equals(HttpStatus.BAD_REQUEST))
+    }
 }
