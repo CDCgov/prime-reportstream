@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: "auth"
+  profiles:
+    active: local
+  security:
+    oauth2:
+      resourceserver:
+        opaquetoken: # Add client-secret in env variable
+          client-id: 0oaek8tip2lhrhHce1d7
+          introspection-uri: https://reportstream.oktapreview.com/oauth2/ausekaai7gUuUtHda1d7/v1/introspect
+  cloud:
+    gateway:
+      proxy:
+        sensitive: [] # pass authorization and cookie headers downstream (filtered by default)
+
+server.port: 9000
+
+proxy.pathMappings:
+  - pathPrefix: /reportstream
+    baseUrl: http://localhost:7071
+  - pathPrefix: /submissions
+    baseUrl: http://localhost:8880
+
+logging:
+  level:
+    web: debug
+    org.springframework.web: debug

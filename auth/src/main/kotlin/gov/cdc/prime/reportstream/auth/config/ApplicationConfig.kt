@@ -8,10 +8,9 @@ import org.springframework.context.annotation.Configuration
 import kotlin.time.TimeSource
 
 @Configuration
-@EnableConfigurationProperties(ProxyConfigurationProperties::class, OktaConfigurationProperties::class)
+@EnableConfigurationProperties(ProxyConfigurationProperties::class)
 class ApplicationConfig @Autowired constructor(
     val proxyConfig: ProxyConfigurationProperties,
-    val oktaConfig: OktaConfigurationProperties,
 ) {
 
     @Bean
@@ -23,12 +22,6 @@ class ApplicationConfig @Autowired constructor(
 @ConfigurationProperties("proxy")
 data class ProxyConfigurationProperties(
     val pathMappings: List<ProxyPathMapping>,
-)
-
-@ConfigurationProperties("okta")
-data class OktaConfigurationProperties(
-    val baseUrl: String,
-    val validClientIds: List<String>,
 )
 
 data class ProxyPathMapping(

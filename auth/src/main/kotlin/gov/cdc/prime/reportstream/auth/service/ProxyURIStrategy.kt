@@ -1,4 +1,4 @@
-package gov.cdc.prime.reportstream.auth.helper
+package gov.cdc.prime.reportstream.auth.service
 
 import gov.cdc.prime.reportstream.auth.config.ApplicationConfig
 import org.springframework.beans.factory.annotation.Autowired
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 import java.net.URI
 
 interface ProxyURIStrategy {
-    fun getURL(incomingUri: URI): URI
+    fun getTargetURI(incomingUri: URI): URI
 }
 
 @Component
@@ -15,7 +15,7 @@ interface ProxyURIStrategy {
 class PathPrefixProxyURIStrategy @Autowired constructor(
     private val applicationConfig: ApplicationConfig,
 ) : ProxyURIStrategy {
-    override fun getURL(incomingUri: URI): URI {
+    override fun getTargetURI(incomingUri: URI): URI {
         val proxyPathMappings = applicationConfig.proxyConfig.pathMappings
         val maybePathMapping = proxyPathMappings.find { incomingUri.path.startsWith(it.pathPrefix) }
         return if (maybePathMapping != null) {
@@ -31,7 +31,7 @@ class PathPrefixProxyURIStrategy @Autowired constructor(
                 incomingUri.fragment
             )
         } else {
-            throw IllegalStateException("no configured proxy target in path mappings") // TODO: handle with Either
+            throw IllegalStateException("no configured proxy target in path mappings")
         }
     }
 }
@@ -39,7 +39,7 @@ class PathPrefixProxyURIStrategy @Autowired constructor(
 @Component
 @Profile("deployed")
 class HostProxyPathURIStrategy : ProxyURIStrategy {
-    override fun getURL(incomingUri: URI): URI {
+    override fun getTargetURI(incomingUri: URI): URI {
         TODO("Not yet implemented")
     }
 }

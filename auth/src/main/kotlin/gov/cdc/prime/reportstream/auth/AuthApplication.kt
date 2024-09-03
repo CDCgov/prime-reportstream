@@ -7,6 +7,5 @@ import org.springframework.boot.runApplication
 class AuthApplication
 
 fun main(args: Array<String>) {
-//    ApplicationInsights.attach()
     runApplication<AuthApplication>(*args)
 }

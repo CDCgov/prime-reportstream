@@ -22,17 +22,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.8.1")
 
     implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.cloud:spring-cloud-gateway-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
-    implementation("com.microsoft.azure:applicationinsights-runtime-attach:3.5.4")
-    implementation("com.microsoft.azure:applicationinsights-web:3.5.4")
-    implementation("com.microsoft.azure:applicationinsights-logging-logback:2.6.4")
-
-    implementation("io.arrow-kt:arrow-core:1.2.4")
-    implementation("io.arrow-kt:arrow-fx-coroutines:1.2.4")
-
-    implementation("com.nimbusds:nimbus-jose-jwt:9.40")
     runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.18")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -59,6 +51,7 @@ dependencyManagement {
 
 kotlin {
     compilerOptions {
+        // https://docs.spring.io/spring-boot/docs/2.0.x/reference/html/boot-features-kotlin.html#boot-features-kotlin-null-safety
         freeCompilerArgs.addAll("-Xjsr305=strict")
     }
 }

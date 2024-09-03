@@ -12,6 +12,9 @@ import gov.cdc.prime.reportstream.submissions.TelemetryService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authorization.AuthorizationDeniedException
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.web.bind.MissingRequestHeaderException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -170,6 +173,16 @@ class SubmissionController(
 
             // Return a response entity with a generic error message and internal server error status
             return ResponseEntity("Internal Server Error: ${e.message}", HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+
+        @ExceptionHandler(AuthorizationDeniedException::class)
+        fun handleAuthorizationException(
+            e: AuthorizationDeniedException,
+            auth: JwtAuthenticationToken
+        ): ResponseEntity<Unit> {
+            logger.warn("Authorization denied for token attributes: ${auth.tokenAttributes}", e)
+
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
         }
 
         /**
