@@ -15,6 +15,10 @@ jobs:
             env: "staging"
             pwd_key: "POSTGRESQL_STAGING_PWD"
             db: "pdhstaging-pgsql"
+          - rg: "prime-data-hub-prod"
+            env: "prod"
+            pwd_key: "POSTGRESQL_PROD_PWD"
+            db: "pdhprod-pgsql"
     runs-on: ubuntu-latest
     steps:
       - name: "Check out changes"
