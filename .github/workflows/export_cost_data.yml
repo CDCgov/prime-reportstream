@@ -7,6 +7,14 @@ on:
 jobs:
   export_cost_data:
     name: Export Azure Cost Data to Storage
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rg: "prime-data-hub-staging"
+            env: "staging"
+            pwd_key: "POSTGRESQL_STAGING_PWD"
+            db: "pdhstaging-pgsql"
     runs-on: ubuntu-latest
     steps:
       - name: "Check out changes"
@@ -14,14 +22,14 @@ jobs:
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
-          env-name: prod
+          env-name: ${{ matrix.env }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: false
       - name: Run Az Cost CLI
         id: az-cost
         uses: ./.github/actions/az-cost
         with:
-          rg: prime-data-hub-prod
+          rg: ${{ matrix.rg }}
           days_ago: 180
           total_format: daily
       - name: Get Az Cost Result
@@ -34,7 +42,7 @@ jobs:
         id: az-cost-by-resource
         uses: ./.github/actions/az-cost
         with:
-          rg: prime-data-hub-prod
+          rg: ${{ matrix.rg }}
           days_ago: 180
           total_format: dailyByResource
       - name: Get Az Cost Result By Resource
@@ -51,15 +59,15 @@ jobs:
         id: add-db-access
         shell: bash
         run: |
-          az postgres server update -g prime-data-hub-prod -n pdhprod-pgsql --public-network-access "Enabled"
+          az postgres server update -g ${{ matrix.rg }} -n ${{ matrix.db }} --public-network-access "Enabled"
           sleep 10;
-          az postgres server firewall-rule create -g prime-data-hub-prod -s pdhprod-pgsql -n github_actions_runner \
+          az postgres server firewall-rule create -g ${{ matrix.rg }} -s ${{ matrix.db }} -n github_actions_runner \
             --start-ip-address ${{ steps.runner_ip.outputs.ip-address }} --end-ip-address ${{ steps.runner_ip.outputs.ip-address }}
       - name: Store cost data in DB
         uses: ./.github/actions/db-query
         with:
-          pass: ${{ secrets['POSTGRESQL_PROD_PWD'] }}
-          host: pdhprod-pgsql
+          pass: ${{ secrets[matrix.pwd_key] }}
+          host: ${{ matrix.db }}
           port: 5432
           user: prime
           database: prime_data_hub
@@ -90,6 +98,6 @@ jobs:
         if: always() && steps.add-db-access.outcome == 'success'
         shell: bash
         run: |
-          az postgres server firewall-rule delete -g prime-data-hub-prod -s pdhprod-pgsql  -n github_actions_runner --yes
+          az postgres server firewall-rule delete -g ${{ matrix.rg }} -s ${{ matrix.db }}  -n github_actions_runner --yes
           sleep 10;
-          az postgres server update -g prime-data-hub-prod -n pdhprod-pgsql --public-network-access "Disabled"
+          az postgres server update -g ${{ matrix.rg }} -n ${{ matrix.db }} --public-network-access "Disabled"
