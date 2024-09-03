@@ -1,31 +1,86 @@
 import { expect, Page } from "@playwright/test";
+import { TEST_ORG_IGNORE } from "../../helpers/utils";
 import { MOCK_GET_SUBMISSION_HISTORY } from "../../mocks/submissionHistory";
 import { MOCK_GET_SUBMISSIONS } from "../../mocks/submissions";
+import { BasePage, BasePageTestArgs, type RouteHandlerFulfillEntry } from "../BasePage";
 
 export const URL_SUBMISSION_HISTORY = "/submissions";
 export const API_GET_REPORT_HISTORY = `**/api/waters/report/**`;
+export const id = "73e3cbc8-9920-4ab7-871f-843a1db4c074";
+
+export class SubmissionHistoryPage extends BasePage {
+    static readonly URL_SUBMISSION_HISTORY = "/submissions";
+
+    constructor(testArgs: BasePageTestArgs) {
+        super(
+            {
+                url: SubmissionHistoryPage.URL_SUBMISSION_HISTORY,
+                title: "ReportStream - CDC's free, interoperable data transfer platform",
+                heading: testArgs.page.getByRole("heading", {
+                    name: "Submission history",
+                }),
+            },
+            testArgs,
+        );
+
+        this.addMockRouteHandlers([
+            // Ignore Org
+            this.createMockSubmissionsForOrgHandler(TEST_ORG_IGNORE, MOCK_GET_SUBMISSIONS),
+            this.createMockSubmissionHistoryHandler(),
+        ]);
+    }
+
+    createMockSubmissionsForOrgHandler(
+        organization: string,
+        mockFileName: any,
+        responseStatus = 200,
+    ): RouteHandlerFulfillEntry {
+        return [
+            `**/api/waters/org/${organization}/submissions?*`,
+            () => {
+                return {
+                    json: mockFileName,
+                    status: responseStatus,
+                };
+            },
+        ];
+    }
+
+    createMockSubmissionHistoryHandler(responseStatus = 200): RouteHandlerFulfillEntry {
+        return [
+            API_GET_REPORT_HISTORY,
+            () => {
+                return {
+                    json: MOCK_GET_SUBMISSION_HISTORY,
+                    status: responseStatus,
+                };
+            },
+        ];
+    }
+
+    get filterButton() {
+        return this.page.getByRole("button", {
+            name: "Filter",
+        });
+    }
+
+    get clearButton() {
+        return this.page.getByRole("button", {
+            name: "Clear",
+        });
+    }
+
+    /**
+     * Error expected additionally if user context isn't admin
+     */
+    get isPageLoadExpected() {
+        return super.isPageLoadExpected && this.testArgs.storageState === this.testArgs.adminLogin.path;
+    }
+}
 
 export async function goto(page: Page) {
     await page.goto(URL_SUBMISSION_HISTORY, {
         waitUntil: "domcontentloaded",
-    });
-}
-
-export async function gotoDetails(page: Page, id: string) {
-    await page.goto(`${URL_SUBMISSION_HISTORY}/${id}`, {
-        waitUntil: "domcontentloaded",
-    });
-}
-
-export function getOrgSubmissionsAPI(org: string) {
-    return `**/api/waters/org/${org}/submissions?*`;
-}
-
-export async function mockGetSubmissionsResponse(page: Page, org: string, responseStatus = 200) {
-    const submissionsApi = getOrgSubmissionsAPI(org);
-    await page.route(submissionsApi, async (route) => {
-        const json = MOCK_GET_SUBMISSIONS;
-        await route.fulfill({ json, status: responseStatus });
     });
 }
 
@@ -39,10 +94,6 @@ export async function mockGetReportHistoryResponse(page: Page, responseStatus = 
 export async function openReportIdDetailPage(page: Page, id: string) {
     await expect(page).toHaveURL(`/submissions/${id}`);
     await expect(page.getByText(`Details: ${id}`)).toBeVisible();
-}
-
-export async function title(page: Page) {
-    await expect(page).toHaveTitle(/ReportStream - CDC's free, interoperable data transfer platform/);
 }
 
 export async function tableHeaders(page: Page) {
