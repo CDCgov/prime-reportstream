@@ -96,9 +96,6 @@ jobs:
       # Remove runner db access
       - name: Remove DB access
         if: always() && steps.add-db-access.outcome == 'success'
-        uses: nick-fields/retry@v3
-        max_attempts: 3
-        retry_wait_seconds: 30
         shell: bash
         run: |
           az postgres server firewall-rule delete -g ${{ matrix.rg }} -s ${{ matrix.db }}  -n github_actions_runner --yes
