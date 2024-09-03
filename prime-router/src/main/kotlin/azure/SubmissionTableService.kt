@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.azure.data.tables.TableClient
 import gov.cdc.prime.reportstream.shared.SubmissionEntity
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -25,7 +24,6 @@ class SubmissionTableService private constructor() : Logging {
      * The client is created once and reused for all operations on the "submission" table.
      */
     private val tableAccess: TableAccess by lazy { TableAccess.instance }
-    private val tableClient: TableClient by lazy { tableAccess.getTableClient("submission") }
 
     /**
      * Inserts a SubmissionEntity into the "submission" table.
@@ -38,7 +36,7 @@ class SubmissionTableService private constructor() : Logging {
     fun insertSubmission(submission: SubmissionEntity) {
         try {
             val entity = submission.toTableEntity()
-            tableAccess.insertTableEntity(tableName, entity)
+            tableAccess.insertEntity(tableName, entity)
             logger
                 .info(
                 "Submission entity insert succeeded: ${submission.submissionId} with status ${submission.status}"
@@ -59,9 +57,13 @@ class SubmissionTableService private constructor() : Logging {
      * @param rowKey The row key of the entity.
      * @return The SubmissionEntity if found, otherwise null.
      */
-    fun readSubmissionEntity(partitionKey: String, rowKey: String): SubmissionEntity? = try {
-            val tableEntity = tableClient.getEntity(partitionKey, rowKey)
-            SubmissionEntity.fromTableEntity(tableEntity)
+    fun getSubmissionEntity(partitionKey: String, rowKey: String): SubmissionEntity? = try {
+            val tableEntity = tableAccess.getEntity(tableName, partitionKey, rowKey)
+            if (tableEntity != null) {
+                SubmissionEntity.fromTableEntity(tableEntity)
+            } else {
+                null
+            }
         } catch (e: Exception) {
             logger
                 .error(

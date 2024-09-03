@@ -55,7 +55,7 @@ class FHIRReceiver(
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
     reportService: ReportService = ReportService(),
-    private val submissionTableService: SubmissionTableService = SubmissionTableService.instance,
+    val submissionTableService: SubmissionTableService = SubmissionTableService.instance,
 ) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT

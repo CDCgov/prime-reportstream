@@ -62,7 +62,7 @@ class FHIRReceiverIntegrationTests {
         )
     )
 
-    val azureEventService = LocalAzureEventServiceImpl()
+    private val azureEventService = LocalAzureEventServiceImpl()
     private lateinit var submissionTableService: SubmissionTableService
 
     private fun createFHIRFunctionsInstance(): FHIRFunctions {
@@ -85,7 +85,7 @@ class FHIRReceiverIntegrationTests {
             settings,
             ReportStreamTestDatabaseContainer.testDatabaseAccess,
             azureEventService = azureEventService,
-            submissionTableService = submissionTableService
+            submissionTableService = SubmissionTableService.instance
         )
     }
 
@@ -198,7 +198,7 @@ class FHIRReceiverIntegrationTests {
             QueueAccess.sendMessage(any(), any())
         }
 
-        val tableRow = submissionTableService.readSubmissionEntity(reportId.toString(), "Accepted")
+        val tableRow = submissionTableService.getSubmissionEntity(reportId.toString(), "Accepted")
 
         assertNotNull(tableRow)
         assertThat(tableRow.detail).isEqualTo(
@@ -308,7 +308,7 @@ class FHIRReceiverIntegrationTests {
             QueueAccess.sendMessage(any(), any())
         }
 
-        val tableRow = submissionTableService.readSubmissionEntity(
+        val tableRow = submissionTableService.getSubmissionEntity(
             reportId.toString(),
             "Rejected"
         )

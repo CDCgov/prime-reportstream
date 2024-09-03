@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.azure
 
 import com.azure.data.tables.TableClient
-import com.azure.data.tables.TableClientBuilder
 import com.azure.data.tables.TableServiceClient
 import com.azure.data.tables.TableServiceClientBuilder
 import com.azure.data.tables.models.TableEntity
@@ -52,9 +51,10 @@ class TableAccess : Logging {
      * @param tableName The name of the table where the entity will be inserted.
      * @param entity The TableEntity to be inserted into the table.
      */
-    fun insertTableEntity(tableName: String, entity: TableEntity) {
+    fun insertEntity(tableName: String, entity: TableEntity) {
         try {
-            getTableClient(tableName).createEntity(entity)
+            val tableClient = getOrCreateTableClient(tableName)
+            tableClient.createEntity(entity)
             logger.info("Entity inserted successfully: ${entity.partitionKey} is ${entity.rowKey}")
         } catch (e: Exception) {
             logger.error("Failed to insert entity: ${entity.partitionKey} with ${entity.rowKey}", e)
@@ -62,22 +62,57 @@ class TableAccess : Logging {
     }
 
     /**
-     * Retrieves a TableClient for the specified table.
+     * Retrieves a TableEntity from the specified table.
+     *
+     * This method fetches a TableEntity from Azure Table Storage based on the given partition key and row key.
+     * If the entity is found, it is returned. If the table does not exist or an error occurs during the retrieval,
+     * the method logs the error and returns null.
+     *
+     * @param tableName The name of the table from which to retrieve the entity.
+     * @param partitionKey The partition key identifying the entity.
+     * @param rowKey The row key identifying the entity.
+     * @return The TableEntity if found, or null if the table does not exist or an error occurs.
+     */
+    fun getEntity(tableName: String, partitionKey: String, rowKey: String): TableEntity? {
+        try {
+            val tableClient = getTableClient(tableName)
+            return tableClient?.getEntity(partitionKey, rowKey)
+        } catch (e: Exception) {
+            logger.error("Failed to find entity: $partitionKey with $rowKey", e)
+            return null
+        }
+    }
+
+    /**
+     * Retrieves a TableClient for the specified table if it exists.
+     *
+     * If the table does not exist, this method returns null.
+     *
+     * @param tableName The name of the table for which the client is needed.
+     * @return A TableClient for interacting with the specified table, or null if the table does not exist.
+     */
+    private fun getTableClient(tableName: String): TableClient? {
+        val tableExists = tableServiceClient.listTables().any { it.name == tableName }
+        return if (tableExists) {
+            tableServiceClient.getTableClient(tableName)
+        } else {
+            null
+        }
+    }
+
+    /**
+     * Retrieves a TableClient for the specified table, creating the table if it does not exist.
      *
      * If the table does not exist, it is created before returning the client.
      *
      * @param tableName The name of the table for which the client is needed.
      * @return A TableClient for interacting with the specified table.
      */
-    fun getTableClient(tableName: String): TableClient {
-        val tableExists = tableServiceClient.listTables().any { it.name == tableName }
-        if (!tableExists) {
+    private fun getOrCreateTableClient(tableName: String): TableClient {
+        val tableClient = getTableClient(tableName)
+        return tableClient ?: run {
             tableServiceClient.createTable(tableName)
+            tableServiceClient.getTableClient(tableName)
         }
-
-        return TableClientBuilder()
-            .connectionString(getConnectionString())
-            .tableName(tableName)
-            .buildClient()
     }
 }
