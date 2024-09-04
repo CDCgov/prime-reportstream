@@ -25,6 +25,7 @@ import gov.cdc.prime.router.TopicReceiver
 import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.cli.PIIRemovalCommands
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -776,6 +777,8 @@ class ReportFunctionTests {
         every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
         val reportId = UUID.randomUUID()
         every { mockDb.fetchReportFile(reportId, null, null) } returns reportFile
+        val piiRemovalCommands = mockkClass(PIIRemovalCommands::class)
+        every { piiRemovalCommands.removePii(any()) } returns fhirReport
 
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -786,7 +789,8 @@ class ReportFunctionTests {
             reportId,
             true,
             "local",
-            mockDb
+            mockDb,
+            piiRemovalCommands
         )
 
         assert(result.body.toString().contains("1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347"))

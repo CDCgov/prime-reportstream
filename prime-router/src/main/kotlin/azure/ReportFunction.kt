@@ -127,6 +127,7 @@ class ReportFunction(
         removePII: Boolean?,
         envName: String,
         databaseAccess: DatabaseAccess = DatabaseAccess(),
+        piiRemovalCommands: PIIRemovalCommands = PIIRemovalCommands(),
     ): HttpResponseMessage {
         val requestedReport = databaseAccess.fetchReportFile(reportId)
 
@@ -134,7 +135,7 @@ class ReportFunction(
             val contents = BlobAccess.downloadBlobAsByteArray(requestedReport.bodyUrl)
 
             val content = if (removePII == null || removePII) {
-                PIIRemovalCommands().removePii(FhirTranscoder.decode(contents.toString(Charsets.UTF_8)))
+                piiRemovalCommands.removePii(FhirTranscoder.decode(contents.toString(Charsets.UTF_8)))
             } else {
                 if (envName == "prod") {
                     return HttpUtilities.badRequestResponse(request, "Must remove PII for messages from prod.")
