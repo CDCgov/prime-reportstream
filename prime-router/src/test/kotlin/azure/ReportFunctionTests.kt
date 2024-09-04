@@ -743,9 +743,21 @@ class ReportFunctionTests {
         val mockDb = mockk<DatabaseAccess>()
         val reportId = UUID.randomUUID()
         every { mockDb.fetchReportFile(reportId, null, null) } throws (IllegalStateException())
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
         assertFailsWith<IllegalStateException>(
             block = {
-                ReportFunction().processDownloadReport(MockHttpRequestMessage(), reportId, true, "local", mockDb)
+                ReportFunction(
+                    makeEngine(metadata, settings),
+                    actionHistory
+                ).processDownloadReport(
+                    MockHttpRequestMessage(),
+                    reportId,
+                    true,
+                    "local",
+                    mockDb
+                )
             }
         )
     }
@@ -763,7 +775,11 @@ class ReportFunctionTests {
         every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
         every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
 
-        val result = ReportFunction().processDownloadReport(
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processDownloadReport(
             MockHttpRequestMessage(),
             UUID.randomUUID(),
             true,
@@ -788,7 +804,11 @@ class ReportFunctionTests {
         every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
         every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
 
-        val result = ReportFunction().processDownloadReport(
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processDownloadReport(
             MockHttpRequestMessage(),
             UUID.randomUUID(),
             false,
@@ -813,7 +833,11 @@ class ReportFunctionTests {
         every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
         every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
 
-        val result = ReportFunction().processDownloadReport(
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processDownloadReport(
             MockHttpRequestMessage(),
             UUID.randomUUID(),
             false,
@@ -832,7 +856,11 @@ class ReportFunctionTests {
         val mockDb = mockk<DatabaseAccess>()
         every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
 
-        val result = ReportFunction().processDownloadReport(
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processDownloadReport(
             MockHttpRequestMessage(),
             UUID.randomUUID(),
             false,
