@@ -36,9 +36,26 @@ class TableAccess : Logging {
      * Eagerly initialized TableServiceClient to interact with Azure Table Storage.
      * The client is created once during the instantiation of the TableAccess singleton and reused for all operations.
      */
-    private fun tableServiceClient(): TableServiceClient = TableServiceClientBuilder()
-        .connectionString(getConnectionString())
-        .buildClient()
+//    private fun tableServiceClient(): TableServiceClient = TableServiceClientBuilder()
+//        .connectionString(getConnectionString())
+//        .buildClient()
+
+    @Volatile
+    private var tableServiceClient: TableServiceClient? = null
+
+    // Synchronized function to safely initialize or retrieve the tableServiceClient
+    private fun getTableServiceClient(): TableServiceClient {
+        return synchronized(this) {
+            // Initialize the client if it is null and return it (no non-null assertion required)
+            tableServiceClient ?: initializeClient(getConnectionString()).also { tableServiceClient = it }
+        }
+    }
+
+    private fun initializeClient(connectionString: String): TableServiceClient {
+        return TableServiceClientBuilder()
+            .connectionString(connectionString)
+            .buildClient()
+    }
 
     /**
      * Inserts a TableEntity into the specified table.
@@ -90,9 +107,32 @@ class TableAccess : Logging {
      * @return A TableClient for interacting with the specified table, or null if the table does not exist.
      */
     private fun getTableClient(tableName: String): TableClient? {
-        val tableExists = tableServiceClient().listTables().any { it.name == tableName }
+        try {
+            val tableExists = getTableServiceClient().listTables().any { it.name == tableName }
+            return if (tableExists) {
+                getTableServiceClient().getTableClient(tableName)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            logger.error("Error getting table service client", e)
+            handleClientFailure()
+            return retryGetTableClient(tableName) // Retry after reinitialization
+        }
+    }
+
+    /**
+     * Retrieves a TableClient for the specified table if it exists.
+     *
+     * If the table does not exist, this method returns null.
+     *
+     * @param tableName The name of the table for which the client is needed.
+     * @return A TableClient for interacting with the specified table, or null if the table does not exist.
+     */
+    private fun retryGetTableClient(tableName: String): TableClient? {
+        val tableExists = getTableServiceClient().listTables().any { it.name == tableName }
         return if (tableExists) {
-            tableServiceClient().getTableClient(tableName)
+            getTableServiceClient().getTableClient(tableName)
         } else {
             null
         }
@@ -109,8 +149,17 @@ class TableAccess : Logging {
     private fun getOrCreateTableClient(tableName: String): TableClient {
         val tableClient = getTableClient(tableName)
         return tableClient ?: run {
-            tableServiceClient().createTable(tableName)
-            tableServiceClient().getTableClient(tableName)
+            getTableServiceClient().createTable(tableName)
+            getTableServiceClient().getTableClient(tableName)
+        }
+    }
+
+    // Method to handle client failure and reinitialize the client if needed
+    private fun handleClientFailure() {
+        // Check if the exception is related to a connection or channel failure
+        logger.warn("Detected client failure, reinitializing TableServiceClient...")
+        synchronized(this) {
+            tableServiceClient = initializeClient(getConnectionString()) // Reinitialize the client
         }
     }
 }
