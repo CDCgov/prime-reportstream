@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.reportstream.shared.SubmissionEntity
+import gov.cdc.prime.reportstream.shared.Submission
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
@@ -168,7 +168,7 @@ class FHIRReceiverTest {
         val reportId = queueMessage.reportId.toString()
         val blobURL = queueMessage.blobURL
         verify(exactly = 1) {
-            SubmissionEntity(
+            Submission(
                 reportId,
                 "Rejected",
                 blobURL,

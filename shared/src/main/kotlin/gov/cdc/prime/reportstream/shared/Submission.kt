@@ -10,7 +10,7 @@ import com.azure.data.tables.models.TableEntity
  * @property bodyURL The URL pointing to the body of the submission.
  * @property detail Optional additional details about the submission.
  */
-data class SubmissionEntity(
+data class Submission(
     val submissionId: String,
     val status: String,
     val bodyURL: String,
@@ -23,8 +23,8 @@ data class SubmissionEntity(
          * @param tableEntity The TableEntity to convert.
          * @return The corresponding SubmissionEntity.
          */
-        fun fromTableEntity(tableEntity: TableEntity): SubmissionEntity {
-            return SubmissionEntity(
+        fun fromTableEntity(tableEntity: TableEntity): Submission {
+            return Submission(
                 submissionId = tableEntity.partitionKey,
                 status = tableEntity.rowKey,
                 bodyURL = tableEntity.getProperty("body_url") as String,

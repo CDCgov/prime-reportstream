@@ -17,11 +17,6 @@ import org.apache.logging.log4j.kotlin.Logging
 class TableAccess : Logging {
 
     companion object {
-        /**
-         * Singleton instance of TableAccess, initialized lazily.
-         * Ensures that the instance is created only when it is first accessed.
-         */
-        val instance: TableAccess by lazy { TableAccess() }
 
         /**
          * The environment variable that stores the connection string.
@@ -36,37 +31,9 @@ class TableAccess : Logging {
         fun getConnectionString(): String = System.getenv(defaultEnvVar)
     }
 
-    /**
-     * The TableServiceClient used to interact with Azure Table Storage.
-     * It is volatile to ensure visibility across threads and lazily initialized when accessed.
-     */
-    @Volatile
-    private var tableServiceClient: TableServiceClient? = null
-
-    /**
-     * Lazily retrieves the TableServiceClient, initializing it if necessary.
-     *
-     * The method is synchronized to ensure thread safety and avoid race conditions during initialization.
-     *
-     * @return The initialized TableServiceClient instance.
-     */
-    private fun getTableServiceClient(): TableServiceClient {
-        return synchronized(this) {
-            tableServiceClient ?: initializeClient(getConnectionString()).also { tableServiceClient = it }
-        }
-    }
-
-    /**
-     * Initializes the TableServiceClient using the provided connection string.
-     *
-     * @param connectionString The connection string used to create the TableServiceClient.
-     * @return The initialized TableServiceClient instance.
-     */
-    private fun initializeClient(connectionString: String): TableServiceClient {
-        return TableServiceClientBuilder()
-            .connectionString(connectionString)
-            .buildClient()
-    }
+    private val tableServiceClient: TableServiceClient = TableServiceClientBuilder()
+        .connectionString(getConnectionString())
+        .buildClient()
 
     /**
      * Inserts a TableEntity into the specified table.
@@ -118,17 +85,11 @@ class TableAccess : Logging {
      * @return A TableClient for interacting with the specified table, or null if the table does not exist or an error occurs.
      */
     private fun getTableClient(tableName: String): TableClient? {
-        try {
-            val tableExists = getTableServiceClient().listTables().any { it.name == tableName }
-            return if (tableExists) {
-                getTableServiceClient().getTableClient(tableName)
-            } else {
-                null
-            }
-        } catch (e: Exception) {
-            logger.error("Error getting table service client", e)
-            handleClientFailure()
-            return retryGetTableClient(tableName)
+        val tableExists = tableServiceClient.listTables().any { it.name == tableName }
+        return if (tableExists) {
+            tableServiceClient.getTableClient(tableName)
+        } else {
+            null
         }
     }
 
@@ -139,9 +100,9 @@ class TableAccess : Logging {
      * @return A TableClient for interacting with the specified table, or null if the table does not exist.
      */
     private fun retryGetTableClient(tableName: String): TableClient? {
-        val tableExists = getTableServiceClient().listTables().any { it.name == tableName }
+        val tableExists = tableServiceClient.listTables().any { it.name == tableName }
         return if (tableExists) {
-            getTableServiceClient().getTableClient(tableName)
+            tableServiceClient.getTableClient(tableName)
         } else {
             null
         }
@@ -158,21 +119,8 @@ class TableAccess : Logging {
     private fun getOrCreateTableClient(tableName: String): TableClient {
         val tableClient = getTableClient(tableName)
         return tableClient ?: run {
-            getTableServiceClient().createTable(tableName)
-            getTableServiceClient().getTableClient(tableName)
-        }
-    }
-
-    /**
-     * Handles client failures by reinitializing the TableServiceClient.
-     *
-     * This method is invoked when an error occurs during table operations. It ensures that the TableServiceClient
-     * is reinitialized to recover from connection or channel-related failures.
-     */
-    private fun handleClientFailure() {
-        logger.warn("Detected client failure, reinitializing TableServiceClient...")
-        synchronized(this) {
-            tableServiceClient = initializeClient(getConnectionString()) // Reinitialize the client
+            tableServiceClient.createTable(tableName)
+            tableServiceClient.getTableClient(tableName)
         }
     }
 }

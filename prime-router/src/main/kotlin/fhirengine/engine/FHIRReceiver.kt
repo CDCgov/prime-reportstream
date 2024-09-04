@@ -3,7 +3,7 @@ package gov.cdc.prime.router.fhirengine.engine
 import ca.uhn.hl7v2.model.Message
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.reportstream.shared.QueueMessage
-import gov.cdc.prime.reportstream.shared.SubmissionEntity
+import gov.cdc.prime.reportstream.shared.Submission
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
@@ -163,7 +163,7 @@ class FHIRReceiver(
 
             // Insert the rejection into the submissions table
             val tableEntity =
-                SubmissionEntity(
+                Submission(
                     queueMessage.reportId.toString(), "Rejected",
                     queueMessage.blobURL,
                     "Sender not found matching client_id: ${queueMessage.headers[clientIdHeader]}"
@@ -239,7 +239,7 @@ class FHIRReceiver(
         }
 
         // Insert the acceptance into the submissions table
-        val tableEntity = SubmissionEntity(
+        val tableEntity = Submission(
             queueMessage.reportId.toString(),
             "Accepted",
             queueMessage.blobURL,

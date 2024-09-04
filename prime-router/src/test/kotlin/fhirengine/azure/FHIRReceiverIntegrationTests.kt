@@ -92,7 +92,7 @@ class FHIRReceiverIntegrationTests {
             settings,
             ReportStreamTestDatabaseContainer.testDatabaseAccess,
             azureEventService = azureEventService,
-//            submissionTableService = submissionTableService
+            submissionTableService = submissionTableService
         )
     }
 
@@ -128,6 +128,7 @@ class FHIRReceiverIntegrationTests {
         every { TableAccess.getConnectionString() } returns getConnString()
 
         submissionTableService = SubmissionTableService.instance
+        submissionTableService.reset()
     }
 
     @AfterEach
@@ -205,7 +206,7 @@ class FHIRReceiverIntegrationTests {
             QueueAccess.sendMessage(any(), any())
         }
 
-        val tableRow = submissionTableService.getSubmissionEntity(reportId.toString(), "Accepted")
+        val tableRow = submissionTableService.getSubmission(reportId.toString(), "Accepted")
 
         assertNotNull(tableRow)
         assertThat(tableRow.detail).isEqualTo(
@@ -315,7 +316,7 @@ class FHIRReceiverIntegrationTests {
             QueueAccess.sendMessage(any(), any())
         }
 
-        val tableRow = submissionTableService.getSubmissionEntity(
+        val tableRow = submissionTableService.getSubmission(
             reportId.toString(),
             "Rejected"
         )
@@ -407,7 +408,7 @@ class FHIRReceiverIntegrationTests {
             QueueAccess.sendMessage(any(), any())
         }
 
-        val tableRow = submissionTableService.getSubmissionEntity(
+        val tableRow = submissionTableService.getSubmission(
             reportId.toString(),
             "Accepted"
         )
@@ -500,7 +501,7 @@ class FHIRReceiverIntegrationTests {
             QueueAccess.sendMessage(any(), any())
         }
 
-        val tableRow = submissionTableService.getSubmissionEntity(
+        val tableRow = submissionTableService.getSubmission(
             reportId.toString(),
             "Accepted"
         )
@@ -595,7 +596,7 @@ class FHIRReceiverIntegrationTests {
             QueueAccess.sendMessage(any(), any())
         }
 
-        val tableRow = submissionTableService.getSubmissionEntity(
+        val tableRow = submissionTableService.getSubmission(
             reportId.toString(),
             "Accepted"
         )
@@ -689,7 +690,7 @@ class FHIRReceiverIntegrationTests {
             QueueAccess.sendMessage(any(), any())
         }
 
-        val tableRow = submissionTableService.getSubmissionEntity(
+        val tableRow = submissionTableService.getSubmission(
             reportId.toString(),
             "Accepted"
         )

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.QueueMessage
-import gov.cdc.prime.reportstream.shared.SubmissionEntity
+import gov.cdc.prime.reportstream.shared.Submission
 import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
 import gov.cdc.prime.reportstream.submissions.TelemetryService
 import org.slf4j.LoggerFactory
@@ -86,7 +86,7 @@ class SubmissionController(
 
         // Insert into Table
         // TableEntity() sets PartitionKey and RowKey. Both are required by azure and combine to create the PK
-        val tableEntity = SubmissionEntity(reportId.toString(), status, blobClient.blobUrl).toTableEntity()
+        val tableEntity = Submission(reportId.toString(), status, blobClient.blobUrl).toTableEntity()
         tableClient.createEntity(tableEntity)
         logger.info("Inserted report into table storage: reportId=$reportId")
 
