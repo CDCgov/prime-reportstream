@@ -200,4 +200,4 @@
       transport:
         type: "BLOBSTORE"
         storageName: "cdctiautomatedstg"
-        containerName: "final"
+        containerName: "automated"
