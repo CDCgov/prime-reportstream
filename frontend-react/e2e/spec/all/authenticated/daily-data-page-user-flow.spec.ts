@@ -365,7 +365,7 @@ test.describe(
                     });
                 });
 
-                test.describe.skip("on 'Filename' click", () => {
+                test.describe.only("on 'Filename' click", () => {
                     test.beforeEach(async ({ dailyDataPage }) => {
                         await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                         await dailyDataPage.page.locator("#receiver-dropdown").selectOption(TEST_ORG_UP_RECEIVER_UP);
