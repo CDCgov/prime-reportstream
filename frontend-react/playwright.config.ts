@@ -41,7 +41,12 @@ export default defineConfig({
             name: "chromium",
             use: { browserName: "chromium" },
             dependencies: ["setup"],
-            testMatch: ["spec/all/*.spec.ts", "spec/all/**/*.spec.ts", "spec/chromium-only/*.spec.ts", "spec/chromium-only/**/*.spec.ts"],
+            testMatch: [
+                "spec/all/*.spec.ts",
+                "spec/all/**/*.spec.ts",
+                "spec/chromium-only/*.spec.ts",
+                "spec/chromium-only/**/*.spec.ts",
+            ],
         },
         {
             name: "firefox",
