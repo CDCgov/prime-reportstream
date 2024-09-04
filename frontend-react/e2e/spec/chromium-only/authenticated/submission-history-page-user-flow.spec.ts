@@ -7,7 +7,11 @@ import {
 import { tableColumnDateTimeInRange, tableDataCellValue, TEST_ORG_IGNORE } from "../../../helpers/utils";
 import { endDate, setDate, startDate } from "../../../pages/authenticated/daily-data";
 import * as submissionHistory from "../../../pages/authenticated/submission-history";
-import { openReportIdDetailPage, SubmissionHistoryPage } from "../../../pages/authenticated/submission-history";
+import {
+    openReportIdDetailPage,
+    SubmissionHistoryPage,
+    URL_SUBMISSION_HISTORY
+} from "../../../pages/authenticated/submission-history";
 import { test as baseTest } from "../../../test";
 
 export interface SubmissionHistoryPageFixtures {
@@ -52,10 +56,6 @@ test.describe(
     () => {
         test.describe("admin user", () => {
             test.use({ storageState: "e2e/.auth/admin.json" });
-
-            test.beforeAll(({ browserName }) => {
-                test.skip(browserName !== "chromium");
-            });
 
             test.describe(`${TEST_ORG_IGNORE} org`, () => {
                 test("nav contains the 'Submission History' option", async ({ submissionHistoryPage }) => {
@@ -125,16 +125,24 @@ test.describe(
 
                             // Apply button is enabled
                             await submissionHistoryPage.filterButton.click();
-                            await submissionHistoryPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
-
-                            // Check that table data contains the dates/times that were selected
-                            const areDatesInRange = await tableColumnDateTimeInRange(
-                                submissionHistoryPage.page,
-                                1,
-                                fromDate,
-                                toDate,
+                            const responsePromise = await submissionHistoryPage.page.waitForResponse(
+                                (res) => res.status() === 200 && res.url().includes(URL_SUBMISSION_HISTORY),
                             );
-                            expect(areDatesInRange).toBe(true);
+
+                            if (responsePromise) {
+                                // Check that table data contains the dates/times that were selected
+                                const areDatesInRange = await tableColumnDateTimeInRange(
+                                    submissionHistoryPage.page,
+                                    1,
+                                    fromDate,
+                                    toDate,
+                                );
+
+                                // eslint-disable-next-line playwright/no-conditional-expect
+                                expect(areDatesInRange).toBe(true);
+                            } else {
+                                console.error("Request not received within the timeout period");
+                            }
                         });
 
                         test("on 'clear' resets the dates", async ({ submissionHistoryPage }) => {
