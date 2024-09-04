@@ -220,6 +220,8 @@ export class AdminReceiverStatusPage extends BasePage {
     }
 
     get receiverStatusRowsLocator() {
+        // const rows = this.statusContainer.locator("> .perreceiver-row");
+
         const rows = this.statusContainer.locator("> .grid-row");
 
         return Object.assign(rows, {
@@ -310,8 +312,7 @@ export class AdminReceiverStatusPage extends BasePage {
         if (!isRequestAwaitedBool) return undefined as void;
 
         const req = await p;
-        const reqUrl = req ? new URL(req.url()) : undefined;
-        return reqUrl;
+        return req ? new URL(req.url()) : undefined;
     }
 
     async updateFilterDateRange(start: Date, end: Date, inputMethod: "textbox" | "calendar" = "textbox") {
