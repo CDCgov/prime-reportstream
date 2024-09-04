@@ -753,6 +753,8 @@ class ReportFunctionTests {
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        mockkObject(AuthenticatedClaims)
+        every { AuthenticatedClaims.authenticate(any()) } returns null
 
         val result = ReportFunction(
             makeEngine(metadata, settings),
