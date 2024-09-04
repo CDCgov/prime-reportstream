@@ -28,9 +28,11 @@ elements:
 
   - name: patient # need to worry about name collision?
     resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.count() = 1' # todo needed elsewhere?
     schema: classpath:/metadata/hl7_mapping/OML_O21/base/patient/patient-base.yml
+    resourceIndex: patientIndex
 
   - name: order # need to worry about name collision?
     resource: 'Bundle.entry.resource.ofType(Observation)' # prolly remove
-    required: true
+    required: false # todo flip back to true
     schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/order-base.yml

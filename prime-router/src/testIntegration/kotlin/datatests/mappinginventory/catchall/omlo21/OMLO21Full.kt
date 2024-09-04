@@ -12,7 +12,33 @@ class OMLO21Full {
     }
 
     @Test
-    fun `test OML_O21 all segments HL7 to FHIR to HL7`() {
+    fun `test OML_O21 all segments HL7 to FHIR to HL7 N E W`() {
+        assert(
+            verifyHL7ToFHIRToHL7Mapping(
+                "catchall/omlo21/oml_o21-fullh2f2h_NEW",
+                true,
+                true,
+                false,
+                outputSchema = "classpath:/metadata/hl7_mapping/OML_O21/OML_O21-test_NEW.yml"
+            ).passed
+        )
+    }
+
+    @Test
+    fun `test OML_O21 all segments FHIR to HL7 N E W`() {
+        assert(
+            verifyHL7ToFHIRToHL7Mapping(
+                "catchall/omlo21/oml_o21-fullf2h_NEW",
+                true,
+                false,
+                true,
+                outputSchema = "classpath:/metadata/hl7_mapping/OML_O21/OML_O21-test_NEW.yml"
+            ).passed
+        )
+    }
+
+    @Test
+    fun `test OML_O21 all segments HL7 to FHIR to HL7 O L D`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
                 "catchall/omlo21/oml_o21-fullh2f2h",
@@ -25,7 +51,7 @@ class OMLO21Full {
     }
 
     @Test
-    fun `test OML_O21 all segments FHIR to HL7`() {
+    fun `test OML_O21 all segments FHIR to HL7 O L D`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
                 "catchall/omlo21/oml_o21-fullf2h",

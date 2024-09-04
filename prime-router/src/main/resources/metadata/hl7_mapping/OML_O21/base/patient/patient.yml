@@ -11,7 +11,7 @@ elements:
 
   - name: patient-identification-extensions
 #    required: true # should this be put on extension? i feel like yes
-    resource: '%res ource.extension(%`rsext-pid-patient`)'
+    resource: '%resource.extension(%`rsext-pid-patient`)'
     schema: classpath:/metadata/hl7_mapping/resources/Patient/PIDExtension.yml
 
   - name: additional-demographics

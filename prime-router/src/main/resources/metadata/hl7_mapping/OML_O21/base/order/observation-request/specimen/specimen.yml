@@ -11,12 +11,14 @@ elements:
     schema: classpath:/metadata/hl7_mapping/resources/Specimen/SPM.yml
   #    constants:
   #      performerOrganization: '%resource.basedOn.resolve().performer.resolve()'
+    constants:
+      hl7SpecimenFieldPath: /ORDER/OBSERVATION_REQUEST/SPECIMEN/SPM
 
   - name: observation-result-with-aoe
     resource: '%resource.result.resolve() | %resource.basedOn.resolve().supportingInfo.resolve()'
     schema: classpath:/metadata/hl7_mapping/resources/Observation/OBX.yml
     resourceIndex: resultIndex
-    required: true
+    required: false # todo flip back to true?
     constants:
       hl7OBXField: '/ORDER/OBSERVATION_REQUEST/SPECIMEN/SPECIMEN_OBSERVATION(%{resultIndex})/OBX'
       hl7ObservationPath: '/ORDER/OBSERVATION_REQUEST/SPECIMEN/SPECIMEN_OBSERVATION' # why both of these?

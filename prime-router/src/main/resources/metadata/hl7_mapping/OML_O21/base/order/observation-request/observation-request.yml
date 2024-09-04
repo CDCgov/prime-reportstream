@@ -10,3 +10,5 @@ elements:
   - name: observation-request-diagnostic-report
     resource: '%resource'
     schema: classpath:/metadata/hl7_mapping/resources/DiagnosticReport/OBR.yml
+    constants:
+      obrFieldPath: '/ORDER/OBSERVATION_REQUEST/OBR'
