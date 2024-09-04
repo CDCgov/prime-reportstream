@@ -750,7 +750,14 @@ class ReportFunctionTests {
 
     @Test
     fun `Test Bank Message Retrieval - Unauthorized `() {
-        val result = ReportFunction().getMessagesFromTestBank(MockHttpRequestMessage())
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(
+            makeEngine(metadata, settings),
+            actionHistory
+        ).getMessagesFromTestBank(MockHttpRequestMessage())
         assert(result.status == HttpStatus.UNAUTHORIZED)
     }
 
@@ -767,7 +774,11 @@ class ReportFunctionTests {
         every { BlobAccess.Companion.listBlobs("", any()) } returns listOf()
         every { BlobAccess.Companion.getBlobContainer(any()) } returns mockk()
 
-        val result = ReportFunction().processGetMessageFromTestBankRequest(
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processGetMessageFromTestBankRequest(
             MockHttpRequestMessage(),
             BlobAccess.Companion,
             testBlobMetadata
@@ -805,7 +816,12 @@ class ReportFunctionTests {
             currentBlobItem = blob1, null
         )
         )
-        val result = ReportFunction().processGetMessageFromTestBankRequest(
+
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processGetMessageFromTestBankRequest(
             MockHttpRequestMessage(),
             BlobAccess.Companion,
             testBlobMetadata
