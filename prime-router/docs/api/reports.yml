@@ -102,7 +102,22 @@ paths:
                 $ref: '#/components/schemas/Report'
         '500':
           description: Internal Server Error
-
+  /reports/testing:
+    get:
+      summary: Gets the message from the test message bank in the environment
+      security:
+        - OAuth2: [ system_admin ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Report'
+        '500':
+          description: Internal Server Error
 # Building
 components:
   schemas:
