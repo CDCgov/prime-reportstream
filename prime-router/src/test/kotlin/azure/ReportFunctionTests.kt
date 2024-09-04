@@ -2,6 +2,15 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.azure.core.util.BinaryData
+import com.azure.storage.blob.BlobClient
+import com.azure.storage.blob.BlobContainerClient
+import com.azure.storage.blob.BlobServiceClientBuilder
+import com.azure.storage.blob.models.BlobItem
+import com.azure.storage.blob.models.BlobItemProperties
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionLog
@@ -23,6 +32,7 @@ import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.TopicReceiver
 import gov.cdc.prime.router.UniversalPipelineSender
+import gov.cdc.prime.router.azure.BlobAccess.BlobContainerMetadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.cli.PIIRemovalCommands
@@ -32,10 +42,12 @@ import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.ktor.utils.io.core.toByteArray
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
+import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
@@ -737,6 +749,101 @@ class ReportFunctionTests {
         assertThrows<RequestFunction.InvalidExternalPayloadException> {
             reportFunc.extractPayloadName(mockHttpRequest)
         }
+    }
+
+    @Test
+    fun `Test Bank Message Retrieval - Unauthorized `() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        mockkObject(AuthenticatedClaims)
+        every { AuthenticatedClaims.authenticate(any()) } returns null
+
+        val result = ReportFunction(
+            makeEngine(metadata, settings),
+            actionHistory
+        ).getMessagesFromTestBank(MockHttpRequestMessage())
+        assert(result.status == HttpStatus.UNAUTHORIZED)
+    }
+
+    @Test
+    fun `Test Bank Message Retrieval - Authorized, but no reports`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+        mockkConstructor(BlobServiceClientBuilder::class)
+        every { anyConstructed<BlobServiceClientBuilder>().connectionString(any()) } answers
+            { BlobServiceClientBuilder() }
+        every { anyConstructed<BlobServiceClientBuilder>().buildClient() } returns mockk()
+        val testBlobMetadata = BlobContainerMetadata.build("testcontainer", "test")
+        every { BlobAccess.Companion.listBlobs("", any()) } returns listOf()
+        every { BlobAccess.Companion.getBlobContainer(any()) } returns mockk()
+
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processGetMessageFromTestBankRequest(
+            MockHttpRequestMessage(),
+            BlobAccess.Companion,
+            testBlobMetadata
+        )
+        assert(result.status == HttpStatus.OK)
+        assert(result.body == "[]")
+    }
+
+    @Test
+    fun `Test Bank Message Retrieval - Authorized, reports`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+        mockkConstructor(BlobServiceClientBuilder::class)
+        every { anyConstructed<BlobServiceClientBuilder>().connectionString(any()) } answers
+            { BlobServiceClientBuilder() }
+        every { anyConstructed<BlobServiceClientBuilder>().buildClient() } returns mockk()
+        val testBlobMetadata = BlobContainerMetadata.build("testcontainer", "test")
+        val mockedBlobClient = mockkClass(BlobClient::class)
+        val mockedBlobContainerClient = mockkClass(BlobContainerClient::class)
+        every { mockedBlobContainerClient.getBlobClient(any()) } returns mockedBlobClient
+        every { BlobAccess.Companion.getBlobContainer(any()) } returns mockedBlobContainerClient
+
+        val dateCreated = OffsetDateTime.now()
+        val fileName = UUID.randomUUID().toString() + ".fhir"
+        val blob1 = BlobItem()
+        blob1.name = fileName
+        blob1.properties = BlobItemProperties()
+        blob1.properties.creationTime = dateCreated
+
+        every { mockedBlobClient.downloadContent() } returns BinaryData.fromBytes(fhirReport.toByteArray())
+
+        every { BlobAccess.Companion.listBlobs("", any()) } returns listOf(
+            BlobAccess.Companion.BlobItemAndPreviousVersions(
+            currentBlobItem = blob1, null
+        )
+        )
+
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processGetMessageFromTestBankRequest(
+            MockHttpRequestMessage(),
+            BlobAccess.Companion,
+            testBlobMetadata
+        )
+        assert(result.status == HttpStatus.OK)
+        val mapper: ObjectMapper = JsonMapper.builder()
+            .addModule(JavaTimeModule())
+            .build()
+        assert(
+            result.body == "[" + mapper.writeValueAsString(
+            ReportFunction.TestReportInfo(
+                dateCreated.toString(),
+                fileName,
+                fhirReport
+            )
+        ) + "]"
+        )
     }
 
     @Test

@@ -1,5 +1,5 @@
-import { DeveloperResourcesPage } from "../../../pages/public/resources";
-import { test as baseTest } from "../../../test";
+import { DeveloperResourcesPage } from "../../../../pages/public/developer-resources/resources";
+import { test as baseTest } from "../../../../test";
 
 export interface DeveloperResourcesPageFixtures {
     developerResourcesPage: DeveloperResourcesPage;

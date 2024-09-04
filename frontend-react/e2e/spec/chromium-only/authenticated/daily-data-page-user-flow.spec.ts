@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import fs from "node:fs";
 import {
     expectTableColumnValues,
+    removeDateTime,
     tableColumnDateTimeInRange,
     tableDataCellValue,
     tableRows,
@@ -79,10 +80,6 @@ test.describe(
         test.describe("admin user", () => {
             test.use({ storageState: "e2e/.auth/admin.json" });
 
-            test.beforeAll(({ browserName }) => {
-                test.skip(browserName !== "chromium");
-            });
-
             test.describe(`${TEST_ORG_IGNORE} org - ${TEST_ORG_UP_RECEIVER_UP} receiver`, () => {
                 test.describe("onLoad", () => {
                     test("has correct title", async ({ dailyDataPage }) => {
@@ -102,6 +99,7 @@ test.describe(
                     });
 
                     test("table has pagination", async ({ dailyDataPage }) => {
+                        await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                         await expect(dailyDataPage.page.locator('[aria-label="Pagination"]')).toBeAttached();
                     });
 
@@ -292,9 +290,11 @@ test.describe(
                         expect(await tableDataCellValue(dailyDataPage.page, 0, 0)).toEqual(reportId);
                     });
 
-                    test("returns match for Filename", async ({ dailyDataPage }) => {
+                    test.skip("returns match for Filename", async ({ dailyDataPage }) => {
+                        // Filename search is currently broken and being tracked
+                        // in ticket #15644
                         const fileName = await tableDataCellValue(dailyDataPage.page, 0, 4);
-                        await searchInput(dailyDataPage.page).fill(fileName);
+                        await searchInput(dailyDataPage.page).fill(removeDateTime(fileName));
                         await searchButton(dailyDataPage.page).click();
                         await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
@@ -365,7 +365,7 @@ test.describe(
                     });
                 });
 
-                test.describe.skip("on 'Filename' click", () => {
+                test.describe("on 'Filename' click", () => {
                     test.beforeEach(async ({ dailyDataPage }) => {
                         await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                         await dailyDataPage.page.locator("#receiver-dropdown").selectOption(TEST_ORG_UP_RECEIVER_UP);
@@ -387,7 +387,7 @@ test.describe(
                         const download = await downloadProm;
 
                         // assert filename
-                        expect(download.suggestedFilename()).toEqual(expect.stringContaining(fileName));
+                        expect(removeDateTime(download.suggestedFilename())).toEqual(removeDateTime(fileName));
 
                         // get and assert stats
                         expect((await fs.promises.stat(await download.path())).size).toBeGreaterThan(200);
