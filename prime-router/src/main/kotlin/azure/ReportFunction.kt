@@ -32,7 +32,6 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
@@ -101,29 +100,25 @@ class ReportFunction(
         @HttpTrigger(
             name = "downloadReport",
             methods = [HttpMethod.GET],
-            authLevel = AuthorizationLevel.ANONYMOUS,
+            authLevel = AuthorizationLevel.FUNCTION,
             route = "reports/download"
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
-        val claims = AuthenticatedClaims.authenticate(request)
-        if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
-            val reportId = request.queryParameters[REPORT_ID_PARAMETER]
-            val removePIIRaw = request.queryParameters[REMOVE_PII]
-            var removePII = false
-            if (removePIIRaw.isNullOrBlank() || removePIIRaw.toBoolean()) {
-                removePII = true
-            }
-            if (reportId.isNullOrBlank()) {
-                return HttpUtilities.badRequestResponse(request, "Must provide a reportId.")
-            }
-            return processDownloadReport(
-                request,
-                ReportId.fromString(reportId),
-                removePII,
-                Environment.get().envName
-            )
+        val reportId = request.queryParameters[REPORT_ID_PARAMETER]
+        val removePIIRaw = request.queryParameters[REMOVE_PII]
+        var removePII = false
+        if (removePIIRaw.isNullOrBlank() || removePIIRaw.toBoolean()) {
+            removePII = true
         }
-        return HttpUtilities.unauthorizedResponse(request)
+        if (reportId.isNullOrBlank()) {
+            return HttpUtilities.badRequestResponse(request, "Must provide a reportId.")
+        }
+        return processDownloadReport(
+            request,
+            ReportId.fromString(reportId),
+            removePII,
+            Environment.get().envName
+        )
     }
 
     fun processDownloadReport(

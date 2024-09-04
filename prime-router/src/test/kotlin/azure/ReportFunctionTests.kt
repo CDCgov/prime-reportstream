@@ -774,6 +774,8 @@ class ReportFunctionTests {
         val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
         every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
         every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
+        val reportId = UUID.randomUUID()
+        every { mockDb.fetchReportFile(reportId, null, null) } returns reportFile
 
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -781,7 +783,7 @@ class ReportFunctionTests {
 
         val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processDownloadReport(
             MockHttpRequestMessage(),
-            UUID.randomUUID(),
+            reportId,
             true,
             "local",
             mockDb
