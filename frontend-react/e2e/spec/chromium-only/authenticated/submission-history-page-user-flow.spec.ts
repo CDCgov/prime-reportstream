@@ -120,7 +120,7 @@ test.describe(
 
                     test.describe("on 'Filter'", () => {
                         test("with 'From' date, 'To' date", async ({ submissionHistoryPage }) => {
-                            const fromDate = await setDate(submissionHistoryPage.page, "#start-date", 180);
+                            const fromDate = await setDate(submissionHistoryPage.page, "#start-date", 7);
                             const toDate = await setDate(submissionHistoryPage.page, "#end-date", 0);
 
                             // Apply button is enabled
