@@ -11,21 +11,23 @@ import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.db.tables.ReportFile
 import gov.cdc.prime.router.azure.db.tables.Task
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fetchChildReports
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
-import gov.cdc.prime.router.fhirengine.engine.elrSendQueueName
+import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
@@ -173,7 +175,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // no queue messages should have been sent
         verify(exactly = 0) {
@@ -186,23 +188,21 @@ class FHIRTranslatorIntegrationTests : Logging {
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
         // record file created)
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val report = fetchChildReports(receiveReport, txn, 1).single()
+            assertThat(report.nextAction).isEqualTo(TaskAction.batch)
+            assertThat(report.receivingOrg).isEqualTo("phd")
+            assertThat(report.receivingOrgSvc).isEqualTo("x")
+            assertThat(report.schemaName).isEqualTo("None")
+            assertThat(report.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(report.bodyFormat).isEqualTo("HL7")
+
             val batchTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
                 .where(Task.TASK.NEXT_ACTION.eq(TaskAction.batch))
                 .fetchOneInto(Task.TASK)
 
             // verify batch queue task exists
             assertThat(batchTask).isNotNull()
-
-            // verify that report exists for the batch task
-            val sendReportFile =
-                DSL.using(txn).select(ReportFile.REPORT_FILE.asterisk())
-                    .from(ReportFile.REPORT_FILE)
-                    .where(
-                        ReportFile.REPORT_FILE.REPORT_ID
-                            .eq(batchTask!!.reportId)
-                    )
-                    .fetchOneInto(ReportFile.REPORT_FILE)
-            assertThat(sendReportFile).isNotNull()
+            assertThat(batchTask!!.reportId).isEqualTo(report.reportId)
 
             // verify message format is HL7 and is for the expected receiver
             assertThat(batchTask.receiverName).isEqualTo("phd.x")
@@ -210,7 +210,7 @@ class FHIRTranslatorIntegrationTests : Logging {
 
             // verify message matches the expected HL7 output
             val translatedValue = BlobAccess.downloadBlobAsBinaryData(
-                sendReportFile!!.bodyUrl,
+                report.bodyUrl,
                 UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
             ).toString()
             assertThat(translatedValue).isEqualTo(expectedOutput)
@@ -273,7 +273,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // no queue messages should have been sent
         verify(exactly = 0) {
@@ -286,23 +286,21 @@ class FHIRTranslatorIntegrationTests : Logging {
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
         // record file created)
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val report = fetchChildReports(receiveReport, txn, 1).single()
+            assertThat(report.nextAction).isEqualTo(TaskAction.batch)
+            assertThat(report.receivingOrg).isEqualTo("phd")
+            assertThat(report.receivingOrgSvc).isEqualTo("x")
+            assertThat(report.schemaName).isEqualTo("None")
+            assertThat(report.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(report.bodyFormat).isEqualTo("HL7")
+
             val batchTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
                 .where(Task.TASK.NEXT_ACTION.eq(TaskAction.batch))
                 .fetchOneInto(Task.TASK)
 
             // verify batch queue task exists
             assertThat(batchTask).isNotNull()
-
-            // verify that report exists for the batch task
-            val sendReportFile =
-                DSL.using(txn).select(ReportFile.REPORT_FILE.asterisk())
-                    .from(ReportFile.REPORT_FILE)
-                    .where(
-                        ReportFile.REPORT_FILE.REPORT_ID
-                            .eq(batchTask!!.reportId)
-                    )
-                    .fetchOneInto(ReportFile.REPORT_FILE)
-            assertThat(sendReportFile).isNotNull()
+            assertThat(batchTask!!.reportId).isEqualTo(report.reportId)
 
             // verify message format is HL7 and is for the expected receiver
             assertThat(batchTask.receiverName).isEqualTo("phd.x")
@@ -310,7 +308,7 @@ class FHIRTranslatorIntegrationTests : Logging {
 
             // verify message matches the expected HL7 output
             val translatedValue = BlobAccess.downloadBlobAsBinaryData(
-                sendReportFile!!.bodyUrl,
+                report.bodyUrl,
                 UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
             ).toString()
             assertThat(translatedValue).isEqualTo(expectedOutput)
@@ -350,7 +348,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // no queue messages should have been sent
         verify(exactly = 0) {
@@ -363,23 +361,21 @@ class FHIRTranslatorIntegrationTests : Logging {
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
         // record file created)
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val report = fetchChildReports(receiveReport, txn, 1).single()
+            assertThat(report.nextAction).isEqualTo(TaskAction.batch)
+            assertThat(report.receivingOrg).isEqualTo("phd")
+            assertThat(report.receivingOrgSvc).isEqualTo("x")
+            assertThat(report.schemaName).isEqualTo("None")
+            assertThat(report.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(report.bodyFormat).isEqualTo("FHIR")
+
             val batchTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
                 .where(Task.TASK.NEXT_ACTION.eq(TaskAction.batch))
                 .fetchOneInto(Task.TASK)
 
             // verify batch queue task exists
             assertThat(batchTask).isNotNull()
-
-            // verify that report exists for the batch task
-            val sendReportFile =
-                DSL.using(txn).select(ReportFile.REPORT_FILE.asterisk())
-                    .from(ReportFile.REPORT_FILE)
-                    .where(
-                        ReportFile.REPORT_FILE.REPORT_ID
-                            .eq(batchTask!!.reportId)
-                    )
-                    .fetchOneInto(ReportFile.REPORT_FILE)
-            assertThat(sendReportFile).isNotNull()
+            assertThat(batchTask!!.reportId).isEqualTo(report.reportId)
 
             // verify message format is FHIR and is for the expected receiver
             assertThat(batchTask.receiverName).isEqualTo("phd.x")
@@ -387,7 +383,7 @@ class FHIRTranslatorIntegrationTests : Logging {
 
             // verify we are not sending exact original (sendOriginal)
             val translatedValue = BlobAccess.downloadBlobAsByteArray(
-                sendReportFile!!.bodyUrl,
+                report.bodyUrl,
                 UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
             )
             assertThat(translatedValue).isNotEqualTo(reportContents.toByteArray())
@@ -437,7 +433,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // no queue messages should have been sent
         verify(exactly = 0) {
@@ -450,23 +446,21 @@ class FHIRTranslatorIntegrationTests : Logging {
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
         // record file created)
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val report = fetchChildReports(receiveReport, txn, 1).single()
+            assertThat(report.nextAction).isEqualTo(TaskAction.batch)
+            assertThat(report.receivingOrg).isEqualTo("phd")
+            assertThat(report.receivingOrgSvc).isEqualTo("x")
+            assertThat(report.schemaName).isEqualTo("None")
+            assertThat(report.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(report.bodyFormat).isEqualTo("FHIR")
+
             val batchTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
                 .where(Task.TASK.NEXT_ACTION.eq(TaskAction.batch))
                 .fetchOneInto(Task.TASK)
 
             // verify batch queue task exists
             assertThat(batchTask).isNotNull()
-
-            // verify that report exists for the batch task
-            val sendReportFile =
-                DSL.using(txn).select(ReportFile.REPORT_FILE.asterisk())
-                    .from(ReportFile.REPORT_FILE)
-                    .where(
-                        ReportFile.REPORT_FILE.REPORT_ID
-                            .eq(batchTask!!.reportId)
-                    )
-                    .fetchOneInto(ReportFile.REPORT_FILE)
-            assertThat(sendReportFile).isNotNull()
+            assertThat(batchTask!!.reportId).isEqualTo(report.reportId)
 
             // verify message format is FHIR and is for the expected receiver
             assertThat(batchTask.receiverName).isEqualTo("phd.x")
@@ -474,7 +468,7 @@ class FHIRTranslatorIntegrationTests : Logging {
 
             // verify message is not a byte for byte copy of the original FHIR input
             val translatedValue = BlobAccess.downloadBlobAsByteArray(
-                sendReportFile!!.bodyUrl,
+                report.bodyUrl,
                 UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
             )
             assertThat(translatedValue).isNotEqualTo(reportContents.toByteArray())
@@ -524,11 +518,11 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // check that send queue was updated
         verify(exactly = 1) {
-            QueueAccess.sendMessage(elrSendQueueName, any())
+            QueueAccess.sendMessage(QueueMessage.elrSendQueueName, any())
         }
 
         // check action table
@@ -537,6 +531,14 @@ class FHIRTranslatorIntegrationTests : Logging {
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
         // record file created)
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val report = fetchChildReports(receiveReport, txn, 1).single()
+            assertThat(report.nextAction).isEqualTo(TaskAction.send)
+            assertThat(report.receivingOrg).isEqualTo("phd")
+            assertThat(report.receivingOrgSvc).isEqualTo("x")
+            assertThat(report.schemaName).isEqualTo("None")
+            assertThat(report.schemaTopic).isEqualTo(Topic.ELR_ELIMS)
+            assertThat(report.bodyFormat).isEqualTo("HL7")
+
             val batchTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
                 .where(Task.TASK.NEXT_ACTION.eq(TaskAction.batch))
                 .fetchOneInto(Task.TASK)
@@ -548,17 +550,7 @@ class FHIRTranslatorIntegrationTests : Logging {
                 .fetchOneInto(Task.TASK)
             // verify send queue task exists
             assertThat(sendTask).isNotNull()
-
-            // verify that report exists for the send task
-            val sendReportFile =
-                DSL.using(txn).select(ReportFile.REPORT_FILE.asterisk())
-                    .from(ReportFile.REPORT_FILE)
-                    .where(
-                        ReportFile.REPORT_FILE.REPORT_ID
-                            .eq(sendTask!!.reportId)
-                    )
-                    .fetchOneInto(ReportFile.REPORT_FILE)
-            assertThat(sendReportFile).isNotNull()
+            assertThat(sendTask!!.reportId).isEqualTo(report.reportId)
 
             // verify message format is HL7 and is for the expected receiver
             assertThat(sendTask.receiverName).isEqualTo("phd.x")
@@ -566,7 +558,7 @@ class FHIRTranslatorIntegrationTests : Logging {
 
             // verify message matches the original HL7 input
             val translatedValue = BlobAccess.downloadBlobAsByteArray(
-                sendReportFile!!.bodyUrl,
+                report.bodyUrl,
                 UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
             )
             assertThat(translatedValue).isEqualTo(reportContents.toByteArray())
@@ -606,11 +598,11 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // check that send queue was updated
         verify(exactly = 1) {
-            QueueAccess.sendMessage(elrSendQueueName, any())
+            QueueAccess.sendMessage(QueueMessage.elrSendQueueName, any())
         }
 
         // check action table
@@ -619,6 +611,14 @@ class FHIRTranslatorIntegrationTests : Logging {
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
         // record file created)
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val report = fetchChildReports(receiveReport, txn, 1).single()
+            assertThat(report.nextAction).isEqualTo(TaskAction.send)
+            assertThat(report.receivingOrg).isEqualTo("phd")
+            assertThat(report.receivingOrgSvc).isEqualTo("x")
+            assertThat(report.schemaName).isEqualTo("None")
+            assertThat(report.schemaTopic).isEqualTo(Topic.ELR_ELIMS)
+            assertThat(report.bodyFormat).isEqualTo("HL7")
+
             val batchTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
                 .where(Task.TASK.NEXT_ACTION.eq(TaskAction.batch))
                 .fetchOneInto(Task.TASK)
@@ -630,17 +630,7 @@ class FHIRTranslatorIntegrationTests : Logging {
                 .fetchOneInto(Task.TASK)
             // verify send queue task exists
             assertThat(sendTask).isNotNull()
-
-            // verify that report exists for the send task
-            val sendReportFile =
-                DSL.using(txn).select(ReportFile.REPORT_FILE.asterisk())
-                    .from(ReportFile.REPORT_FILE)
-                    .where(
-                        ReportFile.REPORT_FILE.REPORT_ID
-                            .eq(sendTask!!.reportId)
-                    )
-                    .fetchOneInto(ReportFile.REPORT_FILE)
-            assertThat(sendReportFile).isNotNull()
+            assertThat(sendTask!!.reportId).isEqualTo(report.reportId)
 
             // verify message format is HL7 and is for the expected receiver
             assertThat(sendTask.receiverName).isEqualTo("phd.x")
@@ -648,7 +638,7 @@ class FHIRTranslatorIntegrationTests : Logging {
 
             // verify message matches the original HL7 input
             val translatedValue = BlobAccess.downloadBlobAsByteArray(
-                sendReportFile!!.bodyUrl,
+                report.bodyUrl,
                 UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
             )
             assertThat(translatedValue).isEqualTo(reportContents.toByteArray())
@@ -688,11 +678,11 @@ class FHIRTranslatorIntegrationTests : Logging {
         val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
 
         // execute
-        fhirFunctions.doTranslate(queueMessage, 1, translator)
+        fhirFunctions.process(queueMessage, 1, translator, ActionHistory(TaskAction.translate))
 
         // check that send queue was updated
         verify(exactly = 1) {
-            QueueAccess.sendMessage(elrSendQueueName, any())
+            QueueAccess.sendMessage(QueueMessage.elrSendQueueName, any())
         }
 
         // check action table
@@ -701,6 +691,14 @@ class FHIRTranslatorIntegrationTests : Logging {
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
         // record file created)
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val report = fetchChildReports(receiveReport, txn, 1).single()
+            assertThat(report.nextAction).isEqualTo(TaskAction.send)
+            assertThat(report.receivingOrg).isEqualTo("phd")
+            assertThat(report.receivingOrgSvc).isEqualTo("x")
+            assertThat(report.schemaName).isEqualTo("None")
+            assertThat(report.schemaTopic).isEqualTo(Topic.ELR_ELIMS)
+            assertThat(report.bodyFormat).isEqualTo("FHIR")
+
             val batchTask = DSL.using(txn).select(Task.TASK.asterisk()).from(Task.TASK)
                 .where(Task.TASK.NEXT_ACTION.eq(TaskAction.batch))
                 .fetchOneInto(Task.TASK)
@@ -712,17 +710,7 @@ class FHIRTranslatorIntegrationTests : Logging {
                 .fetchOneInto(Task.TASK)
             // verify send queue task exists
             assertThat(sendTask).isNotNull()
-
-            // verify that report exists for the send task
-            val sendReportFile =
-                DSL.using(txn).select(ReportFile.REPORT_FILE.asterisk())
-                    .from(ReportFile.REPORT_FILE)
-                    .where(
-                        ReportFile.REPORT_FILE.REPORT_ID
-                            .eq(sendTask!!.reportId)
-                    )
-                    .fetchOneInto(ReportFile.REPORT_FILE)
-            assertThat(sendReportFile).isNotNull()
+            assertThat(sendTask!!.reportId).isEqualTo(report.reportId)
 
             // verify message format is FHIR and is for the expected receiver
             assertThat(sendTask.receiverName).isEqualTo("phd.x")
@@ -730,7 +718,7 @@ class FHIRTranslatorIntegrationTests : Logging {
 
             // verify message matches the original FHIR input
             val translatedValue = BlobAccess.downloadBlobAsByteArray(
-                sendReportFile!!.bodyUrl,
+                report.bodyUrl,
                 UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
             )
             assertThat(translatedValue).isEqualTo(reportContents.toByteArray())

@@ -61,4 +61,11 @@ elements:
   - name: mn-suppress-HL7-Fields-SPM-2-1
     condition: 'true'
     value: ['""']
-    hl7Spec: ["%{SPM}-2-1"]
+    hl7Spec: ["%{SPM}-2-1-1", "%{SPM}-2-1-2", "%{SPM}-2-1-3", "%{SPM}-2-1-4"]
+
+  # If Patient's race (PID-10-1 = "UNK" or PID-10-2 = "Unknow" replace all PID-10 with "" (blank)
+  - name: mn-race-name-of-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    condition: '%resource.coding.code.lower() = "unk" or %resource.text.lower() = "unknown"'
+    value: [ '""' ]
+    hl7Spec: [ '%{PID}-10-1', '%{PID}-10-2', '%{PID}-10-3', '%{PID}-10-7', '%{PID}-10-9' ]

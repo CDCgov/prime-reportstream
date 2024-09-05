@@ -1,0 +1,7 @@
+# $schema: ../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
+elements:
+  - name: convert-observations-to-notes
+    resource: Bundle.entry.resource.ofType(Observation)
+    schema: classpath:/fhir_sender_transforms/obs-to-note.yml
+    appendToProperty: Bundle.entry.resource.ofType(ServiceRequest).note
+    action: APPEND

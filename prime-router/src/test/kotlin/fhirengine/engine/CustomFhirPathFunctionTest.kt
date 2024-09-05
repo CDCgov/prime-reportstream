@@ -7,6 +7,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.metadata.GeoData
 import gov.cdc.prime.router.metadata.LivdLookup
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -31,14 +32,16 @@ import kotlin.test.Test
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CustomFhirPathFunctionTest {
     private val loincCode = "906-1"
+    private val city = "Portland"
     private val fipsCode = "41051"
 
     @BeforeEach
     fun setupMocks() {
-        mockkObject(LivdLookup, Metadata)
+        mockkObject(LivdLookup, Metadata, GeoData)
 
         every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
         every { LivdLookup.find(any(), any(), any(), any(), any(), any(), any(), any()) } returns loincCode
+        every { GeoData.pickRandomLocationInState(any(), any(), any()) } returns city
     }
 
     @AfterEach
@@ -157,6 +160,41 @@ class CustomFhirPathFunctionTest {
     }
 
     @Test
+    fun `test get fake value for element function`() {
+        // Fails if city, county, or postal code and no state
+        assertFailure {
+            CustomFhirPathFunctions().getFakeValueForElement(
+                mutableListOf(mutableListOf(StringType("CITY"))),
+                UnitTestUtils.simpleMetadata
+            )
+        }
+
+        assertFailure {
+            CustomFhirPathFunctions().getFakeValueForElement(
+                mutableListOf(mutableListOf(StringType("COUNTY"))),
+                UnitTestUtils.simpleMetadata
+            )
+        }
+
+        assertFailure {
+            CustomFhirPathFunctions().getFakeValueForElement(
+                mutableListOf(mutableListOf(StringType("POSTAL_CODE"))),
+                UnitTestUtils.simpleMetadata
+            )
+        }
+
+        // Test getting city
+        val result = CustomFhirPathFunctions().getFakeValueForElement(
+            mutableListOf(mutableListOf(StringType("CITY")), mutableListOf(StringType("OR"))),
+            UnitTestUtils.simpleMetadata
+        )
+
+        assertThat(
+            (result[0] as StringType).value
+        ).isEqualTo(city)
+    }
+
+    @Test
     fun `test getting the fips code for a county and state`() {
         val testTable = Table.create(
             "fips-county",
@@ -175,7 +213,7 @@ class CustomFhirPathFunctionTest {
         val result = CustomFhirPathFunctions().fipsCountyLookup(
             mutableListOf(mutableListOf(StringType("Multnomah")), mutableListOf(StringType("OR"))),
 
-        )
+            )
 
         assertThat(
             (result[0] as StringType).value
