@@ -204,6 +204,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'ApiKeyCredential\(\"flexion\"',
             'authType: \"two-legged\"',
             'Authorization-Type: \"username/password\"',
+            'cdctiautomated_sa'
         ]
         paths = [
             '.terraform/modules/',
