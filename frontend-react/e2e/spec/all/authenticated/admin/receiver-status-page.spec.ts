@@ -1,8 +1,4 @@
 import {addDays, endOfDay, startOfDay, subDays} from "date-fns";
-import type {RSOrganizationSettings} from "../../../../../src/config/endpoints/settings";
-import {SuccessRate} from "../../../../../src/pages/admin/receiver-dashboard/utils";
-import {durationFormatShort} from "../../../../../src/utils/DateTimeUtils";
-import {formatDate} from "../../../../../src/utils/misc";
 import {AdminReceiverStatusPage} from "../../../../pages/authenticated/admin/receiver-status";
 import {test as baseTest, expect, logins} from "../../../../test";
 
