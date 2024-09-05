@@ -4,6 +4,7 @@ import com.azure.data.tables.TableClient
 import com.azure.data.tables.TableServiceClient
 import com.azure.data.tables.TableServiceClientBuilder
 import com.azure.data.tables.models.TableEntity
+import com.azure.data.tables.models.TableServiceException
 import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -31,7 +32,7 @@ class TableAccess : Logging {
         fun getConnectionString(): String = System.getenv(defaultEnvVar)
     }
 
-    private val tableServiceClient: TableServiceClient = TableServiceClientBuilder()
+    private var tableServiceClient: TableServiceClient = TableServiceClientBuilder()
         .connectionString(getConnectionString())
         .buildClient()
 
@@ -44,12 +45,14 @@ class TableAccess : Logging {
      * @param tableName The name of the table where the entity will be inserted.
      * @param entity The TableEntity to be inserted.
      */
+    @Synchronized
     fun insertEntity(tableName: String, entity: TableEntity) {
         try {
             val tableClient = getOrCreateTableClient(tableName)
             tableClient.createEntity(entity)
             logger.info("Entity inserted successfully: ${entity.partitionKey} is ${entity.rowKey}")
-        } catch (e: Exception) {
+        } catch (e: TableServiceException) {
+            // Log the detailed error
             logger.error("Failed to insert entity: ${entity.partitionKey} with ${entity.rowKey}", e)
         }
     }
@@ -65,6 +68,7 @@ class TableAccess : Logging {
      * @param rowKey The row key identifying the entity.
      * @return The TableEntity if found, or null if an error occurs.
      */
+    @Synchronized
     fun getEntity(tableName: String, partitionKey: String, rowKey: String): TableEntity? {
         try {
             val tableClient = getTableClient(tableName)
@@ -85,21 +89,6 @@ class TableAccess : Logging {
      * @return A TableClient for interacting with the specified table, or null if the table does not exist or an error occurs.
      */
     private fun getTableClient(tableName: String): TableClient? {
-        val tableExists = tableServiceClient.listTables().any { it.name == tableName }
-        return if (tableExists) {
-            tableServiceClient.getTableClient(tableName)
-        } else {
-            null
-        }
-    }
-
-    /**
-     * Retries retrieving a TableClient after the client has been reinitialized due to a failure.
-     *
-     * @param tableName The name of the table for which the client is needed.
-     * @return A TableClient for interacting with the specified table, or null if the table does not exist.
-     */
-    private fun retryGetTableClient(tableName: String): TableClient? {
         val tableExists = tableServiceClient.listTables().any { it.name == tableName }
         return if (tableExists) {
             tableServiceClient.getTableClient(tableName)

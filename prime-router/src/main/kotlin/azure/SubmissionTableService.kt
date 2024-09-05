@@ -20,7 +20,9 @@ class SubmissionTableService private constructor() : Logging {
          * This ensures that the instance is created only when it is first accessed,
          * providing thread-safe, lazy initialization.
          */
-        val instance: SubmissionTableService by lazy { SubmissionTableService() }
+        val instance: SubmissionTableService by lazy {
+            SubmissionTableService()
+        }
     }
 
     private val tableName = "submission"
@@ -31,7 +33,6 @@ class SubmissionTableService private constructor() : Logging {
      * This is marked as `@Volatile` to ensure thread visibility. It is initialized lazily
      * and resettable to allow refreshing the connection if necessary.
      */
-    @Volatile
     private var tableAccess: TableAccess = TableAccess()
 
     /**
