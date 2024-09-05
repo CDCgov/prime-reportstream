@@ -19,7 +19,9 @@ import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.MimeFormat
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.cli.CommandUtilities.Companion.abort
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
@@ -86,6 +88,27 @@ class ProcessFhirCommands : CliktCommand(
     )
 
     /**
+     * Name of the receiver settings to use
+     */
+    private val receiverName by option(
+        "--receiver-name", help = "Name of the receiver settings to use"
+    )
+
+    /**
+     * Name of the org settings to use
+     */
+    private val orgName by option(
+        "--org", help = "Name of the org settings to use"
+    )
+
+    /**
+     * Environment that specifies where to get the receiver settings
+     */
+    private val environment by option(
+        "--receiver-setting-env", help = "Environment that specifies where to get the receiver settings"
+    )
+
+    /**
      * Sender schema location
      */
     private val senderSchema by option("-s", "--sender-schema", help = "Sender schema location")
@@ -115,7 +138,30 @@ class ProcessFhirCommands : CliktCommand(
 
             // FHIR to HL7 conversion
             (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == MimeFormat.HL7.toString() -> {
-                outputResult(convertFhirToHl7(contents))
+                if (!environment.isNullOrBlank() && !receiverName.isNullOrBlank() && !orgName.isNullOrBlank()) {
+                    val foundEnvironment = Environment.get(environment!!)
+                    val accessToken = OktaCommand.fetchAccessToken(foundEnvironment.oktaApp)
+                        ?: abort(
+                            "Invalid access token. " +
+                                "Run ./prime login to fetch/refresh your access " +
+                                "token for the $foundEnvironment environment."
+                        )
+                    val organizations = GetMultipleSettings().getAll(
+                        environment = foundEnvironment,
+                        accessToken = accessToken,
+                        specificOrg = orgName,
+                        exactMatch = true
+                    )
+
+                    val receiver = organizations[0].receivers.filter { receiver -> receiver.name == receiverName }
+                    if (organizations.isEmpty() || receiver.isEmpty()) {
+                        return outputResult(convertFhirToHl7(contents))
+                    }
+
+                    outputResult(convertFhirToHl7(contents, receiver[0].translation as Hl7Configuration, receiver[0]))
+                } else {
+                    outputResult(convertFhirToHl7(contents))
+                }
             }
 
             // FHIR to FHIR conversion
@@ -140,11 +186,24 @@ class ProcessFhirCommands : CliktCommand(
         }
     }
 
+    private val defaultHL7Configuration = Hl7Configuration(
+        receivingApplicationOID = null,
+        receivingFacilityOID = null,
+        messageProfileId = null,
+        receivingApplicationName = null,
+        receivingFacilityName = null,
+        receivingOrganization = null,
+    )
+
     /**
      * Convert a FHIR bundle as a [jsonString] to an HL7 message.
      * @return an HL7 message
      */
-    private fun convertFhirToHl7(jsonString: String): Message {
+    private fun convertFhirToHl7(
+        jsonString: String,
+        hl7Configuration: Hl7Configuration = defaultHL7Configuration,
+        receiver: Receiver? = null,
+    ): Message {
         var fhirMessage = FhirTranscoder.decode(jsonString)
         fhirMessage = applyEnrichmentSchemas(fhirMessage)
         return when {
@@ -161,15 +220,8 @@ class ProcessFhirCommands : CliktCommand(
                     context = FhirToHl7Context(
                         CustomFhirPathFunctions(),
                         config = HL7TranslationConfig(
-                            Hl7Configuration(
-                                receivingApplicationOID = null,
-                                receivingFacilityOID = null,
-                                messageProfileId = null,
-                                receivingApplicationName = null,
-                                receivingFacilityName = null,
-                                receivingOrganization = null,
-                            ),
-                            null
+                            hl7Configuration,
+                            receiver
                         ),
                         translationFunctions = CustomTranslationFunctions(),
                     )
