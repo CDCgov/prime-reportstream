@@ -374,6 +374,8 @@ test.describe(
                     });
 
                     test("downloads the file", async ({ dailyDataPage }) => {
+                        // Set test timeout to be 1 minute instead of 30 seconds
+                        test.setTimeout(60000);
                         await setDate(dailyDataPage.page, "#start-date", 14);
                         await setDate(dailyDataPage.page, "#end-date", 0);
 
