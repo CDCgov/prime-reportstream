@@ -506,8 +506,8 @@ tasks.register("generateVersionFile") {
             commandLine("git", "rev-parse", "--short", "HEAD")
             standardOutput = stdout
         }
-        val currentCommit = stdout.toString(StandardCharsets.UTF_8)
-        File("./version.json").writeText("commitId: $currentCommit")
+        val currentCommit = stdout.toString(StandardCharsets.UTF_8).trim()
+        File("./version.json").writeText("{\"commitId\": \"$currentCommit\"}")
     }
 }
 
