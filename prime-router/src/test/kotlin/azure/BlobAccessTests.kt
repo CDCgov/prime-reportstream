@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
@@ -21,6 +22,7 @@ import com.azure.storage.blob.models.BlobDownloadResponse
 import com.azure.storage.blob.models.BlobItem
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
@@ -529,7 +531,7 @@ class BlobAccessTests {
     @Test
     fun `upload report`() {
         val testUrl = "http://uploadreport"
-        val testFormat = Report.Format.CSV
+        val testFormat = MimeFormat.CSV
         val testBytes = "testbytes".toByteArray()
 
         val one = Schema(name = "one", topic = Topic.TEST)
@@ -560,7 +562,7 @@ class BlobAccessTests {
     @Test
     fun `upload body`() {
         val blobSlot = CapturingSlot<String>()
-        val testFormat = Report.Format.CSV
+        val testFormat = MimeFormat.CSV
         val testid = UUID.randomUUID().toString()
         val testBytes = "testbytes".toByteArray()
         val testFolder = "testfolder"
@@ -570,7 +572,8 @@ class BlobAccessTests {
             Event.EventAction.SEND,
             Event.EventAction.BATCH,
             Event.EventAction.PROCESS,
-            Event.EventAction.ROUTE,
+            Event.EventAction.DESTINATION_FILTER,
+            Event.EventAction.RECEIVER_FILTER,
             Event.EventAction.TRANSLATE,
             Event.EventAction.NONE,
             Event.EventAction.CONVERT,
@@ -593,16 +596,7 @@ class BlobAccessTests {
 
             assertThat(result.format).isEqualTo(testFormat)
             // test blobUrl is as expected for the EventAction
-            assertThat(
-                result.blobUrl.contains(
-                    when (it?.name) {
-                        null -> "other"
-                        "SEND" -> "ready"
-                        "CONVERT" -> "other"
-                        else -> it.name.lowercase()
-                    }
-                )
-            ).isTrue()
+            assertThat(result.blobUrl).contains(BlobAccess.directoryForAction(it))
             assertThat(result.digest).isEqualTo(BlobAccess.sha256Digest(testBytes))
         }
     }

@@ -1,4 +1,4 @@
 MSH|^~\&#|||||20230816123358-0500||ORU^R01^ORU_R01|20230816123358||2.5.1
 PID|1
 ORC|RE||||||||||||||||||||Ordering Facility^1234-5&TestText&LN&1234-5&TestAltText&LN&1&2&OriginalText^123^Check Digit^C1^Assigning Authority&2.1.4.1&ISO^MD^Hospital A&2.16.840.1.113883.9.11&ISO
-OBR|1|||||||||||||||1^OBR&VAN&Provider&VAL&ROGER^LUDWIG^B^2ND^DR^MD^SRC^&AssigningSystem&ISO^B^A^NPI^DL^^A^NameContext^^G^20220501102531-0400^20230501102531-0400^MD^AssignJ^AssignA|||||||||unknown
+OBR|1|||||||||||||||1^OBR&VAN&Provider&VAL&ROGER^LUDWIG^B^2ND^DR^MD^SRC^&AssigningSystem&ISO^B^A^NPI^DL^^A^NameContext^^G^20220501102531-0400^20230501102531-0400^MD^AssignJ^AssignA|||||||||F

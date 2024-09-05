@@ -12,6 +12,7 @@ import com.azure.storage.blob.models.BlobStorageException
 import com.azure.storage.blob.models.DownloadRetryOptions
 import com.azure.storage.blob.models.ListBlobsOptions
 import gov.cdc.prime.router.BlobStoreTransportType
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.Environment
 import org.apache.commons.io.FileUtils
@@ -38,7 +39,7 @@ class BlobAccess() : Logging {
      * Contains basic info about a Report blob: format, url in Azure, and SHA256 hash
      */
     data class BlobInfo(
-        val format: Report.Format,
+        val format: MimeFormat,
         val blobUrl: String,
         val digest: ByteArray,
     ) {
@@ -149,29 +150,39 @@ class BlobAccess() : Logging {
         private val blobContainerClients = mutableMapOf<BlobContainerMetadata, BlobContainerClient>()
 
         /**
+         * Gets the root directory name for storing a blob associated with an EventAction
+         */
+        internal fun directoryForAction(action: Event.EventAction?): String =
+
+         when (action) {
+            Event.EventAction.RECEIVE -> "receive"
+            Event.EventAction.BATCH -> "batch"
+            Event.EventAction.PROCESS -> "process"
+            Event.EventAction.DESTINATION_FILTER -> "destination-filter"
+            Event.EventAction.RECEIVER_FILTER -> "receiver-filter"
+            Event.EventAction.ROUTE -> "route"
+            Event.EventAction.TRANSLATE -> "translate"
+            Event.EventAction.NONE -> "none"
+            Event.EventAction.SEND -> "ready"
+            else -> "other"
+        }
+
+        /**
          * Upload a raw [blobBytes] in the [bodyFormat] for a given [reportName].
          * The [action] is used to determine the folder to store the blob in.
          * A [subfolderName] name is optional.
          * @return the information about the uploaded blob
          */
         fun uploadBody(
-            bodyFormat: Report.Format,
+            bodyFormat: MimeFormat,
             blobBytes: ByteArray,
             reportName: String,
             subfolderName: String? = null,
             action: Event.EventAction = Event.EventAction.OTHER,
         ): BlobInfo {
             val subfolderNameChecked = if (subfolderName.isNullOrBlank()) "" else "$subfolderName/"
-            val blobName = when (action) {
-                Event.EventAction.RECEIVE -> "receive/$subfolderNameChecked$reportName.${bodyFormat.ext}"
-                Event.EventAction.SEND -> "ready/$subfolderNameChecked$reportName.${bodyFormat.ext}"
-                Event.EventAction.BATCH -> "batch/$subfolderNameChecked$reportName.${bodyFormat.ext}"
-                Event.EventAction.PROCESS -> "process/$subfolderNameChecked$reportName.${bodyFormat.ext}"
-                Event.EventAction.ROUTE -> "route/$subfolderNameChecked$reportName.${bodyFormat.ext}"
-                Event.EventAction.TRANSLATE -> "translate/$subfolderNameChecked$reportName.${bodyFormat.ext}"
-                Event.EventAction.NONE -> "none/$subfolderNameChecked$reportName.${bodyFormat.ext}"
-                else -> "other/$subfolderNameChecked$reportName.${bodyFormat.ext}"
-            }
+            val blobName = "${directoryForAction(action)}/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+
             val digest = sha256Digest(blobBytes)
             val blobUrl = uploadBlob(blobName, blobBytes)
             return BlobInfo(bodyFormat, blobUrl, digest)

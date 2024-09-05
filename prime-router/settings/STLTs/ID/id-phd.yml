@@ -12,7 +12,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation:
-        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/ID/ID-receiver-transform.yml"
+        schemaName: "azure:/hl7_mapping/receivers/STLTs/ID/ID-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: null
@@ -70,8 +70,9 @@
       processingModeFilter: [ ]
       reverseTheQualityFilter: false
       conditionFilter:
-        # Accept COVID only
-        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+        # Positive COVID (840539006), Positive MPOX (414015000), All RSV (55735004). Send whole panel if any observation matches the reportable conditions
+        - "(Bundle.entry.resource.ofType(Observation).where(interpretation.coding.code = 'A').code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006'|'414015000')).exists()) 
+          or (Bundle.entry.resource.ofType(Observation).code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('55735004')).exists())"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
@@ -88,10 +89,11 @@
       transport:
         host: "sftp.dhw.idaho.gov"
         port: "22"
-        filePath: "./ELR/SimpleReport/Prod"
+        filePath: "./ELR/SimpleReport/Test"
         credentialName: null
         type: "SFTP"
       externalName: "Primary Feed"
-      enrichmentSchemaNames: []
+      enrichmentSchemaNames:
+        - "azure:/fhir_transforms/common/handle-aoe-unknown-value/handle-aoe-unknown-value.yml"
       timeZone: null
       dateTimeFormat: "OFFSET"

@@ -1,5 +1,8 @@
 package gov.cdc.prime.router.azure
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -19,11 +22,18 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
+import gov.cdc.prime.router.azure.BlobAccess.Companion.defaultBlobMetadata
+import gov.cdc.prime.router.azure.BlobAccess.Companion.getBlobContainer
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.observability.event.ReportReceivedEvent
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
+import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
@@ -37,6 +47,11 @@ private const val PROCESSING_TYPE_PARAMETER = "processing"
 class ReportFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive),
+    private val reportEventService: IReportStreamEventService = ReportStreamEventService(
+        workflowEngine.db,
+        workflowEngine.azureEventService,
+        workflowEngine.reportService
+    ),
 ) : RequestFunction(workflowEngine),
     Logging {
 
@@ -75,6 +90,70 @@ class ReportFunction(
             HttpUtilities.internalErrorResponse(request)
         }
     }
+
+    /**
+     * GET messages from test bank
+     *
+     * @see ../../../docs/api/reports.yml
+     */
+    @FunctionName("getMessagesFromTestBank")
+    fun getMessagesFromTestBank(
+        @HttpTrigger(
+            name = "getMessagesFromTestBank",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "reports/testing"
+        ) request: HttpRequestMessage<String?>,
+    ): HttpResponseMessage {
+        val claims = AuthenticatedClaims.authenticate(request)
+        if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
+            return processGetMessageFromTestBankRequest(request)
+        }
+        return HttpUtilities.unauthorizedResponse(request)
+    }
+
+    /**
+     * Moved the logic to a separate function for testing purposes
+     */
+    fun processGetMessageFromTestBankRequest(
+        request: HttpRequestMessage<String?>,
+        blobAccess: BlobAccess.Companion = BlobAccess,
+        defaultBlobMetadata: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
+    ): HttpResponseMessage {
+        return try {
+            val updatedBlobMetadata = defaultBlobMetadata.copy(containerName = "test-bank")
+            val results = blobAccess.listBlobs("", updatedBlobMetadata)
+            val reports = mutableListOf<TestReportInfo>()
+            val sourceContainer = getBlobContainer(updatedBlobMetadata)
+            results.forEach { currentResult ->
+                if (currentResult.currentBlobItem.name.endsWith(".fhir")) {
+                    val sourceBlobClient = sourceContainer.getBlobClient(currentResult.currentBlobItem.name)
+                    val data = sourceBlobClient.downloadContent()
+
+                    val currentTestReportInfo = TestReportInfo(
+                        currentResult.currentBlobItem.properties.creationTime.toString(),
+                        currentResult.currentBlobItem.name,
+                        data.toString()
+                    )
+                    reports.add(currentTestReportInfo)
+                }
+            }
+
+            val mapper: ObjectMapper = JsonMapper.builder()
+                .addModule(JavaTimeModule())
+                .build()
+            HttpUtilities.okResponse(request, mapper.writeValueAsString(reports) ?: "[]")
+        } catch (e: Exception) {
+            logger.error("Unable to fetch messages from test bank", e)
+            HttpUtilities.internalErrorResponse(request)
+        }
+    }
+
+    class TestReportInfo(
+        var dateCreated: String,
+        var fileName: String,
+        var reportBody: String,
+    )
 
     /**
      * The Waters API, in memory of Dr. Michael Waters
@@ -186,16 +265,22 @@ class ReportFunction(
                         payloadName
                     )
 
-                    workflowEngine.azureEventService.trackEvent(
-                        ReportReceivedEvent(
-                            report.id,
-                            sender,
-                            actionHistory.filterParameters(request),
-                            request.headers["x-forwarded-for"]?.split(",")?.first()
-                                ?: request.headers["x-azure-clientip"].toString(),
-                            request.headers["content-length"].toString()
+                    reportEventService.sendReportEvent(
+                        eventName = ReportStreamEventName.REPORT_RECEIVED,
+                        childReport = report,
+                        pipelineStepName = TaskAction.receive
+                    ) {
+                        params(
+                            listOfNotNull(
+                                ReportStreamEventProperties.REQUEST_PARAMETERS
+                                    to actionHistory.filterParameters(request),
+                                ReportStreamEventProperties.SENDER_NAME to sender.fullName,
+                                ReportStreamEventProperties.FILE_LENGTH to request.headers["content-length"].toString(),
+                                getSenderIP(request)?.let { ReportStreamEventProperties.SENDER_IP to it }
+                            ).toMap()
                         )
-                    )
+                    }
+
                     // return CREATED status, report submission was successful
                     HttpStatus.CREATED
                 } else {
@@ -225,7 +310,9 @@ class ReportFunction(
         workflowEngine.recordAction(actionHistory)
 
         check(actionHistory.action.actionId > 0)
-        val submission = SubmissionsFacade.instance.findDetailedSubmissionHistory(actionHistory.action)
+        val submission = workflowEngine.db.transactReturning { txn ->
+            SubmissionsFacade.instance.findDetailedSubmissionHistory(txn, null, actionHistory.action)
+        }
 
         val response = request.createResponseBuilder(httpStatus)
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
@@ -236,7 +323,7 @@ class ReportFunction(
             .header(
                 HttpHeaders.LOCATION,
                 request.uri.resolve(
-                    "/api/history/${sender.organizationName}/submissions/${actionHistory.action.actionId}"
+                    "/api/waters/report/${submission?.reportId}/history"
                 ).toString()
             )
             .build()

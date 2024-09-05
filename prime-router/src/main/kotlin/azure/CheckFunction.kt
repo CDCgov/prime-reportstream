@@ -353,17 +353,17 @@ class CheckFunction : Logging {
             val aLogger: Logger = Logger.getLogger(this.toString())
             runBlocking {
                 launch {
-                    var (httpHeaders, accessToken: String?) =
+                    val httpHeaders = theRESTTransport.getHeaders(restTransportType, reportId)
+                    val accessToken: String =
                         theRESTTransport.getOAuthToken(
                             restTransportType,
-                            reportId,
                             jksCredential,
                             credential,
                             aLogger
                         )
 
                     val msg = when {
-                        accessToken != null -> "${receiver.fullName}: Success: received OAuth token"
+                        accessToken.isNotEmpty() -> "${receiver.fullName}: Success: received OAuth token"
                         httpHeaders.isNotEmpty() -> "${receiver.fullName}: Success: received Authentication header"
                         else -> error("${receiver.fullName}: Failure: no valid response from RESTTransport")
                     }

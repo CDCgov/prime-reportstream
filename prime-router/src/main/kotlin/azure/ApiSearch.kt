@@ -22,7 +22,11 @@ import org.jooq.WithStep
 import org.jooq.impl.DSL
 import kotlin.time.ExperimentalTime
 
-data class ApiSearchResult<T>(val totalCount: Int, val filteredCount: Int, val results: List<T>)
+data class ApiSearchResult<T>(val totalCount: Int, val filteredCount: Int, val results: List<T>) {
+    fun <MappedType> map(mappingFunction: (value: T) -> MappedType): ApiSearchResult<MappedType> {
+        return ApiSearchResult(totalCount, filteredCount, results.map { mappingFunction(it) })
+    }
+}
 enum class SortDirection {
     ASC,
     DESC,
