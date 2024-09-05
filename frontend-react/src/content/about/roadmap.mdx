@@ -17,6 +17,8 @@ import site from "../../content/site.json"
 <Sidenav />
 </LayoutSidenav>
 
+<p className="usa-timestamp">Last updated: August 05, 2024</p>
+
 ## Objectives for FY24
 Learn about our goals and how we are measuring success for this fiscal year (FY), which runs from October 2023 through September 2024.
 
@@ -44,7 +46,7 @@ Learn about our goals and how we are measuring success for this fiscal year (FY)
             tag: "recently-completed",
             body: (
                 <p>
-                    Alaska, California, Hawaii, Los Angeles County, Nevada, New York, New York City, Rhode Island and U.S. Virgin Islands are able to receive flu and RSV data from ReportStream.
+                    Arizona, Colorado, and Kansas are able to receive flu and RSV data from ReportStream.
                 </p>
             ),
         },
@@ -52,15 +54,7 @@ Learn about our goals and how we are measuring success for this fiscal year (FY)
             tag: "working-on-now",
             body: (
                 <p>
-                    Onboard or update current connections for Colorado, South Carolina, Texas, and Virginia.
-                </p>
-            ),
-        },
-        {
-            tag: "working-on-now",
-            body: (
-                <p>
-                    Work with Maine, Kentucky, Washington D.C., and Connecticut on their needs and requirements.
+                    Onboard or update connections for Arkansas, Connecticut, Florida, Idaho, Illinois, Iowa, Kentucky, Louisiana, Maine, Massachusetts, Michigan, Minnesota, Missouri, Montana, Oklahoma, Virginia, Washington D.C.
                 </p>
             ),
         },
@@ -68,7 +62,7 @@ Learn about our goals and how we are measuring success for this fiscal year (FY)
             tag: "next",
             body: (
                 <p>
-                    Support Delaware, Florida, New Jersey, and Wyoming by updating their connections to be able to receive additional conditions.
+                    Support remaining STLTs to connect or update their connections to be able to receive additional conditions.
                 </p>
             ),
         },
@@ -76,57 +70,75 @@ Learn about our goals and how we are measuring success for this fiscal year (FY)
             title:<p>Partner with <A href="https://www.simplereport.gov/">SimpleReport</A> to help nontraditional and lower-resourced testing sites and facilities report test results and send data to STLTs and the CDC.</p>,
             tag: "recently-completed",
             body: (
-                <p>Alaska, California, Nevada, and New York are receiving flu A/B or RSV data.</p>
+                <p>California, Nevada, and New York are receiving flu A/B or RSV data.</p>
+            ),
+        },
+        {
+            tag: "recently-completed",
+            body: (
+                <p>Identify nontraditional and lower-resourced HIV senders in Texas as part of targeted health equity improvement work.</p>
             ),
         },
         {
             tag: "working-on-now",
             body: (
-                <p>Transmit HIV test results to Los Angeles County.</p>
+                <p>Transmit HIV test results to Los Angeles County and Texas.</p>
             ),
         },
         {
             tag: "next",
             body: (
-                <p>Transmit syphilis and hepatitis test results to Los Angeles County.</p>
+                <p>Identify more regions in California to exchange HIV test result data.</p>
             ),
         },
         {
-            title: "Help at-home test takers and test manufacturers easily report results to STLTs and CDC.",
-            tag: "recently-completed",
+            tag: "next",
             body: (
-                <p>Define product requirements, using the <A href="https://www.nibib.nih.gov/covid-19/radx-tech-program/mars" _blank>RADx MARS</A> HL7 standard, for supporting results from tests that diagnosis multiple conditions (multiplex tests).</p>
+                <p>Add support for hepatitis C reporting through SimpleReport.</p>
             ),
         },
         {
-            tag: "working-on-now",
+            title:<p>Help at-home test takers and test manufacturers easily report results to STLTs and CDC.</p>,
+            tag: "recently-completed",
             body: (
                 <p>Support file validation against different HL7 profiles, starting with the RADx MARS custom <A href="https://www.cdc.gov/vaccines/programs/iis/technical-guidance/downloads/hl7guide-1-5-2014-11.pdf" target="_blank">NIST HL7 2.5.1</A> profile.</p>
             ),
         },
         {
+            tag: "working-on-now",
+            body: (
+                <p>Route test results from <A href="https://learn.makemytestcount.org/" target="_blank">MakeMyTestCount.org</A> to one STLT in test environment.</p>
+            ),
+        },
+        {
             tag: "next",
             body: (
-                <p>Handle test results from <A href="http://makemytestcount.org">MakeMyTestCount.org</A>. </p>
+                <p>Route test results from <A href="https://learn.makemytestcount.org/" target="_blank">MakeMyTestCount.org</A> to one STLT in production.</p>
             ),
         },
         {
             title: "Facilitate electronic laboratory reporting (ELR) for the CDC infectious disease labs and transmit to STLTs. ",
             tag: "recently-completed",
             body: (
-                <p>Complete internal testing by successfully transmitting lab result data from the CDC labs to two state public health labs. </p>
+                <p>Test data pipeline with two STLT partners to transmit test results.</p>
             ),
         },
         {
             tag: "working-on-now",
             body: (
-                <p>Test data pipeline with two STLT partners.</p>
+                <p>Complete final internal review of test result data transfer before moving to production.</p>
             ),
         },
         {
             tag: "next",
             body: (
-                <p>Complete final internal review before moving to production.</p>
+                <p>Execute go-live plan with state public health agencies receiving test results.</p>
+            ),
+        },
+        {
+            tag: "next",
+            body: (
+                <p>Develop product requirements for handling test orders from STLTs to the CDC infectious disease labs.</p>
             ),
         },
     ]}

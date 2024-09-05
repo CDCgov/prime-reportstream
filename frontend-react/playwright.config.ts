@@ -38,29 +38,27 @@ export default defineConfig({
         // We have a suite of tests that are ONLY checking links so to
         // save bandwidth, we only need to utilize a single browser
         {
-            name: "chromium-only",
-            use: { browserName: "chromium" },
-            // currently only uses public pages, uncomment when not the case
-            // dependencies: ["setup"],
-            testMatch: "spec/chromium-only/*.spec.ts",
-        },
-        {
             name: "chromium",
             use: { browserName: "chromium" },
             dependencies: ["setup"],
-            testMatch: "spec/all/**/*.spec.ts",
+            testMatch: [
+                "spec/all/*.spec.ts",
+                "spec/all/**/*.spec.ts",
+                "spec/chromium-only/*.spec.ts",
+                "spec/chromium-only/**/*.spec.ts",
+            ],
         },
         {
             name: "firefox",
             use: { browserName: "firefox" },
             dependencies: ["setup"],
-            testMatch: "spec/all/**/*.spec.ts",
+            testMatch: ["spec/all/*.spec.ts", "spec/all/**/*.spec.ts"],
         },
         {
             name: "webkit",
             use: { browserName: "webkit" },
             dependencies: ["setup"],
-            testMatch: "spec/all/**/*.spec.ts",
+            testMatch: ["spec/all/*.spec.ts", "spec/all/**/*.spec.ts"],
         },
     ],
     webServer: {

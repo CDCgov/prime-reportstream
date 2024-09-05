@@ -44,7 +44,7 @@ agent_1:
   vars:
     orgName: MSH.4.1
     altId: MSH.4.2
-    contryCode: MSH.17
+    countryCode: MSH.17
     orgSpec: MSH.4
   constants:
     participantType: "author"

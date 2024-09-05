@@ -312,13 +312,8 @@ class ReportGraph(
         )
             .from(ITEM_LINEAGE)
             .where(
-                ITEM_LINEAGE.CHILD_REPORT_ID.`in`(
-                    DSL.select(REPORT_FILE.REPORT_ID)
-                        .from(REPORT_FILE)
-                        .where(ITEM_LINEAGE.CHILD_REPORT_ID.eq(childId))
-                        .and(ITEM_LINEAGE.CHILD_INDEX.eq(childIndex))
-                )
-            )
+                ITEM_LINEAGE.CHILD_REPORT_ID.eq(childId)
+            ).and(ITEM_LINEAGE.CHILD_INDEX.eq(childIndex))
         return DSL
             .name(ItemGraphTable.ITEM_GRAPH.name)
             .`as`(

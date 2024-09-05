@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
-import assertk.assertions.contains
 import assertk.assertions.containsOnly
 import assertk.assertions.each
 import assertk.assertions.hasSize
@@ -15,6 +14,7 @@ import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
@@ -34,7 +34,6 @@ import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
-import gov.cdc.prime.router.cli.ObservationMappingConstants
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fetchChildReports
@@ -63,10 +62,11 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FhirDestinationFilterQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.elrDestinationFilterQueueName
+import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockkConstructor
@@ -241,12 +241,30 @@ class FHIRConverterIntegrationTests {
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7SenderWithNoTransform)
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val (routedReports, _) = fetchChildReports(
+            val (routedReports, unroutedReports) = fetchChildReports(
                 receiveReport, txn, 4
             ).partition { it.nextAction != TaskAction.none }
+            assertThat(routedReports).hasSize(2)
+            routedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.destination_filter)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
+            assertThat(unroutedReports).hasSize(2)
+            unroutedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.none)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -288,7 +306,7 @@ class FHIRConverterIntegrationTests {
 
             verify(exactly = 2) {
                 QueueAccess.sendMessage(
-                    elrDestinationFilterQueueName,
+                    QueueMessage.elrDestinationFilterQueueName,
                     match { expectedQueueMessages.contains(it) }
                 )
             }
@@ -406,12 +424,30 @@ class FHIRConverterIntegrationTests {
         )
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val (routedReports, _) = fetchChildReports(
+            val (routedReports, unroutedReports) = fetchChildReports(
                 receiveReport, txn, 4
             ).partition { it.nextAction != TaskAction.none }
+            assertThat(routedReports).hasSize(2)
+            routedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.destination_filter)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
+            assertThat(unroutedReports).hasSize(2)
+            unroutedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.none)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -434,7 +470,7 @@ class FHIRConverterIntegrationTests {
             }.map { it.serialize() }
             verify(exactly = 2) {
                 QueueAccess.sendMessage(
-                    elrDestinationFilterQueueName,
+                    QueueMessage.elrDestinationFilterQueueName,
                     match { expectedQueueMessages.contains(it) }
                 )
             }
@@ -530,12 +566,30 @@ class FHIRConverterIntegrationTests {
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, senderWithValidation)
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val (routedReports, notRouted) = fetchChildReports(
                 receiveReport, txn, 2
             ).partition { it.nextAction != TaskAction.none }
+
+            with(routedReports.single()) {
+                assertThat(this.nextAction).isEqualTo(TaskAction.destination_filter)
+                assertThat(this.receivingOrg).isEqualTo(null)
+                assertThat(this.receivingOrgSvc).isEqualTo(null)
+                assertThat(this.schemaName).isEqualTo("None")
+                assertThat(this.schemaTopic).isEqualTo(Topic.MARS_OTC_ELR)
+                assertThat(this.bodyFormat).isEqualTo("FHIR")
+            }
+            with(notRouted.single()) {
+                assertThat(this.nextAction).isEqualTo(TaskAction.none)
+                assertThat(this.receivingOrg).isEqualTo(null)
+                assertThat(this.receivingOrgSvc).isEqualTo(null)
+                assertThat(this.schemaName).isEqualTo("None")
+                assertThat(this.schemaTopic).isEqualTo(Topic.MARS_OTC_ELR)
+                assertThat(this.bodyFormat).isEqualTo("FHIR")
+            }
+
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -567,7 +621,7 @@ class FHIRConverterIntegrationTests {
             }.map { it.serialize() }
             verify(exactly = 1) {
                 QueueAccess.sendMessage(
-                    elrDestinationFilterQueueName,
+                    QueueMessage.elrDestinationFilterQueueName,
                     match { expectedQueueMessages.contains(it) }
                 )
             }
@@ -593,7 +647,7 @@ class FHIRConverterIntegrationTests {
                 .reportStreamEvents[ReportStreamEventName.ITEM_FAILED_VALIDATION]!!.last() as ReportStreamItemEvent
             assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
                 ReportEventData(
-                    notRouted[0].reportId,
+                    notRouted.first().reportId,
                     receiveReport.id,
                     listOf(receiveReport.id),
                     Topic.MARS_OTC_ELR,
@@ -638,10 +692,19 @@ class FHIRConverterIntegrationTests {
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7Sender)
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReports = fetchChildReports(receiveReport, txn, 2)
+            routedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.destination_filter)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
+
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -681,7 +744,7 @@ class FHIRConverterIntegrationTests {
 
             verify(exactly = 2) {
                 QueueAccess.sendMessage(
-                    elrDestinationFilterQueueName,
+                    QueueMessage.elrDestinationFilterQueueName,
                     match { expectedQueueMessages.contains(it) }
                 )
             }
@@ -710,13 +773,19 @@ class FHIRConverterIntegrationTests {
         val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7Sender)
         val fhirFunctions = createFHIRFunctionsInstance()
 
-        fhirFunctions.doConvert(queueMessage, 1, createFHIRConverter())
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         verify(exactly = 0) {
             QueueAccess.sendMessage(any(), any())
         }
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            fetchChildReports(receiveReport, txn, 1)
+            val report = fetchChildReports(receiveReport, txn, 1).single()
+            assertThat(report.nextAction).isEqualTo(TaskAction.none)
+            assertThat(report.receivingOrg).isEqualTo(null)
+            assertThat(report.receivingOrgSvc).isEqualTo(null)
+            assertThat(report.schemaName).isEqualTo("None")
+            assertThat(report.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(report.bodyFormat).isEqualTo("FHIR")
         }
     }
 }

@@ -298,6 +298,7 @@ Examples:
 
     companion object {
         val coolTestList = listOf(
+            RemovePIITest(),
             Ping(),
             SftpcheckTest(),
             Merge(),
