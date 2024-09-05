@@ -373,7 +373,7 @@ test.describe(
                         await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                     });
 
-                    test.skip("downloads the file", async ({ dailyDataPage }) => {
+                    test("downloads the file", async ({ dailyDataPage }) => {
                         await setDate(dailyDataPage.page, "#start-date", 14);
                         await setDate(dailyDataPage.page, "#end-date", 0);
 
