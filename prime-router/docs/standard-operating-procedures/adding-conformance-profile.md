@@ -107,7 +107,7 @@ v251. That presents the opportunity for reuse.
 
 1. Review existing data type mappings located in `prime-router/metadata/HL7/datatypes/` for reuse
 2. Add folder to `prime-router/metadata/HL7/` with a name indicating the new conformance profile
-3. Copy folder `fhir` from `prime-router/metadata/HL7/v251-elr` and add to your new mapping folder.
+3. Copy folder `fhir` from `prime-router/metadata/HL7/catchall` and add to your new mapping folder.
 4. Create folder `hl7` in your new mapping folder with the following sub-folders:
     - "message" - **required** - within that, add a yml file named with the HL7 message type (ex ORU_R01, ORM_O01,  
       ADT_A01, etc.)
