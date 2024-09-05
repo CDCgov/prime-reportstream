@@ -326,14 +326,14 @@ class BlobAccess() : Logging {
         /**
          * Download the file associated with a RawSubmission message
          */
-        fun downloadContent(
+        fun downloadBlob(
             blobUrl: String,
             digest: String,
         ): String {
             val blobContent = downloadBlobAsByteArray(blobUrl)
             val localDigest = BlobUtils.digestToString(sha256Digest(blobContent))
             check(digest == localDigest) {
-                "FHIR - Downloaded file does not match expected file\n$digest | $localDigest"
+                "Downloaded file does not match expected file\n$digest | $localDigest"
             }
             return String(blobContent)
         }

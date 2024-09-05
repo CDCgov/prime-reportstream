@@ -20,8 +20,12 @@ class SubmissionTableService private constructor() : Logging {
          * This ensures that the instance is created only when it is first accessed,
          * providing thread-safe, lazy initialization.
          */
-        val instance: SubmissionTableService by lazy {
+        val singletonInstance: SubmissionTableService by lazy {
             SubmissionTableService()
+        }
+
+        fun getInstance(): SubmissionTableService {
+            return singletonInstance
         }
     }
 
@@ -43,7 +47,7 @@ class SubmissionTableService private constructor() : Logging {
      */
     fun reset() {
         synchronized(this) {
-            tableAccess = TableAccess() // Re-initialize the TableAccess instance
+            tableAccess.reset() // Re-initialize the TableAccess client
         }
     }
 

@@ -64,32 +64,34 @@ class FHIRTranslator(
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
-        val castedMessage = message as? FhirTranslateQueueMessage
-        if (castedMessage != null) {
-            val contextMap = mapOf(
-                MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
-                MDCUtils.MDCProperty.REPORT_ID to message.reportId,
-                MDCUtils.MDCProperty.TOPIC to message.topic,
-                MDCUtils.MDCProperty.BLOB_URL to message.blobURL
-            )
-            withLoggingContext(contextMap) {
-                logger.trace("Starting translate work")
-                actionHistory.trackExistingInputReport(message.reportId)
-                val receiver = settings.findReceiver(message.receiverFullName)
-                    ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
-                actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
-                return if (message.topic.isSendOriginal) {
-                    listOf(sendOriginal(message, receiver, actionHistory))
-                } else {
-                    listOf(sendTranslated(message, receiver, actionHistory))
+        when (message) {
+            is FhirTranslateQueueMessage -> {
+                val contextMap = mapOf(
+                    MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
+                    MDCUtils.MDCProperty.REPORT_ID to message.reportId,
+                    MDCUtils.MDCProperty.TOPIC to message.topic,
+                    MDCUtils.MDCProperty.BLOB_URL to message.blobURL
+                )
+                withLoggingContext(contextMap) {
+                    logger.trace("Starting translate work")
+                    actionHistory.trackExistingInputReport(message.reportId)
+                    val receiver = settings.findReceiver(message.receiverFullName)
+                        ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
+                    actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
+                    return if (message.topic.isSendOriginal) {
+                        listOf(sendOriginal(message, receiver, actionHistory))
+                    } else {
+                        listOf(sendTranslated(message, receiver, actionHistory))
+                    }
                 }
             }
-        } else {
-            // Handle the case where casting failed
-            throw RuntimeException(
-                "Message was not a FhirTranslateQueueMessage and cannot be " +
-                    "processed by FHIRTranslator: $message"
-            )
+            else -> {
+                // Handle the case where casting failed
+                throw RuntimeException(
+                    "Message was not a FhirTranslateQueueMessage and cannot be " +
+                        "processed by FHIRTranslator: $message"
+                )
+            }
         }
     }
 
@@ -145,7 +147,7 @@ class FHIRTranslator(
         logger.trace("Preparing to send translated message")
         val bodyBytes =
             getByteArrayFromBundle(
-                receiver, FhirTranscoder.decode(BlobAccess.downloadContent(message.blobURL, message.digest))
+                receiver, FhirTranscoder.decode(BlobAccess.downloadBlob(message.blobURL, message.digest))
             )
 
         val (report, event, blobInfo) = Report.generateReportAndUploadBlob(

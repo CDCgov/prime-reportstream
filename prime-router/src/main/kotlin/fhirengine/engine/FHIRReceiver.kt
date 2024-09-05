@@ -55,7 +55,7 @@ class FHIRReceiver(
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
     reportService: ReportService = ReportService(),
-    val submissionTableService: SubmissionTableService = SubmissionTableService.instance,
+    val submissionTableService: SubmissionTableService = SubmissionTableService.getInstance(),
 ) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
@@ -142,9 +142,9 @@ class FHIRReceiver(
         actionHistory.trackActionParams(queueMessage.headers.toString())
 
         // Handle case where sender is not found
-        if (sender == null) {
+        return if (sender == null) {
             // Send an error event
-            reportEventService.sendProcessingError(
+            reportEventService.sendSubmissionProcessingError(
                 ReportStreamEventName.REPORT_NOT_RECEIVABLE,
                 TaskAction.receive,
                 "Sender is not found in matching client id: ${queueMessage.headers[clientIdHeader]}.",
@@ -161,7 +161,7 @@ class FHIRReceiver(
                 )
             }
 
-            // Insert the rejection into the submissions table
+            // Insert the rejection into the submission table
             val tableEntity =
                 Submission(
                     queueMessage.reportId.toString(), "Rejected",
@@ -169,22 +169,22 @@ class FHIRReceiver(
                     "Sender not found matching client_id: ${queueMessage.headers[clientIdHeader]}"
                 )
             submissionTableService.insertSubmission(tableEntity)
-            return null
-        }
+            null
+        } else {
+            // Handle case where sender is inactive
+            if (sender.customerStatus == CustomerStatus.INACTIVE) {
+                // Track the action result and log the error
+                actionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
+                actionLogger.error(
+                    InvalidParamMessage("Sender has customer status INACTIVE: " + queueMessage.headers[clientIdHeader])
+                )
+            }
 
-        // Handle case where sender is inactive
-        if (sender.customerStatus == CustomerStatus.INACTIVE) {
-            // Track the action result and log the error
-            actionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
-            actionLogger.error(
-                InvalidParamMessage("Sender has customer status INACTIVE: " + queueMessage.headers[clientIdHeader])
-            )
+            // Track sender information
+            actionHistory.trackActionSenderInfo(sender.fullName, queueMessage.headers["payloadname"])
+            actionHistory.trackActionResult(HttpStatus.CREATED)
+            sender
         }
-
-        // Track sender information
-        actionHistory.trackActionSenderInfo(sender.fullName, queueMessage.headers["payloadname"])
-        actionHistory.trackActionResult(HttpStatus.CREATED)
-        return sender
     }
 
     /**
@@ -293,7 +293,7 @@ class FHIRReceiver(
         actionLogger: ActionLogger,
         queueMessage: FhirReceiveQueueMessage,
     ): Report? {
-        val rawReport = BlobAccess.downloadContent(queueMessage.blobURL, queueMessage.digest)
+        val rawReport = BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest)
         return if (rawReport.isBlank()) {
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
             null
@@ -318,7 +318,6 @@ class FHIRReceiver(
                         bodyURL = queueMessage.blobURL
                     )
 
-                    // TODO fix and re-enable https://github.com/CDCgov/prime-reportstream/issues/14103
                     // dupe detection if needed, and if we have not already produced an error
     //                if (!allowDuplicates && !actionLogs.hasErrors()) {
     //                    doDuplicateDetection(
@@ -349,7 +348,37 @@ class FHIRReceiver(
                 }
 
                 else -> {
-                    throw IllegalStateException("Unsupported sender format ${sender.format}")
+                    actionLogger.error(InvalidReportMessage("Unsupported sender format: ${sender.format}"))
+                    reportEventService.sendSubmissionProcessingError(
+                        ReportStreamEventName.REPORT_NOT_PROCESSABLE,
+                        TaskAction.receive,
+                        "Unsupported sender format ${sender.format}.",
+                        queueMessage.reportId,
+                        queueMessage.blobURL
+                    ) {
+                        params(
+                            actionLogger.errors.associateBy { ReportStreamEventProperties.PROCESSING_ERROR }
+                            .plus(
+                                mapOf(
+                                    ReportStreamEventProperties.REQUEST_PARAMETERS to queueMessage.headers.toString(),
+                                    ReportStreamEventProperties.SENDER_NAME to sender.fullName,
+                                    ReportStreamEventProperties.FILE_LENGTH to queueMessage.headers["content-length"]
+                                        .toString(),
+                                    ReportStreamEventProperties.SENDER_IP to (getSenderIP(queueMessage.headers) ?: ""),
+                                    ReportStreamEventProperties.ITEM_FORMAT to sender.format
+                                )
+                            )
+                        )
+                    }
+                    // Insert the acceptance into the submissions table
+                    val tableEntity = Submission(
+                        queueMessage.reportId.toString(),
+                        "Rejected",
+                        queueMessage.blobURL,
+                        actionLogger.errors.takeIf { it.isNotEmpty() }?.map { it.detail.message }?.toString()
+                    )
+                    submissionTableService.insertSubmission(tableEntity)
+                    throw IllegalStateException("Unsupported sender format: ${sender.format}")
                 }
             }
             report

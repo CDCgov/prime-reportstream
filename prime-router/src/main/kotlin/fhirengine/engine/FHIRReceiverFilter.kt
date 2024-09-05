@@ -342,7 +342,7 @@ class FHIRReceiverFilter(
             // download and parse FHIR document
             val fhirJson = LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                 "Downloaded content from queue message"
-            ) { BlobAccess.downloadContent(queueMessage.blobURL, queueMessage.digest) }
+            ) { BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest) }
             val bundle = FhirTranscoder.decode(fhirJson)
 
             actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)

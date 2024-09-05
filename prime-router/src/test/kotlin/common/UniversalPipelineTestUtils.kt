@@ -173,6 +173,13 @@ object UniversalPipelineTestUtils {
         topic = Topic.FULL_ELR,
         schemaName = "classpath:/metadata/fhir_transforms/senders/test-sender-transform.yml"
     )
+    val csvSenderWithNoTransform = UniversalPipelineSender(
+        "elr-csv-sender",
+        "phd",
+        MimeFormat.CSV,
+        CustomerStatus.ACTIVE,
+        topic = Topic.FULL_ELR,
+    )
     val hl7SenderWithNoTransform = UniversalPipelineSender(
         "hl7-elr-no-transform",
         "phd",
@@ -219,6 +226,7 @@ object UniversalPipelineTestUtils {
         senders = listOf(
             hl7Sender,
             fhirSender,
+            csvSenderWithNoTransform,
             hl7SenderWithNoTransform,
             fhirSenderWithNoTransform,
             fhirSenderWithNoTransformInactive,

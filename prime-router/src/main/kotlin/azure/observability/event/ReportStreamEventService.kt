@@ -86,7 +86,7 @@ interface IReportStreamEventService {
     )
 
     /**
-     * Creates a processing error event from receive of a Queue Message
+     * Creates a general processing error event. This is not associated with a report or item.
      *
      * @param eventName the business event value from [ReportStreamEventName]
      * @param pipelineStepName the pipeline step that is emitting the event
@@ -95,7 +95,7 @@ interface IReportStreamEventService {
      * @param bodyUrl the blob url for the incoming report
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
      */
-    fun sendProcessingError(
+    fun sendSubmissionProcessingError(
         eventName: ReportStreamEventName,
         pipelineStepName: TaskAction,
         error: String,
@@ -295,7 +295,7 @@ class ReportStreamEventService(
         ).send()
     }
 
-    override fun sendProcessingError(
+    override fun sendSubmissionProcessingError(
         eventName: ReportStreamEventName,
         pipelineStepName: TaskAction,
         error: String,

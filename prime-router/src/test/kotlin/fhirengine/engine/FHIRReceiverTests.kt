@@ -53,6 +53,7 @@ class FHIRReceiverTest {
     val blobMock = mockkClass(BlobAccess::class)
     val reportService: ReportService = mockk<ReportService>()
     private val submissionTableService: SubmissionTableService = mockk<SubmissionTableService>()
+
     val oneOrganization = DeepOrganization(
         "co-phd",
         "test",
@@ -138,7 +139,7 @@ class FHIRReceiverTest {
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
         every { submissionTableService.insertSubmission(any()) } returns Unit
         every { actionHistory.action } returns action
-        every { BlobAccess.downloadContent(any(), any()) }.returns(cleanHL7Record)
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(cleanHL7Record)
 
         return FHIRTestSetup(engine, actionLogger, actionHistory, message)
     }

@@ -32,9 +32,17 @@ class TableAccess : Logging {
         fun getConnectionString(): String = System.getenv(defaultEnvVar)
     }
 
-    private var tableServiceClient: TableServiceClient = TableServiceClientBuilder()
-        .connectionString(getConnectionString())
-        .buildClient()
+    private var tableServiceClient: TableServiceClient = buildClient()
+
+    private fun buildClient(): TableServiceClient {
+        return TableServiceClientBuilder()
+            .connectionString(getConnectionString())
+            .buildClient()
+    }
+
+    fun reset() {
+        tableServiceClient = buildClient()
+    }
 
     /**
      * Inserts a TableEntity into the specified table.

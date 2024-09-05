@@ -108,7 +108,7 @@ class FHIRDestinationFilter(
             val fhirJson = LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                 "Downloaded content from queue message"
             ) {
-                BlobAccess.downloadContent(queueMessage.blobURL, queueMessage.digest)
+                BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest)
             }
             val bundle = FhirTranscoder.decode(fhirJson)
             val bodyString = FhirTranscoder.encode(bundle)

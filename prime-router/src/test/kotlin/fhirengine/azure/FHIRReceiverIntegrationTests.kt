@@ -28,6 +28,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamReportEvent
 import gov.cdc.prime.router.common.TestcontainersUtils
+import gov.cdc.prime.router.common.UniversalPipelineTestUtils.csvSenderWithNoTransform
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransform
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fhirSenderWithNoTransformInactive
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.hl7SenderWithNoTransform
@@ -129,7 +130,7 @@ class FHIRReceiverIntegrationTests {
         mockkObject(TableAccess)
         every { TableAccess.getConnectionString() } returns getConnString()
 
-        submissionTableService = SubmissionTableService.instance
+        submissionTableService = SubmissionTableService.getInstance()
         submissionTableService.reset()
     }
 
@@ -778,6 +779,108 @@ class FHIRReceiverIntegrationTests {
                 ReportStreamEventProperties.FILE_LENGTH to headers["content-length"],
                 ReportStreamEventProperties.SENDER_IP to headers["x-azure-clientip"],
                 ReportStreamEventProperties.REQUEST_PARAMETERS to headers.toString()
+            )
+        )
+    }
+
+    @Test
+    fun `test process CSV message`() {
+        val invalidReceivedReportContents =
+            listOf(unparseableHL7Record)
+                .joinToString("\n")
+        val receiveBlobUrl = BlobAccess.uploadBlob(
+            "receive/fail-path.hl7",
+            invalidReceivedReportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
+
+        val reportId = UUID.randomUUID()
+        val headers = mapOf(
+            "content-type" to "application/hl7-v2;test",
+            "x-azure-clientip" to "0.0.0.0",
+            "payloadname" to "test_message",
+            "client_id" to csvSenderWithNoTransform.fullName,
+            "content-length" to "100"
+        )
+
+        val receiveQueueMessage = generateReceiveQueueMessage(
+            reportId.toString(),
+            receiveBlobUrl,
+            invalidReceivedReportContents,
+            csvSenderWithNoTransform,
+            headers = headers
+        )
+
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        var exception: Exception? = null
+        try {
+            fhirFunctions.process(
+                receiveQueueMessage,
+                1,
+                createFHIRReceiver(),
+                ActionHistory(TaskAction.receive)
+            )
+        } catch (e: Exception) {
+            exception = e
+        }
+
+        assertThat(exception!!.javaClass.name).isEqualTo("java.lang.IllegalStateException")
+
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk())
+                .from(Tables.ACTION_LOG)
+                .where(Tables.ACTION_LOG.REPORT_ID.eq(reportId))
+                .and(Tables.ACTION_LOG.TYPE.eq(ActionLogType.error))
+                .fetchInto(DetailedActionLog::class.java)
+
+            assertThat(actionLogs.count()).isEqualTo(0)
+
+            val reportFile = DSL.using(txn).select(Tables.REPORT_FILE.asterisk())
+                .from(Tables.REPORT_FILE)
+                .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
+                .fetchInto(DetailedReport::class.java)
+
+            assertThat(reportFile).isEmpty()
+        }
+
+        verify(exactly = 0) {
+            QueueAccess.sendMessage(any(), any())
+        }
+
+        val tableRow = submissionTableService.getSubmission(
+            reportId.toString(),
+            "Rejected"
+        )
+
+        assertNotNull(tableRow)
+        assertThat(tableRow.bodyURL).isEqualTo(receiveBlobUrl)
+        assertThat(tableRow.detail).isEqualTo("[Unsupported sender format: CSV]")
+
+        assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.REPORT_NOT_PROCESSABLE]!!).hasSize(1)
+        val event =
+            azureEventService
+                .reportStreamEvents[ReportStreamEventName.REPORT_NOT_PROCESSABLE]!!.last() as ReportStreamReportEvent
+        assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+            ReportEventData(
+                reportId,
+                null,
+                emptyList(),
+                null,
+                receiveBlobUrl,
+                TaskAction.receive,
+                OffsetDateTime.now()
+            ),
+            ReportEventData::timestamp
+        )
+        assertThat(event.params).isEqualTo(
+            mapOf(
+                ReportStreamEventProperties.ITEM_FORMAT to MimeFormat.CSV,
+                ReportStreamEventProperties.SENDER_NAME to csvSenderWithNoTransform.fullName,
+                ReportStreamEventProperties.FILE_LENGTH to headers["content-length"],
+                ReportStreamEventProperties.SENDER_IP to headers["x-azure-clientip"],
+                ReportStreamEventProperties.REQUEST_PARAMETERS to headers.toString(),
+                ReportStreamEventProperties.PROCESSING_ERROR to "Unsupported sender format CSV."
             )
         )
     }

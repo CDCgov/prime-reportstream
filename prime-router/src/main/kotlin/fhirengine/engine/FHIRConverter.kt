@@ -355,7 +355,7 @@ class FHIRConverter(
         routeReportWithInvalidItems: Boolean = true,
     ): List<IProcessedItem<*>> {
         val validator = queueMessage.topic.validator
-        val rawReport = BlobAccess.downloadContent(queueMessage.blobURL, queueMessage.digest)
+        val rawReport = BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest)
         return if (rawReport.isBlank()) {
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
             emptyList()

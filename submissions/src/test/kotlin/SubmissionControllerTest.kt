@@ -276,7 +276,7 @@ class SubmissionControllerTest {
     }
 
     @Test
-    fun `submitReport should log ReportReceivedEvent with correct details`() {
+    fun `submitReport should log SUBMISSION_RECEIVED with correct details`() {
         // Helper function to safely cast the captured map to Map<String, String>
         fun mapToStringString(input: Map<*, *>): Map<String, String> {
             return input.mapNotNull { (key, value) ->
@@ -317,7 +317,7 @@ class SubmissionControllerTest {
         val capturedEvent = eventCaptor.firstValue
         val capturedProperties = mapToStringString(propertiesCaptor.firstValue)
 
-        assert(capturedEvent == "ReportReceivedEvent")
+        assert(capturedEvent == "SUBMISSION_RECEIVED")
         val eventDetails = objectMapper.readValue(capturedProperties["event"], Map::class.java)
         assert(eventDetails["reportId"] == reportId.toString())
         assert(eventDetails["blobUrl"] == expectedBlobUrl)

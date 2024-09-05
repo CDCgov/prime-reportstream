@@ -184,7 +184,7 @@ class FhirConverterTests {
         every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
         every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
         every { actionLogger.setReportId(any()) } returns actionLogger
-        every { BlobAccess.downloadContent(any(), any()) }.returns(validHl7)
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(validHl7)
         every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.HL7
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
@@ -239,7 +239,7 @@ class FhirConverterTests {
         every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
         every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
         every { actionLogger.setReportId(any()) } returns actionLogger
-        every { BlobAccess.downloadContent(any(), any()) }
+        every { BlobAccess.downloadBlob(any(), any()) }
             .returns(File(VALID_DATA_URL).readText())
         every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.FHIR
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
@@ -306,7 +306,7 @@ class FhirConverterTests {
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.setReportId(any()) } returns actionLogger
-        every { BlobAccess.downloadContent(any(), any()) }
+        every { BlobAccess.downloadBlob(any(), any()) }
             .returns(File("src/test/resources/fhirengine/engine/bundle_multiple_bundles.fhir").readText())
         every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.FHIR
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
@@ -398,7 +398,7 @@ class FhirConverterTests {
         every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
         every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
         every { actionLogger.setReportId(any()) } returns actionLogger
-        every { BlobAccess.downloadContent(any(), any()) } returns (fhirRecord)
+        every { BlobAccess.downloadBlob(any(), any()) } returns (fhirRecord)
         every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.FHIR
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
@@ -489,7 +489,7 @@ class FhirConverterTests {
         every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
         every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
         every { actionLogger.setReportId(any()) } returns actionLogger
-        every { BlobAccess.downloadContent(any(), any()) } returns (fhirData)
+        every { BlobAccess.downloadBlob(any(), any()) } returns (fhirData)
         every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.FHIR
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
@@ -561,7 +561,7 @@ class FhirConverterTests {
             val actionLogger = ActionLogger()
             val mockMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
             every { mockMessage.topic } returns Topic.FULL_ELR
-            every { BlobAccess.downloadContent(any(), any()) } returns ""
+            every { BlobAccess.downloadBlob(any(), any()) } returns ""
             val bundles = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
             assertThat(bundles).isEmpty()
             assertThat(actionLogger.errors.map { it.detail.message }).contains("Provided raw data is empty.")
@@ -583,7 +583,7 @@ class FhirConverterTests {
             val mockMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
-            every { BlobAccess.downloadContent(any(), any()) } returns simpleHL7
+            every { BlobAccess.downloadBlob(any(), any()) } returns simpleHL7
             val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(bundles).isEmpty()
             assertThat(
@@ -601,7 +601,7 @@ class FhirConverterTests {
             val mockMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
-            every { BlobAccess.downloadContent(any(), any()) } returns "test,1,2"
+            every { BlobAccess.downloadBlob(any(), any()) } returns "test,1,2"
             val bundles = engine.process(MimeFormat.CSV, mockMessage, actionLogger)
             assertThat(bundles).isEmpty()
             assertThat(actionLogger.errors.map { it.detail.message })
@@ -616,7 +616,7 @@ class FhirConverterTests {
             val mockMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
-            every { BlobAccess.downloadContent(any(), any()) } returns "{\"id\":}"
+            every { BlobAccess.downloadBlob(any(), any()) } returns "{\"id\":}"
             val processedItems = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
             assertThat(processedItems).hasSize(1)
             assertThat(processedItems.first().bundle).isNull()
@@ -646,7 +646,7 @@ class FhirConverterTests {
 
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
-            every { BlobAccess.downloadContent(any(), any()) } returns "{\"id\":\"1\", \"resourceType\":\"Bundle\"}"
+            every { BlobAccess.downloadBlob(any(), any()) } returns "{\"id\":\"1\", \"resourceType\":\"Bundle\"}"
             val processedItems = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
             assertThat(processedItems).hasSize(1)
             assertThat(processedItems.first().bundle).isNull()
@@ -664,7 +664,7 @@ class FhirConverterTests {
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every {
-                BlobAccess.downloadContent(any(), any())
+                BlobAccess.downloadBlob(any(), any())
             } returns unparseableHL7
             val processedItems = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(processedItems).hasSize(1)
@@ -699,7 +699,7 @@ class FhirConverterTests {
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every {
-                BlobAccess.downloadContent(any(), any())
+                BlobAccess.downloadBlob(any(), any())
             } returns simpleHL7
             val processedItems = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(processedItems).hasSize(1)
@@ -728,7 +728,7 @@ class FhirConverterTests {
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every {
-                BlobAccess.downloadContent(any(), any())
+                BlobAccess.downloadBlob(any(), any())
             } returns simpleHL7
             val processedItems = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(processedItems).hasSize(1)
@@ -752,7 +752,7 @@ class FhirConverterTests {
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every {
-                BlobAccess.downloadContent(any(), any())
+                BlobAccess.downloadBlob(any(), any())
             } returns """{\"id\":}
                 {"id":"1", "resourceType":"Bundle"}
             """.trimMargin()
@@ -781,7 +781,7 @@ class FhirConverterTests {
             every { mockMessage.reportId } returns UUID.randomUUID()
 
             every {
-                BlobAccess.downloadContent(any(), any())
+                BlobAccess.downloadBlob(any(), any())
             } returns simpleHL7
             val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(bundles).hasSize(1)
@@ -801,7 +801,7 @@ class FhirConverterTests {
             every { mockMessage.reportId } returns UUID.randomUUID()
 
             every {
-                BlobAccess.downloadContent(any(), any())
+                BlobAccess.downloadBlob(any(), any())
             } returns simpleHL7 + "\n" + simpleHL7 + "\n" + simpleHL7
             val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(bundles).hasSize(3)
@@ -832,7 +832,7 @@ class FhirConverterTests {
             every { mockMessage.reportId } returns UUID.randomUUID()
 
             every {
-                BlobAccess.downloadContent(any(), any())
+                BlobAccess.downloadBlob(any(), any())
             } returns simpleHL7
             val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(bundles).hasSize(1)

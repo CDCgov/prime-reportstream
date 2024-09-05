@@ -8,7 +8,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.reportstream.shared.Submission
-import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
+import gov.cdc.prime.reportstream.submissions.SubmissionReceivedEvent
 import gov.cdc.prime.reportstream.submissions.TelemetryService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -91,7 +91,7 @@ class SubmissionController(
         logger.info("Inserted report into table storage: reportId=$reportId")
 
         // Create and publish custom event
-        val reportReceivedEvent = ReportReceivedEvent(
+        val submissionReceivedEvent = SubmissionReceivedEvent(
             timeStamp = reportReceivedTime,
             reportId = reportId,
             parentReportId = reportId,
@@ -102,15 +102,15 @@ class SubmissionController(
             fileSize = contentLength,
             blobUrl = blobClient.blobUrl
         )
-        logger.debug("Created ReportReceivedEvent")
+        logger.debug("Created SUBMISSION_RECEIVED")
 
         // Log to Application Insights
         telemetryService.trackEvent(
-            "ReportReceivedEvent",
-            mapOf("event" to objectMapper.writeValueAsString(reportReceivedEvent)),
+            "SUBMISSION_RECEIVED",
+            mapOf("event" to objectMapper.writeValueAsString(submissionReceivedEvent)),
         )
         telemetryService.flush()
-        logger.info("Tracked ReportReceivedEvent with Application Insights")
+        logger.info("Tracked SUBMISSION_RECEIVED with Application Insights")
 
         // Queue upload should occur as the last step ensuring the other steps successfully process
         // Create the message for the queue
