@@ -6,6 +6,11 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
 
+/**
+ * Security configuration setup
+ *
+ * All incoming requests will require authentication via opaque token check
+ */
 @Configuration
 @EnableWebFluxSecurity
 class SecurityConfig {
@@ -15,7 +20,7 @@ class SecurityConfig {
         http
             .authorizeExchange { authorize ->
                 authorize
-                    .pathMatchers("/health").permitAll()
+                    .pathMatchers("/health").permitAll() // allow health endpoint without authentication
                     .anyExchange().authenticated()
             }
             .oauth2ResourceServer {

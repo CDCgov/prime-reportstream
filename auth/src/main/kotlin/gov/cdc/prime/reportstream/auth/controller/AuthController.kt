@@ -16,6 +16,15 @@ class AuthController @Autowired constructor(
     private val proxyURIStrategy: ProxyURIStrategy,
 ) : Logging {
 
+    /**
+     * Main workhorse of the application. Handles all incoming requests and properly forwards them given successful
+     * authentication. Missing or invalid bearer tokens will result in a 401 unauthorized response.
+     *
+     * Authentication will be handled by the OAuth 2.0 resource server opaque token configuration
+     * @see https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/opaque-token.html
+     *
+     * Proxying will be handled by the Spring Cloud Gateway library from which the ProxyExchange object is injected
+     */
     @RequestMapping("**")
     suspend fun proxy(
         exchange: ServerWebExchange,

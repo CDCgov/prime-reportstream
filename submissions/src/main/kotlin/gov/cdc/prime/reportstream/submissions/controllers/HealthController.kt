@@ -10,16 +10,4 @@ class HealthController {
     suspend fun health(): String {
         return "up"
     }
-
-    @PreAuthorize("hasAuthority('SCOPE_sender')")
-    @GetMapping("/authorized/health")
-    suspend fun authorizedHealth(): String {
-        return "up"
-    }
-
-    @PreAuthorize("hasAuthority('SCOPE_bad')")
-    @GetMapping("/authorized/health2")
-    suspend fun unauthorizedHealth(): String {
-        return "up"
-    }
 }

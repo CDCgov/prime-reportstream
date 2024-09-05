@@ -6,10 +6,21 @@ import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import java.net.URI
 
+/**
+ * Implementations are ways to decide the ultimate destination of an incoming request
+ */
 interface ProxyURIStrategy {
     fun getTargetURI(incomingUri: URI): URI
 }
 
+/**
+ * This implementation decides via the path prefix. Currently used locally for when all services are
+ * running on different ports of localhost.
+ *
+ * Configured under proxyConfig.pathMappings
+ *
+ * http://localhost:9000/submissions/health -> http://localhost:8880/health
+ */
 @Component
 @Profile("local")
 class PathPrefixProxyURIStrategy @Autowired constructor(
