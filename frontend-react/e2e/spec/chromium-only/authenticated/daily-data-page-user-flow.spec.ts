@@ -373,7 +373,8 @@ test.describe(
                         await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                     });
 
-                    test("downloads the file", async ({ dailyDataPage }) => {
+                    test("downloads the file", async ({ dailyDataPage, context }) => {
+                        await context.tracing.start({ screenshots: true, snapshots: true });
                         // Set test timeout to be 1 minute instead of 30 seconds
                         test.setTimeout(60000);
                         await setDate(dailyDataPage.page, "#start-date", 14);
@@ -393,6 +394,7 @@ test.describe(
 
                         // get and assert stats
                         expect((await fs.promises.stat(await download.path())).size).toBeGreaterThan(200);
+                        await context.tracing.stop({ path: "frontend-react/e2e-data/trace-download-test.zip" });
                     });
                 });
             });
