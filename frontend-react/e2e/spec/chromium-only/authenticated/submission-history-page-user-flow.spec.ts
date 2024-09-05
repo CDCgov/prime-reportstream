@@ -123,6 +123,7 @@ test.describe(
                          *  TODO: Fix. From/To fields appear to reset (and table data is unchanged)
                          *  after clicking filter
                          */
+                        // eslint-disable-next-line playwright/no-skipped-test
                         test.skip("with 'From' date, 'To' date", async ({ submissionHistoryPage }) => {
                             const fromDate = await setDate(submissionHistoryPage.page, "#start-date", 7);
                             const toDate = await setDate(submissionHistoryPage.page, "#end-date", 0);
