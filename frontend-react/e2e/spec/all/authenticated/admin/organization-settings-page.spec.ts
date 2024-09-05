@@ -2,9 +2,9 @@ import { expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../../../mocks/organizations";
-import { OrganizationPage } from "../../../pages/authenticated/organization";
-import { test as baseTest } from "../../../test";
+import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../../../../mocks/organizations";
+import { OrganizationPage } from "../../../../pages/authenticated/organization";
+import { test as baseTest } from "../../../../test";
 
 const __dirname = fileURLToPath(import.meta.url);
 
