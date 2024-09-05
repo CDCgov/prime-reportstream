@@ -507,7 +507,7 @@ tasks.register("generateVersionFile") {
             standardOutput = stdout
         }
         val currentCommit = stdout.toString(StandardCharsets.UTF_8)
-        File("./version.txt").writeText("Commit ID: $currentCommit")
+        File("./version.json").writeText("commitId: $currentCommit")
     }
 }
 
@@ -524,7 +524,7 @@ tasks.register<Copy>("gatherAzureResources") {
     include("metadata/**/*.csv")
     include("settings/**/*.yml")
     include("assets/**/*__inline.html")
-    include("version.txt")
+    include("version.json")
 }
 
 tasks.register("copyAzureResources") {
