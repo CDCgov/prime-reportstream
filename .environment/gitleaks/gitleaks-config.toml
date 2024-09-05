@@ -206,6 +206,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '\"apiKey\"',
             'api-key\" to \"oracle123\"',
             'Authorization-Type: \"username/password\"',
+            'cdctiautomated_sa'
         ]
         paths = [
             '.terraform/modules/',
