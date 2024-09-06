@@ -379,6 +379,7 @@ test.describe(
                         await context.tracing.start({ screenshots: true, snapshots: true });
                         await setDate(dailyDataPage.page, "#start-date", 14);
                         await setDate(dailyDataPage.page, "#end-date", 0);
+                        // eslint-disable-next-line no-console
                         console.log("HITS TEST: downloads the file");
 
                         await applyButton(dailyDataPage.page).click();
