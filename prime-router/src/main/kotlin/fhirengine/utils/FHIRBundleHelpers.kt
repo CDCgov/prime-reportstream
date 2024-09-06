@@ -5,9 +5,12 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.ReportStreamFilter
+import gov.cdc.prime.router.ReportStreamFilterDefinition.Companion.logger
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_CODE_IDENTIFIER
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_VALUE_IDENTIFIER
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
+import gov.cdc.prime.router.azure.observability.context.MDCUtils
+import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -337,6 +340,9 @@ fun Bundle.filterMappedObservations(
     val filteredIds = observations.mapNotNull {
         val idBase = it.idBase
         if (idBase !in toKeep) {
+            withLoggingContext(mapOf(MDCUtils.MDCProperty.OBSERVATION_ID to it.id)) {
+                logger.info("Observations were filtered from the bundle")
+            }
             filteredBundle.deleteResource(it)
             idBase
         } else {
@@ -373,6 +379,11 @@ private fun getFilteredObservations(
 
         if (passes) {
             observationsToKeep.add(observation)
+        } else {
+            val asObservation = observation as Observation
+            withLoggingContext(mapOf(MDCUtils.MDCProperty.OBSERVATION_ID to asObservation.id.toString())) {
+                logger.info("Observations were filtered from the bundle")
+            }
         }
     }
 
