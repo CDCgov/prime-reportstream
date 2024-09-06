@@ -95,7 +95,7 @@ export class AdminReceiverStatusPage extends BasePage {
         this._receiverStatus = [];
         this._timePeriodData = [];
 
-        this.filterForm = this.page.getByRole("form", {name: "filter"});
+        this.filterForm = this.page.getByRole("form", { name: "filter" });
         const dateRangeOverlay = this.page.getByRole("dialog").locator(".usa-modal-overlay");
         const dateRangeDefaultValue = [startOfDay(subDays(now, 2)), endOfDay(now)] as DatePair;
         this.filterFormInputs = {
@@ -122,7 +122,7 @@ export class AdminReceiverStatusPage extends BasePage {
                 modalEndButton: dateRangeOverlay.getByRole("button").nth(1),
                 expectedDefaultValue: dateRangeDefaultValue,
                 value: dateRangeDefaultValue,
-                valueDisplay: this.page.locator("span", {hasText: "🗓"}),
+                valueDisplay: this.page.locator("span", { hasText: "🗓" }),
             },
             receiverName: {
                 label: this.page.locator("label", {
@@ -209,7 +209,7 @@ export class AdminReceiverStatusPage extends BasePage {
                 const endDate = url.searchParams.get("end_date");
                 const range = startDate && endDate ? ([new Date(startDate), new Date(endDate)] as DatePair) : undefined;
                 this._receiverStatus = data;
-                this._timePeriodData = range ? this.createTimePeriodData({data, range}) : [];
+                this._timePeriodData = range ? this.createTimePeriodData({ data, range }) : [];
             },
         ];
     }
@@ -300,7 +300,7 @@ export class AdminReceiverStatusPage extends BasePage {
             : Promise.resolve();
 
         if (dateRange && isDateRangeDifferent) {
-            const {value, inputMethod} = dateRange;
+            const { value, inputMethod } = dateRange;
             await this.updateFilterDateRange(...value, inputMethod);
         }
         if (receiverName != null && receiverName !== this.filterFormInputs.receiverName.value)
@@ -387,13 +387,13 @@ export class AdminReceiverStatusPage extends BasePage {
     }
 
     getExpectedStatusOrganizationUrl(rowI: number) {
-        const {organizationName} = this.timePeriodData[rowI];
+        const { organizationName } = this.timePeriodData[rowI];
 
         return `/admin/orgsettings/org/${organizationName}`;
     }
 
     getExpectedStatusReceiverUrl(rowI: number) {
-        const {organizationName, receiverName} = this.timePeriodData[rowI];
+        const { organizationName, receiverName } = this.timePeriodData[rowI];
 
         return `/admin/orgreceiversettings/org/${organizationName}/receiver/${receiverName}/action/edit`;
     }
@@ -414,9 +414,9 @@ export class AdminReceiverStatusPage extends BasePage {
         ].join("            ");
         for (const [
             i,
-            {days, successRate, organizationName, receiverName, successRateType},
+            { days, successRate, organizationName, receiverName, successRateType },
         ] of this.timePeriodData.entries()) {
-            const {title, display, days: daysLoc} = statusRows.nthCustom(i);
+            const { title, display, days: daysLoc } = statusRows.nthCustom(i);
 
             const expectedTitleText = this.getExpectedReceiverStatusRowTitle(
                 organizationName,
@@ -434,11 +434,11 @@ export class AdminReceiverStatusPage extends BasePage {
 
             await expect(daysLoc).toHaveCount(days.length);
 
-            for (const [i, {timePeriods}] of days.entries()) {
+            for (const [i, { timePeriods }] of days.entries()) {
                 const daySlices = daysLoc.nthCustom(i).timePeriods;
                 await expect(daySlices).toHaveCount(timePeriods.length);
 
-                for (const [i, {successRateType}] of timePeriods.entries()) {
+                for (const [i, { successRateType }] of timePeriods.entries()) {
                     const sliceEle = daySlices.nth(i);
                     const expectedClass = new RegExp(SUCCESS_RATE_CLASSNAME_MAP[successRateType]);
 
@@ -458,10 +458,10 @@ export class AdminReceiverStatusPage extends BasePage {
     async testReceiverOrgLinks(isSmoke = false) {
         const rows = this.receiverStatusRowsLocator;
 
-        for (const [i, {organizationName}] of this.timePeriodData.entries()) {
+        for (const [i, { organizationName }] of this.timePeriodData.entries()) {
             const row = rows.nthCustom(i);
 
-            const link = row.title.getByRole("link", {name: organizationName, exact: true}).first();
+            const link = row.title.getByRole("link", { name: organizationName, exact: true }).first();
             const expectedUrl = this.getExpectedStatusOrganizationUrl(i);
             await expect(link).toBeVisible();
             const p = this.page.route(
@@ -495,11 +495,11 @@ export class AdminReceiverStatusPage extends BasePage {
     async testReceiverTimePeriodModals(isSmoke = false) {
         const overlay = this.filterFormInputs.dateRange.modalOverlay;
 
-        for (const [i, {days}] of this.timePeriodData.entries()) {
-            const {days: daysLoc} = this.receiverStatusRowsLocator.nthCustom(i);
+        for (const [i, { days }] of this.timePeriodData.entries()) {
+            const { days: daysLoc } = this.receiverStatusRowsLocator.nthCustom(i);
 
             for (const [dayI, day] of days.entries()) {
-                for (const [i, {successRateType, entries}] of day.timePeriods.entries()) {
+                for (const [i, { successRateType, entries }] of day.timePeriods.entries()) {
                     // only first entry in time period is currently displayed
                     const {
                         organizationName,
@@ -515,7 +515,7 @@ export class AdminReceiverStatusPage extends BasePage {
 
                     const isModalExpectedVisible = successRateType !== SuccessRate.UNDEFINED;
 
-                    await sliceEle.click({force: true});
+                    await sliceEle.click({ force: true });
                     await expect(overlay).toBeAttached({
                         attached: isModalExpectedVisible,
                     });
@@ -543,7 +543,7 @@ export class AdminReceiverStatusPage extends BasePage {
     async testReceiverLinks(isSmoke = false) {
         const rows = this.receiverStatusRowsLocator;
 
-        for (const [i, {receiverName}] of this.timePeriodData.entries()) {
+        for (const [i, { receiverName }] of this.timePeriodData.entries()) {
             const row = rows.nthCustom(i);
 
             const link = row.title.getByRole("link", {

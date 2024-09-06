@@ -40,12 +40,12 @@ test.describe("Admin Receiver Status Page",
     {
         tag: "@smoke",
     }, () => {
-        test.use({storageState: logins.admin.path});
+        test.use({ storageState: logins.admin.path });
         test.describe("displays correctly", () => {
             test.describe("header", () => {
                 test(
                     "has correct title + heading",
-                    async ({adminReceiverStatusPage}) => {
+                    async ({ adminReceiverStatusPage }) => {
                         await adminReceiverStatusPage.testHeader();
                     },
                 );
@@ -54,8 +54,8 @@ test.describe("Admin Receiver Status Page",
             test.describe(
                 "filters",
                 () => {
-                    test("date range", async ({adminReceiverStatusPage}) => {
-                        const {button, label, modalOverlay, valueDisplay} =
+                    test("date range", async ({ adminReceiverStatusPage }) => {
+                        const { button, label, modalOverlay, valueDisplay } =
                             adminReceiverStatusPage.filterFormInputs.dateRange;
                         await expect(label).toBeVisible();
                         await expect(button).toBeVisible();
@@ -63,8 +63,8 @@ test.describe("Admin Receiver Status Page",
                         await expect(modalOverlay).toBeHidden();
                     });
 
-                    test("receiver name", async ({adminReceiverStatusPage}) => {
-                        const {input, expectedTooltipText, label, tooltip, expectedDefaultValue} =
+                    test("receiver name", async ({ adminReceiverStatusPage }) => {
+                        const { input, expectedTooltipText, label, tooltip, expectedDefaultValue } =
                             adminReceiverStatusPage.filterFormInputs.receiverName;
                         await expect(label).toBeVisible();
                         await expect(input).toBeVisible();
@@ -76,8 +76,8 @@ test.describe("Admin Receiver Status Page",
                         await expect(tooltip).toHaveText(expectedTooltipText);
                     });
 
-                    test("results message", async ({adminReceiverStatusPage}) => {
-                        const {input, expectedTooltipText, label, tooltip, expectedDefaultValue} =
+                    test("results message", async ({ adminReceiverStatusPage }) => {
+                        const { input, expectedTooltipText, label, tooltip, expectedDefaultValue } =
                             adminReceiverStatusPage.filterFormInputs.resultMessage;
                         await expect(label).toBeVisible();
                         await expect(input).toBeVisible();
@@ -89,8 +89,8 @@ test.describe("Admin Receiver Status Page",
                         await expect(tooltip).toHaveText(expectedTooltipText);
                     });
 
-                    test("success type", async ({adminReceiverStatusPage}) => {
-                        const {input, expectedTooltipText, label, tooltip, expectedDefaultValue} =
+                    test("success type", async ({ adminReceiverStatusPage }) => {
+                        const { input, expectedTooltipText, label, tooltip, expectedDefaultValue } =
                             adminReceiverStatusPage.filterFormInputs.successType;
                         await expect(label).toBeVisible();
                         await expect(input).toBeVisible();
@@ -106,7 +106,7 @@ test.describe("Admin Receiver Status Page",
 
             // Failures here indicate potential misalignment of playwright/browser timezone
             test.describe("receiver statuses", () => {
-                test("time periods", async ({adminReceiverStatusPage}) => {
+                test("time periods", async ({ adminReceiverStatusPage }) => {
                     const result = await adminReceiverStatusPage.testReceiverStatusDisplay(true);
                     expect(result).toBe(true);
                 });
@@ -127,8 +127,8 @@ test.describe("Admin Receiver Status Page",
                 test.describe(
                     "date range",
                     () => {
-                        test("works through calendar", async ({adminReceiverStatusPage}) => {
-                            const {valueDisplay} = adminReceiverStatusPage.filterFormInputs.dateRange;
+                        test("works through calendar", async ({ adminReceiverStatusPage }) => {
+                            const { valueDisplay } = adminReceiverStatusPage.filterFormInputs.dateRange;
                             const now = new Date();
                             const targetFrom = startOfDay(subDays(now, 3));
                             const targetTo = addDays(endOfDay(now), 1);
@@ -149,8 +149,8 @@ test.describe("Admin Receiver Status Page",
                             });
                         });
 
-                        test("works through textboxes", async ({adminReceiverStatusPage}) => {
-                            const {valueDisplay} = adminReceiverStatusPage.filterFormInputs.dateRange;
+                        test("works through textboxes", async ({ adminReceiverStatusPage }) => {
+                            const { valueDisplay } = adminReceiverStatusPage.filterFormInputs.dateRange;
                             await expect(adminReceiverStatusPage.receiverStatusRowsLocator).not.toHaveCount(0);
                             const now = new Date();
                             const targetFrom = startOfDay(subDays(now, 3));
@@ -175,8 +175,8 @@ test.describe("Admin Receiver Status Page",
                     },
                 );
 
-                test("receiver name", async ({adminReceiverStatusPage}) => {
-                    const {organizationName, receiverName, successRate} =
+                test("receiver name", async ({ adminReceiverStatusPage }) => {
+                    const { organizationName, receiverName, successRate } =
                         adminReceiverStatusPage.timePeriodData[1];
 
                     const receiversStatusRows = adminReceiverStatusPage.receiverStatusRowsLocator;
@@ -205,14 +205,14 @@ test.describe("Admin Receiver Status Page",
                     expect(defaultReceiversStatusRowsCount).toBe(adminReceiverStatusPage.timePeriodData.length);
                 });
 
-                test("result message", async ({adminReceiverStatusPage}) => {
+                test("result message", async ({ adminReceiverStatusPage }) => {
                     // get first entry's result from all-fail receiver's first day -> third time period
                     const receiverI = 0;
                     const dayI = 0;
                     const timePeriodI = 2;
                     const entryI = 0;
-                    const {days} = adminReceiverStatusPage.timePeriodData[receiverI];
-                    const {connectionCheckResult} = days[dayI].timePeriods[timePeriodI].entries[entryI];
+                    const { days } = adminReceiverStatusPage.timePeriodData[receiverI];
+                    const { connectionCheckResult } = days[dayI].timePeriods[timePeriodI].entries[entryI];
 
                     const receiversStatusRows = adminReceiverStatusPage.receiverStatusRowsLocator;
 
@@ -220,10 +220,10 @@ test.describe("Admin Receiver Status Page",
                         resultMessage: connectionCheckResult,
                     });
 
-                    for (const [i, {days}] of adminReceiverStatusPage.timePeriodData.entries()) {
+                    for (const [i, { days }] of adminReceiverStatusPage.timePeriodData.entries()) {
                         const row = receiversStatusRows.nthCustom(i);
 
-                        for (const [i, {timePeriods}] of days.entries()) {
+                        for (const [i, { timePeriods }] of days.entries()) {
                             const rowDay = row.days.nthCustom(i);
 
                             for (const [i] of timePeriods.entries()) {
@@ -240,7 +240,7 @@ test.describe("Admin Receiver Status Page",
                     // await adminReceiverStatusPage.testReceiverStatusDisplay();
                 });
 
-                test("success type", async ({adminReceiverStatusPage}) => {
+                test("success type", async ({ adminReceiverStatusPage }) => {
                     const [failRow, ,] = adminReceiverStatusPage.timePeriodData;
                     const failRowTitle = adminReceiverStatusPage.getExpectedReceiverStatusRowTitle(
                         failRow.organizationName,
@@ -284,7 +284,7 @@ test.describe("Admin Receiver Status Page",
 
             test.describe("receiver statuses", () => {
                 test.describe("date range length changes", () => {
-                    test("increases", async ({adminReceiverStatusPage}) => {
+                    test("increases", async ({ adminReceiverStatusPage }) => {
                         const rows = adminReceiverStatusPage.receiverStatusRowsLocator;
                         const days = rows.nthCustom(0).days;
                         await expect(rows).not.toHaveCount(0);
@@ -299,7 +299,7 @@ test.describe("Admin Receiver Status Page",
                         await expect(days).toHaveCount(4);
                     });
 
-                    test("decreases", async ({adminReceiverStatusPage}) => {
+                    test("decreases", async ({ adminReceiverStatusPage }) => {
                         const rows = adminReceiverStatusPage.receiverStatusRowsLocator;
                         const days = rows.nthCustom(0).days;
                         await expect(rows).not.toHaveCount(0);
@@ -315,17 +315,17 @@ test.describe("Admin Receiver Status Page",
                     });
                 });
 
-                test("time period modals", async ({adminReceiverStatusPage}) => {
+                test("time period modals", async ({ adminReceiverStatusPage }) => {
                     const result = await adminReceiverStatusPage.testReceiverTimePeriodModals(true);
                     expect(result).toBe(true);
                 });
 
-                test("receiver org links", async ({adminReceiverStatusPage}) => {
+                test("receiver org links", async ({ adminReceiverStatusPage }) => {
                     const result = await adminReceiverStatusPage.testReceiverOrgLinks(true);
                     expect(result).toBe(true);
                 });
 
-                test("receiver links", async ({adminReceiverStatusPage}) => {
+                test("receiver links", async ({ adminReceiverStatusPage }) => {
                     const result = await adminReceiverStatusPage.testReceiverLinks(true);
                     expect(result).toBe(true);
                 });
