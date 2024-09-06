@@ -1,6 +1,6 @@
-import {addDays, endOfDay, startOfDay, subDays} from "date-fns";
-import {AdminReceiverStatusPage} from "../../../pages/authenticated/admin/receiver-status";
-import {test as baseTest, expect, logins} from "../../../test";
+import { addDays, endOfDay, startOfDay, subDays } from "date-fns";
+import { AdminReceiverStatusPage } from "../../../pages/authenticated/admin/receiver-status";
+import { test as baseTest, expect, logins } from "../../../test";
 
 export interface AdminReceiverStatusPageFixtures {
     adminReceiverStatusPage: AdminReceiverStatusPage;
@@ -113,11 +113,12 @@ test.describe("Admin Receiver Status Page",
             });
 
             test.describe("has footer", () => {
-                test("has footer and explicit scroll to footer and scroll to top", async ({
-                                                                                              adminReceiverStatusPage,
-                                                                                          }) => {
-                    await adminReceiverStatusPage.testFooter();
-                });
+                test("has footer and explicit scroll to footer and scroll to top",
+                    async ({
+                               adminReceiverStatusPage,
+                           }) => {
+                        await adminReceiverStatusPage.testFooter();
+                    });
             });
         });
 

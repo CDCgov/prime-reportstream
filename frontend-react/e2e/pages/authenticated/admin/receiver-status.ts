@@ -1,15 +1,16 @@
-import {expect, Locator} from "@playwright/test";
-import {endOfDay, format, startOfDay, subDays} from "date-fns";
-import type {RSOrganizationSettings} from "../../../../src/config/endpoints/settings";
-import {RSReceiverStatus} from "../../../../src/hooks/api/UseReceiversConnectionStatus/UseReceiversConnectionStatus";
+import { expect, Locator } from "@playwright/test";
+import { endOfDay, format, startOfDay, subDays } from "date-fns";
+import type { RSOrganizationSettings } from "../../../../src/config/endpoints/settings";
+import { RSReceiverStatus } from "../../../../src/hooks/api/UseReceiversConnectionStatus/UseReceiversConnectionStatus";
 import {
     createStatusTimePeriodData,
-    SUCCESS_RATE_CLASSNAME_MAP, SuccessRate,
+    SUCCESS_RATE_CLASSNAME_MAP,
+    SuccessRate,
 } from "../../../../src/pages/admin/receiver-dashboard/utils";
-import {DatePair, dateShortFormat, durationFormatShort} from "../../../../src/utils/DateTimeUtils";
-import {formatDate} from "../../../../src/utils/misc";
-import {createMockGetReceiverStatus} from "../../../mocks/receiverStatus";
-import {BasePage, BasePageTestArgs, type ResponseHandlerEntry, type RouteHandlerFulfillEntry} from "../../BasePage";
+import { DatePair, dateShortFormat, durationFormatShort } from "../../../../src/utils/DateTimeUtils";
+import { formatDate } from "../../../../src/utils/misc";
+import { createMockGetReceiverStatus } from "../../../mocks/receiverStatus";
+import { BasePage, BasePageTestArgs, type ResponseHandlerEntry, type RouteHandlerFulfillEntry } from "../../BasePage";
 
 export interface AdminReceiverStatusPageUpdateFiltersProps {
     dateRange?: {
