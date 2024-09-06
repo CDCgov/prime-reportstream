@@ -19,13 +19,12 @@ function modified_check() {
 cd "$DIR/../../frontend-react";
 FRONTEND_DIR=$(pwd);
 
-if [ ! -f "$HOOK_FILE" ]; then
-    echo "$FRONTEND_DIR/$HOOK_FILE does not exist. Please make sure you run yarn first."
-    exit 1
-fi
-
 modified_check
 if [[ ${isModified} == 1 ]]; then
+    if [ ! -f "$HOOK_FILE" ]; then
+        echo "$FRONTEND_DIR/$HOOK_FILE does not exist. Please make sure you run yarn first."
+        exit 1
+    fi
     "./$HOOK_FILE"
 fi
 RC=$?
