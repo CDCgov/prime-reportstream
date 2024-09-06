@@ -374,9 +374,9 @@ test.describe(
                     });
 
                     test("downloads the file", async ({ dailyDataPage, context }) => {
+                        // Ensure tracing is stopped before starting it
+                        await context.tracing.stop();
                         await context.tracing.start({ screenshots: true, snapshots: true });
-                        // Set test timeout to be 1 minute instead of 30 seconds
-                        test.setTimeout(60000);
                         await setDate(dailyDataPage.page, "#start-date", 14);
                         await setDate(dailyDataPage.page, "#end-date", 0);
 
