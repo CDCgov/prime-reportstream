@@ -373,16 +373,12 @@ test.describe(
                         await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                     });
 
-                    test("downloads the file", async ({ dailyDataPage, context }) => {
-                        // Ensure tracing is stopped before starting it
-                        await context.tracing.stop();
-                        await context.tracing.start({ screenshots: true, snapshots: true });
-                        await setDate(dailyDataPage.page, "#start-date", 14);
-                        await setDate(dailyDataPage.page, "#end-date", 0);
-                        // eslint-disable-next-line no-console
-                        console.log("HITS TEST: downloads the file");
-
-                        await applyButton(dailyDataPage.page).click();
+                    test("downloads the file", async ({ dailyDataPage }) => {
+                        // Sort by File available until, but they're in ASCENDING order
+                        await dailyDataPage.page.getByRole("button", { name: "File available until" }).click();
+                        await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                        // Sort by File available until again, to get the absolute latest result
+                        await dailyDataPage.page.getByRole("button", { name: "File available until" }).click();
                         await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                         const downloadProm = dailyDataPage.page.waitForEvent("download");
@@ -396,7 +392,6 @@ test.describe(
 
                         // get and assert stats
                         expect((await fs.promises.stat(await download.path())).size).toBeGreaterThan(200);
-                        await context.tracing.stop({ path: "frontend-react/e2e-data/trace-download-test.zip" });
                     });
                 });
             });
