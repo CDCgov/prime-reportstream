@@ -165,7 +165,7 @@ class ReportFunction(
      *
      * @see ../../../docs/api/reports.yml
      */
-    @FunctionName("getMessagesFromTestBank")
+    @FunctionName("downloadReport")
     fun downloadReport(
         @HttpTrigger(
             name = "downloadReport",
