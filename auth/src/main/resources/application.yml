@@ -22,7 +22,8 @@ proxy.pathMappings:
   - pathPrefix: /submissions
     baseUrl: http://localhost:8880
 
-logging:
-  level:
-    web: debug
-    org.springframework.web: debug
+#Uncomment for verbose logging
+#logging:
+#  level:
+#    web: debug
+#    org.springframework.web: debug

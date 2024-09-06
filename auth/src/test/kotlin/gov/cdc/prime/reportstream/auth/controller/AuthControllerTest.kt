@@ -26,13 +26,10 @@ import kotlin.test.assertEquals
 @ExtendWith(SpringExtension::class)
 @SpringBootTest
 @AutoConfigureWebTestClient
-class AuthControllerTest {
-
-    @Autowired
-    lateinit var webTestClient: WebTestClient
-
-    @MockBean
-    lateinit var mockedUriStrategy: ProxyURIStrategy
+class AuthControllerTest @Autowired constructor(
+    private val webTestClient: WebTestClient,
+    @MockBean private val mockedUriStrategy: ProxyURIStrategy
+) {
 
     private val server: MockWebServer = MockWebServer()
 

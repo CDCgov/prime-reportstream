@@ -10,10 +10,6 @@ plugins {
 group = "gov.cdc.prime"
 version = "0.0.1-SNAPSHOT"
 
-val ktorVersion: String by project.properties
-val springCloudVersion: String by project.properties
-val springCloudAzureVersion: String by project.properties
-
 dependencies {
     implementation(project(":shared"))
 
@@ -46,8 +42,8 @@ configurations.all {
 
 dependencyManagement {
     imports {
-        mavenBom("com.azure.spring:spring-cloud-azure-dependencies:$springCloudAzureVersion")
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
+        mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.14.0")
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2023.0.3")
     }
 }
 

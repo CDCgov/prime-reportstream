@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController
 import kotlin.time.TimeSource
 
 @RestController
-class HealthController @Autowired constructor(
+class HealthController(
     timeSource: TimeSource,
 ) {
 

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ServerWebExchange
 
 @RestController
-class AuthController @Autowired constructor(
+class AuthController(
     private val proxyURIStrategy: ProxyURIStrategy,
 ) : Logging {
 

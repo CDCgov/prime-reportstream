@@ -23,7 +23,7 @@ interface ProxyURIStrategy {
  */
 @Component
 @Profile("local")
-class PathPrefixProxyURIStrategy @Autowired constructor(
+class PathPrefixProxyURIStrategy(
     private val applicationConfig: ApplicationConfig,
 ) : ProxyURIStrategy {
     override fun getTargetURI(incomingUri: URI): URI {
@@ -42,7 +42,7 @@ class PathPrefixProxyURIStrategy @Autowired constructor(
                 incomingUri.fragment
             )
         } else {
-            throw IllegalStateException("no configured proxy target in path mappings")
+            throw IllegalStateException("no configured proxy target in path mappings for path=${incomingUri.path}")
         }
     }
 }

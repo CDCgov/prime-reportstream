@@ -12,7 +12,7 @@ import kotlin.time.TimeSource
  */
 @Configuration
 @EnableConfigurationProperties(ProxyConfigurationProperties::class)
-class ApplicationConfig @Autowired constructor(
+class ApplicationConfig(
     val proxyConfig: ProxyConfigurationProperties,
 ) {
 
