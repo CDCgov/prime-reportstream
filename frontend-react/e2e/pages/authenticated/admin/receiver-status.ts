@@ -222,8 +222,6 @@ export class AdminReceiverStatusPage extends BasePage {
     }
 
     get receiverStatusRowsLocator() {
-        // const rows = this.statusContainer.locator("> .perreceiver-row");
-
         const rows = this.statusContainer.locator("> .grid-row");
 
         return Object.assign(rows, {
