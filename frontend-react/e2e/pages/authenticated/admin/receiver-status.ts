@@ -286,11 +286,11 @@ export class AdminReceiverStatusPage extends BasePage {
     }
 
     async updateFilters({
-                            dateRange,
-                            receiverName,
-                            resultMessage,
-                            successType,
-                        }: AdminReceiverStatusPageUpdateFiltersProps) {
+        dateRange,
+        receiverName,
+        resultMessage,
+        successType,
+    }: AdminReceiverStatusPageUpdateFiltersProps) {
         // API request will only fire if date ranges are different
         const isDateRangeDifferent =
             dateRange == null || this.getIsDateRangesDifferent(this.filterFormInputs.dateRange.value, dateRange.value);
