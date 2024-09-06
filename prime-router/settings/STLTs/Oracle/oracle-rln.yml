@@ -48,10 +48,13 @@
         initialTime: "00:00"
         timeZone: "EASTERN"
         maxReportCount: 100
+      description: ""
       transport:
         type: "REST"
         reportUrl: "https://spaces.erxhubdevcert.cerner.com/etor"
+        authType: "apiKey"
         authTokenUrl: ""
+        tlsKeystore: null
         headers:
           Content-Type: "text/plain"
-          shared-api-key: ""
+          shared-api-key: "From Vault"
