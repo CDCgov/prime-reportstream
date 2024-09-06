@@ -190,8 +190,10 @@ class FHIRReceiverFilter(
         val filteredBundle: Bundle
         if (conditionFilters.isNotEmpty()) {
             filteredBundle = bundle.filterObservations(conditionFilters, shorthandLookupTable)
-        } else {
+        } else if (mappedConditionFilters.isNotEmpty()) {
             filteredBundle = bundle.filterMappedObservations(mappedConditionFilters).second
+        } else {
+            return ReceiverFilterEvaluationResult.Success(bundle)
         }
 
         val allRemainingObservationsAreAoe =

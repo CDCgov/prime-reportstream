@@ -317,6 +317,10 @@ fun Bundle.filterObservations(
     val listToKeep = observationsToKeep.map { it.idBase }
     allObservations.forEach {
         if (it.idBase !in listToKeep) {
+            val asObservation = it as Observation
+            withLoggingContext(mapOf(MDCUtils.MDCProperty.OBSERVATION_ID to asObservation.id)) {
+                logger.info("Observations were filtered from the bundle")
+            }
             filteredBundle.deleteResource(it)
         }
     }
@@ -379,11 +383,6 @@ private fun getFilteredObservations(
 
         if (passes) {
             observationsToKeep.add(observation)
-        } else {
-            val asObservation = observation as Observation
-            withLoggingContext(mapOf(MDCUtils.MDCProperty.OBSERVATION_ID to asObservation.id.toString())) {
-                logger.info("Observations were filtered from the bundle")
-            }
         }
     }
 
