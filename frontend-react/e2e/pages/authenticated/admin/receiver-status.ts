@@ -487,6 +487,49 @@ export class AdminReceiverStatusPage extends BasePage {
         return true;
     }
 
+    async testReceiverMessage() {
+        // get first entry's result from all-fail receiver's first day -> third time period
+        const receiverI = 0;
+        const dayI = 0;
+        const timePeriodI = 2;
+        const entryI = 0;
+        const {days} = this.timePeriodData[receiverI];
+        const {connectionCheckResult} = days[dayI].timePeriods[timePeriodI].entries[entryI];
+
+        const receiversStatusRows = this.receiverStatusRowsLocator;
+
+        await this.updateFilters({
+            resultMessage: connectionCheckResult,
+        });
+
+        for (const [i, {days}] of this.timePeriodData.entries()) {
+            const isRowExpected = i === receiverI;
+            const row = receiversStatusRows.nthCustom(i);
+
+            for (const [i, {timePeriods}] of days.entries()) {
+                const isDayExpected = isRowExpected && i === dayI;
+                const rowDay = row.days.nthCustom(i);
+
+                for (const [i] of timePeriods.entries()) {
+                    const isTimePeriodExpected = isDayExpected && i === timePeriodI;
+                    const expectedClass = !isTimePeriodExpected
+                        ? /success-result-hidden/
+                        : /^((?!success-result-hidden).)*$/;
+                    const rowDayTimePeriod = rowDay.timePeriods.nth(i);
+
+                    await expect(rowDayTimePeriod).toBeVisible();
+                    await expect(rowDayTimePeriod).toHaveClass(expectedClass);
+                }
+            }
+        }
+
+        await this.resetFilters();
+
+        await this.testReceiverStatusDisplay();
+
+        return true;
+    }
+
     async testReceiverOrgLinks(isSmoke = false) {
         const rows = this.receiverStatusRowsLocator;
 

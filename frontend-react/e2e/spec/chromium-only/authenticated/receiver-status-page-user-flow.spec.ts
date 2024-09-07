@@ -181,44 +181,8 @@ test.describe("Admin Receiver Status Page",
                 });
 
                 test("result message", async ({adminReceiverStatusPage}) => {
-                    // get first entry's result from all-fail receiver's first day -> third time period
-                    const receiverI = 0;
-                    const dayI = 0;
-                    const timePeriodI = 2;
-                    const entryI = 0;
-                    const {days} = adminReceiverStatusPage.timePeriodData[receiverI];
-                    const {connectionCheckResult} = days[dayI].timePeriods[timePeriodI].entries[entryI];
-
-                    const receiversStatusRows = adminReceiverStatusPage.receiverStatusRowsLocator;
-
-                    await adminReceiverStatusPage.updateFilters({
-                        resultMessage: connectionCheckResult,
-                    });
-
-                    for (const [i, {days}] of adminReceiverStatusPage.timePeriodData.entries()) {
-                        const isRowExpected = i === receiverI;
-                        const row = receiversStatusRows.nthCustom(i);
-
-                        for (const [i, {timePeriods}] of days.entries()) {
-                            const isDayExpected = isRowExpected && i === dayI;
-                            const rowDay = row.days.nthCustom(i);
-
-                            for (const [i] of timePeriods.entries()) {
-                                const isTimePeriodExpected = isDayExpected && i === timePeriodI;
-                                const expectedClass = !isTimePeriodExpected
-                                    ? /success-result-hidden/
-                                    : /^((?!success-result-hidden).)*$/;
-                                const rowDayTimePeriod = rowDay.timePeriods.nth(i);
-
-                                await expect(rowDayTimePeriod).toBeVisible();
-                                await expect(rowDayTimePeriod).toHaveClass(expectedClass);
-                            }
-                        }
-                    }
-
-                    await adminReceiverStatusPage.resetFilters();
-
-                    await adminReceiverStatusPage.testReceiverStatusDisplay();
+                    const result = await adminReceiverStatusPage.testReceiverMessage();
+                    expect(result).toBe(true);
                 });
 
 
