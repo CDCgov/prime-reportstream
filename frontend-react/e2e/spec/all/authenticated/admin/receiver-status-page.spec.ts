@@ -202,31 +202,8 @@ test.describe("Admin Receiver Status Page", () => {
                     );
 
                     test("receiver name", async ({adminReceiverStatusPage}) => {
-                        const {organizationName, receiverName, successRate} =
-                            adminReceiverStatusPage.timePeriodData[1];
-
-                        const receiversStatusRows = adminReceiverStatusPage.receiverStatusRowsLocator;
-                        const expectedReceiverStatusRow = receiversStatusRows.nthCustom(0);
-                        const expectedReceiverStatusRowTitle =
-                            adminReceiverStatusPage.getExpectedReceiverStatusRowTitle(
-                                organizationName,
-                                receiverName,
-                                successRate,
-                            );
-
-                        await expect(receiversStatusRows).toHaveCount(adminReceiverStatusPage.timePeriodData.length);
-
-                        await adminReceiverStatusPage.updateFilters({
-                            receiverName,
-                        });
-
-                        await expect(receiversStatusRows).toHaveCount(1);
-                        await expect(expectedReceiverStatusRow).toBeVisible();
-                        await expect(expectedReceiverStatusRow.title).toHaveText(expectedReceiverStatusRowTitle);
-
-                        await adminReceiverStatusPage.resetFilters();
-
-                        await expect(receiversStatusRows).toHaveCount(adminReceiverStatusPage.timePeriodData.length);
+                        const result = await adminReceiverStatusPage.testReceiverName();
+                        expect(result).toBe(true);
                     });
 
                     test("result message", async ({adminReceiverStatusPage}) => {

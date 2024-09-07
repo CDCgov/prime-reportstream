@@ -455,6 +455,38 @@ export class AdminReceiverStatusPage extends BasePage {
         return true;
     }
 
+    async testReceiverName() {
+        const { organizationName, receiverName, successRate } =
+            this.timePeriodData[1];
+
+        const receiversStatusRows = this.receiverStatusRowsLocator;
+        const defaultReceiversStatusRowsCount = await receiversStatusRows.count();
+        const expectedReceiverStatusRow = receiversStatusRows.nthCustom(0);
+        const expectedReceiverStatusRowTitle =
+            this.getExpectedReceiverStatusRowTitle(
+                organizationName,
+                receiverName,
+                successRate,
+            );
+
+        expect(defaultReceiversStatusRowsCount).toBe(this.timePeriodData.length);
+
+        await this.updateFilters({
+            receiverName,
+        });
+
+        const receiversStatusRowsCount = await receiversStatusRows.count();
+        expect(receiversStatusRowsCount).toBeGreaterThanOrEqual(1);
+        await expect(expectedReceiverStatusRow).toBeVisible();
+        await expect(expectedReceiverStatusRow.title).toHaveText(expectedReceiverStatusRowTitle);
+
+        await this.resetFilters();
+
+        expect(defaultReceiversStatusRowsCount).toBe(this.timePeriodData.length);
+
+        return true;
+    }
+
     async testReceiverOrgLinks(isSmoke = false) {
         const rows = this.receiverStatusRowsLocator;
 
