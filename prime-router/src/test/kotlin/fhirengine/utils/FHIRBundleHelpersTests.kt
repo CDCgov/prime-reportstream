@@ -477,8 +477,7 @@ class FHIRBundleHelpersTests {
     @Test
     fun `test filterObservations`() {
         val actionLogger = ActionLogger()
-        val fhirBundle = File(MULTIPLE_OBSERVATIONS_URL)
-            .readText()
+        val fhirBundle = File(MULTIPLE_OBSERVATIONS_URL).readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
 
         val bundle = messages[0].filterObservations(
