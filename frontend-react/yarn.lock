@@ -10816,9 +10816,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"msw@npm:^2.3.5":
-  version: 2.3.5
-  resolution: "msw@npm:2.3.5"
+"msw@npm:^2.4.3":
+  version: 2.4.3
+  resolution: "msw@npm:2.4.3"
   dependencies:
     "@bundled-es-modules/cookie": ^2.0.0
     "@bundled-es-modules/statuses": ^1.0.1
@@ -10838,13 +10838,13 @@ __metadata:
     type-fest: ^4.9.0
     yargs: ^17.7.2
   peerDependencies:
-    typescript: ">= 4.7.x"
+    typescript: ">= 4.8.x"
   peerDependenciesMeta:
     typescript:
       optional: true
   bin:
     msw: cli/index.js
-  checksum: 0867b11ad26cf54d6b4a01a416524ce56ee62c165ce753cb82cc404882e24dc96ecf81c1900348d96afce8f17da32ec640953c9b4c1319c3d84f97a75f4c735a
+  checksum: bfbc9b569111372ad98b3b16cebb77f1b9e83798a9cdb3ad4dcdeec9679235881d14d99bb687c09a9262872b3c603ff213e00e9511b57b6ac3b87f3fd5af8e39
   languageName: node
   linkType: hard
 
@@ -12137,7 +12137,7 @@ __metadata:
     lint-staged: ^15.2.9
     lodash: ^4.17.21
     mockdate: ^3.0.5
-    msw: ^2.3.5
+    msw: ^2.4.3
     msw-storybook-addon: beta
     npm-run-all: ^4.1.5
     otpauth: ^9.3.2
