@@ -175,16 +175,72 @@ test.describe("Admin Receiver Status Page",
                     },
                 );
 
-                test("receiver name", async ({ adminReceiverStatusPage }) => {
-                    const result = await adminReceiverStatusPage.testReceiverName();
-                    expect(result).toBe(true);
+                test("receiver name", async ({adminReceiverStatusPage, isMockDisabled}) => {
+                    test.skip(!isMockDisabled, "Mocks are ENABLED, skipping 'receiver name' test");
+                    const {organizationName, receiverName, successRate} =
+                        adminReceiverStatusPage.timePeriodData[1];
+
+                    const receiversStatusRows = adminReceiverStatusPage.receiverStatusRowsLocator;
+                    const defaultReceiversStatusRowsCount = await receiversStatusRows.count();
+                    const expectedReceiverStatusRow = receiversStatusRows.nthCustom(0);
+                    const expectedReceiverStatusRowTitle =
+                        adminReceiverStatusPage.getExpectedReceiverStatusRowTitle(
+                            organizationName,
+                            receiverName,
+                            successRate,
+                        );
+
+                    expect(defaultReceiversStatusRowsCount).toBe(adminReceiverStatusPage.timePeriodData.length);
+
+                    await adminReceiverStatusPage.updateFilters({
+                        receiverName,
+                    });
+
+                    const receiversStatusRowsCount = await receiversStatusRows.count();
+                    expect(receiversStatusRowsCount).toBeGreaterThanOrEqual(1);
+                    await expect(expectedReceiverStatusRow).toBeVisible();
+                    await expect(expectedReceiverStatusRow.title).toHaveText(expectedReceiverStatusRowTitle);
+
+                    await adminReceiverStatusPage.resetFilters();
+
+                    expect(defaultReceiversStatusRowsCount).toBe(adminReceiverStatusPage.timePeriodData.length);
                 });
 
-                test("result message", async ({adminReceiverStatusPage}) => {
-                    const result = await adminReceiverStatusPage.testReceiverMessage();
-                    expect(result).toBe(true);
-                });
+                test("result message", async ({adminReceiverStatusPage, isMockDisabled}) => {
+                    test.skip(!isMockDisabled, "Mocks are ENABLED, skipping 'result message' test");
+                    // get first entry's result from all-fail receiver's first day -> third time period
+                    const receiverI = 0;
+                    const dayI = 0;
+                    const timePeriodI = 2;
+                    const entryI = 0;
+                    const {days} = adminReceiverStatusPage.timePeriodData[receiverI];
+                    const {connectionCheckResult} = days[dayI].timePeriods[timePeriodI].entries[entryI];
 
+                    const receiversStatusRows = adminReceiverStatusPage.receiverStatusRowsLocator;
+
+                    await adminReceiverStatusPage.updateFilters({
+                        resultMessage: connectionCheckResult,
+                    });
+
+                    for (const [i, {days}] of adminReceiverStatusPage.timePeriodData.entries()) {
+                        const row = receiversStatusRows.nthCustom(i);
+
+                        for (const [i, {timePeriods}] of days.entries()) {
+                            const rowDay = row.days.nthCustom(i);
+
+                            for (const [i] of timePeriods.entries()) {
+                                const rowDayTimePeriod = rowDay.timePeriods.nth(i);
+
+                                await expect(rowDayTimePeriod).toHaveClass(/success-result-hidden/);
+                            }
+                        }
+                    }
+
+                    await adminReceiverStatusPage.resetFilters();
+
+                    // TODO: revisit after filters have been fixed per ticket #15737
+                    // await adminReceiverStatusPage.testReceiverStatusDisplay();
+                });
 
                 test("success type", async ({ adminReceiverStatusPage }) => {
                     const [failRow, ,] = adminReceiverStatusPage.timePeriodData;
