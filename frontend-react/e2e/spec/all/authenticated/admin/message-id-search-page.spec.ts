@@ -1,9 +1,9 @@
-import { noData, tableRows } from "../../../helpers/utils";
-import { MOCK_GET_MESSAGES } from "../../../mocks/messages";
-import { MessageIDSearchPage } from "../../../pages/authenticated/message-id-search";
-import { openReportIdDetailPage } from "../../../pages/authenticated/submission-history";
+import { noData, tableRows } from "../../../../helpers/utils";
+import { MOCK_GET_MESSAGES } from "../../../../mocks/messages";
+import { MessageIDSearchPage } from "../../../../pages/authenticated/message-id-search";
+import { openReportIdDetailPage } from "../../../../pages/authenticated/submission-history";
 
-import { test as baseTest, expect } from "../../../test";
+import { test as baseTest, expect } from "../../../../test";
 
 export interface MessageIDSearchPageFixtures {
     messageIDSearchPage: MessageIDSearchPage;

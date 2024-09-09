@@ -7,6 +7,8 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.matchesPredicate
+import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
@@ -62,7 +64,6 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FhirDestinationFilterQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.metadata.LookupTable
@@ -128,18 +129,28 @@ class FHIRConverterIntegrationTests {
         )
     }
 
-    private fun generateQueueMessage(report: Report, blobContents: String, sender: Sender): String {
+    private fun generateQueueMessage(
+        report: Report,
+        blobContents: String,
+        sender: Sender,
+        headers: Map<String, String>? = null,
+    ): String {
+        val headersString = headers?.entries?.joinToString(separator = ",\n") { (key, value) ->
+            """"$key": "$value""""
+        } ?: ""
+
         return """
-            {
-                "type": "convert",
-                "reportId": "${report.id}",
-                "blobURL": "${report.bodyURL}",
-                "digest": "${BlobAccess.digestToString(BlobAccess.sha256Digest(blobContents.toByteArray()))}",
-                "blobSubFolderName": "${sender.fullName}",
-                "topic": "${sender.topic.jsonVal}",
-                "schemaName": "${sender.schemaName}" 
-            }
-        """.trimIndent()
+        {
+            "type": "convert",
+            "reportId": "${report.id}",
+            "blobURL": "${report.bodyURL}",
+            "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+            "blobSubFolderName": "${sender.fullName}",
+            "topic": "${sender.topic.jsonVal}",
+            "schemaName": "${sender.schemaName}"
+            ${if (headersString.isNotEmpty()) ",\n$headersString" else ""}
+        }
+    """.trimIndent()
     }
 
     @BeforeEach
@@ -298,7 +309,7 @@ class FHIRConverterIntegrationTests {
                 FhirDestinationFilterQueueMessage(
                     report.reportId,
                     report.bodyUrl,
-                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                    BlobUtils.digestToString(BlobUtils.sha256Digest(fhirBundle)),
                     hl7SenderWithNoTransform.fullName,
                     hl7SenderWithNoTransform.topic
                 )
@@ -463,7 +474,7 @@ class FHIRConverterIntegrationTests {
                 FhirDestinationFilterQueueMessage(
                     report.reportId,
                     report.bodyUrl,
-                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle.toByteArray())),
+                    BlobUtils.digestToString(BlobUtils.sha256Digest(fhirBundle.toByteArray())),
                     fhirSenderWithNoTransform.fullName,
                     fhirSenderWithNoTransform.topic
                 )
@@ -614,7 +625,7 @@ class FHIRConverterIntegrationTests {
                 FhirDestinationFilterQueueMessage(
                     report.reportId,
                     report.bodyUrl,
-                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                    BlobUtils.digestToString(BlobUtils.sha256Digest(fhirBundle)),
                     senderWithValidation.fullName,
                     senderWithValidation.topic
                 )
@@ -666,6 +677,7 @@ class FHIRConverterIntegrationTests {
                     "phd.marsotc-hl7-sender"
                 )
             )
+            @Suppress("ktlint:standard:max-line-length")
             assertThat(event.params).isEqualTo(
                 mapOf(
                     ReportStreamEventProperties.ITEM_FORMAT to MimeFormat.HL7,
@@ -736,7 +748,7 @@ class FHIRConverterIntegrationTests {
                 FhirDestinationFilterQueueMessage(
                     report.reportId,
                     report.bodyUrl,
-                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                    BlobUtils.digestToString(BlobUtils.sha256Digest(fhirBundle)),
                     hl7Sender.fullName,
                     hl7Sender.topic
                 )
