@@ -126,57 +126,81 @@ class ProcessFhirCommands : CliktCommand(
         val actionLogger = ActionLogger()
         // Check on the extension of the file for supported operations
         val inputFileType = inputFile.extension.uppercase()
+        val receiver = getReceiver()
+
         when {
             // HL7 to FHIR conversion
-            inputFileType == "HL7" && outputFormat == MimeFormat.FHIR.toString() -> {
+            inputFileType == "HL7" && (
+                outputFormat == MimeFormat.FHIR.toString() ||
+                (receiver != null && receiver.format == MimeFormat.FHIR)
+            ) -> {
                 var fhirMessage = convertHl7ToFhir(contents).first
                 fhirMessage = applyEnrichmentSchemas(fhirMessage)
+                if (receiver != null && receiver.enrichmentSchemaNames.isNotEmpty()) {
+                    receiver.enrichmentSchemaNames.forEach { currentSchema ->
+                        fhirMessage = FhirTransformer(currentSchema).process(fhirMessage)
+                    }
+                }
                 outputResult(
                     handleSenderAndReceiverTransforms(fhirMessage), actionLogger
                 )
             }
 
             // FHIR to HL7 conversion
-            (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == MimeFormat.HL7.toString() -> {
-                if (!environment.isNullOrBlank() && !receiverName.isNullOrBlank() && !orgName.isNullOrBlank()) {
-                    val foundEnvironment = Environment.get(environment!!)
-                    val accessToken = OktaCommand.fetchAccessToken(foundEnvironment.oktaApp)
-                        ?: abort(
-                            "Invalid access token. " +
-                                "Run ./prime login to fetch/refresh your access " +
-                                "token for the $foundEnvironment environment."
-                        )
-                    val organizations = GetMultipleSettings().getAll(
-                        environment = foundEnvironment,
-                        accessToken = accessToken,
-                        specificOrg = orgName,
-                        exactMatch = true
-                    )
-
-                    val receiver = organizations[0].receivers.filter { receiver -> receiver.name == receiverName }
-                    if (organizations.isEmpty() || receiver.isEmpty()) {
+            (inputFileType == "FHIR" || inputFileType == "JSON") && (
+                outputFormat == MimeFormat.HL7.toString() ||
+                (receiver != null && receiver.format == MimeFormat.HL7)
+            ) -> {
+                    if (receiver == null) {
                         return outputResult(convertFhirToHl7(contents))
                     }
 
-                    outputResult(convertFhirToHl7(contents, receiver[0].translation as Hl7Configuration, receiver[0]))
-                } else if (outputFormat.isNullOrBlank()) {
-                    throw CliktError(
-                        "Output format is required if the environment, receiver, and org " +
-                        "are not specified. "
+                    var bundle = FhirTranscoder.decode(contents)
+                    if (receiver.enrichmentSchemaNames.isNotEmpty()) {
+                        receiver.enrichmentSchemaNames.forEach { currentSchema ->
+                            bundle = FhirTransformer(currentSchema).process(bundle)
+                        }
+                    }
+                    outputResult(
+                        convertFhirToHl7(
+                        FhirTranscoder.encode(bundle),
+                        receiver.translation as Hl7Configuration,
+                        receiver
                     )
-                } else {
-                    outputResult(convertFhirToHl7(contents))
-                }
+                    )
             }
 
             // FHIR to FHIR conversion
-            (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == MimeFormat.FHIR.toString() -> {
-                outputResult(convertFhirToFhir(contents), actionLogger)
+            (inputFileType == "FHIR" || inputFileType == "JSON") && (
+                outputFormat == MimeFormat.FHIR.toString() ||
+                (receiver != null && receiver.format == MimeFormat.FHIR)
+            ) -> {
+                var bundle = FhirTranscoder.decode(contents)
+                if (receiver != null) {
+                    if (receiver.enrichmentSchemaNames.isNotEmpty()) {
+                        receiver.enrichmentSchemaNames.forEach { currentSchema ->
+                            bundle = FhirTransformer(currentSchema).process(bundle)
+                        }
+                    }
+                }
+                outputResult(convertFhirToFhir(FhirTranscoder.encode(bundle)), actionLogger)
             }
 
             // HL7 to FHIR to HL7 conversion
-            inputFileType == "HL7" && outputFormat == MimeFormat.HL7.toString() -> {
-                val (bundle, inputMessage) = convertHl7ToFhir(contents)
+            inputFileType == "HL7" && (
+                outputFormat == MimeFormat.HL7.toString() ||
+                (receiver != null && receiver.format == MimeFormat.HL7)
+            ) -> {
+                var (bundle, inputMessage) = convertHl7ToFhir(contents)
+
+                if (receiver != null) {
+                    if (receiver.enrichmentSchemaNames.isNotEmpty()) {
+                        receiver.enrichmentSchemaNames.forEach { currentSchema ->
+                            bundle = FhirTransformer(currentSchema).process(bundle)
+                        }
+                    }
+                }
+
                 val output = convertFhirToHl7(FhirTranscoder.encode(bundle))
                 outputResult(output)
                 if (diffHl7Output != null) {
@@ -189,6 +213,40 @@ class ProcessFhirCommands : CliktCommand(
 
             else -> throw CliktError("File extension ${inputFile.extension} is not supported.")
         }
+    }
+
+    fun getReceiver(): Receiver? {
+        if (!environment.isNullOrBlank() && !receiverName.isNullOrBlank() && !orgName.isNullOrBlank()) {
+            if (!outputFormat.isNullOrBlank()) {
+                throw CliktError(
+                    "Please specify either a receiver OR an output format. Not both."
+                )
+            }
+            val foundEnvironment = Environment.get(environment!!)
+            val accessToken = OktaCommand.fetchAccessToken(foundEnvironment.oktaApp)
+                ?: abort(
+                    "Invalid access token. " +
+                        "Run ./prime login to fetch/refresh your access " +
+                        "token for the $foundEnvironment environment."
+                )
+            val organizations = GetMultipleSettings().getAll(
+                environment = foundEnvironment,
+                accessToken = accessToken,
+                specificOrg = orgName,
+                exactMatch = true
+            )
+
+            val receivers = organizations[0].receivers.filter { receiver -> receiver.name == receiverName }
+            if (receivers.isNotEmpty()) {
+                return receivers[0]
+            }
+        } else if (outputFormat.isNullOrBlank()) {
+            throw CliktError(
+                "Output format is required if the environment, receiver, and org " +
+                    "are not specified. "
+            )
+        }
+        return null
     }
 
     private val defaultHL7Configuration = Hl7Configuration(
