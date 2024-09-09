@@ -34,6 +34,8 @@ import gov.cdc.prime.router.TopicReceiver
 import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.BlobAccess.BlobContainerMetadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.cli.PIIRemovalCommands
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -57,6 +59,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.OffsetDateTime
 import java.util.UUID
+import kotlin.test.assertFailsWith
 
 class ReportFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -841,5 +844,143 @@ class ReportFunctionTests {
             )
         ) + "]"
         )
+    }
+
+    @Test
+    fun `No report`() {
+        val mockDb = mockk<DatabaseAccess>()
+        val reportId = UUID.randomUUID()
+        every { mockDb.fetchReportFile(reportId, null, null) } throws (IllegalStateException())
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        assertFailsWith<IllegalStateException>(
+            block = {
+                ReportFunction(
+                    makeEngine(metadata, settings),
+                    actionHistory
+                ).processDownloadReport(
+                    MockHttpRequestMessage(),
+                    reportId,
+                    true,
+                    "local",
+                    mockDb
+                )
+            }
+        )
+    }
+
+    @Test
+    fun `Report found, PII removal`() {
+        val reportFile = ReportFile()
+        reportFile.bodyUrl = "fakeurl.fhir"
+        mockkObject(AuthenticatedClaims)
+        val mockDb = mockk<DatabaseAccess>()
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
+        every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
+        val reportId = UUID.randomUUID()
+        every { mockDb.fetchReportFile(reportId, null, null) } returns reportFile
+        val piiRemovalCommands = mockkClass(PIIRemovalCommands::class)
+        every { piiRemovalCommands.removePii(any()) } returns fhirReport
+
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processDownloadReport(
+            MockHttpRequestMessage(),
+            reportId,
+            true,
+            "local",
+            mockDb,
+            piiRemovalCommands
+        )
+
+        assert(result.body.toString().contains("1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347"))
+    }
+
+    @Test
+    fun `Report found, asked for no removal on prod`() {
+        val reportFile = ReportFile()
+        reportFile.bodyUrl = "fakeurl.fhir"
+        mockkObject(AuthenticatedClaims)
+        val mockDb = mockk<DatabaseAccess>()
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
+        every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
+        every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
+
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processDownloadReport(
+            MockHttpRequestMessage(),
+            UUID.randomUUID(),
+            false,
+            "prod",
+            mockDb
+        )
+
+        assert(result.status.equals(HttpStatus.BAD_REQUEST))
+    }
+
+    @Test
+    fun `valid access token, report found, no PII removal`() {
+        val reportFile = ReportFile()
+        reportFile.bodyUrl = "fakeurl.fhir"
+        mockkObject(AuthenticatedClaims)
+        val mockDb = mockk<DatabaseAccess>()
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
+        every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
+        every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
+
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processDownloadReport(
+            MockHttpRequestMessage(),
+            UUID.randomUUID(),
+            false,
+            "local",
+            mockDb
+        )
+
+        assert(result.body.toString().contains("1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347"))
+    }
+
+    @Test
+    fun `valid access token, report found, body URL not FHIR`() {
+        val reportFile = ReportFile()
+        reportFile.bodyUrl = "fakeurl.hl7"
+        mockkObject(AuthenticatedClaims)
+        val mockDb = mockk<DatabaseAccess>()
+        every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
+
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processDownloadReport(
+            MockHttpRequestMessage(),
+            UUID.randomUUID(),
+            false,
+            "local",
+            mockDb
+        )
+
+        assert(result.status.equals(HttpStatus.BAD_REQUEST))
     }
 }
