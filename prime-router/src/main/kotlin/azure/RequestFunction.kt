@@ -23,6 +23,8 @@ const val ALLOW_DUPLICATES_PARAMETER = "allowDuplicate"
 const val TOPIC_PARAMETER = "topic"
 const val SCHEMA_PARAMETER = "schema"
 const val FORMAT_PARAMETER = "format"
+const val REPORT_ID_PARAMETER = "reportId"
+const val REMOVE_PII = "removePII"
 
 /**
  * Base class for ReportFunction and ValidateFunction
