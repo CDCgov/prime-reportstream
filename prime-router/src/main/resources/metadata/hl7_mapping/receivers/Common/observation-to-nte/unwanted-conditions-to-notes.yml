@@ -14,7 +14,7 @@ elements:
 
   - name: unwanted-condition-source
     condition: '%commentCondition'
-    value: ['"0"']
+    value: ['"O"']
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-2' ]
 
   - name: unwanted-condition-comment-string
