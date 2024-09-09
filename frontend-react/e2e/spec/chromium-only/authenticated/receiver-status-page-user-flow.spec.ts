@@ -181,7 +181,6 @@ test.describe("Admin Receiver Status Page",
                         adminReceiverStatusPage.timePeriodData[1];
 
                     const receiversStatusRows = adminReceiverStatusPage.receiverStatusRowsLocator;
-                    const defaultReceiversStatusRowsCount = await receiversStatusRows.count();
                     const expectedReceiverStatusRow = receiversStatusRows.nthCustom(0);
                     const expectedReceiverStatusRowTitle =
                         adminReceiverStatusPage.getExpectedReceiverStatusRowTitle(
@@ -190,7 +189,7 @@ test.describe("Admin Receiver Status Page",
                             successRate,
                         );
 
-                    expect(defaultReceiversStatusRowsCount).toBe(adminReceiverStatusPage.timePeriodData.length);
+                    expect(receiversStatusRows).toBe(adminReceiverStatusPage.timePeriodData.length);
 
                     await adminReceiverStatusPage.updateFilters({
                         receiverName,
@@ -203,7 +202,7 @@ test.describe("Admin Receiver Status Page",
 
                     await adminReceiverStatusPage.resetFilters();
 
-                    expect(defaultReceiversStatusRowsCount).toBe(adminReceiverStatusPage.timePeriodData.length);
+                    expect(receiversStatusRows).toBe(adminReceiverStatusPage.timePeriodData.length);
                 });
 
                 test("result message", async ({adminReceiverStatusPage, isMockDisabled}) => {
