@@ -5,7 +5,6 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isEqualToIgnoringGivenProperties
-import assertk.assertions.isNotEmpty
 import assertk.assertions.isNull
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.FileSettings
@@ -21,6 +20,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.ActionLogType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
@@ -185,6 +185,7 @@ class FHIRReceiverIntegrationTests {
         )
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+
             val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk())
                 .from(Tables.ACTION_LOG)
                 .where(Tables.ACTION_LOG.REPORT_ID.eq(reportId))
@@ -400,9 +401,19 @@ class FHIRReceiverIntegrationTests {
             val reportFile = DSL.using(txn).select(Tables.REPORT_FILE.asterisk())
                 .from(Tables.REPORT_FILE)
                 .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
-                .fetchInto(DetailedReport::class.java)
+                .fetchInto(ReportFile::class.java)
 
-            assertThat(reportFile).isNotEmpty()
+            assertThat(reportFile).hasSize(1)
+            reportFile.first().apply {
+                assertThat(nextAction).isEqualTo(TaskAction.convert)
+                assertThat(receivingOrg).isEqualTo(null)
+                assertThat(receivingOrgSvc).isEqualTo(null)
+                assertThat(schemaName).isEqualTo("None")
+                assertThat(schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(bodyFormat).isEqualTo("FHIR")
+                assertThat(sendingOrg).isEqualTo("phd")
+                assertThat(sendingOrgClient).isEqualTo("fhir-elr-no-transform")
+            }
         }
 
         verify(exactly = 1) {
@@ -493,9 +504,19 @@ class FHIRReceiverIntegrationTests {
             val reportFile = DSL.using(txn).select(Tables.REPORT_FILE.asterisk())
                 .from(Tables.REPORT_FILE)
                 .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
-                .fetchInto(DetailedReport::class.java)
+                .fetchInto(ReportFile::class.java)
 
-            assertThat(reportFile).isNotEmpty()
+            assertThat(reportFile).hasSize(1)
+            reportFile.first().apply {
+                assertThat(nextAction).isEqualTo(TaskAction.convert)
+                assertThat(receivingOrg).isEqualTo(null)
+                assertThat(receivingOrgSvc).isEqualTo(null)
+                assertThat(schemaName).isEqualTo("None")
+                assertThat(schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(bodyFormat).isEqualTo("HL7")
+                assertThat(sendingOrg).isEqualTo("phd")
+                assertThat(sendingOrgClient).isEqualTo("hl7-elr-no-transform")
+            }
         }
 
         verify(exactly = 1) {
@@ -588,9 +609,19 @@ class FHIRReceiverIntegrationTests {
             val reportFile = DSL.using(txn).select(Tables.REPORT_FILE.asterisk())
                 .from(Tables.REPORT_FILE)
                 .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
-                .fetchInto(DetailedReport::class.java)
+                .fetchInto(ReportFile::class.java)
 
-            assertThat(reportFile).isNotEmpty()
+            assertThat(reportFile).hasSize(1)
+            reportFile.first().apply {
+                assertThat(nextAction).isEqualTo(TaskAction.convert)
+                assertThat(receivingOrg).isEqualTo(null)
+                assertThat(receivingOrgSvc).isEqualTo(null)
+                assertThat(schemaName).isEqualTo("None")
+                assertThat(schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(bodyFormat).isEqualTo("FHIR")
+                assertThat(sendingOrg).isEqualTo("phd")
+                assertThat(sendingOrgClient).isEqualTo("fhir-elr-no-transform")
+            }
         }
 
         verify(exactly = 0) {
@@ -682,9 +713,19 @@ class FHIRReceiverIntegrationTests {
             val reportFile = DSL.using(txn).select(Tables.REPORT_FILE.asterisk())
                 .from(Tables.REPORT_FILE)
                 .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
-                .fetchInto(DetailedReport::class.java)
+                .fetchInto(ReportFile::class.java)
 
-            assertThat(reportFile).isNotEmpty()
+            assertThat(reportFile).hasSize(1)
+            reportFile.first().apply {
+                assertThat(nextAction).isEqualTo(TaskAction.convert)
+                assertThat(receivingOrg).isEqualTo(null)
+                assertThat(receivingOrgSvc).isEqualTo(null)
+                assertThat(schemaName).isEqualTo("None")
+                assertThat(schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(bodyFormat).isEqualTo("HL7")
+                assertThat(sendingOrg).isEqualTo("phd")
+                assertThat(sendingOrgClient).isEqualTo("hl7-elr-no-transform")
+            }
         }
 
         verify(exactly = 0) {
@@ -783,7 +824,7 @@ class FHIRReceiverIntegrationTests {
             val reportFile = DSL.using(txn).select(Tables.REPORT_FILE.asterisk())
                 .from(Tables.REPORT_FILE)
                 .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
-                .fetchInto(DetailedReport::class.java)
+                .fetchInto(ReportFile::class.java)
 
             assertThat(reportFile).isEmpty()
         }

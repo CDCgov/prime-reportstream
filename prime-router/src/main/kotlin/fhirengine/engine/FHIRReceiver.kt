@@ -162,13 +162,13 @@ class FHIRReceiver(
             }
 
             // Insert the rejection into the submission table
-            val tableEntity =
+            val submission =
                 Submission(
                     queueMessage.reportId.toString(), "Rejected",
                     queueMessage.blobURL,
                     "Sender not found matching client_id: ${queueMessage.headers[clientIdHeader]}"
                 )
-            submissionTableService.insertSubmission(tableEntity)
+            submissionTableService.insertSubmission(submission)
             null
         } else {
             // Handle case where sender is inactive
