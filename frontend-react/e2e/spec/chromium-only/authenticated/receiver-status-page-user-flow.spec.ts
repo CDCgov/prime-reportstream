@@ -242,7 +242,8 @@ test.describe("Admin Receiver Status Page",
                     // await adminReceiverStatusPage.testReceiverStatusDisplay();
                 });
 
-                test("success type", async ({ adminReceiverStatusPage }) => {
+                test("success type", async ({ adminReceiverStatusPage, isMockDisabled }) => {
+                    test.skip(!isMockDisabled, "Mocks are ENABLED, skipping 'success type' test");
                     const [failRow, ,] = adminReceiverStatusPage.timePeriodData;
                     const failRowTitle = adminReceiverStatusPage.getExpectedReceiverStatusRowTitle(
                         failRow.organizationName,
