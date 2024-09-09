@@ -1,6 +1,6 @@
-import { tableRows } from "../../../helpers/utils";
-import { LastMileFailuresPage } from "../../../pages/authenticated/last-mile-failures";
-import { test as baseTest, expect } from "../../../test";
+import { tableRows } from "../../../../helpers/utils";
+import { LastMileFailuresPage } from "../../../../pages/authenticated/last-mile-failures";
+import { test as baseTest, expect } from "../../../../test";
 
 export interface LastMileFailuresPageFixtures {
     lastMileFailuresPage: LastMileFailuresPage;
