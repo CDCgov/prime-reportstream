@@ -318,15 +318,6 @@ class FHIRReceiver(
                         bodyURL = queueMessage.blobURL
                     )
 
-                    // dupe detection if needed, and if we have not already produced an error
-    //                if (!allowDuplicates && !actionLogs.hasErrors()) {
-    //                    doDuplicateDetection(
-    //                        workflowEngine,
-    //                        report,
-    //                        actionLogs
-    //                    )
-    //                }
-
                     // check for valid message type
                     messages.forEachIndexed { idx, element ->
                         MessageType.validateMessageType(element, actionLogger, idx + 1)
