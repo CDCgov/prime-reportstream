@@ -1,0 +1,19 @@
+elements:
+  # removing the street address is more complicated because it is a list so we will do this in code
+
+  - name: pii-removal-street-address2
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension.where(url = "XAD.2")'
+    value: [ 'getFakeValueForElement("STREET_ADDRESS_2")' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension.where(url = "XAD.2").value'
+
+  - name: pii-removal-city
+    value: [ 'getFakeValueForElement("CITY",%resource.state)' ]
+    bundleProperty: '%resource.city'
+
+  - name: pii-removal-zip
+    value: [ 'getFakeValueForElement("POSTAL_CODE", %resource.state)' ]
+    bundleProperty: '%resource.postalCode'
+
+  - name: pii-removal-county
+    value: [ 'getFakeValueForElement("COUNTY", %resource.state)' ]
+    bundleProperty: '%resource.district'

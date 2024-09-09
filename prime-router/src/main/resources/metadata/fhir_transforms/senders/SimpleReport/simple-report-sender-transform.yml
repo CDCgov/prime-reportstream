@@ -627,11 +627,11 @@ elements:
       values:
         partial: A
         corrected: C
+        entered-in-error: C
         amended: C
         final: F
         preliminary: P
         cancelled: X
-
 
   # Observation
   - name: sr-observation-value-type-cwe

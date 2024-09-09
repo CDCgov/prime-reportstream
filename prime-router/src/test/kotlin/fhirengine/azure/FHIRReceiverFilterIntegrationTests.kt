@@ -9,6 +9,8 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
 import assertk.assertions.isZero
 import assertk.assertions.matchesPredicate
+import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
@@ -46,7 +48,6 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.getObservations
@@ -227,7 +228,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 "type": "${TaskAction.receiver_filter.literal}",
                 "reportId": "${report.id}",
                 "blobURL": "${report.bodyURL}",
-                "digest": "${BlobAccess.digestToString(BlobAccess.sha256Digest(blobContents.toByteArray()))}",
+                "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
                 "blobSubFolderName": "${sender.fullName}",
                 "topic": "${sender.topic.jsonVal}",
                 "receiverFullName": "$receiverName" 
@@ -272,6 +273,13 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1).single()
+            assertThat(routedReport.nextAction).isEqualTo(TaskAction.translate)
+            assertThat(routedReport.receivingOrg).isEqualTo("phd")
+            assertThat(routedReport.receivingOrgSvc).isEqualTo("x")
+            assertThat(routedReport.schemaName).isEqualTo("None")
+            assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
+
             val routedContents = String(
                 BlobAccess.downloadBlobAsByteArray(
                 routedReport.bodyUrl,
@@ -297,7 +305,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             val expectedRouteQueueMessage = FhirTranslateQueueMessage(
                 routedReport.reportId,
                 routedReport.bodyUrl,
-                BlobAccess.digestToString(routedReport.blobDigest),
+                BlobUtils.digestToString(routedReport.blobDigest),
                 "phd.fhir-elr-no-transform",
                Topic.FULL_ELR,
                 receiver.fullName
@@ -449,8 +457,14 @@ class FHIRReceiverFilterIntegrationTests : Logging {
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1)
-                .single()
+            val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1).single()
+            assertThat(routedReport.nextAction).isEqualTo(TaskAction.translate)
+            assertThat(routedReport.receivingOrg).isEqualTo("phd")
+            assertThat(routedReport.receivingOrgSvc).isEqualTo("y")
+            assertThat(routedReport.schemaName).isEqualTo("None")
+            assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
+
             val routedContents = String(
                 BlobAccess.downloadBlobAsByteArray(
                 routedReport.bodyUrl,
@@ -463,7 +477,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             val expectedQueueMessage = FhirTranslateQueueMessage(
                 routedReport.reportId,
                 routedReport.bodyUrl,
-                BlobAccess.digestToString(routedReport.blobDigest),
+                BlobUtils.digestToString(routedReport.blobDigest),
                 "phd.fhir-elr-no-transform",
                Topic.FULL_ELR,
                 receiver.fullName
@@ -622,6 +636,13 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1).single()
+            assertThat(routedReport.nextAction).isEqualTo(TaskAction.translate)
+            assertThat(routedReport.receivingOrg).isEqualTo("phd")
+            assertThat(routedReport.receivingOrgSvc).isEqualTo("x")
+            assertThat(routedReport.schemaName).isEqualTo("None")
+            assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
+
             val routedContents = String(
                 BlobAccess.downloadBlobAsByteArray(
                 routedReport.bodyUrl,
@@ -646,7 +667,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             val expectedRouteQueueMessage = FhirTranslateQueueMessage(
                 routedReport.reportId,
                 routedReport.bodyUrl,
-                BlobAccess.digestToString(routedReport.blobDigest),
+                BlobUtils.digestToString(routedReport.blobDigest),
                 "phd.fhir-elr-no-transform",
                 Topic.FULL_ELR,
                 receiver.fullName
@@ -913,6 +934,13 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1).single()
+            assertThat(routedReport.nextAction).isEqualTo(TaskAction.translate)
+            assertThat(routedReport.receivingOrg).isEqualTo("phd")
+            assertThat(routedReport.receivingOrgSvc).isEqualTo("x")
+            assertThat(routedReport.schemaName).isEqualTo("None")
+            assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
+
             val routedContents = String(
                 BlobAccess.downloadBlobAsByteArray(
                 routedReport.bodyUrl,
@@ -925,7 +953,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             val expectedRouteQueueMessage = FhirTranslateQueueMessage(
                 routedReport.reportId,
                 routedReport.bodyUrl,
-                BlobAccess.digestToString(routedReport.blobDigest),
+                BlobUtils.digestToString(routedReport.blobDigest),
                 "phd.fhir-elr-no-transform",
                Topic.FULL_ELR,
                 receiver.fullName
@@ -983,6 +1011,13 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1).single()
+            assertThat(routedReport.nextAction).isEqualTo(TaskAction.translate)
+            assertThat(routedReport.receivingOrg).isEqualTo("phd")
+            assertThat(routedReport.receivingOrgSvc).isEqualTo("x")
+            assertThat(routedReport.schemaName).isEqualTo("None")
+            assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
+
             val routedBundle = BlobAccess.downloadBlobAsByteArray(
                 routedReport.bodyUrl,
                 UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
@@ -993,7 +1028,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             val expectedRouteQueueMessage = FhirTranslateQueueMessage(
                 routedReport.reportId,
                 routedReport.bodyUrl,
-                BlobAccess.digestToString(routedReport.blobDigest),
+                BlobUtils.digestToString(routedReport.blobDigest),
                 "phd.fhir-elr-no-transform",
                Topic.FULL_ELR,
                 "phd.x"
