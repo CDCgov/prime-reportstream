@@ -16,6 +16,8 @@ import org.hl7.fhir.r4.model.ServiceRequest
 import org.hl7.fhir.r4.model.Specimen
 import java.io.File
 import java.nio.file.Paths
+import kotlin.io.path.Path
+import kotlin.io.path.deleteIfExists
 
 class RemovePIITest : CoolTest() {
     /**
@@ -41,9 +43,12 @@ class RemovePIITest : CoolTest() {
      */
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting remove PII test")
-        val inputFilePath = Paths.get("").toAbsolutePath().toString() + "/src/main/kotlin/cli/tests/fakePII.fhir"
-        val outputFilePath = Paths.get("").toAbsolutePath().toString() +
-            "/src/main/kotlin/cli/tests/piiRemoved.fhir"
+        val inputFilePath = Paths.get("")
+            .toAbsolutePath().toString() + "/src/main/resources/clitests/compare-test-files/fakePII.fhir"
+        val outputFilePath = Paths.get("")
+            .toAbsolutePath()
+            .toString() +
+            "/src/main/resources/clitests/compare-test-files/piiRemoved.fhir"
 
         PIIRemovalCommands().test(
             "-i $inputFilePath -o $outputFilePath"
@@ -90,6 +95,7 @@ class RemovePIITest : CoolTest() {
         }
 
         ugly("PII removal test passed")
+        Path(outputFilePath).deleteIfExists()
         return true
     }
 
