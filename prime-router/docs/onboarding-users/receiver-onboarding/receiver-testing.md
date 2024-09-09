@@ -186,7 +186,6 @@ When making changes to receiver settings or transforms it is important to update
 can be defined to use sender and receiver settings. Keep in mind a single message may not be sufficient to test all settings/transform elements
 and multiple messages may need to be used for each transform/receiver. See testing plans and testing with receivers below for more information
 
-
 ## Test plans and testing with receivers
 
 When a new receiver or a significant change is made to an existing receiver, it is important to thoroughly test with the
@@ -197,10 +196,75 @@ that all reasonably anticipated edge cases have been tested.
 A good testing plan needs to test every single receiver setting, filter and transform element to ensure that no unexpected data will make it to the receiver. The type of transform being performed will
 determine how many messages you need to test to be sure that all transform cases are being covered. The following example can help identify how many and what type of messages you will need
 
-Example transform
+Example transform:
 
+```yaml
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
 
+elements:
+
+- name: test-receiving-application
+  condition: 'true'
+  value: [ '"TEST-DOH"' ]
+  hl7Spec: [ 'MSH-5-1' ]
+
+- name: test-patient-race-coding-system
+  resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+  condition: '%resource.code.exists()'
+  value: [ '%resource.system.getCodingSystemMapping()' ]
+  hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
+
+- name: test-patient-county-codes
+  condition: 'Bundle.entry.resource.ofType(Patient).address.district.empty().not() and Bundle.entry.resource.ofType(Patient).address.state.empty().not()'
+  hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-11-9' ]
+  value: ["FIPSCountyLookup(Bundle.entry.resource.ofType(Patient).address.district,Bundle.entry.resource.ofType(Patient).address.state)[0]"]
+
+- name: test-patient-ethnicity-identifier-code
+  value:
+    - 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding[0].code'
+      hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-22-1' ]
+      valueSet:
+      values:
+      H: 2135-2
+      N: 2186-5
+
+# Needed to convert HL7 timestamp to HL7 date for OBX-5
+- name: obx-value-dtm-dt
+  condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "OBX.2").value = "DT"'
+  value: [ '%resource.value.extension(%`rsext-hl7v2-date-time`).value.toString().replace("-","")' ]
+  hl7Spec: [ '%{hl7OBXField}-5' ]
+
+- name: test-specimen-source-site-text
+  condition: 'true'
+  value: [ 'Bundle.entry.resource.ofType(Specimen).collection.bodySite.text' ]
+  hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-8-2' ]
+
+# TEST DOH does not want AOEs at all, so this is overridden to prevent identified AOEs from mapping to an HL7 segment
+- name: observation-result-with-aoe
+  resource: '%resource.result.resolve()'
+```
+In the example above you can see we have several different types of transforms. Some of them like element "test-receiving-application" are just defaulting a value adn all we
+have to do is make sure that value exists on every message we test. Others like "test-patient-ethnicity-identifier-code" are using a valueset to transform one value into another and elements like
+"obx-value-dtm-dt" have a complex condition and are modifying the format of a field. For these kinds of elements we need to make sure and test both the positive and negative case. i.e. for "test-patient-ethnicity-identifier-code" we need to test a message with "H" or "N" in "Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding[0].code"
+and then also test when "Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding[0].code" is neither or those values. For "obx-value-dtm-dt" we need to test where the condition is both "true" and "false"
+
+You can see how some of these test cases can be combined. For example, we can have a single message with both a "Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding[0].code" value of "N" and that
+meets the condition for "obx-value-dtm-dt".
+
+One of the most complex items we commonly test are the condition filters. For example take a conditionFilter such as:
+
+```
+"%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006'|'55735004'|'6142004')).exists() and %resource.interpretation.coding.code = 'A'"
+```
+
+We have three possible condition codes that also need to have a positive result to qualify. In addition, we are pruning observations that do not meet that criteria.
+you can see how in order to test both the positive and negative cases we will need several test messages. Also because there is the possibility that we may receive a message
+with multiple observations that meet the criteria we also want to test that case.
+
+It is also important to keep in mind that we have different sources of data. SimpleReport Manual entry, SimpleReport CSV entry and direct HL7 to ReportStream. We should make sure to test
+examples of all sources the receiver will get production data from. An example test plan can be found here [Example Test Plan](prime-router/docs/onboarding-users/receiver-onboarding/example-test-cases.xlsx).
 
 ### Simple Report Test data
 
@@ -223,5 +287,7 @@ are coming across appropriately. These items may include:
 - race/ethnicity
 - patient demographic information (county code)
 - specimen source/type
-- 
+- Abnormal flags
+- Order status flags
+- Any complex custom logic done for the receiver (i.e. turning observations into notes).
 
