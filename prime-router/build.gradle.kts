@@ -23,7 +23,9 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jooq.meta.jaxb.ForcedType
+import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
+import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Properties
@@ -497,9 +499,22 @@ tasks.azureFunctionsPackage {
     finalizedBy("copyAzureScripts")
 }
 
+tasks.register("generateVersionFile") {
+    doLast {
+        val stdout = ByteArrayOutputStream()
+        exec {
+            commandLine("git", "rev-parse", "--short", "HEAD")
+            standardOutput = stdout
+        }
+        val currentCommit = stdout.toString(StandardCharsets.UTF_8).trim()
+        File(buildDir, "$azureFunctionsDir/$azureAppName/version.json").writeText("{\"commitId\": \"$currentCommit\"}")
+    }
+}
+
 val azureResourcesTmpDir = File(buildDir, "$azureFunctionsDir-resources/$azureAppName")
 val azureResourcesFinalDir = File(buildDir, "$azureFunctionsDir/$azureAppName")
 tasks.register<Copy>("gatherAzureResources") {
+    dependsOn("generateVersionFile")
     from("./")
     into(azureResourcesTmpDir)
     include("metadata/**/*.yml")

@@ -90,6 +90,9 @@ variable "RS_OKTA_authKey" {}
 variable "RS_OKTA_clientId" {}
 variable "RS_OKTA_scope" {}
 variable "etor_ti_base_url" {}
+variable "cdctiautomated_sa" {
+  default = ""
+}
 
 variable "subnets" {
   description = "A set of all available subnet combinations"
