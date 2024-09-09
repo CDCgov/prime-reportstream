@@ -182,9 +182,46 @@ the filter will reject the entire message/Bundle if it evaluates to "false".
 
 ### Integration Testing
 
+When making changes to receiver settings or transforms it is important to update the integration tests. Integration tests
+can be defined to use sender and receiver settings. Keep in mind a single message may not be sufficient to test all settings/transform elements
+and multiple messages may need to be used for each transform/receiver. See testing plans and testing with receivers below for more information
+
 
 ## Test plans and testing with receivers
 
 When a new receiver or a significant change is made to an existing receiver, it is important to thoroughly test with the
 intended recipient. As part of this testing a test plan should be created to document the test cases performed and ensure
 that all reasonably anticipated edge cases have been tested.
+
+### Testing Plans
+A good testing plan needs to test every single receiver setting, filter and transform element to ensure that no unexpected data will make it to the receiver. The type of transform being performed will
+determine how many messages you need to test to be sure that all transform cases are being covered. The following example can help identify how many and what type of messages you will need
+
+Example transform
+
+
+
+
+### Simple Report Test data
+
+A quick and easy way to get test data to send to a STLT is by going into SimpleReport's test environment https://test.simplereport.gov.
+* Access can be requested on the [shared-simple-report-universal-pipeline](https://nava.slack.com/archives/C0411VC78DN) thread.
+* Instructions on how to send a test message can be found on this youtube playlist https://www.youtube.com/playlist?list=PL3U3nqqPGhab0sys3ombZmwOplRYlBOBF.
+* The file [SR upload](../onboarding-users/samples/SimpleReport/SR-UPLOAD.csv) can be used test sending reports through SimpleReport's CSV upload.
+* To route the report to a specific STLT either the patient or facility state needs to updated to the STLT's jurisdiction. Keep in mind that if they are not updated the message might get routed to the incorrect STLT.
+* The report sent by SimpleReport can be found in the Azure BlobStorage. The UP message will be stored in the `receive/simple_report.fullelr` and the covid pipeline message will be stored in `receive/simple_report.default`. This message can be used locally to test any new sender or receiver transforms.
+* To access the blob storage. Microsoft Storage Explorer needs to be installed and login with your CDC SU credentials.
+
+### Testing with receivers
+Ultimately the receiver will be the judge of whether sufficient testing has been completed or not, receivers tend to not
+assume that all data will look the same from each sender since they do not know what exact transforms and settings are being applied.
+Receivers also have a tendency to overlook certain items which do not cause errors in their application but can cause problems in other 
+ways like incorrect timezones. If is important that you ask your receiver to check for specific items in the test messages to ensure they
+are coming across appropriately. These items may include:
+
+- date/timestamps
+- race/ethnicity
+- patient demographic information (county code)
+- specimen source/type
+- 
+
