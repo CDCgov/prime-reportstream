@@ -6,6 +6,8 @@ import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.MimeFormat
@@ -27,7 +29,6 @@ import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fetchChildReports
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
-import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
@@ -116,7 +117,7 @@ class FHIRTranslatorIntegrationTests : Logging {
                 "type": "${TaskAction.translate.literal}",
                 "reportId": "${report.id}",
                 "blobURL": "${report.bodyURL}",
-                "digest": "${BlobAccess.digestToString(BlobAccess.sha256Digest(blobContents.toByteArray()))}",
+                "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
                 "blobSubFolderName": "${sender.fullName}",
                 "topic": "${sender.topic.jsonVal}",
                 "receiverFullName": "$receiverName" 
