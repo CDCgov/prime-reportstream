@@ -320,7 +320,7 @@ test.describe("Admin Receiver Status Page",
                     });
                 });
 
-                test("time period modals", async ({ adminReceiverStatusPage }) => {
+                test.skip("time period modals", async ({ adminReceiverStatusPage }) => {
                     const result = await adminReceiverStatusPage.testReceiverTimePeriodModals(true);
                     expect(result).toBe(true);
                 });

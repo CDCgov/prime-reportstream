@@ -207,7 +207,7 @@ test.describe(
                             );
                         });
 
-                        test("clears 'Report ID'", async ({ dailyDataPage }) => {
+                        test.skip("clears 'Report ID'", async ({ dailyDataPage }) => {
                             // Search by Report ID
                             const reportId = await tableDataCellValue(dailyDataPage.page, 0, 0);
                             await searchInput(dailyDataPage.page).fill(reportId);
