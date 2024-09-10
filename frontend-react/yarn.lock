@@ -3590,15 +3590,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trussworks/react-uswds@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "@trussworks/react-uswds@npm:9.0.0"
+"@trussworks/react-uswds@npm:^9.1.0":
+  version: 9.1.0
+  resolution: "@trussworks/react-uswds@npm:9.1.0"
   peerDependencies:
     "@uswds/uswds": ^3.7.1
     focus-trap-react: ^10.2.3
     react: ^16.x || ^17.x || ^18.x
     react-dom: ^16.x || ^17.x || ^18.x
-  checksum: 2e2d310c69a6dc2e92d48830537ad1873b45a4f0cfab81ccfa180ec2cae55c4b61153397c4956295dfd2cdad7b8a5156b69eb3c5464b0bba213fc386564c4993
+  checksum: 907613e6bc42d7b304f69e52556ab78b0df86adcb24453cf9616805786e5940a3dbdd55bf6f03270c41dd672cfda1a4fdb9331ff64dd8c7beeecaa578771783c
   languageName: node
   linkType: hard
 
@@ -12082,7 +12082,7 @@ __metadata:
     "@testing-library/jest-dom": ^6.5.0
     "@testing-library/react": ^16.0.1
     "@testing-library/user-event": ^14.5.2
-    "@trussworks/react-uswds": ^9.0.0
+    "@trussworks/react-uswds": ^9.1.0
     "@types/dompurify": ^3.0.5
     "@types/dotenv-flow": ^3.3.3
     "@types/downloadjs": ^1.4.6
