@@ -18,6 +18,7 @@ locals {
     "RS_OKTA_authkey"  = var.RS_OKTA_authKey
     "RS_OKTA_ClientId" = var.RS_OKTA_clientId
     "ETOR_TI_baseurl"  = var.etor_ti_base_url
+    "cdctiautomated"   = var.cdctiautomated_sa
     # Manage client secrets via a Key Vault
     "CREDENTIAL_STORAGE_METHOD" = "AZURE"
     "CREDENTIAL_KEY_VAULT_NAME" = var.client_config_key_vault_name

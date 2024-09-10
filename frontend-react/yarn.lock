@@ -2438,9 +2438,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-signin-widget@npm:^7.21.0":
-  version: 7.21.0
-  resolution: "@okta/okta-signin-widget@npm:7.21.0"
+"@okta/okta-signin-widget@npm:^7.21.2":
+  version: 7.21.2
+  resolution: "@okta/okta-signin-widget@npm:7.21.2"
   dependencies:
     "@okta/okta-auth-js": ^7.7.0
     "@sindresorhus/to-milliseconds": ^1.0.0
@@ -2464,7 +2464,7 @@ __metadata:
   dependenciesMeta:
     fsevents:
       optional: true
-  checksum: 0e57e2c6ceab67f9b6b0aab1992f0d8d38efcd4e00c55e51c952786501fcb1ed5ac592435edbfb638caed242003bc70da5d95bdc8ad9fa8f02a9a6c2a76ba1f6
+  checksum: ac78f2055248aff5d09a50bbe086023cc1aee0b6c10f84e80eeac2488dfbd6e5647b10abb8b65b60a80c754159d50c828ae11a6769e255df588fc7b8b681fd19
   languageName: node
   linkType: hard
 
@@ -5153,14 +5153,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.7.4":
-  version: 1.7.4
-  resolution: "axios@npm:1.7.4"
+"axios@npm:^1.7.5":
+  version: 1.7.5
+  resolution: "axios@npm:1.7.5"
   dependencies:
     follow-redirects: ^1.15.6
     form-data: ^4.0.0
     proxy-from-env: ^1.1.0
-  checksum: 0c17039a9acfe6a566fca8431ba5c1b455c83d30ea6157fec68a6722878fcd30f3bd32d172f6bee0c51fe75ca98e6414ddcd968a87b5606b573731629440bfaf
+  checksum: 2859fe01437cf133eee35571abc1d4b5224bb13e530e66cb3581ca226e170541dd5eef9f46abb41592cee0a2f54930c9e4978354e0cf1064748fc20d9a05e9d5
   languageName: node
   linkType: hard
 
@@ -11263,12 +11263,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"otpauth@npm:^9.3.1":
-  version: 9.3.1
-  resolution: "otpauth@npm:9.3.1"
+"otpauth@npm:^9.3.2":
+  version: 9.3.2
+  resolution: "otpauth@npm:9.3.2"
   dependencies:
     "@noble/hashes": 1.4.0
-  checksum: 36542e12a6bb43d6d9d446fe567e41ecfb16dc914aed56ce1ba0a2d03e9445994685cfeb0dd125a91c47ab3f5e669f8ef47a8dc3847b75e43ba0dbac66633ee7
+  checksum: 66661f169a73de6df23b697bcdc23ec8395b16f1e66cc359fa3b77db468f5114f283517b7ff45ee903b7a95faf7b3c3045d2597c26c94cfea0e240d0a453f605
   languageName: node
   linkType: hard
 
@@ -12060,7 +12060,7 @@ __metadata:
     "@microsoft/applicationinsights-react-js": ^17.3.1
     "@microsoft/applicationinsights-web": ^3.3.1
     "@okta/okta-react": ^6.9.0
-    "@okta/okta-signin-widget": ^7.21.0
+    "@okta/okta-signin-widget": ^7.21.2
     "@playwright/test": ^1.46.1
     "@rest-hooks/rest": ^3.0.3
     "@rest-hooks/test": ^7.3.1
@@ -12104,7 +12104,7 @@ __metadata:
     "@vitest/coverage-istanbul": ^2.0.4
     "@vitest/ui": ^2.0.4
     autoprefixer: ^10.4.20
-    axios: ^1.7.4
+    axios: ^1.7.5
     browserslist: ^4.23.3
     browserslist-useragent-regexp: ^4.1.3
     chromatic: ^11.7.1
@@ -12140,7 +12140,7 @@ __metadata:
     msw: ^2.3.5
     msw-storybook-addon: beta
     npm-run-all: ^4.1.5
-    otpauth: ^9.3.1
+    otpauth: ^9.3.2
     patch-package: ^8.0.0
     postcss: ^8.4.41
     prettier: ^3.3.3
@@ -12170,7 +12170,7 @@ __metadata:
     tslib: ^2.6.3
     tsx: ^4.17.0
     typescript: ^5.5.4
-    undici: ^6.19.7
+    undici: ^6.19.8
     use-deep-compare-effect: ^1.8.1
     uuid: ^10.0.0
     vite: ^5.3.4
@@ -14288,10 +14288,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:^6.19.7":
-  version: 6.19.7
-  resolution: "undici@npm:6.19.7"
-  checksum: ccf7f311cc2f7109e03c433190cb13d45c581905a70674992b0d8469c36ec1ae011824f41ba0c4a85b9771e4dd30a94228315c316215f76fafcb8e3b91ffbc22
+"undici@npm:^6.19.8":
+  version: 6.19.8
+  resolution: "undici@npm:6.19.8"
+  checksum: 2f812769992a187d9c55809b6943059c0bb1340687a0891f769de02101342dded0b9c8874cd5af4a49daaeba8284101d74a1fbda4de04c604ba7a5f6190b9ea2
   languageName: node
   linkType: hard
 

@@ -172,7 +172,7 @@ class FhirConverterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
             FhirConvertQueueMessage(
-                UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER_NAME, topic = Topic.FULL_ELR,
+                UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER_NAME, Topic.FULL_ELR,
                 SCHEMA_NAME
             )
         )
@@ -184,7 +184,7 @@ class FhirConverterTests {
         every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
         every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
         every { actionLogger.setReportId(any()) } returns actionLogger
-        every { message.downloadContent() }.returns(validHl7)
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(validHl7)
         every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.HL7
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
@@ -227,7 +227,7 @@ class FhirConverterTests {
                 BLOB_FHIR_URL,
                 "test",
                 BLOB_SUB_FOLDER_NAME,
-                topic = Topic.FULL_ELR,
+                Topic.FULL_ELR,
                 SCHEMA_NAME
             )
         )
@@ -239,7 +239,7 @@ class FhirConverterTests {
         every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
         every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
         every { actionLogger.setReportId(any()) } returns actionLogger
-        every { message.downloadContent() }
+        every { BlobAccess.downloadBlob(any(), any()) }
             .returns(File(VALID_DATA_URL).readText())
         every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.FHIR
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
@@ -296,7 +296,7 @@ class FhirConverterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
             FhirConvertQueueMessage(
-                UUID.randomUUID(), BLOB_FHIR_URL, "test", BLOB_SUB_FOLDER_NAME, topic = Topic.FULL_ELR,
+                UUID.randomUUID(), BLOB_FHIR_URL, "test", BLOB_SUB_FOLDER_NAME, Topic.FULL_ELR,
                 SCHEMA_NAME
             )
         )
@@ -306,7 +306,7 @@ class FhirConverterTests {
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.setReportId(any()) } returns actionLogger
-        every { message.downloadContent() }
+        every { BlobAccess.downloadBlob(any(), any()) }
             .returns(File("src/test/resources/fhirengine/engine/bundle_multiple_bundles.fhir").readText())
         every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.FHIR
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
@@ -386,7 +386,7 @@ class FhirConverterTests {
                 BLOB_FHIR_URL,
                 "test",
                 BLOB_SUB_FOLDER_NAME,
-                topic = Topic.FULL_ELR,
+                Topic.FULL_ELR,
                 SCHEMA_NAME
             )
         )
@@ -398,7 +398,7 @@ class FhirConverterTests {
         every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
         every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
         every { actionLogger.setReportId(any()) } returns actionLogger
-        every { message.downloadContent() } returns (fhirRecord)
+        every { BlobAccess.downloadBlob(any(), any()) } returns (fhirRecord)
         every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.FHIR
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
@@ -477,7 +477,7 @@ class FhirConverterTests {
                 BLOB_FHIR_URL,
                 "test",
                 BLOB_SUB_FOLDER_NAME,
-                topic = Topic.FULL_ELR,
+                Topic.FULL_ELR,
                 SCHEMA_NAME
             )
         )
@@ -489,7 +489,7 @@ class FhirConverterTests {
         every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
         every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
         every { actionLogger.setReportId(any()) } returns actionLogger
-        every { message.downloadContent() } returns (fhirData)
+        every { BlobAccess.downloadBlob(any(), any()) } returns (fhirData)
         every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.FHIR
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
@@ -556,11 +556,12 @@ class FhirConverterTests {
 
         @Test
         fun `should log an error and return no bundles if the message is empty`() {
+            mockkObject(BlobAccess)
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
-            val mockMessage = mockk<ReportPipelineMessage>()
+            val mockMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
             every { mockMessage.topic } returns Topic.FULL_ELR
-            every { mockMessage.downloadContent() } returns ""
+            every { BlobAccess.downloadBlob(any(), any()) } returns ""
             val bundles = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
             assertThat(bundles).isEmpty()
             assertThat(actionLogger.errors.map { it.detail.message }).contains("Provided raw data is empty.")
@@ -569,6 +570,7 @@ class FhirConverterTests {
         @Test
         fun `should handle a parse failure for the entire HL7 batch`() {
             mockkConstructor(Hl7InputStreamMessageStringIterator::class)
+            mockkObject(BlobAccess)
             every {
                 anyConstructed<Hl7InputStreamMessageStringIterator>().hasNext()
             } throws Hl7InputStreamMessageStringIterator.ParseFailureError(
@@ -578,12 +580,10 @@ class FhirConverterTests {
 
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
-            val mockMessage = mockk<ReportPipelineMessage>()
+            val mockMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
-            every {
-                mockMessage.downloadContent()
-            } returns simpleHL7
+            every { BlobAccess.downloadBlob(any(), any()) } returns simpleHL7
             val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(bundles).isEmpty()
             assertThat(
@@ -595,12 +595,13 @@ class FhirConverterTests {
 
         @Test
         fun `should log an error and return no bundles if the format is not supported`() {
+            mockkObject(BlobAccess)
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
-            val mockMessage = mockk<ReportPipelineMessage>()
+            val mockMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
-            every { mockMessage.downloadContent() } returns "test,1,2"
+            every { BlobAccess.downloadBlob(any(), any()) } returns "test,1,2"
             val bundles = engine.process(MimeFormat.CSV, mockMessage, actionLogger)
             assertThat(bundles).isEmpty()
             assertThat(actionLogger.errors.map { it.detail.message })
@@ -609,12 +610,13 @@ class FhirConverterTests {
 
         @Test
         fun `should a log FHIR parse error and not return a bundle`() {
+            mockkObject(BlobAccess)
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
-            val mockMessage = mockk<ReportPipelineMessage>()
+            val mockMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
-            every { mockMessage.downloadContent() } returns "{\"id\":}"
+            every { BlobAccess.downloadBlob(any(), any()) } returns "{\"id\":}"
             val processedItems = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
             assertThat(processedItems).hasSize(1)
             assertThat(processedItems.first().bundle).isNull()
@@ -626,6 +628,7 @@ class FhirConverterTests {
 
         @Test
         fun `should log a FHIR validation error and not return a bundle`() {
+            mockkObject(BlobAccess)
             val fhirValidationResult = mockk<ValidationResult>()
             val message = SingleValidationMessage()
             message.severity = ResultSeverityEnum.ERROR
@@ -639,11 +642,11 @@ class FhirConverterTests {
 
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
-            val mockMessage = mockk<ReportPipelineMessage>()
+            val mockMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
 
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
-            every { mockMessage.downloadContent() } returns "{\"id\":\"1\", \"resourceType\":\"Bundle\"}"
+            every { BlobAccess.downloadBlob(any(), any()) } returns "{\"id\":\"1\", \"resourceType\":\"Bundle\"}"
             val processedItems = engine.process(MimeFormat.FHIR, mockMessage, actionLogger)
             assertThat(processedItems).hasSize(1)
             assertThat(processedItems.first().bundle).isNull()
@@ -654,13 +657,14 @@ class FhirConverterTests {
 
         @Test
         fun `should log an HL7 parse error and not return a bundle`() {
+            mockkObject(BlobAccess)
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
-            val mockMessage = mockk<ReportPipelineMessage>()
+            val mockMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every {
-                mockMessage.downloadContent()
+                BlobAccess.downloadBlob(any(), any())
             } returns unparseableHL7
             val processedItems = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(processedItems).hasSize(1)
@@ -677,6 +681,7 @@ class FhirConverterTests {
 
         @Test
         fun `should log a HL7 validation error and not return a bundle`() {
+            mockkObject(BlobAccess)
             val mockValidation = mockk<hl7.v2.validation.report.Report>()
             val mockEntry = mockk<Entry>()
             every { mockEntry.classification } returns AbstractItemValidator.ERROR_CLASSIFICATION
@@ -690,11 +695,11 @@ class FhirConverterTests {
 
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
-            val mockMessage = mockk<ReportPipelineMessage>()
+            val mockMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every {
-                mockMessage.downloadContent()
+                BlobAccess.downloadBlob(any(), any())
             } returns simpleHL7
             val processedItems = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(processedItems).hasSize(1)
@@ -711,6 +716,7 @@ class FhirConverterTests {
 
         @Test
         fun `should log a HL7 conversion error and not return a bundle`() {
+            mockkObject(BlobAccess)
             mockkObject(HL7toFhirTranslator)
             val mockHL7toFhirTranslator = mockk<HL7toFhirTranslator>()
             every { mockHL7toFhirTranslator.translate(any()) } throws RuntimeException("Conversion error")
@@ -718,11 +724,11 @@ class FhirConverterTests {
 
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
-            val mockMessage = mockk<ReportPipelineMessage>()
+            val mockMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every {
-                mockMessage.downloadContent()
+                BlobAccess.downloadBlob(any(), any())
             } returns simpleHL7
             val processedItems = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(processedItems).hasSize(1)
@@ -739,13 +745,14 @@ class FhirConverterTests {
 
         @Test
         fun `should optionally support routing some or no items when routeMessageWithInvalidItems is set`() {
+            mockkObject(BlobAccess)
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
-            val mockMessage = mockk<ReportPipelineMessage>()
+            val mockMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every {
-                mockMessage.downloadContent()
+                BlobAccess.downloadBlob(any(), any())
             } returns """{\"id\":}
                 {"id":"1", "resourceType":"Bundle"}
             """.trimMargin()
@@ -766,14 +773,15 @@ class FhirConverterTests {
 
         @Test
         fun `should process an HL7 message`() {
+            mockkObject(BlobAccess)
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
-            val mockMessage = mockk<ReportPipelineMessage>()
+            val mockMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
 
             every {
-                mockMessage.downloadContent()
+                BlobAccess.downloadBlob(any(), any())
             } returns simpleHL7
             val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(bundles).hasSize(1)
@@ -782,17 +790,18 @@ class FhirConverterTests {
 
         @Test
         fun `should process items in parallel`() {
+            mockkObject(BlobAccess)
             mockkObject(BaseEngine.Companion)
             every { BaseEngine.Companion getProperty "sequentialLimit" } returns 2
 
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
-            val mockMessage = mockk<ReportPipelineMessage>()
+            val mockMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
 
             every {
-                mockMessage.downloadContent()
+                BlobAccess.downloadBlob(any(), any())
             } returns simpleHL7 + "\n" + simpleHL7 + "\n" + simpleHL7
             val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(bundles).hasSize(3)
@@ -803,6 +812,7 @@ class FhirConverterTests {
 
         @Test
         fun `should process an HL7 message with a registered profile`() {
+            mockkObject(BlobAccess)
             mockkObject(HL7Reader.Companion)
             every { HL7Reader.Companion.messageToConfigMap } returns mapOf(
                 HL7Reader.Companion.HL7MessageType(
@@ -817,12 +827,12 @@ class FhirConverterTests {
 
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
-            val mockMessage = mockk<ReportPipelineMessage>()
+            val mockMessage = mockk<FhirConvertQueueMessage>(relaxed = true)
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
 
             every {
-                mockMessage.downloadContent()
+                BlobAccess.downloadBlob(any(), any())
             } returns simpleHL7
             val bundles = engine.process(MimeFormat.HL7, mockMessage, actionLogger)
             assertThat(bundles).hasSize(1)

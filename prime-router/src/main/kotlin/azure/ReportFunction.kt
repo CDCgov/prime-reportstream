@@ -1,5 +1,8 @@
 package gov.cdc.prime.router.azure
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -15,22 +18,30 @@ import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
+import gov.cdc.prime.router.azure.BlobAccess.Companion.defaultBlobMetadata
+import gov.cdc.prime.router.azure.BlobAccess.Companion.getBlobContainer
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
+import gov.cdc.prime.router.cli.PIIRemovalCommands
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
+import java.util.UUID
 
 private const val PROCESSING_TYPE_PARAMETER = "processing"
 
@@ -82,6 +93,134 @@ class ReportFunction(
                 logger.error(ex)
             }
             HttpUtilities.internalErrorResponse(request)
+        }
+    }
+
+    /**
+     * GET messages from test bank
+     *
+     * @see ../../../docs/api/reports.yml
+     */
+    @FunctionName("getMessagesFromTestBank")
+    fun getMessagesFromTestBank(
+        @HttpTrigger(
+            name = "getMessagesFromTestBank",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "reports/testing"
+        ) request: HttpRequestMessage<String?>,
+    ): HttpResponseMessage {
+        val claims = AuthenticatedClaims.authenticate(request)
+        if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
+            return processGetMessageFromTestBankRequest(request)
+        }
+        return HttpUtilities.unauthorizedResponse(request)
+    }
+
+    /**
+     * Moved the logic to a separate function for testing purposes
+     */
+    fun processGetMessageFromTestBankRequest(
+        request: HttpRequestMessage<String?>,
+        blobAccess: BlobAccess.Companion = BlobAccess,
+        defaultBlobMetadata: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
+    ): HttpResponseMessage {
+        return try {
+            val updatedBlobMetadata = defaultBlobMetadata.copy(containerName = "test-bank")
+            val results = blobAccess.listBlobs("", updatedBlobMetadata)
+            val reports = mutableListOf<TestReportInfo>()
+            val sourceContainer = getBlobContainer(updatedBlobMetadata)
+            results.forEach { currentResult ->
+                if (currentResult.currentBlobItem.name.endsWith(".fhir")) {
+                    val sourceBlobClient = sourceContainer.getBlobClient(currentResult.currentBlobItem.name)
+                    val data = sourceBlobClient.downloadContent()
+
+                    val currentTestReportInfo = TestReportInfo(
+                        currentResult.currentBlobItem.properties.creationTime.toString(),
+                        currentResult.currentBlobItem.name,
+                        data.toString()
+                    )
+                    reports.add(currentTestReportInfo)
+                }
+            }
+
+            val mapper: ObjectMapper = JsonMapper.builder()
+                .addModule(JavaTimeModule())
+                .build()
+            HttpUtilities.okResponse(request, mapper.writeValueAsString(reports) ?: "[]")
+        } catch (e: Exception) {
+            logger.error("Unable to fetch messages from test bank", e)
+            HttpUtilities.internalErrorResponse(request)
+        }
+    }
+
+    class TestReportInfo(
+        var dateCreated: String,
+        var fileName: String,
+        var reportBody: String,
+    )
+
+    /**
+     * GET report to download
+     *
+     * @see ../../../docs/api/reports.yml
+     */
+    @FunctionName("downloadReport")
+    fun downloadReport(
+        @HttpTrigger(
+            name = "downloadReport",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.FUNCTION,
+            route = "reports/download"
+        ) request: HttpRequestMessage<String?>,
+    ): HttpResponseMessage {
+        val reportId = request.queryParameters[REPORT_ID_PARAMETER]
+        val removePIIRaw = request.queryParameters[REMOVE_PII]
+        var removePII = false
+        if (removePIIRaw.isNullOrBlank() || removePIIRaw.toBoolean()) {
+            removePII = true
+        }
+        if (reportId.isNullOrBlank()) {
+            return HttpUtilities.badRequestResponse(request, "Must provide a reportId.")
+        }
+        return processDownloadReport(
+            request,
+            ReportId.fromString(reportId),
+            removePII,
+            Environment.get().envName
+        )
+    }
+
+    fun processDownloadReport(
+        request: HttpRequestMessage<String?>,
+        reportId: UUID,
+        removePII: Boolean?,
+        envName: String,
+        databaseAccess: DatabaseAccess = DatabaseAccess(),
+        piiRemovalCommands: PIIRemovalCommands = PIIRemovalCommands(),
+    ): HttpResponseMessage {
+        val requestedReport = databaseAccess.fetchReportFile(reportId)
+
+        return if (requestedReport.bodyUrl != null && requestedReport.bodyUrl.toString().lowercase().endsWith("fhir")) {
+            val contents = BlobAccess.downloadBlobAsByteArray(requestedReport.bodyUrl)
+
+            val content = if (removePII == null || removePII) {
+                piiRemovalCommands.removePii(FhirTranscoder.decode(contents.toString(Charsets.UTF_8)))
+            } else {
+                if (envName == "prod") {
+                    return HttpUtilities.badRequestResponse(request, "Must remove PII for messages from prod.")
+                }
+
+                val jsonObject = JacksonMapperUtilities.defaultMapper
+                    .readValue(contents.toString(Charsets.UTF_8), Any::class.java)
+                JacksonMapperUtilities.defaultMapper.writeValueAsString(jsonObject)
+            }
+
+            HttpUtilities.okJSONResponse(request, content)
+        } else if (requestedReport.bodyUrl == null) {
+            HttpUtilities.badRequestResponse(request, "The requested report does not exist.")
+        } else {
+            HttpUtilities.badRequestResponse(request, "The requested report is not fhir.")
         }
     }
 
