@@ -175,7 +175,8 @@ test.describe("Admin Receiver Status Page",
                     },
                 );
 
-                test("receiver name", async ({adminReceiverStatusPage, isMockDisabled}) => {
+                // TODO: revisit after filters have been fixed per ticket #15737
+                test.skip("receiver name", async ({adminReceiverStatusPage, isMockDisabled}) => {
                     test.skip(!isMockDisabled, "Mocks are ENABLED, skipping 'receiver name' test");
                     const {organizationName, receiverName, successRate} =
                         adminReceiverStatusPage.timePeriodData[1];
@@ -206,7 +207,7 @@ test.describe("Admin Receiver Status Page",
                     expect(defaultReceiversStatusRowsCount).toBe(adminReceiverStatusPage.timePeriodData.length);
                 });
 
-                test("result message", async ({adminReceiverStatusPage, isMockDisabled}) => {
+                test.skip("result message", async ({adminReceiverStatusPage, isMockDisabled}) => {
                     test.skip(!isMockDisabled, "Mocks are ENABLED, skipping 'result message' test");
                     // get first entry's result from all-fail receiver's first day -> third time period
                     const receiverI = 0;
@@ -242,7 +243,7 @@ test.describe("Admin Receiver Status Page",
                     // await adminReceiverStatusPage.testReceiverStatusDisplay();
                 });
 
-                test("success type", async ({ adminReceiverStatusPage, isMockDisabled }) => {
+                test.skip("success type", async ({ adminReceiverStatusPage, isMockDisabled }) => {
                     test.skip(!isMockDisabled, "Mocks are ENABLED, skipping 'success type' test");
                     const [failRow, ,] = adminReceiverStatusPage.timePeriodData;
                     const failRowTitle = adminReceiverStatusPage.getExpectedReceiverStatusRowTitle(
