@@ -245,10 +245,10 @@ elements:
 - name: observation-result-with-aoe
   resource: '%resource.result.resolve()'
 ```
-In the example above you can see we have several different types of transforms. Some of them like element "test-receiving-application" are just defaulting a value adn all we
+In the example above you can see we have several different types of transforms. Some of them like element "test-receiving-application" are just defaulting a value and all we
 have to do is make sure that value exists on every message we test. Others like "test-patient-ethnicity-identifier-code" are using a valueset to transform one value into another and elements like
 "obx-value-dtm-dt" have a complex condition and are modifying the format of a field. For these kinds of elements we need to make sure and test both the positive and negative case. i.e. for "test-patient-ethnicity-identifier-code" we need to test a message with "H" or "N" in "Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding[0].code"
-and then also test when "Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding[0].code" is neither or those values. For "obx-value-dtm-dt" we need to test where the condition is both "true" and "false"
+and then also test when "Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding[0].code" is neither of those values. For "obx-value-dtm-dt" we need to test where the condition is both "true" and "false"
 
 You can see how some of these test cases can be combined. For example, we can have a single message with both a "Bundle.entry.resource.ofType(Patient).extension(%`rsext-ethnic-group`).value.coding[0].code" value of "N" and that
 meets the condition for "obx-value-dtm-dt".
@@ -260,7 +260,7 @@ One of the most complex items we commonly test are the condition filters. For ex
 ```
 
 We have three possible condition codes that also need to have a positive result to qualify. In addition, we are pruning observations that do not meet that criteria.
-you can see how in order to test both the positive and negative cases we will need several test messages. Also because there is the possibility that we may receive a message
+you can see how in order to test both the positive and negative cases we will need several test messages. Also, because there is the possibility that we may receive a message
 with multiple observations that meet the criteria we also want to test that case.
 
 It is also important to keep in mind that we have different sources of data. SimpleReport Manual entry, SimpleReport CSV entry and direct HL7 to ReportStream. We should make sure to test
