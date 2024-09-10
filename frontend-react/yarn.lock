@@ -2399,9 +2399,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-auth-js@npm:^7.7.0":
-  version: 7.7.0
-  resolution: "@okta/okta-auth-js@npm:7.7.0"
+"@okta/okta-auth-js@npm:^7.8.0":
+  version: 7.8.0
+  resolution: "@okta/okta-auth-js@npm:7.8.0"
   dependencies:
     "@babel/runtime": ^7.12.5
     "@peculiar/webcrypto": ^1.4.0
@@ -2419,7 +2419,7 @@ __metadata:
     tiny-emitter: 1.1.0
     webcrypto-shim: ^0.1.5
     xhr2: 0.1.3
-  checksum: 86f091db8131694aa373dc36400dd6a89160cd0efd695c98459bae83a6c68fe615b9fa9083b96ec301c321b7e7efc93a20a5bd9ca43da8117b26be2ba398c492
+  checksum: faeac22381a46784381e3757c1f5193bb7dc821ea39fdd5d58952dc744cf0a64788e979aa3ce4a2551dd29f6b49e9e7eda756bafc3737386ec4c6d2b3277582c
   languageName: node
   linkType: hard
 
@@ -2438,11 +2438,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-signin-widget@npm:^7.21.2":
-  version: 7.21.2
-  resolution: "@okta/okta-signin-widget@npm:7.21.2"
+"@okta/okta-signin-widget@npm:^7.23.0":
+  version: 7.23.0
+  resolution: "@okta/okta-signin-widget@npm:7.23.0"
   dependencies:
-    "@okta/okta-auth-js": ^7.7.0
+    "@okta/okta-auth-js": ^7.8.0
     "@sindresorhus/to-milliseconds": ^1.0.0
     "@types/backbone": ^1.4.15
     "@types/eslint-scope": ^3.7.3
@@ -2464,7 +2464,7 @@ __metadata:
   dependenciesMeta:
     fsevents:
       optional: true
-  checksum: ac78f2055248aff5d09a50bbe086023cc1aee0b6c10f84e80eeac2488dfbd6e5647b10abb8b65b60a80c754159d50c828ae11a6769e255df588fc7b8b681fd19
+  checksum: 5b55d5fc39412778505d262810ab3a87c2bf557a55a59e4f041f77393b6344e35a96477603a40e80cae325f0bd534aa61c95f0b154b659e647b35e55346d4b90
   languageName: node
   linkType: hard
 
@@ -12187,7 +12187,7 @@ __metadata:
     "@microsoft/applicationinsights-react-js": ^17.3.2
     "@microsoft/applicationinsights-web": ^3.3.2
     "@okta/okta-react": ^6.9.0
-    "@okta/okta-signin-widget": ^7.21.2
+    "@okta/okta-signin-widget": ^7.23.0
     "@playwright/test": ^1.47.0
     "@rest-hooks/rest": ^3.0.3
     "@rest-hooks/test": ^7.3.1
