@@ -101,7 +101,8 @@ val reportsApiEndpointHost = (
 val devAzureConnectString =
     "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
         "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
-        "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
+        "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;" +
+        "TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;"
 
 val env = mutableMapOf<String, Any>(
     "AzureWebJobsStorage" to devAzureConnectString,
@@ -507,7 +508,7 @@ tasks.register("generateVersionFile") {
             standardOutput = stdout
         }
         val currentCommit = stdout.toString(StandardCharsets.UTF_8).trim()
-        File("./version.json").writeText("{\"commitId\": \"$currentCommit\"}")
+        File(buildDir, "$azureFunctionsDir/$azureAppName/version.json").writeText("{\"commitId\": \"$currentCommit\"}")
     }
 }
 
@@ -524,7 +525,6 @@ tasks.register<Copy>("gatherAzureResources") {
     include("metadata/**/*.csv")
     include("settings/**/*.yml")
     include("assets/**/*__inline.html")
-    include("version.json")
 }
 
 tasks.register("copyAzureResources") {

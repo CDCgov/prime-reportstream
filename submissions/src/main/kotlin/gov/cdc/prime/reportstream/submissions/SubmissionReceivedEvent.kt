@@ -3,7 +3,7 @@ package gov.cdc.prime.reportstream.submissions
 import java.time.Instant
 import java.util.UUID
 
-data class ReportReceivedEvent(
+data class SubmissionReceivedEvent(
     val timeStamp: Instant,
     val reportId: UUID,
     val parentReportId: UUID,

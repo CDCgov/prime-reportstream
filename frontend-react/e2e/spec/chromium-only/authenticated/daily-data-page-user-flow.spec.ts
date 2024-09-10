@@ -373,11 +373,13 @@ test.describe(
                         await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                     });
 
-                    test.skip("downloads the file", async ({ dailyDataPage }) => {
-                        await setDate(dailyDataPage.page, "#start-date", 14);
-                        await setDate(dailyDataPage.page, "#end-date", 0);
-
-                        await applyButton(dailyDataPage.page).click();
+                    test("downloads the file", async ({ dailyDataPage, isMockDisabled }) => {
+                        test.skip(!isMockDisabled, "Mocks are ENABLED, skipping 'downloads the file' test");
+                        // Sort by File available until, but they're in ASCENDING order
+                        await dailyDataPage.page.getByRole("button", { name: "File available until" }).click();
+                        await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                        // Sort by File available until again, to get the absolute latest result
+                        await dailyDataPage.page.getByRole("button", { name: "File available until" }).click();
                         await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
                         const downloadProm = dailyDataPage.page.waitForEvent("download");

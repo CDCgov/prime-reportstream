@@ -165,7 +165,7 @@ class ProcessFhirCommands : CliktCommand(
                 }
                 FhirToHl7Converter(
                     receiverSchema!!,
-                    BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().blobEnvVar),
+                    BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
                     context = FhirToHl7Context(
                         CustomFhirPathFunctions(),
                         config = HL7TranslationConfig(
