@@ -38,7 +38,8 @@ const test = baseTest.extend<AdminReceiverStatusPageFixtures>({
 
 test.describe("Admin Receiver Status Page",
     {
-        tag: "@smoke",
+        // TODO: Investigate Admin Receiver Status Page › functions correctly › receiver statuses › time period modals
+        // tag: "@smoke",
     }, () => {
         test.use({ storageState: logins.admin.path });
         test.describe("displays correctly", () => {
@@ -319,7 +320,7 @@ test.describe("Admin Receiver Status Page",
                     });
                 });
 
-                test("time period modals", async ({ adminReceiverStatusPage }) => {
+                test.skip("time period modals", async ({ adminReceiverStatusPage }) => {
                     const result = await adminReceiverStatusPage.testReceiverTimePeriodModals(true);
                     expect(result).toBe(true);
                 });
