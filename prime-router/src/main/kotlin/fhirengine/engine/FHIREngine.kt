@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
@@ -122,6 +123,14 @@ abstract class FHIREngine(
 
             // create the correct FHIREngine type for the action being taken
             return when (taskAction) {
+                TaskAction.receive -> FHIRReceiver(
+                    metadata ?: Metadata.getInstance(),
+                    settingsProvider!!,
+                    databaseAccess ?: databaseAccessSingleton,
+                    blobAccess ?: BlobAccess(),
+                    azureEventService ?: AzureEventServiceImpl(),
+                    reportService ?: ReportService(),
+                )
                 TaskAction.process -> FHIRConverter(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,

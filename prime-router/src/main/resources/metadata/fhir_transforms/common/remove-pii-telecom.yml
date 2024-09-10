@@ -2,7 +2,7 @@ elements:
   - name: pii-removal-phone-area-code
     condition: "%resource.where(system = 'phone')"
     value: [ 'getFakeValueForElement("TELEPHONE").substring(0,3)' ]
-    bundleProperty: '%resource.extension(%`ext-contactpoint-area`).value'
+    bundleProperty: '%resource.extension(`https://reportstream.cdc.gov/fhir/StructureDefinition/contactpoint-area`).value[x]'
 
   - name: pii-removal-local-phone
     condition: "%resource.where(system = 'phone')"
