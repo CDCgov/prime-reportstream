@@ -4092,13 +4092,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:18.3.3":
-  version: 18.3.3
-  resolution: "@types/react@npm:18.3.3"
+"@types/react@npm:18.3.5":
+  version: 18.3.5
+  resolution: "@types/react@npm:18.3.5"
   dependencies:
     "@types/prop-types": "*"
     csstype: ^3.0.2
-  checksum: c63d6a78163244e2022b01ef79b0baec4fe4da3475dc4a90bb8accefad35ef0c43560fd0312e5974f92a0f1108aa4d669ac72d73d66396aa060ea03b5d2e3873
+  checksum: 63d2ff473b348c902b68c20be55d2c5124d078c4336c2d1778f316c27789ed596657e8e714022ce14fb24994b0960fc64c913e629bb0bf85815355b0c31eb46b
   languageName: node
   linkType: hard
 
@@ -12091,7 +12091,7 @@ __metadata:
     "@types/lodash": ^4.17.7
     "@types/mdx": ^2.0.13
     "@types/node": ^20.12.5
-    "@types/react": 18.3.3
+    "@types/react": 18.3.5
     "@types/react-dom": ^18.3.0
     "@types/react-router-dom": ^5.3.3
     "@types/react-scroll-sync": ^0.9.0
