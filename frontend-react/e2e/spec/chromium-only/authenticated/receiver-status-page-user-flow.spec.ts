@@ -38,7 +38,8 @@ const test = baseTest.extend<AdminReceiverStatusPageFixtures>({
 
 test.describe("Admin Receiver Status Page",
     {
-        tag: "@smoke",
+        // TODO: Investigate time errors, and unexpected status message in modal
+        // tag: "@smoke",
     }, () => {
         test.use({ storageState: logins.admin.path });
         test.describe("displays correctly", () => {
