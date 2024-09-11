@@ -43,6 +43,7 @@ import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import kotlinx.serialization.json.Json
 import org.apache.logging.log4j.kotlin.Logging
+import java.nio.charset.StandardCharsets
 import java.util.UUID
 
 private const val PROCESSING_TYPE_PARAMETER = "processing"
@@ -217,7 +218,7 @@ class ReportFunction(
                 if (envName == "prod") {
                     return HttpUtilities.badRequestResponse(request, "Must remove PII for messages from prod.")
                 }
-                contents.toString()
+                String(contents, StandardCharsets.UTF_8)
             }
 
             HttpUtilities.okJSONResponse(request, Json.parseToJsonElement(content))
