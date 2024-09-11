@@ -1,4 +1,4 @@
-import {tableColumnDateTimeInRange, tableRows} from "../../../helpers/utils";
+import { tableRows } from "../../../helpers/utils";
 import { LastMileFailuresPage } from "../../../pages/authenticated/last-mile-failures";
 import { test as baseTest, expect } from "../../../test";
 
