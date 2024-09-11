@@ -1,0 +1,1930 @@
+{
+  "resourceType": {
+    "isString": true,
+    "content": "Bundle",
+    "coerceToInlineType$kotlinx_serialization_json": null
+  },
+  "identifier": {
+    "value": {
+      "isString": true,
+      "content": "ac108756-2162-470c-8a00-a189b3e94a54",
+      "coerceToInlineType$kotlinx_serialization_json": null
+    }
+  },
+  "type": {
+    "isString": true,
+    "content": "message",
+    "coerceToInlineType$kotlinx_serialization_json": null
+  },
+  "timestamp": {
+    "isString": true,
+    "content": "2023-10-18T22:20:22.347Z",
+    "coerceToInlineType$kotlinx_serialization_json": null
+  },
+  "entry": [
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "MessageHeader/c7414da3-edc1-4a3e-9c5c-8d7a8e5cf775",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "MessageHeader",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "c7414da3-edc1-4a3e-9c5c-8d7a8e5cf775",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "meta": {
+          "tag": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://terminology.hl7.org/CodeSystem/v2-0103",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "T",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "display": {
+                "isString": true,
+                "content": "Training",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ]
+        },
+        "eventCoding": {
+          "system": {
+            "isString": true,
+            "content": "http://terminology.hl7.org/CodeSystem/v2-0003",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          },
+          "code": {
+            "isString": true,
+            "content": "R01",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          },
+          "display": {
+            "isString": true,
+            "content": "ORU/ACK - Unsolicited transmission of an observation message",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "destination": [
+          {
+            "name": {
+              "isString": true,
+              "content": "PRIME ReportStream",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "endpoint": {
+              "isString": true,
+              "content": "https://prime.cdc.gov/api/reports?option=SkipInvalidItems",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "sender": {
+          "reference": {
+            "isString": true,
+            "content": "Organization/9e22cfde-e704-4922-a247-b1a6ac0f43bc",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "source": {
+          "extension": [
+            {
+              "url": {
+                "isString": true,
+                "content": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-binary-id",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "valueString": {
+                "isString": true,
+                "content": "e3d085e",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            },
+            {
+              "url": {
+                "isString": true,
+                "content": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-install-date",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "valueInstant": {
+                "isString": true,
+                "content": "2023-10-18T21:06:03Z",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            },
+            {
+              "url": {
+                "isString": true,
+                "content": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "valueReference": {
+                "reference": {
+                  "isString": true,
+                  "content": "Organization/07640c5d-87cd-488b-9343-a226c5166539",
+                  "coerceToInlineType$kotlinx_serialization_json": null
+                }
+              }
+            }
+          ],
+          "software": {
+            "isString": true,
+            "content": "PRIME SimpleReport",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          },
+          "version": {
+            "isString": true,
+            "content": "e3d085e",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          },
+          "endpoint": {
+            "isString": true,
+            "content": "https://simplereport.gov",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "focus": [
+          {
+            "reference": {
+              "isString": true,
+              "content": "Provenance/cad7f8ea-6bd0-417f-8efd-7154228654e8",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          },
+          {
+            "reference": {
+              "isString": true,
+              "content": "DiagnosticReport/ac108756-2162-470c-8a00-a189b3e94a54",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "Provenance/cad7f8ea-6bd0-417f-8efd-7154228654e8",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "Provenance",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "cad7f8ea-6bd0-417f-8efd-7154228654e8",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "recorded": {
+          "isString": true,
+          "content": "2023-10-18T22:20:22.347Z",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "activity": {
+          "coding": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://terminology.hl7.org/CodeSystem/v2-0003",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "R01",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "display": {
+                "isString": true,
+                "content": "ORU/ACK - Unsolicited transmission of an observation message",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ]
+        },
+        "agent": [
+          {
+            "who": {
+              "reference": {
+                "isString": true,
+                "content": "Organization/9e22cfde-e704-4922-a247-b1a6ac0f43bc",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "DiagnosticReport/ac108756-2162-470c-8a00-a189b3e94a54",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "DiagnosticReport",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "ac108756-2162-470c-8a00-a189b3e94a54",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "identifier": [
+          {
+            "value": {
+              "isString": true,
+              "content": "ac108756-2162-470c-8a00-a189b3e94a54",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "basedOn": [
+          {
+            "reference": {
+              "isString": true,
+              "content": "ServiceRequest/b0ba1f7e-f36e-4fc6-9f88-5ee8b3de58a1",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "status": {
+          "isString": true,
+          "content": "final",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "code": {
+          "coding": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://loinc.org",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "95941-1",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ]
+        },
+        "subject": {
+          "reference": {
+            "isString": true,
+            "content": "Patient/283f16c8-0a61-487f-af1b-50fe0dbdb2a8",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "effectiveDateTime": {
+          "isString": true,
+          "content": "2023-10-18T22:05:20+00:00",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "issued": {
+          "isString": true,
+          "content": "2023-10-18T22:20:22+00:00",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "specimen": [
+          {
+            "reference": {
+              "isString": true,
+              "content": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "result": [
+          {
+            "reference": {
+              "isString": true,
+              "content": "Observation/29574070-adfc-4d53-a48f-5ddcc382614e",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          },
+          {
+            "reference": {
+              "isString": true,
+              "content": "Observation/99a3d501-90c1-467b-b4a3-568f5af5178d",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          },
+          {
+            "reference": {
+              "isString": true,
+              "content": "Observation/e7fdd44c-9625-469d-b891-7a7e706680a0",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "Patient/283f16c8-0a61-487f-af1b-50fe0dbdb2a8",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "Patient",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "283f16c8-0a61-487f-af1b-50fe0dbdb2a8",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "extension": [
+          {
+            "url": {
+              "isString": true,
+              "content": "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": {
+                    "isString": true,
+                    "content": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  },
+                  "code": {
+                    "isString": true,
+                    "content": "ASKU",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  }
+                }
+              ],
+              "text": {
+                "isString": true,
+                "content": "refused",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          },
+          {
+            "url": {
+              "isString": true,
+              "content": "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": {
+                    "isString": true,
+                    "content": "http://terminology.hl7.org/CodeSystem/v2-0189",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  },
+                  "code": {
+                    "isString": true,
+                    "content": "N",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  },
+                  "display": {
+                    "isString": true,
+                    "content": "Not Hispanic or Latino",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  }
+                }
+              ],
+              "text": {
+                "isString": true,
+                "content": "Not Hispanic or Latino",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "value": {
+              "isString": true,
+              "content": "283f16c8-0a61-487f-af1b-50fe0dbdb2a8",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "name": [
+          {
+            "family": {
+              "isString": true,
+              "content": " I",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "given": [
+              {
+                "isString": true,
+                "content": "Deane",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": {
+              "isString": true,
+              "content": "phone",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "value": {
+              "isString": true,
+              "content": "12124126721",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "use": {
+              "isString": true,
+              "content": "home",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          },
+          {
+            "system": {
+              "isString": true,
+              "content": "email",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "value": {
+              "isString": true,
+              "content": "ChongDenesik@gmail.com",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "use": {
+              "isString": true,
+              "content": "home",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "gender": {
+          "isString": true,
+          "content": "female",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "birthDate": {
+          "isString": true,
+          "content": "2017-01-30",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "address": [
+          {
+            "line": [
+              {
+                "isString": true,
+                "content": "863 Glady Rue",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            ],
+            "city": {
+              "isString": true,
+              "content": "Myrtle",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "district": {
+              "isString": true,
+              "content": "Texas",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "state": {
+              "isString": true,
+              "content": "MO",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "postalCode": {
+              "isString": true,
+              "content": "65263",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "country": {
+              "isString": true,
+              "content": "USA",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "managingOrganization": {
+          "reference": {
+            "isString": true,
+            "content": "Organization/9e22cfde-e704-4922-a247-b1a6ac0f43bc",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        }
+      }
+    },
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "Organization/9e22cfde-e704-4922-a247-b1a6ac0f43bc",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "Organization",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "9e22cfde-e704-4922-a247-b1a6ac0f43bc",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "identifier": [
+          {
+            "use": {
+              "isString": true,
+              "content": "official",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "type": {
+              "coding": [
+                {
+                  "system": {
+                    "isString": true,
+                    "content": "http://terminology.hl7.org/CodeSystem/v2-0301",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  },
+                  "code": {
+                    "isString": true,
+                    "content": "CLIA",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  }
+                }
+              ]
+            },
+            "value": {
+              "isString": true,
+              "content": "12D3456789",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "name": {
+          "isString": true,
+          "content": "Carl Potts",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "telecom": [
+          {
+            "system": {
+              "isString": true,
+              "content": "phone",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "value": {
+              "isString": true,
+              "content": "12505245506",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "use": {
+              "isString": true,
+              "content": "work",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          },
+          {
+            "system": {
+              "isString": true,
+              "content": "email",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "value": {
+              "isString": true,
+              "content": "MozelleMarksIII@gmail.com",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "use": {
+              "isString": true,
+              "content": "work",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "address": [
+          {
+            "line": [
+              {
+                "isString": true,
+                "content": "661 Ondricka Point",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            ],
+            "city": {
+              "isString": true,
+              "content": "Avilla",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "district": {
+              "isString": true,
+              "content": "Lawrence",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "state": {
+              "isString": true,
+              "content": "MO",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "postalCode": {
+              "isString": true,
+              "content": "64126",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "country": {
+              "isString": true,
+              "content": "USA",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "Practitioner/48db8ab7-c884-4cf7-9a4f-b5fe6efb37da",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "Practitioner",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "48db8ab7-c884-4cf7-9a4f-b5fe6efb37da",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "name": [
+          {
+            "family": {
+              "isString": true,
+              "content": " Graham",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "given": [
+              {
+                "isString": true,
+                "content": "Ashleigh",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": {
+              "isString": true,
+              "content": "phone",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "value": {
+              "isString": true,
+              "content": "12040411872",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "use": {
+              "isString": true,
+              "content": "work",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "address": [
+          {
+            "line": [
+              {
+                "isString": true,
+                "content": "168 Moore Groves",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            ],
+            "city": {
+              "isString": true,
+              "content": "Rosendale",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "district": {
+              "isString": true,
+              "content": "Iron",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "state": {
+              "isString": true,
+              "content": "MO",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "postalCode": {
+              "isString": true,
+              "content": "64145",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "country": {
+              "isString": true,
+              "content": "USA",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "Specimen",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "52a582e4-d389-42d0-b738-bee51cf5244d",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "identifier": [
+          {
+            "value": {
+              "isString": true,
+              "content": "7fc4aee2-c426-4b2b-953c-86c877ff9bd0",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "type": {
+          "coding": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://snomed.info/sct",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "697989009",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ],
+          "text": {
+            "isString": true,
+            "content": "Anterior nares swab",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "subject": {
+          "reference": {
+            "isString": true,
+            "content": "Patient/283f16c8-0a61-487f-af1b-50fe0dbdb2a8",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "receivedTime": {
+          "isString": true,
+          "content": "2023-10-18T22:05:20+00:00",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "collection": {
+          "collectedDateTime": {
+            "isString": true,
+            "content": "2023-10-18T22:05:20+00:00",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "note": [
+          {
+            "text": {
+              "isString": true,
+              "content": "I am some random text",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "ServiceRequest/b0ba1f7e-f36e-4fc6-9f88-5ee8b3de58a1",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "ServiceRequest",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "b0ba1f7e-f36e-4fc6-9f88-5ee8b3de58a1",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "extension": [
+          {
+            "url": {
+              "isString": true,
+              "content": "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": {
+                    "isString": true,
+                    "content": "http://terminology.hl7.org/CodeSystem/v2-0119",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  },
+                  "code": {
+                    "isString": true,
+                    "content": "RE",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "url": {
+              "isString": true,
+              "content": "https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "valueDateTime": {
+              "isString": true,
+              "content": "2023-10-18T22:20:20+00:00",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "status": {
+          "isString": true,
+          "content": "completed",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "intent": {
+          "isString": true,
+          "content": "order",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "code": {
+          "coding": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://loinc.org",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "95941-1",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ]
+        },
+        "subject": {
+          "reference": {
+            "isString": true,
+            "content": "Patient/283f16c8-0a61-487f-af1b-50fe0dbdb2a8",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "requester": {
+          "reference": {
+            "isString": true,
+            "content": "PractitionerRole/2d79a27c-2a8f-4f4c-a913-da434cac0203",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "performer": [
+          {
+            "reference": {
+              "isString": true,
+              "content": "Organization/9e22cfde-e704-4922-a247-b1a6ac0f43bc",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "supportingInfo": [
+          {
+            "reference": {
+              "isString": true,
+              "content": "Observation/2ddc518f-ee1c-3cf2-8126-de380f388293",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          },
+          {
+            "reference": {
+              "isString": true,
+              "content": "Observation/71280434-d4a7-3488-bc8b-5a0b76f71437",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          },
+          {
+            "reference": {
+              "isString": true,
+              "content": "Observation/efd7b2e6-7f1b-3e6f-a970-bcf20941cd6a",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "note": [
+          {
+            "text": {
+              "isString": true,
+              "content": "I am some random text",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "Device/a72e8edb-bb54-47b1-83ed-938aaed01122",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "Device",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "a72e8edb-bb54-47b1-83ed-938aaed01122",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "identifier": [
+          {
+            "value": {
+              "isString": true,
+              "content": "00884999048034",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "manufacturer": {
+          "isString": true,
+          "content": "Abbott",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "deviceName": [
+          {
+            "name": {
+              "isString": true,
+              "content": "Alinity m",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "type": {
+              "isString": true,
+              "content": "model-name",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "PractitionerRole/2d79a27c-2a8f-4f4c-a913-da434cac0203",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "PractitionerRole",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "2d79a27c-2a8f-4f4c-a913-da434cac0203",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "practitioner": {
+          "reference": {
+            "isString": true,
+            "content": "Practitioner/48db8ab7-c884-4cf7-9a4f-b5fe6efb37da",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "organization": {
+          "reference": {
+            "isString": true,
+            "content": "Organization/9e22cfde-e704-4922-a247-b1a6ac0f43bc",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        }
+      }
+    },
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "Organization/07640c5d-87cd-488b-9343-a226c5166539",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "Organization",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "07640c5d-87cd-488b-9343-a226c5166539",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "name": {
+          "isString": true,
+          "content": "SimpleReport",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        }
+      }
+    },
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "Observation/29574070-adfc-4d53-a48f-5ddcc382614e",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "Observation",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "29574070-adfc-4d53-a48f-5ddcc382614e",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "status": {
+          "isString": true,
+          "content": "final",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "code": {
+          "coding": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://loinc.org",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "85477-8",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ],
+          "text": {
+            "isString": true,
+            "content": "Flu A",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "subject": {
+          "reference": {
+            "isString": true,
+            "content": "Patient/283f16c8-0a61-487f-af1b-50fe0dbdb2a8",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "effectiveDateTime": {
+          "isString": true,
+          "content": "2003-12-25T07:46:58.110Z",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "issued": {
+          "isString": true,
+          "content": "1991-08-11T15:05:25.378Z",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "performer": [
+          {
+            "reference": {
+              "isString": true,
+              "content": "Organization/9e22cfde-e704-4922-a247-b1a6ac0f43bc",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://snomed.info/sct",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "260373001",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "display": {
+                "isString": true,
+                "content": "Detected",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ]
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "system": {
+                  "isString": true,
+                  "content": "http://terminology.hl7.org/CodeSystem/v2-0078",
+                  "coerceToInlineType$kotlinx_serialization_json": null
+                },
+                "code": {
+                  "isString": true,
+                  "content": "A",
+                  "coerceToInlineType$kotlinx_serialization_json": null
+                },
+                "display": {
+                  "isString": true,
+                  "content": "Abnormal",
+                  "coerceToInlineType$kotlinx_serialization_json": null
+                }
+              }
+            ]
+          }
+        ],
+        "note": [
+          {
+            "text": {
+              "isString": true,
+              "content": "I am some random text",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "method": {
+          "extension": [
+            {
+              "url": {
+                "isString": true,
+                "content": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "valueCoding": {
+                "code": {
+                  "isString": true,
+                  "content": "Alinity m Resp-4-Plex_Abbott Molecular Inc.",
+                  "coerceToInlineType$kotlinx_serialization_json": null
+                }
+              }
+            }
+          ],
+          "coding": [
+            {
+              "display": {
+                "isString": true,
+                "content": "Alinity m",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ]
+        },
+        "specimen": {
+          "reference": {
+            "isString": true,
+            "content": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "device": {
+          "reference": {
+            "isString": true,
+            "content": "Device/a72e8edb-bb54-47b1-83ed-938aaed01122",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        }
+      }
+    },
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "Observation/99a3d501-90c1-467b-b4a3-568f5af5178d",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "Observation",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "99a3d501-90c1-467b-b4a3-568f5af5178d",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "status": {
+          "isString": true,
+          "content": "final",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "code": {
+          "coding": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://loinc.org",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "85478-6",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ],
+          "text": {
+            "isString": true,
+            "content": "Flu B",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "subject": {
+          "reference": {
+            "isString": true,
+            "content": "Patient/283f16c8-0a61-487f-af1b-50fe0dbdb2a8",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "effectiveDateTime": {
+          "isString": true,
+          "content": "1996-05-19T23:25:45.871Z",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "issued": {
+          "isString": true,
+          "content": "1961-11-24T16:11:02.627Z",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "performer": [
+          {
+            "reference": {
+              "isString": true,
+              "content": "Organization/9e22cfde-e704-4922-a247-b1a6ac0f43bc",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://snomed.info/sct",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "260373001",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "display": {
+                "isString": true,
+                "content": "Detected",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ]
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "system": {
+                  "isString": true,
+                  "content": "http://terminology.hl7.org/CodeSystem/v2-0078",
+                  "coerceToInlineType$kotlinx_serialization_json": null
+                },
+                "code": {
+                  "isString": true,
+                  "content": "A",
+                  "coerceToInlineType$kotlinx_serialization_json": null
+                },
+                "display": {
+                  "isString": true,
+                  "content": "Abnormal",
+                  "coerceToInlineType$kotlinx_serialization_json": null
+                }
+              }
+            ]
+          }
+        ],
+        "note": [
+          {
+            "text": {
+              "isString": true,
+              "content": "I am some random text",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "method": {
+          "extension": [
+            {
+              "url": {
+                "isString": true,
+                "content": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "valueCoding": {
+                "code": {
+                  "isString": true,
+                  "content": "Alinity m Resp-4-Plex_Abbott Molecular Inc.",
+                  "coerceToInlineType$kotlinx_serialization_json": null
+                }
+              }
+            }
+          ],
+          "coding": [
+            {
+              "display": {
+                "isString": true,
+                "content": "Alinity m",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ]
+        },
+        "specimen": {
+          "reference": {
+            "isString": true,
+            "content": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "device": {
+          "reference": {
+            "isString": true,
+            "content": "Device/a72e8edb-bb54-47b1-83ed-938aaed01122",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        }
+      }
+    },
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "Observation/e7fdd44c-9625-469d-b891-7a7e706680a0",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "Observation",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "e7fdd44c-9625-469d-b891-7a7e706680a0",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "status": {
+          "isString": true,
+          "content": "final",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "code": {
+          "coding": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://loinc.org",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "94500-6",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ],
+          "text": {
+            "isString": true,
+            "content": "COVID-19",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "subject": {
+          "reference": {
+            "isString": true,
+            "content": "Patient/283f16c8-0a61-487f-af1b-50fe0dbdb2a8",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "effectiveDateTime": {
+          "isString": true,
+          "content": "1966-10-31T11:23:28.181Z",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "issued": {
+          "isString": true,
+          "content": "1971-05-26T06:18:40.872Z",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "performer": [
+          {
+            "reference": {
+              "isString": true,
+              "content": "Organization/9e22cfde-e704-4922-a247-b1a6ac0f43bc",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://snomed.info/sct",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "260373001",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "display": {
+                "isString": true,
+                "content": "Detected",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ]
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "system": {
+                  "isString": true,
+                  "content": "http://terminology.hl7.org/CodeSystem/v2-0078",
+                  "coerceToInlineType$kotlinx_serialization_json": null
+                },
+                "code": {
+                  "isString": true,
+                  "content": "A",
+                  "coerceToInlineType$kotlinx_serialization_json": null
+                },
+                "display": {
+                  "isString": true,
+                  "content": "Abnormal",
+                  "coerceToInlineType$kotlinx_serialization_json": null
+                }
+              }
+            ]
+          }
+        ],
+        "note": [
+          {
+            "text": {
+              "isString": true,
+              "content": "I am some random text",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ],
+        "method": {
+          "coding": [
+            {
+              "display": {
+                "isString": true,
+                "content": "Alinity m",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ]
+        },
+        "specimen": {
+          "reference": {
+            "isString": true,
+            "content": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "device": {
+          "reference": {
+            "isString": true,
+            "content": "Device/a72e8edb-bb54-47b1-83ed-938aaed01122",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        }
+      }
+    },
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "Observation/2ddc518f-ee1c-3cf2-8126-de380f388293",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "Observation",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "2ddc518f-ee1c-3cf2-8126-de380f388293",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "identifier": [
+          {
+            "use": {
+              "isString": true,
+              "content": "official",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "type": {
+              "coding": [
+                {
+                  "system": {
+                    "isString": true,
+                    "content": "http://loinc.org",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  },
+                  "code": {
+                    "isString": true,
+                    "content": "81959-9",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  },
+                  "display": {
+                    "isString": true,
+                    "content": "Public health laboratory ask at order entry panel",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "status": {
+          "isString": true,
+          "content": "final",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "code": {
+          "coding": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://loinc.org",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "95419-8",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "display": {
+                "isString": true,
+                "content": "Has symptoms related to condition of interest",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ],
+          "text": {
+            "isString": true,
+            "content": "Has symptoms related to condition of interest",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "subject": {
+          "reference": {
+            "isString": true,
+            "content": "Patient/283f16c8-0a61-487f-af1b-50fe0dbdb2a8",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "effectiveDateTime": {
+          "isString": true,
+          "content": "1999-10-19T14:50:51.489Z",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "issued": {
+          "isString": true,
+          "content": "1981-08-18T12:23:05.985Z",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "UNK",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "display": {
+                "isString": true,
+                "content": "unknown",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ]
+        },
+        "note": [
+          {
+            "text": {
+              "isString": true,
+              "content": "I am some random text",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "Observation/71280434-d4a7-3488-bc8b-5a0b76f71437",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "Observation",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "71280434-d4a7-3488-bc8b-5a0b76f71437",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "identifier": [
+          {
+            "use": {
+              "isString": true,
+              "content": "official",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "type": {
+              "coding": [
+                {
+                  "system": {
+                    "isString": true,
+                    "content": "http://loinc.org",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  },
+                  "code": {
+                    "isString": true,
+                    "content": "81959-9",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  },
+                  "display": {
+                    "isString": true,
+                    "content": "Public health laboratory ask at order entry panel",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "status": {
+          "isString": true,
+          "content": "final",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "code": {
+          "coding": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://loinc.org",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "95418-0",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "display": {
+                "isString": true,
+                "content": "Employed in a healthcare setting",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ],
+          "text": {
+            "isString": true,
+            "content": "Employed in a healthcare setting",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "subject": {
+          "reference": {
+            "isString": true,
+            "content": "Patient/283f16c8-0a61-487f-af1b-50fe0dbdb2a8",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "effectiveDateTime": {
+          "isString": true,
+          "content": "1967-06-09T22:05:58.750Z",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "issued": {
+          "isString": true,
+          "content": "1975-10-23T13:33:40.186Z",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://terminology.hl7.org/ValueSet/v2-0136",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "N",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "display": {
+                "isString": true,
+                "content": "No",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ]
+        },
+        "note": [
+          {
+            "text": {
+              "isString": true,
+              "content": "I am some random text",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": {
+        "isString": true,
+        "content": "Observation/efd7b2e6-7f1b-3e6f-a970-bcf20941cd6a",
+        "coerceToInlineType$kotlinx_serialization_json": null
+      },
+      "resource": {
+        "resourceType": {
+          "isString": true,
+          "content": "Observation",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "id": {
+          "isString": true,
+          "content": "efd7b2e6-7f1b-3e6f-a970-bcf20941cd6a",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "identifier": [
+          {
+            "use": {
+              "isString": true,
+              "content": "official",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            },
+            "type": {
+              "coding": [
+                {
+                  "system": {
+                    "isString": true,
+                    "content": "http://loinc.org",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  },
+                  "code": {
+                    "isString": true,
+                    "content": "81959-9",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  },
+                  "display": {
+                    "isString": true,
+                    "content": "Public health laboratory ask at order entry panel",
+                    "coerceToInlineType$kotlinx_serialization_json": null
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "status": {
+          "isString": true,
+          "content": "final",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "code": {
+          "coding": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://loinc.org",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "95421-4",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "display": {
+                "isString": true,
+                "content": "Resides in a congregate care setting",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ],
+          "text": {
+            "isString": true,
+            "content": "Resides in a congregate care setting",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "subject": {
+          "reference": {
+            "isString": true,
+            "content": "Patient/283f16c8-0a61-487f-af1b-50fe0dbdb2a8",
+            "coerceToInlineType$kotlinx_serialization_json": null
+          }
+        },
+        "effectiveDateTime": {
+          "isString": true,
+          "content": "1946-04-06T02:01:36.795Z",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "issued": {
+          "isString": true,
+          "content": "1983-07-07T22:56:38.488Z",
+          "coerceToInlineType$kotlinx_serialization_json": null
+        },
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": {
+                "isString": true,
+                "content": "http://terminology.hl7.org/ValueSet/v2-0136",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "code": {
+                "isString": true,
+                "content": "N",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              },
+              "display": {
+                "isString": true,
+                "content": "No",
+                "coerceToInlineType$kotlinx_serialization_json": null
+              }
+            }
+          ]
+        },
+        "note": [
+          {
+            "text": {
+              "isString": true,
+              "content": "I am some random text",
+              "coerceToInlineType$kotlinx_serialization_json": null
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
