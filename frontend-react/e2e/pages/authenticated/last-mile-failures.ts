@@ -1,4 +1,4 @@
-import {expect, Locator} from "@playwright/test";
+import { expect, Locator } from "@playwright/test";
 import { startOfDay, subDays } from "date-fns";
 import { tableRows } from "../../helpers/utils";
 import { MOCK_GET_RESEND, MOCK_GET_SEND_FAILURES } from "../../mocks/lastMilefailures";
@@ -96,7 +96,7 @@ export class LastMileFailuresPage extends BasePage {
         for (let i = 0; i < rowCount; i++) {
             const columnValue = await tableRows(this.page).nth(i).locator("td").nth(1).innerText();
 
-             expect(reportId).toEqual(columnValue);
+            expect(reportId).toEqual(columnValue);
         }
 
         return true;
