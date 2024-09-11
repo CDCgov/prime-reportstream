@@ -428,20 +428,11 @@ class CheckFunction : Logging {
         httpClient: HttpClient,
     ): HttpResponse {
         httpClient.use { client ->
-
-//            return client.get(url) {
-//                buildHeaders(
-//                    headers.map { (key, value) -> Pair(key, value) }.toMap()
-//                )
-//            }.body<String>()
-
-            val retval = client.get(url) {
+            return client.get(url) {
                 buildHeaders(
                     headers.map { (key, value) -> Pair(key, value) }.toMap()
                 )
             }
-
-            return retval
         }
     }
 
