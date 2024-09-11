@@ -18,9 +18,12 @@ import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.ConditionStamper
+import gov.cdc.prime.router.azure.LookupTableConditionMapper
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.abort
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.common.Environment
@@ -35,6 +38,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import gov.cdc.prime.router.fhirengine.utils.getObservations
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Extension
@@ -277,9 +281,13 @@ class ProcessFhirCommands : CliktCommand(
 
              receiverSchema != null -> {
                 val bundle = applySenderTransforms(fhirMessage)
+                val stamper = ConditionStamper(LookupTableConditionMapper(Metadata.getInstance()))
+                fhirMessage.getObservations().forEach { observation ->
+                    stamper.stampObservation(observation)
+                }
                 FhirToHl7Converter(
                     receiverSchema!!,
-                    BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().blobEnvVar),
+                    BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
                     context = FhirToHl7Context(
                         CustomFhirPathFunctions(),
                         config = HL7TranslationConfig(
@@ -316,6 +324,10 @@ class ProcessFhirCommands : CliktCommand(
      */
     private fun convertFhirToFhir(jsonString: String): Bundle {
         var fhirMessage = FhirTranscoder.decode(jsonString)
+        val stamper = ConditionStamper(LookupTableConditionMapper(Metadata.getInstance()))
+        fhirMessage.getObservations().forEach { observation ->
+            stamper.stampObservation(observation)
+        }
         fhirMessage = applyEnrichmentSchemas(fhirMessage)
         if (receiverSchema == null && senderSchema == null) {
             // Must have at least one schema or else why are you doing this
@@ -353,10 +365,17 @@ class ProcessFhirCommands : CliktCommand(
         }
         val hl7profile = HL7Reader.getMessageProfile(hl7message.toString())
         // search hl7 profile map and create translator with config path if found
-        return when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
-            null -> Pair(HL7toFhirTranslator(inputSchema).translate(hl7message), hl7message)
-            else -> Pair(HL7toFhirTranslator(configPath).translate(hl7message), hl7message)
+        val fhirMessage = when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
+            null -> HL7toFhirTranslator(inputSchema).translate(hl7message)
+            else -> HL7toFhirTranslator(configPath).translate(hl7message)
         }
+
+        val stamper = ConditionStamper(LookupTableConditionMapper(Metadata.getInstance()))
+        fhirMessage.getObservations().forEach { observation ->
+            stamper.stampObservation(observation)
+        }
+
+        return Pair(fhirMessage, hl7message)
     }
 
     /**
