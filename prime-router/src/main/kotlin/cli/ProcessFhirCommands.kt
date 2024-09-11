@@ -302,7 +302,7 @@ class ProcessFhirCommands : CliktCommand(
                 val bundle = applySenderTransforms(fhirMessage)
                 FhirToHl7Converter(
                     receiver.schemaName,
-                    BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().envName),
+                    BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
                     context = FhirToHl7Context(
                         CustomFhirPathFunctions(),
                         config = HL7TranslationConfig(
