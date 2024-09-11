@@ -30,13 +30,15 @@ class SyncTranslationSchemasTest : CoolTest() {
     private val destinationConnectionString =
         "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;" +
             "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;" +
-            "BlobEndpoint=http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
+            "BlobEndpoint=http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;" +
+            "TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;"
 
     @Suppress("ktlint:standard:max-line-length")
     private val sourceConnectionString =
         "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;" +
             "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;" +
-            "BlobEndpoint=http://localhost:11000/devstoreaccount1;QueueEndpoint=http://localhost:11001/devstoreaccount1;"
+            "BlobEndpoint=http://localhost:11000/devstoreaccount1;QueueEndpoint=http://localhost:11001/devstoreaccount1;" +
+            "TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;"
 
     private fun setupCleanState(
         sourceBlobContainerMetadata: BlobAccess.BlobContainerMetadata,
