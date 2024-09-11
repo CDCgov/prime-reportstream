@@ -621,7 +621,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         }
 
         /** Our default Http Client, with an optional SSL context, and optional auth token */
-        private fun createDefaultHttpClient(
+        fun createDefaultHttpClient(
             jks: UserJksCredential?,
             accessToken: String?,
             restTransportInfo: RESTTransportType?,
