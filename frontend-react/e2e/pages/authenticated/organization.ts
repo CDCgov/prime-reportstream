@@ -1,4 +1,4 @@
-import {expect, Page} from "@playwright/test";
+import { expect } from "@playwright/test";
 import { RSOrganizationSettings } from "../../../src/config/endpoints/settings";
 import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../../mocks/organizations";
 import { BasePage, BasePageTestArgs, type RouteHandlerFulfillEntry } from "../BasePage";

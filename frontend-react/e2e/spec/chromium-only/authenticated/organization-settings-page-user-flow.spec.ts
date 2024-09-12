@@ -1,8 +1,8 @@
-import {expect} from "@playwright/test";
-import {tableRows} from "../../../helpers/utils";
-import {MOCK_GET_ORGANIZATION_SETTINGS_LIST} from "../../../mocks/organizations";
-import {OrganizationPage} from "../../../pages/authenticated/organization";
-import {test as baseTest} from "../../../test";
+import { expect } from "@playwright/test";
+import { tableRows } from "../../../helpers/utils";
+import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../../../mocks/organizations";
+import { OrganizationPage } from "../../../pages/authenticated/organization";
+import { test as baseTest } from "../../../test";
 
 
 export interface OrganizationPageFixtures {
@@ -38,7 +38,7 @@ const test = baseTest.extend<OrganizationPageFixtures>({
     },
 });
 
-test.describe("Admin Organization Settings Page - user flow smoke tests",{
+test.describe("Admin Organization Settings Page - user flow smoke tests", {
     tag: "@smoke",
 }, () => {
     test.describe("admin user", () => {
@@ -51,8 +51,8 @@ test.describe("Admin Organization Settings Page - user flow smoke tests",{
         });
 
         test.describe("table", () => {
-            test.beforeEach(async ({ organizationPage }) => {
-                await organizationPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+            test.beforeEach(async ({organizationPage}) => {
+                await organizationPage.page.locator(".usa-table tbody").waitFor({state: "visible"});
             });
 
             test("has correct headers", async ({organizationPage}) => {
