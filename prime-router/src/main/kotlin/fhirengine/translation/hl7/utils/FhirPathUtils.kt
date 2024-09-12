@@ -8,6 +8,9 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import org.apache.logging.log4j.kotlin.Logging
+import org.hl7.fhir.r4.fhirpath.ExpressionNode
+import org.hl7.fhir.r4.fhirpath.FHIRLexer.FHIRLexerException
+import org.hl7.fhir.r4.fhirpath.FHIRPathEngine
 import org.hl7.fhir.r4.hapi.ctx.HapiWorkerContext
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
@@ -15,11 +18,8 @@ import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DateType
-import org.hl7.fhir.r4.model.ExpressionNode
 import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.TimeType
-import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
-import org.hl7.fhir.r4.utils.FHIRPathEngine
 import java.time.DateTimeException
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
