@@ -21,6 +21,7 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.ConditionStamper
 import gov.cdc.prime.router.azure.LookupTableConditionMapper
@@ -28,7 +29,11 @@ import gov.cdc.prime.router.cli.CommandUtilities.Companion.abort
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.config.validation.OrganizationValidation
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
+import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
+import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
+import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter.ReceiverFilterEvaluationResult
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
@@ -132,6 +137,58 @@ class ProcessFhirCommands : CliktCommand(
         val inputFileType = inputFile.extension.uppercase()
         val receiver = getReceiver()
 
+        // If there is a receiver, check the filters
+        var bundle = FhirTranscoder.decode(contents)
+        if (receiver != null) {
+            val reportStreamFilters = mutableListOf<ReportStreamFilter>()
+            reportStreamFilters.add(receiver.jurisdictionalFilter)
+            reportStreamFilters.add(receiver.qualityFilter)
+            reportStreamFilters.add(receiver.routingFilter)
+            reportStreamFilters.add(receiver.processingModeFilter)
+
+            reportStreamFilters.forEach { reportStreamFilter ->
+                reportStreamFilter.forEach { filter ->
+                    val validation = OrganizationValidation.validateFilter(filter)
+                    if (!validation) {
+                        throw CliktError("Filter '$filter' is not valid.")
+                    }
+                    val result = FhirPathUtils.evaluate(
+                        CustomContext(
+                            bundle,
+                            bundle,
+                            FHIRConverter().loadFhirPathShorthandLookupTable(),
+                            CustomFhirPathFunctions()
+                        ),
+                        bundle,
+                        bundle,
+                        filter
+                    )
+                    if (result.isEmpty()) {
+                        throw CliktError("Filter '$filter' filtered out everything, nothing to return.")
+                    }
+                }
+            }
+
+            receiver.conditionFilter.forEach { conditionFilter ->
+                val validation = OrganizationValidation.validateFilter(conditionFilter)
+                if (!validation) {
+                    throw CliktError("Condition filter '$conditionFilter' is not valid.")
+                }
+            }
+
+            val result = FHIRReceiverFilter().evaluateObservationConditionFilters(
+                receiver,
+                bundle,
+                ActionLogger(),
+                bundle.id
+            )
+            if (result is ReceiverFilterEvaluationResult.Success) {
+                bundle = result.bundle
+            } else {
+                throw CliktError("Condition filter failed.")
+            }
+        }
+
         when {
             // HL7 to FHIR conversion
             inputFileType == "HL7" && (
@@ -159,7 +216,7 @@ class ProcessFhirCommands : CliktCommand(
                         return outputResult(convertFhirToHl7(contents))
                     }
 
-                    var bundle = FhirTranscoder.decode(contents)
+                    bundle = FhirTranscoder.decode(contents)
                     if (receiver.enrichmentSchemaNames.isNotEmpty()) {
                         receiver.enrichmentSchemaNames.forEach { currentSchema ->
                             bundle = FhirTransformer(currentSchema).process(bundle)
@@ -179,7 +236,7 @@ class ProcessFhirCommands : CliktCommand(
                 outputFormat == MimeFormat.FHIR.toString() ||
                 (receiver != null && receiver.format == MimeFormat.FHIR)
             ) -> {
-                var bundle = FhirTranscoder.decode(contents)
+                bundle = FhirTranscoder.decode(contents)
                 if (receiver != null) {
                     if (receiver.enrichmentSchemaNames.isNotEmpty()) {
                         receiver.enrichmentSchemaNames.forEach { currentSchema ->
@@ -195,12 +252,12 @@ class ProcessFhirCommands : CliktCommand(
                 outputFormat == MimeFormat.HL7.toString() ||
                 (receiver != null && receiver.format == MimeFormat.HL7)
             ) -> {
-                var (bundle, inputMessage) = convertHl7ToFhir(contents)
+                val (bundle2, inputMessage) = convertHl7ToFhir(contents)
 
                 if (receiver != null) {
                     if (receiver.enrichmentSchemaNames.isNotEmpty()) {
                         receiver.enrichmentSchemaNames.forEach { currentSchema ->
-                            bundle = FhirTransformer(currentSchema).process(bundle)
+                            bundle = FhirTransformer(currentSchema).process(bundle2)
                         }
                     }
                 }

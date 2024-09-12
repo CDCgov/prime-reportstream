@@ -174,7 +174,7 @@ class FHIRReceiverFilter(
      *
      * [actionLogger] and [trackingId] facilitate logging
      */
-    private fun evaluateObservationConditionFilters(
+    fun evaluateObservationConditionFilters(
         receiver: Receiver,
         bundle: Bundle,
         actionLogger: ActionLogger,
