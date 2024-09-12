@@ -384,7 +384,7 @@ class ActionHistory(
      */
     fun trackExistingInputReport(reportId: ReportId) {
         if (isReportAlreadyTracked(reportId)) {
-            error("Bug:  attempt to track history of a report ($reportId) we've already associated with this action")
+            error("Bug: attempt to track history of a report ($reportId) we've already associated with this action")
         }
         val reportFile = ReportFile()
         reportFile.reportId = reportId
@@ -394,9 +394,13 @@ class ActionHistory(
     /**
      * Use this to record history info about a new externally submitted report.
      */
-    fun trackExternalInputReport(report: Report, blobInfo: BlobAccess.BlobInfo, payloadName: String? = null) {
+    fun trackExternalInputReport(
+        report: Report,
+        blobInfo: BlobAccess.BlobInfo,
+        payloadName: String? = null,
+    ) {
         if (isReportAlreadyTracked(report.id)) {
-            error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
+            error("Bug: attempt to track history of a report ($report.id) we've already associated with this action")
         }
 
         val reportFile = ReportFile()

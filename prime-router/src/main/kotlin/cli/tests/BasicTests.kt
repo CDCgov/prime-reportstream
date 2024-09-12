@@ -205,7 +205,7 @@ class End2EndUniversalPipeline : CoolTest() {
         expectedResults: List<Pair<Receiver, File>>,
     ): Boolean {
         var passed = true
-        val blobConnectionString = Environment.get().blobEnvVar
+        val blobConnectionString = Environment.get().storageEnvVar
         val blobContainerMetadata: BlobAccess.BlobContainerMetadata =
             BlobAccess.BlobContainerMetadata.build("reports", blobConnectionString)
 
