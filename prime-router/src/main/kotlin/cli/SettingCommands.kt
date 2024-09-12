@@ -1049,12 +1049,22 @@ class GetMultipleSettings : SettingCommand(
         }
     }
 
-    private fun getAll(environment: Environment, accessToken: String): List<DeepOrganization> {
+    fun getAll(
+        environment: Environment,
+        accessToken: String = oktaAccessToken,
+        specificOrg: String? = filter,
+        exactMatch: Boolean = false,
+    ): List<DeepOrganization> {
         // get organizations
         val organizationJson = getMany(environment, accessToken, SettingType.ORGANIZATION, settingName = "")
         var organizations = jsonMapper.readValue(organizationJson, Array<OrganizationAPI>::class.java)
-        if (filter != null) {
-            organizations = organizations.filter { it.name.startsWith(filter!!, ignoreCase = true) }.toTypedArray()
+        if (specificOrg != null) {
+            if (!exactMatch) {
+                organizations =
+                    organizations.filter { it.name.startsWith(specificOrg, ignoreCase = true) }.toTypedArray()
+            } else {
+                organizations = organizations.filter { it.name.equals(specificOrg, ignoreCase = true) }.toTypedArray()
+            }
         }
 
         // get senders and receivers per org

@@ -3,23 +3,13 @@ package gov.cdc.prime.router.fhirengine.engine
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
-import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
-import com.fasterxml.jackson.module.kotlin.readValue
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.QueueAccess
-import java.util.Base64
 import java.util.UUID
-
-// This is a size limit dictated by our infrastructure in azure
-// https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-azure-and-service-bus-queues-compared-contrasted
-private const val MESSAGE_SIZE_LIMIT = 64 * 1000
 
 /**
  * An interface for Messages to be put on an Azure Queue
@@ -34,73 +24,28 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
     JsonSubTypes.Type(ProcessEventQueueMessage::class, name = "process"),
     JsonSubTypes.Type(ReportEventQueueMessage::class, name = "report")
 )
-abstract class QueueMessage {
-    abstract val messageQueueName: String
-
+abstract class PrimeRouterQueueMessage : QueueMessage {
     fun send(queueAccess: QueueAccess) {
         if (this.messageQueueName.isNotEmpty()) {
             queueAccess.sendMessage(this.messageQueueName, serialize())
         }
     }
-
-    fun serialize(): String {
-        val bytes = mapper.writeValueAsBytes(this)
-        check(bytes.size < MESSAGE_SIZE_LIMIT) { "Message is too big for the queue." }
-        return String(Base64.getEncoder().encode(bytes))
-    }
-
-    companion object {
-        private val ptv = BasicPolymorphicTypeValidator.builder()
-            .build()
-        val mapper: JsonMapper = jacksonMapperBuilder()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .polymorphicTypeValidator(ptv)
-            .activateDefaultTyping(ptv)
-            .build()
-
-        fun deserialize(s: String): QueueMessage {
-            return mapper.readValue(s)
-        }
-
-        const val elrConvertQueueName = "elr-fhir-convert"
-        const val elrDestinationFilterQueueName = "elr-fhir-destination-filter"
-        const val elrReceiverFilterQueueName = "elr-fhir-receiver-filter"
-        const val elrTranslationQueueName = "elr-fhir-translate"
-        const val elrSendQueueName = "send"
-    }
-
-    override fun toString(): String {
-        return mapper.writeValueAsString(this)
-    }
-}
-
-interface WithDownloadableReport {
-    val blobURL: String
-    val digest: String
-
-    /**
-     * Download the file associated with a RawSubmission message
-     */
-    fun downloadContent(): String {
-        val blobContent = BlobAccess.downloadBlobAsByteArray(this.blobURL)
-        val localDigest = BlobAccess.digestToString(BlobAccess.sha256Digest(blobContent))
-        check(this.digest == localDigest) {
-            "FHIR - Downloaded file does not match expected file\n${this.digest} | $localDigest"
-        }
-        return String(blobContent)
-    }
-}
-
-interface ReportIdentifyingInformation {
-    val blobSubFolderName: String
-    val reportId: ReportId
-    val topic: Topic
 }
 
 abstract class ReportPipelineMessage :
-    ReportIdentifyingInformation,
-    WithDownloadableReport,
-    QueueMessage()
+    QueueMessage.ReportInformation,
+    PrimeRouterQueueMessage()
+
+@JsonTypeName("receive")
+data class FhirReceiveQueueMessage(
+    override val reportId: ReportId,
+    override val blobURL: String,
+    override val digest: String,
+    override val blobSubFolderName: String,
+    override val headers: Map<String, String> = emptyMap(),
+) : ReportPipelineMessage(), QueueMessage.ReceiveInformation {
+    override val messageQueueName = QueueMessage.Companion.elrReceiveQueueName
+}
 
 @JsonTypeName("convert")
 data class FhirConvertQueueMessage(
@@ -108,10 +53,10 @@ data class FhirConvertQueueMessage(
     override val blobURL: String,
     override val digest: String,
     override val blobSubFolderName: String,
-    override val topic: Topic,
-    val schemaName: String = "",
+    var topic: Topic,
+    var schemaName: String = "",
 ) : ReportPipelineMessage() {
-    override val messageQueueName = elrConvertQueueName
+    override val messageQueueName = QueueMessage.Companion.elrConvertQueueName
 }
 
 @JsonTypeName("destination-filter")
@@ -120,9 +65,9 @@ data class FhirDestinationFilterQueueMessage(
     override val blobURL: String,
     override val digest: String,
     override val blobSubFolderName: String,
-    override val topic: Topic,
+    val topic: Topic,
 ) : ReportPipelineMessage() {
-    override val messageQueueName = elrDestinationFilterQueueName
+    override val messageQueueName = QueueMessage.Companion.elrDestinationFilterQueueName
 }
 
 @JsonTypeName("receiver-filter")
@@ -131,10 +76,10 @@ data class FhirReceiverFilterQueueMessage(
     override val blobURL: String,
     override val digest: String,
     override val blobSubFolderName: String,
-    override val topic: Topic,
+    val topic: Topic,
     val receiverFullName: String,
 ) : ReportPipelineMessage() {
-    override val messageQueueName = elrReceiverFilterQueueName
+    override val messageQueueName = QueueMessage.Companion.elrReceiverFilterQueueName
 }
 
 @JsonTypeName("translate")
@@ -143,13 +88,13 @@ data class FhirTranslateQueueMessage(
     override val blobURL: String,
     override val digest: String,
     override val blobSubFolderName: String,
-    override val topic: Topic,
+    val topic: Topic,
     val receiverFullName: String,
 ) : ReportPipelineMessage() {
-    override val messageQueueName = elrTranslationQueueName
+    override val messageQueueName = QueueMessage.Companion.elrTranslationQueueName
 }
 
-abstract class WithEventAction : QueueMessage() {
+abstract class WithEventAction : PrimeRouterQueueMessage() {
     abstract val eventAction: Event.EventAction
 }
 
@@ -170,7 +115,7 @@ data class ReportEventQueueMessage(
     val reportId: UUID,
     val at: String,
 ) : WithEventAction() {
-    override val messageQueueName = elrSendQueueName
+    override val messageQueueName = QueueMessage.Companion.elrSendQueueName
 }
 
 @JsonTypeName("process")
@@ -183,4 +128,22 @@ data class ProcessEventQueueMessage(
     val at: String,
 ) : WithEventAction() {
     override val messageQueueName = ""
+}
+
+// Register submodule subtypes
+fun registerPrimeRouterQueueMessageSubtypes() {
+    QueueMessage.ObjectMapperProvider.registerSubtypes(
+        FhirConvertQueueMessage::class.java,
+        FhirDestinationFilterQueueMessage::class.java,
+        FhirReceiverFilterQueueMessage::class.java,
+        FhirTranslateQueueMessage::class.java,
+        BatchEventQueueMessage::class.java,
+        ProcessEventQueueMessage::class.java,
+        ReportEventQueueMessage::class.java
+    )
+}
+
+// Call this function at the appropriate initialization point
+fun initializeQueueMessages() {
+    registerPrimeRouterQueueMessageSubtypes()
 }
