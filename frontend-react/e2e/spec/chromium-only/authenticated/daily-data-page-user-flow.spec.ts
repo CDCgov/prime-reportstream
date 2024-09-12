@@ -238,7 +238,6 @@ test.describe(
                             filterStatusText = filterStatus([
                                 TEST_ORG_UP_RECEIVER_UP,
                                 `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
-                                `${defaultStartTime}–${defaultEndTime}`,
                             ]);
                             await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(
                                 filterStatusText,
@@ -339,7 +338,6 @@ test.describe(
                         let filterStatusText = filterStatus([
                             TEST_ORG_UP_RECEIVER_UP,
                             `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
-                            `${defaultStartTime}–${defaultEndTime}`,
                         ]);
                         await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(filterStatusText);
 
