@@ -12,7 +12,8 @@ import java.io.IOException
  * A CLI command class for handling data mapping tasks such as finding unreferenced files.
  * This command can be extended to include more functionality in the future.
  */
-class MappingCommands : CliktCommand(
+class MappingCommands :
+    CliktCommand(
     name = "data-mapping",
     help = "CLI tool for data mapping tasks"
 ) {
