@@ -1,5 +1,6 @@
 package gov.cdc.prime.reportstream.auth.config
 
+import gov.cdc.prime.reportstream.auth.AuthApplicationConstants
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
@@ -20,7 +21,9 @@ class SecurityConfig {
         http
             .authorizeExchange { authorize ->
                 authorize
-                    .pathMatchers("/health").permitAll() // allow health endpoint without authentication
+                    // allow health endpoint without authentication
+                    .pathMatchers(AuthApplicationConstants.Endpoints.HEALTHCHECK_ENDPOINT_V1).permitAll()
+                    // all other requests must be authenticated
                     .anyExchange().authenticated()
             }
             .oauth2ResourceServer {

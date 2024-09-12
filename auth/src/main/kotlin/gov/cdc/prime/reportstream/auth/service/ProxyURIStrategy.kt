@@ -1,7 +1,6 @@
 package gov.cdc.prime.reportstream.auth.service
 
 import gov.cdc.prime.reportstream.auth.config.ApplicationConfig
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import java.net.URI

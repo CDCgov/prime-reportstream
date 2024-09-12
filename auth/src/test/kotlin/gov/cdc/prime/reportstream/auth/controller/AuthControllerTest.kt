@@ -28,7 +28,7 @@ import kotlin.test.assertEquals
 @AutoConfigureWebTestClient
 class AuthControllerTest @Autowired constructor(
     private val webTestClient: WebTestClient,
-    @MockBean private val mockedUriStrategy: ProxyURIStrategy
+    @MockBean private val mockedUriStrategy: ProxyURIStrategy,
 ) {
 
     private val server: MockWebServer = MockWebServer()

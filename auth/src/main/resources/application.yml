@@ -6,7 +6,7 @@ spring:
   security:
     oauth2:
       resourceserver:
-        opaquetoken: # Add client-secret in env variable
+        opaquetoken: # Set client secret in SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT_SECRET env variable
           client-id: 0oaek8tip2lhrhHce1d7
           introspection-uri: https://reportstream.oktapreview.com/oauth2/ausekaai7gUuUtHda1d7/v1/introspect
   cloud:

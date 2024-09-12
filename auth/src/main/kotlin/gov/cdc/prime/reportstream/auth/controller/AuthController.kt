@@ -3,7 +3,6 @@ package gov.cdc.prime.reportstream.auth.controller
 import gov.cdc.prime.reportstream.auth.service.ProxyURIStrategy
 import kotlinx.coroutines.reactive.awaitSingle
 import org.apache.logging.log4j.kotlin.Logging
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.gateway.webflux.ProxyExchange
 import org.springframework.http.ResponseEntity
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication
