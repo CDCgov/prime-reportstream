@@ -17,6 +17,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.8.1")
 
+    /**
+     * Spring WebFlux was chosen for this project to be able to better handle periods of high traffic
+     */
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.cloud:spring-cloud-gateway-webflux")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
