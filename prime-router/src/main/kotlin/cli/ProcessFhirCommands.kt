@@ -49,6 +49,7 @@ import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
+import java.util.UUID
 
 /**
  * Process data into/from FHIR.
@@ -175,18 +176,6 @@ class ProcessFhirCommands : CliktCommand(
                     throw CliktError("Condition filter '$conditionFilter' is not valid.")
                 }
             }
-
-            val result = FHIRReceiverFilter().evaluateObservationConditionFilters(
-                receiver,
-                bundle,
-                ActionLogger(),
-                bundle.id
-            )
-            if (result is ReceiverFilterEvaluationResult.Success) {
-                bundle = result.bundle
-            } else {
-                throw CliktError("Condition filter failed.")
-            }
         }
 
         when {
@@ -195,7 +184,7 @@ class ProcessFhirCommands : CliktCommand(
                 outputFormat == MimeFormat.FHIR.toString() ||
                 (receiver != null && receiver.format == MimeFormat.FHIR)
             ) -> {
-                var fhirMessage = convertHl7ToFhir(contents).first
+                var fhirMessage = convertHl7ToFhir(contents, receiver).first
                 fhirMessage = applyEnrichmentSchemas(fhirMessage)
                 if (receiver != null && receiver.enrichmentSchemaNames.isNotEmpty()) {
                     receiver.enrichmentSchemaNames.forEach { currentSchema ->
@@ -210,7 +199,7 @@ class ProcessFhirCommands : CliktCommand(
             // FHIR to HL7 conversion
             (inputFileType == "FHIR" || inputFileType == "JSON") && (
                 outputFormat == MimeFormat.HL7.toString() ||
-                (receiver != null && receiver.format == MimeFormat.HL7)
+                (receiver != null && (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH))
             ) -> {
                     if (receiver == null) {
                         return outputResult(convertFhirToHl7(contents))
@@ -224,10 +213,10 @@ class ProcessFhirCommands : CliktCommand(
                     }
                     outputResult(
                         convertFhirToHl7(
-                        FhirTranscoder.encode(bundle),
-                        receiver.translation as Hl7Configuration,
-                        receiver
-                    )
+                            FhirTranscoder.encode(bundle),
+                            receiver.translation as Hl7Configuration,
+                            receiver
+                        )
                     )
             }
 
@@ -236,33 +225,16 @@ class ProcessFhirCommands : CliktCommand(
                 outputFormat == MimeFormat.FHIR.toString() ||
                 (receiver != null && receiver.format == MimeFormat.FHIR)
             ) -> {
-                bundle = FhirTranscoder.decode(contents)
-                if (receiver != null) {
-                    if (receiver.enrichmentSchemaNames.isNotEmpty()) {
-                        receiver.enrichmentSchemaNames.forEach { currentSchema ->
-                            bundle = FhirTransformer(currentSchema).process(bundle)
-                        }
-                    }
-                }
-                outputResult(convertFhirToFhir(FhirTranscoder.encode(bundle)), actionLogger)
+                outputResult(convertFhirToFhir(FhirTranscoder.encode(bundle), receiver), actionLogger)
             }
 
             // HL7 to FHIR to HL7 conversion
             inputFileType == "HL7" && (
                 outputFormat == MimeFormat.HL7.toString() ||
-                (receiver != null && receiver.format == MimeFormat.HL7)
+                (receiver != null && (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH))
             ) -> {
-                val (bundle2, inputMessage) = convertHl7ToFhir(contents)
-
-                if (receiver != null) {
-                    if (receiver.enrichmentSchemaNames.isNotEmpty()) {
-                        receiver.enrichmentSchemaNames.forEach { currentSchema ->
-                            bundle = FhirTransformer(currentSchema).process(bundle2)
-                        }
-                    }
-                }
-
-                val output = convertFhirToHl7(FhirTranscoder.encode(bundle))
+                val (bundle2, inputMessage) = convertHl7ToFhir(contents, receiver)
+                val output = convertFhirToHl7(FhirTranscoder.encode(bundle2))
                 outputResult(output)
                 if (diffHl7Output != null) {
                     val differences = hl7DiffHelper.diffHl7(output, inputMessage)
@@ -276,7 +248,27 @@ class ProcessFhirCommands : CliktCommand(
         }
     }
 
-    fun getReceiver(): Receiver? {
+    private fun applyConditionFilter(receiver: Receiver, bundle: Bundle): Bundle {
+        val trackingId = if (bundle.id != null) {
+            bundle.id
+        } else {
+            // this is just for logging so it is fine to just make it up
+            UUID.randomUUID().toString()
+        }
+        val result = FHIRReceiverFilter().evaluateObservationConditionFilters(
+            receiver,
+            bundle,
+            ActionLogger(),
+            trackingId
+        )
+        if (result is ReceiverFilterEvaluationResult.Success) {
+            return result.bundle
+        } else {
+            throw CliktError("Condition filter failed.")
+        }
+    }
+
+    private fun getReceiver(): Receiver? {
         if (!environment.isNullOrBlank() && !receiverName.isNullOrBlank() && !orgName.isNullOrBlank()) {
             if (!outputFormat.isNullOrBlank()) {
                 throw CliktError(
@@ -336,11 +328,14 @@ class ProcessFhirCommands : CliktCommand(
                 // for that from a receiver schema.
                 throw CliktError("You must specify a receiver schema using --receiver-schema.")
 
-             receiverSchema != null -> {
-                val bundle = applySenderTransforms(fhirMessage)
+            receiverSchema != null -> {
+                var bundle = applySenderTransforms(fhirMessage)
                 val stamper = ConditionStamper(LookupTableConditionMapper(Metadata.getInstance()))
-                fhirMessage.getObservations().forEach { observation ->
+                bundle.getObservations().forEach { observation ->
                     stamper.stampObservation(observation)
+                }
+                if (receiver != null) {
+                    bundle = applyConditionFilter(receiver, bundle)
                 }
                 FhirToHl7Converter(
                     receiverSchema!!,
@@ -379,11 +374,19 @@ class ProcessFhirCommands : CliktCommand(
     /**
      * convert an FHIR message to FHIR message
      */
-    private fun convertFhirToFhir(jsonString: String): Bundle {
+    private fun convertFhirToFhir(jsonString: String, receiver: Receiver?): Bundle {
         var fhirMessage = FhirTranscoder.decode(jsonString)
         val stamper = ConditionStamper(LookupTableConditionMapper(Metadata.getInstance()))
         fhirMessage.getObservations().forEach { observation ->
             stamper.stampObservation(observation)
+        }
+        if (receiver != null) {
+            fhirMessage = applyConditionFilter(receiver, fhirMessage)
+            if (receiver.enrichmentSchemaNames.isNotEmpty()) {
+                receiver.enrichmentSchemaNames.forEach { currentSchema ->
+                    fhirMessage = FhirTransformer(currentSchema).process(fhirMessage)
+                }
+            }
         }
         fhirMessage = applyEnrichmentSchemas(fhirMessage)
         if (receiverSchema == null && senderSchema == null) {
@@ -402,7 +405,7 @@ class ProcessFhirCommands : CliktCommand(
      * look like.
      * @return a FHIR bundle and the parsed HL7 input that represents the data in the one HL7 message
      */
-    private fun convertHl7ToFhir(hl7String: String): Pair<Bundle, Message> {
+    private fun convertHl7ToFhir(hl7String: String, receiver: Receiver?): Pair<Bundle, Message> {
         val hasFiveEncodingChars = hl7MessageHasFiveEncodingChars(hl7String)
         // Some HL7 2.5.1 implementations have adopted the truncation character # that was added in 2.7
         // However, the library used to encode the HL7 message throws an error it there are more than 4 encoding
@@ -422,7 +425,7 @@ class ProcessFhirCommands : CliktCommand(
         }
         val hl7profile = HL7Reader.getMessageProfile(hl7message.toString())
         // search hl7 profile map and create translator with config path if found
-        val fhirMessage = when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
+        var fhirMessage = when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
             null -> HL7toFhirTranslator(inputSchema).translate(hl7message)
             else -> HL7toFhirTranslator(configPath).translate(hl7message)
         }
@@ -430,6 +433,10 @@ class ProcessFhirCommands : CliktCommand(
         val stamper = ConditionStamper(LookupTableConditionMapper(Metadata.getInstance()))
         fhirMessage.getObservations().forEach { observation ->
             stamper.stampObservation(observation)
+        }
+
+        if (receiver != null) {
+            fhirMessage = applyConditionFilter(receiver, fhirMessage)
         }
 
         return Pair(fhirMessage, hl7message)
