@@ -134,8 +134,8 @@ data class ReportStreamFilterResult(
     val filteredTrackingElement: String,
     val filterType: ReportStreamFilterType?,
     val filteredObservationDetails: String? = null,
+    override val scope: ActionLogScope = ActionLogScope.translation,
 ) : ActionLogDetail {
-    override val scope = ActionLogScope.translation
     override val errorCode = ErrorCode.UNKNOWN
 
     companion object {
@@ -145,8 +145,8 @@ data class ReportStreamFilterResult(
 
     override val message = """
         For $receiverName, filter $filterName$filterArgs filtered out item $filteredTrackingElement. 
-        $filteredObservationDetails 
-    }
+        Filter Type: $filterType Filter Args: $filterArgs 
+        Filtered Observation Details: $filteredObservationDetails 
     """.trimIndent()
 
     // Used for deserializing to a JSON response
