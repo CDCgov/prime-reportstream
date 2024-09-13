@@ -4,47 +4,38 @@ import { useNavigate } from "react-router-dom";
 
 import site from "../../../content/site.json";
 
+export const pageNotFound = "Page not found";
+
 export const ErrorNoPage = () => {
     const navigate = useNavigate();
     return (
         <>
             <Helmet>
-                <title>Page Not Found | {import.meta.env.VITE_TITLE}</title>
+                <title>
+                    {pageNotFound} | {import.meta.env.VITE_TITLE}
+                </title>
             </Helmet>
-            <div
-                data-testid={"error-page-wrapper"}
-                className="usa-section padding-top-6"
-            >
+            <div data-testid={"error-page-wrapper"} className="usa-section padding-top-6">
                 <div className="grid-container">
                     <div className="grid-row grid-gap">
                         <div className="usa-prose">
-                            <h1>Page not found</h1>
+                            <h1>{pageNotFound}</h1>
                             <p className="usa-intro">
-                                We’re sorry, we can’t find the page you&apos;re
-                                looking for. It might have been removed, changed
-                                names, or is otherwise unavailable.
+                                We’re sorry, we can’t find the page you&apos;re looking for. It might have been removed,
+                                changed names, or is otherwise unavailable.
                             </p>
                             <p>
-                                If you typed the URL directly, check your
-                                spelling and capitalization. Our URLs look like
-                                this:{" "}
-                                <strong>
-                                    reportstream.cdc.gov/example-one
-                                </strong>
-                                .
+                                If you typed the URL directly, check your spelling and capitalization. Our URLs look
+                                like this: <strong>reportstream.cdc.gov/example-one</strong>.
                             </p>
                             <p>
-                                Visit our homepage or contact us at{" "}
-                                {site.orgs.RS.email} and we’ll point you in the
+                                Visit our homepage or contact us at {site.orgs.RS.email} and we’ll point you in the
                                 right direction.{" "}
                             </p>
                             <div className="margin-y-5">
                                 <ul className="usa-button-group">
                                     <li className="usa-button-group__item">
-                                        <Button
-                                            type="button"
-                                            onClick={() => navigate("/")}
-                                        >
+                                        <Button type="button" onClick={() => navigate("/")}>
                                             Visit homepage
                                         </Button>
                                     </li>
@@ -52,11 +43,7 @@ export const ErrorNoPage = () => {
                                         <Button
                                             type="button"
                                             outline
-                                            onClick={() =>
-                                                window.open(
-                                                    `mailto:${site.orgs.RS.email}`,
-                                                )
-                                            }
+                                            onClick={() => window.open(`mailto:${site.orgs.RS.email}`)}
                                         >
                                             Contact us
                                         </Button>

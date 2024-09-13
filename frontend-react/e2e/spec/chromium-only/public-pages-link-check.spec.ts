@@ -1,6 +1,7 @@
 /* eslint-disable playwright/no-networkidle */
 import axios, { AxiosError } from "axios";
 import * as fs from "fs";
+import { pageNotFound } from "../../../src/pages/error/legacy-content/ErrorNoPage";
 import { test as baseTest, expect } from "../../test";
 
 const test = baseTest.extend({});
@@ -51,7 +52,7 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
         frontendWarningsLogPath,
         isFrontendWarningsLog,
     }) => {
-        let aggregateHref = [];
+        let aggregateHref = ["/opfsefopkfokpepofks"];
         // Set test timeout to be 1 minute instead of 30 seconds
         test.setTimeout(60000);
         for (const path of urlPaths) {
@@ -82,9 +83,24 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
         const validateLink = async (url: string) => {
             try {
                 const response = await axiosInstance.get(url);
+                const pageContent = response.data;
+
+                // For internal links, we cannot check for a 400 response code directly
+                // and must check if the content includes the "Page not found" string
+                if (pageContent.includes(pageNotFound) && pageContent.includes('data-testid="error-page-wrapper"')) {
+                    const errorString = "Internal link: Page not found";
+                    console.error(`Error accessing ${url}:`, errorString);
+                    const warning = { url: url, message: errorString };
+                    warnings.push(warning);
+                    return { url, status: 404 };
+                }
+
+                // Return the status if everything is fine
                 return { url, status: response.status };
             } catch (error) {
                 const e = error as AxiosError;
+
+                // Log the error message and status for failed requests (4xx or 5xx)
                 console.error(`Error accessing ${url}:`, e.message);
                 const warning = { url: url, message: e.message };
                 warnings.push(warning);
