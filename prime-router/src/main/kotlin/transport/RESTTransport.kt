@@ -321,10 +321,9 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         jksCredential: UserJksCredential?,
         credential: RestCredential,
         httpHeaders: MutableMap<String, String>,
-        logger: Logger
+        logger: Logger,
     ): String? {
-
-        var accessToken: String? = null;
+        var accessToken: String? = null
 
         if (restTransportInfo.authType == "apiKey") {
             val apiKeyCredential = credential as UserApiKeyCredential
