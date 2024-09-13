@@ -363,26 +363,14 @@ class CheckFunction : Logging {
             runBlocking {
                 launch {
                     val httpHeaders = theRESTTransport.getHeaders(restTransportType, reportId)
-                    var accessToken: String? = null
 
-                    // Check authentication
-                    if (restTransportType.authType == "apiKey") {
-                        val apiKeyCredential = credential as UserApiKeyCredential
-                        httpHeaders["System_ID"] = apiKeyCredential.user
-                        httpHeaders["Key"] = apiKeyCredential.apiKey
-                        accessToken = apiKeyCredential.apiKey
-                    }
-
-                    if (restTransportType.authType == "two-legged" || restTransportType.authType == null) {
-                        // parse headers for any dynamic values, OK needs the report ID
-                        accessToken = theRESTTransport.getOAuthToken(
-                            restTransportType,
-                            jksCredential,
-                            credential,
-                            aLogger
-                        )
-                        logger.info("Token successfully added!")
-                    }
+                    val accessToken = theRESTTransport.getAccessToken(
+                        restTransportType,
+                        jksCredential,
+                        credential,
+                        httpHeaders,
+                        aLogger
+                    )
 
                     // Try to GET something from the endpoint
                     val response = getFromUrl(
