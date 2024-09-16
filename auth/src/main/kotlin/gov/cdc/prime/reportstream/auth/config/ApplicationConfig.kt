@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration
 import kotlin.time.TimeSource
 
 /**
- * Simple class to automatically read condiguration from application.yml (or environment variable overrides)
+ * Simple class to automatically read configuration from application.yml (or environment variable overrides)
  */
 @Configuration
 @EnableConfigurationProperties(ProxyConfigurationProperties::class)
