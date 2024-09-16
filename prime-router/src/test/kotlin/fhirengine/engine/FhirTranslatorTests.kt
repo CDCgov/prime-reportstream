@@ -122,7 +122,7 @@ class FhirTranslatorTests {
         val bodyUrl = BODY_URL
 
         every { actionLogger.hasErrors() } returns false
-        every { BlobAccess.downloadBlob(any(), any()) }
+        every { message.downloadContent() }
             .returns(File(VALID_DATA_URL).readText())
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every {
@@ -196,7 +196,7 @@ class FhirTranslatorTests {
         val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
         every { actionLogger.hasErrors() } returns false
-        every { BlobAccess.downloadBlob(any(), any()) }
+        every { message.downloadContent() }
             .returns(File(VALID_DATA_URL).readText())
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every {
@@ -491,7 +491,7 @@ class FhirTranslatorTests {
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.error(any<ActionLogDetail>()) } returns Unit
-        every { BlobAccess.downloadBlob(any(), any()) }
+        every { message.downloadContent() }
             .returns(File("src/test/resources/fhirengine/engine/valid_data_with_extensions.fhir").readText())
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)

@@ -59,8 +59,8 @@ Here's a list of environment variables that are used at the time of writing this
 CREDENTIAL_STORAGE_METHOD=HASHICORP_VAULT
 VAULT_TOKEN=<get from .vault/env/env.local>
 VAULT_API_ADDR=http://localhost:8200
-AzureWebJobsStorage="DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=<find online>;BlobEndpoint=http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;"
-PartnerStorage="DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=<find online>;BlobEndpoint=http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;"
+AzureWebJobsStorage="DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=<find online>;BlobEndpoint=http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
+PartnerStorage="DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=<find online>;BlobEndpoint=http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;"
 POSTGRES_USER=prime
 POSTGRES_PASSWORD=changeIT!
 POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub

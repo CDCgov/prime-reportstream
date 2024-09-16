@@ -12,7 +12,7 @@ enum class Environment(
     val envName: String,
     val url: URL,
     val oktaApp: OktaCommand.OktaApp? = null,
-    val storageEnvVar: String = "AzureWebJobsStorage",
+    val blobEnvVar: String = "AzureWebJobsStorage",
 ) {
     LOCAL(
         "local",

@@ -104,8 +104,8 @@ In the Convert case above, `messagesToSend` is a list of `FHIRConvertMessage` ob
 messagesToSend.add(  
     FhirConvertMessage(  
         report.id,  
-        blobInfo.blobUrl,
-        BlobUtils.digestToString(blobInfo.digest),  
+        blobInfo.blobUrl,  
+        BlobAccess.digestToString(blobInfo.digest),  
         message.blobSubFolderName,  
         message.topic  
     )  

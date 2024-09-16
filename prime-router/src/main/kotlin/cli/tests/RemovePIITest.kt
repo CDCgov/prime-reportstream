@@ -16,8 +16,6 @@ import org.hl7.fhir.r4.model.ServiceRequest
 import org.hl7.fhir.r4.model.Specimen
 import java.io.File
 import java.nio.file.Paths
-import kotlin.io.path.Path
-import kotlin.io.path.deleteIfExists
 
 class RemovePIITest : CoolTest() {
     /**
@@ -43,10 +41,9 @@ class RemovePIITest : CoolTest() {
      */
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting remove PII test")
-        val inputFilePath = Paths.get("").toAbsolutePath().toString() +
-            "/src/main/resources/clitests/compare-test-files/fakePII.fhir"
+        val inputFilePath = Paths.get("").toAbsolutePath().toString() + "/src/main/kotlin/cli/tests/fakePII.fhir"
         val outputFilePath = Paths.get("").toAbsolutePath().toString() +
-            "/src/main/resources/clitests/compare-test-files/piiRemoved.fhir"
+            "/src/main/kotlin/cli/tests/piiRemoved.fhir"
 
         PIIRemovalCommands().test(
             "-i $inputFilePath -o $outputFilePath"
@@ -59,48 +56,40 @@ class RemovePIITest : CoolTest() {
 
         if (!testIdsRemoved(inputBundle, outputContent)) {
             ugly("Not all IDs removed. Test failed.")
-            Path(outputFilePath).deleteIfExists()
             return false
         }
 
         if (!testPatientPIIRemoved(inputBundle, outputBundle)) {
             ugly("Not all patient PII removed. Test failed.")
-            Path(outputFilePath).deleteIfExists()
             return false
         }
 
         if (!testOrganizationPIIRemoved(inputBundle, outputBundle)) {
             ugly("Not all organization PII removed. Test failed.")
-            Path(outputFilePath).deleteIfExists()
             return false
         }
 
         if (!testPractitionerPIIRemoved(inputBundle, outputBundle)) {
             ugly("Not all practitioner PII removed. Test failed.")
-            Path(outputFilePath).deleteIfExists()
             return false
         }
 
         if (!testServiceRequestPIIRemoved(inputBundle, outputBundle)) {
             ugly("Not all service request PII removed. Test failed.")
-            Path(outputFilePath).deleteIfExists()
             return false
         }
 
         if (!testObservationPIIRemoved(inputBundle, outputBundle)) {
             ugly("Not all observation PII removed. Test failed.")
-            Path(outputFilePath).deleteIfExists()
             return false
         }
 
         if (!testSpecimenPIIRemoved(inputBundle, outputBundle)) {
             ugly("Not all specimen PII removed. Test failed.")
-            Path(outputFilePath).deleteIfExists()
             return false
         }
 
         ugly("PII removal test passed")
-        Path(outputFilePath).deleteIfExists()
         return true
     }
 

@@ -9,7 +9,6 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.HttpMethod
-import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
@@ -130,11 +129,7 @@ class ActionHistoryTests {
         val actionHistory1 = ActionHistory(TaskAction.receive)
         val blobInfo1 = BlobAccess.BlobInfo(MimeFormat.CSV, "myUrl", byteArrayOf(0x11, 0x22))
         val payloadName = "quux"
-        actionHistory1.trackExternalInputReport(
-            report1,
-            blobInfo1,
-            payloadName
-        )
+        actionHistory1.trackExternalInputReport(report1, blobInfo1, payloadName)
         assertNotNull(actionHistory1.reportsReceived[report1.id])
         val reportFile = actionHistory1.reportsReceived[report1.id]!!
         assertThat(reportFile.schemaName).isEqualTo("one")
@@ -148,12 +143,7 @@ class ActionHistoryTests {
         assertThat(actionHistory1.action.externalName).isEqualTo(payloadName)
 
         // not allowed to track the same report twice.
-        assertFailure {
-            actionHistory1.trackExternalInputReport(
-                report1,
-                blobInfo1
-            )
-        }
+        assertFailure { actionHistory1.trackExternalInputReport(report1, blobInfo1) }
     }
 
     @Test
@@ -455,10 +445,9 @@ class ActionHistoryTests {
             OffsetDateTime.now()
         )
         mockkObject(BlobAccess.Companion)
-        mockkObject(BlobUtils)
         val blobUrls = mutableListOf<String>()
         every { BlobAccess.uploadBlob(capture(blobUrls), any()) } returns "http://blobUrl"
-        every { BlobUtils.sha256Digest(any<ByteArray>()) } returns byteArrayOf()
+        every { BlobAccess.sha256Digest(any()) } returns byteArrayOf()
         every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
         val header = mockk<WorkflowEngine.Header>()
         every {
@@ -695,10 +684,9 @@ class ActionHistoryTests {
             OffsetDateTime.now()
         )
         mockkObject(BlobAccess.Companion)
-        mockkObject(BlobUtils)
         val blobUrls = mutableListOf<String>()
         every { BlobAccess.uploadBlob(capture(blobUrls), any()) } returns "http://blobUrl"
-        every { BlobUtils.sha256Digest(any()) } returns byteArrayOf()
+        every { BlobAccess.sha256Digest(any()) } returns byteArrayOf()
         every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
         val header = mockk<WorkflowEngine.Header>()
         every {

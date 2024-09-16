@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.cli
 
-import com.fasterxml.jackson.databind.json.JsonMapper
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.parameters.options.option
@@ -57,16 +56,8 @@ class PIIRemovalCommands : CliktCommand(
         if (inputFile.extension.uppercase() != "FHIR") {
             throw CliktError("File ${inputFile.absolutePath} is not a FHIR file.")
         }
-        val bundle = FhirTranscoder.decode(contents)
+        var bundle = FhirTranscoder.decode(contents)
 
-        // Write the output to the screen or a file.
-        if (outputFile != null) {
-            outputFile!!.writeText(removePii(bundle), Charsets.UTF_8)
-        }
-        echo("Wrote output to ${outputFile!!.absolutePath}")
-    }
-
-    fun removePii(bundle: Bundle): String {
         bundle.entry.map { it.resource }.filterIsInstance<Patient>()
             .forEach { patient ->
                 patient.name.forEach { name ->
@@ -85,16 +76,16 @@ class PIIRemovalCommands : CliktCommand(
 
         bundle.entry.map { it.resource }.filterIsInstance<Organization>()
             .forEach { organization ->
-                organization.address.forEach { address ->
-                    address.line = mutableListOf(StringType(getFakeValueForElementCall("STREET")))
-                }
-                organization.telecom.forEach { telecom ->
-                    handleTelecom(telecom)
-                }
-                organization.contact.forEach { contact ->
-                    handleOrganizationalContact(contact)
-                }
+            organization.address.forEach { address ->
+                address.line = mutableListOf(StringType(getFakeValueForElementCall("STREET")))
             }
+            organization.telecom.forEach { telecom ->
+                handleTelecom(telecom)
+            }
+            organization.contact.forEach { contact ->
+               handleOrganizationalContact(contact)
+            }
+        }
 
         bundle.entry.map { it.resource }.filterIsInstance<Practitioner>()
             .forEach { practitioner ->
@@ -112,14 +103,18 @@ class PIIRemovalCommands : CliktCommand(
                 }
             }
 
-        val bundleAfterTransform = FhirTransformer(
-            "classpath:/metadata/fhir_transforms/common/remove-pii-enrichment.yml"
-        ).process(bundle)
+        bundle = FhirTransformer("classpath:/metadata/fhir_transforms/common/remove-pii-enrichment.yml").process(bundle)
 
         val jsonObject = JacksonMapperUtilities.defaultMapper
-            .readValue(FhirTranscoder.encode(bundleAfterTransform), Any::class.java)
-        val prettyText = JsonMapper.builder().build().writeValueAsString(jsonObject)
-        return replaceIds(bundleAfterTransform, prettyText)
+            .readValue(FhirTranscoder.encode(bundle), Any::class.java)
+        var prettyText = JacksonMapperUtilities.defaultMapper.writeValueAsString(jsonObject)
+        prettyText = replaceIds(bundle, prettyText)
+
+        // Write the output to the screen or a file.
+        if (outputFile != null) {
+            outputFile!!.writeText(prettyText, Charsets.UTF_8)
+        }
+        echo("Wrote output to ${outputFile!!.absolutePath}")
     }
 
     /**
@@ -190,10 +185,8 @@ class PIIRemovalCommands : CliktCommand(
             bundle,
             path
         ).forEach { resourceId ->
-            if (resourceId.primitiveValue() != null) {
-                val newIdentifier = getFakeValueForElementCall("UUID")
-                return prettyText.replace(resourceId.primitiveValue(), newIdentifier, true)
-            }
+            val newIdentifier = getFakeValueForElementCall("UUID")
+            return prettyText.replace(resourceId.primitiveValue(), newIdentifier, true)
         }
         return prettyText
     }

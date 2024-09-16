@@ -977,64 +977,6 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         assertThat(retryItems).isNull()
     }
 
-    // Epic localhost end-to-end testing
-    private val oracleRlNRestTransport = RESTTransportType(
-        "https://sendURL",
-        "",
-        authType = "apiKey",
-        headers = mapOf(
-            "Content-Type" to "text/plain",
-            "shared-api-key" to "From Vault"
-        )
-    )
-
-    val expectedHttpHeaders = mapOf(
-        "Content-Type" to "text/plain",
-        "shared-api-key" to "oracle123",
-        "System_ID" to "test-user",
-        "Key" to "oracle123"
-    )
-
-    @Test
-    fun `test transport postReport with valid message to oracle-rln--etor-nbs-results`() {
-        val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientAuthOk()))
-
-        // Given:
-        //      lookupDefaultCredential returns mock UserApiKeyCredential object to allow
-        //      the getAuthTokenWIthUserApiKey() to be called.
-        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
-            UserApiKeyCredential(
-                "test-user",
-                "oracle123"
-            )
-        )
-
-        // When:
-        //      RESTTransport is called WITH flexionRestTransportType which has transport.parameters
-        val retryItems = mockRestTransport.send(
-            oracleRlNRestTransport, header, reportId, "test", null,
-            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true)
-        )
-
-        // Then:
-        //      postReport should be called with correct httpheaders' values as given.
-        verify {
-            runBlocking {
-                mockRestTransport.postReport(
-                    any(),
-                    any(),
-                    any(),
-                    expectedHttpHeaders,
-                    any(),
-                    any(),
-                    any()
-                )
-            }
-        }
-        assertThat(retryItems).isNull()
-    }
-
     @Test
     fun `test post vs put http client`() {
         val logger = mockkClass(Logger::class)

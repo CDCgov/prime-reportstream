@@ -46,7 +46,6 @@ enum class ErrorCode {
     INVALID_MSG_VALIDATION,
     INVALID_MSG_CONVERSION,
     UNKNOWN,
-    SETTINGS_NOT_FOUND,
 }
 
 /**

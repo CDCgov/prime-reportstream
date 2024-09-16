@@ -8,8 +8,6 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
-import gov.cdc.prime.reportstream.shared.BlobUtils
-import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -42,6 +40,7 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
 import gov.cdc.prime.router.fhirengine.engine.FhirReceiverFilterQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
@@ -129,7 +128,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 "type": "${action.literal}",
                 "reportId": "${report.id}",
                 "blobURL": "${report.bodyURL}",
-                "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+                "digest": "${BlobAccess.digestToString(BlobAccess.sha256Digest(blobContents.toByteArray()))}",
                 "blobSubFolderName": "${sender.fullName}",
                 "topic": "${sender.topic.jsonVal}",
                 "schemaName": "${sender.schemaName}" 
@@ -227,7 +226,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                     FhirReceiverFilterQueueMessage(
                         report.reportId,
                         report.bodyUrl,
-                        BlobUtils.digestToString(report.blobDigest),
+                        BlobAccess.digestToString(report.blobDigest),
                         "phd.fhir-elr-no-transform",
                         UniversalPipelineTestUtils.fhirSenderWithNoTransform.topic,
                         "phd.x"
@@ -235,7 +234,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                     FhirReceiverFilterQueueMessage(
                         report.reportId,
                         report.bodyUrl,
-                        BlobUtils.digestToString(report.blobDigest),
+                        BlobAccess.digestToString(report.blobDigest),
                         "phd.fhir-elr-no-transform",
                         UniversalPipelineTestUtils.fhirSenderWithNoTransform.topic,
                         "phd.y"
@@ -318,7 +317,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             val expectedQueueMessage = FhirReceiverFilterQueueMessage(
                 routedReport.reportId,
                 routedReport.bodyUrl,
-                BlobUtils.digestToString(routedReport.blobDigest),
+                BlobAccess.digestToString(routedReport.blobDigest),
                 "phd.fhir-elr-no-transform",
                 UniversalPipelineTestUtils.fhirSenderWithNoTransform.topic,
                 "phd.x"

@@ -173,13 +173,6 @@ object UniversalPipelineTestUtils {
         topic = Topic.FULL_ELR,
         schemaName = "classpath:/metadata/fhir_transforms/senders/test-sender-transform.yml"
     )
-    val csvSenderWithNoTransform = UniversalPipelineSender(
-        "elr-csv-sender",
-        "phd",
-        MimeFormat.CSV,
-        CustomerStatus.ACTIVE,
-        topic = Topic.FULL_ELR,
-    )
     val hl7SenderWithNoTransform = UniversalPipelineSender(
         "hl7-elr-no-transform",
         "phd",
@@ -201,12 +194,6 @@ object UniversalPipelineTestUtils {
         CustomerStatus.ACTIVE,
         topic = Topic.FULL_ELR,
     )
-    val fhirSenderWithNoTransformInactive = UniversalPipelineSender(
-        "fhir-elr-no-transform-inactive",
-        "phd",
-        MimeFormat.FHIR,
-        topic = Topic.FULL_ELR,
-    )
     val fhirSenderWithSendOriginal = UniversalPipelineSender(
         "fhir-elr-send_original",
         "phd",
@@ -226,10 +213,8 @@ object UniversalPipelineTestUtils {
         senders = listOf(
             hl7Sender,
             fhirSender,
-            csvSenderWithNoTransform,
             hl7SenderWithNoTransform,
             fhirSenderWithNoTransform,
-            fhirSenderWithNoTransformInactive,
             senderWithValidation
         ),
         receivers = listOf(
@@ -275,7 +260,6 @@ object UniversalPipelineTestUtils {
             assertThat(itemLineages).hasSize(expected)
             assertThat(itemLineages.map { it.childIndex }).isEqualTo(MutableList(expected) { 1 })
 
-            // itemCount is on the report created by the test. It will not be null.
             if (parent.itemCount > 1) {
                 assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expected).toList())
             } else {

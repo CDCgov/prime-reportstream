@@ -20,7 +20,6 @@ import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.models.BlobDownloadContentResponse
 import com.azure.storage.blob.models.BlobDownloadResponse
 import com.azure.storage.blob.models.BlobItem
-import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
@@ -550,14 +549,14 @@ class BlobAccessTests {
                 Event.EventAction.NONE
             )
         } returns
-            BlobAccess.BlobInfo(report1.bodyFormat, testUrl, BlobUtils.sha256Digest(testBytes))
+            BlobAccess.BlobInfo(report1.bodyFormat, testUrl, BlobAccess.sha256Digest(testBytes))
 
         val testBlob = BlobAccess()
         val result = testBlob.uploadReport(report1, testBytes)
 
         assertThat(result.format).isEqualTo(testFormat)
         assertThat(result.blobUrl).isEqualTo(testUrl)
-        assertThat(result.digest).isEqualTo(BlobUtils.sha256Digest(testBytes))
+        assertThat(result.digest).isEqualTo(BlobAccess.sha256Digest(testBytes))
     }
 
     @Test
@@ -598,7 +597,7 @@ class BlobAccessTests {
             assertThat(result.format).isEqualTo(testFormat)
             // test blobUrl is as expected for the EventAction
             assertThat(result.blobUrl).contains(BlobAccess.directoryForAction(it))
-            assertThat(result.digest).isEqualTo(BlobUtils.sha256Digest(testBytes))
+            assertThat(result.digest).isEqualTo(BlobAccess.sha256Digest(testBytes))
         }
     }
 
@@ -778,7 +777,7 @@ class BlobAccessTests {
 
     @Test
     fun `test build container metadata`() {
-        val defaultEnvVar = Environment.get().storageEnvVar
+        val defaultEnvVar = Environment.get().blobEnvVar
         val testEnvVar = "testenv"
         val testContainer = "testcontainer"
 
