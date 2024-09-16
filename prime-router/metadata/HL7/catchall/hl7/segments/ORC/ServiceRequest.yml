@@ -348,6 +348,37 @@ subject:
   expressionType: resource
   specs: $Patient
 
+#specimen:
+#  valueOf: datatype/Reference
+#  expressionType: resource
+#  specs: $Specimen
+
+# this should work
+specimen:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - valueOf: datatype/Reference
+      generateList: true
+      expressionType: resource
+      specs: $Specimen
+      useGroup: true
+
+
+# how to have this only work for OML?
+# this now works, and will create link, but also we end up with duplicate specimen
+# this only generates a good specimen when 1) $Specimen is after $ServiceRequest in OML_021.yml hl7->fhir
+# and 2) spm is included in SR addnl segments
+#specimen:
+#  valueOf: segments/SPM/Specimen
+#  expressionType: reference
+#  specs: $Specimen
+
+supportingInfo:
+  valueOf: segments/OBX/Observation
+  expressionType: reference
+  specs: $Observation
+
 note:
   valueOf: segments/NTE/Annotation
   expressionType: resource

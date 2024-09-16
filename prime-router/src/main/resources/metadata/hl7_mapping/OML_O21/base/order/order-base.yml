@@ -2,18 +2,11 @@
 
 elements:
 
+  - name: common-order
+    required: false # todo revert
+    schema: classpath:/metadata/hl7_mapping/resources/ServiceRequest/ORC.yml
+    constants:
+      hl7Order: '/ORDER(%{orderIndex})/ORC'
+
   - name: observation-request-observation
     schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/observation-request/observation-request-base.yml
-
-  # ORC is required, but together, can't require either only SR or DR by itself
-  - name: common-order
-    required: true
-    schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/common-order.yml
-
-# multiples allowed
-  - name: order-participant-information
-    resource: 'Bundle.entry.resource.ofType(Device).where(udiCarrier.exists())' # correct?
-    constants:
-      hl7SegmentGroup: '/ORDER/PRT'
-    schema: classpath:/metadata/hl7_mapping/resources/Device/PRT.yml
-  #    resourceIndex: prtDeviceIndex #needed?

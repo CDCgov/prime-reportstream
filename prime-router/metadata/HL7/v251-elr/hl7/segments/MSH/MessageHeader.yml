@@ -85,7 +85,7 @@ extension_messageHeader:
   generateList: true
   expressionType: nested
   expressions:
-    - condition: $msh2 NOT_NULL && $msh2 EQUALS_STRING ^~\&#
+    - condition: $msh2 NOT_NULL && $msh2 EQUALS_STRING ^~\&# # only adding extension when 5 chars, but 5 chars also breaks the fhirdata script
       expressionType: nested
       vars:
         msh2: String, MSH.2

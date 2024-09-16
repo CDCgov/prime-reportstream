@@ -88,7 +88,7 @@ elements:
   - name: observation-value-numeric
     resource: '%resource.value'
     condition: '%resource.exists() and %resource is Ratio'
-    schema: classpath:/metadata/hl7_mapping/common/datatype/sn-structured-numeric.yml
+    schema: classpath:/metadata/hl7_mapping/common/datatype/sn-structured-numeric.yml # no field reference?!?!?
 
   - name: observation-units-identifier
     condition: >

@@ -2,28 +2,14 @@
 
 elements:
 
-  - name: observation-request-observation
-    schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/observation-request/observation/observation.yml
-
-  - name: observation-request-specimen
-    schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/observation-request/specimen/specimen.yml
-
   - name: observation-request
     required: true
     schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/observation-request/observation-request.yml
 
-  # multiples allowed
-  - name: observation-request-participation-information
-    resource: 'Bundle.entry.resource.ofType(Device).where(udiCarrier.exists())' # correct?
-    constants:
-      hl7SegmentGroup: '/ORDER/OBSERVATION_REQUEST'
-    schema: classpath:/metadata/hl7_mapping/resources/Device/PRT.yml
-      #    resourceIndex: prtDeviceIndex # needed?
+# no observations are populated from here
+  - name: observation-request-observation
+    schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/observation-request/observation/observation.yml
 
-  # multiples allowed
-  - name: observation-request-note
-    resource: '%resource.extension(%`rsext-patient-notes`).value'
-    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
-    resourceIndex: noteIndex
-    constants:
-      hl7NotePath: '%{hl7SegmentGroup}'
+# spm is populated from here
+  - name: observation-request-specimen # i think this whole yml is fucked for some reason
+    schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/observation-request/specimen/specimen.yml

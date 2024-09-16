@@ -2,13 +2,17 @@
 
 elements:
 
-  # todo: go through mappings and verify oml and oru both map orc to SR/DR in same way, should be same though??
   - name: observation-request-service-request
-    resource: '%resource.basedOn.resolve()'
+    required: true
     schema: classpath:/metadata/hl7_mapping/resources/ServiceRequest/OBR.yml
-
-  - name: observation-request-diagnostic-report
-    resource: '%resource'
-    schema: classpath:/metadata/hl7_mapping/resources/DiagnosticReport/OBR.yml
     constants:
-      obrFieldPath: '/ORDER/OBSERVATION_REQUEST/OBR'
+      obrFieldPath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBR'
+
+  # todo OBR Specimen, allgedly is mapped in ORU, cannot find FHIR->HL7 Mappings
+
+  - name: observation-request-note
+    resource: '%resource.note'
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
+    resourceIndex: noteIndex
+    constants:
+      hl7NotePath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/NTE'

@@ -1,6 +1,7 @@
 # $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
 
 elements:
+   # TODO DELETE, unnecessary
 
   # todo: go through mappings and verify oml and oru both map orc to SR/DR in same way, should be same though??
   - name: common-order-service-request

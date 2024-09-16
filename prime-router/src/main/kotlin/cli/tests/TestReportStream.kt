@@ -1061,6 +1061,7 @@ abstract class CoolTest {
                     File("$smoketestDir/valid_ORM_FEBSLACK.hl7"),
                     ETORSLSender,
                     arrayListOf(
+                        // this expected hl7 is skipping the ETOR black box
                         Pair(ETORSLReceiver, File("$smoketestDir/Expected_HL7_to_HL7_ETOR_TI.hl7")),
                         Pair(ETORTIFOReceiver, File("$smoketestDir/Expected_HL7_to_FHIR_ETOR_TI.fhir"))
                     )

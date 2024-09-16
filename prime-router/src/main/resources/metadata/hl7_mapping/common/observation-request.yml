@@ -27,8 +27,8 @@ elements:
     schema: classpath:/metadata/hl7_mapping/common/datatype/ce-coded-with-exceptions.yml
 
   - name: result-interpreter
-    resource: '%resource.resultsInterpreter.resolve()'
-    constants:
+    resource: '%resource.resultsInterpreter.resolve()' # is this correct? seems like this is for ServiceRequests but this field is DiagnosticReport
+    constants: #
       hl7NDLField: '%{fieldPath}-32'
     schema: classpath:/metadata/hl7_mapping/resources/PractitionerRole/NDL.yml
 
