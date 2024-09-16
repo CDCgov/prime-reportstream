@@ -37,7 +37,7 @@ class UniversalBatchFunction(
     ) {
         try {
             logger.trace("UniversalBatchFunction starting.  Message: $message")
-            val event = Event.parseQueueMessage(message) as BatchEvent
+            val event = Event.parsePrimeRouterQueueMessage(message) as BatchEvent
             if (event.eventAction != Event.EventAction.BATCH) {
                 logger.error("UniversalBatchFunction received a $message")
                 return

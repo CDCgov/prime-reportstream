@@ -11,6 +11,8 @@ import com.azure.storage.blob.models.BlobListDetails
 import com.azure.storage.blob.models.BlobStorageException
 import com.azure.storage.blob.models.DownloadRetryOptions
 import com.azure.storage.blob.models.ListBlobsOptions
+import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.BlobUtils.sha256Digest
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
@@ -24,7 +26,6 @@ import java.io.File
 import java.net.URL
 import java.net.URLDecoder
 import java.nio.charset.Charset
-import java.security.MessageDigest
 import java.time.Duration
 
 const val defaultBlobContainerName = "reports"
@@ -134,7 +135,7 @@ class BlobAccess() : Logging {
 
     companion object : Logging {
         private const val defaultBlobDownloadRetryVar = "AzureBlobDownloadRetryCount"
-        private val defaultEnvVar = Environment.get().blobEnvVar
+        private val defaultEnvVar = Environment.get().storageEnvVar
         val defaultBlobMetadata by lazy {
             BlobContainerMetadata.build(
                 defaultBlobContainerName,
@@ -323,6 +324,21 @@ class BlobAccess() : Logging {
         }
 
         /**
+         * Download the file associated with a RawSubmission message
+         */
+        fun downloadBlob(
+            blobUrl: String,
+            digest: String,
+        ): String {
+            val blobContent = downloadBlobAsByteArray(blobUrl)
+            val localDigest = BlobUtils.digestToString(sha256Digest(blobContent))
+            check(digest == localDigest) {
+                "Downloaded file does not match expected file\n$digest | $localDigest"
+            }
+            return String(blobContent)
+        }
+
+        /**
          * Download the blob at the given [blobUrl] as a ByteArray
          */
         fun downloadBlobAsByteArray(
@@ -502,29 +518,6 @@ class BlobAccess() : Logging {
                 }
                 containerClient
             }
-        }
-
-        /**
-         * Create a hex string style of a digest.
-         */
-        fun digestToString(digest: ByteArray): String {
-            return digest.joinToString(separator = "", limit = 40) { Integer.toHexString(it.toInt()) }
-        }
-
-        /**
-         * Hash a ByteArray [input] with SHA 256
-         */
-        fun sha256Digest(input: ByteArray): ByteArray {
-            return hashBytes("SHA-256", input)
-        }
-
-        /**
-         * Hash a ByteArray [input] with method [type]
-         */
-        private fun hashBytes(type: String, input: ByteArray): ByteArray {
-            return MessageDigest
-                .getInstance(type)
-                .digest(input)
         }
     }
 }
