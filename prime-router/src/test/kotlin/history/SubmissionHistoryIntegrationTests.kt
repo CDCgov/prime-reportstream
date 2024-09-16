@@ -142,7 +142,7 @@ class SubmissionHistoryIntegrationTests : Logging {
             "org",
             MimeFormat.FHIR,
             CustomerStatus.ACTIVE,
-            "classpath:/metadata/fhir_transforms/senders/baseline-sender-transform.yml",
+            "",
             topic = Topic.FULL_ELR
         )
 
